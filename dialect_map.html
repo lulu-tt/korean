@@ -66,25 +66,15 @@ body { background: #ffffff; }
 
 /* ── 비교 영역을 줄여 확보한 공간만큼 지도 높이 확대 ── */
 .map__ol { height: 660px; }
+/* 지도 클릭 시 브라우저 기본 포커스 외곽선(파란 줄) 숨김 — 키보드 포커스일 때만 표시 */
+.map__ol:focus { outline: none; }
+.map__ol:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.map__ol .ol-viewport:focus, .map__ol canvas:focus { outline: none; }
+.ovdot { display: inline-block; width: 11px; height: 11px; border-radius: 3px; vertical-align: middle; margin: 0 2px; }
 
-/* ── 상단 지도 설정 툴바 (지도 레이어·스타일을 지도 위가 아닌 상단에 배치) ── */
-.wordbar { padding: 14px 20px; gap: 16px; row-gap: 12px; align-items: center; justify-content: flex-start; flex-wrap: wrap; }
+/* ── 지도 설정 팝오버 체크박스 ── */
 .mschk { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; white-space: nowrap; }
 .mschk__cb { width: 16px; height: 16px; accent-color: var(--blue); cursor: pointer; }
-.dlbtns { display: flex; gap: 6px; }
-.dlbtn { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: #475569; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 7px 11px; cursor: pointer; font-family: inherit; transition: 0.15s; }
-.dlbtn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
-.dlbtn i { font-size: 15px; }
-.msgroup { display: flex; align-items: center; gap: 10px; }
-.msgroup__label { font-weight: 800; font-size: 13px; color: var(--text); white-space: nowrap; }
-.mslayers { display: flex; align-items: center; gap: 14px; }
-.mslayer { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: #475569; white-space: nowrap; }
-.wordbar .switch { width: 38px; height: 22px; }
-.wordbar .switch::after { width: 18px; height: 18px; }
-.wordbar .switch.is-on::after { left: 18px; }
-.ms-sep { width: 1px; height: 28px; background: var(--line); }
-.wordbar .mapstyles { width: 168px; }
-.wordbar__actions { margin-left: auto; }
 
 /* ── 최근 본 단어 카드 (오늘의 지역어 대체) ── */
 .recentcard { padding: 20px 22px; }
@@ -135,13 +125,15 @@ body { background: #ffffff; }
 .dfbadge--amber { background: #fef3c7; color: #d97706; }
 .dfchev { color: #94a3b8; font-size: 18px; transition: transform 0.2s; flex-shrink: 0; }
 .dfitem.is-open .dfchev { transform: rotate(180deg); }
-.dfitem__panel { display: none; padding: 0 18px 16px; }
+.dfitem__panel { display: none; padding: 4px 18px 16px; }
+.dfitem__panel .dfvarlist { border-top: 1px dashed var(--line); padding-top: 4px; }
 .dfitem.is-open .dfitem__panel { display: block; }
 .dfitem__desc { font-size: 13px; color: #64748b; line-height: 1.5; border-top: 1px dashed var(--line); padding-top: 12px; margin-bottom: 12px; }
 .dfvarlist { display: flex; flex-direction: column; }
-.dfvarrow { display: flex; align-items: center; gap: 11px; padding: 11px 4px; border-top: 1px solid #f1f5f9; }
+.dfvarrow { display: flex; align-items: center; gap: 9px; padding: 11px 4px; border-top: 1px solid #f1f5f9; }
 .dfvarrow:first-child { border-top: none; }
 .dfvarcb { width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--blue); cursor: pointer; }
+.dfvarrow__mark { flex-shrink: 0; display: block; }
 .dfvarrow__word { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; color: #334155; }
 .dfvarrow__n { font-size: 12px; font-weight: 700; color: #94a3b8; }
 
@@ -321,9 +313,6 @@ body { background: #ffffff; }
 .popmenu__sec { padding: 10px 0; border-top: 1px solid #f1f5f9; }
 .popmenu__sec:first-child { border-top: none; padding-top: 0; }
 .popmenu__label { font-size: 12px; font-weight: 800; color: #94a3b8; margin-bottom: 10px; letter-spacing: 0.02em; }
-.popmenu .mslayers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
-.popmenu .mslayer { justify-content: space-between; display: flex; }
-.popmenu .mapstyles { width: 100%; }
 .popmenu .mschk { display: flex; margin-bottom: 8px; }
 .popmenu .mschk:last-child { margin-bottom: 0; }
 .dlmenu__item { display: flex; align-items: center; gap: 10px; width: 100%; background: none; border: none; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 700; color: #334155; cursor: pointer; font-family: inherit; text-align: left; transition: 0.15s; }
@@ -371,8 +360,6 @@ body { background: #ffffff; }
 .toast { position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(20px); z-index: 999; background: #0f172a; color: #fff; font-size: 14px; font-weight: 600; padding: 12px 22px; border-radius: 99px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35); opacity: 0; pointer-events: none; transition: 0.25s ease; display: flex; align-items: center; gap: 8px; }
 .toast.is-show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast i { color: #4ade80; font-size: 17px; }
-
-.searchhint { font-size: 12px; color: var(--muted); margin: 8px 2px 0; line-height: 1.5; }
 
 /* ── 우측: 범례 탭 보조 문구 / 방언형 듣기 버튼 ── */
 .dform__hint { display: flex; gap: 6px; align-items: flex-start; margin-top: 12px; padding: 9px 12px; background: #f8fafc; border-radius: 10px; font-size: 12px; color: #64748b; line-height: 1.5; }
@@ -475,20 +462,7 @@ body { background: #ffffff; }
   <section class="shell" aria-label="지역어 지도 개선 UI">
     <!-- LEFT -->
     <aside class="side" aria-label="탐색">
-      <form class="searchbar" id="searchForm">
-        <label class="sr-only" for="q">검색어 입력</label>
-        <input id="q" name="q" class="searchbar__input" placeholder="표준어·방언 어느 쪽이든 검색" autocomplete="off" />
-        <button class="searchbar__btn" type="submit" aria-label="검색">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
-            <path d="M10.8 18.2a7.4 7.4 0 1 1 0-14.8 7.4 7.4 0 0 1 0 14.8Z" stroke="currentColor" stroke-width="2" />
-            <path d="M21 21l-4.2-4.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-          </svg>
-        </button>
-      </form>
-      <p class="searchhint"><i class="ti ti-arrows-exchange" aria-hidden="true"></i> ‘정지’를 검색하면 표준어 ‘부엌’의 지도를 찾아드립니다.</p>
-
       <section class="card card--side" aria-label="가나다로 찾기">
-        <div class="card__title">가나다로 찾기</div>
         <div class="catbox" id="catbox">
           <div class="initials" role="tablist" aria-label="초성 선택">
             <button class="initial is-active" type="button" data-initial="all" role="tab" aria-selected="true">전체</button>
@@ -511,73 +485,504 @@ body { background: #ffffff; }
           <div class="wlist" id="wlist" role="listbox" aria-label="단어 목록" tabindex="0">
             <div class="wgroup" data-initial-section="ㄱ">
               <div class="wgroup__title"># 가</div>
-              <button class="witem is-active" type="button" role="option" aria-selected="true" data-word="가위">
+              <button class="witem is-active" type="button" role="option" aria-selected="true" data-word="가위" data-id="50308">
                 <span class="witem__word">가위</span>
-                <span class="witem__count">4개</span>
               </button>
-              <button class="witem" type="button" role="option" aria-selected="false" data-word="가을">
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="가을" data-id="50526">
                 <span class="witem__word">가을</span>
-                <span class="witem__count">8개</span>
               </button>
-              <button class="witem" type="button" role="option" aria-selected="false" data-word="간장">
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="간장" data-id="50299">
                 <span class="witem__word">간장</span>
-                <span class="witem__count">6개</span>
               </button>
-              <button class="witem" type="button" role="option" aria-selected="false" data-word="갈치">
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="갈치" data-id="50552">
                 <span class="witem__word">갈치</span>
-                <span class="witem__count">9개</span>
               </button>
-              <button class="witem" type="button" role="option" aria-selected="false" data-word="갈퀴">
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="갈퀴" data-id="50311">
                 <span class="witem__word">갈퀴</span>
-                <span class="witem__count">11개</span>
               </button>
-              <button class="witem" type="button" role="option" aria-selected="false" data-word="감기">
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="감기" data-id="50398">
                 <span class="witem__word">감기</span>
-                <span class="witem__count">7개</span>
               </button>
-              <button class="witem" type="button" role="option" aria-selected="false" data-word="강아지">
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="강아지" data-id="50506">
                 <span class="witem__word">강아지</span>
-                <span class="witem__count">5개</span>
               </button>
-              <button class="witem" type="button" role="option" aria-selected="false" data-word="개미">
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="개미" data-id="50561">
                 <span class="witem__word">개미</span>
-                <span class="witem__count">6개</span>
               </button>
-              <button class="witem" type="button" role="option" aria-selected="false" data-word="거지">
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="거지" data-id="50307">
                 <span class="witem__word">거지</span>
-                <span class="witem__count">8개</span>
               </button>
-              <button class="witem" type="button" role="option" aria-selected="false" data-word="고구마">
-                <span class="witem__word">고구마</span>
-                <span class="witem__count">10개</span>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="건더기" data-id="50439">
+                <span class="witem__word">건더기</span>
               </button>
-              <button class="witem" type="button" role="option" aria-selected="false" data-word="고드름">
-                <span class="witem__word">고드름</span>
-                <span class="witem__count">12개</span>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="겨" data-id="50446">
+                <span class="witem__word">겨</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="겨드랑" data-id="50397">
+                <span class="witem__word">겨드랑</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="겨울" data-id="50522">
+                <span class="witem__word">겨울</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="곁두리" data-id="50287">
+                <span class="witem__word">곁두리</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="계집아이" data-id="50399">
+                <span class="witem__word">계집아이</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="고기" data-id="50507">
+                <span class="witem__word">고기</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="고삐" data-id="50479">
+                <span class="witem__word">고삐</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="고양이" data-id="50320">
+                <span class="witem__word">고양이</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="고춧가루" data-id="50428">
+                <span class="witem__word">고춧가루</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="곤지곤지" data-id="50401">
+                <span class="witem__word">곤지곤지</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="구더기" data-id="50509">
+                <span class="witem__word">구더기</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="구레나룻" data-id="50402">
+                <span class="witem__word">구레나룻</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="구멍" data-id="50433">
+                <span class="witem__word">구멍</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="구유" data-id="50288">
+                <span class="witem__word">구유</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="귀이개" data-id="50396">
+                <span class="witem__word">귀이개</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="귀지" data-id="50312">
+                <span class="witem__word">귀지</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="귀청" data-id="50292">
+                <span class="witem__word">귀청</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="그끄저께" data-id="50327">
+                <span class="witem__word">그끄저께</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="그네" data-id="50405">
+                <span class="witem__word">그네</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="그을음" data-id="50303">
+                <span class="witem__word">그을음</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="그저께" data-id="50326">
+                <span class="witem__word">그저께</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="글피" data-id="50325">
+                <span class="witem__word">글피</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="기지개" data-id="50426">
+                <span class="witem__word">기지개</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="길마" data-id="50310">
+                <span class="witem__word">길마</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="까끄라기" data-id="50429">
+                <span class="witem__word">까끄라기</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="꽹과리" data-id="50476">
+                <span class="witem__word">꽹과리</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="꾸다" data-id="50477">
+                <span class="witem__word">꾸다</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="꾸러미" data-id="50478">
+                <span class="witem__word">꾸러미</span>
               </button>
             </div>
 
             <div class="wgroup" data-initial-section="ㄴ">
               <div class="wgroup__title"># 나</div>
-              <button class="witem" type="button" role="option" aria-selected="false" data-word="나비">
-                <span class="witem__word">나비</span>
-                <span class="witem__count">6개</span>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="냄새" data-id="50410">
+                <span class="witem__word">냄새</span>
               </button>
-              <button class="witem" type="button" role="option" aria-selected="false" data-word="냄비">
-                <span class="witem__word">냄비</span>
-                <span class="witem__count">7개</span>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="노루" data-id="50555">
+                <span class="witem__word">노루</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="노을" data-id="50323">
+                <span class="witem__word">노을</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="놉" data-id="50458">
+                <span class="witem__word">놉</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="누나" data-id="50317">
+                <span class="witem__word">누나</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="누에" data-id="50505">
+                <span class="witem__word">누에</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="누이" data-id="50548">
+                <span class="witem__word">누이</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="눈두덩" data-id="50412">
+                <span class="witem__word">눈두덩</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="눕히다" data-id="50389">
+                <span class="witem__word">눕히다</span>
               </button>
             </div>
 
             <div class="wgroup" data-initial-section="ㄷ">
               <div class="wgroup__title"># 다</div>
-              <button class="witem" type="button" role="option" aria-selected="false" data-word="다리">
-                <span class="witem__word">다리</span>
-                <span class="witem__count">9개</span>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="다듬잇돌" data-id="50473">
+                <span class="witem__word">다듬잇돌</span>
               </button>
-              <button class="witem" type="button" role="option" aria-selected="false" data-word="달걀">
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="다르다" data-id="50314">
+                <span class="witem__word">다르다</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="다리미" data-id="50309">
+                <span class="witem__word">다리미</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="달걀" data-id="50440">
                 <span class="witem__word">달걀</span>
-                <span class="witem__count">6개</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="덤" data-id="50487">
+                <span class="witem__word">덤</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="돌" data-id="50527">
+                <span class="witem__word">돌</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="동풍" data-id="50523">
+                <span class="witem__word">동풍</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="돼지" data-id="50554">
+                <span class="witem__word">돼지</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="뒤주" data-id="50300">
+                <span class="witem__word">뒤주</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="딸꾹질" data-id="50315">
+                <span class="witem__word">딸꾹질</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="똬리" data-id="50608">
+                <span class="witem__word">똬리</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="뚜껑" data-id="50431">
+                <span class="witem__word">뚜껑</span>
+              </button>
+            </div>
+
+            <div class="wgroup" data-initial-section="ㅁ">
+              <div class="wgroup__title"># 마</div>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="마루" data-id="50434">
+                <span class="witem__word">마루</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="매달다" data-id="50432">
+                <span class="witem__word">매달다</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="매미" data-id="50560">
+                <span class="witem__word">매미</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="멍석" data-id="50290">
+                <span class="witem__word">멍석</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="메뚜기" data-id="50551">
+                <span class="witem__word">메뚜기</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="메밀" data-id="50437">
+                <span class="witem__word">메밀</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="멱둥구미" data-id="50474">
+                <span class="witem__word">멱둥구미</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="모기" data-id="50508">
+                <span class="witem__word">모기</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="모래" data-id="50524">
+                <span class="witem__word">모래</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="모레" data-id="50324">
+                <span class="witem__word">모레</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="모이" data-id="50321">
+                <span class="witem__word">모이</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="목말" data-id="50316">
+                <span class="witem__word">목말</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="무" data-id="50295">
+                <span class="witem__word">무</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="무릎" data-id="50411">
+                <span class="witem__word">무릎</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="무지개" data-id="50532">
+                <span class="witem__word">무지개</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="미꾸라지" data-id="50550">
+                <span class="witem__word">미꾸라지</span>
+              </button>
+            </div>
+
+            <div class="wgroup" data-initial-section="ㅂ">
+              <div class="wgroup__title"># 바</div>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="바위" data-id="50530">
+                <span class="witem__word">바위</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="박쥐" data-id="50557">
+                <span class="witem__word">박쥐</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="반짇고리" data-id="50475">
+                <span class="witem__word">반짇고리</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="발채" data-id="50470">
+                <span class="witem__word">발채</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="배꼽" data-id="50409">
+                <span class="witem__word">배꼽</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="뱀" data-id="50556">
+                <span class="witem__word">뱀</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="뱀딸기" data-id="50504">
+                <span class="witem__word">뱀딸기</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="번데기" data-id="50547">
+                <span class="witem__word">번데기</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="벌" data-id="50559">
+                <span class="witem__word">벌</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="벌레" data-id="50319">
+                <span class="witem__word">벌레</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="벼" data-id="50443">
+                <span class="witem__word">벼</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="벽" data-id="50430">
+                <span class="witem__word">벽</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="변소" data-id="50304">
+                <span class="witem__word">변소</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="볏가리" data-id="50293">
+                <span class="witem__word">볏가리</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="보리" data-id="50445">
+                <span class="witem__word">보리</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="복사뼈" data-id="50388">
+                <span class="witem__word">복사뼈</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="부리망" data-id="50471">
+                <span class="witem__word">부리망</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="부지깽이" data-id="50441">
+                <span class="witem__word">부지깽이</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="부추" data-id="50297">
+                <span class="witem__word">부추</span>
+              </button>
+            </div>
+
+            <div class="wgroup" data-initial-section="ㅅ">
+              <div class="wgroup__title"># 사</div>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="사닥다리" data-id="50436">
+                <span class="witem__word">사닥다리</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="사마귀" data-id="50408">
+                <span class="witem__word">사마귀</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="사위" data-id="50318">
+                <span class="witem__word">사위</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="삽" data-id="50452">
+                <span class="witem__word">삽</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="새꽤기" data-id="50294">
+                <span class="witem__word">새꽤기</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="새끼" data-id="50289">
+                <span class="witem__word">새끼</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="새벽" data-id="50545">
+                <span class="witem__word">새벽</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="서풍" data-id="50528">
+                <span class="witem__word">서풍</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="세 되" data-id="50563">
+                <span class="witem__word">세 되</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="소꿉놀이" data-id="50404">
+                <span class="witem__word">소꿉놀이</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="쉬슬다" data-id="50499">
+                <span class="witem__word">쉬슬다</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="시래기" data-id="50438">
+                <span class="witem__word">시래기</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="시렁" data-id="50483">
+                <span class="witem__word">시렁</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="시루" data-id="50332">
+                <span class="witem__word">시루</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="쐐기" data-id="50472">
+                <span class="witem__word">쐐기</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="쓸개" data-id="50394">
+                <span class="witem__word">쓸개</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="씨아" data-id="50481">
+                <span class="witem__word">씨아</span>
+              </button>
+            </div>
+
+            <div class="wgroup" data-initial-section="ㅇ">
+              <div class="wgroup__title"># 아</div>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="아궁이" data-id="50467">
+                <span class="witem__word">아궁이</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="아우" data-id="50553">
+                <span class="witem__word">아우</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="아우 타다" data-id="50400">
+                <span class="witem__word">아우 타다</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="어레미" data-id="50329">
+                <span class="witem__word">어레미</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="억새" data-id="50322">
+                <span class="witem__word">억새</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="언니" data-id="50549">
+                <span class="witem__word">언니</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="언제" data-id="50529">
+                <span class="witem__word">언제</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="여우" data-id="50503">
+                <span class="witem__word">여우</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="엿기름" data-id="50298">
+                <span class="witem__word">엿기름</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="오디" data-id="50525">
+                <span class="witem__word">오디</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="오이" data-id="50296">
+                <span class="witem__word">오이</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="외삼촌" data-id="50498">
+                <span class="witem__word">외삼촌</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="용마름" data-id="50468">
+                <span class="witem__word">용마름</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="우박" data-id="50328">
+                <span class="witem__word">우박</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="이엉" data-id="50301">
+                <span class="witem__word">이엉</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="입술" data-id="50334">
+                <span class="witem__word">입술</span>
+              </button>
+            </div>
+
+            <div class="wgroup" data-initial-section="ㅈ">
+              <div class="wgroup__title"># 자</div>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="자루" data-id="50306">
+                <span class="witem__word">자루</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="자치기" data-id="50285">
+                <span class="witem__word">자치기</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="장독대" data-id="50469">
+                <span class="witem__word">장독대</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="졸음" data-id="50406">
+                <span class="witem__word">졸음</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="쥐불놀이" data-id="50464">
+                <span class="witem__word">쥐불놀이</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="지렁이" data-id="50562">
+                <span class="witem__word">지렁이</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="짚신" data-id="50482">
+                <span class="witem__word">짚신</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="찌꺼기" data-id="50435">
+                <span class="witem__word">찌꺼기</span>
+              </button>
+            </div>
+
+            <div class="wgroup" data-initial-section="ㅋ">
+              <div class="wgroup__title"># 카</div>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="콧구멍" data-id="50403">
+                <span class="witem__word">콧구멍</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="콩나물" data-id="50302">
+                <span class="witem__word">콩나물</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="키" data-id="50331">
+                <span class="witem__word">키</span>
+              </button>
+            </div>
+
+            <div class="wgroup" data-initial-section="ㅍ">
+              <div class="wgroup__title"># 파</div>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="파리" data-id="50500">
+                <span class="witem__word">파리</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="표주박" data-id="50465">
+                <span class="witem__word">표주박</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="풀무" data-id="50480">
+                <span class="witem__word">풀무</span>
+              </button>
+            </div>
+
+            <div class="wgroup" data-initial-section="ㅎ">
+              <div class="wgroup__title"># 하</div>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="하품" data-id="50407">
+                <span class="witem__word">하품</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="할머니" data-id="50497">
+                <span class="witem__word">할머니</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="함지" data-id="50466">
+                <span class="witem__word">함지</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="헹구다" data-id="50442">
+                <span class="witem__word">헹구다</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="혓바늘" data-id="50291">
+                <span class="witem__word">혓바늘</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="형" data-id="50558">
+                <span class="witem__word">형</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="호미" data-id="50444">
+                <span class="witem__word">호미</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="호미씻이" data-id="50286">
+                <span class="witem__word">호미씻이</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="회오리바람" data-id="50531">
+                <span class="witem__word">회오리바람</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="회충" data-id="50501">
+                <span class="witem__word">회충</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="휘파람" data-id="50395">
+                <span class="witem__word">휘파람</span>
+              </button>
+              <button class="witem" type="button" role="option" aria-selected="false" data-word="흰자위" data-id="50333">
+                <span class="witem__word">흰자위</span>
               </button>
             </div>
           </div>
@@ -606,20 +1011,15 @@ body { background: #ffffff; }
             <div class="popmenu" id="popSettings" hidden>
               <div class="popmenu__sec">
                 <div class="popmenu__label">지도 레이어</div>
-                <div class="mslayers">
-                  <span class="mslayer">지형 <button class="switch is-on" type="button" role="switch" aria-checked="true" aria-label="지형 레이어"></button></span>
-                  <span class="mslayer">행정구역 <button class="switch is-on" type="button" role="switch" aria-checked="true" aria-label="행정구역 레이어"></button></span>
-                  <span class="mslayer">도로 <button class="switch" type="button" role="switch" aria-checked="false" aria-label="도로 레이어"></button></span>
-                  <span class="mslayer">철도 <button class="switch" type="button" role="switch" aria-checked="false" aria-label="철도 레이어"></button></span>
-                </div>
+                <label class="mschk"><input type="checkbox" class="mschk__cb" id="ovRivers"> <span class="ovdot" style="background:#3b5bdb"></span> 하천</label>
+                <label class="mschk"><input type="checkbox" class="mschk__cb" id="ovRail"> <span class="ovdot" style="background:#2f9e44"></span> 철도</label>
+                <label class="mschk"><input type="checkbox" class="mschk__cb" id="ovRoads"> <span class="ovdot" style="background:#e8590c"></span> 도로</label>
+                <label class="mschk"><input type="checkbox" class="mschk__cb" id="ovMountains"> <span class="ovdot" style="background:#5f6f6a"></span> 산맥</label>
               </div>
               <div class="popmenu__sec">
-                <div class="popmenu__label">지도 스타일</div>
-                <div class="mapstyles">
-                  <button class="style is-active" type="button">기본</button>
-                  <button class="style" type="button">지형</button>
-                  <button class="style" type="button">위성</button>
-                </div>
+                <div class="popmenu__label">지역명 표시</div>
+                <label class="mschk"><input type="checkbox" class="mschk__cb" id="lblSido"> 시·도 이름</label>
+                <label class="mschk"><input type="checkbox" class="mschk__cb" id="lblSigungu"> 시·군·구 이름 <span style="color:#94a3b8;font-weight:600">(확대 시)</span></label>
               </div>
               <div class="popmenu__sec">
                 <div class="popmenu__label">표시 요소</div>
@@ -675,9 +1075,9 @@ body { background: #ffffff; }
             </div>
             <ul class="maplegend__list">
               <li class="maplegend__row"><span class="dfmark dfmark--circle dfmark--red" aria-hidden="true"></span><span class="maplegend__name">가을계</span><button class="listenbtn" type="button" data-freq="350" aria-label="가을계 대표 발음 듣기"><i class="ti ti-volume" aria-hidden="true"></i></button></li>
-              <li class="maplegend__row"><span class="dfmark dfmark--triangle dfmark--green" aria-hidden="true"></span><span class="maplegend__name">가실계</span><button class="listenbtn" type="button" data-freq="480" aria-label="가실계 대표 발음 듣기"><i class="ti ti-volume" aria-hidden="true"></i></button></li>
-              <li class="maplegend__row"><span class="dfmark dfmark--square dfmark--blue" aria-hidden="true"></span><span class="maplegend__name">가읆계</span><button class="listenbtn" type="button" data-freq="550" aria-label="가읆계 대표 발음 듣기"><i class="ti ti-volume" aria-hidden="true"></i></button></li>
-              <li class="maplegend__row"><span class="dfmark dfmark--diamond dfmark--amber" aria-hidden="true"></span><span class="maplegend__name">ᄀᆞ실계</span><button class="listenbtn" type="button" data-freq="620" aria-label="ᄀᆞ실계 대표 발음 듣기"><i class="ti ti-volume" aria-hidden="true"></i></button></li>
+              <li class="maplegend__row"><span class="dfmark dfmark--circle dfmark--green" aria-hidden="true"></span><span class="maplegend__name">가실계</span><button class="listenbtn" type="button" data-freq="480" aria-label="가실계 대표 발음 듣기"><i class="ti ti-volume" aria-hidden="true"></i></button></li>
+              <li class="maplegend__row"><span class="dfmark dfmark--circle dfmark--blue" aria-hidden="true"></span><span class="maplegend__name">가읆계</span><button class="listenbtn" type="button" data-freq="550" aria-label="가읆계 대표 발음 듣기"><i class="ti ti-volume" aria-hidden="true"></i></button></li>
+              <li class="maplegend__row"><span class="dfmark dfmark--circle dfmark--amber" aria-hidden="true"></span><span class="maplegend__name">ᄀᆞ실계</span><button class="listenbtn" type="button" data-freq="620" aria-label="ᄀᆞ실계 대표 발음 듣기"><i class="ti ti-volume" aria-hidden="true"></i></button></li>
             </ul>
             <button class="maplegend__how" type="button" id="btnHowto"><i class="ti ti-help-circle" aria-hidden="true"></i> 지도 보는 법</button>
           </div>
@@ -687,7 +1087,7 @@ body { background: #ffffff; }
             <div class="howto__panel">
               <div class="howto__title">지도 보는 법 <button class="popup-close" type="button" id="howtoClose" aria-label="닫기"><i class="ti ti-x" aria-hidden="true"></i></button></div>
               <ul class="howto__list">
-                <li><span class="howto__ico"><i class="ti ti-shape-2" aria-hidden="true"></i></span><span>부호의 <b>모양과 색</b>은 같은 뿌리를 가진 <b>방언 계열</b>을 나타냅니다. 예) 빨간 동그라미 = ‘가을’계</span></li>
+                <li><span class="howto__ico"><i class="ti ti-shape-2" aria-hidden="true"></i></span><span>부호의 <b>색</b>은 같은 뿌리를 가진 <b>방언 계열</b>을, <b>모양</b>은 그 계열 안의 <b>개별 방언형(단어)</b>을 나타냅니다. 예) 빨간색 = ‘가을’계</span></li>
                 <li><span class="howto__ico"><i class="ti ti-droplet-half-2" aria-hidden="true"></i></span><span>부호 주변의 <b>흐린 면색</b>은 그 계열이 쓰이는 <b>대략적인 분포권</b>입니다.</span></li>
                 <li><span class="howto__ico"><i class="ti ti-volume" aria-hidden="true"></i></span><span>부호를 <b>클릭</b>하면 그 지점에서 채록된 <b>실제 발음</b>과 제보자 정보를 볼 수 있습니다.</span></li>
                 <li><span class="howto__ico"><i class="ti ti-checkbox" aria-hidden="true"></i></span><span>관련 정보의 <b>표시·범례</b> 탭에서 계열·방언형별로 지도 표시를 켜고 끌 수 있습니다.</span></li>
@@ -703,7 +1103,6 @@ body { background: #ffffff; }
     <aside class="info" aria-label="관련 정보">
       <section class="card info__card">
         <div class="info__head">
-          <div class="card__title">관련 정보</div>
           <div class="seg" role="tablist" aria-label="정보 탭">
             <button class="seg__btn is-active" type="button" role="tab" aria-selected="true" data-seg="desc">
               표시·범례
@@ -736,39 +1135,36 @@ body { background: #ffffff; }
                     </button>
                   </div>
                   <div class="dfitem__panel">
-                    <div class="dfitem__desc">서울, 경기, 충청, 강원 대부분 지역 등</div>
                     <div class="dfvarlist" data-group="gaeul"></div>
                   </div>
                 </li>
 
                 <!-- 가읆계 -->
-                <li class="dfitem">
+                <li class="dfitem is-open">
                   <div class="dfitem__head">
                     <input type="checkbox" class="dfcb" data-group="gaeulm" checked aria-label="가읆계 지도 표시">
-                    <button class="dfitem__expand" type="button" aria-expanded="false">
-                      <span class="dfmark dfmark--square dfmark--blue" aria-hidden="true"></span>
+                    <button class="dfitem__expand" type="button" aria-expanded="true">
+                      <span class="dfmark dfmark--circle dfmark--blue" aria-hidden="true"></span>
                       <span class="dfitem__headmain"><span class="dfitem__word">가읆</span> <span class="dfitem__group">(가읆계)</span></span>
                       <i class="ti ti-chevron-down dfchev" aria-hidden="true"></i>
                     </button>
                   </div>
                   <div class="dfitem__panel">
-                    <div class="dfitem__desc">강원 일부, 경북 북부·동해안 일부 지역 등</div>
                     <div class="dfvarlist" data-group="gaeulm"></div>
                   </div>
                 </li>
 
                 <!-- ᄀᆞ실계 (제주) -->
-                <li class="dfitem">
+                <li class="dfitem is-open">
                   <div class="dfitem__head">
                     <input type="checkbox" class="dfcb" data-group="jeju" checked aria-label="ᄀᆞ실계 지도 표시">
-                    <button class="dfitem__expand" type="button" aria-expanded="false">
-                      <span class="dfmark dfmark--diamond dfmark--amber" aria-hidden="true"></span>
+                    <button class="dfitem__expand" type="button" aria-expanded="true">
+                      <span class="dfmark dfmark--circle dfmark--amber" aria-hidden="true"></span>
                       <span class="dfitem__headmain"><span class="dfitem__word">ᄀᆞ실</span> <span class="dfitem__group">(ᄀᆞ실계)</span></span>
                       <i class="ti ti-chevron-down dfchev" aria-hidden="true"></i>
                     </button>
                   </div>
                   <div class="dfitem__panel">
-                    <div class="dfitem__desc">제주도 일부 지역</div>
                     <div class="dfvarlist" data-group="jeju"></div>
                   </div>
                 </li>
@@ -939,8 +1335,8 @@ body { background: #ffffff; }
               <div class="infoblock__label">해설</div>
 
               <div class="explsum">
-                <div class="explsum__label"><i class="ti ti-sparkles" aria-hidden="true"></i> 한눈에 보기</div>
-                <p class="explsum__p">전국 어디서나 <b>‘가을’</b>이 널리 쓰이지만, 남부 지방에서는 <b>‘가실’</b>, 강원·경북 산간에서는 <b>‘가읅’</b>, 제주에서는 <b>‘ᄀᆞ실’</b>이 함께 살아 있습니다. 지난 20년 사이 표준어 ‘가을’이 토박이 형태들을 빠르게 밀어내고 있는 모습도 이 지도에서 확인할 수 있습니다.</p>
+                <div class="explsum__label"><i class="ti ti-sparkles" aria-hidden="true"></i> 의미</div>
+                <p class="explsum__p">한 해의 네 철 가운데 셋째 철. 여름과 겨울의 사이이며, 달로는 9~11월, 절기(節氣)로는 입추부터 입동 전까지를 이른다.</p>
               </div>
               <button class="explmore" type="button" id="explMore" aria-expanded="false"><i class="ti ti-chevron-down" aria-hidden="true"></i> 전문 해설 읽기 (연구자용)</button>
 
@@ -985,17 +1381,24 @@ body { background: #ffffff; }
 
 <!-- OpenLayers -->
 <script src="https://cdn.jsdelivr.net/npm/ol@v10.9.0/dist/ol.js"></script>
+<script src="skorea-provinces.js"></script>
+<script src="skorea-labels.js"></script>
+<script src="dialect-fill.js"></script>
+<!-- 시·군·구 경계(skorea-municipalities.js)는 줌인 시 korea-map.js가 지연 로드함 -->
+<script src="korea-map.js"></script>
 <script>
 /* ────────────── 지역어 지도 상호작용 (app.js 대체 인라인 스크립트) ────────────── */
 (function () {
   'use strict';
 
-  // 지도 기본 뷰 (남한이 화면에 꽉 차도록)
-  var MAP_CENTER = [127.75, 36.35];
-  var MAP_ZOOM = 7.1;
+  // 지도 기본 뷰 (한반도 전체 — 남한 중심, 북한 포함)
+  var MAP_CENTER = [127.8, 38.1];
+  var MAP_ZOOM = 6.4;
 
   /* ─ OpenLayers 지도 초기화 ─ */
   var olMap = null;
+  var regionLayers = null;   // 시·군·구 경계 + 지역명 라벨 토글 컨트롤러
+  var overlays = null;       // 하천·철도·도로·산맥 오버레이 토글 컨트롤러
   (function initMap() {
     var target = document.getElementById('olmap');
     if (!target) return;
@@ -1009,9 +1412,12 @@ body { background: #ffffff; }
       target.textContent = '지도를 불러올 수 없습니다 (네트워크 확인 필요).';
       return;
     }
+    // 깨끗한 행정경계(시·도) 벡터 지도를 배경으로 사용한다. (공용 모듈 korea-map.js)
+    var provinceLayer = (window.KoreaMap && KoreaMap.createBaseLayer({ zIndex: 0 })) || null;
+
     olMap = new ol.Map({
       target: 'olmap',
-      layers: [ new ol.layer.Tile({ source: new ol.source.OSM() }) ],
+      layers: provinceLayer ? [provinceLayer] : [],
       view: new ol.View({ center: ol.proj.fromLonLat(MAP_CENTER), zoom: MAP_ZOOM }),
       keyboardEventTarget: target
     });
@@ -1056,6 +1462,17 @@ body { background: #ffffff; }
   /* ─ 초성 필터 ─ */
   var initials = document.querySelectorAll('.initial');
   var groups = document.querySelectorAll('.wgroup');
+
+  /* ─ 그룹별 단어 개수 표기 (# 가, # 나 …) ─ */
+  groups.forEach(function (g) {
+    var title = g.querySelector('.wgroup__title');
+    if (!title) return;
+    var n = g.querySelectorAll('.witem').length;
+    var badge = document.createElement('span');
+    badge.className = 'wgroup__count';
+    badge.textContent = n + '개';
+    title.appendChild(badge);
+  });
   initials.forEach(function (btn) {
     btn.addEventListener('click', function () {
       initials.forEach(function (b) { b.classList.remove('is-active'); b.setAttribute('aria-selected', 'false'); });
@@ -1179,16 +1596,20 @@ body { background: #ffffff; }
       img = new ol.style.RegularShape({ points: 3, radius: r + 1, fill: fill, stroke: stroke });
     } else if (shape === 'square') {
       img = new ol.style.RegularShape({ points: 4, radius: r, angle: Math.PI / 4, fill: fill, stroke: stroke });
-    } else { // diamond
+    } else if (shape === 'diamond') {
       img = new ol.style.RegularShape({ points: 4, radius: r, angle: 0, fill: fill, stroke: stroke });
+    } else if (shape === 'pentagon') {
+      img = new ol.style.RegularShape({ points: 5, radius: r + 1, angle: 0, fill: fill, stroke: stroke });
+    } else if (shape === 'hexagon') {
+      img = new ol.style.RegularShape({ points: 6, radius: r + 1, angle: 0, fill: fill, stroke: stroke });
+    } else if (shape === 'star') {
+      img = new ol.style.RegularShape({ points: 5, radius: r + 2, radius2: (r + 2) / 2.5, angle: 0, fill: fill, stroke: stroke });
+    } else { // fallback
+      img = new ol.style.Circle({ radius: r, fill: fill, stroke: stroke });
     }
     return new ol.style.Style({ image: img });
   }
 
-  function hexToRgba(hex, a) {
-    var n = parseInt(hex.slice(1), 16);
-    return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
-  }
 
   var markerLayer = null;
   var areaLayer = null;
@@ -1198,47 +1619,45 @@ body { background: #ffffff; }
   var activeVariants = {};       // varId -> boolean
   var hoverFeature = null;       // 현재 호버 중인 마커
 
-  // 방언형별 고유 id 부여 및 초기 활성화
+  // 방언형(단어)마다 계열 색은 공유하되, 서로 다른 부호(모양)를 부여해 지도에서 개별 구분한다.
+  var VAR_SHAPES = ['circle', 'square', 'triangle', 'diamond', 'pentagon', 'hexagon', 'star'];
+
+  // 방언형별 고유 id·부호 부여 및 초기 활성화
   Object.keys(GROUPS).forEach(function (gkey) {
     GROUPS[gkey].variants.forEach(function (v, i) {
       v.id = gkey + '-' + i;
+      v.shape = VAR_SHAPES[i % VAR_SHAPES.length];
       activeVariants[v.id] = true;
     });
   });
 
-  // 지도 면색(반투명) + 마커 레이어 생성
+  // 지도 면색(시·군·구 경계) + 마커 레이어 생성
   if (olMap && window.ol) {
     var features = [];
-    var areaFeatures = [];
     Object.keys(GROUPS).forEach(function (gkey) {
       var g = GROUPS[gkey];
       g.variants.forEach(function (v) {
-        variantStyles[v.id] = markerStyle(g.color, g.shape);
-        variantStylesBig[v.id] = markerStyle(g.color, g.shape, true);
+        variantStyles[v.id] = markerStyle(g.color, v.shape);
+        variantStylesBig[v.id] = markerStyle(g.color, v.shape, true);
         variantColors[v.id] = g.color;
         v.points.forEach(function (pt) {
           var coord = ol.proj.fromLonLat(pt);
           var f = new ol.Feature({ geometry: new ol.geom.Point(coord) });
           f.set('vid', v.id);
           features.push(f);
-          var a = new ol.Feature({ geometry: new ol.geom.Circle(coord, 26000) });
-          a.set('vid', v.id);
-          areaFeatures.push(a);
         });
       });
     });
 
-    // 면색 레이어 (마커 아래)
-    areaLayer = new ol.layer.Vector({
-      source: new ol.source.Vector({ features: areaFeatures }),
-      style: function (feature) {
-        var id = feature.get('vid');
-        if (!activeVariants[id]) return null;
-        return new ol.style.Style({ fill: new ol.style.Fill({ color: hexToRgba(variantColors[id], 0.16) }) });
-      }
-    });
-    areaLayer.setZIndex(1);
-    olMap.addLayer(areaLayer);
+    // 면색 레이어: 마커가 속한 시·군·구 경계 폴리곤을 계열 색으로 채운다 (공용 모듈 KoreaMap.createFillLayer)
+    // 방언형 on/off(activeVariants)에 따라 표시 — 토글 시 areaLayer.changed()로 갱신
+    areaLayer = (window.KoreaMap && KoreaMap.createFillLayer)
+      ? KoreaMap.createFillLayer(window.DIALECT_FILL, {
+          zIndex: 2,
+          visible: function (feature) { return !!activeVariants[feature.get('vid')]; }
+        })
+      : null;
+    if (areaLayer) olMap.addLayer(areaLayer);
 
     // 마커(상징 부호) 레이어 (면색 위)
     markerLayer = new ol.layer.Vector({
@@ -1249,8 +1668,19 @@ body { background: #ffffff; }
         return feature === hoverFeature ? variantStylesBig[id] : variantStyles[id];
       }
     });
-    markerLayer.setZIndex(2);
+    markerLayer.setZIndex(3);
     olMap.addLayer(markerLayer);
+
+    // 지역명 라벨 레이어 얹기(기본 꺼짐) — 토글은 regionLayers.showSido()/showSigungu()
+    // 시·군·구 경계(470KB)는 시·군·구를 켤 때만 지연 로드된다.
+    if (window.KoreaMap && KoreaMap.attachRegionLayers) {
+      regionLayers = KoreaMap.attachRegionLayers(olMap, { sidoVisible: false, sigunguVisible: false });
+    }
+
+    // 하천·철도·도로·산맥 오버레이 (토글 시 각 데이터 지연 로드)
+    if (window.KoreaMap && KoreaMap.attachOverlays) {
+      overlays = KoreaMap.attachOverlays(olMap);
+    }
 
     /* ─ 오버레이 팝업 설정 ─ */
     var popupElement = document.getElementById('popup');
@@ -1476,6 +1906,27 @@ body { background: #ffffff; }
     if (areaLayer) areaLayer.changed();
   }
 
+  // 방언형(단어)별 부호(모양)를 지도 마커와 동일하게 SVG로 그린다.
+  function variantMarkSVG(color, shape) {
+    var inner;
+    if (shape === 'square') {
+      inner = '<rect x="1.5" y="1.5" width="11" height="11" rx="1.5"/>';
+    } else if (shape === 'diamond') {
+      inner = '<polygon points="7,1 13,7 7,13 1,7"/>';
+    } else if (shape === 'triangle') {
+      inner = '<polygon points="7,1 12.2,10.5 1.8,10.5"/>';
+    } else if (shape === 'pentagon') {
+      inner = '<polygon points="7,1 12.71,5.15 10.53,11.85 3.47,11.85 1.29,5.15"/>';
+    } else if (shape === 'hexagon') {
+      inner = '<polygon points="7,1 12.2,4 12.2,10 7,13 1.8,10 1.8,4"/>';
+    } else if (shape === 'star') {
+      inner = '<polygon points="7,1 8.41,5.06 12.71,5.15 9.28,7.74 10.53,11.85 7,9.4 3.47,11.85 4.72,7.74 1.29,5.15 5.59,5.06"/>';
+    } else { // circle
+      inner = '<circle cx="7" cy="7" r="6"/>';
+    }
+    return '<svg class="dfvarrow__mark" width="14" height="14" viewBox="0 0 14 14" fill="' + color + '" aria-hidden="true">' + inner + '</svg>';
+  }
+
   // 방언형 목록(한 줄씩) 렌더링
   document.querySelectorAll('.dfvarlist').forEach(function (list) {
     var gkey = list.dataset.group;
@@ -1484,6 +1935,7 @@ body { background: #ffffff; }
     list.innerHTML = g.variants.map(function (v, i) {
       return '<label class="dfvarrow">' +
                '<input type="checkbox" class="dfvarcb" data-vid="' + v.id + '" data-group="' + gkey + '" checked aria-label="' + v.word + ' 지도 표시">' +
+               variantMarkSVG(g.color, v.shape) +
                '<span class="dfvarrow__word">' + v.word + '</span>' +
                '<span class="dfvarrow__n" title="채록 건수">' + v.n + '건</span>' +
                '<button type="button" class="listenbtn" data-freq="' + (320 + (i * 45) % 380) + '" aria-label="' + v.word + ' 발음 듣기"><i class="ti ti-volume" aria-hidden="true"></i></button>' +
@@ -1523,21 +1975,18 @@ body { background: #ffffff; }
     });
   });
 
-  /* ─ 지도 레이어 스위치 토글 ─ */
-  document.querySelectorAll('.switch').forEach(function (sw) {
-    sw.addEventListener('click', function () {
-      var on = sw.classList.toggle('is-on');
-      sw.setAttribute('aria-checked', on ? 'true' : 'false');
-    });
+  /* ─ 지역명 표시 토글 (시·도 / 시·군·구 각각) ─ */
+  if ($('lblSido')) $('lblSido').addEventListener('change', function () {
+    if (regionLayers) regionLayers.showSido(this.checked);
+  });
+  if ($('lblSigungu')) $('lblSigungu').addEventListener('change', function () {
+    if (regionLayers) regionLayers.showSigungu(this.checked);
   });
 
-  /* ─ 지도 스타일 선택 ─ */
-  var styleBtns = document.querySelectorAll('.mapstyles .style');
-  styleBtns.forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      styleBtns.forEach(function (b) { b.classList.remove('is-active'); });
-      btn.classList.add('is-active');
-    });
+  /* ─ 지도 레이어 오버레이 토글 (하천·철도·도로·산맥) ─ */
+  [['ovRivers', 'rivers'], ['ovRail', 'rail'], ['ovRoads', 'roads'], ['ovMountains', 'mountains']].forEach(function (pair) {
+    var el = $(pair[0]);
+    if (el) el.addEventListener('change', function () { if (overlays) overlays.show(pair[1], this.checked); });
   });
 
   /* ─ 면색 / 상징 부호 숨기기 ─ */

@@ -28,26 +28,102 @@ document.addEventListener('DOMContentLoaded', () => {
           <button type="button" class="nav__link-btn" onclick="toggleMegaMenu(this, 'menu-search')">
             지역어 검색 <i class="ti ti-chevron-down nav__arrow"></i>
           </button>
+          <!-- 메가메뉴 패널 1: 지역어 검색 -->
+          <div id="menu-search" class="mega-menu">
+            <div class="mega-menu__inner">
+              <div class="mega-menu__title">지역어 검색</div>
+              <div class="mega-menu__grid">
+                <div class="mega-menu__item"><a href="./dialect_search_prototype.html" class="mega-menu__link">통합자료검색</a></div>
+                <div class="mega-menu__item"><a href="./vocab_dialect.html" class="mega-menu__link">어휘조사자료</a></div>
+                <div class="mega-menu__item"><a href="./oral_dialect.html" class="mega-menu__link">구술발화조사자료</a></div>
+                <div class="mega-menu__item"><a href="./dialect_variant_compare.html" class="mega-menu__link">지역어 변이형 비교</a></div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="nav__item">
           <button type="button" class="nav__link-btn" onclick="toggleMegaMenu(this, 'menu-map')">
             지역어 지도 <i class="ti ti-chevron-down nav__arrow"></i>
           </button>
+          <!-- 메가메뉴 패널 2: 지역어 지도 -->
+          <div id="menu-map" class="mega-menu">
+            <div class="mega-menu__inner">
+              <div class="mega-menu__title">지역어 지도</div>
+              <div class="mega-menu__grid">
+                <div class="mega-menu__item"><a href="./dialect_map.html" class="mega-menu__link">지역어 지도</a></div>
+                <div class="mega-menu__item"><a href="./dialect_our_town.html" class="mega-menu__link">지역어 지도 비교</a></div>
+                <div class="mega-menu__item"><a href="#" class="mega-menu__link">나만의 지도 제작</a></div>
+                <div class="mega-menu__item"><a href="./dialect_gisangdo.html" class="mega-menu__link">지역어 기상도</a></div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="nav__item">
           <button type="button" class="nav__link-btn" onclick="toggleMegaMenu(this, 'menu-archive')">
             지역어 자료관 <i class="ti ti-chevron-down nav__arrow"></i>
           </button>
+          <!-- 메가메뉴 패널 3: 지역어 자료관 -->
+          <div id="menu-archive" class="mega-menu">
+            <div class="mega-menu__inner">
+              <div class="mega-menu__title">지역어 자료관</div>
+              <div class="mega-menu__grid">
+                <div class="mega-menu__item"><a href="./literature_dialect.html" class="mega-menu__link">문학 속 지역어</a></div>
+                <div class="mega-menu__item"><a href="./region_culture.html" class="mega-menu__link">사진으로 보는 생활어</a></div>
+                <div class="mega-menu__item"><a href="./data_room.html" class="mega-menu__link">자료실</a></div>
+                <div class="mega-menu__item"><a href="#" class="mega-menu__link">Open API</a></div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="nav__item">
           <button type="button" class="nav__link-btn" onclick="toggleMegaMenu(this, 'menu-board')">
             알림마당 <i class="ti ti-chevron-down nav__arrow"></i>
           </button>
+          <!-- 메가메뉴 패널 4: 알림마당 -->
+          <div id="menu-board" class="mega-menu">
+            <div class="mega-menu__inner">
+              <div class="mega-menu__title">알림마당</div>
+              <div class="mega-menu__grid">
+                <div class="mega-menu__item"><a href="./notice.html" class="mega-menu__link">공지사항</a></div>
+                <div class="mega-menu__item"><a href="./faq.html" class="mega-menu__link">도움말(FAQ)</a></div>
+                <div class="mega-menu__item"><a href="./mypage_opinion_write.html" class="mega-menu__link">의견제시</a></div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="nav__item">
           <button type="button" class="nav__link-btn" onclick="toggleMegaMenu(this, 'menu-about')">
             누리집소개 <i class="ti ti-chevron-down nav__arrow"></i>
           </button>
+          <!-- 메가메뉴 패널 5: 누리집소개 -->
+          <div id="menu-about" class="mega-menu">
+            <div class="mega-menu__inner">
+              <div class="mega-menu__title">누리집소개</div>
+              <div class="mega-menu__grid">
+                <div class="mega-menu__item"><a href="./about_intro.html" class="mega-menu__link">사업 소개</a></div>
+                <div class="mega-menu__item"><a href="./about_history.html" class="mega-menu__link">사업 연혁</a></div>
+                <div class="mega-menu__item"><a href="./about_coverage.html" class="mega-menu__link">조사 현황</a></div>
+                <div class="mega-menu__item"><a href="./about_related.html" class="mega-menu__link">연계 사업</a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 모바일 전용: 내 정보 (데스크톱에서는 우측 상단 util 영역에 노출) -->
+        <div class="nav__item nav__item--auth">
+          <button type="button" class="nav__link-btn" onclick="toggleMegaMenu(this, 'menu-my')">
+            내 정보 <i class="ti ti-chevron-down nav__arrow"></i>
+          </button>
+          <div id="menu-my" class="mega-menu">
+            <div class="mega-menu__inner">
+              <div class="mega-menu__title">내 정보</div>
+              <div class="mega-menu__grid">
+                <div class="mega-menu__item"><a href="./mypage_edit.html" class="mega-menu__link" onclick="return openPwModal(event);">나의 정보 수정</a></div>
+                <div class="mega-menu__item"><a href="./mypage_opinion.html" class="mega-menu__link">나의 의견 제시</a></div>
+                <div class="mega-menu__item"><a href="./mypage_map.html" class="mega-menu__link">나의 지도</a></div>
+                <div class="mega-menu__item"><a href="./mypage_withdraw.html" class="mega-menu__link">회원탈퇴</a></div>
+              </div>
+            </div>
+          </div>
         </div>
       </nav>
 
@@ -55,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <a href="./login.html" class="util-link">들어가기</a>
         <span class="util-divider">|</span>
         <a href="./register.html" class="util-link">회원가입</a>
-        <span class="util-divider">|</span>
+        <span class="util-divider util-divider--my">|</span>
         <div class="util-mypage">
           <a href="#" class="util-link util-mypage__trigger" aria-haspopup="true" onclick="return false;">내정보 <i class="ti ti-chevron-down util-mypage__arrow" aria-hidden="true"></i></a>
           <div class="util-mypage__pop" role="menu" aria-label="내 정보 메뉴">
@@ -68,68 +144,10 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     </div>
   </div>
-
-  <!-- 메가메뉴 패널 1: 지역어 검색 -->
-  <div id="menu-search" class="mega-menu">
-    <div class="mega-menu__inner">
-      <div class="mega-menu__title">지역어 검색</div>
-      <div class="mega-menu__grid">
-        <div class="mega-menu__item"><a href="./dialect_search_prototype.html" class="mega-menu__link">통합자료검색</a></div>
-        <div class="mega-menu__item"><a href="./vocab_dialect.html" class="mega-menu__link">어휘조사자료</a></div>
-        <div class="mega-menu__item"><a href="./oral_dialect.html" class="mega-menu__link">구술발화조사자료</a></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 메가메뉴 패널 2: 지역어 지도 -->
-  <div id="menu-map" class="mega-menu">
-    <div class="mega-menu__inner">
-      <div class="mega-menu__title">지역어 지도</div>
-      <div class="mega-menu__grid">
-        <div class="mega-menu__item"><a href="./dialect_map.html" class="mega-menu__link">지역어 지도</a></div>
-        <div class="mega-menu__item"><a href="./dialect_map_compare.html" class="mega-menu__link">지역어 지도 비교</a></div>
-        <div class="mega-menu__item"><a href="#" class="mega-menu__link">나만의 지도 제작</a></div>
-        <div class="mega-menu__item"><a href="./dialect_awareness.html" class="mega-menu__link">지역어 현황(기상도)</a></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 메가메뉴 패널 3: 지역어 자료관 -->
-  <div id="menu-archive" class="mega-menu">
-    <div class="mega-menu__inner">
-      <div class="mega-menu__title">지역어 자료관</div>
-      <div class="mega-menu__grid">
-        <div class="mega-menu__item"><a href="./literature_dialect.html" class="mega-menu__link">문학 속 지역어</a></div>
-        <div class="mega-menu__item"><a href="./region_culture.html" class="mega-menu__link">사진으로 보는 생활어</a></div>
-        <div class="mega-menu__item"><a href="./data_room.html" class="mega-menu__link">자료실</a></div>
-        <div class="mega-menu__item"><a href="#" class="mega-menu__link">Open API</a></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 메가메뉴 패널 4: 알림마당 -->
-  <div id="menu-board" class="mega-menu">
-    <div class="mega-menu__inner">
-      <div class="mega-menu__title">알림마당</div>
-      <div class="mega-menu__grid">
-        <div class="mega-menu__item"><a href="./notice.html" class="mega-menu__link">공지사항</a></div>
-        <div class="mega-menu__item"><a href="./faq.html" class="mega-menu__link">도움말(FAQ)</a></div>
-        <div class="mega-menu__item"><a href="./mypage_opinion_write.html" class="mega-menu__link">의견제시</a></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 메가메뉴 패널 5: 누리집소개 -->
-  <div id="menu-about" class="mega-menu">
-    <div class="mega-menu__inner">
-      <div class="mega-menu__title">누리집소개</div>
-      <div class="mega-menu__grid">
-        <div class="mega-menu__item"><a href="./index.html" class="mega-menu__link">소개</a></div>
-        <div class="mega-menu__item"><a href="#" class="mega-menu__link">사업연혁</a></div>
-      </div>
-    </div>
-  </div>
 </header>
+
+<!-- 모바일 드로어 배경막 (드로어 열릴 때만 노출) -->
+<div class="nav-backdrop" id="navBackdrop"></div>
 
 <!-- 나의 정보 수정: 비밀번호 확인 레이어 팝업 (전 페이지 공통) -->
 <div class="pw-modal-overlay" id="pwModal" hidden onclick="if(event.target===this) closePwModal();">
@@ -161,14 +179,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const currentPath = window.location.pathname;
   let activeMenuId = "";
 
-  if (currentPath.includes('dialect_search_prototype.html') || currentPath.includes('vocab_dialect.html') || currentPath.includes('oral_dialect.html')) {
+  if (currentPath.includes('dialect_search_prototype.html') || currentPath.includes('vocab_dialect.html') || currentPath.includes('oral_dialect.html') || currentPath.includes('dialect_variant_compare.html')) {
     activeMenuId = "menu-search";
-  } else if (currentPath.includes('dialect_map.html') || currentPath.includes('dialect_map_compare.html') || currentPath.includes('dialect_awareness.html')) {
+  } else if (currentPath.includes('dialect_map.html') || currentPath.includes('dialect_awareness.html') || currentPath.includes('dialect_our_town.html') || currentPath.includes('dialect_gisangdo.html')) {
     activeMenuId = "menu-map";
   } else if (currentPath.includes('region_culture.html') || currentPath.includes('literature_dialect.html') || currentPath.includes('data_room.html') || currentPath.includes('data_room_detail.html')) {
     activeMenuId = "menu-archive";
   } else if (currentPath.includes('notice.html') || currentPath.includes('faq.html')) {
     activeMenuId = "menu-board";
+  } else if (currentPath.includes('about_intro.html') || currentPath.includes('about_history.html') || currentPath.includes('about_coverage.html') || currentPath.includes('about_related.html')) {
+    activeMenuId = "menu-about";
   }
 
   // 현재 페이지에 해당하는 탭만 표시(밑줄)하고, 메가메뉴 패널은 접힌 상태로 둔다

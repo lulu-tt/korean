@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>지역어종합정보 — 사업 연혁</title>
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<!-- 본문 디자인용 웹폰트를 head에서 미리 로드(중첩 @import보다 빨라 렌더 후 리플로우/깨짐 방지) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css">
+<link rel="stylesheet" href="./about.css">
+<script src="./gnb.js" defer></script>
+<script src="./share.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+  /* ===== 공통 타이틀 영역(sub-visual) : 기존 사이트와 동일 ===== */
+  .sub-visual{background:linear-gradient(180deg,#edf4ff 0%,#f8fafc 100%);border-bottom:1px solid #e2e8f0;padding:55px 0 50px;text-align:center;position:relative;overflow:visible;display:block;min-height:180px;}
+  .sub-visual::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(37,99,235,.03) 0%,transparent 40%);pointer-events:none;}
+  .sv-title{font-size:30px;font-weight:800;color:#1e3a8a;letter-spacing:-.03em;margin:0 0 16px;position:relative;z-index:1;}
+  .location-bar{display:inline-flex;align-items:center;gap:8px;background:#fff;padding:6px 20px;border-radius:99px;box-shadow:0 2px 8px rgba(15,23,42,.02);border:1px solid #cbd5e1;position:relative;z-index:1;}
+  .loc-item{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#475569;}
+  .loc-item.home{color:#3b82f6;font-size:14px;}
+  .loc-item select{border:none;background:transparent;font-size:13px;font-weight:600;color:#334155;padding:0 16px 0 0;cursor:pointer;appearance:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right center;font-family:inherit;}
+  .loc-item select:focus{outline:none;box-shadow:none;}
+  .loc-sep{color:#cbd5e1;font-size:12px;}
+
+  /* =====================================================================
+     사업 연혁 전용 : 인터랙티브 패럴렉스 스크롤 스토리
+     - 이 페이지에서만 사용. 다른 about_* 페이지에는 영향 없음.
+     ===================================================================== */
+  .chronicle{
+    --ink:#221F1A; --ink-soft:#544E45; --ink-mute:#8A8172;
+    --jade:#15545C; --jade-deep:#0E3B41; --ochre:#A9772B; --brick:#9A3A24;
+    --paper:#EFEADD; --panel:#F6F3EC; --line:#E4DECF;
+    /* 폰트: 조사 현황(about_coverage.html)과 동일 — 시스템 폰트 스택 + 제목은 Georgia/Noto Serif KR 명조 */
+    --sys:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",system-ui,"Noto Sans KR",sans-serif;
+    --serif:Georgia,"Noto Serif KR","Apple SD Gothic Neo",serif;
+    --sans:var(--sys); --mono:var(--sys);
+    background:#fff; color:var(--ink); font-family:var(--sans); font-weight:400; line-height:1.8;
+    -webkit-font-smoothing:antialiased; position:relative; overflow:hidden;
+  }
+  .chronicle *{box-sizing:border-box;}
+  /* 세리프 특유의 무게감을 잃지 않도록 주요 제목·숫자 굵기 보강 (조사 현황 페이지와 동일 방식) */
+  .chronicle .s-intro h2,.chronicle .chapter__year,.chronicle .interlude h3,
+  .chronicle .s-close h3,.chronicle .s-fig .n{font-weight:700;}
+  .chronicle .chapter__name,.chronicle .ev__h{font-weight:600;}
+  .chronicle .s-wrap{max-width:1280px;margin:0 auto;padding:0 40px;}
+  .chronicle .s-eyebrow{font-family:var(--sans);font-size:.95rem;font-weight:500;letter-spacing:.18em;color:var(--pc,var(--jade));}
+
+  /* ---------- 인트로 (풀스크린) ---------- */
+  .chronicle .s-intro{position:relative;min-height:60vh;display:flex;align-items:center;
+    background:
+      linear-gradient(180deg,#fff 0%,rgba(255,255,255,0) 18%),
+      radial-gradient(120% 90% at 80% 10%,var(--panel),#fff 60%);overflow:hidden;}
+  .chronicle .s-intro__ghost{position:absolute;right:2vw;top:28%;z-index:0;font-family:var(--serif);
+    font-size:15vw;line-height:.8;color:var(--paper);white-space:nowrap;letter-spacing:.01em;
+    font-variant-numeric:tabular-nums;
+    -webkit-user-select:none;user-select:none;pointer-events:none;}
+  .chronicle .s-intro__inner{position:relative;z-index:1;}
+  /* 인트로 텍스트를 GNB 로고와 같은 좌측 라인에 정렬 (공통 .wrap과 동일 max-width 1440·padding 20) */
+  .chronicle .s-intro .s-wrap{width:100%;max-width:1440px;margin:0 auto;padding:0 20px;}
+  .chronicle .s-intro__inner{max-width:56ch;transform:translateY(-4vh);}
+  .chronicle .s-intro .s-eyebrow{display:block;margin-bottom:28px;}
+  .chronicle .s-intro h2{font-family:var(--serif);font-weight:400;font-size:clamp(2.6rem,5.6vw,4.6rem);
+    line-height:1.14;letter-spacing:-.02em;color:var(--ink);margin:0 0 26px;}
+  .chronicle .s-intro h2 em{font-style:normal;color:var(--jade);}
+  .chronicle .s-intro p{font-size:clamp(1.05rem,2vw,1.3rem);color:var(--ink-soft);max-width:52ch;margin:0;}
+  .chronicle .s-cue{margin:48px auto 0;display:flex;flex-direction:column;align-items:center;gap:12px;
+    font-family:var(--sans);font-size:.85rem;letter-spacing:.22em;color:var(--ink-mute);width:fit-content;}
+  .chronicle .s-cue::after{content:"";width:1px;height:44px;
+    background:linear-gradient(var(--jade),rgba(21,84,92,0));
+    animation:scrolldrop 2.2s ease-in-out infinite;}
+  @keyframes scrolldrop{0%{opacity:0;transform:scaleY(.2);transform-origin:top;}45%{opacity:1;transform:scaleY(1);transform-origin:top;}100%{opacity:0;transform:scaleY(1);transform-origin:bottom;}}
+
+  /* ---------- 챕터 (스티키 연대 + 스크롤 항목) ---------- */
+  .chronicle .chapter{position:relative;padding:70px 0;overflow:hidden;}
+  .chronicle .chapter__grid{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,400px) 1fr;
+    gap:64px;align-items:start;}
+  .chronicle .chapter__aside{position:sticky;top:110px;align-self:start;}
+  .chronicle .chapter__badge{display:inline-block;font-family:var(--sans);font-size:.86rem;font-weight:500;
+    letter-spacing:.1em;color:#fff;background:var(--pc);padding:5px 14px;border-radius:2px;margin-bottom:22px;}
+  .chronicle .chapter__year{font-family:var(--serif);font-weight:400;font-size:clamp(2.6rem,4.4vw,3.8rem);
+    line-height:1.02;color:var(--pc);letter-spacing:-.02em;margin-bottom:16px;}
+  .chronicle .chapter__name{font-family:var(--serif);font-weight:400;font-size:1.5rem;color:var(--ink);margin-bottom:16px;}
+  .chronicle .chapter__desc{font-size:1rem;color:var(--ink-soft);max-width:34ch;}
+  .chronicle .chapter__bg{position:absolute;z-index:0;top:8%;left:-2vw;font-family:var(--serif);
+    font-size:22vw;line-height:.8;color:var(--pc);opacity:.06;white-space:nowrap;
+    -webkit-user-select:none;user-select:none;pointer-events:none;}
+
+  .chronicle .events{position:relative;}
+  .chronicle .ev{position:relative;padding:38px 0 40px;border-top:1px solid var(--line);}
+  .chronicle .ev:first-child{border-top:none;padding-top:6px;}
+  .chronicle .ev__yr{font-family:var(--mono);font-size:1rem;font-weight:600;letter-spacing:.04em;color:var(--pc);}
+  .chronicle .ev__h{font-family:var(--serif);font-weight:400;font-size:1.6rem;color:var(--ink);margin:8px 0 12px;}
+  .chronicle .ev__p{font-size:1.02rem;color:var(--ink-soft);max-width:64ch;margin:0;}
+  .chronicle .ev__meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;}
+  .chronicle .chip{font-family:var(--sans);font-size:.85rem;letter-spacing:.01em;padding:5px 12px;
+    border:1px solid var(--line);border-radius:2px;color:var(--ink-soft);background:var(--panel);}
+  .chronicle .chip.o{color:var(--brick);border-color:#e0c3ba;background:#fbf3f0;}
+
+  .chronicle .ph-jade{--pc:var(--jade);}
+  .chronicle .ph-ochre{--pc:var(--ochre);}
+  .chronicle .ph-brick{--pc:var(--brick);}
+
+  /* ---------- 전환기 인터루드 ---------- */
+  .chronicle .interlude{position:relative;padding:130px 0;text-align:center;overflow:hidden;
+    background:linear-gradient(180deg,#fff,var(--panel),#fff);}
+  .chronicle .interlude__ghost{position:absolute;left:0;right:0;top:20%;text-align:center;z-index:0;
+    font-family:var(--serif);font-size:30vw;line-height:.8;color:var(--ochre);opacity:.07;
+    -webkit-user-select:none;user-select:none;pointer-events:none;}
+  .chronicle .interlude__inner{position:relative;z-index:1;}
+  .chronicle .interlude .s-eyebrow{--pc:var(--ochre);display:block;margin-bottom:22px;}
+  .chronicle .interlude h3{font-family:var(--serif);font-weight:400;font-size:clamp(1.9rem,3.8vw,2.8rem);
+    color:var(--ink);margin:0 auto 22px;max-width:22ch;line-height:1.3;}
+  .chronicle .interlude p{font-size:1.05rem;color:var(--ink-soft);max-width:52ch;margin:0 auto;}
+
+  /* ---------- 마무리 (숫자 카운트업 + 다음 링크) ---------- */
+  /* 마무리: background-attachment:fixed 패럴렉스 밴드 (현장 조사 이미지 + 짙은 오버레이) */
+  .chronicle .s-close{position:relative;padding:150px 0 160px;text-align:center;color:#fff;overflow:hidden;
+    background-image:linear-gradient(rgba(14,59,65,.7),rgba(14,59,65,.8)),url('./image/hangul-jamo-bg.png');
+    background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed;}
+  .chronicle .s-close .s-eyebrow{display:block;margin-bottom:20px;color:rgba(255,255,255,.8);}
+  .chronicle .s-close h3{font-family:var(--serif);font-weight:400;font-size:clamp(1.9rem,3.8vw,2.8rem);margin:0 0 64px;letter-spacing:-.01em;}
+  .chronicle .s-figs{display:grid;grid-template-columns:repeat(3,1fr);gap:0;max-width:900px;margin:0 auto 64px;}
+  .chronicle .s-fig{padding:0 20px;border-right:1px solid rgba(255,255,255,.16);}
+  .chronicle .s-fig:last-child{border-right:none;}
+  .chronicle .s-fig .n{font-family:var(--serif);font-weight:400;font-size:clamp(2.6rem,5vw,3.6rem);line-height:1;letter-spacing:-.02em;}
+  .chronicle .s-fig .n small{font-size:1rem;font-family:var(--sans);}
+  .chronicle .s-fig .l{margin-top:16px;font-size:.95rem;color:rgba(255,255,255,.8);}
+  .chronicle .s-next{display:inline-flex;align-items:center;gap:10px;font-family:var(--sans);font-size:1rem;font-weight:500;
+    letter-spacing:.02em;color:var(--jade-deep);background:#fff;text-decoration:none;padding:16px 30px;border-radius:2px;
+    transition:transform .3s ease,box-shadow .3s ease;}
+  .chronicle .s-next:hover{transform:translateY(-4px);box-shadow:0 20px 40px -20px rgba(0,0,0,.5);}
+  .chronicle .s-next i{transition:transform .3s ease;}
+  .chronicle .s-next:hover i{transform:translateX(5px);}
+
+  /* ---------- 스크롤 등장 ----------
+     레이아웃에 영향을 주지 않도록 opacity 전용(그리드 칸을 transform하지 않음).
+     초기 숨김(.pre)은 JS로만 적용 → JS 실패/미실행 시 내용이 항상 보인다. */
+  .chronicle .rv{transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1);}
+  .chronicle .rv.pre{opacity:0;transform:translateY(26px);}
+
+  /* 상단 스크롤 진행바 */
+  .c-progress{position:fixed;top:0;left:0;height:4px;width:0;z-index:3000;
+    background:linear-gradient(90deg,#15545C,#A9772B,#9A3A24);}
+
+  /* 마무리(짙은) 밴드가 푸터에 바로 닿도록 공통 푸터 상단 여백 제거 (이 페이지 한정) */
+  #footer-common .footer{margin-top:0;}
+
+  @media(max-width:1000px){
+    .chronicle .chapter__grid{grid-template-columns:1fr;gap:34px;}
+    .chronicle .chapter__aside{position:static;top:auto;}
+    .chronicle .s-figs{grid-template-columns:1fr;gap:36px;}
+    .chronicle .s-fig{border-right:none;}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .chronicle .rv{opacity:1;transform:none;transition:none;}
+    .chronicle .s-cue::after{animation:none;}
+  }
+</style>
+</head>
+<body>
+
+<div id="gnb-common"></div>
+
+<!-- ===== 공통 타이틀 영역 ===== -->
+<div class="sub-visual">
+  <div class="wrap">
+    <h1 class="sv-title">사업 연혁</h1>
+    <div class="location-bar">
+      <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer;" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select onchange="if(this.value) location.href=this.value;">
+          <option value="./about_intro.html" selected>누리집소개</option>
+          <option value="./dialect_search_prototype.html">지역어 검색</option>
+          <option value="./dialect_map.html">지역어 지도</option>
+          <option value="./notice.html">알림마당</option>
+        </select>
+      </div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select onchange="if(this.value) location.href=this.value;">
+          <option value="./about_intro.html">사업 소개</option>
+          <option value="./about_history.html" selected>사업 연혁</option>
+          <option value="./about_coverage.html">조사 현황</option>
+          <option value="./about_related.html">연계 사업</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 스크롤 진행바 -->
+<div class="c-progress" id="cProgress" aria-hidden="true"></div>
+
+<!-- ===== 본문 : 인터랙티브 연혁 스토리 ===== -->
+<main class="chronicle">
+
+  <!-- 인트로 -->
+  <section class="s-intro">
+    <div class="s-intro__ghost" data-para="0.10" aria-hidden="true" id="introYear" data-year-from="2004" data-year-to="2026">2004</div>
+    <div class="s-wrap s-intro__inner">
+      <span class="s-eyebrow">2004 — 현재</span>
+      <h2>지금도 이어지는 기록<br><em>말의 지도를 그리다</em></h2>
+      <p>권역별 조사에서 시작해 방언 지도와 정보 시스템 구축을 거쳐,<br>지금은 세대와 성별에 따른 언어 변이 조사로 이어지고 있습니다.</p>
+      <div class="s-cue" aria-hidden="true">아래로</div>
+    </div>
+  </section>
+
+  <!-- 1기 -->
+  <section class="chapter ph-jade">
+    <div class="chapter__bg" data-para="0.06" aria-hidden="true">1기</div>
+    <div class="s-wrap chapter__grid">
+      <aside class="chapter__aside">
+        <div class="rv">
+          <span class="chapter__badge">1기</span>
+          <div class="chapter__year">2004<br>–2013</div>
+          <div class="chapter__name">권역별 지역어 조사</div>
+          <p class="chapter__desc">전국 9개 권역과 국외 한민족 마을에서 토박이말을 처음으로 채록·전사한 기반 구축의 시기.</p>
+        </div>
+      </aside>
+      <div class="events">
+        <div class="ev rv rv-x"><div class="ev__yr">2004</div><h3 class="ev__h">시범 조사로 첫 삽</h3><p class="ev__p">충북을 제외한 8개 권역과 국외 4개 지점(중국·카자흐스탄·키르기스스탄)의 시범 조사. 권역별 지역어 조사 질문지의 그림 정보 구축 및 활용, 지역어 음성, 전사 자료의 체계적인 수집 및 관리에 관한 연구.</p><div class="ev__meta"><span class="chip">국내 8권역</span><span class="chip o">국외 4지점</span></div></div>
+        <div class="ev rv rv-x"><div class="ev__yr">2005 · 2006</div><h3 class="ev__h">권역별 본조사 정착</h3><p class="ev__p">경기·강원·충북·충남·전북·전남·경북·경남·제주 9개 권역에서 매년 지역어 조사를 실시하며 조사/보고서 작성을 시작합니다.</p><div class="ev__meta"><span class="chip">국내 9지역</span><span class="chip">보고서 8–9권</span></div></div>
+        <div class="ev rv rv-x"><div class="ev__yr">2007 – 2009</div><h3 class="ev__h">국외 한민족 지역어로 확장</h3><p class="ev__p">중국(하얼빈·대련)·카자흐스탄(알마티)·우즈베키스탄(타슈켄트)·키르기스스탄(비슈케크)의 이주 한민족 마을로 조사를 확대(곽충구). 국내 9지역과 함께 매년 10–11권의 보고서를 산출.</p><div class="ev__meta"><span class="chip">국내 9지역</span><span class="chip o">국외 1–2지점</span></div></div>
+        <div class="ev rv rv-x"><div class="ev__yr">2010 – 2011</div><h3 class="ev__h">결과 정리와 지점 확대</h3><p class="ev__p">2004–2009년 어휘·음운·문법 자료를 통합·보충하고, 국외 조사 지점을 중국 여러 지역 등으로 넓힙니다.</p><div class="ev__meta"><span class="chip">자료 통합</span><span class="chip o">국외 최대 3지점</span></div></div>
+        <div class="ev rv rv-x"><div class="ev__yr">2012 · 2013</div><h3 class="ev__h">미전사 구술 발화 전사</h3><p class="ev__p">그간 축적한 구술 발화 원음원 중 미전사분 약 15시간을 전사해 활용 가능한 자료로 정비합니다. 1기 조사로 국내 61·국외 10, 총 71지점에서 237,495개 항목을 축적했습니다.</p><div class="ev__meta"><span class="chip">전사 정비</span><span class="chip">누적 71지점 · 237,495항목</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 전환기 -->
+  <section class="interlude">
+    <div class="interlude__ghost" data-para="0.08" aria-hidden="true">2014</div>
+    <div class="s-wrap interlude__inner rv">
+      <span class="s-eyebrow">전환기 · 2014</span>
+      <h3>축적에서 활용으로</h3>
+      <p>원자료를 쌓는 단계를 넘어, 방언 지도 제작과 정보 시스템 구축을 향한 중장기 로드맵을 세운 해입니다.</p>
+    </div>
+  </section>
+
+  <!-- 2기 -->
+  <section class="chapter ph-ochre">
+    <div class="chapter__bg" data-para="0.06" aria-hidden="true">2기</div>
+    <div class="s-wrap chapter__grid">
+      <aside class="chapter__aside">
+        <div class="rv">
+          <span class="chapter__badge">2기</span>
+          <div class="chapter__year">2014<br>–2020</div>
+          <div class="chapter__name">방언 지도와 정보 시스템</div>
+          <p class="chapter__desc">전국 방언 지도를 제작하고, 지역어를 누구나 찾아볼 수 있는 종합 정보 시스템을 구축한 시기.</p>
+        </div>
+      </aside>
+      <div class="events">
+        <div class="ev rv rv-x"><div class="ev__yr">2014</div><h3 class="ev__h">방언 조사·활용 중장기 계획 수립</h3><p class="ev__p">방언의 조사와 활용을 위한 중장기 사업 계획을 수립합니다(서울대 정승철·양민호·임석규·조태린·한성우). 이후 방언 지도 제작과 지역어 종합 정보 시스템 구축의 밑그림이 되었으며, 이 계획을 바탕으로 조사를 서울대가 맡습니다.</p><div class="ev__meta"><span class="chip">중장기 계획</span><span class="chip">보고서 1권</span></div></div>
+        <div class="ev rv rv-x"><div class="ev__yr">2015</div><h3 class="ev__h">전국 방언 지도 시안 착수</h3><p class="ev__p">1,200항목 질문지로 20개 지역 보완 조사를 실시하고 방언 지도를 시범 제작. 동시에 지역어 종합 정보 시스템을 설계·구축해 지역어 정보 약 20만 건을 탑재해 갑니다.</p><div class="ev__meta"><span class="chip">보완 20지역</span><span class="chip">지도 10장</span><span class="chip">시스템 구축</span></div></div>
+        <div class="ev rv rv-x"><div class="ev__yr">2016 – 2018</div><h3 class="ev__h">정보 활용 체계와 보완 조사</h3><p class="ev__p">전국 방언 지도를 제작하고 사용자 참여 창구를 개발. 매년 10–15개 지역을 보완 조사하며 기존 자료 관리 시스템을 개선합니다.</p><div class="ev__meta"><span class="chip">보완 10–15지역</span><span class="chip">지도 24개</span></div></div>
+        <div class="ev rv rv-x"><div class="ev__yr">2019 – 2020</div><h3 class="ev__h">구술 발화 텍스트 전사 · 지도 확대</h3><p class="ev__p">보완 조사와 함께 구술 자료를 텍스트로 전사해 정비. 전국 지역어 지도를 신규 제작하고 대폭 보완합니다.</p><div class="ev__meta"><span class="chip">보완 19–20지역</span><span class="chip">지도 156개</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3기 -->
+  <section class="chapter ph-brick">
+    <div class="chapter__bg" data-para="0.06" aria-hidden="true">3기</div>
+    <div class="s-wrap chapter__grid">
+      <aside class="chapter__aside">
+        <div class="rv">
+          <span class="chapter__badge">3기</span>
+          <div class="chapter__year">2021<br>–현재</div>
+          <div class="chapter__name">세대별·성별 언어 변이 조사</div>
+          <p class="chapter__desc">한 지점 안에서도 세대와 성별에 따라 말이 어떻게 달라지는지, 언어의 다양성을 들여다보는 시기.</p>
+        </div>
+      </aside>
+      <div class="events">
+        <div class="ev rv rv-x"><div class="ev__yr">2021</div><h3 class="ev__h">세대별·지역별 언어 다양성 조사 시작</h3><p class="ev__p">한 지점 안에서도 세대(20·40·70대)에 따라 말이 어떻게 달라지는지 조사. 전국 약 11지점, 어휘 1,000항목·구술 발화 규모의 5개년 계획을 세우고, 검색엔진(Elasticsearch) 도입 등 시스템 고도화를 병행합니다. 성별 구분은 아직 없는 시범 조사 단계였습니다.</p><div class="ev__meta"><span class="chip">11지점 × 3세대</span></div></div>
+        <div class="ev rv rv-x"><div class="ev__yr">2022</div><h3 class="ev__h">성별 변이를 더하다</h3><p class="ev__p">세대에 성별 변수를 더한 지역어 변이 조사로 전환. 전국 11지점(춘천·고양·창원·경주·목포·전주·제주·예산·청주 등)에서 세대(20·50·70대 이상)별 남녀 각 1인, 총 54명을 조사합니다. 질문지도 어휘 500항목·구술 2시간으로 개정.</p><div class="ev__meta"><span class="chip">11지점 · 54명</span><span class="chip">어휘 500항목</span></div></div>
+        <div class="ev rv rv-x"><div class="ev__yr">2023 · 2024</div><h3 class="ev__h">전국 9개 도로 심화 (2·3차년도)</h3><p class="ev__p">전국 9개 도 각 1지점으로 심화. 2023년 수원/화성·원주·충주·공주·안동·울산·익산·광주·서귀포에서 세대·성별 변이와 사용도·인지도를 조사하고, 2024년 3차년도에는 표본을 확대(약 50명·구술 96시간)합니다. 2024년부터 지역어 종합 정보 시스템을 어문 연구 정보 시스템으로 통합하고 지도 자동 작성 기능을 탑재합니다.</p><div class="ev__meta"><span class="chip">9지점 · 약 50명</span><span class="chip">구술 96시간</span></div></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="footer-common"></div>
+
+<script>
+  (function(){
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var root = document.querySelector(".chronicle");
+    var progress = document.getElementById("cProgress");
+
+    // 1) 스크롤 등장 (opacity + 약간의 상승) — JS가 있을 때만 숨김 → 실패해도 항상 보임
+    var reveals = document.querySelectorAll(".chronicle .rv");
+    if(!reduce && ("IntersectionObserver" in window)){
+      reveals.forEach(function(el){ el.classList.add("pre"); });
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.remove("pre"); io.unobserve(e.target); } });
+      }, {threshold:0.15, rootMargin:"0px 0px -8% 0px"});
+      reveals.forEach(function(el){ io.observe(el); });
+    }
+
+    // 2) 숫자 카운트업 (마무리 지표)
+    function countUp(el){
+      var target = parseInt(el.getAttribute("data-count"), 10) || 0;
+      var suffix = el.getAttribute("data-suffix") || "";
+      var dur = 1400, start = null;
+      function fmt(v){ return v.toLocaleString("ko-KR") + (suffix ? "<small>"+suffix+"</small>" : ""); }
+      function step(ts){
+        if(start === null) start = ts;
+        var p = Math.min((ts - start) / dur, 1);
+        el.innerHTML = fmt(Math.floor((1 - Math.pow(1 - p, 3)) * target));
+        if(p < 1) requestAnimationFrame(step); else el.innerHTML = fmt(target);
+      }
+      requestAnimationFrame(step);
+    }
+    var figs = document.querySelectorAll(".chronicle [data-count]");
+    if(!reduce && ("IntersectionObserver" in window)){
+      var cio = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ countUp(e.target); cio.unobserve(e.target); } });
+      }, {threshold:0.6});
+      figs.forEach(function(el){ cio.observe(el); });
+    }
+
+    // 2-b) 인트로 배경 연도 카운트 (2004 → 2026, 진행 중 의미)
+    var introYear = document.getElementById("introYear");
+    if(introYear){
+      var yFrom = parseInt(introYear.getAttribute("data-year-from"), 10) || 2004;
+      var yTo   = parseInt(introYear.getAttribute("data-year-to"), 10)   || 2026;
+      if(reduce){
+        introYear.textContent = yTo;
+      } else {
+        var yStart = null, yDur = 2600;
+        var yStep = function(ts){
+          if(yStart === null) yStart = ts;
+          var p = Math.min((ts - yStart) / yDur, 1);
+          introYear.textContent = Math.round(yFrom + (yTo - yFrom) * (1 - Math.pow(1 - p, 3)));
+          if(p < 1) requestAnimationFrame(yStep); else introYear.textContent = yTo;
+        };
+        requestAnimationFrame(yStep);
+      }
+    }
+
+    // 3) 은은한 패럴렉스(배경 숫자) + 진행바
+    //    오프셋을 미리 캐시하고 프레임 내에서는 transform '쓰기'만 → 리플로우 충돌 방지.
+    function docTop(el){ var t = 0, n = el; while(n){ t += n.offsetTop; n = n.offsetParent; } return t; }
+    var items = Array.prototype.slice.call(document.querySelectorAll(".chronicle [data-para]")).map(function(el){
+      return { el: el, speed: parseFloat(el.getAttribute("data-para")) || 0, top: 0, h: 0 };
+    });
+    var rootTop = 0, rootH = 0;
+    function recalc(){
+      items.forEach(function(it){ it.top = docTop(it.el); it.h = it.el.offsetHeight; });
+      if(root){ rootTop = docTop(root); rootH = root.offsetHeight; }
+    }
+    var ticking = false;
+    function update(){
+      var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+      var vh = window.innerHeight;
+      if(!reduce){
+        items.forEach(function(it){
+          var center = it.top + it.h / 2 - y;
+          it.el.style.transform = "translate3d(0," + (((vh / 2) - center) * it.speed).toFixed(1) + "px,0)";
+        });
+      }
+      if(progress){
+        var total = rootH - vh;
+        var passed = Math.min(Math.max(y - rootTop, 0), Math.max(total, 0));
+        progress.style.width = (total > 0 ? (passed / total * 100) : 0).toFixed(2) + "%";
+      }
+      ticking = false;
+    }
+    window.addEventListener("scroll", function(){ if(!ticking){ requestAnimationFrame(update); ticking = true; } }, {passive:true});
+    window.addEventListener("resize", function(){ recalc(); update(); }, {passive:true});
+    if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ recalc(); update(); }); }
+    recalc(); update();
+  })();
+</script>
+</body>
+</html>

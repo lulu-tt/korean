@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <!-- GNB, 본문 정렬 기준선인 1440px 가로폭 고정 및 페이지 전환 시 흔들림 방지 뷰포트 선언 -->
-<meta name="viewport" content="width=1440">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>구술발화조사자료 — 국립국어원</title>
 <link rel="shortcut icon" href="./favicon.ico">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
@@ -122,11 +122,15 @@
   .search-note .pill-link:hover { background: var(--wine-soft); border-color: var(--wine); }
 
   /* RESULT COUNT & EXCEL */
-  .excel-btn-wrapper { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 8px 0 16px; }
+  .excel-btn-wrapper { display: flex; justify-content: flex-end; margin: 8px 0 16px; }
   .result-count { font-size: 16px; font-weight: 700; color: #1e293b; }
   .result-count em { color: #dc2626; font-style: normal; font-weight: 800; }
-  .excel-btn-rect { background: #ffffff; border: 1px solid #cbd5e1; color: #475569; padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer; border-radius: 8px; transition: all 0.2s ease; box-shadow: var(--shadow2); display: inline-flex; align-items: center; gap: 6px; }
-  .excel-btn-rect:hover { background: #f8fafc; border-color: #94a3b8; color: var(--text); transform: translateY(-1px); }
+  /* 검색 결과 건수 안내 문구 (검색 창 밑 중앙 배치, dialect_search_prototype.html과 동일) */
+  .search-result-summary { font-size: 20px; color: #334155; font-weight: 700; text-align: center; margin: 28px 0 24px; }
+  .search-result-summary em { color: var(--blue); font-style: normal; font-weight: 800; }
+  .excel-btn-rect { background: #217346; border: 1px solid #217346; color: #ffffff; padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer; border-radius: 8px; transition: all 0.2s ease; box-shadow: var(--shadow2); display: inline-flex; align-items: center; gap: 6px; }
+  .excel-btn-rect:hover { background: #1a5c34; border-color: #1a5c34; color: #ffffff; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(33, 115, 70, 0.25); }
+  .excel-btn-rect i { font-size: 16px; }
 
   /* ORAL SENTENCE LIST */
   .osent-list { display: flex; flex-direction: column; gap: 16px; }
@@ -151,9 +155,9 @@
   /* 한 항목 안에 여러 문장이 올 수 있는 컨테이너 */
   .osent-sentences { display: flex; flex-direction: column; gap: 12px; }
   /* 한 항목의 문장이 4개 이상일 때 목록 영역을 스크롤 처리 (약 3개 높이로 제한) */
-  .osent-sentences.scrollable { overflow-y: auto; padding-right: 10px; }
-  .osent-sentences.scrollable::-webkit-scrollbar { width: 8px; }
-  .osent-sentences.scrollable::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 99px; }
+  .osent-sentences.scrollable { overflow-y: auto; padding-right: 6px; scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+  .osent-sentences.scrollable::-webkit-scrollbar { width: 5px; }
+  .osent-sentences.scrollable::-webkit-scrollbar-track { background: transparent; }
   .osent-sentences.scrollable::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
   .osent-sentences.scrollable::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   /* 문장 하나를 감싸는 박스 (형태음소전사 + 표준어 대역) */
@@ -165,12 +169,12 @@
   .osent-tag.std { background: #eef2f7; color: #475569; border: 1px solid #dfe6ee; }
   .osent-text { flex: 1 1 auto; min-width: 0; margin: 0; font-size: 14.5px; line-height: 1.75; color: var(--text); font-weight: 500; }
   .osent-text.std-text { color: #475569; font-weight: 500; }
-  .kw-hl { color: #be123c; font-weight: 700; }
+  .kw-hl { color: #d81b60; font-weight: 700; }
 
   /* 문장별 음성 재생 버튼 & 재생 위치 표시 */
-  .osent-play { flex: 0 0 auto; align-self: center; width: 34px; height: 34px; border-radius: 50%; border: 1px solid #bfdbfe; background: #eff6ff; color: var(--blue); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s ease; box-shadow: var(--shadow2); }
+  .osent-play { flex: 0 0 auto; align-self: center; width: 26px; height: 26px; border-radius: 50%; border: 1px solid #bfdbfe; background: #eff6ff; color: var(--blue); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s ease; box-shadow: var(--shadow2); }
   .osent-play:hover { background: var(--blue); color: #fff; border-color: var(--blue); transform: translateY(-1px); }
-  .osent-play i { font-size: 16px; line-height: 1; }
+  .osent-play i { font-size: 13px; line-height: 1; }
   .osent-play.is-playing { background: var(--blue); color: #fff; border-color: var(--blue); animation: osentPulse 1.3s ease-in-out infinite; }
   @keyframes osentPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(37,99,235,0.4); } 50% { box-shadow: 0 0 0 6px rgba(37,99,235,0); } }
 
@@ -276,7 +280,7 @@
   .src-line dd.spoken { opacity: 0.5; }
   .src-line.src-phoneme { display: none; }
   .src-scroll.show-phoneme .src-line.src-phoneme { display: flex; }
-  .s-keyword { color: #be123c; font-weight: 700; }
+  .s-keyword { color: #d81b60; font-weight: 700; }
 
   /* 원문 전체 음성 재생 컨트롤 & 진행 표시 */
   .src-play-btn { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 99px; border: none; background: var(--wine); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2); transition: 0.2s ease; }
@@ -302,21 +306,78 @@
 
   /* ===== 모바일 반응형 ===== */
   @media (max-width: 768px) {
+    /* body가 flex 컬럼이라 .container가 넓은 콘텐츠에 맞춰 뷰포트보다 커지는 문제 차단 */
     body { overflow-x: hidden; }
-    .container { padding: 20px 12px 60px; max-width: 100vw; box-sizing: border-box; }
-    .search-panel { padding: 16px; }
-    .search-mode-row { flex-direction: column; gap: 12px; align-items: stretch; }
-    .mode-tabs { flex-direction: column; gap: 6px; }
-    .simple-row { flex-direction: column; }
+    .wrap, .container { min-width: 0; }
+    .container { padding: 24px 16px 60px; max-width: 100vw; box-sizing: border-box; }
+
+    /* 서브 비주얼 / 페이지 타이틀 */
+    .sub-visual { padding: 30px 0 26px; min-height: 0; }
+    .sv-title { font-size: 22px; margin-bottom: 12px; }
+    .location-bar { flex-wrap: wrap; justify-content: center; row-gap: 2px; padding: 8px 14px; max-width: calc(100% - 32px); }
+
+    /* 검색 패널 여백 축소 */
+    .search-panel { padding: 18px 16px; border-radius: 16px; }
+
+    /* 검색 모드 줄: 탭 / 목록 버튼 세로 배치 */
+    .search-mode-row { flex-direction: column; align-items: stretch; gap: 12px; }
+    .mode-tabs { width: 100%; }
+    .mode-tabs .mode-tab { flex: 1; text-align: center; }
+    .vocab-list-btn { width: 100%; justify-content: center; }
+
+    /* 검색 대상(전체/지역어/표준어): 줄바꿈 + 균등 분할 */
+    .search-target-row { flex-wrap: wrap; }
+    #simplePanel .search-target-group { flex-wrap: wrap; width: 100%; }
+    #simplePanel .search-target-group .search-target-button { flex: 1 1 auto; text-align: center; }
+
+    /* 간단히 검색: 입력줄과 실행 버튼 세로 배치, 버튼은 폭에 맞춰 확장 */
+    .simple-row { flex-direction: column !important; align-items: stretch !important; }
     .simple-conds { flex-direction: column; }
-    .simple-actions { flex-direction: column; width: 100%; }
-    .simple-actions .btn-outline, .simple-actions .btn-primary { width: 100%; justify-content: center; }
+    .simple-actions { width: 100%; }
+    .simple-actions .btn-outline,
+    .simple-actions .btn-primary { flex: 1; justify-content: center; }
+
+    /* 자세히 검색: 라벨(위) / 조건(아래) 세로 배치 */
     .form-grid { grid-template-columns: 1fr; gap: 8px; }
-    .osent-head { gap: 10px 16px; }
-    .osent-topic { flex-basis: 100%; }
-    .osent-src-btn, .osent-dl-btn { width: 100%; justify-content: center; }
+    .form-controls { gap: 8px !important; row-gap: 8px !important; }
+
+    /* 조사 지역·검색 대상 입력행: 좁은 폭에서 줄바꿈 허용 */
+    .region-row, #detailPanel .search-target-row { flex-wrap: wrap; }
+    .region-row .region-select-1,
+    .region-row .region-select-2 { flex: 1 1 40%; }
+    #detailPanel .search-target-input-field { flex: 1 1 100%; }
+
+    /* 제보자 정보: 세대별/성별을 세로로, 좌측 구분선 제거 */
+    .informant-group { width: 100%; }
+    .form-controls .informant-group[data-group="sex"] { padding-left: 0 !important; border-left: none !important; }
+
+    /* 자세히 검색 실행 버튼 */
+    .detail-actions { flex-wrap: wrap; gap: 8px; }
+    .detail-actions .btn-primary,
+    .detail-actions .btn-outline { flex: 1; justify-content: center; }
+
+    /* 옛 한글 입력기 */
+    .ok-row { flex-direction: column; }
+    .ok-input { width: 100%; box-sizing: border-box; }
+
+  }
+
+  /* 구술발화 조사자료: dialect_search_prototype.html과 동일한 모바일 레이아웃 */
+  @media (max-width: 640px) {
+    .osent-head { gap: 8px 12px; padding: 14px 16px; }
+    /* 모바일에서는 번호를 숨기고 주제만 노출 */
+    .osent-num { display: none; }
+    .osent-topic { flex: 1 1 auto; min-width: 0; }
+    /* 지역·조사연도·제보자 정보는 다음 줄 전체 폭 (번호가 없으므로 들여쓰기 없음) */
+    .osent-info { flex-basis: 100%; margin-left: 0; gap: 6px 14px; }
+    /* 원문 보기 · 다운로드 버튼을 한 줄에 균등 배치 */
+    .osent-src-btn, .osent-dl-btn { flex: 1 1 0; justify-content: center; }
     .osent-row { flex-direction: column; gap: 6px; }
     .osent-tag { width: auto; align-self: flex-start; padding: 5px 12px; }
+    /* 재생 버튼은 문장 카드 우상단에 고정 → 형태음소전사 태그와 같은 줄, 세로 여백 제거 */
+    .osent-play { position: absolute; top: 12px; right: 14px; margin: 0; }
+    /* 표준어 대역 행에는 재생 버튼이 없으므로 태그가 우상단 버튼과 겹치지 않도록 여백 확보 */
+    .osent-sentence .osent-row:first-child { padding-right: 34px; }
   }
 
   @media (max-width: 700px) { .gnb-menu { display: none; } }
@@ -608,9 +669,11 @@
     </div>
   </div>
 
+  <!-- 검색 결과 건수 안내 문구 (검색 창 밑 중앙 배치) -->
+  <div class="search-result-summary">검색어 <em>감자</em>에 대한 검색 결과는 총 <em>387건</em>입니다.</div>
+
   <div class="excel-btn-wrapper">
-    <span class="result-count">선택 조건으로 총 <em>387</em>건이 검색되었습니다.</span>
-    <button class="excel-btn-rect" type="button"><i class="ti ti-download" aria-hidden="true"></i> 엑셀 내려받기</button>
+    <button class="excel-btn-rect" type="button"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> 엑셀 내려받기</button>
   </div>
 
   <!-- 구술발화 검색 결과 목록 -->

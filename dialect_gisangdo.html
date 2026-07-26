@@ -1,0 +1,1976 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<!-- GNB 정렬 기준선인 1440px 가로폭 고정 뷰포트 (공통 규격) -->
+<meta name="viewport" content="width=1440">
+<title>지역어 기상도 — 국립국어원</title>
+
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+
+<!-- 공통 스타일시트 (전역 타이포/색 상속) -->
+<link rel="stylesheet" href="./styles.css">
+
+<!-- 공통 지도(OpenLayers) — 사양서 7장 MapAdapter가 재사용하는 공통 지도 컴포넌트 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.9.0/ol.css">
+
+<!-- 공통 GNB / Footer / 공유도구 로더 -->
+<script src="./gnb.js" defer></script>
+<script src="./footer.js" defer></script>
+<script src="./share.js" defer></script>
+
+<!--
+  ============================================================================
+  지역어 기상도 — 모듈 전용 스타일 (사양서 §2.2 CSS 격리)
+  · 전역 리셋(* / body / a) 금지, 모든 규칙을 #jiyeoeo-gisangdo-root 하위로 스코프
+  · 클래스 프리픽스 gs- 사용, 기존 사이트 타이포·기본색은 상속
+  · 모듈 고유 토큰: 날씨 색 4종 + 결측(사양서 §4.1)만 새로 정의
+  ============================================================================
+-->
+<style>
+/* 다른 메뉴(예: dialect_our_town.html)와 동일하게 본문 배경을 화이트로 통일 */
+body{ background:#ffffff; }
+
+#jiyeoeo-gisangdo-root{
+  /* §4.1 날씨 상태 색 (라이트) — 데이터 의미(사용도) 인코딩용 모듈 고유 토큰 */
+  --gs-w1:#BA7517;  --gs-w1-bg:#FBF3E4;   /* 맑음   · 사용   */
+  --gs-w2:#5F5E5A;  --gs-w2-bg:#F0F0EE;   /* 구름조금 · 이해   */
+  --gs-w3:#185FA5;  --gs-w3-bg:#E7F0FA;   /* 흐리고 비 · 인지 */
+  --gs-w4:#A32D2D;  --gs-w4-bg:#FAE8E8;   /* 천둥번개 · 무지  */
+  --gs-w0:#94a3b8;  --gs-w0-bg:#f1f5f9;   /* 안개(관측결측)   */
+
+  /* 등급 색 (§6.3) */
+  --gs-lv-crisis:#A32D2D; --gs-lv-warn:#993C1D; --gs-lv-watch:#854F0B; --gs-lv-calm:#64748b;
+
+  /* 기존 사이트 표면색 계열 (상속 기반, 카드 문법 §4.2) */
+  --gs-surface:#ffffff; --gs-surface-2:#f8fafc; --gs-line:#e2e8f0;
+  --gs-text:#111827; --gs-muted:#64748b; --gs-radius:12px;
+
+  /* 공통 .wrap과 동일하게 좌우 1440px 정렬 (헤더·로케이션과 좌우 끝선 일치) */
+  max-width:1440px; margin:0 auto; padding:8px 20px 80px;
+  color:var(--gs-text);
+}
+
+/* ── 공통 요소 ── */
+
+/* 단어 선택 패널 — dialect_our_town.html의 .map-pick 스타일 계승 (gs- 스코프) */
+#jiyeoeo-gisangdo-root .gs-pick{ background:linear-gradient(180deg,#f0f7ff 0%,#fff 72%); border:1px solid var(--gs-line); border-radius:16px; padding:16px 20px 14px; margin-bottom:22px; box-shadow:var(--shadow2); }
+#jiyeoeo-gisangdo-root .gs-pick__head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+#jiyeoeo-gisangdo-root .gs-pick__label{ font-size:14px; font-weight:800; color:#0f172a; display:inline-flex; align-items:center; gap:6px; margin:0; }
+#jiyeoeo-gisangdo-root .gs-pick__label i{ color:#2563eb; }
+#jiyeoeo-gisangdo-root .gs-pick__count{ font-size:11px; font-weight:700; color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; padding:3px 9px; border-radius:99px; }
+#jiyeoeo-gisangdo-root .gs-pick__toggle{ display:inline-flex; align-items:center; gap:4px; border:1px solid var(--gs-line); background:#fff; border-radius:10px; padding:6px 12px; cursor:pointer; font-family:inherit; font-size:12px; font-weight:700; color:#64748b; transition:.15s; }
+#jiyeoeo-gisangdo-root .gs-pick__toggle:hover{ border-color:#93c5fd; color:#2563eb; background:#f8fbff; }
+#jiyeoeo-gisangdo-root .gs-pick__chev{ font-size:14px; color:#94a3b8; transition:transform .2s; }
+#jiyeoeo-gisangdo-root .gs-pick.is-collapsed .gs-pick__chev{ transform:rotate(180deg); }
+#jiyeoeo-gisangdo-root .gs-pick.is-collapsed .gs-pick__body{ display:none; }
+
+#jiyeoeo-gisangdo-root .gs-searchrow{ display:flex; gap:8px; margin-bottom:10px; }
+#jiyeoeo-gisangdo-root .gs-searchbtn{ flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; height:40px; padding:0 18px; border:1px solid var(--blue); background:var(--blue); color:#fff; border-radius:11px; font-family:inherit; font-size:14px; font-weight:700; cursor:pointer; transition:.15s; }
+#jiyeoeo-gisangdo-root .gs-searchbtn:hover{ background:#1d4ed8; border-color:#1d4ed8; }
+#jiyeoeo-gisangdo-root .gs-searchbtn i{ font-size:16px; }
+#jiyeoeo-gisangdo-root .gs-wordsearch{ position:relative; flex:1; }
+#jiyeoeo-gisangdo-root .gs-wordsearch__input{ width:100%; height:40px; padding:0 36px; border:1px solid var(--gs-line); border-radius:11px; background:#fff; font-size:13px; font-weight:600; color:#0f172a; font-family:inherit; outline:none; transition:.15s; box-sizing:border-box; }
+#jiyeoeo-gisangdo-root .gs-wordsearch__input::placeholder{ color:#94a3b8; font-weight:500; }
+#jiyeoeo-gisangdo-root .gs-wordsearch__input:focus{ border-color:#93c5fd; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+#jiyeoeo-gisangdo-root .gs-wordsearch__ico{ position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#94a3b8; font-size:16px; pointer-events:none; }
+#jiyeoeo-gisangdo-root .gs-wordsearch__clear{ position:absolute; right:8px; top:50%; transform:translateY(-50%); width:26px; height:26px; border:none; border-radius:8px; background:transparent; color:#94a3b8; cursor:pointer; display:none; place-items:center; font-size:15px; font-family:inherit; }
+#jiyeoeo-gisangdo-root .gs-wordsearch.has-value .gs-wordsearch__clear{ display:grid; }
+#jiyeoeo-gisangdo-root .gs-wordsearch__clear:hover{ background:#f1f5f9; color:#475569; }
+
+#jiyeoeo-gisangdo-root .gs-initials{ display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px; }
+#jiyeoeo-gisangdo-root .gs-initial{ min-width:32px; height:32px; padding:0 8px; border:1px solid var(--gs-line); background:#fff; border-radius:8px; font-size:12px; font-weight:700; color:#475569; cursor:pointer; font-family:inherit; transition:.12s; }
+#jiyeoeo-gisangdo-root .gs-initial:hover{ border-color:#93c5fd; color:#2563eb; }
+#jiyeoeo-gisangdo-root .gs-initial.is-active{ background:#2563eb; border-color:#2563eb; color:#fff; box-shadow:0 2px 8px rgba(37,99,235,.28); }
+
+#jiyeoeo-gisangdo-root .gs-wordgrid{ display:flex; flex-wrap:wrap; gap:6px; max-height:200px; overflow-y:auto; padding-right:2px; scrollbar-width:thin; scrollbar-color:#cbd5e1 transparent; }
+#jiyeoeo-gisangdo-root .gs-wbtn{ appearance:none; flex:0 0 auto; white-space:nowrap; border:1px solid var(--gs-line); background:#fff; border-radius:10px; padding:8px 12px; font-size:13px; font-weight:700; color:#334155; cursor:pointer; font-family:inherit; transition:.12s; display:inline-flex; align-items:center; gap:7px; }
+#jiyeoeo-gisangdo-root .gs-wbtn .wdot{ width:8px; height:8px; border-radius:50%; flex:none; }
+#jiyeoeo-gisangdo-root .gs-wbtn small{ color:#94a3b8; font-weight:600; font-size:11px; margin-left:auto; }
+#jiyeoeo-gisangdo-root .gs-wbtn:hover{ border-color:#93c5fd; background:#eff6ff; color:#1d4ed8; }
+#jiyeoeo-gisangdo-root .gs-wbtn.is-active{ border-color:#2563eb; background:#2563eb; color:#fff; box-shadow:0 2px 8px rgba(37,99,235,.3); }
+#jiyeoeo-gisangdo-root .gs-wbtn.is-active small{ color:rgba(255,255,255,.78); }
+#jiyeoeo-gisangdo-root .gs-wgrid-empty{ grid-column:1/-1; text-align:center; padding:18px 8px; font-size:13px; font-weight:600; color:#94a3b8; }
+
+/* 카드 문법 §4.2 */
+#jiyeoeo-gisangdo-root .gs-card{
+  background:var(--gs-surface); border:1px solid var(--gs-line); border-radius:var(--gs-radius);
+  padding:16px 18px;
+}
+#jiyeoeo-gisangdo-root .gs-card__label{ font-size:11px; letter-spacing:.02em; color:var(--gs-muted); font-weight:600; }
+#jiyeoeo-gisangdo-root .gs-card__num{ font-size:24px; font-weight:500; line-height:1.2; margin-top:2px; }
+#jiyeoeo-gisangdo-root .gs-sec-head{ display:flex; align-items:center; gap:8px; margin:30px 0 12px; }
+#jiyeoeo-gisangdo-root .gs-sec-head h2{ font-size:17px; font-weight:800; margin:0; }
+#jiyeoeo-gisangdo-root .gs-sec-head .gs-sec-head__sub{ font-size:12px; color:var(--gs-muted); }
+
+/* 실측/추정 배지 §8 */
+#jiyeoeo-gisangdo-root .gs-badge{
+  display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600;
+  padding:3px 9px; border-radius:20px; border:1px solid transparent; white-space:nowrap;
+}
+#jiyeoeo-gisangdo-root .gs-badge .gs-dot{ width:7px; height:7px; border-radius:50%; }
+#jiyeoeo-gisangdo-root .gs-badge--measured{ background:#ecfdf5; color:#047857; border-color:#a7f3d0; }
+#jiyeoeo-gisangdo-root .gs-badge--measured .gs-dot{ background:#10b981; }
+#jiyeoeo-gisangdo-root .gs-badge--estimated{ background:#fff7ed; color:#b45309; border-color:#fed7aa; }
+#jiyeoeo-gisangdo-root .gs-badge--estimated .gs-dot{ background:#f59e0b; }
+#jiyeoeo-gisangdo-root .gs-badge--pending{ background:#f1f5f9; color:#64748b; border-color:#e2e8f0; }
+#jiyeoeo-gisangdo-root .gs-badge--pending .gs-dot{ background:#94a3b8; }
+
+/* 날씨 아이콘 (WeatherIcon) */
+#jiyeoeo-gisangdo-root .gs-wi{ display:inline-flex; align-items:center; justify-content:center; }
+#jiyeoeo-gisangdo-root .gs-wi--w1{ color:var(--gs-w1); }
+#jiyeoeo-gisangdo-root .gs-wi--w2{ color:var(--gs-w2); }
+#jiyeoeo-gisangdo-root .gs-wi--w3{ color:var(--gs-w3); }
+#jiyeoeo-gisangdo-root .gs-wi--w4{ color:var(--gs-w4); }
+#jiyeoeo-gisangdo-root .gs-wi--w0{ color:var(--gs-w0); }
+
+/* 선택 단어 타이틀 */
+#jiyeoeo-gisangdo-root .gs-titlerow{ display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+#jiyeoeo-gisangdo-root .gs-wordtitle{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:6px; }
+#jiyeoeo-gisangdo-root .gs-wordtitle .dialect{ font-size:32px; font-weight:800; letter-spacing:-.02em; }
+#jiyeoeo-gisangdo-root .gs-wordtitle .gs-arrow{ color:var(--gs-muted); font-size:20px; }
+#jiyeoeo-gisangdo-root .gs-wordtitle .standard{ font-size:20px; color:var(--gs-muted); font-weight:600; }
+#jiyeoeo-gisangdo-root .gs-wordtitle .gs-cat{ font-size:12px; padding:2px 10px; border-radius:20px; background:var(--gs-surface-2); border:1px solid var(--gs-line); color:var(--gs-muted); }
+
+/* 히어로 (WeatherHero) */
+#jiyeoeo-gisangdo-root .gs-hero{
+  display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:14px; margin-top:10px;
+}
+#jiyeoeo-gisangdo-root .gs-hero__main{ display:flex; align-items:center; gap:20px; }
+#jiyeoeo-gisangdo-root .gs-hero__main .big{ font-size:64px; line-height:1; }
+#jiyeoeo-gisangdo-root .gs-hero__state{ font-size:26px; font-weight:800; letter-spacing:-.01em; }
+#jiyeoeo-gisangdo-root .gs-hero__state small{ display:block; font-size:12px; font-weight:500; color:var(--gs-muted); margin-top:4px; }
+#jiyeoeo-gisangdo-root .gs-hero__ctx{ margin-top:10px; }
+#jiyeoeo-gisangdo-root .gs-trend-up{ color:var(--gs-w4); font-weight:700; }
+
+/* 세대 예보 (GenForecastStrip) */
+#jiyeoeo-gisangdo-root .gs-genstrip{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+#jiyeoeo-gisangdo-root .gs-gencard{ text-align:center; padding:18px 14px; }
+#jiyeoeo-gisangdo-root .gs-gencard .gen{ font-size:13px; color:var(--gs-muted); font-weight:700; }
+#jiyeoeo-gisangdo-root .gs-gencard .ico{ font-size:40px; margin:10px 0 6px; }
+#jiyeoeo-gisangdo-root .gs-gencard .rate{ font-size:22px; font-weight:700; }
+#jiyeoeo-gisangdo-root .gs-gencard .wname{ font-size:12px; color:var(--gs-muted); }
+#jiyeoeo-gisangdo-root .gs-gencard .bar{ height:6px; border-radius:4px; background:var(--gs-surface-2); margin-top:10px; overflow:hidden; }
+#jiyeoeo-gisangdo-root .gs-gencard .bar>span{ display:block; height:100%; border-radius:4px; }
+
+/* 기상도 지도 (RegionWeatherMap) */
+/* 지도 상단 도구모음 (dialect_map.html .mapbar 계승) */
+#jiyeoeo-gisangdo-root .gs-mapbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; background:var(--gs-surface); border:1px solid var(--gs-line); border-radius:16px; padding:14px 20px; box-shadow:var(--shadow2); flex-wrap:wrap; margin:30px 0 14px; }
+#jiyeoeo-gisangdo-root .gs-mapbar__title{ font-size:19px; font-weight:800; color:var(--gs-text); letter-spacing:-.02em; }
+#jiyeoeo-gisangdo-root .gs-mapbar__title b{ color:var(--blue); }
+#jiyeoeo-gisangdo-root .gs-mapbar__meta{ font-size:12px; color:var(--gs-muted); margin-top:4px; }
+#jiyeoeo-gisangdo-root .gs-mapbar__actions{ display:flex; align-items:center; gap:8px; }
+#jiyeoeo-gisangdo-root .gs-toolbtn{ display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:#475569; background:#fff; border:1px solid var(--gs-line); border-radius:10px; padding:9px 14px; cursor:pointer; font-family:inherit; transition:.15s; }
+#jiyeoeo-gisangdo-root .gs-toolbtn:hover{ border-color:var(--blue); color:var(--blue); background:var(--blue-light); }
+#jiyeoeo-gisangdo-root .gs-toolbtn i{ font-size:16px; }
+#jiyeoeo-gisangdo-root .gs-toolbtn--primary{ background:var(--blue); border-color:var(--blue); color:#fff; }
+#jiyeoeo-gisangdo-root .gs-toolbtn--primary:hover{ background:#1d4ed8; color:#fff; }
+#jiyeoeo-gisangdo-root .gs-popwrap{ position:relative; }
+#jiyeoeo-gisangdo-root .gs-popmenu{ position:absolute; top:calc(100% + 8px); right:0; z-index:50; background:#fff; border:1px solid #cbd5e1; border-radius:14px; box-shadow:0 10px 30px rgba(15,23,42,.14); padding:14px; min-width:240px; }
+#jiyeoeo-gisangdo-root .gs-popmenu[hidden]{ display:none; }
+#jiyeoeo-gisangdo-root .gs-popmenu__sec{ padding:10px 0; border-top:1px solid #f1f5f9; }
+#jiyeoeo-gisangdo-root .gs-popmenu__sec:first-child{ border-top:none; padding-top:0; }
+#jiyeoeo-gisangdo-root .gs-popmenu__label{ font-size:12px; font-weight:800; color:#94a3b8; margin-bottom:10px; letter-spacing:.02em; }
+#jiyeoeo-gisangdo-root .gs-mschk{ display:flex; align-items:center; gap:6px; margin-bottom:8px; font-size:13px; font-weight:600; color:#475569; cursor:pointer; }
+#jiyeoeo-gisangdo-root .gs-mschk:last-child{ margin-bottom:0; }
+#jiyeoeo-gisangdo-root .gs-mschk input{ width:16px; height:16px; accent-color:var(--blue); cursor:pointer; }
+#jiyeoeo-gisangdo-root .gs-ovdot{ display:inline-block; width:11px; height:11px; border-radius:3px; }
+#jiyeoeo-gisangdo-root .gs-dlmenu__item{ display:flex; align-items:center; gap:10px; width:100%; background:none; border:none; border-radius:10px; padding:10px 12px; font-size:14px; font-weight:700; color:#334155; cursor:pointer; font-family:inherit; text-align:left; transition:.15s; }
+#jiyeoeo-gisangdo-root .gs-dlmenu__item:hover{ background:var(--blue-light); color:var(--blue); }
+#jiyeoeo-gisangdo-root .gs-dlmenu__item i{ font-size:18px; color:#64748b; }
+#jiyeoeo-gisangdo-root .gs-dlmenu__item:hover i{ color:var(--blue); }
+#jiyeoeo-gisangdo-root .gs-dlmenu__note{ display:flex; gap:6px; align-items:flex-start; margin-top:8px; padding:10px 12px; background:var(--gs-surface-2); border-radius:10px; font-size:12px; color:#64748b; line-height:1.5; }
+#jiyeoeo-gisangdo-root .gs-dlmenu__note i{ flex-shrink:0; margin-top:1px; }
+#jiyeoeo-gisangdo-root .gs-toast{ position:fixed; left:50%; bottom:32px; transform:translateX(-50%) translateY(10px); background:#0f172a; color:#fff; font-size:13px; font-weight:600; padding:12px 18px; border-radius:10px; box-shadow:0 10px 30px rgba(15,23,42,.24); display:flex; align-items:center; gap:8px; opacity:0; pointer-events:none; transition:.2s; z-index:9999; }
+#jiyeoeo-gisangdo-root .gs-toast.is-show{ opacity:1; transform:translateX(-50%) translateY(0); }
+#jiyeoeo-gisangdo-root .gs-mapwrap{ display:grid; grid-template-columns:minmax(0,1fr) 340px; gap:18px; align-items:start; }
+#jiyeoeo-gisangdo-root .gs-mappanel{ position:relative; padding:0; overflow:hidden; }
+#jiyeoeo-gisangdo-root #gs-map{ width:100%; aspect-ratio:1.18/1; height:auto; min-height:480px; background:var(--gs-surface-2); }
+#jiyeoeo-gisangdo-root .gs-mapreset{ position:absolute; top:12px; right:12px; z-index:6; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--gs-line); background:rgba(255,255,255,.94); border-radius:9px; color:#475569; cursor:pointer; box-shadow:0 2px 8px rgba(15,23,42,.1); transition:.15s; }
+#jiyeoeo-gisangdo-root .gs-mapreset:hover{ border-color:var(--blue); color:var(--blue); }
+#jiyeoeo-gisangdo-root .gs-mapreset i{ font-size:18px; }
+#jiyeoeo-gisangdo-root .gs-map-fallback{ position:absolute; inset:0; display:none; align-items:center; justify-content:center; text-align:center; color:var(--gs-muted); font-size:13px; padding:24px; }
+#jiyeoeo-gisangdo-root .gs-mapside{ display:flex; flex-direction:column; gap:12px; }
+#jiyeoeo-gisangdo-root .gs-genswitch{ display:flex; gap:6px; }
+#jiyeoeo-gisangdo-root .gs-genswitch button{
+  flex:1; height:38px; border:1px solid var(--gs-line); background:var(--gs-surface); border-radius:9px;
+  font-family:inherit; font-size:14px; font-weight:700; color:var(--gs-muted); cursor:pointer;
+}
+#jiyeoeo-gisangdo-root .gs-genswitch button.is-active{ background:#0f172a; color:#fff; border-color:#0f172a; }
+#jiyeoeo-gisangdo-root .gs-play{
+  height:38px; border:1px solid var(--gs-line); background:var(--gs-surface); border-radius:9px;
+  font-family:inherit; font-size:13px; font-weight:600; color:var(--gs-text); cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+/* 세대 예보 세로 행 (지도 우측) — 지도 세대 전환 겸용 */
+#jiyeoeo-gisangdo-root .gs-genrows{ display:flex; flex-direction:column; gap:6px; }
+#jiyeoeo-gisangdo-root .gs-genrow{ display:flex; align-items:center; gap:10px; width:100%; border:1px solid var(--gs-line); background:#fff; border-radius:10px; padding:8px 10px; cursor:pointer; font-family:inherit; transition:.12s; }
+#jiyeoeo-gisangdo-root .gs-genrow:hover{ border-color:#93c5fd; background:#f8fbff; }
+#jiyeoeo-gisangdo-root .gs-genrow.is-active{ border-color:#0f172a; background:#0f172a; }
+#jiyeoeo-gisangdo-root .gs-genrow .gr-emoji{ font-size:20px; line-height:1; }
+#jiyeoeo-gisangdo-root .gs-genrow .gr-gen{ font-size:13px; font-weight:800; color:var(--gs-text); min-width:34px; text-align:left; }
+#jiyeoeo-gisangdo-root .gs-genrow.is-active .gr-gen{ color:#fff; }
+#jiyeoeo-gisangdo-root .gs-genrow .gr-bar{ flex:1; height:6px; border-radius:4px; background:var(--gs-surface-2); overflow:hidden; }
+#jiyeoeo-gisangdo-root .gs-genrow.is-active .gr-bar{ background:rgba(255,255,255,.25); }
+#jiyeoeo-gisangdo-root .gs-genrow .gr-bar>span{ display:block; height:100%; border-radius:4px; }
+#jiyeoeo-gisangdo-root .gs-genrow .gr-rate{ font-size:14px; font-weight:800; min-width:40px; text-align:right; }
+#jiyeoeo-gisangdo-root .gs-genrow.is-active .gr-rate{ color:#fff !important; }
+#jiyeoeo-gisangdo-root .gs-legend .row{ display:flex; align-items:center; gap:8px; font-size:12px; padding:3px 0; }
+#jiyeoeo-gisangdo-root .gs-legend .sw{ width:14px; height:14px; border-radius:3px; }
+
+/* 지도 우측 하단 아코디언 범례 */
+#jiyeoeo-gisangdo-root .gs-map-legend-acc{
+  position:absolute; bottom:12px; right:12px; z-index:6;
+  background:rgba(255,255,255,.94); backdrop-filter:blur(4px);
+  border:1px solid var(--gs-line); border-radius:12px;
+  box-shadow:0 4px 14px rgba(15,23,42,.12); overflow:hidden;
+  transition:all .2s ease; width:175px;
+}
+#jiyeoeo-gisangdo-root .gs-map-legend-acc__toggle{
+  display:flex; align-items:center; justify-content:space-between; gap:6px;
+  width:100%; padding:8px 11px; background:transparent; border:none;
+  font-family:inherit; font-size:12px; font-weight:800; color:#1e293b;
+  cursor:pointer; text-align:left;
+}
+#jiyeoeo-gisangdo-root .gs-map-legend-acc__toggle:hover{ background:rgba(241,245,249,.8); }
+#jiyeoeo-gisangdo-root .gs-map-legend-acc__toggle .chev{ font-size:14px; color:#64748b; transition:transform .2s; }
+#jiyeoeo-gisangdo-root .gs-map-legend-acc.is-collapsed .gs-map-legend-acc__toggle .chev{ transform:rotate(180deg); }
+#jiyeoeo-gisangdo-root .gs-map-legend-acc.is-collapsed .gs-map-legend-acc__body{ display:none; }
+#jiyeoeo-gisangdo-root .gs-map-legend-acc__body{ padding:4px 11px 8px; border-top:1px solid #f1f5f9; }
+#jiyeoeo-gisangdo-root .gs-map-legend-acc__body .row{ display:flex; align-items:center; gap:7px; font-size:11.5px; padding:2.5px 0; color:#334155; }
+#jiyeoeo-gisangdo-root .gs-map-legend-acc__body .sw{ width:11px; height:11px; border-radius:3px; flex-shrink:0; }
+#jiyeoeo-gisangdo-root .gs-note{ font-size:11px; color:var(--gs-muted); line-height:1.5; }
+/* 지도 날씨 이모지 마커 — 버블(링) 없이 아이콘만 */
+#jiyeoeo-gisangdo-root .gs-olmarker{ transform:translate(-50%,-50%); pointer-events:none; user-select:none; }
+#jiyeoeo-gisangdo-root .gs-olring{ display:flex; flex-direction:column; align-items:center; justify-content:center; }
+#jiyeoeo-gisangdo-root .gs-olemoji{ font-size:48px; line-height:1; filter:drop-shadow(0 2px 4px rgba(0,0,0,.32)); }
+#jiyeoeo-gisangdo-root .gs-ollabel{ margin-top:4px; display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,.94); border-radius:20px; padding:3px 11px; box-shadow:0 2px 6px rgba(15,23,42,.2); white-space:nowrap; }
+#jiyeoeo-gisangdo-root .gs-ollabel .nm{ font-size:14px; font-weight:800; color:#334155; letter-spacing:-.01em; }
+#jiyeoeo-gisangdo-root .gs-olpct{ font-size:14px; font-weight:800; line-height:1.1; }
+/* 지도 팝업 오버레이 — dialect_map.html 방식(말풍선) 이식, 세대(70/50/20대) 기상도 표현 */
+#jiyeoeo-gisangdo-root .gs-popover{
+  position:absolute; z-index:1000; min-width:320px; max-width:360px;
+  background:#fff; border:1px solid #cbd5e1; border-radius:12px;
+  box-shadow:0 4px 20px rgba(15,23,42,.15); padding:0; overflow:hidden;
+  transform:translateX(-50%); display:none;
+}
+#jiyeoeo-gisangdo-root .gs-popover.is-open{ display:block; }
+/* 말풍선 꼬리 — 기본: 아래를 가리킴(팝업이 클릭 지점 위) */
+#jiyeoeo-gisangdo-root .gs-popover::after,
+#jiyeoeo-gisangdo-root .gs-popover::before{
+  content:" "; position:absolute; top:100%; left:50%; width:0; height:0;
+  border:solid transparent; pointer-events:none;
+}
+#jiyeoeo-gisangdo-root .gs-popover::after{ border-top-color:#fff; border-width:10px; margin-left:-10px; }
+#jiyeoeo-gisangdo-root .gs-popover::before{ border-top-color:#cbd5e1; border-width:11px; margin-left:-11px; }
+/* 팝업이 클릭 지점 아래로 뒤집힐 때: 꼬리가 위를 가리킴 */
+#jiyeoeo-gisangdo-root .gs-popover.gs-pop--below::after,
+#jiyeoeo-gisangdo-root .gs-popover.gs-pop--below::before{ top:auto; bottom:100%; }
+#jiyeoeo-gisangdo-root .gs-popover.gs-pop--below::after{ border-top-color:transparent; border-bottom-color:#fff; }
+#jiyeoeo-gisangdo-root .gs-popover.gs-pop--below::before{ border-top-color:transparent; border-bottom-color:#cbd5e1; }
+#jiyeoeo-gisangdo-root .gs-pophead{
+  display:flex; justify-content:space-between; align-items:center;
+  background:#f8fafc; border-bottom:1px solid #e2e8f0; padding:10px 16px;
+}
+#jiyeoeo-gisangdo-root .gs-pophead__title{
+  display:flex; align-items:center; gap:10px; font-size:13px; font-weight:700; color:#475569;
+}
+#jiyeoeo-gisangdo-root .gs-pophead__region{ color:#1e293b; font-weight:800; font-size:15px; }
+#jiyeoeo-gisangdo-root .gs-popclose{
+  background:none; border:none; font-size:16px; color:#94a3b8; cursor:pointer;
+  padding:0; display:flex; align-items:center;
+}
+#jiyeoeo-gisangdo-root .gs-popclose:hover{ color:#475569; }
+#jiyeoeo-gisangdo-root .gs-popbody{ padding:16px; }
+#jiyeoeo-gisangdo-root .gs-popbody__title{ font-size:14px; font-weight:800; color:#1e293b; margin-bottom:10px; }
+#jiyeoeo-gisangdo-root .gs-popbody__title span{ color:#ef4444; }
+#jiyeoeo-gisangdo-root .gs-poptable{ width:100%; border-collapse:collapse; font-size:13px; }
+#jiyeoeo-gisangdo-root .gs-poptable th{
+  background:#f1f5f9; color:#475569; font-weight:700; padding:8px;
+  border-bottom:1px solid #e2e8f0; text-align:center;
+}
+#jiyeoeo-gisangdo-root .gs-poptable td{
+  padding:10px 8px; border-bottom:1px solid #f1f5f9; text-align:center; color:#334155; font-weight:600;
+}
+#jiyeoeo-gisangdo-root .gs-poptable tr:last-child td{ border-bottom:none; }
+#jiyeoeo-gisangdo-root .gs-poptable tr.is-current td{ background:#fffbeb; }
+#jiyeoeo-gisangdo-root .gs-poptable .gs-popweather{ display:inline-flex; align-items:center; gap:5px; font-weight:700; }
+#jiyeoeo-gisangdo-root .gs-popspeaker{
+  background:#fee2e2; color:#dc2626; border:none; width:26px; height:26px; border-radius:50%;
+  font-size:13px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
+  transition:all .2s; vertical-align:middle;
+}
+#jiyeoeo-gisangdo-root .gs-popspeaker:hover{ background:#fca5a5; transform:scale(1.1); }
+#jiyeoeo-gisangdo-root .gs-popspeaker.is-playing{ animation:gsPopPulse 1s infinite; }
+@keyframes gsPopPulse{
+  0%{ transform:scale(1); }
+  50%{ transform:scale(1.15); box-shadow:0 0 0 4px rgba(239,68,68,.2); }
+  100%{ transform:scale(1); }
+}
+@media (max-width:640px){
+  #jiyeoeo-gisangdo-root .gs-popover{ min-width:min(300px,84vw); max-width:84vw; }
+  #jiyeoeo-gisangdo-root .gs-pophead{ padding:8px 12px; }
+  #jiyeoeo-gisangdo-root .gs-popbody{ padding:12px; }
+  #jiyeoeo-gisangdo-root .gs-poptable{ font-size:12px; }
+  #jiyeoeo-gisangdo-root .gs-poptable th,
+  #jiyeoeo-gisangdo-root .gs-poptable td{ padding:6px 4px; }
+}
+
+/* 소멸 경보 배너 (AlertBanner) — 지도 사이드 컬럼 세로형 */
+#jiyeoeo-gisangdo-root .gs-alertbanner{
+  display:flex; flex-direction:column; gap:8px;
+  background:linear-gradient(180deg,#fef2f2,#fff); border:1px solid #fecaca; border-left:4px solid var(--gs-lv-crisis);
+  border-radius:var(--gs-radius); padding:14px 16px; cursor:pointer; transition:box-shadow .15s;
+}
+#jiyeoeo-gisangdo-root .gs-alertbanner:hover{ box-shadow:0 4px 14px rgba(163,45,45,.15); }
+#jiyeoeo-gisangdo-root .gs-ab-head{ display:flex; align-items:center; gap:8px; font-size:14px; }
+#jiyeoeo-gisangdo-root .gs-ab-head b{ color:var(--gs-lv-crisis); font-weight:800; }
+#jiyeoeo-gisangdo-root .gs-alertbanner i.lead{ font-size:20px; color:var(--gs-lv-crisis); }
+#jiyeoeo-gisangdo-root .gs-alertbanner .txt{ font-size:12px; color:var(--gs-muted); line-height:1.5; }
+#jiyeoeo-gisangdo-root .gs-alertbanner .txt b{ color:var(--gs-lv-crisis); }
+#jiyeoeo-gisangdo-root .gs-alertbanner .go{ color:#b91c1c; font-weight:700; font-size:13px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px; }
+
+/* 모드 토글 (ModeToggle) */
+#jiyeoeo-gisangdo-root .gs-modetoggle{ display:inline-flex; background:var(--gs-surface-2); border:1px solid var(--gs-line); border-radius:10px; padding:3px; }
+#jiyeoeo-gisangdo-root .gs-modetoggle button{
+  border:0; background:transparent; font-family:inherit; font-size:14px; font-weight:700; color:var(--gs-muted);
+  padding:7px 20px; border-radius:8px; cursor:pointer;
+}
+#jiyeoeo-gisangdo-root .gs-modetoggle button.is-active{ background:var(--gs-surface); color:var(--gs-text); box-shadow:0 1px 3px rgba(15,23,42,.12); }
+
+/* 방언형 목록 (FormMetaList) */
+#jiyeoeo-gisangdo-root .gs-forms{ display:flex; flex-direction:column; gap:8px; }
+#jiyeoeo-gisangdo-root .gs-form{ display:flex; align-items:center; gap:12px; padding:10px 14px; }
+#jiyeoeo-gisangdo-root .gs-form .surface{ font-size:16px; font-weight:700; min-width:96px; }
+#jiyeoeo-gisangdo-root .gs-form .ipa{ font-size:13px; color:var(--gs-muted); font-family:ui-monospace,monospace; }
+#jiyeoeo-gisangdo-root .gs-form .regions{ margin-left:auto; display:flex; gap:4px; flex-wrap:wrap; }
+#jiyeoeo-gisangdo-root .gs-tag{ font-size:11px; padding:2px 8px; border-radius:20px; background:var(--gs-surface-2); border:1px solid var(--gs-line); color:var(--gs-muted); }
+
+/* 전문가 통계 (StatPanel / CrossTabTable) */
+#jiyeoeo-gisangdo-root .gs-statgrid{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+#jiyeoeo-gisangdo-root .gs-stars{ color:var(--gs-w1); letter-spacing:2px; }
+#jiyeoeo-gisangdo-root table.gs-ct{ width:100%; border-collapse:collapse; font-size:13px; }
+#jiyeoeo-gisangdo-root table.gs-ct th, #jiyeoeo-gisangdo-root table.gs-ct td{ padding:9px 10px; text-align:center; border-bottom:1px solid var(--gs-line); }
+#jiyeoeo-gisangdo-root table.gs-ct thead th{ background:var(--gs-surface-2); font-weight:700; font-size:12px; }
+#jiyeoeo-gisangdo-root table.gs-ct td.grp{ text-align:left; font-weight:700; }
+#jiyeoeo-gisangdo-root table.gs-ct .mini{ display:inline-block; height:5px; border-radius:3px; vertical-align:middle; margin-left:6px; }
+
+/* 다운로드 바 (DataDownloadBar) */
+#jiyeoeo-gisangdo-root .gs-dlbar{ display:flex; gap:10px; flex-wrap:wrap; }
+#jiyeoeo-gisangdo-root .gs-dlbtn{
+  display:inline-flex; align-items:center; gap:7px; font-family:inherit; font-size:13px; font-weight:600;
+  padding:9px 16px; border-radius:9px; border:1px solid var(--gs-line); background:var(--gs-surface); color:var(--gs-text); cursor:pointer;
+}
+#jiyeoeo-gisangdo-root .gs-dlbtn[disabled]{ opacity:.42; cursor:not-allowed; }
+#jiyeoeo-gisangdo-root .gs-dlbtn i{ font-size:16px; }
+
+/* 방법론 고지 (MethodologyNote) */
+#jiyeoeo-gisangdo-root .gs-method{ background:var(--gs-surface-2); border:1px solid var(--gs-line); border-radius:var(--gs-radius); padding:16px 18px; font-size:13px; color:#475569; line-height:1.65; }
+#jiyeoeo-gisangdo-root .gs-method h4{ margin:0 0 8px; font-size:13px; color:var(--gs-text); }
+#jiyeoeo-gisangdo-root .gs-appnote{ background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:12px 14px; margin-top:12px; color:#92400e; font-size:12.5px; line-height:1.6; }
+#jiyeoeo-gisangdo-root .gs-appnote b{ color:#78350f; }
+
+/* 소멸 경보 화면 (AlertList) */
+#jiyeoeo-gisangdo-root .gs-alerthero{ display:flex; align-items:center; gap:22px; border-left:4px solid var(--gs-lv-crisis); background:linear-gradient(90deg,#fef2f2,#fff); }
+#jiyeoeo-gisangdo-root .gs-alerthero .big{ font-size:58px; }
+#jiyeoeo-gisangdo-root .gs-chips{ display:flex; gap:8px; margin:16px 0; }
+#jiyeoeo-gisangdo-root .gs-chip{ font-family:inherit; font-size:13px; font-weight:700; padding:8px 16px; border-radius:20px; border:1px solid var(--gs-line); background:var(--gs-surface); color:var(--gs-muted); cursor:pointer; }
+#jiyeoeo-gisangdo-root .gs-chip.is-active{ background:#0f172a; border-color:#0f172a; color:#fff; }
+#jiyeoeo-gisangdo-root .gs-alist{ border:1px solid var(--gs-line); border-radius:var(--gs-radius); overflow:hidden; }
+#jiyeoeo-gisangdo-root .gs-arow{ display:grid; grid-template-columns:44px 44px 1fr 130px 92px; align-items:center; gap:12px; padding:14px 18px; border-bottom:1px solid var(--gs-line); cursor:pointer; }
+#jiyeoeo-gisangdo-root .gs-arow:last-child{ border-bottom:0; }
+#jiyeoeo-gisangdo-root .gs-arow:hover{ background:var(--gs-surface-2); }
+#jiyeoeo-gisangdo-root .gs-arow .rank{ font-size:18px; font-weight:800; color:var(--gs-muted); text-align:center; }
+#jiyeoeo-gisangdo-root .gs-arow .ico{ font-size:26px; text-align:center; }
+#jiyeoeo-gisangdo-root .gs-arow .word b{ font-size:16px; }
+#jiyeoeo-gisangdo-root .gs-arow .word small{ color:var(--gs-muted); margin-left:8px; }
+#jiyeoeo-gisangdo-root .gs-arow .snap{ font-weight:800; color:var(--gs-w4); text-align:right; }
+#jiyeoeo-gisangdo-root .gs-lvbadge{ font-size:11px; font-weight:800; padding:4px 10px; border-radius:20px; color:#fff; text-align:center; }
+
+#jiyeoeo-gisangdo-root .gs-empty{ text-align:center; padding:60px 20px; color:var(--gs-muted); font-size:14px; }
+#jiyeoeo-gisangdo-root .gs-backlink{ display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:var(--gs-muted); cursor:pointer; margin-bottom:14px; }
+#jiyeoeo-gisangdo-root .gs-mt{ margin-top:14px; }
+
+/* OpenLayers 기본 컨트롤 톤 다운 */
+#jiyeoeo-gisangdo-root .ol-zoom{ top:10px; left:10px; }
+
+/* ── 지역별 세대 기상도 (RegionGenForecast · 기상청 예보 스타일) ── */
+#jiyeoeo-gisangdo-root .gs-regionsec{ margin-top:40px; }
+#jiyeoeo-gisangdo-root .gs-rghead{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:18px; }
+#jiyeoeo-gisangdo-root .gs-rghead h3{ margin:0; font-size:24px; font-weight:800; letter-spacing:-.03em; color:var(--gs-text); }
+#jiyeoeo-gisangdo-root .gs-rghead .sub{ font-size:13px; color:var(--gs-muted); margin-top:6px; line-height:1.5; }
+#jiyeoeo-gisangdo-root .gs-rglegend{ display:flex; flex-wrap:wrap; gap:14px; }
+#jiyeoeo-gisangdo-root .gs-rglg{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--gs-muted); }
+#jiyeoeo-gisangdo-root .gs-rglg-sw{ width:12px; height:12px; border-radius:4px; display:inline-block; }
+
+#jiyeoeo-gisangdo-root .gs-fcgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:12px; }
+#jiyeoeo-gisangdo-root .gs-fc-card{ background:var(--gs-surface); border:1px solid var(--gs-line); border-radius:14px; padding:11px 12px 12px; box-shadow:var(--shadow2); }
+#jiyeoeo-gisangdo-root .gs-fc-card__head{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:9px; }
+#jiyeoeo-gisangdo-root .gs-fc-region{ font-size:17px; font-weight:800; letter-spacing:-.03em; color:var(--gs-text); }
+#jiyeoeo-gisangdo-root .gs-fc-badge{ font-size:10.5px; font-weight:800; padding:3px 9px; border-radius:20px; white-space:nowrap; }
+#jiyeoeo-gisangdo-root .gs-fc-badge--w1{ background:var(--gs-w1-bg); color:var(--gs-w1); }
+#jiyeoeo-gisangdo-root .gs-fc-badge--w2{ background:var(--gs-w2-bg); color:var(--gs-w2); }
+#jiyeoeo-gisangdo-root .gs-fc-badge--w3{ background:var(--gs-w3-bg); color:var(--gs-w3); }
+#jiyeoeo-gisangdo-root .gs-fc-badge--w4{ background:var(--gs-w4-bg); color:var(--gs-w4); }
+#jiyeoeo-gisangdo-root .gs-fc-badge--w0{ background:var(--gs-w0-bg); color:var(--gs-w0); }
+#jiyeoeo-gisangdo-root .gs-fc-gens{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+#jiyeoeo-gisangdo-root .gs-fc-gen{ display:flex; flex-direction:column; align-items:center; gap:5px; padding:10px 4px 9px; border-radius:11px; }
+#jiyeoeo-gisangdo-root .gs-fc-gen--w1{ background:var(--gs-w1-bg); }
+#jiyeoeo-gisangdo-root .gs-fc-gen--w2{ background:var(--gs-w2-bg); }
+#jiyeoeo-gisangdo-root .gs-fc-gen--w3{ background:var(--gs-w3-bg); }
+#jiyeoeo-gisangdo-root .gs-fc-gen--w4{ background:var(--gs-w4-bg); }
+#jiyeoeo-gisangdo-root .gs-fc-gen--w0{ background:var(--gs-w0-bg); }
+#jiyeoeo-gisangdo-root .gs-fc-gen__label{ font-size:12px; font-weight:800; color:var(--gs-muted); }
+#jiyeoeo-gisangdo-root .gs-fc-gen__icon{ font-size:28px; line-height:1; }
+#jiyeoeo-gisangdo-root .gs-fc-gen__pct{ font-size:17px; font-weight:800; letter-spacing:-.02em; }
+#jiyeoeo-gisangdo-root .gs-fc--w1{ color:var(--gs-w1); }
+#jiyeoeo-gisangdo-root .gs-fc--w2{ color:var(--gs-w2); }
+#jiyeoeo-gisangdo-root .gs-fc--w3{ color:var(--gs-w3); }
+#jiyeoeo-gisangdo-root .gs-fc--w4{ color:var(--gs-w4); }
+#jiyeoeo-gisangdo-root .gs-fc--w0{ color:var(--gs-w0); }
+@media(max-width:520px){ #jiyeoeo-gisangdo-root .gs-fcgrid{ grid-template-columns:repeat(2,1fr); } }
+
+/* ── 기상 브리핑 (WeatherBrief · 일반인용 한눈 요약) ─────────────── */
+#jiyeoeo-gisangdo-root .gs-brief{
+  background:linear-gradient(135deg,#f8fbff 0%,#ffffff 60%);
+  border:1px solid var(--gs-line); border-radius:16px; padding:18px 20px 16px;
+  margin:14px 0 4px; box-shadow:var(--shadow2);
+}
+#jiyeoeo-gisangdo-root .gs-brief__top{ display:flex; align-items:center; gap:16px; }
+/* 지도 우측 사이드(소멸 경보 아래)용 컴팩트 재구성 */
+#jiyeoeo-gisangdo-root .gs-brief--side{ margin:0; padding:14px 15px; border-radius:var(--gs-radius); }
+#jiyeoeo-gisangdo-root .gs-brief--side .gs-brief__top{ gap:12px; }
+#jiyeoeo-gisangdo-root .gs-brief--side .gs-brief__emoji{ font-size:40px; }
+#jiyeoeo-gisangdo-root .gs-brief--side .gs-brief__lead{ font-size:15px; line-height:1.35; white-space:nowrap; letter-spacing:-.03em; }
+#jiyeoeo-gisangdo-root .gs-brief--side .gs-brief__sub{ font-size:12px; }
+#jiyeoeo-gisangdo-root .gs-brief--side .gs-trend__drop{ display:none; }
+#jiyeoeo-gisangdo-root .gs-brief__help--full{ width:100%; justify-content:center; margin-top:12px; }
+#jiyeoeo-gisangdo-root .gs-brief--side .gs-trend{ margin-top:12px; }
+#jiyeoeo-gisangdo-root .gs-brief--side .gs-tcol .e{ font-size:26px; }
+#jiyeoeo-gisangdo-root .gs-brief--side .gs-tcol .p{ font-size:19px; }
+#jiyeoeo-gisangdo-root .gs-brief__emoji{ font-size:52px; line-height:1; flex:none; filter:drop-shadow(0 2px 4px rgba(0,0,0,.12)); }
+#jiyeoeo-gisangdo-root .gs-brief__msg{ flex:1; min-width:0; }
+#jiyeoeo-gisangdo-root .gs-brief__lead{ font-size:19px; font-weight:800; letter-spacing:-.02em; line-height:1.4; color:#0f172a; }
+#jiyeoeo-gisangdo-root .gs-brief__lead b{ font-weight:800; }
+#jiyeoeo-gisangdo-root .gs-brief__sub{ font-size:13px; color:var(--gs-muted); margin-top:5px; font-weight:600; }
+#jiyeoeo-gisangdo-root .gs-brief__sub b{ color:var(--gs-w4); }
+#jiyeoeo-gisangdo-root .gs-brief__help{ flex:none; align-self:flex-start; display:inline-flex; align-items:center; gap:5px; border:1px solid var(--gs-line); background:#fff; border-radius:9px; padding:7px 12px; font-family:inherit; font-size:12px; font-weight:700; color:#64748b; cursor:pointer; transition:.15s; }
+#jiyeoeo-gisangdo-root .gs-brief__help:hover{ border-color:#93c5fd; color:var(--blue); background:#f8fbff; }
+#jiyeoeo-gisangdo-root .gs-brief__help i{ font-size:15px; }
+
+/* 세대 추세 (슬로프 + 3키프레임) */
+#jiyeoeo-gisangdo-root .gs-trend{ position:relative; margin-top:16px; padding-top:6px; border-top:1px dashed var(--gs-line); }
+#jiyeoeo-gisangdo-root .gs-trend__svg{ position:absolute; inset:14px 0 auto; width:100%; height:96px; pointer-events:none; z-index:0; }
+#jiyeoeo-gisangdo-root .gs-trend__cols{ position:relative; z-index:1; display:grid; grid-template-columns:repeat(3,1fr); }
+#jiyeoeo-gisangdo-root .gs-tcol{ display:flex; flex-direction:column; align-items:center; gap:3px; padding-top:14px; }
+#jiyeoeo-gisangdo-root .gs-tcol .g{ font-size:12px; font-weight:800; color:var(--gs-muted); }
+#jiyeoeo-gisangdo-root .gs-tcol .e{ font-size:30px; line-height:1; }
+#jiyeoeo-gisangdo-root .gs-tcol .p{ font-size:22px; font-weight:800; letter-spacing:-.02em; }
+#jiyeoeo-gisangdo-root .gs-tcol .wl{ font-size:11px; font-weight:700; color:var(--gs-muted); }
+#jiyeoeo-gisangdo-root .gs-trend__drop{ position:absolute; top:-2px; right:0; z-index:2; font-size:12px; font-weight:800; color:var(--gs-w4); background:var(--gs-w4-bg); border:1px solid #f3c9c9; border-radius:20px; padding:4px 11px; }
+
+/* 읽는 법 가이드 */
+#jiyeoeo-gisangdo-root .gs-guide{ margin-top:14px; border-top:1px solid var(--gs-line); padding-top:14px; }
+#jiyeoeo-gisangdo-root .gs-guide[hidden]{ display:none; }
+#jiyeoeo-gisangdo-root .gs-guide__grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+#jiyeoeo-gisangdo-root .gs-guide__item{ display:flex; align-items:flex-start; gap:10px; padding:10px 12px; border-radius:11px; }
+#jiyeoeo-gisangdo-root .gs-guide__item .gi-e{ font-size:24px; line-height:1; flex:none; }
+#jiyeoeo-gisangdo-root .gs-guide__item .gi-t{ font-size:13px; font-weight:800; }
+#jiyeoeo-gisangdo-root .gs-guide__item .gi-d{ font-size:11.5px; color:var(--gs-muted); font-weight:600; margin-top:1px; line-height:1.4; }
+
+/* ── 성별 격차 분석 (GenderGap · 전문가용) ───────────────────────── */
+#jiyeoeo-gisangdo-root .gs-gg{ display:flex; flex-direction:column; gap:12px; }
+#jiyeoeo-gisangdo-root .gs-gg__row{ display:grid; grid-template-columns:52px 1fr 84px; align-items:center; gap:14px; }
+#jiyeoeo-gisangdo-root .gs-gg__gen{ font-size:14px; font-weight:800; color:var(--gs-text); }
+#jiyeoeo-gisangdo-root .gs-gg__bars{ display:flex; flex-direction:column; gap:6px; }
+#jiyeoeo-gisangdo-root .gs-gg__bar{ display:flex; align-items:center; gap:8px; }
+#jiyeoeo-gisangdo-root .gs-gg__tag{ font-size:11px; font-weight:800; width:34px; flex:none; }
+#jiyeoeo-gisangdo-root .gs-gg__tag--m{ color:#1d4ed8; }
+#jiyeoeo-gisangdo-root .gs-gg__tag--f{ color:#be185d; }
+#jiyeoeo-gisangdo-root .gs-gg__track{ flex:1; height:14px; border-radius:7px; background:var(--gs-surface-2); overflow:hidden; }
+#jiyeoeo-gisangdo-root .gs-gg__fill{ display:block; height:100%; border-radius:7px; }
+#jiyeoeo-gisangdo-root .gs-gg__fill--m{ background:linear-gradient(90deg,#3b82f6,#1d4ed8); }
+#jiyeoeo-gisangdo-root .gs-gg__fill--f{ background:linear-gradient(90deg,#ec4899,#be185d); }
+#jiyeoeo-gisangdo-root .gs-gg__val{ font-size:11px; font-weight:700; color:var(--gs-muted); min-width:34px; }
+#jiyeoeo-gisangdo-root .gs-gg__gap{ font-size:13px; font-weight:800; text-align:right; }
+#jiyeoeo-gisangdo-root .gs-gg__gap small{ display:block; font-size:10px; font-weight:600; color:var(--gs-muted); }
+#jiyeoeo-gisangdo-root .gs-gg__summary{ font-size:12.5px; color:#475569; line-height:1.6; background:var(--gs-surface-2); border-radius:10px; padding:11px 13px; }
+#jiyeoeo-gisangdo-root .gs-gg__summary b{ color:var(--gs-text); }
+
+/* ── 방언형 계열 섹션 (LineageShift · 벼 vs 나락) ─────────────────── */
+#jiyeoeo-gisangdo-root .gs-linsec{ margin-top:40px; }
+#jiyeoeo-gisangdo-root .gs-lchips{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:18px; }
+#jiyeoeo-gisangdo-root .gs-lfam{ background:var(--gs-surface-2); border:1px solid var(--gs-line); border-radius:12px; padding:14px 16px; }
+#jiyeoeo-gisangdo-root .gs-lfam__top{ display:flex; align-items:center; gap:8px; margin-bottom:5px; }
+#jiyeoeo-gisangdo-root .gs-lfam__top .sw{ width:12px; height:12px; border-radius:3px; flex:none; }
+#jiyeoeo-gisangdo-root .gs-lfam__top b{ font-size:15px; font-weight:800; }
+#jiyeoeo-gisangdo-root .gs-lfam__top .forms{ font-size:13px; color:var(--gs-muted); font-weight:600; }
+#jiyeoeo-gisangdo-root .gs-lfam__reg{ font-size:12.5px; color:var(--gs-muted); }
+
+#jiyeoeo-gisangdo-root .gs-lbars{ display:flex; flex-direction:column; gap:16px; margin-bottom:22px; }
+#jiyeoeo-gisangdo-root .gs-lbar-head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:6px; }
+#jiyeoeo-gisangdo-root .gs-lbar-head .g{ font-size:15px; font-weight:800; color:var(--gs-text); }
+#jiyeoeo-gisangdo-root .gs-lbar-head .note{ font-size:12px; color:var(--gs-muted); }
+#jiyeoeo-gisangdo-root .gs-lbar{ display:flex; height:34px; border-radius:8px; overflow:hidden; gap:2px; background:var(--gs-surface-2); }
+#jiyeoeo-gisangdo-root .gs-lseg{ display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; min-width:0; transition:width .5s ease; }
+
+#jiyeoeo-gisangdo-root .gs-lmapwrap{ display:grid; grid-template-columns:minmax(0,1fr) 340px; gap:18px; align-items:start; }
+#jiyeoeo-gisangdo-root #gs-linmap{ width:100%; aspect-ratio:1.18/1; height:auto; min-height:480px; background:var(--gs-surface-2); }
+#jiyeoeo-gisangdo-root .gs-lmarker{ transform:translate(-50%,-50%); background:rgba(255,255,255,.95); border:2px solid #ccc; border-radius:20px; padding:3px 12px; box-shadow:0 2px 6px rgba(15,23,42,.2); white-space:nowrap; }
+#jiyeoeo-gisangdo-root .gs-lmarker .nm{ font-size:14px; font-weight:800; letter-spacing:-.01em; }
+#jiyeoeo-gisangdo-root .gs-lin-caption{ font-size:12.5px; color:#475569; line-height:1.5; background:var(--gs-surface-2); border-radius:9px; padding:9px 11px; }
+#jiyeoeo-gisangdo-root .gs-lin-caption b{ color:var(--gs-text); }
+
+/* 지역별 세대 기상도 · 계열 (LineageRegionGrid) */
+#jiyeoeo-gisangdo-root .gs-linregion-chips{ margin:0 0 16px; }
+#jiyeoeo-gisangdo-root .gs-linregion-chips .dot{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+#jiyeoeo-gisangdo-root .gs-lfc-gen{ display:flex; flex-direction:column; align-items:center; gap:4px; padding:11px 4px 10px; border-radius:11px; transition:opacity .2s, filter .2s; }
+#jiyeoeo-gisangdo-root .gs-lfc-gen__label{ font-size:12px; font-weight:800; color:var(--gs-muted); }
+#jiyeoeo-gisangdo-root .gs-lfc-gen__name{ font-size:15px; font-weight:800; letter-spacing:-.01em; }
+#jiyeoeo-gisangdo-root .gs-lfc-gen--byeo{ background:#E6F1FB; }
+#jiyeoeo-gisangdo-root .gs-lfc-gen--byeo .gs-lfc-gen__name{ color:#185FA5; }
+#jiyeoeo-gisangdo-root .gs-lfc-gen--both{ background:#F0F0EE; }
+#jiyeoeo-gisangdo-root .gs-lfc-gen--both .gs-lfc-gen__name{ color:#5F5E5A; }
+#jiyeoeo-gisangdo-root .gs-lfc-gen--narak{ background:#FAEBE3; }
+#jiyeoeo-gisangdo-root .gs-lfc-gen--narak .gs-lfc-gen__name{ color:#993C1D; }
+#jiyeoeo-gisangdo-root .gs-lfc-gen.is-dim{ opacity:.26; filter:grayscale(.7); }
+#jiyeoeo-gisangdo-root .gs-lfc-gen.is-mapgen{ box-shadow:inset 0 0 0 2px #0f172a; }
+#jiyeoeo-gisangdo-root .gs-lfc-gen.is-mapgen .gs-lfc-gen__label{ color:#0f172a; }
+#jiyeoeo-gisangdo-root .gs-lfc-badge{ font-size:10.5px; font-weight:800; padding:3px 9px; border-radius:20px; white-space:nowrap; }
+</style>
+</head>
+<body>
+
+  <!-- 공통 GNB (gnb.js) -->
+  <div id="gnb-common"></div>
+
+  <!-- ===== 공통 서브 비주얼: 타이틀 · 로케이션 · 공유 도구 =====
+       사이트 공통 화면 규격. 공유/URL복사/인쇄 도구는 share.js가 .sub-visual .wrap에 자동 주입한다. -->
+  <div class="sub-visual">
+    <div class="wrap">
+      <h1 class="sv-title">지역어 기상도</h1>
+      <div class="location-bar">
+        <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer;" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
+        <i class="ti ti-chevron-right loc-sep" aria-hidden="true"></i>
+        <div class="loc-item">
+          <select aria-label="상위 메뉴 이동" onchange="if(this.value) location.href=this.value;">
+            <option value="./dialect_map.html" selected>지역어 지도</option>
+            <option value="./dialect_search_prototype.html">지역어 검색</option>
+            <option value="./region_culture.html">지역어 자료관</option>
+            <option value="./notice.html">알림마당</option>
+            <option value="./about_intro.html">누리집소개</option>
+          </select>
+        </div>
+        <i class="ti ti-chevron-right loc-sep" aria-hidden="true"></i>
+        <div class="loc-item">
+          <select aria-label="하위 메뉴 이동" onchange="if(this.value) location.href=this.value;">
+            <option value="./dialect_gisangdo.html" selected>지역어 기상도</option>
+            <option value="./dialect_map.html">지역어 지도</option>
+            <option value="./dialect_our_town.html">지역어 지도 비교</option>
+            <option value="./dialect_awareness.html">지역어 현황(기상도)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 본문 영역: 지역어 기상도 모듈 마운트 지점 =====
+       실제 통합 시엔 기존 시스템이 지정한 셀렉터에 아래 루트를 주입한다(사양서 §2.1). -->
+  <main>
+    <div id="jiyeoeo-gisangdo-root" data-gisangdo>
+
+      <!-- 3개 화면이 전환되는 뷰 슬롯 (해시 라우팅 §3) -->
+      <div id="gs-view" aria-live="polite"></div>
+    </div>
+  </main>
+
+  <!-- 공통 Footer (footer.js) -->
+  <div id="footer-common"></div>
+
+  <!-- 공통 지도 컴포넌트 (사양서 7장: 새 지도 제작 금지, 공통 지도 재사용) -->
+  <script src="https://cdn.jsdelivr.net/npm/ol@v10.9.0/dist/ol.js"></script>
+  <script src="./skorea-provinces.js"></script>
+  <script src="./skorea-labels.js"></script>
+  <script src="./korea-map.js"></script>
+
+  <!--
+    ==========================================================================
+    지역어 기상도 — 모듈 스크립트 (바닐라, 격리)
+    데이터는 사양서 §5.6 스키마를 따르는 정규화 JSON을 인라인으로 둔다.
+    (실서비스에선 빌드 타임 전처리 스크립트가 엑셀/보고서 → JSON 생성. §5.6)
+    ==========================================================================
+  -->
+  <script>
+  (function(){
+    'use strict';
+
+    /* ── 날씨 상수 §4.1 (사용도 밴드 → 날씨) ───────────────────── */
+    const WEATHERS = {
+      w1:{ key:'w1', label:'맑음',      icon:'ti-sun',         desc:'현재 일상에서 씀' },
+      w2:{ key:'w2', label:'구름조금',  icon:'ti-cloud',       desc:'써봤으나 지금은 안 씀' },
+      w3:{ key:'w3', label:'흐리고 비', icon:'ti-cloud-rain',  desc:'들어는 봄' },
+      w4:{ key:'w4', label:'천둥번개',  icon:'ti-cloud-bolt',  desc:'처음 들음' },
+      w0:{ key:'w0', label:'안개',      icon:'ti-cloud-off',   desc:'관측 없음' }
+    };
+    // §5.4 weatherOf(rate)
+    function weatherOf(rate){
+      if(rate==null||isNaN(rate)) return WEATHERS.w0;
+      if(rate>=0.6) return WEATHERS.w1;
+      if(rate>=0.3) return WEATHERS.w2;
+      if(rate>=0.1) return WEATHERS.w3;
+      return WEATHERS.w4;
+    }
+    const CSSVAR = { w1:'var(--gs-w1)', w2:'var(--gs-w2)', w3:'var(--gs-w3)', w4:'var(--gs-w4)', w0:'var(--gs-w0)' };
+    const HEXVAR = { w1:'#BA7517', w2:'#5F5E5A', w3:'#185FA5', w4:'#A32D2D', w0:'#94a3b8' };
+    // 지도 위 날씨 이모지 — dialect_awareness.html과 동일한 아이콘 세트
+    const EMOJI = { w1:'☀️', w2:'🌤️', w3:'🌧️', w4:'⛈️', w0:'🌫️' };
+    const pct = r => (r==null||isNaN(r)) ? '—' : Math.round(r*100);
+    // 받침 유무 → 조사 자동 선택 (은/는)
+    function hasBatchim(s){ s=s||''; const c=s.charCodeAt(s.length-1)-0xAC00; return c>=0&&c<=11171&&c%28!==0; }
+    function eunNeun(s){ return hasBatchim(s)?'은':'는'; }
+
+    /* ── 지역 상수 §5.2 ────────────────────────────────────────── */
+    const REGION_NAMES = {CB:'충북',CN:'충남',GB:'경북',GG:'경기',GN:'경남',GW:'강원',JB:'전북',JN:'전남',JJ:'제주'};
+    const REGION_ORDER = ['GG','GW','CB','CN','GB','GN','JB','JN','JJ'];
+    // 지역별 방언 잔존 성향 오프셋(추정 근사용) — 남부·제주는 방언 잔존↑, 경기는↓
+    const REGION_OFFSET = {GG:-0.13, CB:-0.03, CN:-0.05, GW:0.05, GB:0.10, GN:0.14, JB:0.08, JN:0.12, JJ:0.17};
+    const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+
+    /* 지역별 세대 기상도 실측 데이터(도 단위) — 지도·하단 카드가 공유하는 단일 소스 */
+    const REGION_GEN_TABLE = [
+      { name:'경기', r:{70:0,   50:0,   20:0}  },
+      { name:'강원', r:{70:0,   50:0,   20:0}  },
+      { name:'충북', r:{70:33,  50:20,  20:0}  },
+      { name:'충남', r:{70:38,  50:17,  20:0}  },
+      { name:'전북', r:{70:100, 50:83,  20:0}  },
+      { name:'전남', r:{70:100, 50:75,  20:11} },
+      { name:'경북', r:{70:100, 50:100, 20:50} },
+      { name:'경남', r:{70:100, 50:100, 20:43} },
+      { name:'제주', r:{70:100, 50:67,  20:0}  },
+    ];
+    // code → {70,50,20} 사용률(0..1) 룩업 (지도용)
+    const NAME2CODE = Object.fromEntries(Object.entries(REGION_NAMES).map(([c,n])=>[n,c]));
+    const REGION_GEN_RATE = {};
+    REGION_GEN_TABLE.forEach(row=>{
+      const code = NAME2CODE[row.name]; if(!code) return;
+      REGION_GEN_RATE[code] = { 70:row.r[70]/100, 50:row.r[50]/100, 20:row.r[20]/100 };
+    });
+
+    /* ── 방언형 계열 데이터 (실측 · 보고서 서술 기반) ─────────────────
+       '벼'의 방언형은 벼계(벼·베, 중부)와 나락계(나락·나록, 남부)로 갈리며,
+       세대가 내려갈수록 벼계가 전국으로 확산(전선 남하)한다. 지역은 도(道) 단위로 단순화. */
+    const FAM_COLOR = { byeo:'#2a78d6', narak:'#eb6834', both:'#a8a59b' };
+    const FAM_FILL  = { byeo:'#7EB0E6', narak:'#F4B48F', both:'#CBC8BE' };  // 지도 면색(연한 톤)
+    const FAM_NAME  = { byeo:'벼', narak:'나락', both:'벼·나락' };
+    const LINEAGE = {
+      '20415': {
+        title:'‘벼’ vs ‘나락’ — 두 이름의 세대 교체',
+        sub:'',
+        families:[
+          { key:'byeo',  label:'벼계',  forms:'벼 · 베',    region:'중부(경기·충청·강원)' },
+          { key:'narak', label:'나락계', forms:'나락 · 나록', region:'남부(경상·전라·제주)' }
+        ],
+        gens:{
+          70:{ byeo:41.9, both:32.3, narak:25.8, note:'',
+               regions:{ GG:'byeo',GW:'byeo',CB:'byeo',CN:'byeo', GB:'narak',GN:'narak',JB:'narak',JN:'narak',JJ:'narak' } },
+          50:{ byeo:54.9, both:23.5, narak:21.6, note:'',
+               regions:{ GG:'byeo',GW:'byeo',CB:'byeo',CN:'byeo', JB:'both',JN:'both',JJ:'both', GB:'narak',GN:'narak' } },
+          20:{ byeo:89.7, both:10.3, narak:0, note:'',
+               regions:{ GG:'byeo',GW:'byeo',CB:'byeo',CN:'byeo',JB:'byeo',JJ:'byeo', GB:'both',GN:'both',JN:'both' } }
+        }
+      }
+    };
+
+    /* ── 의미 범주 라벨 (항목번호 앞3자리 §5.6) ───────────────── */
+    const CATEGORY = {'201':'신체','203':'동물·어류','204':'농사·작물','205':'자연·날씨','214':'생활','215':'도구','219':'채소','221':'가옥','222':'가옥','A':'생활·자세'};
+    function catOf(id){ return CATEGORY[id.slice(0,3)] || CATEGORY[id[0]] || '기타'; }
+
+    /* ── 데이터 §5, §5.6 ──────────────────────────────────────────
+       서비스 대상 101개 표준어 항목. 실측/큐레이션 단어는 CURATED에 두고,
+       나머지는 항목명 해시로 안정적인 시연용 사용률을 생성한다(원자료 확보 시 교체). */
+    const WORDLIST = ['흰자위','눈두덩','귀청','귀지','귀이개','구레나룻','입술','휘파람','콧구멍','겨드랑','무릎','복사뼈','배꼽','딸꾹질','졸음','기지개','혓바늘','미꾸라지','벌레','구더기','매미','모기','벌','파리','쉬슬다','메뚜기','지렁이','회충','고양이','모이','노루','여우','갈치','강아지','뱀','누에','번데기','억새','벼','오디','바위','모래','가을','겨울','글피','그저께','그끄저께','우박','노을','언제','새벽','회오리바람','아우타다','계집아이','눕히다','할머니(호칭)','형(호칭)','사위(호칭)','호미','거지','서 되/세 되','꾸러미','짚신','가위','다리미','건더기','메밀','엿기름','고춧가루','달걀','간장','콩나물','시루','뚜껑','오이','무','부추','시래기','가(邊)','아궁이','구멍','그을음','마루','장독대','변소','벽','새끼(繩)','똬리','갈퀴','키(箕)','부지깽이','반짇고리','다듬잇돌','꽹과리','자치기','곤지곤지','그네','목말','소꿉놀이','쥐불놀이','다르다/틀리다'];
+
+    // 목록 순서 기준 의미 범주 (구간 시작 인덱스)
+    const CAT_RANGES = [[0,'신체·생리'],[17,'벌레·물고기'],[28,'동물'],[37,'식물·자연'],[42,'시간·날씨'],[52,'사람·호칭'],[58,'음식·도구'],[78,'가옥·공간'],[86,'생활·도구'],[96,'놀이']];
+    function catByIndex(i){ let lab='기타'; for(const [s,l] of CAT_RANGES){ if(i>=s) lab=l; } return lab; }
+
+    // 큐레이션(실측/보고서 기반) 단어 — 나머지는 자동 생성
+    const CURATED = {
+      '벼':{ itemId:'20415', dialect:'나락', desc:'‘벼’의 방언형은 크게 ‘벼’계(벼, 베)와 ‘나락’(나락, 나록)계로 나뉨', nat:{20:0.05,50:0.42,70:0.72}, standard20:0.92,
+        forms:[{surface:'나락',base:'나락',ipa:'[naɾak̚]',regions:['GN','GB','JN','JB','CB'],phonoTags:['어두 경음화 미실현']}],
+        mapPublic:true, audioPublic:false,
+        ct:{ '20M':[29,0,1,4],'20F':[26,1,3,3],'50M':[11,11,11,3],'50F':[13,7,11,5],'70M':[7,13,15,2],'70F':[8,17,11,1] },
+        stats:{ chiSq:77.76, df:15, p:'<0.001', cramersV:0.35 } },
+      '아궁이':{ itemId:'22102', dialect:'부석', nat:{20:0.03,50:0.30,70:0.70},
+        forms:[{surface:'부석',base:'부석',ipa:'[pusʌk̚]',regions:['GN','GB']},{surface:'아궁지',base:'아궁지',regions:['CB','CN']}], mapPublic:true, audioPublic:true },
+      '부추':{ itemId:'21908', dialect:'정구지', nat:{20:0.22,50:0.55,70:0.80},
+        forms:[{surface:'정구지',base:'정구지',ipa:'[t͈ɕʌŋɡuʥi]',regions:['GN','GB','CB','CN'],phonoTags:['구개음화']},{surface:'솔',base:'솔',regions:['JN','JB']}], mapPublic:true, audioPublic:true },
+      '미꾸라지':{ itemId:'20306', dialect:'미꾸리', nat:{20:0.08,50:0.40,70:0.66},
+        forms:[{surface:'미꾸리',base:'미꾸리',regions:['GB','GN','CB']},{surface:'용미꾸리',base:'용미꾸리',regions:['JN']}], mapPublic:true, audioPublic:false },
+      '우박':{ itemId:'20509', dialect:'누리', nat:{20:0.12,50:0.45,70:0.75},
+        forms:[{surface:'누리',base:'누리',ipa:'[nuɾi]',regions:['GW','GB','GN']}], mapPublic:true, audioPublic:false },
+      '가위':{ itemId:'21501', dialect:'가새', nat:{20:0.35,50:0.58,70:0.78},
+        forms:[{surface:'가새',base:'가새',ipa:'[kasɛ]',regions:['JN','JB','GN']},{surface:'가시개',base:'가시개',regions:['GB','GN']}], mapPublic:true, audioPublic:true },
+      '겨드랑':{ itemId:'20124', dialect:'자드랑', nat:{20:0.40,50:0.60,70:0.72},
+        forms:[{surface:'자드랑',base:'자드랑',regions:['GN','GB']},{surface:'겨드랭이',base:'겨드랭이',regions:['CN','JB']}], mapPublic:true, audioPublic:false }
+    };
+
+    function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))>>>0; } return h; }
+    // 항목명 해시 기반 안정적 사용률 생성(70대>20대 경향) — 시연용
+    function seededNat(seed){
+      const r=n=>{ const x=Math.sin(seed*12.9898 + n*78.233)*43758.5453; return x-Math.floor(x); };
+      const n20=+(0.03 + r(1)*0.5).toFixed(2);
+      const n70=+Math.min(0.95, n20 + 0.15 + r(2)*0.55).toFixed(2);
+      let n50=+(((n20+n70)/2) + (r(3)-0.5)*0.14).toFixed(2);
+      n50=+Math.max(n20, Math.min(n70, n50)).toFixed(2);
+      return {20:n20,50:n50,70:n70};
+    }
+
+    const RAW = WORDLIST.map((std,i)=>{
+      const cur = CURATED[std];
+      const e = {
+        itemId: (cur && cur.itemId) ? cur.itemId : ('W'+String(i+1).padStart(3,'0')),
+        standard: std,
+        dialect: cur ? cur.dialect : std,
+        desc: cur ? cur.desc : null,
+        category: catByIndex(i),
+        prov: cur ? 'measured' : 'estimated',
+        regionProv: 'estimated',
+        nat: cur ? cur.nat : seededNat(hashStr(std)),
+        standard20: (cur && cur.standard20!=null) ? cur.standard20 : null,
+        forms: (cur && cur.forms) ? cur.forms : [{surface:std, base:std, regions:[]}],
+        mapPublic: cur ? cur.mapPublic : true,
+        audioPublic: cur ? cur.audioPublic : false
+      };
+      if(cur && cur.ct){ e.ct = cur.ct; e.stats = cur.stats; }
+      return e;
+    });
+
+    /* ── 파생값 계산 (§5.4) ───────────────────────────────────── */
+    function buildWord(r){
+      const w = Object.assign({}, r);
+      w.category = r.category || catOf(r.itemId);
+      // national cells
+      w.national = [70,50,20].map(g=>{
+        const rate = r.nat[g];
+        return { gen:g, usageRate:rate, weather:weatherOf(rate).key, n:33 };
+      });
+      w.coldSnap = +(r.nat[70]-r.nat[20]).toFixed(2);          // 한파지수 %p
+      w.usage20 = r.nat[20];
+      // alertLevel §5.4
+      w.alertLevel = (r.nat[20]<0.10 && w.coldSnap>0.6) ? '위기'
+                   : (r.nat[20]<0.30) ? '경보'
+                   : (r.nat[20]<0.50) ? '주의' : '관심';
+      // byRegion — 지역별 세대 기상도(도 단위) 실측 데이터를 그대로 사용 (하단 카드와 동일 소스)
+      w.byRegion = {};
+      [20,50,70].forEach(g=>{
+        w.byRegion[g] = {};
+        REGION_ORDER.forEach(code=>{
+          const rr = (REGION_GEN_RATE[code]||{})[g];
+          w.byRegion[g][code] = (rr==null ? null : rr);
+        });
+      });
+      // 교차표: 없으면 사용률에서 시연용 합성 (badge=estimated)
+      if(!w.ct){ w.ct = synthCT(r.nat); w.ctProv='estimated'; }
+      else w.ctProv='measured';
+      if(!w.stats){ w.stats = chiSquare(w.ct); }
+      return w;
+    }
+    // 사용률 → coding-B 6집단 교차표 시연 합성
+    function synthCT(nat){
+      const out={}; const gens=[20,50,70]; const sexes=['M','F'];
+      gens.forEach(g=>{ sexes.forEach((s,si)=>{
+        const rate = clamp(nat[g] + (si===0?0.04:-0.04),0,0.95);   // 남성이 방언 약간↑
+        const n=33, unknown=Math.round(n*0.08);
+        const valid=n-unknown;
+        const dialect=Math.round(valid*rate);
+        const mix=Math.round(valid*0.22);
+        const std=Math.max(0, valid-dialect-mix);
+        out[g+s]=[std,dialect,mix,unknown];
+      });});
+      return out;
+    }
+    // χ² & Cramér's V (§5.4)
+    function chiSquare(ct){
+      const rows=Object.keys(ct); const R=rows.length, C=4;
+      const M=rows.map(k=>ct[k]);
+      const rowSum=M.map(r=>r.reduce((a,b)=>a+b,0));
+      const colSum=[0,0,0,0]; M.forEach(r=>r.forEach((v,j)=>colSum[j]+=v));
+      const N=rowSum.reduce((a,b)=>a+b,0);
+      let chi=0;
+      M.forEach((r,i)=>r.forEach((o,j)=>{ const e=rowSum[i]*colSum[j]/N; if(e>0) chi+=(o-e)*(o-e)/e; }));
+      const df=(R-1)*(C-1);
+      const V=Math.sqrt(chi/(N*(Math.min(R,C)-1)));
+      // df=15 임계값 근사로 p 표기
+      let p = chi>=37.7?'<0.001' : chi>=30.6?'<0.01' : chi>=25.0?'<0.05' : 'n.s.';
+      return { chiSq:+chi.toFixed(2), df, p, cramersV:+V.toFixed(2) };
+    }
+    function stars(p){ return p==='<0.001'?'★★★':p==='<0.01'?'★★':p==='<0.05'?'★':'–'; }
+
+    const WORDS = RAW.map(buildWord);
+    const BY_ID = {}; WORDS.forEach(w=>BY_ID[w.itemId]=w);
+    const LEVEL_COLOR = {'위기':'var(--gs-lv-crisis)','경보':'var(--gs-lv-warn)','주의':'var(--gs-lv-watch)','관심':'var(--gs-lv-calm)'};
+
+    /* ── 배지 헬퍼 §8 (실측/추정 배지 노출 비활성 — 요청에 따라 숨김) ── */
+    function badge(){ return ''; }
+    function weatherIcon(wkey, size){
+      const w=WEATHERS[wkey]||WEATHERS.w0;
+      return `<span class="gs-wi gs-wi--${wkey}"><i class="ti ${w.icon}" style="font-size:${size||24}px" aria-hidden="true"></i></span>`;
+    }
+
+    /* ── 부분 렌더러 ──────────────────────────────────────────── */
+    function heroHTML(w){
+      const g20=w.national.find(c=>c.gen===20);
+      const wx=WEATHERS[g20.weather];
+      const secondLabel = w.standard20!=null ? '표준어화 확률 (20대)' : '사용률 (20대)';
+      const secondVal   = w.standard20!=null ? pct(w.standard20) : pct(w.usage20);
+      return `
+      <div class="gs-hero">
+        <div class="gs-card gs-hero__main">
+          <div class="big">${weatherIcon(g20.weather,64)}</div>
+          <div>
+            <div class="gs-hero__state" style="color:${CSSVAR[g20.weather]}">${wx.label}
+              <small>20대 기준 · ${wx.desc}</small></div>
+            <div class="gs-hero__ctx muted" style="font-size:12px">${w.standard}${w.dialect!==w.standard ? ' (대표 방언형: '+w.dialect+')' : ''}</div>
+          </div>
+        </div>
+        <div class="gs-card">
+          <div class="gs-card__label">${secondLabel}</div>
+          <div class="gs-card__num">${secondVal}<span style="font-size:14px">%</span></div>
+          <div class="muted" style="font-size:11px;margin-top:4px">${w.standard20!=null?'표준어형으로 답한 비율':'사용도 1(사용) 응답 비율'}</div>
+        </div>
+        <div class="gs-card">
+          <div class="gs-card__label">세대 낙차 · 한파지수</div>
+          <div class="gs-card__num gs-trend-up">+${pct(w.coldSnap)}<span style="font-size:14px">%p</span></div>
+          <div class="muted" style="font-size:11px;margin-top:4px">70대−20대 사용률 차</div>
+        </div>
+      </div>`;
+    }
+
+    function genStripHTML(w){
+      const cells=[70,50,20].map(g=>{
+        const c=w.national.find(x=>x.gen===g); const wx=WEATHERS[c.weather];
+        return `<div class="gs-card gs-gencard">
+          <div class="gen">${g}대</div>
+          <div class="ico" aria-hidden="true">${EMOJI[c.weather]}</div>
+          <div class="rate" style="color:${CSSVAR[c.weather]}">${pct(c.usageRate)}%</div>
+          <div class="wname">${wx.label}</div>
+          <div class="bar"><span style="width:${pct(c.usageRate)}%;background:${CSSVAR[c.weather]}"></span></div>
+        </div>`;
+      }).join('');
+      return `<div class="gs-genstrip">${cells}</div>`;
+    }
+
+    /* ── 기상 브리핑 (일반인용 한눈 요약) §신규 ─────────────────── */
+    // 20대 날씨별 평이한 한 줄 서술 (사실만 기술 · 보간/투영 없음)
+    const BRIEF_LEAD = {
+      w1:'젊은 세대도 여전히 즐겨 쓰는, 살아 있는 말',
+      w2:'20대에선 절반쯤만 쓰는, 흐려지고 있는 말',
+      w3:'20대에겐 가끔 듣는 정도로 옅어진 말',
+      w4:'20대에겐 거의 사라진, 처음 듣는 말'
+    };
+    function briefHTML(w, opts){
+      opts = opts || {};
+      const side = !!opts.side;
+      const rate=g=>w.national.find(c=>c.gen===g).usageRate;
+      const r70=rate(70), r50=rate(50), r20=rate(20);
+      const wk20=weatherOf(r20).key;
+      const lead = BRIEF_LEAD[wk20] || BRIEF_LEAD.w3;
+      const drop = w.coldSnap;                       // 70−20 (0..1)
+      const dir = drop>=0 ? '급감' : '오히려 증가';
+      const arrow = drop>=0 ? '▼' : '▲';
+      // 슬로프 좌표: x 1/6,3/6,5/6 · y는 사용률(위=높음), 96px 높이 안에서 상하 8px 여백
+      const H=96, top=10, bot=H-14;
+      const pts=[[70,r70],[50,r50],[20,r20]].map((d,i)=>{
+        const x=(i*2+1)/6*100; const y=top+(1-clamp(d[1],0,1))*(bot-top);
+        return {x,y,rate:d[1],gen:d[0]};
+      });
+      const line=pts.map(p=>`${p.x},${p.y}`).join(' ');
+      const cols=[70,50,20].map(g=>{
+        const rr=rate(g); const wk=weatherOf(rr).key;
+        return `<div class="gs-tcol">
+          <span class="g">${g}대</span>
+          <span class="e" aria-hidden="true">${EMOJI[wk]}</span>
+          <span class="p" style="color:${CSSVAR[wk]}">${pct(rr)}%</span>
+          <span class="wl">${WEATHERS[wk].label}</span>
+        </div>`;
+      }).join('');
+      const guideItems=['w1','w2','w3','w4'].map(k=>`
+        <div class="gs-guide__item" style="background:var(--gs-${k}-bg)">
+          <span class="gi-e" aria-hidden="true">${EMOJI[k]}</span>
+          <div><div class="gi-t gs-fc--${k}">${WEATHERS[k].label}</div>
+          <div class="gi-d">${WEATHERS[k].desc}</div></div>
+        </div>`).join('');
+      const helpBtn = `<button type="button" class="gs-brief__help${side?' gs-brief__help--full':''}" id="gsBriefHelp" aria-expanded="false"><i class="ti ti-help-circle" aria-hidden="true"></i> 기상도 읽는 법</button>`;
+      return `
+      <section class="gs-brief${side?' gs-brief--side':''}">
+        <div class="gs-brief__top">
+          ${side?'':`<span class="gs-brief__emoji" aria-hidden="true">${EMOJI[wk20]}</span>`}
+          <div class="gs-brief__msg">
+            <div class="gs-brief__lead">‘<b>${w.dialect}</b>’${eunNeun(w.dialect)} ${lead}</div>
+            <div class="gs-brief__sub">70대 <b style="color:${CSSVAR[weatherOf(r70).key]}">${pct(r70)}%</b> → 20대 <b style="color:${CSSVAR[wk20]}">${pct(r20)}%</b> · 한 세대 만에 <b>${pct(Math.abs(drop))}%p ${dir}</b></div>
+          </div>
+          ${side?'':helpBtn}
+        </div>
+        ${side?helpBtn:''}
+        <div class="gs-trend">
+          <span class="gs-trend__drop" title="70대와 20대 사용률 차이">${arrow} ${pct(Math.abs(drop))}%p</span>
+          <svg class="gs-trend__svg" viewBox="0 0 100 ${H}" preserveAspectRatio="none" aria-hidden="true">
+            <polyline points="${line}" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <div class="gs-trend__cols">${cols}</div>
+        </div>
+        <div class="gs-guide" id="gsBriefGuide" hidden>
+          <div class="gs-guide__grid">${guideItems}</div>
+        </div>
+      </section>`;
+    }
+    function wireBrief(root){
+      const btn=root.querySelector('#gsBriefHelp'), g=root.querySelector('#gsBriefGuide');
+      if(!btn||!g) return;
+      btn.addEventListener('click',()=>{ const open=g.hidden; g.hidden=!open; btn.setAttribute('aria-expanded',String(open)); });
+    }
+
+    /* ── 방언형 계열 섹션 (누적 막대 + 계열 분포 지도) §신규 ────────── */
+    let currentLinGen=70, linPlayTimer=null;
+    const linMapState={ map:null, adapter:null };
+
+    function lineageBarsHTML(lin){
+      return [70,50,20].map(g=>{
+        const d=lin.gens[g];
+        const seg=(w,fam)=>{ if(w<=0) return ''; const show=w>=6; const tc=fam==='both'?'#4a4a46':'#fff';
+          return `<div class="gs-lseg" title="${FAM_NAME[fam]} ${Math.round(w)}%" style="width:${w}%;background:${FAM_COLOR[fam]};color:${tc}">${show?Math.round(w)+'%':''}</div>`; };
+        return `<div class="gs-lbar-row">
+          <div class="gs-lbar-head"><span class="g">${g}대</span>${d.note ? `<span class="note">${d.note}</span>` : ''}</div>
+          <div class="gs-lbar">${seg(d.byeo,'byeo')}${seg(d.both,'both')}${seg(d.narak,'narak')}</div>
+        </div>`;
+      }).join('');
+    }
+    function lineageSectionHTML(lin){
+      const chips=lin.families.map(f=>`
+        <div class="gs-lfam">
+          <div class="gs-lfam__top"><span class="sw" style="background:${FAM_COLOR[f.key]}"></span><b>${f.label}</b><span class="forms">${f.forms}</span></div>
+          <div class="gs-lfam__reg">${f.region}</div>
+        </div>`).join('');
+      const legend=[['byeo','벼계'],['both','두 이름 공존'],['narak','나락계']].map(([k,l])=>
+        `<span class="gs-rglg"><span class="gs-rglg-sw" style="background:${FAM_COLOR[k]}"></span>${l}</span>`).join('');
+      const genBtns=[70,50,20].map(g=>`<button type="button" data-lingen="${g}" class="${g===currentLinGen?'is-active':''}">${g}대</button>`).join('');
+
+      const gens=[70,50,20];
+      const filters=[['전체','전체'],['byeo','벼계'],['both','공존'],['narak','나락계']];
+      const filterChips=filters.map(([k,l])=>`<button type="button" class="gs-chip ${linRegionFilter===k?'is-active':''}" style="padding:4px 9px;font-size:11.5px" data-linfilter="${k}">${k!=='전체'?`<span class="dot" style="background:${FAM_COLOR[k]}"></span>`:''}${l}</button>`).join('');
+      const regionCards=REGION_ORDER.map(code=>{
+        const cells=gens.map(g=>{
+          const fam=lin.gens[g].regions[code]||'both';
+          const dim = linRegionFilter!=='전체' && fam!==linRegionFilter;
+          return `<div class="gs-lfc-gen gs-lfc-gen--${fam} ${dim?'is-dim':''}" data-fam="${fam}" data-gen="${g}">
+            <span class="gs-lfc-gen__label">${g}대</span>
+            <span class="gs-lfc-gen__name">${FAM_NAME[fam]}</span>
+          </div>`;
+        }).join('');
+        const last=lin.gens[20].regions[code]||'both';
+        return `<article class="gs-fc-card">
+          <div class="gs-fc-card__head">
+            <span class="gs-fc-region">${REGION_NAMES[code]}</span>
+            <span class="gs-lfc-badge" style="background:${FAM_FILL[last]};color:${FAM_COLOR[last]}">${FAM_NAME[last]}</span>
+          </div>
+          <div class="gs-fc-gens">${cells}</div>
+        </article>`;
+      }).join('');
+
+      return `
+      <section class="gs-linsec">
+        <div class="gs-rghead">
+          <div><h3>${lin.title}</h3>${lin.sub ? `<div class="sub">${lin.sub}</div>` : ''}</div>
+          <div class="gs-rglegend">${legend}</div>
+        </div>
+        <div class="gs-lchips">${chips}</div>
+        <div class="gs-lbars">${lineageBarsHTML(lin)}</div>
+        <div class="gs-lmapwrap">
+          <div class="gs-card gs-mappanel">
+            <div id="gs-linmap" role="img" aria-label="세대별 벼·나락 계열 분포 지도"></div>
+            <div class="gs-map-fallback" id="gsLinFallback"></div>
+            <div class="gs-map-legend-acc" id="gsLinLegendAcc">
+              <button type="button" class="gs-map-legend-acc__toggle" aria-expanded="true">
+                <span><i class="ti ti-list" aria-hidden="true"></i> 범례 · 우세 계열</span>
+                <i class="ti ti-chevron-down chev" aria-hidden="true"></i>
+              </button>
+              <div class="gs-map-legend-acc__body">
+                <div class="row"><span class="sw" style="background:${FAM_COLOR.byeo}"></span> 벼계 우세 (벼·베)</div>
+                <div class="row"><span class="sw" style="background:${FAM_COLOR.both}"></span> 두 이름 공존</div>
+                <div class="row"><span class="sw" style="background:${FAM_COLOR.narak}"></span> 나락계 우세 (나락·나록)</div>
+              </div>
+            </div>
+          </div>
+          <div class="gs-mapside">
+            <div class="gs-card" style="padding:14px">
+              <div class="gs-card__label" style="margin-bottom:10px">세대 선택 <span style="color:#94a3b8;font-weight:600">(전선 남하 확인)</span></div>
+              <div class="gs-genswitch" id="gsLinGenSwitch">${genBtns}</div>
+              <button class="gs-play gs-mt" id="gsLinPlay"><i class="ti ti-player-play"></i> 전선 남하 재생 (70→20)</button>
+              <div class="gs-lin-caption gs-mt" id="gsLinCaption"></div>
+            </div>
+
+            <div class="gs-card" style="padding:14px" id="gsLinRegionSec">
+              <div class="gs-card__label" style="margin-bottom:8px">지역별 세대 기상도 · 계열</div>
+              <div class="gs-chips gs-linregion-chips" id="gsLinRegionChips" style="margin:0 0 10px;gap:5px">${filterChips}</div>
+              <div class="gs-fcgrid-side" style="display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto;padding-right:2px">${regionCards}</div>
+            </div>
+
+            <div class="gs-note">도(道) 단위로 우세 계열을 단순화해 표시합니다. 원자료는 시·군 단위 조사 결과입니다.</div>
+          </div>
+        </div>
+      </section>`;
+    }
+    function paintLinMap(adapter, lin, gen){
+      const rg=lin.gens[gen].regions;
+      const hl=linRegionFilter;   // 하단 그리드에서 고른 계열('전체'면 강조 없음)
+      REGION_ORDER.forEach(code=>{
+        const fam=rg[code]||'both';
+        const active = hl==='전체' || fam===hl;
+        adapter.setRegionFill(code, active ? FAM_FILL[fam] : '#e9edf1');
+      });
+      adapter.setCustomMarkers(code=>{
+        const fam=rg[code]; if(!fam) return null;
+        const active = hl==='전체' || fam===hl;
+        const col = active ? FAM_COLOR[fam] : '#b6bcc4';
+        return `<div class="gs-lmarker" style="border-color:${col};opacity:${active?'1':'.45'}"><span class="nm" style="color:${col}">${FAM_NAME[fam]}</span></div>`;
+      });
+      const cap=document.getElementById('gsLinCaption');
+      if(cap) cap.innerHTML=lin.gens[gen].note ? `<b>${gen}대</b> · ${lin.gens[gen].note}` : `<b>${gen}대</b>`;
+    }
+    function syncLinGen(){ const sw=document.getElementById('gsLinGenSwitch'); if(!sw) return;
+      sw.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',+b.dataset.lingen===currentLinGen)); }
+    function stopLinPlay(){ if(linPlayTimer){ clearTimeout(linPlayTimer); linPlayTimer=null; }
+      const p=document.getElementById('gsLinPlay'); if(p) p.innerHTML='<i class="ti ti-player-play"></i> 전선 남하 재생 (70→20)'; }
+    function initLineageMap(lin){
+      const target=document.getElementById('gs-linmap'); if(!target) return;
+      if(linMapState.map){ linMapState.map.setTarget(undefined); linMapState.map=null; }
+      stopLinPlay();
+      const adapter=createMapAdapter(target);
+      if(!adapter){ const fb=document.getElementById('gsLinFallback'); if(fb){ fb.style.display='flex'; fb.textContent='지도를 불러오지 못했습니다.'; } return; }
+      linMapState.map=adapter.map; linMapState.adapter=adapter;
+      paintLinMap(adapter, lin, currentLinGen);
+      syncGridToMapGen();
+      const sw=document.getElementById('gsLinGenSwitch');
+      if(sw) sw.querySelectorAll('button').forEach(b=>{
+        b.addEventListener('click',()=>{ stopLinPlay(); currentLinGen=+b.dataset.lingen; syncLinGen(); paintLinMap(adapter, lin, currentLinGen); syncGridToMapGen(); });
+      });
+      const play=document.getElementById('gsLinPlay');
+      const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if(play) play.addEventListener('click',()=>{
+        if(linPlayTimer){ stopLinPlay(); return; }
+        if(reduce){ currentLinGen=20; syncLinGen(); paintLinMap(adapter,lin,20); return; }
+        const seq=[70,50,20]; let i=0; play.innerHTML='<i class="ti ti-player-stop"></i> 정지';
+        const step=()=>{ currentLinGen=seq[i]; syncLinGen(); paintLinMap(adapter,lin,currentLinGen); syncGridToMapGen(); i=(i+1)%seq.length; linPlayTimer=setTimeout(step, i===0?1800:1200); };
+        step();
+      });
+    }
+
+    /* ── 지역별 세대 기상도 · 계열 (전체/벼계/공존/나락계 선택) ────── */
+    let linRegionFilter='전체';
+    function lineageRegionGridHTML(lin){
+      const gens=[70,50,20];
+      const filters=[['전체','전체'],['byeo','벼계'],['both','공존'],['narak','나락계']];
+      const chips=filters.map(([k,l])=>`<button type="button" class="gs-chip ${linRegionFilter===k?'is-active':''}" data-linfilter="${k}">${k!=='전체'?`<span class="dot" style="background:${FAM_COLOR[k]}"></span>`:''}${l}</button>`).join('');
+      const cards=REGION_ORDER.map(code=>{
+        const cells=gens.map(g=>{
+          const fam=lin.gens[g].regions[code]||'both';
+          const dim = linRegionFilter!=='전체' && fam!==linRegionFilter;
+          return `<div class="gs-lfc-gen gs-lfc-gen--${fam} ${dim?'is-dim':''}" data-fam="${fam}" data-gen="${g}">
+            <span class="gs-lfc-gen__label">${g}대</span>
+            <span class="gs-lfc-gen__name">${FAM_NAME[fam]}</span>
+          </div>`;
+        }).join('');
+        const last=lin.gens[20].regions[code]||'both';
+        return `<article class="gs-fc-card">
+          <div class="gs-fc-card__head">
+            <span class="gs-fc-region">${REGION_NAMES[code]}</span>
+            <span class="gs-lfc-badge" style="background:${FAM_FILL[last]};color:${FAM_COLOR[last]}">${FAM_NAME[last]}</span>
+          </div>
+          <div class="gs-fc-gens">${cells}</div>
+        </article>`;
+      }).join('');
+      return `
+      <section class="gs-regionsec" id="gsLinRegionSec">
+        <div class="gs-rghead">
+          <div><h3>지역별 세대 기상도 · 계열</h3>
+            <div class="sub">도(道)별로 70·50·20대에 어느 이름 계열이 우세한지 — 계열을 고르면 해당 지역·세대만 강조됩니다.</div></div>
+        </div>
+        <div class="gs-chips gs-linregion-chips" id="gsLinRegionChips">${chips}</div>
+        <div class="gs-fcgrid">${cards}</div>
+      </section>`;
+    }
+    // 지도의 현재 세대(currentLinGen)를 하단 그리드에 반영 — 해당 세대 열 강조
+    function syncGridToMapGen(){
+      document.querySelectorAll('#gsLinRegionSec .gs-lfc-gen').forEach(cell=>{
+        cell.classList.toggle('is-mapgen', +cell.dataset.gen===currentLinGen);
+      });
+    }
+    function applyLinRegionFilter(root){
+      root.querySelectorAll('#gsLinRegionChips [data-linfilter]').forEach(b=>b.classList.toggle('is-active', b.dataset.linfilter===linRegionFilter));
+      root.querySelectorAll('#gsLinRegionSec .gs-lfc-gen').forEach(cell=>{
+        cell.classList.toggle('is-dim', linRegionFilter!=='전체' && cell.dataset.fam!==linRegionFilter);
+      });
+    }
+    function wireLinRegion(root, lin){
+      const chips=root.querySelector('#gsLinRegionChips'); if(!chips) return;
+      chips.addEventListener('click',e=>{ const b=e.target.closest('[data-linfilter]'); if(!b) return;
+        linRegionFilter=b.dataset.linfilter;
+        applyLinRegionFilter(root);
+        if(lin && linMapState.adapter) paintLinMap(linMapState.adapter, lin, currentLinGen);
+      });
+    }
+
+    function legendHTML(){
+      return `<div class="gs-map-legend-acc" id="gsMapLegendAcc">
+        <button type="button" class="gs-map-legend-acc__toggle" aria-expanded="true">
+          <span><i class="ti ti-list" aria-hidden="true"></i> 범례 · 사용률</span>
+          <i class="ti ti-chevron-down chev" aria-hidden="true"></i>
+        </button>
+        <div class="gs-map-legend-acc__body">
+          <div class="row"><span class="sw" style="background:${HEXVAR.w1}"></span> ${EMOJI.w1} 맑음 (60%+)</div>
+          <div class="row"><span class="sw" style="background:${HEXVAR.w2}"></span> ${EMOJI.w2} 구름조금 (30–59%)</div>
+          <div class="row"><span class="sw" style="background:${HEXVAR.w3}"></span> ${EMOJI.w3} 흐리고 비 (10–29%)</div>
+          <div class="row"><span class="sw" style="background:${HEXVAR.w4}"></span> ${EMOJI.w4} 천둥번개 (10% 미만)</div>
+          <div class="row"><span class="sw" style="background:${HEXVAR.w0}"></span> ${EMOJI.w0} 안개 (관측 없음)</div>
+        </div>
+      </div>`;
+    }
+
+    function mapSectionHTML(w, opts){
+      opts = opts || {};
+      return `
+      <div class="gs-mapbar">
+        <div class="gs-mapbar__titles">
+          <div class="gs-mapbar__title">‘<b>${w.standard}</b>’의 방언 기상도</div>
+          <div class="gs-mapbar__meta">지역어 조사 및 보완 조사 사업(2004–2018) · 국립국어원</div>
+        </div>
+        <div class="gs-mapbar__actions">
+          <div class="gs-popwrap">
+            <button class="gs-toolbtn" type="button" id="gsBtnSettings" aria-haspopup="true" aria-expanded="false"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> 지도 설정</button>
+            <div class="gs-popmenu" id="gsPopSettings" hidden>
+              <div class="gs-popmenu__sec">
+                <div class="gs-popmenu__label">지도 레이어</div>
+                <label class="gs-mschk"><input type="checkbox" id="gsOvRivers"> <span class="gs-ovdot" style="background:#3b5bdb"></span> 하천</label>
+                <label class="gs-mschk"><input type="checkbox" id="gsOvRail"> <span class="gs-ovdot" style="background:#2f9e44"></span> 철도</label>
+                <label class="gs-mschk"><input type="checkbox" id="gsOvRoads"> <span class="gs-ovdot" style="background:#e8590c"></span> 도로</label>
+                <label class="gs-mschk"><input type="checkbox" id="gsOvMountains"> <span class="gs-ovdot" style="background:#5f6f6a"></span> 산맥</label>
+              </div>
+              <div class="gs-popmenu__sec">
+                <div class="gs-popmenu__label">지역명 표시</div>
+                <label class="gs-mschk"><input type="checkbox" id="gsLblSido"> 시·도 이름</label>
+                <label class="gs-mschk"><input type="checkbox" id="gsLblSigungu"> 시·군·구 이름 <span style="color:#94a3b8;font-weight:600">(확대 시)</span></label>
+              </div>
+              <div class="gs-popmenu__sec">
+                <div class="gs-popmenu__label">표시 요소</div>
+                <label class="gs-mschk"><input type="checkbox" id="gsHideIcon"> 날씨 아이콘 숨기기</label>
+                <label class="gs-mschk"><input type="checkbox" id="gsHideArea"> 면색(사용률) 숨기기</label>
+              </div>
+            </div>
+          </div>
+          <button class="gs-toolbtn" type="button" id="gsBtnShare"><i class="ti ti-link" aria-hidden="true"></i> 공유</button>
+          <div class="gs-popwrap">
+            <button class="gs-toolbtn gs-toolbtn--primary" type="button" id="gsBtnDownload" aria-haspopup="true" aria-expanded="false"><i class="ti ti-download" aria-hidden="true"></i> 다운로드</button>
+            <div class="gs-popmenu" id="gsPopDownload" hidden>
+              <button class="gs-dlmenu__item" type="button" id="gsDlImage"><i class="ti ti-photo" aria-hidden="true"></i> 지도 이미지 (PNG)</button>
+              <button class="gs-dlmenu__item" type="button" id="gsDlPdf"><i class="ti ti-file-text" aria-hidden="true"></i> 인쇄용 지도 (PDF)</button>
+              <div class="gs-dlmenu__note"><i class="ti ti-info-circle" aria-hidden="true"></i> 단어명·범례·출처(국립국어원)가 함께 담깁니다.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="gs-mapwrap">
+        <div class="gs-card gs-mappanel">
+          <div id="gs-map" role="img" aria-label="지역별 사용률 기상도"></div>
+          <button type="button" class="gs-mapreset" id="gsMapReset" title="처음 위치로" aria-label="지도 위치 초기화"><i class="ti ti-refresh" aria-hidden="true"></i></button>
+          <div class="gs-map-fallback" id="gsMapFallback"></div>
+          <div class="gs-popover" id="gsMapPop"></div>
+          ${legendHTML()}
+        </div>
+        <div class="gs-mapside">
+          <div class="gs-card" style="padding:14px">
+            <div class="gs-card__label" style="margin-bottom:10px">세대 예보 · 사용률 <span style="color:#94a3b8;font-weight:600">(누르면 지도 전환)</span></div>
+            <div class="gs-genrows" id="gsGenSwitch">
+              ${[70,50,20].map(g=>{ const c=w.national.find(x=>x.gen===g); const wk=c.weather; return `
+                <button type="button" class="gs-genrow ${g===currentGen?'is-active':''}" data-gen="${g}">
+                  <span class="gr-emoji">${EMOJI[wk]}</span>
+                  <span class="gr-gen">${g}대</span>
+                  <span class="gr-bar"><span style="width:${pct(c.usageRate)}%;background:${CSSVAR[wk]}"></span></span>
+                  <span class="gr-rate" style="color:${CSSVAR[wk]}">${pct(c.usageRate)}%</span>
+                </button>`; }).join('')}
+            </div>
+            <button class="gs-play gs-mt" id="gsPlay"><i class="ti ti-player-play"></i> 전선 남하 재생 (70→20)</button>
+          </div>
+          <div class="gs-note">데이터는 70·50·20대 세 키프레임뿐입니다. 중간값은 보간하지 않고 키프레임만 표시합니다(honesty).</div>
+          ${opts.showAlert ? alertBannerHTML() : ''}
+          ${briefHTML(w, {side:true})}
+        </div>
+      </div>`;
+    }
+
+    /* ── 지역별 세대 기상도 표 (도 × 세대) · 데이터는 상단 REGION_GEN_TABLE 공유 ── */
+    function regionGridHTML(){
+      const gens = [70,50,20];
+      const cards = REGION_GEN_TABLE.map(row=>{
+        const headWk = weatherOf(row.r[20]/100).key;   // 20대(미래 방향)를 대표 날씨로
+        const gensHTML = gens.map(g=>{
+          const p = row.r[g];
+          const wk = weatherOf(p/100).key;
+          return `<div class="gs-fc-gen gs-fc-gen--${wk}" title="${row.name} ${g}대 · ${WEATHERS[wk].label} · ${p}%">
+            <span class="gs-fc-gen__label">${g}대</span>
+            <span class="gs-fc-gen__icon" aria-hidden="true">${EMOJI[wk]}</span>
+            <span class="gs-fc-gen__pct gs-fc--${wk}">${p}%</span>
+          </div>`;
+        }).join('');
+        return `<article class="gs-fc-card">
+          <div class="gs-fc-card__head">
+            <span class="gs-fc-region">${row.name}</span>
+            <span class="gs-fc-badge gs-fc-badge--${headWk}">${EMOJI[headWk]} ${WEATHERS[headWk].label}</span>
+          </div>
+          <div class="gs-fc-gens">${gensHTML}</div>
+        </article>`;
+      }).join('');
+      const legend = ['w1','w2','w3','w4','w0'].map(k=>
+        `<span class="gs-rglg"><span class="gs-rglg-sw" style="background:${HEXVAR[k]}"></span>${EMOJI[k]} ${WEATHERS[k].label}</span>`).join('');
+      return `
+      <section class="gs-regionsec">
+        <div class="gs-rghead">
+          <div>
+            <h3>지역별 세대 기상도</h3>
+            <div class="sub">도(道) 단위 · 세대별 방언형 사용률을 날씨로 · 70 → 20대로 갈수록 방언형이 사라집니다(표준어화 전선 남하).</div>
+          </div>
+          <div class="gs-rglegend">${legend}</div>
+        </div>
+        <div class="gs-fcgrid">${cards}</div>
+      </section>`;
+    }
+
+    // 소멸 경보 배너 (지도 사이드 컬럼 · 범례 아래 세로형)
+    function alertBannerHTML(){
+      const crises = WORDS.filter(w=>w.alertLevel==='위기').length;
+      const warns  = WORDS.filter(w=>w.alertLevel==='경보').length;
+      return `<div class="gs-alertbanner" data-nav="alert" role="button" tabindex="0">
+        <div class="gs-ab-head"><i class="ti ti-alert-triangle lead" aria-hidden="true"></i> <b>소멸 경보</b></div>
+        <div class="txt">오늘 <b>위기 ${crises}건</b> · 경보 ${warns}건 관측. 세대 낙차가 큰 어휘가 빠르게 사라지고 있습니다.</div>
+        <span class="go">소멸 경보 보기 <i class="ti ti-arrow-right"></i></span>
+      </div>`;
+    }
+
+    function wordTitleHTML(w){
+      return `<div class="gs-wordtitle">
+        <span class="dialect">${w.standard}</span>
+        ${w.desc ? `<span class="standard" style="font-size:14px;font-weight:600;color:#475569">${w.desc}</span>` : ''}
+      </div>`;
+    }
+
+    /* ── 화면 1: 홈 §6.1 ──────────────────────────────────────── */
+    let currentWordId = '20415';
+    let currentGen = 20;
+
+    function renderHome(){
+      const view = document.getElementById('gs-view');
+      view.innerHTML = pickPanelHTML() + `<div id="gsHomeDetail"></div>`;
+      wirePickPanel(view);
+      renderHomeDetail();
+    }
+    // 단어 선택에 따라 갱신되는 홈 하단(패널은 유지). 일반/전문가 토글 기본 노출.
+    function renderHomeDetail(){
+      const w = BY_ID[currentWordId];
+      const mode = getMode();
+      const box = document.getElementById('gsHomeDetail');
+      if(!box) return;
+      box.innerHTML = `
+        <div class="gs-titlerow">
+          ${wordTitleHTML(w)}
+          <div class="gs-modetoggle" id="gsModeToggle" role="tablist" aria-label="보기 모드">
+            <button data-mode="general" class="${mode==='general'?'is-active':''}" role="tab" aria-selected="${mode==='general'}">일반</button>
+            <button data-mode="expert" class="${mode==='expert'?'is-active':''}" role="tab" aria-selected="${mode==='expert'}">전문가</button>
+          </div>
+        </div>
+        ${mapSectionHTML(w, {showAlert:true})}
+        ${ LINEAGE[w.itemId] ? lineageSectionHTML(LINEAGE[w.itemId]) : regionGridHTML() }
+        ${ mode==='expert' ? expertHTML(w) : '' }
+      `;
+      wireNav(box);
+      wireModeToggle(box, renderHomeDetail);
+      wireBrief(box);
+      initMap(w);
+      if(LINEAGE[w.itemId]){ initLineageMap(LINEAGE[w.itemId]); wireLinRegion(box, LINEAGE[w.itemId]); }
+    }
+
+    /* ── 화면 2: 단어 상세 §6.2 ───────────────────────────────── */
+    function getMode(){ return sessionStorage.getItem('gs-mode')||'general'; }
+    function setMode(m){ sessionStorage.setItem('gs-mode', m); }
+
+    function renderWord(id){
+      const w = BY_ID[id] || BY_ID[currentWordId];
+      currentWordId = w.itemId;
+      const mode = getMode();
+      const view = document.getElementById('gs-view');
+      view.innerHTML = `
+        <span class="gs-backlink" data-nav="home"><i class="ti ti-arrow-left"></i> 오늘의 기상도로</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          ${wordTitleHTML(w)}
+          <div class="gs-modetoggle" id="gsModeToggle" role="tablist">
+            <button data-mode="general" class="${mode==='general'?'is-active':''}" role="tab">일반</button>
+            <button data-mode="expert" class="${mode==='expert'?'is-active':''}" role="tab">전문가</button>
+          </div>
+        </div>
+        ${mapSectionHTML(w)}
+        ${ LINEAGE[w.itemId] ? lineageSectionHTML(LINEAGE[w.itemId]) : regionGridHTML() }
+        ${ mode==='expert' ? expertHTML(w) : '' }
+      `;
+      wireNav(view);
+      wireModeToggle(view);
+      wireBrief(view);
+      initMap(w);
+      if(LINEAGE[w.itemId]){ initLineageMap(LINEAGE[w.itemId]); wireLinRegion(view, LINEAGE[w.itemId]); }
+    }
+
+    function formsHTML(w, mode){
+      return `<div class="gs-forms">` + w.forms.map(f=>{
+        const regs = (f.regions||[]).map(c=>`<span class="gs-tag">${REGION_NAMES[c]||c}</span>`).join('');
+        let extra='';
+        if(mode==='expert'){
+          if(f.base) extra += `<span class="gs-tag">기저형 ${f.base}</span>`;
+          (f.phonoTags||[]).forEach(t=> extra += `<span class="gs-tag">${t}</span>`);
+        }
+        return `<div class="gs-card gs-form">
+          <span class="surface">${f.surface}</span>
+          ${f.ipa?`<span class="ipa">${f.ipa}</span>`:''}
+          <span class="regions">${extra}${regs || (mode==='expert'?'<span class="gs-tag">지역 분포 준비 중</span>':'')}</span>
+        </div>`;
+      }).join('') + `</div>`;
+    }
+
+    // 성별 격차 — 교차표(ct)에서 세대별 남/여 지역어 사용률을 파생
+    function genderGapHTML(w){
+      const rateOf=k=>{ const r=w.ct[k]; if(!r) return null; const t=r.reduce((a,b)=>a+b,0); return t? r[1]/t : 0; };
+      const gens=[70,50,20];
+      let mSum=0,fSum=0,cnt=0;
+      const rows=gens.map(g=>{
+        const m=rateOf(g+'M'), f=rateOf(g+'F');
+        if(m!=null&&f!=null){ mSum+=m; fSum+=f; cnt++; }
+        const gap=(m!=null&&f!=null)?(m-f):null;
+        const gapCol = gap==null?'var(--gs-muted)':(gap>=0?'#1d4ed8':'#be185d');
+        return `<div class="gs-gg__row">
+          <div class="gs-gg__gen">${g}대</div>
+          <div class="gs-gg__bars">
+            <div class="gs-gg__bar"><span class="gs-gg__tag gs-gg__tag--m">남</span><span class="gs-gg__track"><span class="gs-gg__fill gs-gg__fill--m" style="width:${pct(m)}%"></span></span><span class="gs-gg__val">${pct(m)}%</span></div>
+            <div class="gs-gg__bar"><span class="gs-gg__tag gs-gg__tag--f">여</span><span class="gs-gg__track"><span class="gs-gg__fill gs-gg__fill--f" style="width:${pct(f)}%"></span></span><span class="gs-gg__val">${pct(f)}%</span></div>
+          </div>
+          <div class="gs-gg__gap" style="color:${gapCol}">${gap!=null&&gap>=0?'+':''}${pct(gap)}<small>%p</small></div>
+        </div>`;
+      }).join('');
+      const avgGap = cnt? (mSum-fSum)/cnt : 0;
+      const who = avgGap>0.01?'남성':avgGap<-0.01?'여성':null;
+      const summary = who
+        ? `평균적으로 <b>${who}</b>이(가) 방언형을 <b>${pct(Math.abs(avgGap))}%p</b> 더 유지합니다. 성별 차이는 방언형이 어느 집단에서 먼저 옅어지는지를 보여줍니다.`
+        : `이 어휘는 성별에 따른 사용률 차이가 뚜렷하지 않습니다.`;
+      return `
+      <div class="gs-sec-head"><h2>성별 격차</h2><span class="gs-sec-head__sub">세대별 남·여 지역어 사용률 · 막대가 길수록 방언형 유지</span></div>
+      <div class="gs-card">
+        <div class="gs-gg">${rows}
+          <div class="gs-gg__summary"><i class="ti ti-info-circle" aria-hidden="true"></i> ${summary}</div>
+        </div>
+      </div>`;
+    }
+
+    // 전문가 레이어 §6.2
+    function expertHTML(w){
+      const s=w.stats;
+      const ctRows=[['20M','20대 남'],['20F','20대 여'],['50M','50대 남'],['50F','50대 여'],['70M','70대 남'],['70F','70대 여']];
+      const rowsHTML = ctRows.map(([k,label])=>{
+        const r=w.ct[k]; const tot=r.reduce((a,b)=>a+b,0);
+        const cell=(v,color)=>`<td>${v}<span class="mini" style="width:${Math.round(v/Math.max(tot,1)*34)}px;background:${color}"></span></td>`;
+        return `<tr><td class="grp">${label}</td>
+          ${cell(r[0],'#94a3b8')}${cell(r[1],HEXVAR.w1)}${cell(r[2],HEXVAR.w3)}${cell(r[3],'#cbd5e1')}</tr>`;
+      }).join('');
+
+      const dl = (label,icon,ok)=>`<button class="gs-dlbtn" ${ok?'':'disabled'} title="${ok?'':'비공개 항목 — 다운로드 불가'}"><i class="ti ${icon}"></i>${label}${ok?'':' (비공개)'}</button>`;
+
+      return `
+      <div class="gs-sec-head"><h2>통계 원값</h2>
+        <span style="margin-left:auto">${badge(w.ctProv, w.ctProv==='measured'?'실측 · 보고서 교차표':'추정 · 시연(사용률에서 합성)')}</span></div>
+      <div class="gs-statgrid">
+        <div class="gs-card"><div class="gs-card__label">χ² (df=${s.df})</div><div class="gs-card__num">${s.chiSq}</div></div>
+        <div class="gs-card"><div class="gs-card__label">유의확률 p</div><div class="gs-card__num">${s.p}</div></div>
+        <div class="gs-card"><div class="gs-card__label">Cramér's V</div><div class="gs-card__num">${s.cramersV}</div></div>
+        <div class="gs-card"><div class="gs-card__label">유의성</div><div class="gs-card__num gs-stars">${stars(s.p)}</div></div>
+      </div>
+
+      <div class="gs-sec-head"><h2>세대 × 성별 교차표</h2></div>
+      <div class="gs-card" style="padding:0;overflow:hidden">
+        <table class="gs-ct">
+          <thead><tr><th>집단</th><th>표준어사용</th><th>지역어사용</th><th>혼용</th><th>모름</th></tr></thead>
+          <tbody>${rowsHTML}</tbody>
+        </table>
+      </div>
+
+      ${genderGapHTML(w)}
+
+      <div class="gs-sec-head"><h2>원자료 내려받기</h2>
+        <span style="margin-left:auto">${badge('pending','공개 플래그 적용')}</span></div>
+      <div class="gs-dlbar">
+        ${dl('CSV','ti-file-type-csv', w.mapPublic)}
+        ${dl('EAF 전사','ti-file-text', w.audioPublic)}
+        ${dl('WAV 음성','ti-volume', w.audioPublic)}
+        <button class="gs-dlbtn"><i class="ti ti-quote"></i>인용</button>
+      </div>`;
+    }
+
+    /* ── 화면 3: 소멸 경보 §6.3 ───────────────────────────────── */
+    let alertFilter='전체';
+    function renderAlert(){
+      const view=document.getElementById('gs-view');
+      const sorted=[...WORDS].sort((a,b)=>b.coldSnap-a.coldSnap);
+      const top=sorted[0];
+      const crises=WORDS.filter(w=>w.alertLevel==='위기').length;
+      const warns=WORDS.filter(w=>w.alertLevel==='경보').length;
+
+      const list = sorted.filter(w=> alertFilter==='전체' || w.alertLevel===alertFilter);
+      const rows = list.map((w,i)=>{
+        const g20=w.national.find(c=>c.gen===20);
+        return `<div class="gs-arow" data-nav="word" data-id="${w.itemId}">
+          <div class="rank">${i+1}</div>
+          <div class="ico gs-wi gs-wi--${g20.weather}"><i class="ti ${WEATHERS[g20.weather].icon}"></i></div>
+          <div class="word"><b>${w.standard}</b><small>${w.dialect!==w.standard ? w.dialect : ''}</small></div>
+          <div class="snap">+${pct(w.coldSnap)}%p</div>
+          <div><span class="gs-lvbadge" style="background:${LEVEL_COLOR[w.alertLevel]}">${w.alertLevel}</span></div>
+        </div>`;
+      }).join('') || `<div class="gs-empty">해당 등급의 어휘가 없습니다.</div>`;
+
+      const chip=(name)=>`<button class="gs-chip ${alertFilter===name?'is-active':''}" data-filter="${name}">${name}</button>`;
+
+      view.innerHTML = `
+        <span class="gs-backlink" data-nav="home"><i class="ti ti-arrow-left"></i> 오늘의 기상도로</span>
+        <div class="gs-wordtitle">
+          <span class="dialect" style="font-size:26px"><i class="ti ti-alert-triangle" style="color:var(--gs-lv-crisis)"></i> 소멸 경보</span>
+          <span class="standard" style="font-size:16px">지역어 적색목록</span>
+          <span style="margin-left:auto">위기 <b style="color:var(--gs-lv-crisis)">${crises}</b> · 경보 <b style="color:var(--gs-lv-warn)">${warns}</b></span>
+        </div>
+        <div class="gs-card gs-alerthero gs-mt">
+          <div class="big gs-wi gs-wi--${top.national.find(c=>c.gen===20).weather}"><i class="ti ti-cloud-bolt"></i></div>
+          <div>
+            <div class="gs-card__label">오늘의 위기 어휘 · 최대 세대 낙차</div>
+            <div style="font-size:24px;font-weight:800;margin:2px 0">${top.standard} <span class="muted" style="font-size:16px;font-weight:600">${top.dialect!==top.standard ? top.dialect : ''}</span></div>
+            <div class="muted" style="font-size:13px">70대 ${pct(top.nat[70])}% → 20대 ${pct(top.nat[20])}% · 한파지수 <b class="gs-trend-up">+${pct(top.coldSnap)}%p</b></div>
+          </div>
+          <span class="gs-backlink" style="margin-left:auto" data-nav="word" data-id="${top.itemId}">자세히 <i class="ti ti-arrow-right"></i></span>
+        </div>
+        <div class="gs-chips" id="gsChips">${chip('전체')}${chip('위기')}${chip('경보')}${chip('주의')}</div>
+        <div class="gs-alist">${rows}</div>
+      `;
+      wireNav(view);
+      view.querySelectorAll('#gsChips .gs-chip').forEach(b=>{
+        b.addEventListener('click',()=>{ alertFilter=b.dataset.filter; renderAlert(); });
+      });
+    }
+
+    /* ── 지도(MapAdapter) §7 — 공통 지도(KoreaMap) 재사용 ─────── */
+    const PROV2CODE = {
+      '경기도':'GG','서울특별시':'GG','인천광역시':'GG',
+      '강원도':'GW',
+      '충청북도':'CB',
+      '충청남도':'CN','대전광역시':'CN','세종특별자치시':'CN',
+      '경상북도':'GB','대구광역시':'GB',
+      '경상남도':'GN','부산광역시':'GN','울산광역시':'GN',
+      '전라북도':'JB',
+      '전라남도':'JN','광주광역시':'JN',
+      '제주특별자치도':'JJ'
+    };
+    const MAP_CENTER=[127.85,36.15], MAP_ZOOM=7.25;   // 지도 기본 위치(초기화 기준)
+    // 9권역 중심 좌표(경도,위도) — 날씨 이모지 마커 위치
+    const CENTROID = {
+      GG:[127.05,37.40], GW:[128.30,37.75], CB:[127.75,36.80], CN:[126.75,36.50],
+      GB:[128.75,36.35], GN:[128.20,35.30], JB:[127.10,35.70], JN:[126.90,34.85], JJ:[126.55,33.40]
+    };
+    // 실제 폴리곤 기하로부터 계산한 각 도의 내부 중심점(지도 투영 좌표) — 마커를 지역 중앙에 배치
+    const AUTO_CENTROID = {};
+    // 마커 미세 조정(투영 좌표 오프셋, px 아님) — 인접 도 라벨 겹침/치우침 보정
+    // 마커 미세 이동(투영 좌표, x+ 오른쪽 / y- 아래). 경기 제외 8개 도를 우하향으로 소폭 이동.
+    // 충남·충북은 라벨 분리 오프셋에 우하향 이동을 합산.
+    const CENTROID_NUDGE = {
+      GW:[9000,-9000], CB:[22000,-6000], CN:[-4000,-11000],
+      GB:[9000,-9000], GN:[9000,-9000], JB:[9000,-9000],
+      JN:[9000,-9000], JJ:[9000,-9000]
+    };
+    // 마커 위치: 계산된 폴리곤 중심 우선, 없으면 하드코딩 CENTROID(경위도) 폴백
+    function markerCoord(code){
+      const base = AUTO_CENTROID[code] || (CENTROID[code] ? ol.proj.fromLonLat(CENTROID[code]) : null);
+      if(!base) return null;
+      const n = CENTROID_NUDGE[code];
+      return n ? [base[0]+n[0], base[1]+n[1]] : base;
+    }
+    // GeoJSON 지오메트리의 위도 중심(남/북한 강원도 구분용)
+    function geoLatCenter(geom){
+      let minY=Infinity, maxY=-Infinity;
+      (function scan(a){ if(typeof a[0]==='number'){ if(a[1]<minY)minY=a[1]; if(a[1]>maxY)maxY=a[1]; } else a.forEach(scan); })(geom.coordinates);
+      return (minY+maxY)/2;
+    }
+    let olMap=null, playTimer=null;
+
+    // 사양서 §7.1 인터페이스를 공통 지도(KoreaMap)에 맞춰 구현
+    function createMapAdapter(targetEl){
+      if(!window.ol || !window.KoreaMap || !window.KOREA_PROVINCES) return null;
+      let fillLayer=null;   // 지도별 지역 변수(다중 지도 공존 대비)
+      const feats = window.KOREA_PROVINCES.features
+        .filter(f=>PROV2CODE[f.properties.name])
+        // 북한 강원도(동명 피처)는 제외 — 남한 데이터만 색칠 (위도 중심 38.6°N 이북 컷)
+        .filter(f=> !(f.properties.name==='강원도' && geoLatCenter(f.geometry) > 38.6))
+        .map(f=>({ type:'Feature', properties:{name:f.properties.name, color:'#e5e7eb'}, geometry:f.geometry }));
+      const geo = { type:'FeatureCollection', features:feats };
+
+      const base = window.KoreaMap.createBaseLayer({ fill:'#eef2f6', stroke:'#c7d0da', strokeWidth:1 });
+      fillLayer = window.KoreaMap.createFillLayer(geo, { colorProp:'color', fillAlpha:0.78, strokeAlpha:0.9, strokeWidth:1.1, zIndex:3 });
+      if(!fillLayer) return null;
+
+      // 각 도의 폴리곤 내부 중심점 계산 → 마커를 지역 중앙에 정렬.
+      // 한 코드에 여러 피처(예: GG=경기도+서울+인천)가 있으면 '가장 큰 피처(=실제 도)'를 기준으로 삼는다.
+      try{
+        const bestArea = {};
+        fillLayer.getSource().getFeatures().forEach(ft=>{
+          const code = PROV2CODE[ft.get('name')]; if(!code) return;
+          const g = ft.getGeometry(); if(!g) return;
+          let poly = null;
+          if(g.getType()==='Polygon') poly = g;
+          else if(g.getType()==='MultiPolygon'){ let ba=-1; g.getPolygons().forEach(p=>{ const a=p.getArea(); if(a>ba){ ba=a; poly=p; } }); }
+          if(!poly) return;
+          const area = poly.getArea();
+          if(area > (bestArea[code]||0)){ bestArea[code]=area; AUTO_CENTROID[code]=poly.getInteriorPoint().getCoordinates().slice(0,2); }
+        });
+      }catch(e){ /* 계산 실패 시 CENTROID 폴백 사용 */ }
+
+      const map = new ol.Map({
+        target: targetEl,
+        layers: base ? [base, fillLayer] : [fillLayer],
+        view: window.KoreaMap.createView({ center:MAP_CENTER, zoom:MAP_ZOOM, minZoom:6, maxZoom:9 }),
+        controls: []
+      });
+
+      let markers=[];   // 날씨 이모지 오버레이
+
+      return {
+        map,
+        setRegionFill(code,color){
+          fillLayer.getSource().getFeatures().forEach(ft=>{
+            if(PROV2CODE[ft.get('name')]===code) ft.set('color', color);
+          });
+        },
+        // dialect_awareness.html과 동일한 이모지 날씨 마커를 각 권역 중심에 표시
+        setWeatherMarkers(w, gen){
+          markers.forEach(o=>map.removeOverlay(o)); markers=[];
+          REGION_ORDER.forEach(code=>{
+            const c=markerCoord(code); if(!c) return;
+            const rate=(w.byRegion[gen]||{})[code];
+            const wk=weatherOf(rate).key;
+            const el=document.createElement('div');
+            el.className='gs-olmarker';
+            el.innerHTML=`<div class="gs-olring"><div class="gs-olemoji">${EMOJI[wk]}</div><div class="gs-ollabel"><span class="nm">${REGION_NAMES[code]||code}</span> <span class="gs-olpct gs-fc--${wk}">${pct(rate)}%</span></div></div>`;
+            const ov=new ol.Overlay({ element:el, stopEvent:false, positioning:'center-center' });
+            ov.setPosition(c);
+            map.addOverlay(ov); markers.push(ov);
+          });
+        },
+        // 범용 마커: builder(code)가 HTML 문자열(또는 null) 반환 — 계열 지도 등 재사용
+        setCustomMarkers(builder){
+          markers.forEach(o=>map.removeOverlay(o)); markers=[];
+          REGION_ORDER.forEach(code=>{
+            const c=markerCoord(code); if(!c) return;
+            const html=builder(code); if(html==null) return;
+            const el=document.createElement('div'); el.className='gs-olmarker'; el.innerHTML=html;
+            const ov=new ol.Overlay({ element:el, stopEvent:false, positioning:'center-center' });
+            ov.setPosition(c); map.addOverlay(ov); markers.push(ov);
+          });
+        },
+        onRegionClick(handler){
+          map.on('click', evt=>{
+            const ft = map.forEachFeatureAtPixel(evt.pixel, f=>f);
+            if(ft){ const code=PROV2CODE[ft.get('name')]; if(code) handler(code, evt); }
+            else hidePopover();
+          });
+        },
+        setFillVisible(v){ fillLayer.setVisible(v); },
+        setMarkersVisible(v){ markers.forEach(o=>{ const el=o.getElement(); if(el) el.style.display = v?'':'none'; }); },
+        target: targetEl,
+        clear(){ if(olMap){ olMap.setTarget(undefined); olMap=null; } }
+      };
+    }
+
+    function paintMap(adapter, w, gen){
+      REGION_ORDER.forEach(code=>{
+        const rate = (w.byRegion[gen]||{})[code];
+        adapter.setRegionFill(code, HEXVAR[weatherOf(rate).key]);
+      });
+      adapter.setWeatherMarkers(w, gen);
+    }
+
+    function initMap(w){
+      const target=document.getElementById('gs-map');
+      if(!target) return;
+      if(olMap){ olMap.setTarget(undefined); olMap=null; }
+      stopPlay();
+
+      const adapter=createMapAdapter(target);
+      if(!adapter){
+        const fb=document.getElementById('gsMapFallback');
+        if(fb){ fb.style.display='flex';
+          fb.innerHTML = '지도를 불러오지 못했습니다. 지역별 사용률(20대): '
+            + REGION_ORDER.map(c=>`${REGION_NAMES[c]} ${pct(w.byRegion[20][c])}%`).join(' · '); }
+        return;
+      }
+      olMap=adapter.map;
+      paintMap(adapter, w, currentGen);
+
+      adapter.onRegionClick((code, evt)=> showPopover(w, code, evt));
+
+      // 지도 위치 초기화
+      const reset=document.getElementById('gsMapReset');
+      if(reset) reset.addEventListener('click',()=>{
+        const v=adapter.map.getView(); hidePopover();
+        v.animate({ center: ol.proj.fromLonLat(MAP_CENTER), zoom: MAP_ZOOM, duration:300 });
+      });
+
+      // 세대 스위치
+      const sw=document.getElementById('gsGenSwitch');
+      if(sw) sw.querySelectorAll('button').forEach(b=>{
+        b.classList.toggle('is-active', +b.dataset.gen===currentGen);
+        b.addEventListener('click',()=>{
+          currentGen=+b.dataset.gen;
+          sw.querySelectorAll('button').forEach(x=>x.classList.toggle('is-active',x===b));
+          paintMap(adapter,w,currentGen); hidePopover();
+        });
+      });
+      // 전선 남하 재생 (70→50→20) — prefers-reduced-motion 존중
+      const play=document.getElementById('gsPlay');
+      const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if(play) play.addEventListener('click',()=>{
+        if(playTimer){ stopPlay(); return; }
+        if(reduce){ currentGen=20; syncGenSwitch(); paintMap(adapter,w,20); return; }
+        const seq=[70,50,20]; let i=0;
+        play.innerHTML='<i class="ti ti-player-stop"></i> 정지';
+        const step=()=>{ currentGen=seq[i]; syncGenSwitch(); paintMap(adapter,w,currentGen); hidePopover();
+          i=(i+1)%seq.length; playTimer=setTimeout(step, i===0?1700:1100); };
+        step();
+      });
+
+      wireMapToolbar(adapter, w);
+    }
+
+    /* ── 지도 도구모음 (지도 설정 / 공유 / 다운로드) ─────────────── */
+    function wireMapToolbar(adapter, w){
+      const $=id=>document.getElementById(id);
+      const closeAllPop=()=>document.querySelectorAll('#jiyeoeo-gisangdo-root .gs-popmenu').forEach(p=>p.hidden=true);
+      const bindPop=(btnId,popId)=>{ const b=$(btnId),p=$(popId); if(!b||!p) return;
+        b.addEventListener('click',e=>{ e.stopPropagation(); const open=p.hidden; closeAllPop(); p.hidden=!open; b.setAttribute('aria-expanded',String(open)); });
+        p.addEventListener('click',e=>e.stopPropagation());
+      };
+      bindPop('gsBtnSettings','gsPopSettings');
+      bindPop('gsBtnDownload','gsPopDownload');
+
+      // 지도 레이어(하천·철도·도로·산맥) — KoreaMap.attachOverlays
+      let overlays=null, regionCtl=null;
+      const ensureOverlays=()=>{ if(!overlays && window.KoreaMap && window.KoreaMap.attachOverlays) overlays=window.KoreaMap.attachOverlays(adapter.map); return overlays; };
+      [['gsOvRivers','rivers'],['gsOvRail','rail'],['gsOvRoads','roads'],['gsOvMountains','mountains']].forEach(([id,key])=>{
+        const cb=$(id); if(cb) cb.addEventListener('change',()=>{ const ov=ensureOverlays(); if(ov) ov.show(key, cb.checked); });
+      });
+      const ensureRegionCtl=()=>{ if(!regionCtl && window.KoreaMap && window.KoreaMap.attachRegionLayers) regionCtl=window.KoreaMap.attachRegionLayers(adapter.map,{sidoVisible:false,sigunguVisible:false}); return regionCtl; };
+      const lblSido=$('gsLblSido');
+      if(lblSido) lblSido.addEventListener('change',()=>{ const c=ensureRegionCtl(); if(c) c.showSido(lblSido.checked); });
+      const lblSigungu=$('gsLblSigungu');
+      if(lblSigungu) lblSigungu.addEventListener('change',()=>{ const c=ensureRegionCtl(); if(c) c.showSigungu(lblSigungu.checked); });
+      const hideIcon=$('gsHideIcon'); if(hideIcon) hideIcon.addEventListener('change',()=>adapter.setMarkersVisible(!hideIcon.checked));
+      const hideArea=$('gsHideArea'); if(hideArea) hideArea.addEventListener('change',()=>adapter.setFillVisible(!hideArea.checked));
+
+      // 공유 — 현재 단어 링크 복사
+      const share=$('gsBtnShare');
+      if(share) share.addEventListener('click',()=>{
+        const url=location.href.split('#')[0]+'#/word/'+currentWordId;
+        if(navigator.clipboard) navigator.clipboard.writeText(url).catch(()=>{});
+        showToast('현재 단어 기상도 링크를 복사했습니다.');
+      });
+
+      // 다운로드 — PNG / 인쇄용
+      const dlImage=$('gsDlImage');
+      if(dlImage) dlImage.addEventListener('click',()=>{ closeAllPop(); withMapCanvas(adapter, w, cv=>triggerDownload(cv.toDataURL('image/png'), `지역어기상도_${w.standard}_${currentGen}대.png`)); });
+      const dlPdf=$('gsDlPdf');
+      if(dlPdf) dlPdf.addEventListener('click',()=>{ closeAllPop(); withMapCanvas(adapter, w, cv=>{
+        const url=cv.toDataURL('image/png'); const win=window.open('','_blank');
+        if(!win){ alert('팝업이 차단되어 인쇄 창을 열 수 없습니다.'); return; }
+        win.document.write(`<html><head><title>지역어 기상도 - ${w.standard}</title></head><body style="margin:0"><img src="${url}" style="width:100%" onload="setTimeout(function(){window.focus();window.print();},300)"></body></html>`);
+        win.document.close();
+      }); });
+    }
+
+    // OL 캔버스 + 이모지·제목을 하나의 캔버스로 합성
+    function withMapCanvas(adapter, w, cb){
+      const olm=adapter.map, target=adapter.target; if(!olm||!target) return;
+      olm.once('rendercomplete',()=>{
+        const size=olm.getSize();
+        const out=document.createElement('canvas'); out.width=size[0]; out.height=size[1];
+        const ctx=out.getContext('2d');
+        ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,out.width,out.height);
+        target.querySelectorAll('canvas').forEach(cv=>{
+          if(cv.width===0) return;
+          const op=cv.parentNode.style.opacity||cv.style.opacity;
+          ctx.globalAlpha = op===''?1:Number(op);
+          const m=/^matrix\(([^)]*)\)$/.exec(cv.style.transform);
+          if(m){ const v=m[1].split(',').map(Number); ctx.setTransform(v[0],v[1],v[2],v[3],v[4],v[5]); }
+          else ctx.setTransform(1,0,0,1,0,0);
+          ctx.drawImage(cv,0,0);
+        });
+        ctx.setTransform(1,0,0,1,0,0); ctx.globalAlpha=1;
+        // 날씨 이모지 + 사용률
+        const hideIcon=document.getElementById('gsHideIcon');
+        if(!(hideIcon&&hideIcon.checked)){
+          ctx.textAlign='center'; ctx.textBaseline='middle';
+          REGION_ORDER.forEach(code=>{
+            const c=markerCoord(code); if(!c) return;
+            const px=olm.getPixelFromCoordinate(c); if(!px) return;
+            const rate=(w.byRegion[currentGen]||{})[code]; const wk=weatherOf(rate).key;
+            ctx.font='26px sans-serif'; ctx.fillStyle='#000'; ctx.fillText(EMOJI[wk], px[0], px[1]-6);
+            ctx.font='bold 12px sans-serif'; ctx.lineWidth=3; ctx.strokeStyle='rgba(255,255,255,.92)';
+            ctx.strokeText(pct(rate)+'%', px[0], px[1]+16);
+            ctx.fillStyle='#0f172a'; ctx.fillText(pct(rate)+'%', px[0], px[1]+16);
+          });
+        }
+        // 제목 · 출처
+        ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+        ctx.fillStyle='#0f172a'; ctx.font='bold 18px sans-serif';
+        ctx.fillText(`'${w.standard}' 방언 기상도 · ${currentGen}대`, 16, 28);
+        ctx.fillStyle='#64748b'; ctx.font='12px sans-serif';
+        ctx.fillText('국립국어원 · 지역어 기상도', 16, size[1]-14);
+        cb(out);
+      });
+      olm.renderSync();
+    }
+    function triggerDownload(href, filename){
+      const a=document.createElement('a'); a.href=href; a.download=filename;
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+    let _toast=null;
+    function showToast(msg){
+      const root=document.getElementById('jiyeoeo-gisangdo-root'); if(!root) return;
+      if(!_toast){ _toast=document.createElement('div'); _toast.className='gs-toast'; root.appendChild(_toast); }
+      _toast.innerHTML=`<i class="ti ti-check" aria-hidden="true"></i> ${msg}`;
+      _toast.classList.add('is-show');
+      clearTimeout(showToast._t); showToast._t=setTimeout(()=>_toast.classList.remove('is-show'),2400);
+    }
+    function syncGenSwitch(){
+      const sw=document.getElementById('gsGenSwitch'); if(!sw) return;
+      sw.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',+b.dataset.gen===currentGen));
+    }
+    function stopPlay(){ if(playTimer){ clearTimeout(playTimer); playTimer=null; }
+      const play=document.getElementById('gsPlay'); if(play) play.innerHTML='<i class="ti ti-player-play"></i> 전선 남하 재생 (70→20)'; }
+
+    let popAudioCtx=null;
+    function popBeep(freq, btn){
+      try{
+        if(!popAudioCtx) popAudioCtx=new (window.AudioContext||window.webkitAudioContext)();
+        const ctx=popAudioCtx;
+        const osc=ctx.createOscillator(), gain=ctx.createGain();
+        osc.type='sine'; osc.frequency.value=freq;
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime+0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.5);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(); osc.stop(ctx.currentTime+0.5);
+        if(btn){ btn.classList.add('is-playing'); setTimeout(()=>btn.classList.remove('is-playing'), 550); }
+      }catch(e){}
+    }
+
+    function showPopover(w, code, evt){
+      const pop=document.getElementById('gsMapPop'); if(!pop) return;
+      const panel=document.querySelector('#jiyeoeo-gisangdo-root .gs-mappanel');
+      const rect=panel.getBoundingClientRect();
+      const word = (w.dialect || w.standard || '');
+      const GEN_FREQ={70:300,50:400,20:520};
+      const rows=[70,50,20].map(g=>{
+        const rate=w.byRegion[g][code]; const wk=weatherOf(rate).key;
+        return `<tr class="${g===currentGen?'is-current':''}">
+          <td>${g}대</td>
+          <td><span class="gs-popweather" style="color:${HEXVAR[wk]}"><i class="ti ${WEATHERS[wk].icon}"></i> ${WEATHERS[wk].label}</span></td>
+          <td style="color:${HEXVAR[wk]};font-weight:800">${pct(rate)}%</td>
+          <td><button type="button" class="gs-popspeaker" data-freq="${GEN_FREQ[g]}" aria-label="${g}대 음성 듣기"><i class="ti ti-volume"></i></button></td>
+        </tr>`;
+      }).join('');
+      pop.innerHTML=`
+        <div class="gs-pophead">
+          <div class="gs-pophead__title">
+            <span class="gs-pophead__region">${REGION_NAMES[code]}</span>
+            <span>세대별 기상도</span>
+          </div>
+          <button type="button" class="gs-popclose" id="gsPopClose" aria-label="닫기"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="gs-popbody">
+          <div class="gs-popbody__title"><span>${word}</span> · 세대별 사용 현황</div>
+          <table class="gs-poptable">
+            <thead><tr><th>세대</th><th>날씨</th><th>사용률</th><th>듣기</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+      pop.classList.remove('gs-pop--below');
+      pop.classList.add('is-open');
+      const closer=document.getElementById('gsPopClose');
+      if(closer) closer.onclick=(e)=>{ e.stopPropagation(); hidePopover(); };
+      pop.querySelectorAll('.gs-popspeaker').forEach(btn=>{
+        btn.onclick=(e)=>{ e.stopPropagation(); popBeep(+btn.dataset.freq, btn); };
+      });
+
+      // 말풍선을 클릭 지점 위에 가로 중앙 정렬, 공간이 없으면 아래로 뒤집음
+      const pw=pop.offsetWidth, ph=pop.offsetHeight;
+      let x=evt.pixel[0];
+      x=Math.max(pw/2+6, Math.min(x, rect.width-pw/2-6));
+      let y=evt.pixel[1]-ph-14;
+      if(y<6){ pop.classList.add('gs-pop--below'); y=evt.pixel[1]+14; }
+      pop.style.left=x+'px'; pop.style.top=y+'px';
+    }
+    function hidePopover(){ const p=document.getElementById('gsMapPop'); if(p) p.classList.remove('is-open'); }
+
+    /* ── 라우팅 §3 (해시) ─────────────────────────────────────── */
+    function route(){
+      stopPlay();
+      const h=(location.hash||'#/home').replace(/^#/,'');
+      if(h.startsWith('/word/')){ renderWord(h.split('/')[2]); }
+      else if(h.startsWith('/alert')){ renderAlert(); }
+      else { renderHome(); }
+      window.scrollTo({top:0, behavior:'instant' in window ? 'instant':'auto'});
+    }
+    function nav(to, id){
+      if(to==='home') location.hash='#/home';
+      else if(to==='alert') location.hash='#/alert';
+      else if(to==='word') location.hash='#/word/'+id;
+    }
+    function wireNav(root){
+      root.querySelectorAll('[data-nav]').forEach(el=>{
+        el.addEventListener('click',()=>nav(el.dataset.nav, el.dataset.id));
+        el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); nav(el.dataset.nav, el.dataset.id); }});
+      });
+    }
+    function wireModeToggle(root, rerender){
+      const tg=root.querySelector('#gsModeToggle'); if(!tg) return;
+      tg.querySelectorAll('button').forEach(b=> b.addEventListener('click',()=>{
+        if(getMode()===b.dataset.mode) return;
+        setMode(b.dataset.mode); (rerender||(()=>renderWord(currentWordId)))();
+      }));
+    }
+
+    /* ── 단어 선택 패널 (WordSearch §6.1) — our_town .map-pick 방식 ── */
+    const CHO=['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+    const CHO14=['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ']; // 표준 초성 버튼(된소리는 기본자음으로 접음)
+    const CHO_FOLD={'ㄲ':'ㄱ','ㄸ':'ㄷ','ㅃ':'ㅂ','ㅆ':'ㅅ','ㅉ':'ㅈ'};
+    function choseong(s){ const c=(s||'').charCodeAt(0)-0xAC00; const ch=(c<0||c>11171)?(s[0]||''):CHO[Math.floor(c/588)]; return CHO_FOLD[ch]||ch; }
+    let pickInitial='ㄱ', pickQuery='', pickCollapsed=false;
+
+    function filterWords(){
+      const q=pickQuery.trim();
+      return WORDS.filter(w=>{
+        if(pickInitial!=='전체' && choseong(w.standard)!==pickInitial) return false;
+        if(q && !(w.dialect.includes(q)||w.standard.includes(q)||w.forms.some(f=>f.surface.includes(q)))) return false;
+        return true;
+      });
+    }
+    function gridHTML(list){
+      if(!list.length) return `<div class="gs-wgrid-empty">검색 결과가 없습니다</div>`;
+      return list.map(w=>{
+        return `<button type="button" class="gs-wbtn ${w.itemId===currentWordId?'is-active':''}" data-id="${w.itemId}" role="option" aria-selected="${w.itemId===currentWordId}">${w.standard}</button>`;
+      }).join('');
+    }
+    function pickPanelHTML(){
+      const inits=['전체'].concat(CHO14);
+      const initHTML=inits.map(c=>`<button type="button" class="gs-initial ${c===pickInitial?'is-active':''}" data-ini="${c}">${c}</button>`).join('');
+      return `
+      <div class="gs-pick ${pickCollapsed?'is-collapsed':''}" id="gsPick">
+        <div class="gs-pick__head">
+          <p class="gs-pick__label"><i class="ti ti-vocabulary" aria-hidden="true"></i> 기상도를 볼 단어
+            <span class="gs-pick__count">${WORDS.length}개</span></p>
+          <button type="button" class="gs-pick__toggle" id="gsPickToggle" aria-expanded="${!pickCollapsed}">
+            <span id="gsPickToggleLabel">${pickCollapsed?'목록 펼치기':'목록 접기'}</span>
+            <i class="ti ti-chevron-down gs-pick__chev" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="gs-searchrow">
+          <div class="gs-wordsearch ${pickQuery?'has-value':''}" id="gsWSWrap">
+            <i class="ti ti-search gs-wordsearch__ico" aria-hidden="true"></i>
+            <input type="search" class="gs-wordsearch__input" id="gsWS" placeholder="방언형·표준어형 검색 (예: 나락, 벼)" autocomplete="off" aria-label="단어 검색" value="${pickQuery.replace(/"/g,'&quot;')}">
+            <button type="button" class="gs-wordsearch__clear" id="gsWSClear" aria-label="검색어 지우기"><i class="ti ti-x" aria-hidden="true"></i></button>
+          </div>
+          <button type="button" class="gs-searchbtn" id="gsSearchBtn"><i class="ti ti-search" aria-hidden="true"></i> 검색</button>
+        </div>
+        <div class="gs-pick__body">
+          <div class="gs-initials" id="gsInitials" role="tablist" aria-label="초성 필터">${initHTML}</div>
+          <div class="gs-wordgrid" id="gsWordGrid" role="listbox" aria-label="단어 목록">${gridHTML(filterWords())}</div>
+        </div>
+      </div>`;
+    }
+    function regrid(){
+      const g=document.getElementById('gsWordGrid'); if(g) g.innerHTML=gridHTML(filterWords());
+    }
+    function wirePickPanel(root){
+      const pick=root.querySelector('#gsPick');
+      const toggle=root.querySelector('#gsPickToggle');
+      if(toggle) toggle.addEventListener('click',()=>{
+        pickCollapsed=!pickCollapsed;
+        pick.classList.toggle('is-collapsed',pickCollapsed);
+        toggle.setAttribute('aria-expanded', String(!pickCollapsed));
+        root.querySelector('#gsPickToggleLabel').textContent = pickCollapsed?'목록 펼치기':'목록 접기';
+      });
+      const expand=()=>{ if(!pickCollapsed) return; pickCollapsed=false; pick.classList.remove('is-collapsed');
+        if(toggle) toggle.setAttribute('aria-expanded','true');
+        const lbl=root.querySelector('#gsPickToggleLabel'); if(lbl) lbl.textContent='목록 접기'; };
+      const ws=root.querySelector('#gsWS'), wsWrap=root.querySelector('#gsWSWrap'), wsClear=root.querySelector('#gsWSClear');
+      const doSearch=()=>{ pickQuery=ws?ws.value:''; if(wsWrap) wsWrap.classList.toggle('has-value',!!pickQuery); expand(); regrid(); };
+      if(ws){
+        ws.addEventListener('input',()=>{ pickQuery=ws.value; wsWrap.classList.toggle('has-value',!!pickQuery); regrid(); });
+        ws.addEventListener('keydown',e=>{
+          if(e.key==='Enter'){ e.preventDefault(); doSearch(); }
+          else if(e.key==='Escape'){ ws.value=''; pickQuery=''; wsWrap.classList.remove('has-value'); regrid(); }
+        });
+      }
+      const searchBtn=root.querySelector('#gsSearchBtn');
+      if(searchBtn) searchBtn.addEventListener('click', doSearch);
+      if(wsClear) wsClear.addEventListener('click',()=>{ pickQuery=''; ws.value=''; wsWrap.classList.remove('has-value'); regrid(); ws.focus(); });
+      const inits=root.querySelector('#gsInitials');
+      if(inits) inits.addEventListener('click',e=>{
+        const b=e.target.closest('.gs-initial'); if(!b) return;
+        pickInitial=b.dataset.ini;
+        inits.querySelectorAll('.gs-initial').forEach(x=>x.classList.toggle('is-active',x===b));
+        regrid();
+      });
+      const grid=root.querySelector('#gsWordGrid');
+      if(grid) grid.addEventListener('click',e=>{
+        const b=e.target.closest('.gs-wbtn'); if(!b) return;
+        currentWordId=b.dataset.id;
+        grid.querySelectorAll('.gs-wbtn').forEach(x=>{ const on=x===b; x.classList.toggle('is-active',on); x.setAttribute('aria-selected',String(on)); });
+        renderHomeDetail();
+        document.getElementById('gsHomeDetail').scrollIntoView({behavior:'smooth',block:'start'});
+      });
+    }
+
+    /* ── 초기화 ───────────────────────────────────────────────── */
+    function boot(){
+      // 딥링크로 모드 지정 가능 (?mode=expert) — 이후 세션 유지 §3
+      const qmode=new URLSearchParams(location.search).get('mode');
+      if(qmode==='expert'||qmode==='general') setMode(qmode);
+      // 지도 도구 팝오버: 바깥 클릭 시 닫기 & 범례 아코디언 토글
+      document.addEventListener('click', e=>{
+        document.querySelectorAll('#jiyeoeo-gisangdo-root .gs-popmenu').forEach(p=>p.hidden=true);
+        const toggle = e.target.closest('.gs-map-legend-acc__toggle');
+        if(toggle){
+          const acc = toggle.closest('.gs-map-legend-acc');
+          if(acc){
+            const collapsed = acc.classList.toggle('is-collapsed');
+            toggle.setAttribute('aria-expanded', String(!collapsed));
+          }
+        }
+      });
+      window.addEventListener('hashchange', route);
+      route();
+    }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
+    else boot();
+  })();
+  </script>
+</body>
+</html>

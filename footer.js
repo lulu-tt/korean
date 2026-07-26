@@ -9,8 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="footer__links">
         <a href="#" class="privacy">개인정보처리방침</a>
         <span class="divider">|</span>
-        <a href="#">고정형 영상정보처리기기 운영관리방침</a>
-        <span class="divider">|</span>
         <a href="#">저작권정책</a>
         <span class="divider">|</span>
         <a href="#">오시는길</a>
@@ -30,9 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
         <img src="./logo_korean_horizontal.png" alt="문화체육관광부 국립국어원" class="f-logo-org">
       </div>
       <div class="footer__address">
-        (07511) 서울특별시 강서구 금낭화로 154(방화동 827) 국립국어원<br>
-        일반문의: 홈페이지 &gt; 기관소개 &gt; 찾아오시는 길 참조 | 대표전화: 02-2669-9775<br>
-        COPYRIGHT © National Institute of Korean Language ALL RIGHTS RESERVED.
+        <span class="footer__addr-line">(07511) 서울특별시 강서구 금낭화로 154(방화동 827) 국립국어원</span>
+        <span class="footer__addr-line">일반문의: 홈페이지 &gt; 기관소개 &gt; 찾아오시는 길 참조 | 대표전화: 02-2669-9775</span>
+        <span class="footer__copyright">COPYRIGHT © National Institute of Korean Language ALL RIGHTS RESERVED.</span>
       </div>
     </div>
   </div>

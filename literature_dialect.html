@@ -399,7 +399,7 @@
       font-size: 15px; font-weight: 700; color: #475569; cursor: pointer; font-family: inherit; transition: 0.15s;
     }
     .cho-tab:hover { border-color: #94a3b8; color: #1f2937; }
-    .cho-tab.active { background: #5b2333; border-color: #5b2333; color: #fff; }
+    .cho-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
     .picker-search {
       width: 260px; max-width: 100%; height: 36px; border: 1px solid #d8dee8; border-radius: 8px;
       padding: 0 12px; font-size: 13.5px; font-family: inherit; margin-bottom: 14px; box-sizing: border-box;
@@ -407,9 +407,9 @@
     .picker-search:focus { outline: none; border-color: #ea580c; box-shadow: 0 0 0 3px rgba(234, 88, 12,0.08); }
     .picker-list { display: flex; flex-wrap: wrap; gap: 12px 22px; }
     .pick { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; color: #374151; cursor: pointer; line-height: 1.4; }
-    .pick input { accent-color: #ea580c; cursor: pointer; margin: 0; }
-    .pick:hover { color: #ea580c; }
-    .pick:has(input:checked) span { color: #ea580c; font-weight: 700; }
+    .pick input { accent-color: var(--primary); cursor: pointer; margin: 0; }
+    .pick:hover { color: var(--primary); }
+    .pick:has(input:checked) span { color: var(--primary); font-weight: 700; }
     .picker-empty { color: #94a3b8; font-size: 13.5px; margin: 6px 0 0; }
     .mobile .picker-row, .tablet .picker-row { flex-direction: column; gap: 10px; }
 
@@ -559,6 +559,7 @@
       margin-top: 24px;
     }
     /* ── 문학 속 지역어 상세 목록(항목별 박스형) ── */
+    .result-list { text-align: left; }
     .lit-entry {
       background: #ffffff;
       border: 1px solid #e5e7eb;
@@ -566,24 +567,26 @@
       overflow: hidden;
       box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);
       transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+      text-align: left;
     }
     .lit-entry:hover { border-color: #3b82f6; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08); }
     .lit-head {
       display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
       background: #f8fafc; padding: 16px 24px;
       border-bottom: 1px solid #eef2f7;
+      text-align: left;
     }
     .lit-num { font-weight: 800; color: #6b7280; min-width: 18px; text-align: center; font-size: 15px; }
-    .lit-head-main { display: flex; align-items: baseline; gap: 10px; flex: 1; min-width: 220px; }
+    .lit-head-main { display: flex; align-items: baseline; gap: 10px; flex: 1; min-width: 220px; text-align: left; }
     .lit-head-main .lbl { font-size: 14px; color: #6b7280; font-weight: 600; }
     .lit-word { font-size: 19px; font-weight: 800; color: #111827; letter-spacing: -0.02em; }
     .lit-pos { font-size: 15px; color: #111827; font-weight: 700; }
-    .lit-head-right { display: flex; align-items: baseline; gap: 30px; font-size: 14px; color: #6b7280; font-weight: 500; flex-wrap: wrap; }
+    .lit-head-right { display: flex; align-items: baseline; gap: 30px; font-size: 14px; color: #6b7280; font-weight: 500; flex-wrap: wrap; text-align: left; }
     .lit-head-right b { color: #111827; font-weight: 700; }
-    .lit-row { display: flex; gap: 20px; padding: 18px 24px; border-top: 1px solid #f1f5f9; }
+    .lit-row { display: flex; gap: 20px; padding: 18px 24px; border-top: 1px solid #f1f5f9; text-align: left; justify-content: flex-start; }
     .lit-row:first-of-type { border-top: none; }
-    .lit-label { flex: 0 0 90px; color: #6b7280; font-weight: 700; font-size: 14px; }
-    .lit-value { flex: 1; min-width: 0; font-size: 14.5px; line-height: 1.75; color: #111827; }
+    .lit-label { flex: 0 0 90px; color: #6b7280; font-weight: 700; font-size: 14px; text-align: left; }
+    .lit-value { flex: 1; min-width: 0; font-size: 14.5px; line-height: 1.75; color: #111827; text-align: left; }
     .lit-value .lit-source { color: #ea580c; font-weight: 500; margin-left: 4px; }
     .lit-eg { color: #2563eb; font-weight: 700; margin-right: 8px; }
     .lit-value mark { font-style: normal; color: #2563eb; background: rgba(30, 64, 175, 0.06); padding: 1px 4px; border-radius: 4px; }
@@ -597,11 +600,12 @@
       margin-top: 24px;
     }
     /* 뷰 전환 토글 (카드형 / 목록형) */
-    .view-toggle { display: flex; gap: 8px; justify-content: flex-end; margin: 8px 0 0; }
+    .result-actions-row { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin: 12px 0 16px; flex-wrap: wrap; }
+    .view-toggle { display: flex; gap: 6px; align-items: center; }
     .view-toggle button {
-      border: 1px solid #d8dee8; background: #fff; color: #6b7280;
-      font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: 8px;
-      cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s;
+      height: 38px; padding: 0 16px; border: 1px solid #d8dee8; background: #fff; color: #6b7280;
+      font-weight: 700; font-size: 13px; border-radius: 8px; box-sizing: border-box;
+      cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s;
     }
     .view-toggle button:hover { border-color: #94a3b8; color: #374151; }
     .view-toggle button.active { background: #111827; color: #fff; border-color: #111827; }
@@ -859,6 +863,149 @@
       transition: 0.2s;
     }
     .rc-search__btn:hover { background: var(--primary-dark); transform: translateY(-50%) scale(1.05); }
+
+    /* ── 검색 영역 (dialect_search_prototype.html 스타일 동기화) ── */
+    .search-panel {
+      border: 1px solid var(--line); background: #fff; border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-sm); padding: 24px 30px; text-align: left; overflow: visible;
+    }
+    .search-mode-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 16px;
+    }
+    .mode-tabs { display: flex; gap: 6px; background: #f1f5f9; padding: 4px; border-radius: 999px; }
+    .mode-tab {
+      padding: 8px 20px; border-radius: 999px; border: none; font-size: 13.5px; font-weight: 700;
+      cursor: pointer; background: transparent; color: #64748b; transition: all .2s ease; font-family: inherit;
+    }
+    .mode-tab:hover { color: var(--ink); }
+    .mode-tab.active { background: #fff; color: var(--primary); box-shadow: 0 2px 8px rgba(15,23,42,.08); }
+
+    .simple-row { display: flex; gap: 10px; align-items: center; }
+    .search-input {
+      flex: 1; min-width: 0; height: 46px; padding: 0 18px; border-radius: 12px;
+      border: 1px solid #d8dee8; background: #fff; font-size: 15px; font-weight: 600; color: var(--ink);
+      outline: none; transition: .2s; box-shadow: inset 0 1px 2px rgba(0,0,0,.02); font-family: inherit; box-sizing: border-box;
+    }
+    .search-input::placeholder { color: #94a3b8; font-weight: 500; }
+    .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.10); }
+    .btn-primary {
+      height: 46px; border: 0; background: var(--primary); color: #fff; padding: 0 22px; border-radius: 12px;
+      font-size: 15px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+      font-family: inherit; white-space: nowrap; transition: .2s; box-shadow: 0 4px 12px rgba(37,99,235,.20);
+    }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(37,99,235,.30); }
+
+    /* 간단히 검색: 검색 대상 버튼 · 추천 검색어 (dialect_search_prototype.html 스타일) */
+    .search-target-row { display: flex; gap: 8px; margin-bottom: 16px; }
+    .search-target-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .search-target-button {
+      padding: 10px 14px; border-radius: 8px; border: 1px solid #cbd5e1; background: #fff; color: #64748b;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: .2s; font-family: inherit; white-space: nowrap;
+    }
+    .search-target-button:hover { border-color: #94a3b8; color: var(--ink); }
+    .search-target-button[aria-checked="true"] { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 10px rgba(37,99,235,.15); }
+    .simple-actions { display: flex; gap: 10px; align-items: center; }
+    .search-recommend-chips { display: flex; gap: 8px; align-items: center; margin-top: 12px; padding-left: 4px; flex-wrap: wrap; }
+    .search-recommend-chips .rec-label { font-size: 11.5px; font-weight: 700; color: #64748b; }
+    .rec-chip {
+      font-size: 11.5px; font-weight: 700; color: var(--primary); background: rgba(37,99,235,.10);
+      border: 1px solid #bfdbfe; padding: 3px 11px; border-radius: 6px; cursor: pointer; transition: .15s ease; font-family: inherit;
+    }
+    .rec-chip:hover { background: rgba(37,99,235,.18); }
+
+    /* 검색 패널 내부 필터/칩 영역 정리 */
+    .search-panel .filter-panel { background: transparent; border: none; margin-top: 6px; padding: 0; }
+    .search-panel .filter-panel .form-grid:first-of-type { padding-top: 4px; }
+    .search-panel .chip-row { background: transparent; border: none; padding: 14px 0 0; }
+    .mobile .search-panel { padding: 18px 16px; }
+
+    /* 자세히 검색 폼 (dialect_search_prototype.html 스타일) */
+    .form-grid { display: grid; grid-template-columns: 100px 1fr; gap: 14px; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid #f1f5f9; }
+    .form-grid:last-of-type { border-bottom: none; }
+    .form-grid:has(.search-target-row) { border-bottom: none; padding-bottom: 0; }
+    .form-label { font-size: 14px; font-weight: 800; color: var(--primary); display: inline-flex; align-items: center; gap: 8px; padding-top: 12px; }
+    .form-label::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--primary); flex-shrink: 0; }
+    .form-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; min-width: 0; }
+    .form-controls--block { flex-direction: column; align-items: stretch; }
+    .detail-select {
+      height: 44px; min-width: 160px; border: 1px solid #d8dee8; border-radius: 10px; padding: 0 34px 0 14px;
+      font-size: 14px; font-weight: 600; color: var(--ink); font-family: inherit; cursor: pointer; outline: none;
+      transition: .2s; box-sizing: border-box; appearance: none;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center;
+    }
+    .detail-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.10); }
+    .detail-actions { display: flex; gap: 12px; justify-content: center; margin-top: 14px; padding-top: 20px; border-top: 1px solid var(--line); }
+    .btn-outline {
+      height: 46px; padding: 0 22px; border-radius: 12px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer;
+      font-size: 15px; font-weight: 800; color: #475569; display: inline-flex; align-items: center; gap: 7px;
+      font-family: inherit; white-space: nowrap; transition: .2s;
+    }
+    .btn-outline:hover { background: #f8fafc; color: var(--ink); border-color: #94a3b8; }
+    .mobile .form-grid { grid-template-columns: 1fr; gap: 8px; }
+    .mobile .form-label { padding-top: 0; }
+
+    /* 자세히 검색 하단 버튼: dialect_search_prototype.html 스타일(알약형) */
+    .detail-actions .btn-primary { height: auto; border-radius: 99px; padding: 12px 28px; font-size: 15px; font-weight: 700; box-shadow: 0 4px 12px rgba(37,99,235,.2); }
+    .detail-actions .btn-outline { height: auto; border-radius: 99px; padding: 10px 20px; font-size: 14px; font-weight: 700; }
+    .detail-actions .btn-outline i { font-size: 12px; }
+
+    /* 지역 다중 선택 버튼 (ms-chip, dialect_search_prototype.html 스타일) */
+    .chip-multi { display: flex; gap: 6px; flex-wrap: wrap; }
+    .ms-chip {
+      padding: 8px 15px; border-radius: 99px; border: 1px solid #cbd5e1; background: #fff; color: #475569;
+      font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: .2s;
+    }
+    .ms-chip:hover { border-color: #94a3b8; color: var(--ink); }
+    .ms-chip[aria-pressed="true"] { background: rgba(37,99,235,.10); border-color: var(--primary); color: var(--primary); }
+    .ms-chip.ms-all { border-style: dashed; }
+    .ms-chip.ms-all[aria-pressed="true"] { border-style: solid; }
+
+    /* 검색 대상 행 (검색어 입력 + 지역어 타입, dialect_search_prototype.html 스타일) */
+    .search-target-row { display: flex; gap: 8px; align-items: center; width: 100%; flex-wrap: wrap; }
+    /* 자세히 검색의 대상 행은 컨테이너 gap으로만 간격을 잡고 개별 margin은 제거 */
+    .form-controls--block .search-target-row { margin-bottom: 0; }
+    #additionalTargets { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    #additionalTargets:empty { display: none; }
+    /* 추가 행의 '그리고' 연결 셀렉트를 +/− 버튼 영역(44+8+44)과 같은 폭으로 맞춰 열 정렬 */
+    .search-target-row .conn-select { width: 96px; flex: 0 0 auto; }
+    .pm-btn {
+      width: 44px; height: 44px; flex: 0 0 auto; border-radius: 10px; border: 1px solid #d8dee8; background: #fff;
+      cursor: pointer; font-size: 18px; display: inline-flex; align-items: center; justify-content: center; color: #475569; transition: .2s;
+    }
+    .pm-btn:hover { background: #f8fafc; color: var(--primary); border-color: #cbd5e1; }
+    .detail-select.compact { min-width: 0; width: auto; padding-right: 32px; }
+    .target-input {
+      flex: 1; min-width: 140px; height: 44px; border: 1px solid #d8dee8; border-radius: 10px; padding: 0 16px;
+      font-size: 14px; font-weight: 600; color: var(--ink); font-family: inherit; outline: none; transition: .2s; box-sizing: border-box;
+    }
+    .target-input::placeholder { color: #94a3b8; font-weight: 500; }
+    .target-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.10); }
+    .search-target-row .btn-outline { height: 44px; border-radius: 10px; padding: 0 16px; font-weight: 700; box-shadow: none; }
+    .row-del-btn {
+      flex: 0 0 auto; width: 44px; height: 44px; border-radius: 10px; border: 1px solid #fecaca; background: #fff;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: #ef4444; transition: .2s;
+    }
+    .row-del-btn:hover { background: #fef2f2; border-color: #ef4444; }
+    .row-del-btn i { font-size: 16px; }
+
+    /* 자세히 검색 모드에서는 상단 간단 검색줄 숨김 (프로토타입과 동일한 배타적 구성) */
+    .state-expanded .simple-search, .state-results .simple-search { display: none; }
+
+    /* ── 엑셀 내려받기 버튼 (height 38px 통일) ── */
+    .excel-btn-rect {
+      height: 38px; padding: 0 16px; box-sizing: border-box;
+      background: #217346; border: 1px solid #217346; color: #ffffff;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      border-radius: 8px; transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-family: inherit;
+    }
+    .excel-btn-rect:hover {
+      background: #1a5c34; border-color: #1a5c34; color: #ffffff;
+      transform: translateY(-1px); box-shadow: 0 4px 10px rgba(33, 115, 70, 0.25);
+    }
+    .excel-btn-rect i { font-size: 16px; }
   </style>
 </head>
 <body>
@@ -899,65 +1046,54 @@
       <div id="device" class="device desktop state-default" style="border: none; box-shadow: none; border-radius: 0; background: transparent; transition: none; min-width: 0; width: 100%;">
 
         <div class="app-main" style="padding: 0; background: transparent;">
-          <section class="search-card" style="box-shadow: none; border: none; background: transparent; padding: 0;">
-            <!-- region_culture.html 스타일과 일치하는 검색창 영역 -->
-            <div class="rc-search">
-              <input type="text" class="rc-search__input" placeholder="검색어를 입력해 주세요. (예: 안녕하시오, 경상도)" value="경상도 김동인 명사" aria-label="검색어 입력">
-              <button type="button" class="rc-search__btn" aria-label="검색"><i class="ti ti-search" aria-hidden="true"></i></button>
+          <section class="search-panel">
+            <!-- dialect_search_prototype.html 스타일과 동기화한 검색 영역 -->
+            <div class="search-mode-row">
+              <div class="mode-tabs" data-group="state">
+                <button type="button" id="tabSimple" class="mode-tab active" data-state="default">간단히 검색</button>
+                <button type="button" class="mode-tab" data-state="expanded">자세히 검색</button>
+              </div>
             </div>
 
+            <div class="simple-search">
+              <!-- 검색 대상 (전체 / 지역어로 찾기 / 표준어로 찾기) -->
+              <div class="search-target-row">
+                <div class="search-target-group" role="radiogroup" aria-label="검색 대상">
+                  <button type="button" class="search-target-button" role="radio" aria-checked="true" data-value="all" onclick="setSearchTarget(this)">전체</button>
+                  <button type="button" class="search-target-button" role="radio" aria-checked="false" data-value="dialect" onclick="setSearchTarget(this)">지역어로 찾기</button>
+                  <button type="button" class="search-target-button" role="radio" aria-checked="false" data-value="standard" onclick="setSearchTarget(this)">표준어로 찾기</button>
+                  <input type="hidden" id="searchTargetInput" name="search_target" value="all">
+                </div>
+              </div>
 
+              <!-- 검색어 입력 + 실행 -->
+              <div class="simple-row">
+                <input type="text" class="search-input" value="감자" placeholder="예: 감자, 옥수수, 부추" aria-label="검색어 입력">
+                <div class="simple-actions">
+                  <button type="button" class="btn-outline">옛 한글</button>
+                  <button type="button" class="btn-primary" aria-label="검색"><i class="ti ti-search" aria-hidden="true"></i> 검색</button>
+                </div>
+              </div>
 
-
-            <div class="filter-head" style="display: flex; justify-content: flex-end; align-items: center;">
-              <div class="toggle-group" data-group="state" style="display: flex; gap: 8px; margin: 0;">
-                <button class="toggle active" data-state="default">기본 상태</button>
-                <button class="toggle" data-state="expanded">필터 확장</button>
+              <!-- 추천 검색어 -->
+              <div class="search-recommend-chips">
+                <span class="rec-label">추천 검색어:</span>
+                <button type="button" class="rec-chip">감자</button>
+                <button type="button" class="rec-chip">옥수수</button>
+                <button type="button" class="rec-chip">부추</button>
+                <button type="button" class="rec-chip">잠자리</button>
+                <button type="button" class="rec-chip">할아버지</button>
               </div>
             </div>
 
             <div class="filter-panel">
-              <div class="filter-grid">
-                <div class="field">
-                  <label for="filter-region">지역 선택</label>
-                  <select id="filter-region" class="select" style="border: 1px solid #D8DEE8; background: #fff; padding: 0 13px; font-size: 14px; font-weight: 700; color: #111827; height: 38px; border-radius: 8px; appearance: none; background: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E') no-repeat right 12px center; padding-right: 32px; font-family: inherit; cursor: pointer; width: 100%; box-sizing: border-box;">
-                    <option value="강원도">강원도</option>
-                    <option value="경기도">경기도</option>
-                    <option value="경상도" selected>경상도</option>
-                    <option value="전라도">전라도</option>
-                    <option value="제주도">제주도</option>
-                    <option value="충청도">충청도</option>
-                    <option value="평안도">평안도</option>
-                    <option value="함경도">함경도</option>
-                    <option value="황해도">황해도</option>
-                  </select>
-                </div>
-                <div class="field">
-                  <label for="filter-type">지역어 타입</label>
-                  <select id="filter-type" class="select" style="border: 1px solid #D8DEE8; background: #fff; padding: 0 13px; font-size: 14px; font-weight: 700; color: #111827; height: 38px; border-radius: 8px; appearance: none; background: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E') no-repeat right 12px center; padding-right: 32px; font-family: inherit; cursor: pointer; width: 100%; box-sizing: border-box;">
-                    <option value="전체" selected>전체</option>
-                    <option value="지역어">지역어</option>
-                    <option value="표준어">표준어</option>
-                  </select>
-                </div>
-                <div class="field">
-                  <label for="filter-match">포함 여부</label>
-                  <select id="filter-match" class="select" style="border: 1px solid #D8DEE8; background: #fff; padding: 0 13px; font-size: 14px; font-weight: 700; color: #111827; height: 38px; border-radius: 8px; appearance: none; background: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E') no-repeat right 12px center; padding-right: 32px; font-family: inherit; cursor: pointer; width: 100%; box-sizing: border-box;">
-                    <option value="포함" selected>포함</option>
-                    <option value="일치">일치</option>
-                    <option value="시작문자">시작문자</option>
-                    <option value="끝문자">끝문자</option>
-                  </select>
-                </div>
-              </div>
-
-              <!-- 작가 / 작품 선택 (초성 탭 + 검색 + 선택 목록) -->
-              <div class="picker-section">
-                <div class="picker-row">
-                  <span class="picker-label">작가</span>
-                  <div class="picker-body">
+              <!-- 작가 -->
+              <div class="form-grid">
+                <span class="form-label">작가</span>
+                <div class="form-controls form-controls--block">
                     <div class="choseong-tabs" role="group" aria-label="작가 초성 필터">
-                      <button type="button" class="cho-tab active" data-cho="ㄱ" onclick="selectChoseong(this)">ㄱ</button>
+                      <button type="button" class="cho-tab active" data-cho="all" onclick="selectChoseong(this)">전체</button>
+                      <button type="button" class="cho-tab" data-cho="ㄱ" onclick="selectChoseong(this)">ㄱ</button>
                       <button type="button" class="cho-tab" data-cho="ㄴ" onclick="selectChoseong(this)">ㄴ</button>
                       <button type="button" class="cho-tab" data-cho="ㄷ" onclick="selectChoseong(this)">ㄷ</button>
                       <button type="button" class="cho-tab" data-cho="ㄹ" onclick="selectChoseong(this)">ㄹ</button>
@@ -972,7 +1108,6 @@
                       <button type="button" class="cho-tab" data-cho="ㅍ" onclick="selectChoseong(this)">ㅍ</button>
                       <button type="button" class="cho-tab" data-cho="ㅎ" onclick="selectChoseong(this)">ㅎ</button>
                     </div>
-                    <input type="text" id="authorSearch" class="picker-search" placeholder="작가 이름 검색" oninput="filterPicker('authorList', this.value)">
                     <div class="picker-list" id="authorList">
                       <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="강석경"><span>강석경</span></label>
                       <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="강준희"><span>강준희</span></label>
@@ -991,7 +1126,7 @@
                       <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김용길"><span>김용길</span></label>
                       <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김용택"><span>김용택</span></label>
                       <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김원일"><span>김원일</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김재홍"><span>김재홍</span></label>
+                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김재흔"><span>김재흔</span></label>
                       <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김점호"><span>김점호</span></label>
                       <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김정한"><span>김정한</span></label>
                       <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김주영"><span>김주영</span></label>
@@ -1001,15 +1136,85 @@
                       <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김춘수"><span>김춘수</span></label>
                       <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김태진"><span>김태진</span></label>
                       <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김훈"><span>김훈</span></label>
+                      <label class="pick" data-cho="ㄴ"><input type="radio" name="author" value="노천명"><span>노천명</span></label>
+                      <label class="pick" data-cho="ㅁ"><input type="radio" name="author" value="문충성"><span>문충성</span></label>
+                      <label class="pick" data-cho="ㅁ"><input type="radio" name="author" value="민현숙"><span>민현숙</span></label>
+                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="박경리"><span>박경리</span></label>
+                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="박경수"><span>박경수</span></label>
+                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="박두진"><span>박두진</span></label>
+                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="박목월"><span>박목월</span></label>
+                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="박범신"><span>박범신</span></label>
+                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="박상륭"><span>박상륭</span></label>
+                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="박종화"><span>박종화</span></label>
+                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="박태일"><span>박태일</span></label>
+                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="백석"><span>백석</span></label>
+                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="복거일"><span>복거일</span></label>
+                      <label class="pick" data-cho="ㅅ"><input type="radio" name="author" value="서정범"><span>서정범</span></label>
+                      <label class="pick" data-cho="ㅅ"><input type="radio" name="author" value="서정주"><span>서정주</span></label>
+                      <label class="pick" data-cho="ㅅ"><input type="radio" name="author" value="서지월"><span>서지월</span></label>
+                      <label class="pick" data-cho="ㅅ"><input type="radio" name="author" value="성춘식"><span>성춘식</span></label>
+                      <label class="pick" data-cho="ㅅ"><input type="radio" name="author" value="송기숙"><span>송기숙</span></label>
+                      <label class="pick" data-cho="ㅅ"><input type="radio" name="author" value="신경숙"><span>신경숙</span></label>
+                      <label class="pick" data-cho="ㅅ"><input type="radio" name="author" value="신석정"><span>신석정</span></label>
+                      <label class="pick" data-cho="ㅅ"><input type="radio" name="author" value="심원섭"><span>심원섭</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="안수길"><span>안수길</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="양주동"><span>양주동</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="양중해"><span>양중해</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="오성찬"><span>오성찬</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="오영수"><span>오영수</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="오장환"><span>오장환</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="유정"><span>유정</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="유치환"><span>유치환</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="윤곤강"><span>윤곤강</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="윤대녕"><span>윤대녕</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="윤동주"><span>윤동주</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="윤흥길"><span>윤흥길</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이광복"><span>이광복</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이기영"><span>이기영</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이기철 편"><span>이기철 편</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이기형"><span>이기형</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이동하"><span>이동하</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이동희"><span>이동희</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이만희"><span>이만희</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이무영"><span>이무영</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이문구"><span>이문구</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이문열"><span>이문열</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이병천"><span>이병천</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이상규"><span>이상규</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이상규 편"><span>이상규 편</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이상화"><span>이상화</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이아정"><span>이아정</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이오덕"><span>이오덕</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이용악"><span>이용악</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이육사"><span>이육사</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이정호"><span>이정호</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이현수"><span>이현수</span></label>
+                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이호철"><span>이호철</span></label>
+                      <label class="pick" data-cho="ㅈ"><input type="radio" name="author" value="정숙"><span>정숙</span></label>
+                      <label class="pick" data-cho="ㅈ"><input type="radio" name="author" value="정지용"><span>정지용</span></label>
+                      <label class="pick" data-cho="ㅈ"><input type="radio" name="author" value="조오현"><span>조오현</span></label>
+                      <label class="pick" data-cho="ㅈ"><input type="radio" name="author" value="조정래"><span>조정래</span></label>
+                      <label class="pick" data-cho="ㅊ"><input type="radio" name="author" value="채만식"><span>채만식</span></label>
+                      <label class="pick" data-cho="ㅊ"><input type="radio" name="author" value="최명희"><span>최명희</span></label>
+                      <label class="pick" data-cho="ㅍ"><input type="radio" name="author" value="피천득"><span>피천득</span></label>
+                      <label class="pick" data-cho="ㅎ"><input type="radio" name="author" value="한기팔"><span>한기팔</span></label>
+                      <label class="pick" data-cho="ㅎ"><input type="radio" name="author" value="허수경"><span>허수경</span></label>
+                      <label class="pick" data-cho="ㅎ"><input type="radio" name="author" value="현기영"><span>현기영</span></label>
+                      <label class="pick" data-cho="ㅎ"><input type="radio" name="author" value="현길언"><span>현길언</span></label>
+                      <label class="pick" data-cho="ㅎ"><input type="radio" name="author" value="현진건"><span>현진건</span></label>
+                      <label class="pick" data-cho="ㅎ"><input type="radio" name="author" value="홍명희"><span>홍명희</span></label>
+                      <label class="pick" data-cho="ㅎ"><input type="radio" name="author" value="홍희표"><span>홍희표</span></label>
+                      <label class="pick" data-cho="ㅎ"><input type="radio" name="author" value="황석영"><span>황석영</span></label>
+                      <label class="pick" data-cho="ㅎ"><input type="radio" name="author" value="황순원"><span>황순원</span></label>
                     </div>
                     <p class="picker-empty" id="authorEmpty" style="display:none;">해당 초성의 작가 표본 데이터가 없습니다.</p>
                   </div>
-                </div>
+              </div>
 
-                <div class="picker-row">
-                  <span class="picker-label">작품</span>
-                  <div class="picker-body">
-                    <input type="text" id="workSearch" class="picker-search" placeholder="작품명 검색" oninput="filterPicker('workList', this.value)">
+              <!-- 작품 -->
+              <div class="form-grid">
+                <span class="form-label">작품</span>
+                <div class="form-controls form-controls--block">
                     <div class="picker-list" id="workList">
                       <label class="pick"><input type="radio" name="work" value="전체" checked><span>(전체)</span></label>
                       <label class="pick"><input type="radio" name="work" value="귀쑤람이"><span>귀쑤람이</span></label>
@@ -1046,21 +1251,58 @@
                     </div>
                     <p class="picker-empty" id="workEmpty" style="display:none;">검색 결과가 없습니다.</p>
                   </div>
+              </div>
+
+              <!-- 지역 -->
+              <div class="form-grid">
+                <span class="form-label">지역</span>
+                <div class="form-controls">
+                  <div class="chip-multi" role="group" aria-label="지역 (다중 선택 가능)">
+                    <button type="button" class="ms-chip ms-all" data-all="1" aria-pressed="false" onclick="toggleMultiChip(this)">전체</button>
+                    <button type="button" class="ms-chip" data-value="강원도" aria-pressed="false" onclick="toggleMultiChip(this)">강원도</button>
+                    <button type="button" class="ms-chip" data-value="경기도" aria-pressed="false" onclick="toggleMultiChip(this)">경기도</button>
+                    <button type="button" class="ms-chip" data-value="경상도" aria-pressed="true" onclick="toggleMultiChip(this)">경상도</button>
+                    <button type="button" class="ms-chip" data-value="전라도" aria-pressed="false" onclick="toggleMultiChip(this)">전라도</button>
+                    <button type="button" class="ms-chip" data-value="제주도" aria-pressed="false" onclick="toggleMultiChip(this)">제주도</button>
+                    <button type="button" class="ms-chip" data-value="충청도" aria-pressed="false" onclick="toggleMultiChip(this)">충청도</button>
+                    <button type="button" class="ms-chip" data-value="평안도" aria-pressed="false" onclick="toggleMultiChip(this)">평안도</button>
+                    <button type="button" class="ms-chip" data-value="함경도" aria-pressed="false" onclick="toggleMultiChip(this)">함경도</button>
+                    <button type="button" class="ms-chip" data-value="황해도" aria-pressed="false" onclick="toggleMultiChip(this)">황해도</button>
+                  </div>
                 </div>
               </div>
 
-              <div class="filter-tools">
-                <button class="mini-btn">초기화</button>
-                <button class="filter-toggle-btn">필터 적용</button>
+              <!-- 검색 대상 (검색어 입력 + 지역어 타입) : 하단 배치 -->
+              <div class="form-grid">
+                <span class="form-label">검색 대상 <span style="color:#ef4444;margin-left:2px;">*</span></span>
+                <div class="form-controls form-controls--block">
+                  <div class="search-target-row">
+                    <button type="button" class="pm-btn" onclick="addTargetRow()">+</button>
+                    <button type="button" class="pm-btn" onclick="removeTargetRow()">−</button>
+                    <select class="detail-select compact" aria-label="지역어 타입">
+                      <option value="전체" selected>전체</option>
+                      <option value="지역어">지역어</option>
+                      <option value="표준어">표준어</option>
+                    </select>
+                    <select class="detail-select compact" aria-label="포함 여부">
+                      <option value="포함" selected>포함</option>
+                      <option value="일치">일치</option>
+                      <option value="시작문자">시작 문자</option>
+                      <option value="끝문자">끝 문자</option>
+                    </select>
+                    <input type="text" class="target-input" placeholder="검색어를 입력하세요." aria-label="검색어 입력">
+                    <button type="button" class="btn-outline oldkor-btn">옛 한글</button>
+                  </div>
+                  <div id="additionalTargets"></div>
+                </div>
+              </div>
+
+              <div class="detail-actions">
+                <button type="button" class="btn-primary">검색</button>
+                <button type="button" class="btn-outline" onclick="tabSimple.click()">간단히 검색 <i class="ti ti-chevron-right" aria-hidden="true"></i></button>
               </div>
             </div>
 
-            <div class="chip-row">
-              <span class="empty-chip-note">선택된 필터가 없습니다. 통합 검색어를 입력하거나 고급 필터를 열어보세요.</span>
-              <span class="chip has-filter">지역 · 경상도 <span class="x">✕</span></span>
-              <span class="chip purple has-filter">작가 · 김동인 <span class="x">✕</span></span>
-              <span class="chip green has-filter">품사 · 명사 <span class="x">✕</span></span>
-            </div>
           </section>
 
           <section class="empty-guide">
@@ -1081,12 +1323,15 @@
                   <p style="font-size: 14px; color: var(--muted); margin: 0; font-weight: 500;">
                     선택된 조건으로 검색된 지역어는 총 <strong style="color: var(--primary); font-weight: 800;">11</strong>건입니다. (해설, 용례, 다른 방언형 중심)
                   </p>
-                </div>
               </div>
 
-              <div class="view-toggle" role="group" aria-label="보기 방식 전환">
-                <button type="button" id="btnCardView" class="active" aria-pressed="true" onclick="setResultView('card')">▦ 카드형</button>
-                <button type="button" id="btnListView" aria-pressed="false" onclick="setResultView('list')">≣ 목록형</button>
+              <!-- 우측 상단 액션 행 (한 줄 수평 배치: 엑셀 내려받기 + 카드형/목록형) -->
+              <div class="result-actions-row">
+                <button class="excel-btn-rect" type="button" onclick="downloadExcel()"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> 엑셀 내려받기</button>
+                <div class="view-toggle" role="group" aria-label="보기 방식 전환">
+                  <button type="button" id="btnCardView" class="active" aria-pressed="true" onclick="setResultView('card')">▦ 카드형</button>
+                  <button type="button" id="btnListView" aria-pressed="false" onclick="setResultView('list')">≣ 목록형</button>
+                </div>
               </div>
 
               <!-- 카드형 뷰 -->
@@ -1453,9 +1698,55 @@
   function selectChoseong(btn) {
     document.querySelectorAll('.cho-tab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    const search = document.getElementById('authorSearch');
-    if (search) search.value = '';
     filterPicker('authorList', '');
+  }
+
+  // 간단히 검색: 검색 대상(전체/지역어/표준어) 선택 (dialect_search_prototype.html 스타일)
+  function setSearchTarget(el) {
+    const group = el.parentElement;
+    group.querySelectorAll('[role="radio"]').forEach(btn => btn.setAttribute('aria-checked', 'false'));
+    el.setAttribute('aria-checked', 'true');
+    const targetInput = document.getElementById('searchTargetInput');
+    if (targetInput) targetInput.value = el.getAttribute('data-value');
+  }
+
+  // 지역 다중 선택 칩 토글 (dialect_search_prototype.html 스타일)
+  function toggleMultiChip(btn) {
+    const group = btn.closest('.chip-multi');
+    if (!group) return;
+    const next = btn.getAttribute('aria-pressed') !== 'true';
+    if (btn.dataset.all === '1') {
+      group.querySelectorAll('.ms-chip').forEach(c => c.setAttribute('aria-pressed', String(next)));
+    } else {
+      btn.setAttribute('aria-pressed', String(next));
+      syncAllChip(group);
+    }
+  }
+  function syncAllChip(group) {
+    const allChip = group.querySelector('.ms-chip[data-all="1"]');
+    const items = group.querySelectorAll('.ms-chip:not([data-all])');
+    const everyOn = Array.from(items).every(c => c.getAttribute('aria-pressed') === 'true');
+    if (allChip) allChip.setAttribute('aria-pressed', String(everyOn));
+  }
+
+  // 검색 대상 조건 행 추가/삭제 (dialect_search_prototype.html 스타일)
+  function addTargetRow() {
+    const holder = document.getElementById('additionalTargets');
+    if (!holder) return;
+    const row = document.createElement('div');
+    row.className = 'search-target-row additional';
+    row.innerHTML =
+      '<select class="detail-select compact conn-select" aria-label="조건 연결"><option value="and">그리고</option><option value="or">또는</option></select>' +
+      '<select class="detail-select compact" aria-label="지역어 타입"><option value="전체" selected>전체</option><option value="지역어">지역어</option><option value="표준어">표준어</option></select>' +
+      '<select class="detail-select compact" aria-label="포함 여부"><option value="포함" selected>포함</option><option value="일치">일치</option><option value="시작문자">시작 문자</option><option value="끝문자">끝 문자</option></select>' +
+      '<input type="text" class="target-input" placeholder="검색어를 입력하세요." aria-label="검색어 입력">' +
+      '<button type="button" class="btn-outline oldkor-btn">옛 한글</button>' +
+      '<button type="button" class="row-del-btn" title="이 조건 삭제" aria-label="이 조건 삭제" onclick="this.closest(\'.search-target-row\').remove()"><i class="ti ti-x" aria-hidden="true"></i></button>';
+    holder.appendChild(row);
+  }
+  function removeTargetRow() {
+    const holder = document.getElementById('additionalTargets');
+    if (holder && holder.lastElementChild) holder.removeChild(holder.lastElementChild);
   }
 
   // 작가/작품 목록 필터 (작가 목록은 활성 초성 범위 내에서, 검색어로 추가 필터)
@@ -1468,7 +1759,7 @@
       : null;
     let visible = 0;
     list.querySelectorAll('.pick').forEach(pick => {
-      const inCho = activeCho ? (pick.dataset.cho === activeCho) : true;
+      const inCho = (!activeCho || activeCho === 'all') ? true : (pick.dataset.cho === activeCho);
       const matches = pick.textContent.toLowerCase().includes(q);
       const show = inCho && matches;
       pick.style.display = show ? '' : 'none';
@@ -1544,6 +1835,37 @@
       device.classList.add('state-' + btn.dataset.state);
     });
   });
+
+  /* ── 엑셀 내려받기 기능 ── */
+  function downloadExcel() {
+    const cards = document.querySelectorAll('#viewCards .result-card, #viewList .lit-entry');
+    let csv = "\uFEFF번호,지역어,지역,품사,대응 표준어,용례,출처,뜻풀이,다른 방언형\n";
+    let idx = 0;
+    cards.forEach(card => {
+      const word = (card.querySelector('.dialect-word strong, .lit-word')?.innerText || '').trim();
+      if (!word) return;
+      idx++;
+      const region = (card.querySelector('.tag.region, .lit-head-right b')?.innerText || '').trim();
+      const pos = (card.querySelector('.tag.type, .lit-pos')?.innerText || '').trim();
+      const std = (card.querySelector('.source-meta')?.innerText || '').replace('대응 표준어:', '').trim();
+      const egText = (card.querySelector('.eg-text')?.innerText || '').replace(/\n/g, ' ').trim();
+      const egSrc = (card.querySelector('.eg-src')?.innerText || '').trim();
+      const rmLines = card.querySelectorAll('.rm-line');
+      const defLine = rmLines.length > 0 ? (rmLines[0]?.innerText || '').replace(/^뜻풀이/, '').trim() : '';
+      const altLine = rmLines.length > 1 ? (rmLines[1]?.innerText || '').replace(/^다른 방언형/, '').trim() : '';
+
+      const clean = str => `"${(str || '').replace(/"/g, '""')}"`;
+      csv += [idx, clean(word), clean(region), clean(pos), clean(std), clean(egText), clean(egSrc), clean(defLine), clean(altLine)].join(',') + "\n";
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `문학속지역어_검색결과_${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
 </script>
 
 <script src="./share.js" defer></script>

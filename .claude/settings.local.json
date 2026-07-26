@@ -3,7 +3,10 @@
     "allow": [
       "Bash(curl -s http://localhost:8899/gnb.js)",
       "Bash(curl -s -I http://localhost:8899/gnb.js)",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(mkdir -p .claude && cat .claude/launch.json 2>/dev/null || echo \"NO launch.json\")",
+      "mcp__visualize__read_me",
+      "mcp__visualize__show_widget"
     ]
   }
 }

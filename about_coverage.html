@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>지역어종합정보 — 조사 현황</title>
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.9.0/ol.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="./styles.css">
+<link rel="stylesheet" href="./about.css">
+<script src="./gnb.js" defer></script>
+<script src="./share.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+  /* ===== 공통 타이틀 영역(sub-visual) : 기존 사이트와 동일 ===== */
+  .sub-visual{background:linear-gradient(180deg,#edf4ff 0%,#f8fafc 100%);border-bottom:1px solid #e2e8f0;padding:55px 0 50px;text-align:center;position:relative;overflow:visible;display:block;min-height:180px;}
+  .sub-visual::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(37,99,235,.03) 0%,transparent 40%);pointer-events:none;}
+  .sv-title{font-size:30px;font-weight:800;color:#1e3a8a;letter-spacing:-.03em;margin:0 0 16px;position:relative;z-index:1;}
+  .location-bar{display:inline-flex;align-items:center;gap:8px;background:#fff;padding:6px 20px;border-radius:99px;box-shadow:0 2px 8px rgba(15,23,42,.02);border:1px solid #cbd5e1;position:relative;z-index:1;}
+  .loc-item{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#475569;}
+  .loc-item.home{color:#3b82f6;font-size:14px;}
+  .loc-item select{border:none;background:transparent;font-size:13px;font-weight:600;color:#334155;padding:0 16px 0 0;cursor:pointer;appearance:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right center;font-family:inherit;}
+  .loc-item select:focus{outline:none;box-shadow:none;}
+  .loc-sep{color:#cbd5e1;font-size:12px;}
+
+  /* ===== 조사 현황 페이지 전용 : 너무 작은 폰트 키우기 (about.css 뒤에서 override) ===== */
+  .lore .eyebrow{font-size:.98rem;font-weight:700;letter-spacing:.1em;color:var(--jade);}
+  .lore .sec-head p{font-size:1.1rem;line-height:1.9;font-weight:400;}
+  .lore .region .rn b{font-size:1.35rem;}
+  .lore .region .rn .c{font-size:1.05rem;}
+  .lore .region .ex{font-size:.92rem;}
+  .lore .abroad h3{font-size:1.3rem;}
+  .lore .abroad p{font-size:1.02rem;}
+  .lore .chip{font-size:.82rem;}
+  .lore .tbl{font-size:1.02rem;}
+  .lore .tbl thead th{font-size:.82rem;}
+  .lore .tbl .grp td:first-child{font-size:1.15rem;}
+  .lore .foot-note{font-size:1.02rem;max-width:none;white-space:nowrap;}
+
+  /* ===== 국외 이주 한민족 지역어 박스 : 밝은 재이드/민트 톤으로 리디자인 (붉은색·누런색 미사용) ===== */
+  .lore .abroad{margin-top:28px;padding:28px 30px;border:1px solid #CFE3E1;border-radius:14px;background:linear-gradient(180deg,#F5FAF9 0%,#EAF4F3 100%);box-shadow:0 4px 18px rgba(21,84,92,.07);}
+  .lore .abroad h3{color:var(--jade-deep);}
+  .lore .abroad p{color:#4B5D5A;}
+  .lore .abroad .list{margin-top:16px;}
+  .lore .abroad .chip,.lore .abroad .chip.o{font-family:var(--l-sans);color:var(--jade);background:#ffffff;border:1px solid #CFE3E1;border-radius:99px;padding:6px 14px;font-weight:600;box-shadow:0 1px 3px rgba(21,84,92,.05);}
+  .lore .abroad .chip.o{color:var(--jade);border-color:#CFE3E1;}
+
+  /* ===== 누런(베이지) 배경 → 화이트로 통일 (목록 헤더·행 hover, 자료 타일·누적막대 등) ===== */
+  .lore{--panel:#ffffff;--paper:#ffffff;--paper-2:#E6E9EC;}
+
+  /* ===== 조사 지점 : 공통 지도 기반 권역 표시 (1440px 기준 넓게 사용) ===== */
+  /* 지도+목록 블록을 본문 텍스트·표와 동일한 폭으로 정렬 (별도 breakout 없음) */
+  .lore .cov-breakout{width:100%;margin-left:0;}
+  .lore .cov-map-block{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:26px;align-items:stretch;}
+  .lore .cov-map-panel{position:relative;background:#ffffff;border:1px solid var(--l-line);border-radius:5px;overflow:hidden;}
+  .lore #cov-map{width:100%;height:640px;}
+  .lore .cov-legend{position:absolute;left:16px;bottom:14px;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.92);border:1px solid var(--l-line);border-radius:99px;padding:6px 14px;font-family:var(--l-mono);font-size:.72rem;color:var(--ink-soft);box-shadow:0 2px 10px rgba(15,23,42,.06);}
+  .lore .cov-legend .cl-label{color:var(--jade);font-weight:600;margin-right:2px;}
+  .lore .cov-legend .cl-bar{width:120px;height:8px;border-radius:99px;background:linear-gradient(90deg,rgba(21,84,92,.30),rgba(21,84,92,.82));}
+  .lore .cov-map-fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center;margin:0;padding:24px;text-align:center;color:var(--ink-soft);font-size:.95rem;}
+  .lore .cov-map-fallback:not([hidden]){display:flex;}
+  .lore .cov-reset{position:absolute;left:16px;top:14px;z-index:3;display:none;align-items:center;gap:6px;background:rgba(255,255,255,.95);border:1px solid var(--l-line);border-radius:99px;padding:7px 15px 7px 12px;font-family:var(--l-sans);font-size:.85rem;font-weight:500;color:var(--jade-deep);cursor:pointer;box-shadow:0 2px 10px rgba(15,23,42,.1);transition:background .15s,border-color .15s;}
+  .lore .cov-reset:not([hidden]){display:inline-flex;}
+  .lore .cov-reset:hover{background:#fff;border-color:var(--jade);}
+  .lore .cov-reset i{font-size:1.05rem;}
+  .lore .cov-list{display:flex;flex-direction:column;border:1px solid var(--l-line);border-radius:5px;background:#fff;overflow:hidden;}
+  .lore .cov-list-head{display:flex;justify-content:space-between;padding:13px 18px;font-family:var(--l-sans);font-size:.9rem;font-weight:700;letter-spacing:.04em;color:var(--jade-deep);border-bottom:1px solid var(--ink);background:var(--panel);}
+  .lore .cov-row{-webkit-appearance:none;appearance:none;text-align:left;font:inherit;color:inherit;background:transparent;cursor:pointer;display:grid;grid-template-columns:2.6em minmax(0,1fr) auto;column-gap:14px;row-gap:7px;align-items:center;padding:13px 18px;border:none;border-bottom:1px solid var(--l-line);border-left:3px solid transparent;transition:background .15s,border-color .15s;flex:1;}
+  .lore .cov-row:last-child{border-bottom:none;}
+  .lore .cov-row:hover,.lore .cov-row.is-active{background:var(--panel);border-left-color:var(--jade);}
+  .lore .cov-row:focus-visible{outline:2px solid var(--jade);outline-offset:-2px;}
+  .lore .cov-row .nm{grid-column:1;font-family:var(--l-serif);font-size:1.3rem;color:var(--ink);}
+  .lore .cov-row .ex{grid-column:2;font-size:.84rem;color:var(--ink-soft);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .lore .cov-row .cnt{grid-column:3;font-family:var(--l-mono);font-size:1.02rem;font-weight:600;color:var(--jade);white-space:nowrap;}
+  .lore .cov-row .cnt small{font-size:.7em;color:var(--ink-soft);font-weight:400;margin-left:2px;}
+  .lore .cov-row .bar{grid-column:1/-1;height:5px;border-radius:99px;background:var(--paper-2);position:relative;overflow:hidden;}
+  .lore .cov-row .bar::after{content:"";position:absolute;left:0;top:0;bottom:0;width:calc(var(--v,0)*100%);background:var(--jade);opacity:.55;border-radius:99px;}
+  .lore .cov-row.is-active .bar::after,.lore .cov-row:hover .bar::after{opacity:.85;}
+  .lore .cov-row.is-selected{background:#F1F4F6;border-left-color:var(--brick);}
+  .lore .cov-row.is-selected .nm,.lore .cov-row.is-selected .cnt{color:var(--brick);}
+  .lore .cov-row.is-selected .bar::after{background:var(--brick);opacity:.85;}
+
+  /* ===== 인포그래픽 + 패럴랙스 리디자인 ===== */
+  .lore{overflow-x:hidden;}
+  /* 본문 콘텐츠 폭을 해상도 1440에 맞게 확장 (기본 1080 → 1280, 좌우 여백 80px) */
+  .lore .lore-wrap{max-width:1280px;}
+
+  /* 폰트: 장식 세리프(Song Myung)/모노(IBM Plex Mono) 대신 OS 시스템 폰트 스택으로 통일.
+     Mac=San Francisco+Apple SD Gothic Neo, Win=Segoe UI+맑은 고딕. (Noto Sans KR은 맨 뒤 폴백)
+     about.css의 폰트 변수만 재지정하므로 개별 규칙은 그대로 두고 전체가 바뀐다. */
+  .lore{
+    --l-sys:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",system-ui,"Noto Sans KR",sans-serif;
+    /* 제목: 라틴·숫자는 Georgia, 한글은 Noto Serif KR(명조 웹폰트)로 자동 분기 */
+    --l-serif:Georgia,"Noto Serif KR","Apple SD Gothic Neo",serif;
+    --l-sans:var(--l-sys);
+    --l-mono:var(--l-sys);
+  }
+  /* 세리프 특유의 무게감을 잃지 않도록 주요 제목·숫자 굵기 보강 */
+  .lore .cov-hero-title,.lore .sec-head h2,.lore h2.display,.lore .abroad h3{font-weight:700;letter-spacing:-.01em;}
+  .lore .cov-kpi .cov-kv{font-weight:700;}
+  .lore .cov-tile .tn,.lore .region .rn b,.lore .tbl .grp td:first-child{font-weight:600;}
+  .lore .cov-fullbleed{position:relative;width:100vw;margin-left:calc(50% - 50vw);padding:0;border:none;}
+
+  /* 히어로(패럴랙스) */
+  .lore .cov-hero{height:38vh;min-height:270px;display:flex;align-items:flex-end;overflow:hidden;background:#1b2a2c;}
+  .lore .cov-hero-bg{position:absolute;inset:-22% 0;background-size:cover;background-position:center 40%;will-change:transform;}
+  .lore .cov-hero-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,30,33,.55) 0%,rgba(10,30,33,.40) 40%,rgba(15,20,16,.88) 100%);}
+  .lore .cov-hero-inner{position:relative;z-index:2;width:100%;max-width:1280px;margin:0 auto;padding:0 28px 74px;color:#fff;}
+  .lore .cov-hero-eyebrow{display:block;font-family:var(--l-mono);font-size:.8rem;letter-spacing:.32em;text-transform:uppercase;color:rgba(255,255,255,.82);}
+  .lore .cov-hero-title{font-family:var(--l-serif);font-weight:400;font-size:clamp(2.8rem,6vw,5rem);line-height:1.12;letter-spacing:-.01em;margin:16px 0 24px;text-shadow:0 2px 30px rgba(0,0,0,.28);}
+  .lore .cov-hero-sub{font-size:clamp(1.05rem,2vw,1.35rem);color:rgba(255,255,255,.9);max-width:40ch;line-height:1.6;font-weight:500;margin:0;}
+  .lore .cov-hero-scroll{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:2;width:26px;height:42px;border:2px solid rgba(255,255,255,.55);border-radius:16px;}
+  .lore .cov-hero-scroll span{position:absolute;left:50%;top:8px;width:4px;height:8px;border-radius:2px;background:#fff;transform:translateX(-50%);animation:covScroll 1.8s infinite;}
+  @keyframes covScroll{0%{opacity:0;transform:translate(-50%,0)}30%{opacity:1}70%{opacity:1}100%{opacity:0;transform:translate(-50%,14px)}}
+  .lore .cov-hero-inner>*{animation:covRise .9s cubic-bezier(.22,1,.36,1) both;}
+  .lore .cov-hero-inner>*:nth-child(2){animation-delay:.09s;}
+  .lore .cov-hero-inner>*:nth-child(3){animation-delay:.18s;}
+  @keyframes covRise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){
+    .lore .cov-hero-scroll span,.lore .cov-hero-inner>*{animation:none;}
+  }
+
+  /* 핵심 수치(카운트업) */
+  .lore .cov-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:28px 48px;margin-top:0;}
+  .lore .cov-kpi{padding:0;text-align:center;}
+  .lore .cov-kpi .cov-kv{font-family:var(--l-serif);font-weight:400;font-size:clamp(2.4rem,4.2vw,3.5rem);line-height:1;color:var(--jade);letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+  .lore .cov-kpi .cov-kv small{font-size:.4em;color:var(--ink-soft);margin-left:5px;letter-spacing:0;}
+  .lore .cov-kpi .cov-kl{margin-top:14px;font-size:1rem;font-weight:500;color:var(--ink);}
+  .lore .cov-lede{margin:0 0 34px;font-size:1.1rem;line-height:1.9;color:var(--ink-soft);max-width:none;font-weight:400;}
+
+  /* 자료 구성 인포그래픽 */
+  .lore .cov-comp{margin:4px 0 32px;}
+  .lore .cov-stack{display:flex;height:60px;border-radius:7px;overflow:hidden;border:1px solid var(--l-line);background:var(--panel);}
+  .lore .cov-seg{height:100%;width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0 4px;color:#fff;font-family:var(--l-sans);white-space:nowrap;overflow:hidden;transition:width 1.9s cubic-bezier(.22,1,.36,1) .1s;}
+  .lore .cov-seg .sn{font-size:.78rem;font-weight:600;line-height:1.1;}
+  .lore .cov-seg .sp{font-size:.74rem;font-weight:400;opacity:.9;line-height:1.1;}
+  .lore .cov-comp.in .cov-seg{width:var(--w);}
+  .lore .cov-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--l-line);border:1px solid var(--l-line);margin-top:2px;}
+  .lore .cov-tile{background:var(--panel);padding:22px 22px 24px;border-top:3px solid var(--tc,var(--jade));}
+  .lore .cov-tile .tn{display:flex;align-items:center;gap:9px;font-family:var(--l-serif);font-size:1.22rem;color:var(--ink);}
+  .lore .cov-tile .tn i{width:11px;height:11px;border-radius:2px;background:var(--tc,var(--jade));display:inline-block;flex:0 0 auto;}
+  .lore .cov-tile .tv{margin-top:12px;font-family:var(--l-mono);font-size:1.55rem;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .lore .cov-tile .tp{font-family:var(--l-mono);font-size:.82rem;color:var(--ink-soft);margin-top:3px;}
+
+  @media(max-width:960px){
+    .lore .cov-map-block{grid-template-columns:1fr;}
+    .lore #cov-map{height:460px;}
+    .lore .cov-hero{height:32vh;}
+    .lore .cov-kpis{grid-template-columns:1fr 1fr;}
+    .lore .cov-tiles{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div id="gnb-common"></div>
+
+<!-- ===== 공통 타이틀 영역 ===== -->
+<div class="sub-visual">
+  <div class="wrap">
+    <h1 class="sv-title">조사 현황</h1>
+    <div class="location-bar">
+      <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer;" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select onchange="if(this.value) location.href=this.value;">
+          <option value="./about_intro.html" selected>누리집소개</option>
+          <option value="./dialect_search_prototype.html">지역어 검색</option>
+          <option value="./dialect_map.html">지역어 지도</option>
+          <option value="./notice.html">알림마당</option>
+        </select>
+      </div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select onchange="if(this.value) location.href=this.value;">
+          <option value="./about_intro.html">사업 소개</option>
+          <option value="./about_history.html">사업 연혁</option>
+          <option value="./about_coverage.html" selected>조사 현황</option>
+          <option value="./about_related.html">연계 사업</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 본문 영역 (인포그래픽 + 패럴랙스) ===== -->
+<main class="lore">
+  <div class="lore-wrap">
+
+    <!-- 패럴랙스 히어로 -->
+    <section class="cov-fullbleed cov-hero" aria-label="조사 현황 개요">
+      <div class="cov-hero-bg" data-px="0.14" style="background-image:url('./image/b1524969-8fbb-446b-8728-4f6c8ba53757.png')"></div>
+      <div class="cov-hero-veil"></div>
+      <div class="cov-hero-inner">
+        <h1 class="cov-hero-title">전국의 마을에서,<br>국경 너머까지</h1>
+        <p class="cov-hero-sub">국내 155개 지점과 국외 10개 지점에서 지역어를 조사해,<br>사라져 가는 우리말의 오늘을 담았습니다.</p>
+      </div>
+      <div class="cov-hero-scroll" aria-hidden="true"><span></span></div>
+    </section>
+
+    <!-- 핵심 수치 (카운트업 인포그래픽) -->
+    <section class="cov-figures">
+      <div class="sec-head rv"><span class="eyebrow">한눈에 보기</span><h2 class="display">숫자로 본 지역어 조사</h2></div>
+      <p class="cov-lede rv">2004–2020년, 국내 155개 지점을 아홉 권역에서 조사하고 국외 이주 한민족의 지역까지 더했습니다.<br>이렇게 모은 자료가 오늘의 지역어 사전을 이룹니다.</p>
+      <div class="cov-kpis rv">
+        <div class="cov-kpi"><div class="cov-kv"><span data-count="9">0</span></div><div class="cov-kl">국내 조사 권역</div></div>
+        <div class="cov-kpi"><div class="cov-kv"><span data-count="155">0</span></div><div class="cov-kl">국내 조사 지점</div></div>
+        <div class="cov-kpi"><div class="cov-kv"><span data-count="10">0</span></div><div class="cov-kl">국외 조사 지점</div></div>
+        <div class="cov-kpi"><div class="cov-kv"><span data-count="237495">0</span><small>개</small></div><div class="cov-kl">축적된 자료 항목</div></div>
+      </div>
+    </section>
+
+    <!-- 조사 지점 지도 (인터랙티브 인포그래픽) -->
+    <section>
+      <div class="sec-head rv"><span class="eyebrow">조사 지점</span><h2 class="display">국내 9개 권역, 그리고 국외 지점</h2><p>지점 수가 많을수록 권역이 진하게 표시됩니다. 권역을 선택하면 지도가 확대되고 대표 조사 지점(시·군)이 나타납니다.</p></div>
+      <div class="cov-map-block cov-breakout rv">
+        <div class="cov-map-panel">
+          <div id="cov-map" role="img" aria-label="권역별 조사 지점 분포 지도 — 지점 수가 많을수록 진하게 표시, 권역 선택 시 확대"></div>
+          <button type="button" class="cov-reset" hidden><i class="ti ti-arrow-back-up" aria-hidden="true"></i> 전체 보기</button>
+          <div class="cov-legend" aria-hidden="true">
+            <span class="cl-label">지점 수</span>
+            <span>7</span><span class="cl-bar"></span><span>17</span>
+          </div>
+          <p class="cov-map-fallback" hidden>지도를 표시할 수 없습니다. 오른쪽 권역 목록을 참고하세요.</p>
+        </div>
+        <div class="cov-list" id="cov-list">
+          <div class="cov-list-head"><span>권역</span><span>지점 수</span></div>
+          <!-- 권역 행은 아래 스크립트가 생성합니다 -->
+        </div>
+      </div>
+      <div class="abroad rv">
+        <h3>국외 이주 한민족 지역어 (2007–2011 · 10개 지점)</h3>
+        <p>중국·중앙아시아로 이주한 한민족 공동체의 우리말을 조사했습니다.</p>
+        <div class="list">
+          <span class="chip o">중국 하얼빈·대련·연변·심양·용정·도문</span>
+          <span class="chip o">카자흐스탄 알마티·탈디쿠르간</span>
+          <span class="chip o">우즈베키스탄 타슈켄트</span>
+          <span class="chip o">키르기스스탄 비슈케크</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 조사 결과물 (자료 구성 인포그래픽) -->
+    <section>
+      <div class="sec-head rv"><span class="eyebrow">조사 결과물</span><h2 class="display">어떤 데이터가 축적되었나</h2><p>국내 61지점·국외 10지점, 총 71지점에서 구술 발화·어휘·음운·문법 네 가지 항목의 자료 <b>237,495개</b>를 축적했습니다.</p></div>
+
+      <div class="cov-comp rv">
+        <div class="cov-stack" role="img" aria-label="자료 구성: 어휘 51.7%, 음운 34.0%, 문법 8.6%, 구술 발화 5.7%">
+          <div class="cov-seg" style="--w:51.66%;background:#15545C"><span class="sn">어휘</span><span class="sp">51.7%</span></div>
+          <div class="cov-seg" style="--w:34.05%;background:#A9772B"><span class="sn">음운</span><span class="sp">34.0%</span></div>
+          <div class="cov-seg" style="--w:8.64%;background:#9A3A24"><span class="sn">문법</span><span class="sp">8.6%</span></div>
+          <div class="cov-seg" style="--w:5.65%;background:#0E3B41"><span class="sn">구술 발화</span><span class="sp">5.7%</span></div>
+        </div>
+        <div class="cov-tiles">
+          <div class="cov-tile" style="--tc:#15545C"><div class="tn"><i></i>어휘</div><div class="tv"><span data-count="122688">0</span></div><div class="tp">전체의 51.7%</div></div>
+          <div class="cov-tile" style="--tc:#A9772B"><div class="tn"><i></i>음운</div><div class="tv"><span data-count="80869">0</span></div><div class="tp">전체의 34.0%</div></div>
+          <div class="cov-tile" style="--tc:#9A3A24"><div class="tn"><i></i>문법</div><div class="tv"><span data-count="20519">0</span></div><div class="tp">전체의 8.6%</div></div>
+          <div class="cov-tile" style="--tc:#0E3B41"><div class="tn"><i></i>구술 발화</div><div class="tv"><span data-count="13419">0</span></div><div class="tp">전체의 5.7%</div></div>
+        </div>
+      </div>
+
+      <table class="tbl rv">
+        <thead><tr><th>구분</th><th>구술 발화</th><th>어휘</th><th>음운</th><th>문법</th></tr></thead>
+        <tbody>
+          <tr class="grp"><td>국내 61지점</td><td>11,529</td><td>105,408</td><td>69,479</td><td>17,629</td></tr>
+          <tr class="grp"><td>국외 10지점</td><td>1,890</td><td>17,280</td><td>11,390</td><td>2,890</td></tr>
+          <tr class="total"><td>합계 71지점</td><td colspan="4">237,495개 항목</td></tr>
+        </tbody>
+      </table>
+      <p class="foot-note rv">※ 이 자료는 ‘우리말샘’의 지역어 표제어 약 11만 개(표준 이관 2만·신규 구축 9만)로 이관되어, 표제어별 지역 정보와 용례·어원·구술 자료까지 함께 제공됩니다.</p>
+    </section>
+
+  </div>
+</main>
+
+<div id="footer-common"></div>
+
+<script>
+  (function(){
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var rvs = document.querySelectorAll(".lore .rv");
+    if(reduce || !("IntersectionObserver" in window)){ rvs.forEach(function(el){el.classList.add("in");}); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, {threshold:0.12, rootMargin:"0px 0px -6% 0px"});
+    rvs.forEach(function(el){ io.observe(el); });
+  })();
+</script>
+
+<!-- 패럴랙스 스크롤 + 숫자 카운트업 -->
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ── 패럴랙스: [data-px] 요소를 스크롤 진행도에 따라 이동 ──
+  var pxLayers = [].slice.call(document.querySelectorAll("[data-px]"));
+  if(!reduce && pxLayers.length){
+    var ticking = false;
+    function update(){
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      pxLayers.forEach(function(el){
+        var speed = parseFloat(el.getAttribute("data-px")) || 0;
+        var r = el.parentElement.getBoundingClientRect();
+        var mid = r.top + r.height / 2 - vh / 2;   // 뷰포트 중앙 기준 오프셋
+        el.style.transform = "translate3d(0," + (mid * speed).toFixed(2) + "px,0)";
+      });
+      ticking = false;
+    }
+    function onScroll(){ if(!ticking){ ticking = true; requestAnimationFrame(update); } }
+    window.addEventListener("scroll", onScroll, {passive:true});
+    window.addEventListener("resize", onScroll);
+    update();
+  }
+
+  // ── 숫자 카운트업 ──
+  function fmt(v){ return Math.round(v).toLocaleString("en-US"); }
+  function countUp(el){
+    var target = parseFloat(el.getAttribute("data-count")) || 0;
+    if(reduce){ el.textContent = fmt(target); return; }
+    var dur = 1500, t0 = null;
+    function step(ts){
+      if(t0 === null) t0 = ts;
+      var p = Math.min((ts - t0) / dur, 1);
+      var e = 1 - Math.pow(1 - p, 3);            // easeOutCubic
+      el.textContent = fmt(target * e);
+      if(p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  var counters = [].slice.call(document.querySelectorAll("[data-count]"));
+  if("IntersectionObserver" in window && counters.length){
+    var cio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ countUp(e.target); cio.unobserve(e.target); } });
+    }, {threshold:0.6});
+    counters.forEach(function(el){ cio.observe(el); });
+  } else {
+    counters.forEach(countUp);
+  }
+})();
+</script>
+
+<!-- 공통 지도 모듈 (OpenLayers 기반) -->
+<script src="https://cdn.jsdelivr.net/npm/ol@v10.9.0/dist/ol.js"></script>
+<script src="skorea-provinces.js"></script>
+<script src="skorea-labels.js"></script>
+<script src="korea-map.js"></script>
+<script>
+(function(){
+  // 권역 → 시·도 정식명 / 표시 약칭 / 지점 수 / 대표 지점 (기존 콘텐츠 유지)
+  var COV_LIST = [
+    {prov:"경기도",          abbr:"경기", n:8,  ex:"용인·화성·포천·파주·안성·이천·강화"},
+    {prov:"강원도",          abbr:"강원", n:14, ex:"삼척·양양·양구·화천·평창·정선·춘천"},
+    {prov:"충청북도",        abbr:"충북", n:10, ex:"제천·청주·충주·옥천·보은·음성·단양"},
+    {prov:"충청남도",        abbr:"충남", n:14, ex:"공주·논산·당진·서천·예산·아산·천안"},
+    {prov:"전라북도",        abbr:"전북", n:13, ex:"완주·남원·무주·군산·고창·임실·정읍"},
+    {prov:"전라남도",        abbr:"전남", n:17, ex:"곡성·진도·완도·보성·여수·정읍·목포"},
+    {prov:"경상북도",        abbr:"경북", n:17, ex:"경주·안동·청송·고령·청도·성주·상주"},
+    {prov:"경상남도",        abbr:"경남", n:16, ex:"고성·창원·창녕·산청·남해·의령·하동"},
+    {prov:"제주특별자치도",  abbr:"제주", n:7,  ex:"한경·표선·서귀포·한림·구좌·애월·대정"}
+  ];
+  var COV = {}; COV_LIST.forEach(function(d){ COV[d.prov] = d; });
+  var MIN_N = 7, MAX_N = 17;
+  var JADE = "#15545C";
+
+  // 제주 읍/면은 시·군·구 라벨에 없으므로 대표 좌표를 직접 지정(폴백)
+  var JEJU_FALLBACK = {
+    "한경":[126.181,33.339], "표선":[126.831,33.326], "한림":[126.267,33.409],
+    "구좌":[126.855,33.545], "애월":[126.331,33.462], "대정":[126.252,33.226]
+  };
+
+  var hlName = null;           // hover 강조 중인 시·도명
+  var selName = null;          // 선택(확대)된 시·도명
+  var rows = [];               // 목록 버튼 엘리먼트
+  var covMap = null, covProvLayer = null, covLabelLayer = null, markerSource = null;
+  var provByName = {};         // 시·도명 → 폴리곤 feature
+  var MARKERS = {};            // 시·도명 → [{t:지명, c:[경도,위도]}]
+  var fullExtent = null;       // 남한 전체 화면 범위(복귀용)
+  var resetBtn = null;
+
+  function alphaFor(n){ return 0.30 + (n - MIN_N) / (MAX_N - MIN_N) * 0.52; }
+
+  function setHighlight(name){
+    if(hlName === name) return;
+    hlName = name;
+    if(covProvLayer) covProvLayer.changed();
+    if(covLabelLayer) covLabelLayer.changed();
+    rows.forEach(function(r){ r.classList.toggle("is-active", r.getAttribute("data-prov") === name); });
+  }
+
+  // 대표 지점(ex) 이름 → 좌표. 시·군·구 라벨에서 이름으로 찾고, 없으면 제주 폴백.
+  function buildMarkers(){
+    var sg = (window.KOREA_LABELS ? window.KOREA_LABELS.features : [])
+      .filter(function(f){ return f.properties.level === "sigungu"; })
+      .map(function(f){ return {name: f.properties.name, c: f.geometry.coordinates}; });
+    function coordOf(t){
+      var m = sg.filter(function(s){ return s.name.indexOf(t) === 0; });
+      if(!m.length) m = sg.filter(function(s){ return s.name.indexOf(t) >= 0; });
+      if(m.length) return m[0].c;
+      return JEJU_FALLBACK[t] || null;
+    }
+    COV_LIST.forEach(function(d){
+      MARKERS[d.prov] = d.ex.split("·").map(function(t){
+        return {t: t, c: coordOf(t)};
+      }).filter(function(x){ return x.c; });
+    });
+  }
+
+  // 권역 선택 → 해당 시·도로 확대 + 대표 지점 마커 표시
+  function selectRegion(name){
+    if(!covMap) return;
+    selName = name;
+    if(markerSource){
+      markerSource.clear();
+      var list = MARKERS[name] || [];
+      markerSource.addFeatures(list.map(function(m){
+        return new ol.Feature({
+          geometry: new ol.geom.Point(ol.proj.fromLonLat(m.c)),
+          townName: m.t
+        });
+      }));
+    }
+    var prov = provByName[name];
+    if(prov){
+      covMap.getView().fit(prov.getGeometry().getExtent(), {
+        size: covMap.getSize(), padding: [60, 60, 60, 60], duration: 650, maxZoom: 11
+      });
+    }
+    if(covProvLayer) covProvLayer.changed();
+    if(covLabelLayer) covLabelLayer.changed();
+    rows.forEach(function(r){ r.classList.toggle("is-selected", r.getAttribute("data-prov") === name); });
+    if(resetBtn) resetBtn.hidden = false;
+  }
+
+  // 전체 지도로 복귀
+  function resetView(){
+    selName = null;
+    if(markerSource) markerSource.clear();
+    if(covMap && fullExtent){
+      covMap.getView().fit(fullExtent, {size: covMap.getSize(), padding: [28, 28, 28, 28], duration: 650});
+    }
+    if(covProvLayer) covProvLayer.changed();
+    if(covLabelLayer) covLabelLayer.changed();
+    rows.forEach(function(r){ r.classList.remove("is-selected"); });
+    if(resetBtn) resetBtn.hidden = true;
+  }
+
+  // ── 오른쪽 권역 목록 생성 (지도 로드 여부와 무관하게 항상 표시) ──
+  function buildList(){
+    var wrap = document.getElementById("cov-list");
+    if(!wrap) return;
+    COV_LIST.forEach(function(d){
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "cov-row";
+      btn.setAttribute("data-prov", d.prov);
+      btn.innerHTML =
+        '<span class="nm">' + d.abbr + '</span>' +
+        '<span class="ex">' + d.ex + '</span>' +
+        '<span class="cnt">' + d.n + '<small>곳</small></span>' +
+        '<span class="bar" style="--v:' + (d.n / MAX_N).toFixed(3) + '"></span>';
+      btn.addEventListener("mouseenter", function(){ setHighlight(d.prov); });
+      btn.addEventListener("mouseleave", function(){ setHighlight(null); });
+      btn.addEventListener("focus", function(){ setHighlight(d.prov); });
+      btn.addEventListener("blur", function(){ setHighlight(null); });
+      btn.addEventListener("click", function(){ if(selName === d.prov) resetView(); else selectRegion(d.prov); });
+      wrap.appendChild(btn);
+      rows.push(btn);
+    });
+  }
+
+  // ── 공통 지도 초기화 (choropleth + 라벨 + 양방향 hover) ──
+  function initMap(){
+    if(!window.ol || !window.KoreaMap || !window.KOREA_PROVINCES) return false;
+    var geojson = new ol.format.GeoJSON();
+    function read(fc){ return geojson.readFeatures(fc, {dataProjection:"EPSG:4326", featureProjection:"EPSG:3857"}); }
+
+    // 남한(region:"KR")만 그린다
+    var kr = read(window.KOREA_PROVINCES).filter(function(f){ return f.get("region") === "KR"; });
+    var provSource = new ol.source.Vector({features: kr});
+    kr.forEach(function(f){ provByName[f.get("name")] = f; });
+
+    var provLayer = new ol.layer.Vector({
+      source: provSource,
+      style: function(f){
+        var name = f.get("name");
+        var d = COV[name];
+        if(d){
+          var sel = selName === name;
+          var hi = sel || hlName === name;
+          var a = hi ? Math.min(alphaFor(d.n) + 0.14, 0.96) : alphaFor(d.n);
+          // 선택된 권역이 있으면 나머지 조사 권역은 흐리게
+          if(selName && !sel) a = alphaFor(d.n) * 0.4;
+          return new ol.style.Style({
+            fill: new ol.style.Fill({color: KoreaMap.hexToRgba(JADE, a)}),
+            stroke: new ol.style.Stroke({
+              color: sel ? "#0E3B41" : (hi ? "#0E3B41" : "#ffffff"),
+              width: sel ? 3 : (hi ? 2.4 : 1)
+            })
+          });
+        }
+        // 미조사 지역(서울·광역시 등)
+        return new ol.style.Style({
+          fill: new ol.style.Fill({color: "#E7E9EC"}),
+          stroke: new ol.style.Stroke({color: "#CBD1D6", width: 0.7})
+        });
+      }
+    });
+    provLayer.setZIndex(1);
+
+    // 권역 라벨(약칭 + 지점 수) — 조사 권역에만
+    var labelFeatures = [];
+    if(window.KOREA_LABELS){
+      labelFeatures = read(window.KOREA_LABELS).filter(function(f){
+        if(f.get("level") !== "sido" || !COV[f.get("name")]) return false;
+        // 라벨 데이터에는 남·북 동명(예: '강원도')이 함께 있으므로,
+        // 실제로 그린 남한(KR) 시·도 안에 들어오는 라벨만 남긴다.
+        var c = f.getGeometry().getCoordinates();
+        return kr.some(function(p){ return p.getGeometry().intersectsCoordinate(c); });
+      });
+    }
+    var labelLayer = new ol.layer.Vector({
+      source: new ol.source.Vector({features: labelFeatures}),
+      declutter: true,
+      style: function(f){
+        if(selName) return null;   // 특정 권역 확대 중에는 시·도 라벨 숨김
+        var d = COV[f.get("name")];
+        if(!d) return null;
+        var white = new ol.style.Stroke({color: "rgba(255,255,255,.92)", width: 3.4});
+        return [
+          new ol.style.Style({text: new ol.style.Text({
+            text: d.abbr, font: '600 12px "Noto Sans KR",sans-serif', offsetY: -11,
+            fill: new ol.style.Fill({color: "#0E3B41"}), stroke: white
+          })}),
+          new ol.style.Style({text: new ol.style.Text({
+            text: String(d.n), font: '700 21px "Song Myung",serif', offsetY: 9,
+            fill: new ol.style.Fill({color: "#0E3B41"}), stroke: white
+          })})
+        ];
+      }
+    });
+    labelLayer.setZIndex(6);
+
+    // 대표 지점(시/군) 마커 레이어 — 권역 선택 시에만 채워짐
+    markerSource = new ol.source.Vector();
+    var markerLayer = new ol.layer.Vector({
+      source: markerSource,
+      declutter: true,
+      style: function(f){
+        return new ol.style.Style({
+          image: new ol.style.Circle({
+            radius: 5.5,
+            fill: new ol.style.Fill({color: "#9A3A24"}),
+            stroke: new ol.style.Stroke({color: "#ffffff", width: 1.8})
+          }),
+          text: new ol.style.Text({
+            text: f.get("townName") || "",
+            font: '600 12.5px "Noto Sans KR",sans-serif',
+            offsetY: -14,
+            fill: new ol.style.Fill({color: "#7a2c1a"}),
+            stroke: new ol.style.Stroke({color: "rgba(255,255,255,.95)", width: 3.2})
+          })
+        });
+      }
+    });
+    markerLayer.setZIndex(8);
+
+    var map = new ol.Map({
+      target: "cov-map",
+      layers: [provLayer, labelLayer, markerLayer],
+      controls: [],
+      interactions: [],           // 정적 인포그래픽: 사용자 확대·이동 없음(hover·클릭은 동작)
+      view: new ol.View({center: ol.proj.fromLonLat([127.8, 36.3]), zoom: 6.7})
+    });
+    covMap = map;
+
+    // 남한 전체 화면 범위(독도는 극단 좌표라 제외) — 최초 표시 및 복귀에 사용
+    fullExtent = new ol.source.Vector({
+      features: kr.filter(function(f){ return f.get("name") !== "독도"; })
+    }).getExtent();
+    map.once("rendercomplete", function(){
+      try{ map.getView().fit(fullExtent, {size: map.getSize(), padding: [28, 28, 28, 28]}); }catch(e){}
+    });
+
+    var el = document.getElementById("cov-map");
+    // 지도 → 목록 hover 연동 (선택 확대 중에는 hover 강조 생략)
+    map.on("pointermove", function(evt){
+      var found = null;
+      map.forEachFeatureAtPixel(evt.pixel, function(f){
+        var n = f.get && f.get("name");
+        if(n && COV[n]){ found = n; return true; }
+      }, {layerFilter: function(l){ return l === provLayer; }});
+      if(!selName) setHighlight(found);
+      el.style.cursor = found ? "pointer" : "";
+    });
+    el.addEventListener("mouseleave", function(){ if(!selName) setHighlight(null); });
+
+    // 지도 클릭 → 해당 권역 확대(같은 권역 재클릭 시 복귀)
+    map.on("click", function(evt){
+      var found = null;
+      map.forEachFeatureAtPixel(evt.pixel, function(f){
+        var n = f.get && f.get("name");
+        if(n && COV[n]){ found = n; return true; }
+      }, {layerFilter: function(l){ return l === provLayer; }});
+      if(found){ if(selName === found) resetView(); else selectRegion(found); }
+    });
+
+    covProvLayer = provLayer;
+    covLabelLayer = labelLayer;
+    buildMarkers();
+
+    // "전체 보기" 복귀 버튼
+    resetBtn = document.querySelector(".cov-reset");
+    if(resetBtn) resetBtn.addEventListener("click", resetView);
+
+    return true;
+  }
+
+  function start(){
+    buildList();
+    if(!initMap()){
+      var fb = document.querySelector(".cov-map-fallback");
+      if(fb) fb.hidden = false;
+    }
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+})();
+</script>
+</body>
+</html>

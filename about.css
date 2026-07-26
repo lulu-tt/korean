@@ -1,0 +1,163 @@
+/* ============================================================
+   누리집소개 본문 전용 디자인 시스템 (지역어 조사 사업 소개)
+   - 공통 영역(gnb / footer / sub-visual 타이틀)은 styles.css를 따르고,
+     이 파일은 .lore 로 감싼 "본문 영역"에만 적용됩니다.
+   - 공통 스타일(.wrap, .card 등)과 충돌하지 않도록 전부 .lore 하위로 스코프.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Song+Myung&family=Noto+Sans+KR:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+/* 누리집소개 페이지에서는 페이지 배경을 흰색으로 통일.
+   (전역 body 배경 #f8fafc이 footer margin-top 여백에 회색 띠로 비쳐 보이는 문제 제거) */
+body{background:#ffffff;}
+
+.lore{
+  --ink:#221F1A;
+  --ink-soft:#544E45;
+  --paper:#EFEADD;
+  --paper-2:#E6DECD;
+  --panel:#F5F1E7;
+  --l-line:#CDC4B0;
+  --jade:#15545C;
+  --jade-deep:#0E3B41;
+  --ochre:#A9772B;
+  --brick:#9A3A24;
+  --l-serif:"Song Myung", serif;
+  --l-sans:"Noto Sans KR", sans-serif;
+  --l-mono:"IBM Plex Mono", monospace;
+
+  background:#ffffff;
+  color:var(--ink);
+  font-family:var(--l-sans);
+  font-weight:300;
+  line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+}
+.lore *{box-sizing:border-box;}
+
+/* 본문 내부 정렬 컨테이너 (공통 .wrap과 분리) */
+.lore .lore-wrap{max-width:1080px;margin:0 auto;padding:0 28px;}
+
+.lore .eyebrow{font-family:var(--l-mono);font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--jade);font-weight:500;}
+.lore h2.display{font-family:var(--l-serif);font-weight:400;line-height:1.15;letter-spacing:-.01em;margin:0;}
+
+/* ---------- intro lede ---------- */
+.lore .lede-block{padding:64px 0 8px;}
+.lore .lede-block .eyebrow{display:block;margin-bottom:20px;}
+.lore .lede-block h2{font-family:var(--l-serif);font-weight:400;font-size:clamp(2rem,4.6vw,3rem);line-height:1.1;letter-spacing:-.02em;margin:0 0 20px;}
+.lore .lede-block .lede{font-size:clamp(1.05rem,2.2vw,1.25rem);color:var(--ink-soft);max-width:44ch;font-weight:400;}
+.lore .lede-block .subthesis{max-width:60ch;color:var(--ink-soft);font-size:1rem;margin-top:22px;}
+.lore .span-row{display:flex;align-items:baseline;gap:14px;margin-top:34px;font-family:var(--l-mono);font-size:.9rem;color:var(--jade-deep);letter-spacing:.04em;}
+.lore .span-row .bar{flex:0 0 auto;height:1px;width:64px;background:var(--jade);transform:translateY(-4px);}
+
+/* ---------- section shell ---------- */
+.lore section{padding:64px 0;border-bottom:1px solid var(--l-line);}
+.lore section.tight{padding:52px 0;}
+.lore section.first{border-top:none;}
+/* 마지막 섹션 아래 불필요한 구분선 제거 (footer 위 여백은 .footer margin-top으로 처리) */
+.lore .lore-wrap > section:last-child{border-bottom:none;}
+.lore .sec-head{margin-bottom:40px;max-width:60ch;}
+.lore .sec-head .eyebrow{display:block;margin-bottom:14px;}
+.lore .sec-head h2{font-family:var(--l-serif);font-weight:400;font-size:clamp(1.7rem,3.6vw,2.4rem);margin:0 0 14px;line-height:1.15;}
+.lore .sec-head p{color:var(--ink-soft);font-size:1rem;margin:0;}
+
+/* ---------- stats ---------- */
+.lore .stats{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--ink);}
+.lore .stat{padding:26px 20px 30px;border-right:1px solid var(--l-line);}
+.lore .stat:last-child{border-right:none;}
+.lore .stat .num{font-family:var(--l-serif);font-size:clamp(1.9rem,4.2vw,2.9rem);line-height:1;color:var(--jade);letter-spacing:-.02em;}
+.lore .stat .num small{font-size:.9rem;color:var(--ink);}
+.lore .stat .lbl{margin-top:14px;font-size:.84rem;color:var(--ink-soft);line-height:1.5;}
+
+/* ---------- goals ---------- */
+.lore .goals{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--l-line);}
+.lore .goal{padding:30px 26px 34px;border-right:1px solid var(--l-line);}
+.lore .goal:last-child{border-right:none;}
+.lore .goal .idx{font-family:var(--l-mono);font-size:.78rem;color:var(--ochre);letter-spacing:.14em;}
+.lore .goal h3{font-family:var(--l-serif);font-weight:400;font-size:1.3rem;margin:14px 0 10px;}
+.lore .goal p{font-size:.94rem;color:var(--ink-soft);margin:0;}
+
+/* ---------- preview cards ---------- */
+.lore .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--l-line);border:1px solid var(--l-line);}
+.lore .lore-card{background:var(--panel);padding:30px 26px 28px;text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:background .2s;}
+.lore .lore-card:hover{background:#FBF8F0;}
+.lore .lore-card .k{font-family:var(--l-mono);font-size:.72rem;letter-spacing:.14em;color:var(--ochre);text-transform:uppercase;}
+.lore .lore-card h3{font-family:var(--l-serif);font-weight:400;font-size:1.5rem;margin:14px 0 10px;}
+.lore .lore-card p{font-size:.9rem;color:var(--ink-soft);flex:1;margin:0;}
+.lore .lore-card .go{margin-top:18px;font-family:var(--l-mono);font-size:.8rem;color:var(--jade);letter-spacing:.04em;}
+.lore .lore-card:hover .go{text-decoration:underline;}
+
+/* ---------- timeline ---------- */
+.lore .phase{margin-bottom:16px;}
+.lore .phase-tag{display:inline-flex;align-items:baseline;gap:14px;padding:10px 0 6px;margin-bottom:8px;flex-wrap:wrap;}
+.lore .phase-tag .yrs{font-family:var(--l-mono);font-size:.85rem;letter-spacing:.06em;color:var(--phc,var(--jade));font-weight:600;}
+.lore .phase-tag .nm{font-family:var(--l-serif);font-size:1.5rem;color:var(--ink);}
+.lore .phase-tag .sub{font-size:.86rem;color:var(--ink-soft);}
+.lore .tl{position:relative;margin-left:6px;padding-left:34px;}
+.lore .tl::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:2px;background:var(--phc,var(--jade));opacity:.35;}
+.lore .entry{position:relative;padding:16px 0 22px;}
+.lore .entry::before{content:"";position:absolute;left:-40px;top:24px;width:11px;height:11px;border-radius:50%;background:var(--paper);border:2px solid var(--phc,var(--jade));}
+.lore .entry .yr{font-family:var(--l-mono);font-size:.82rem;font-weight:600;letter-spacing:.05em;color:var(--phc,var(--jade));}
+.lore .entry h4{font-family:var(--l-serif);font-weight:400;font-size:1.22rem;margin:4px 0 8px;}
+.lore .entry p{font-size:.95rem;color:var(--ink-soft);max-width:66ch;margin:0;}
+.lore .entry .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.lore .chip{font-family:var(--l-mono);font-size:.72rem;letter-spacing:.03em;padding:4px 10px;border:1px solid var(--l-line);border-radius:2px;color:var(--ink-soft);background:var(--panel);}
+.lore .chip.o{color:var(--brick);border-color:#d9b3a8;}
+.lore .phase-1{--phc:var(--jade);}
+.lore .phase-x{--phc:var(--ochre);}
+.lore .phase-2{--phc:var(--ochre);}
+.lore .phase-3{--phc:var(--brick);}
+
+/* ---------- regions ---------- */
+.lore .regions{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--l-line);border:1px solid var(--l-line);}
+.lore .region{background:var(--panel);padding:20px 20px 22px;}
+.lore .region .rn{display:flex;align-items:baseline;justify-content:space-between;}
+.lore .region .rn b{font-family:var(--l-serif);font-weight:400;font-size:1.25rem;}
+.lore .region .rn .c{font-family:var(--l-mono);font-size:.95rem;color:var(--jade);font-weight:600;}
+.lore .region .ex{margin-top:8px;font-size:.82rem;color:var(--ink-soft);line-height:1.55;}
+.lore .region .swatch{height:3px;margin-top:14px;background:var(--jade);opacity:.5;}
+.lore .abroad{margin-top:24px;padding:22px 24px;border:1px dashed var(--brick);border-radius:3px;background:var(--panel);}
+.lore .abroad h3{font-family:var(--l-serif);font-weight:400;font-size:1.2rem;color:var(--brick);margin:0 0 8px;}
+.lore .abroad p{font-size:.92rem;color:var(--ink-soft);margin:0;}
+.lore .abroad .list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+
+/* ---------- table ---------- */
+.lore .tbl{width:100%;border-collapse:collapse;font-size:.92rem;margin-top:8px;}
+.lore .tbl th,.lore .tbl td{text-align:right;padding:12px 14px;border-bottom:1px solid var(--l-line);}
+.lore .tbl th:first-child,.lore .tbl td:first-child{text-align:left;}
+.lore .tbl thead th{font-family:var(--l-mono);font-weight:500;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);border-bottom:1px solid var(--ink);}
+.lore .tbl td{font-variant-numeric:tabular-nums;}
+.lore .tbl .total td{font-weight:700;color:var(--jade);border-bottom:none;border-top:2px solid var(--ink);}
+.lore .tbl .grp td:first-child{font-family:var(--l-serif);font-size:1.05rem;}
+
+/* ---------- related ---------- */
+.lore .rel-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--l-line);border:1px solid var(--l-line);}
+.lore .rel{background:var(--panel);padding:28px 26px;}
+.lore .rel .eyebrow{color:var(--ochre);}
+.lore .rel h3{font-family:var(--l-serif);font-weight:400;font-size:1.4rem;margin:14px 0 12px;}
+.lore .rel ul{list-style:none;margin:0;padding:0;}
+.lore .rel li{position:relative;padding-left:18px;font-size:.92rem;color:var(--ink-soft);margin-bottom:9px;}
+.lore .rel li::before{content:"";position:absolute;left:0;top:.65em;width:6px;height:2px;background:var(--ochre);}
+.lore .rel li b{color:var(--ink);font-weight:500;font-family:var(--l-mono);font-size:.8rem;margin-right:6px;}
+
+/* ---------- 마무리 노트 ---------- */
+.lore .foot-note{margin-top:24px;font-size:.92rem;color:var(--ink-soft);max-width:66ch;}
+
+/* ---------- 스크롤 등장 ---------- */
+.lore .rv{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease;}
+.lore .rv.in{opacity:1;transform:none;}
+
+@media(max-width:860px){
+  .lore .stats{grid-template-columns:repeat(2,1fr);} .lore .stat{border-bottom:1px solid var(--l-line);}
+  .lore .goals{grid-template-columns:1fr;} .lore .goal{border-right:none;border-bottom:1px solid var(--l-line);}
+  .lore .cards{grid-template-columns:1fr;}
+  .lore .regions{grid-template-columns:1fr 1fr;}
+  .lore .rel-grid{grid-template-columns:1fr;}
+}
+@media(max-width:520px){
+  .lore section{padding:48px 0;}
+  .lore .stats{grid-template-columns:1fr;} .lore .regions{grid-template-columns:1fr;}
+}
+@media(prefers-reduced-motion:reduce){
+  .lore .rv{opacity:1;transform:none;transition:none;}
+}

@@ -1,0 +1,1939 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>지역어 지도 비교 — 국립국어원</title>
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.9.0/ol.css">
+<link rel="stylesheet" href="./styles.css">
+<script src="./gnb.js" defer></script>
+<script src="./share.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+body {
+  font-family: 'Pretendard', system-ui, -apple-system, sans-serif;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+}
+/* GNB·footer·서브비주얼 공통: 1440 유지 (styles.css .wrap과 동일) */
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 20px; position: relative; }
+
+/* 본문: 폭 제한 없음 — 지도 스테이지가 뷰포트에 맞춰 확장 */
+.main {
+  padding: 28px 0 80px;
+  flex: 1;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+/* 이용 안내 등 일반 블록만 1440 정렬 */
+.main__constrained {
+  max-width: 1440px;
+  margin: 0 auto 18px;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+/* 이용 안내 스텝 */
+.howto {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 0;
+}
+.howto__step {
+  display: flex; align-items: center; gap: 12px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+}
+.howto__n {
+  width: 28px; height: 28px; border-radius: 9px; flex-shrink: 0;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff; font-size: 12px; font-weight: 800;
+  display: grid; place-items: center;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+}
+.howto__text { min-width: 0; }
+.howto__title { font-size: 13px; font-weight: 800; color: #0f172a; margin: 0 0 2px; letter-spacing: -0.02em; }
+.howto__desc { font-size: 12px; font-weight: 500; color: #94a3b8; margin: 0; line-height: 1.35; }
+
+/* 추천 단어 칩 */
+.quick-picks {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  justify-content: center; margin-top: 14px;
+}
+.quick-picks__label {
+  font-size: 12px; font-weight: 700; color: #94a3b8; width: 100%;
+  text-align: center; margin-bottom: 2px;
+}
+.qchip {
+  appearance: none; border: 1px solid #bfdbfe; background: #eff6ff;
+  color: #1d4ed8; border-radius: 99px;
+  padding: 8px 14px; font-size: 13px; font-weight: 800;
+  font-family: inherit; cursor: pointer; transition: 0.15s;
+}
+.qchip:hover { background: #2563eb; border-color: #2563eb; color: #fff; transform: translateY(-1px); }
+.qchip:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+
+/* 단어 검색 */
+.word-search {
+  position: relative; margin-bottom: 10px;
+}
+.word-search__input {
+  width: 100%; height: 40px;
+  padding: 0 36px 0 36px;
+  border: 1px solid #e2e8f0; border-radius: 11px;
+  background: #fff; font-size: 13px; font-weight: 600;
+  color: #0f172a; font-family: inherit;
+  outline: none; transition: 0.15s; box-sizing: border-box;
+}
+.word-search__input::placeholder { color: #94a3b8; font-weight: 500; }
+.word-search__input:focus { border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+.word-search__ico {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: #94a3b8; font-size: 16px; pointer-events: none;
+}
+.word-search__clear {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 26px; height: 26px; border: none; border-radius: 8px;
+  background: transparent; color: #94a3b8; cursor: pointer;
+  display: none; place-items: center; font-size: 15px; font-family: inherit;
+}
+.word-search.has-value .word-search__clear { display: grid; }
+.word-search__clear:hover { background: #f1f5f9; color: #475569; }
+.word-grid-empty {
+  grid-column: 1 / -1;
+  text-align: center; padding: 18px 8px;
+  font-size: 13px; font-weight: 600; color: #94a3b8;
+}
+
+/* 비교 진행 표시 */
+.compare-progress {
+  display: flex; align-items: center; gap: 8px;
+  margin-left: auto;
+}
+.compare-progress__bar {
+  width: 72px; height: 6px; border-radius: 99px;
+  background: #e2e8f0; overflow: hidden;
+}
+.compare-progress__fill {
+  height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, #60a5fa, #2563eb);
+  transition: width 0.25s ease;
+}
+.compare-progress__txt {
+  font-size: 11px; font-weight: 800; color: #64748b; white-space: nowrap;
+}
+
+/* ── 지도 스테이지: 1440과 무관하게 뷰포트 좌우 풀 블리드 ── */
+.stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 18px;
+  align-items: start;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  /* 화면 가장자리에 살짝만 여백 — 해상도에 따라 유기적으로 확장 */
+  padding-left: clamp(12px, 2vw, 32px);
+  padding-right: clamp(12px, 2vw, 32px);
+}
+/* 비교: 우측 패널 제거 → 지도 전폭 사용 */
+body.is-compare .stage {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+body.is-compare .side-stack {
+  display: none !important;
+}
+
+.map-panel {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* 그리드 축소 허용 — 뷰포트 폭에 맞춰 유동 */
+  width: 100%;
+}
+
+/* 단어 선택 카드 (1440 정렬) */
+.pick-panel {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+}
+/* overflow:hidden 대신 자식에 반경을 줘서 팝오버가 박스 밖으로 나올 수 있게 함 */
+.pick-panel .map-pick { border-bottom: none; border-radius: 22px; }
+
+/* 지도 상단 진행/안내 바 */
+.compare-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 14px;
+}
+.mode-bar__hint {
+  font-size: 12px; font-weight: 700; color: #64748b;
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-left: auto;
+}
+
+/* 비교 슬롯 칩 */
+.compare-slots {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0;
+}
+.compare-slots__label {
+  font-size: 11px; font-weight: 700; color: #94a3b8;
+}
+#compareSlotChips {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center; flex: 1;
+  min-width: 0;
+}
+.compare-slots__clear {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+}
+.slot-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #eff6ff; border: 1px solid #bfdbfe;
+  color: #1d4ed8; border-radius: 99px;
+  padding: 5px 6px 5px 12px;
+  font-size: 13px; font-weight: 800;
+}
+.slot-chip__n {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #2563eb; color: #fff;
+  font-size: 10px; display: grid; place-items: center;
+}
+.slot-chip__x {
+  width: 22px; height: 22px; border: none; border-radius: 50%;
+  background: transparent; color: #64748b; cursor: pointer;
+  display: grid; place-items: center; font-size: 14px;
+  font-family: inherit;
+}
+.slot-chip__x:hover { background: #dbeafe; color: #1d4ed8; }
+.slot-empty {
+  font-size: 12px; font-weight: 600; color: #94a3b8;
+  border: 1px dashed #cbd5e1; border-radius: 99px;
+  padding: 6px 12px;
+}
+
+/* 지도 위: 단어 목록 */
+.map-pick {
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  background: linear-gradient(180deg, #f0f7ff 0%, #fff 72%);
+  position: relative;
+  z-index: 5;
+}
+.map-pick__head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; margin-bottom: 10px; flex-wrap: wrap;
+}
+.map-pick__label {
+  font-size: 14px; font-weight: 800; color: #0f172a;
+  display: inline-flex; align-items: center; gap: 6px;
+  margin: 0;
+}
+.map-pick__count {
+  font-size: 11px; font-weight: 700; color: #1d4ed8;
+  background: #eff6ff; border: 1px solid #bfdbfe;
+  padding: 3px 9px; border-radius: 99px;
+}
+.map-catalog__toggle {
+  display: inline-flex; align-items: center; gap: 4px;
+  border: 1px solid #e2e8f0; background: #fff; border-radius: 10px;
+  padding: 6px 12px; cursor: pointer; font-family: inherit;
+  font-size: 12px; font-weight: 700; color: #64748b;
+  transition: 0.15s;
+}
+.map-catalog__toggle:hover { border-color: #93c5fd; color: #2563eb; background: #f8fbff; }
+.map-catalog__chev {
+  font-size: 14px; color: #94a3b8; transition: transform 0.2s;
+}
+.map-catalog.is-open .map-catalog__chev { transform: rotate(180deg); }
+.map-catalog__body { display: none; }
+.map-catalog.is-open .map-catalog__body { display: block; }
+
+.initials {
+  display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px;
+}
+.initial {
+  min-width: 32px; height: 32px; padding: 0 7px;
+  border: 1px solid #e2e8f0; background: #fff; border-radius: 8px;
+  font-size: 12px; font-weight: 700; color: #475569;
+  cursor: pointer; font-family: inherit; transition: 0.12s;
+}
+.initial:hover { border-color: #93c5fd; color: #2563eb; }
+.initial.is-active {
+  background: #2563eb; border-color: #2563eb; color: #fff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28);
+}
+.initial:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+.word-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 6px;
+  max-height: 160px;
+  overflow-y: auto;
+  padding-right: 2px;
+  margin-bottom: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+.wbtn {
+  appearance: none; border: 1px solid #e2e8f0; background: #fff;
+  border-radius: 10px; padding: 9px 6px;
+  font-size: 12px; font-weight: 700; color: #334155;
+  cursor: pointer; font-family: inherit; transition: 0.12s;
+}
+.wbtn:hover { border-color: #93c5fd; background: #eff6ff; color: #1d4ed8; }
+.wbtn.is-active {
+  border-color: #2563eb; background: #2563eb; color: #fff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+.wbtn.is-compare { border-color: #93c5fd; background: #eff6ff; color: #1d4ed8; }
+.wbtn.is-disabled {
+  opacity: 0.4; cursor: not-allowed; pointer-events: none;
+}
+.wbtn:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+
+.map-panel__head {
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #fff;
+}
+.map-panel__title {
+  font-size: 19px; font-weight: 800; color: #0f172a;
+  letter-spacing: -0.02em; margin: 0 0 5px; line-height: 1.35;
+}
+.map-panel__title b { color: #1d4ed8; }
+.map-panel__sub {
+  font-size: 13px; color: #64748b; margin: 0; font-weight: 500; line-height: 1.45;
+}
+.map-panel__hint {
+  margin-top: 10px;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; color: #1e40af;
+  background: #eff6ff; border: 1px solid #dbeafe;
+  padding: 6px 12px; border-radius: 10px;
+}
+
+/* 비교 그리드 */
+.compare-body {
+  display: none;
+  padding: 16px;
+  background: #f1f5f9;
+  min-height: 460px;
+}
+body.is-compare .compare-body { display: block; }
+body.is-compare .single-body { display: none !important; }
+body.is-compare .single-only { display: none !important; }
+
+/* 비교 모드: 지도들을 감싸는 박스 제거 — 개별 지도 카드만 노출 */
+body.is-compare .map-panel {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+body.is-compare .compare-body {
+  padding: 0;
+  background: transparent;
+  min-height: 0;
+}
+body.is-compare .map-panel__head {
+  padding: 0 0 16px;
+  background: transparent;
+  border-bottom: none;
+}
+
+.compare-grid {
+  display: grid;
+  gap: 14px;
+  justify-content: center;
+}
+/* 세로로 긴 2:3 지도 카드 — 넓은 화면에선 카드 폭 420px로 고정, 좁아지면 유동 축소 */
+.compare-grid[data-count="0"] { grid-template-columns: 1fr; }
+.compare-grid[data-count="1"] { grid-template-columns: minmax(0, 420px); }
+.compare-grid[data-count="2"] { grid-template-columns: repeat(2, minmax(0, 420px)); }
+.compare-grid[data-count="3"] { grid-template-columns: repeat(3, minmax(0, 420px)); }
+.compare-grid[data-count="4"] { grid-template-columns: repeat(4, minmax(0, 420px)); }
+
+.c-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+.c-card:hover { border-color: #cbd5e1; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.07); }
+
+/* 단어 추가 안내 힌트 */
+.compare-hint {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin: 0;
+  font-size: 13px; font-weight: 700; color: #1e40af;
+  background: #eff6ff; border: 1px solid #dbeafe;
+  padding: 9px 14px; border-radius: 10px;
+}
+.compare-hint i { font-size: 15px; }
+
+/* 비교할 단어가 없을 때 시작 안내 */
+.compare-empty {
+  grid-column: 1 / -1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 6px;
+  min-height: 360px;
+  color: #64748b;
+}
+.compare-empty i { font-size: 40px; color: #cbd5e1; margin-bottom: 6px; }
+.compare-empty p { margin: 0; font-size: 17px; font-weight: 800; color: #334155; }
+.compare-empty span { font-size: 13px; font-weight: 600; color: #94a3b8; }
+
+/* ── 비교 슬롯 줄 도구 (동기화·설정·다운로드·비우기) + 팝오버 ── */
+.compare-slots__tools {
+  margin-left: auto; flex-shrink: 0;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+}
+.compare-slots__tools .compare-slots__clear { margin-left: 0; }
+.popwrap { position: relative; }
+.toolbtn.is-active {
+  border-color: #2563eb; background: #eff6ff; color: #1d4ed8;
+}
+.dlmenu__item {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  background: none; border: none; border-radius: 10px; padding: 10px 12px;
+  font-size: 14px; font-weight: 700; color: #334155; cursor: pointer;
+  font-family: inherit; text-align: left; transition: 0.15s;
+}
+.dlmenu__item:hover { background: #eff6ff; color: #2563eb; }
+.dlmenu__item i { font-size: 18px; color: #64748b; }
+.dlmenu__item:hover i { color: #2563eb; }
+.dlmenu__note {
+  display: flex; gap: 6px; align-items: flex-start; margin-top: 10px;
+  padding: 10px 12px; background: #f8fafc; border-radius: 10px;
+  font-size: 12px; color: #64748b; line-height: 1.5;
+}
+.dlmenu__note i { flex-shrink: 0; margin-top: 1px; }
+.popmenu--dl { min-width: 230px; }
+
+/* 캡처(다운로드/PDF) 중에는 지도 카드의 조작 버튼 숨김 */
+.is-capturing .c-card__remove { display: none !important; }
+.toolbtn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 700; color: #475569;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+  padding: 9px 14px; cursor: pointer; font-family: inherit; transition: 0.15s;
+}
+.toolbtn:hover { border-color: #93c5fd; color: #2563eb; background: #f8fbff; }
+.toolbtn i { font-size: 16px; }
+.popmenu {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 50;
+  background: #fff; border: 1px solid #cbd5e1; border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.14); padding: 16px; min-width: 260px;
+}
+.popmenu[hidden] { display: none; }
+/* 슬롯 줄 아래쪽에 있으므로 위로 펼침 */
+.popmenu--up { top: auto; bottom: calc(100% + 8px); }
+.compare-slots__tools .toolbtn { padding: 6px 12px; font-size: 12px; }
+.popmenu__sec { padding: 10px 0; border-top: 1px solid #f1f5f9; }
+.popmenu__sec:first-child { border-top: none; padding-top: 0; }
+.popmenu__label {
+  font-size: 12px; font-weight: 800; color: #94a3b8;
+  margin-bottom: 10px; letter-spacing: 0.02em;
+}
+.mschk {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
+  font-size: 13px; font-weight: 600; color: #475569;
+  cursor: pointer; white-space: nowrap;
+}
+.mschk:last-child { margin-bottom: 0; }
+.mschk__cb { width: 16px; height: 16px; accent-color: #2563eb; cursor: pointer; }
+.ovdot {
+  display: inline-block; width: 11px; height: 11px;
+  border-radius: 3px; vertical-align: middle; margin: 0 2px;
+}
+
+.c-card__head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.c-card__word {
+  font-size: 16px; font-weight: 800; color: #0f172a;
+  letter-spacing: -0.02em; margin: 0;
+  display: flex; align-items: center; gap: 8px;
+}
+.c-card__badge {
+  width: 22px; height: 22px; border-radius: 7px;
+  background: #2563eb; color: #fff;
+  font-size: 11px; font-weight: 800;
+  display: grid; place-items: center;
+}
+.c-card__remove {
+  width: 30px; height: 30px; border-radius: 8px;
+  border: 1px solid #e2e8f0; background: #fff;
+  color: #64748b; cursor: pointer; display: grid; place-items: center;
+  font-size: 15px; font-family: inherit;
+}
+.c-card__remove:hover { border-color: #fca5a5; color: #dc2626; background: #fef2f2; }
+.c-card__map {
+  position: relative;
+  aspect-ratio: 2 / 3; /* 세로로 긴 2:3 비율 */
+  background: #e5eaf1;
+}
+.c-card__map .map__ol { width: 100%; height: 100%; background: #e5eaf1; }
+.c-card__legend {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 10px 12px 12px;
+  border-top: 1px solid #f1f5f9;
+  min-height: 44px;
+  align-items: center;
+}
+.c-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700; color: #334155;
+  background: #f8fafc; border: 1px solid #e2e8f0;
+  border-radius: 99px; padding: 4px 9px;
+}
+.c-pill__dot {
+  width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0;
+}
+.c-card__empty-leg {
+  font-size: 11px; font-weight: 600; color: #94a3b8;
+}
+
+/* 지도 본체 — 공용 KoreaMap (OpenLayers) */
+.map-body {
+  position: relative;
+  background: #e5eaf1; /* styles.css 지도 바깥(바다) 배경과 동일 */
+  height: 560px;
+}
+.map-body .map__ol {
+  width: 100%;
+  height: 100%;
+  background: #e5eaf1;
+}
+.map-body .map__ol:focus { outline: none; }
+.map-body .map__ol:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.map-ui {
+  position: absolute; right: 12px; bottom: 12px; z-index: 3;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.map-ui__btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  border: 1px solid #e2e8f0; background: #fff; color: #334155;
+  font-size: 18px; font-weight: 700; cursor: pointer;
+  display: grid; place-items: center; font-family: inherit;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+.map-ui__btn:hover { border-color: #2563eb; color: #2563eb; }
+
+/* 빈 상태 */
+.empty-state {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; color: #64748b; text-align: center; padding: 28px 20px;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.92) 0%, rgba(239, 246, 255, 0.88) 100%);
+  backdrop-filter: blur(3px);
+  z-index: 4;
+  pointer-events: auto;
+}
+.empty-state.is-hidden { display: none; }
+.empty-state__icon {
+  width: 64px; height: 64px; border-radius: 20px;
+  background: linear-gradient(135deg, #dbeafe, #eff6ff);
+  border: 1px solid #bfdbfe;
+  display: grid; place-items: center;
+  margin-bottom: 4px;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
+}
+.empty-state__icon i { font-size: 30px; color: #2563eb; }
+.empty-state p { margin: 0; font-size: 16px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; }
+.empty-state > span { font-size: 13px; font-weight: 500; color: #94a3b8; }
+
+/* 우측: 범례 + 선택 지역 */
+.side-stack {
+  display: flex; flex-direction: column; gap: 12px;
+  position: sticky; top: 88px;
+}
+
+.side-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+}
+.side-card__title {
+  font-size: 14px; font-weight: 800; color: #0f172a;
+  margin: 0 0 14px; display: flex; align-items: center; gap: 6px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.legend-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.legend-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 12px; border-radius: 12px;
+  border: 1px solid #e2e8f0; background: #fff;
+  cursor: pointer; transition: 0.15s; width: 100%;
+  font-family: inherit; text-align: left;
+}
+.legend-item:hover {
+  border-color: #93c5fd; background: #f8fbff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+}
+.legend-item.is-active {
+  border-color: #2563eb; background: #eff6ff;
+  box-shadow: 0 0 0 1px #2563eb inset;
+}
+.legend-swatch {
+  width: 18px; height: 18px; border-radius: 6px; flex-shrink: 0;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35);
+}
+.legend-word { flex: 1; font-size: 15px; font-weight: 800; color: #0f172a; min-width: 0; }
+.legend-where { font-size: 11px; font-weight: 600; color: #94a3b8; display: block; margin-top: 2px; }
+.legend-play {
+  width: 34px; height: 34px; border-radius: 50%; border: none;
+  background: #eff6ff; color: #2563eb; display: grid; place-items: center;
+  cursor: pointer; flex-shrink: 0; font-size: 15px; transition: 0.15s;
+}
+.legend-play:hover { background: #2563eb; color: #fff; transform: scale(1.05); }
+
+.region-detail__name {
+  font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px;
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #f8fafc; border: 1px solid #e2e8f0;
+  padding: 4px 10px; border-radius: 99px;
+}
+.region-detail__form {
+  font-size: 30px; font-weight: 800; color: #0f172a;
+  letter-spacing: -0.03em; margin: 8px 0 6px;
+  line-height: 1.2;
+}
+.region-detail__std {
+  font-size: 13px; color: #64748b; margin: 0 0 16px; font-weight: 500;
+}
+.region-detail__std b { color: #334155; }
+.region-detail__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  border-radius: 11px; padding: 10px 14px;
+  font-size: 13px; font-weight: 700; font-family: inherit;
+  cursor: pointer; border: none; text-decoration: none; transition: 0.15s;
+}
+.btn--primary {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
+}
+.btn--primary:hover { filter: brightness(1.05); transform: translateY(-1px); }
+.btn--outline { background: #fff; color: #334155; border: 1px solid #e2e8f0; }
+.btn--outline:hover { border-color: #2563eb; color: #2563eb; background: #f8fbff; }
+.btn--ghost { background: #f1f5f9; color: #475569; }
+.btn--ghost:hover { background: #e2e8f0; }
+.btn:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+
+.placeholder-soft {
+  font-size: 13px; color: #94a3b8; font-weight: 600; line-height: 1.55; margin: 0;
+}
+
+/* 관련 링크 카드 */
+.side-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px; border-radius: 12px;
+  border: 1px solid #e2e8f0; background: #f8fafc;
+  text-decoration: none; color: inherit; transition: 0.15s;
+  margin-top: 4px;
+}
+.side-link:hover { border-color: #93c5fd; background: #eff6ff; }
+.side-link__ico {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  background: #fff; border: 1px solid #e2e8f0;
+  display: grid; place-items: center; color: #2563eb; font-size: 18px;
+}
+.side-link__body { min-width: 0; flex: 1; }
+.side-link__title { font-size: 13px; font-weight: 800; color: #0f172a; margin: 0 0 2px; }
+.side-link__desc { font-size: 11px; font-weight: 600; color: #94a3b8; margin: 0; }
+.side-link__arrow { color: #94a3b8; font-size: 16px; }
+
+/* 토스트 */
+.toast {
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(16px);
+  background: #0f172a; color: #fff; padding: 12px 18px; border-radius: 99px;
+  font-size: 13px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  opacity: 0; pointer-events: none; transition: 0.25s; z-index: 100;
+  display: flex; align-items: center; gap: 8px; max-width: 90vw;
+}
+.toast.is-show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* 4열 유지가 빡센 구간: 2×2 */
+@media (max-width: 1480px) {
+  .compare-grid[data-count="4"] { grid-template-columns: repeat(2, minmax(0, 420px)); }
+}
+@media (max-width: 1200px) {
+  .compare-grid[data-count="3"] { grid-template-columns: repeat(2, minmax(0, 420px)); }
+  .howto { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  .stage { grid-template-columns: 1fr; }
+  body.is-compare .stage { grid-template-columns: 1fr; }
+  .side-stack { position: static; }
+  .map-body { height: min(64vw, 480px); min-height: 360px; }
+  .compare-grid[data-count="2"],
+  .compare-grid[data-count="3"],
+  .compare-grid[data-count="4"] { grid-template-columns: minmax(0, 420px); }
+  .howto { margin-bottom: 14px; }
+}
+@media (max-width: 520px) {
+  .map-panel__title { font-size: 16px; }
+  .map-pick { padding: 14px 14px 12px; }
+  .region-detail__form { font-size: 26px; }
+  .empty-state p { font-size: 15px; }
+  .stage { padding-left: 12px; padding-right: 12px; }
+  .main__constrained { padding-left: 12px; padding-right: 12px; }
+  .compare-slots__clear { width: 100%; margin-left: 0; justify-content: center; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">본문 바로가기</a>
+<div id="gnb-common"></div>
+
+<div class="sub-visual">
+  <div class="wrap">
+    <h1 class="sv-title">지역어 지도 비교</h1>
+    <div class="location-bar">
+      <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer;" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
+      <i class="ti ti-chevron-right loc-sep" aria-hidden="true"></i>
+      <div class="loc-item">
+        <select aria-label="상위 메뉴 이동" onchange="if(this.value) location.href=this.value;">
+          <option value="./dialect_map.html" selected>지역어 지도</option>
+          <option value="./dialect_search_prototype.html">통합자료검색</option>
+          <option value="./region_culture.html">지역어 자료관</option>
+          <option value="./notice.html">알림마당</option>
+        </select>
+      </div>
+      <i class="ti ti-chevron-right loc-sep" aria-hidden="true"></i>
+      <div class="loc-item">
+        <select aria-label="하위 메뉴 이동" onchange="if(this.value) location.href=this.value;">
+          <option value="./dialect_our_town.html" selected>지역어 지도 비교</option>
+          <option value="./dialect_map.html">지역어 지도</option>
+          <option value="./dialect_awareness.html">지역어 현황(기상도)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main id="main" class="main">
+  <!-- 단어 선택: 1440 정렬 -->
+  <div class="main__constrained">
+    <div class="pick-panel">
+      <div class="map-pick" aria-label="비교할 단어 선택">
+        <div class="compare-topbar">
+          <p class="compare-hint" id="compareHint" hidden>
+            <i class="ti ti-hand-click" aria-hidden="true"></i>
+            단어를 고르면 비교 지도가 추가돼요 · 최대 4개까지 비교할 수 있어요
+          </p>
+          <span class="mode-bar__hint" id="modeHint">
+            <span id="modeHintText">최대 4개 단어 · 나란히 비교</span>
+            <span class="compare-progress" id="compareProgress" hidden>
+              <span class="compare-progress__bar" aria-hidden="true"><span class="compare-progress__fill" id="compareProgressFill" style="width:0%"></span></span>
+              <span class="compare-progress__txt" id="compareProgressTxt">0/4</span>
+            </span>
+          </span>
+        </div>
+
+        <div class="map-catalog is-open" id="mapCatalog">
+          <div class="map-pick__head">
+            <p class="map-pick__label">
+              <i class="ti ti-vocabulary" style="color:#2563eb" aria-hidden="true"></i>
+              <span id="pickLabel">지도에 올릴 단어</span>
+              <span class="map-pick__count" id="wordCountMeta">—개</span>
+            </p>
+            <button type="button" class="map-catalog__toggle" id="catalogToggle" aria-expanded="true" aria-controls="catalogBody">
+              <span id="catalogToggleLabel">목록 접기</span>
+              <i class="ti ti-chevron-down map-catalog__chev" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="map-catalog__body" id="catalogBody">
+            <div class="word-search" id="wordSearchWrap">
+              <i class="ti ti-search word-search__ico" aria-hidden="true"></i>
+              <input type="search" class="word-search__input" id="wordSearch" placeholder="단어 검색 (예: 강아지, 가을)" autocomplete="off" aria-label="단어 검색">
+              <button type="button" class="word-search__clear" id="wordSearchClear" aria-label="검색어 지우기"><i class="ti ti-x" aria-hidden="true"></i></button>
+            </div>
+            <div class="initials" id="initials" role="tablist" aria-label="초성 필터"></div>
+            <div class="word-grid" id="wordGrid" role="listbox" aria-label="단어 목록"></div>
+          </div>
+        </div>
+
+        <!-- 비교 모드: 선택된 단어 슬롯 + 지도 도구 -->
+        <div class="compare-slots" id="compareSlots" hidden>
+          <span class="compare-slots__label">비교 중</span>
+          <div id="compareSlotChips"></div>
+          <div class="compare-slots__tools">
+            <button class="toolbtn" type="button" id="btnSyncViews" aria-pressed="false" title="모든 지도의 이동·확대를 함께 동기화"><i class="ti ti-arrows-move" aria-hidden="true"></i> 이동 동기화</button>
+            <div class="popwrap">
+              <button class="toolbtn" type="button" id="btnSettings" aria-haspopup="true" aria-expanded="false"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> 지도 설정</button>
+              <div class="popmenu popmenu--up" id="popSettings" hidden>
+                <div class="popmenu__sec">
+                  <div class="popmenu__label">지도 레이어</div>
+                  <label class="mschk"><input type="checkbox" class="mschk__cb" id="ovRivers"> <span class="ovdot" style="background:#3b5bdb"></span> 하천</label>
+                  <label class="mschk"><input type="checkbox" class="mschk__cb" id="ovRail"> <span class="ovdot" style="background:#2f9e44"></span> 철도</label>
+                  <label class="mschk"><input type="checkbox" class="mschk__cb" id="ovRoads"> <span class="ovdot" style="background:#e8590c"></span> 도로</label>
+                  <label class="mschk"><input type="checkbox" class="mschk__cb" id="ovMountains"> <span class="ovdot" style="background:#5f6f6a"></span> 산맥</label>
+                </div>
+                <div class="popmenu__sec">
+                  <div class="popmenu__label">지역명 표시</div>
+                  <label class="mschk"><input type="checkbox" class="mschk__cb" id="lblSido"> 시·도 이름</label>
+                  <label class="mschk"><input type="checkbox" class="mschk__cb" id="lblSigungu"> 시·군·구 이름 <span style="color:#94a3b8;font-weight:600">(확대 시)</span></label>
+                </div>
+                <div class="popmenu__sec">
+                  <div class="popmenu__label">표시 요소</div>
+                  <label class="mschk"><input type="checkbox" class="mschk__cb" id="hideArea"> 면색(분포권) 숨기기</label>
+                </div>
+              </div>
+            </div>
+            <div class="popwrap">
+              <button class="toolbtn" type="button" id="btnDownload" aria-haspopup="true" aria-expanded="false"><i class="ti ti-download" aria-hidden="true"></i> 다운로드</button>
+              <div class="popmenu popmenu--up popmenu--dl" id="popDownload" hidden>
+                <button class="dlmenu__item" type="button" id="dlImage"><i class="ti ti-photo" aria-hidden="true"></i> 화면 이미지 (PNG)</button>
+                <button class="dlmenu__item" type="button" id="dlPdf"><i class="ti ti-file-text" aria-hidden="true"></i> 인쇄·PDF로 저장</button>
+                <div class="dlmenu__note"><i class="ti ti-info-circle" aria-hidden="true"></i> 현재 비교 중인 지도들이 그대로 담깁니다.</div>
+              </div>
+            </div>
+            <button type="button" class="btn btn--outline compare-slots__clear" id="btnClearCompare" hidden>
+              <i class="ti ti-trash" aria-hidden="true"></i> 비교 비우기
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 지도 표시: 뷰포트 전폭 -->
+  <section class="stage" id="stage" aria-label="지역어 지도">
+    <div class="map-panel">
+      <!-- 단일 모드 헤더 -->
+      <header class="map-panel__head single-only" id="singleHead">
+        <h2 class="map-panel__title" id="mapTitle">단어를 고르면 지도가 채워집니다</h2>
+        <p class="map-panel__sub" id="mapSub">색이 같은 지역은 비슷한 말을 씁니다. 지역을 눌러 보세요.</p>
+        <div class="map-panel__hint" id="mapHint" hidden>
+          <i class="ti ti-hand-click" aria-hidden="true"></i>
+          지도의 시·도를 누르면 그 동네 말을 크게 보여 줍니다
+        </div>
+      </header>
+
+      <!-- 단일 지도 -->
+      <div class="map-body single-body" id="singleBody">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-state__icon" aria-hidden="true"><i class="ti ti-map-search"></i></div>
+          <p>아직 지도에 표시할 단어가 없어요</p>
+          <span>위 목록에서 고르거나, 아래 추천 단어로 바로 시작해 보세요</span>
+          <div class="quick-picks" id="quickPicks" aria-label="추천 단어">
+            <span class="quick-picks__label">추천 단어</span>
+            <button type="button" class="qchip" data-word="강아지">강아지</button>
+            <button type="button" class="qchip" data-word="가을">가을</button>
+            <button type="button" class="qchip" data-word="할머니">할머니</button>
+            <button type="button" class="qchip" data-word="고양이">고양이</button>
+            <button type="button" class="qchip" data-word="달걀">달걀</button>
+          </div>
+        </div>
+        <div id="olmap" class="map__ol" tabindex="0" aria-label="대한민국 지역어 분포 지도"></div>
+        <div class="map-ui" aria-label="지도 조작">
+          <button type="button" class="map-ui__btn" id="zoomIn" aria-label="확대">+</button>
+          <button type="button" class="map-ui__btn" id="zoomOut" aria-label="축소">−</button>
+          <button type="button" class="map-ui__btn" id="mapReset" aria-label="처음 위치로" title="처음 위치로"><i class="ti ti-refresh" aria-hidden="true" style="font-size:16px"></i></button>
+        </div>
+      </div>
+
+      <!-- 비교 지도 그리드 -->
+      <div class="compare-body" id="compareBody" aria-label="비교 지도">
+        <div class="compare-grid" id="compareGrid" data-count="0"></div>
+      </div>
+    </div>
+
+    <aside class="side-stack" aria-label="범례 및 상세">
+      <!-- 단일: 범례 -->
+      <div class="side-card single-only" id="sideLegend">
+        <h3 class="side-card__title"><i class="ti ti-palette" style="color:#2563eb" aria-hidden="true"></i> 이 말들</h3>
+        <ul class="legend-list" id="legendList">
+          <li><p class="placeholder-soft">단어를 고르면<br>지도 색과 같은 말로 정리됩니다.</p></li>
+        </ul>
+      </div>
+
+      <!-- 단일: 지역 상세 -->
+      <div class="side-card single-only" id="regionDetail">
+        <h3 class="side-card__title"><i class="ti ti-map-pin" style="color:#2563eb" aria-hidden="true"></i> 고른 지역</h3>
+        <p class="placeholder-soft" id="regionPlaceholder">지도에서 색 있는 시·도를 눌러 보세요.<br>그 동네 말이 크게 표시됩니다.</p>
+        <div id="regionBody" hidden>
+          <div class="region-detail__name" id="rdName">—</div>
+          <p class="region-detail__form" id="rdForm">—</p>
+          <p class="region-detail__std">표준어: <b id="rdStd">—</b></p>
+          <div class="region-detail__actions">
+            <button type="button" class="btn btn--primary" id="btnListen"><i class="ti ti-volume" aria-hidden="true"></i> 발음 듣기</button>
+            <button type="button" class="btn btn--outline" id="btnShare"><i class="ti ti-share" aria-hidden="true"></i> 공유</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 관련 페이지 -->
+      <div class="side-card single-only" id="sideRelated">
+        <h3 class="side-card__title"><i class="ti ti-compass" style="color:#2563eb" aria-hidden="true"></i> 더 알아보기</h3>
+        <a class="side-link" href="./dialect_map.html">
+          <span class="side-link__ico" aria-hidden="true"><i class="ti ti-map-2"></i></span>
+          <span class="side-link__body">
+            <p class="side-link__title">전문가용 지역어 지도</p>
+            <p class="side-link__desc">더 자세한 분포·방언형 탐색</p>
+          </span>
+          <i class="ti ti-chevron-right side-link__arrow" aria-hidden="true"></i>
+        </a>
+      </div>
+    </aside>
+  </section>
+</main>
+
+<div id="footer-common"></div>
+<div class="toast" id="toast" role="status"><i class="ti ti-volume" aria-hidden="true"></i> <span id="toastText"></span></div>
+
+<!-- 공용 지도: OpenLayers + 시·도 경계 + KoreaMap -->
+<script src="https://cdn.jsdelivr.net/npm/ol@v10.9.0/dist/ol.js"></script>
+<!-- 화면 캡처(다운로드/PDF)용 -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="./skorea-provinces.js"></script>
+<script src="./skorea-labels.js"></script>
+<script src="./korea-map.js"></script>
+<script>
+/**
+ * 지역어 지도 비교 — 일반 사용자용 프로토타입
+ * · 최대 4개 단어를 지도로 나란히 비교
+ * 지도: 공용 KoreaMap
+ */
+(function () {
+  const MAX_COMPARE = 4;
+  // ── 지도 표기 가능 단어 (제공 목록) ──
+  const WORDS = [
+    '가위','가을','간장','갈치','갈퀴','감기','강아지','개미','거지','건더기','겨','겨드랑','겨울','곁두리','계집아이','고기','고삐','고양이','고춧가루','곤지곤지','구더기','구레나룻','구멍','구유','귀이개','귀지','귀청','그끄저께','그네','그을음','그저께','글피','기지개','길마','까끄라기','꽹과리','꾸다','꾸러미','냄새','노루','노을','놉','누나','누에','누이','눈두덩','눕히다','다듬잇돌','다르다','다리미','달걀','덤','돌','동풍','돼지','뒤주','딸꾹질','똬리','뚜껑','마루','매달다','매미','멍석','메뚜기','메밀','멱둥구미','모기','모래','모레','모이','목말','무','무릎','무지개','미꾸라지','바위','박쥐','반짇고리','발채','배꼽','뱀','뱀딸기','번데기','벌','벌레','벼','벽','변소','볏가리','보리','복사뼈','부리망','부지깽이','부추','사닥다리','사마귀','사위','삽','새꽤기','새끼','새벽','서풍','세 되','소꿉놀이','쉬슬다','시래기','시렁','시루','쐐기','쓸개','씨아','아궁이','아우','아우 타다','어레미','억새','언니','언제','여우','엿기름','오디','오이','외삼촌','용마름','우박','이엉','입술','자루','자치기','장독대','졸음','쥐불놀이','지렁이','짚신','찌꺼기','콧구멍','콩나물','키','파리','표주박','풀무','하품','할머니','함지','헹구다','혓바늘','형','호미','호미씻이','회오리바람','회충','휘파람','흰자위'
+  ];
+
+  const REGION_META = {
+    jungbu:     { name: '중부 (서울·경기·인천)', short: '중부' },
+    yeongdong:  { name: '강원', short: '강원' },
+    chungcheong:{ name: '충청 (대전·세종 포함)', short: '충청' },
+    yeongbuk:   { name: '경북·대구', short: '경북' },
+    honam:      { name: '호남 (전라·광주)', short: '호남' },
+    yeongnam:   { name: '영남 (경남·부산·울산)', short: '영남' },
+    jeju:       { name: '제주', short: '제주' },
+  };
+  const REGION_ORDER = ['jungbu', 'yeongdong', 'chungcheong', 'yeongbuk', 'honam', 'yeongnam', 'jeju'];
+
+  /** 시·도 이름 → 프로토타입 권역 키 (공용 지도 feature.properties.name 기준) */
+  function provinceToRegion(name) {
+    if (!name) return null;
+    if (/서울|경기|인천/.test(name)) return 'jungbu';
+    if (/강원/.test(name)) return 'yeongdong';
+    if (/충청|대전|세종/.test(name)) return 'chungcheong';
+    if (/경상북|대구/.test(name)) return 'yeongbuk';
+    if (/전라|전북|광주/.test(name)) return 'honam';
+    if (/경상남|부산|울산/.test(name)) return 'yeongnam';
+    if (/제주/.test(name)) return 'jeju';
+    return null; // 북한 등
+  }
+
+  // 팔레트 — 방언형 개수에 따라 순서대로 배정
+  const COLORS = ['#93c5fd', '#86efac', '#fcd34d', '#f9a8d4', '#c4b5fd', '#fdba74', '#67e8f9'];
+
+  // ── 공용 지도 (KoreaMap) ──
+  const MAP_CENTER = [127.8, 38.1];
+  const MAP_ZOOM = 6.4;
+  let olMap = null;
+  let provinceLayer = null;
+
+  /** 비교 슬롯: [{ word, formMap, colors, map, layer, regions, overlays, id }] */
+  let compareSlots = [];
+  let viewMode = 'compare'; // 비교하기 전용 페이지
+  let mapIdSeq = 0;
+
+  /** 지도 설정 상태 — 모든 비교 지도에 공통 적용 (상징 부호 숨기기는 이 페이지에서 미사용) */
+  const mapSettings = {
+    overlays: { rivers: false, rail: false, roads: false, mountains: false },
+    sido: false,
+    sigungu: false,
+    hideArea: false,
+  };
+
+  /** 지도 이동 동기화 상태 */
+  let syncViews = false;
+  let syncingNow = false; // 동기화 전파 중 재귀 방지 플래그
+
+  /**
+   * 대표 단어의 지역별 표현 (프로토타입 샘플)
+   * 실서비스에서는 API/조사 데이터로 대체
+   */
+  const FORMS = {
+    '가위': {
+      jungbu: '가위', yeongdong: '가위', chungcheong: '가위',
+      yeongbuk: '가새', honam: '가위', yeongnam: '가새', jeju: '가위'
+    },
+    '가을': {
+      jungbu: '가을', yeongdong: '가읆', chungcheong: '가을',
+      yeongbuk: '가실', honam: '가을', yeongnam: '가실', jeju: 'ᄀᆞ실'
+    },
+    '강아지': {
+      jungbu: '강아지', yeongdong: '강아지', chungcheong: '강아지',
+      yeongbuk: '갱아지', honam: '강생이', yeongnam: '갱아지', jeju: '강생이'
+    },
+    '고양이': {
+      jungbu: '고양이', yeongdong: '고양이', chungcheong: '고양이',
+      yeongbuk: '고앵이', honam: '괴앙이', yeongnam: '고앵이', jeju: '고냉이'
+    },
+    '달걀': {
+      jungbu: '달걀', yeongdong: '달걀', chungcheong: '달걀',
+      yeongbuk: '닭알', honam: '달걀', yeongnam: '닭알', jeju: '독세기'
+    },
+    '무지개': {
+      jungbu: '무지개', yeongdong: '무지개', chungcheong: '무지개',
+      yeongbuk: '무지개', honam: '무지개', yeongnam: '무지개', jeju: '무지게'
+    },
+    '할머니': {
+      jungbu: '할머니', yeongdong: '할매', chungcheong: '할매',
+      yeongbuk: '할매', honam: '할매', yeongnam: '할매', jeju: '할망'
+    },
+    '돼지': {
+      jungbu: '돼지', yeongdong: '돼지', chungcheong: '돼지',
+      yeongbuk: '도야지', honam: '도야지', yeongnam: '도야지', jeju: '도새기'
+    },
+    '모기': {
+      jungbu: '모기', yeongdong: '모기', chungcheong: '모기',
+      yeongbuk: '모기', honam: '모기', yeongnam: '모기', jeju: '맹개'
+    },
+    '지렁이': {
+      jungbu: '지렁이', yeongdong: '지렁이', chungcheong: '지렁이',
+      yeongbuk: '지렁이', honam: '지렁이', yeongnam: '지렁이', jeju: '지네기'
+    },
+    '휘파람': {
+      jungbu: '휘파람', yeongdong: '휘파람', chungcheong: '휘파람',
+      yeongbuk: '휘파람', honam: '휘파람', yeongnam: '휘파람', jeju: '휘파람'
+    },
+    '아궁이': {
+      jungbu: '아궁이', yeongdong: '아궁이', chungcheong: '아궁이',
+      yeongbuk: '아궁이', honam: '아궁이', yeongnam: '정지', jeju: '부섭'
+    },
+    '간장': {
+      jungbu: '간장', yeongdong: '간장', chungcheong: '간장',
+      yeongbuk: '간장', honam: '간장', yeongnam: '간장', jeju: '간장'
+    },
+    '개미': {
+      jungbu: '개미', yeongdong: '개미', chungcheong: '개미',
+      yeongbuk: '개미', honam: '개미', yeongnam: '개미', jeju: '개미'
+    },
+    '겨울': {
+      jungbu: '겨울', yeongdong: '겨울', chungcheong: '겨울',
+      yeongbuk: '겨울', honam: '겨울', yeongnam: '겨울', jeju: '겨을'
+    },
+  };
+
+  /** 샘플이 없는 단어: 지역 차이를 약간 시뮬레이션 (프로토타입용) */
+  function formsFor(word) {
+    if (FORMS[word]) return { ...FORMS[word] };
+    // 대부분 표준형, 영남·제주만 변형 느낌 (데모)
+    return {
+      jungbu: word,
+      yeongdong: word,
+      chungcheong: word,
+      yeongbuk: word,
+      honam: word,
+      yeongnam: word,
+      jeju: word,
+    };
+  }
+
+  function uniqueForms(map) {
+    const order = [];
+    const seen = new Set();
+    REGION_ORDER.forEach((r) => {
+      const f = map[r];
+      if (!seen.has(f)) { seen.add(f); order.push(f); }
+    });
+    return order;
+  }
+
+  function colorMap(formList) {
+    const m = {};
+    formList.forEach((f, i) => { m[f] = COLORS[i % COLORS.length]; });
+    return m;
+  }
+
+  function regionsOfForm(formMap, form) {
+    return REGION_ORDER
+      .filter((r) => formMap[r] === form)
+      .map((r) => REGION_META[r].short)
+      .join(' · ');
+  }
+
+  // ── DOM ──
+  const legendList = document.getElementById('legendList');
+  const emptyState = document.getElementById('emptyState');
+  const mapTitle = document.getElementById('mapTitle');
+  const mapSub = document.getElementById('mapSub');
+  const mapHint = document.getElementById('mapHint');
+  const regionPlaceholder = document.getElementById('regionPlaceholder');
+  const regionBody = document.getElementById('regionBody');
+  const toast = document.getElementById('toast');
+  const toastText = document.getElementById('toastText');
+  const wordGrid = document.getElementById('wordGrid');
+  const initials = document.getElementById('initials');
+  const mapCatalog = document.getElementById('mapCatalog');
+  const catalogToggle = document.getElementById('catalogToggle');
+
+  let currentWord = null;
+  let currentFormMap = null;
+  let currentColors = null;
+  let selectedRegion = null;
+  let initialFilter = 'ㄱ';
+  let searchQuery = '';
+
+  document.getElementById('wordCountMeta').textContent = `${WORDS.length}개`;
+
+  const compareSlotsEl = document.getElementById('compareSlots');
+  const compareSlotChips = document.getElementById('compareSlotChips');
+  const compareGrid = document.getElementById('compareGrid');
+  const compareHint = document.getElementById('compareHint');
+  const singleHead = document.getElementById('singleHead');
+  const btnClearCompare = document.getElementById('btnClearCompare');
+  const modeHintText = document.getElementById('modeHintText');
+  const compareProgress = document.getElementById('compareProgress');
+  const compareProgressFill = document.getElementById('compareProgressFill');
+  const compareProgressTxt = document.getElementById('compareProgressTxt');
+  const pickLabel = document.getElementById('pickLabel');
+  const wordSearch = document.getElementById('wordSearch');
+  const wordSearchWrap = document.getElementById('wordSearchWrap');
+  const wordSearchClear = document.getElementById('wordSearchClear');
+  const quickPicks = document.getElementById('quickPicks');
+
+  function setCatalogOpen(open) {
+    mapCatalog.classList.toggle('is-open', open);
+    catalogToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    document.getElementById('catalogToggleLabel').textContent = open ? '목록 접기' : '목록 펼치기';
+  }
+
+  catalogToggle.addEventListener('click', () => {
+    setCatalogOpen(!mapCatalog.classList.contains('is-open'));
+  });
+
+  function updateCompareProgress() {
+    if (!compareProgress) return;
+    const n = compareSlots.length;
+    const pct = Math.round((n / MAX_COMPARE) * 100);
+    compareProgress.hidden = viewMode !== 'compare';
+    compareProgressFill.style.width = pct + '%';
+    compareProgressTxt.textContent = `${n}/${MAX_COMPARE}`;
+  }
+
+  function setMode(mode) {
+    viewMode = mode;
+    const isCompare = mode === 'compare';
+    document.body.classList.toggle('is-compare', isCompare);
+    singleHead.hidden = isCompare;
+    compareSlotsEl.hidden = !isCompare;
+    if (modeHintText) {
+      modeHintText.textContent = isCompare
+        ? `최대 ${MAX_COMPARE}개 단어 · 나란히 비교`
+        : '단어 1개 · 자세히 살펴보기';
+    }
+    pickLabel.textContent = isCompare ? '비교에 추가할 단어' : '지도에 올릴 단어';
+    updateCompareProgress();
+
+    if (isCompare) {
+      // 단일에서 고른 단어가 있으면 비교 1번 슬롯으로 시드
+      if (currentWord && !compareSlots.some((s) => s.word === currentWord)) {
+        addCompareWord(currentWord, true);
+      } else {
+        renderCompareUI();
+      }
+      setCatalogOpen(true);
+    } else {
+      destroyAllCompareMaps();
+      compareSlots = [];
+      updateCompareProgress();
+      if (olMap) requestAnimationFrame(() => olMap.updateSize());
+    }
+    renderWordGrid();
+  }
+
+  // 초성
+  function getInitial(ch) {
+    const code = ch.charCodeAt(0);
+    if (code < 0xac00 || code > 0xd7a3) return '기타';
+    const initialsList = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+    return initialsList[Math.floor((code - 0xac00) / 588)] || '기타';
+  }
+
+  const INIT_ORDER = ['전체','ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+  INIT_ORDER.forEach((ini) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'initial' + (ini === 'ㄱ' ? ' is-active' : '');
+    b.textContent = ini;
+    b.dataset.ini = ini === '전체' ? 'all' : ini;
+    b.setAttribute('role', 'tab');
+    initials.appendChild(b);
+  });
+
+  function renderWordGrid() {
+    const compareSet = new Set(compareSlots.map((s) => s.word));
+    const q = searchQuery.trim();
+    const filtered = WORDS.filter((w) => {
+      if (q && !w.includes(q)) return false;
+      if (initialFilter === 'all') return true;
+      const ini = getInitial(w[0]);
+      const map = { 'ㄲ': 'ㄱ', 'ㄸ': 'ㄷ', 'ㅃ': 'ㅂ', 'ㅆ': 'ㅅ', 'ㅉ': 'ㅈ' };
+      const norm = map[ini] || ini;
+      return norm === initialFilter;
+    });
+    if (!filtered.length) {
+      wordGrid.innerHTML = `<div class="word-grid-empty">검색 결과가 없어요. 다른 단어나 초성을 골라 보세요.</div>`;
+      return;
+    }
+    wordGrid.innerHTML = filtered.map((w) => {
+      let cls = 'wbtn';
+      let selected = false;
+      if (viewMode === 'compare') {
+        if (compareSet.has(w)) { cls += ' is-compare is-active'; selected = true; }
+        else if (compareSlots.length >= MAX_COMPARE) cls += ' is-disabled';
+      } else if (w === currentWord) {
+        cls += ' is-active';
+        selected = true;
+      }
+      return `<button type="button" class="${cls}" data-word="${w}" role="option" aria-selected="${selected}">${w}</button>`;
+    }).join('');
+  }
+
+  function syncSearchUI() {
+    if (!wordSearchWrap) return;
+    wordSearchWrap.classList.toggle('has-value', !!searchQuery.trim());
+  }
+
+  if (wordSearch) {
+    wordSearch.addEventListener('input', () => {
+      searchQuery = wordSearch.value || '';
+      syncSearchUI();
+      renderWordGrid();
+    });
+  }
+  if (wordSearchClear) {
+    wordSearchClear.addEventListener('click', () => {
+      searchQuery = '';
+      if (wordSearch) wordSearch.value = '';
+      syncSearchUI();
+      renderWordGrid();
+      wordSearch && wordSearch.focus();
+    });
+  }
+  if (quickPicks) {
+    quickPicks.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-word]');
+      if (!btn) return;
+      selectWord(btn.dataset.word);
+    });
+  }
+
+  function showToast(msg) {
+    toastText.textContent = msg;
+    toast.classList.add('is-show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('is-show'), 2200);
+  }
+
+  function labelPoint(geom) {
+    if (!geom) return null;
+    const type = geom.getType();
+    if (type === 'Polygon') return geom.getInteriorPoint();
+    if (type === 'MultiPolygon') {
+      const polys = geom.getPolygons();
+      let best = polys[0];
+      let bestArea = 0;
+      for (let i = 0; i < polys.length; i++) {
+        const a = polys[i].getArea();
+        if (a > bestArea) { bestArea = a; best = polys[i]; }
+      }
+      return best.getInteriorPoint();
+    }
+    return new ol.geom.Point(ol.extent.getCenter(geom.getExtent()));
+  }
+
+  /** 면색/라벨 스타일 팩토리 (단일·비교 공통) */
+  function makeProvinceStyle(formMap, colors, opts) {
+    opts = opts || {};
+    const showLabel = opts.showLabel !== false;
+    const selRegion = opts.selectedRegion || null;
+    const labelSize = opts.labelSize || 13;
+    const hideArea = !!opts.hideArea;
+    return function provinceStyle(feature) {
+      const name = feature.get('name');
+      const region = provinceToRegion(name);
+      let fill = '#ffffff';
+      let stroke = '#aab6c6';
+      let strokeW = 1;
+
+      if (!region) {
+        fill = '#f1f5f9';
+        stroke = '#e2e8f0';
+      } else if (formMap && colors) {
+        const form = formMap[region];
+        // 면색(분포권) 숨기기: 채움색은 흰색으로, 경계는 보이게 유지
+        fill = hideArea ? '#ffffff' : (colors[form] || '#e2e8f0');
+        if (region === selRegion) {
+          stroke = '#0f172a';
+          strokeW = 2.5;
+        } else if (hideArea) {
+          stroke = '#cbd5e1';
+          strokeW = 1;
+        } else {
+          stroke = '#ffffff';
+          strokeW = 1.2;
+        }
+      }
+
+      const styles = [
+        new ol.style.Style({
+          fill: new ol.style.Fill({ color: fill }),
+          stroke: new ol.style.Stroke({ color: stroke, width: strokeW }),
+        }),
+      ];
+
+      if (showLabel && region && formMap) {
+        const form = formMap[region];
+        const pt = labelPoint(feature.getGeometry());
+        if (pt && form) {
+          styles.push(new ol.style.Style({
+            geometry: pt,
+            text: new ol.style.Text({
+              text: form,
+              font: `700 ${labelSize}px Pretendard, sans-serif`,
+              fill: new ol.style.Fill({ color: '#0f172a' }),
+              stroke: new ol.style.Stroke({ color: 'rgba(255,255,255,0.92)', width: 3.5 }),
+              overflow: true,
+            }),
+          }));
+        }
+      }
+      return styles;
+    };
+  }
+
+  function paintMap() {
+    if (!provinceLayer) return;
+    provinceLayer.setStyle(makeProvinceStyle(currentFormMap, currentColors, {
+      selectedRegion: selectedRegion,
+      showLabel: !!currentWord,
+      labelSize: 13,
+    }));
+    provinceLayer.changed();
+  }
+
+  function createMapOn(targetEl, formMap, colors, options) {
+    options = options || {};
+    if (!window.ol || !ol.Map || !window.KoreaMap || !targetEl) return null;
+
+    const layer = KoreaMap.createBaseLayer({ zIndex: 0, fill: '#ffffff', stroke: '#aab6c6' });
+    const styleFn = makeProvinceStyle(formMap, colors, {
+      showLabel: true,
+      labelSize: options.labelSize || 11,
+      selectedRegion: null,
+      hideArea: mapSettings.hideArea,
+    });
+    if (layer) layer.setStyle(styleFn);
+
+    const map = new ol.Map({
+      target: targetEl,
+      layers: layer ? [layer] : [],
+      view: KoreaMap.createView
+        ? KoreaMap.createView({ center: MAP_CENTER, zoom: options.zoom || MAP_ZOOM })
+        : new ol.View({ center: ol.proj.fromLonLat(MAP_CENTER), zoom: options.zoom || MAP_ZOOM }),
+      controls: [],
+    });
+
+    // 지역명(시·도/시·군·구) 레이어 — 지도 설정에서 토글
+    let regions = null;
+    if (KoreaMap.attachRegionLayers) {
+      regions = KoreaMap.attachRegionLayers(map, {
+        sidoVisible: mapSettings.sido,
+        sigunguVisible: mapSettings.sigungu,
+      });
+      if (regions && regions.labelLayer) regions.labelLayer.setZIndex(6);
+    }
+
+    // 부가 레이어(하천·철도·도로·산맥) — 켜진 항목만 지연 로드
+    let overlays = null;
+    if (KoreaMap.attachOverlays) {
+      overlays = KoreaMap.attachOverlays(map);
+      Object.keys(mapSettings.overlays).forEach((k) => {
+        if (mapSettings.overlays[k]) overlays.show(k, true);
+      });
+    }
+
+    // 이동 동기화: 뷰가 바뀌면 다른 지도로 전파 (syncViews 켜졌을 때만)
+    const view = map.getView();
+    const onViewChange = () => {
+      if (!syncViews || syncingNow) return;
+      syncingNow = true;
+      const c = view.getCenter(), res = view.getResolution(), rot = view.getRotation();
+      compareSlots.forEach((s) => {
+        if (!s.map || s.map === map) return;
+        const v = s.map.getView();
+        v.setCenter(c); v.setResolution(res); v.setRotation(rot);
+      });
+      syncingNow = false;
+    };
+    view.on('change:center', onViewChange);
+    view.on('change:resolution', onViewChange);
+    view.on('change:rotation', onViewChange);
+
+    requestAnimationFrame(() => map.updateSize());
+    return { map, layer, styleFn, regions, overlays };
+  }
+
+  function initKoreaMap() {
+    const target = document.getElementById('olmap');
+    if (!target) return;
+    if (!window.ol || !ol.Map || !window.KoreaMap) {
+      target.style.display = 'flex';
+      target.style.alignItems = 'center';
+      target.style.justifyContent = 'center';
+      target.style.color = '#64748b';
+      target.style.fontWeight = '700';
+      target.style.fontSize = '14px';
+      target.textContent = '지도를 불러올 수 없습니다 (네트워크·스크립트 확인).';
+      return;
+    }
+
+    const created = createMapOn(target, null, null, { withLabels: true, zoom: MAP_ZOOM, labelSize: 13 });
+    if (!created) return;
+    olMap = created.map;
+    provinceLayer = created.layer;
+
+    olMap.on('singleclick', (evt) => {
+      if (!currentWord || !provinceLayer || viewMode !== 'single') return;
+      const feature = olMap.forEachFeatureAtPixel(evt.pixel, (f, layer) => {
+        if (layer === provinceLayer) return f;
+        return null;
+      });
+      if (!feature) return;
+      const region = provinceToRegion(feature.get('name'));
+      if (region) showRegion(region, feature.get('name'));
+    });
+
+    olMap.on('pointermove', (evt) => {
+      if (evt.dragging || viewMode !== 'single') return;
+      const hit = olMap.hasFeatureAtPixel(evt.pixel, {
+        layerFilter: (l) => l === provinceLayer,
+      });
+      olMap.getTargetElement().style.cursor = hit && currentWord ? 'pointer' : '';
+    });
+
+    window.addEventListener('resize', () => {
+      if (olMap) olMap.updateSize();
+      compareSlots.forEach((s) => { if (s.map) s.map.updateSize(); });
+    });
+  }
+
+  // ── 비교 모드 ──
+  function destroySlotMap(slot) {
+    if (slot && slot.map) {
+      slot.map.setTarget(null);
+      slot.map = null;
+      slot.layer = null;
+      slot.regions = null;
+      slot.overlays = null;
+    }
+  }
+
+  function destroyAllCompareMaps() {
+    compareSlots.forEach(destroySlotMap);
+  }
+
+  function addCompareWord(word, silent) {
+    if (!WORDS.includes(word)) return;
+    if (compareSlots.some((s) => s.word === word)) {
+      if (!silent) showToast(`「${word}」는 이미 비교 중이에요`);
+      return;
+    }
+    if (compareSlots.length >= MAX_COMPARE) {
+      showToast(`비교는 최대 ${MAX_COMPARE}개까지 가능해요`);
+      return;
+    }
+    const formMap = formsFor(word);
+    const colors = colorMap(uniqueForms(formMap));
+    compareSlots.push({
+      id: 'c' + (++mapIdSeq),
+      word,
+      formMap,
+      colors,
+      map: null,
+      layer: null,
+    });
+    renderCompareUI();
+    updateCompareProgress();
+    if (!silent) {
+      setCatalogOpen(true);
+      showToast(`「${word}」를 비교에 추가했어요`);
+    }
+  }
+
+  function removeCompareWord(word) {
+    const idx = compareSlots.findIndex((s) => s.word === word);
+    if (idx < 0) return;
+    destroySlotMap(compareSlots[idx]);
+    compareSlots.splice(idx, 1);
+    renderCompareUI();
+    updateCompareProgress();
+    renderWordGrid();
+  }
+
+  function renderCompareUI() {
+    // DOM 재구성 전 지도 인스턴스 정리 (타겟 노드가 사라지므로)
+    compareSlots.forEach((s) => {
+      destroySlotMap(s);
+      s.map = null;
+      s.layer = null;
+    });
+
+    // 상단 칩
+    if (!compareSlots.length) {
+      compareSlotChips.innerHTML = `<span class="slot-empty">목록에서 단어를 골라 추가하세요</span>`;
+    } else {
+      compareSlotChips.innerHTML = compareSlots.map((s, i) => `
+        <span class="slot-chip">
+          <span class="slot-chip__n">${i + 1}</span>
+          ${s.word}
+          <button type="button" class="slot-chip__x" data-remove="${s.word}" aria-label="${s.word} 제거">
+            <i class="ti ti-x" aria-hidden="true"></i>
+          </button>
+        </span>
+      `).join('');
+    }
+
+    // 그리드
+    const n = compareSlots.length;
+    compareGrid.dataset.count = String(n);
+    compareGrid.innerHTML = '';
+
+    compareSlots.forEach((slot, i) => {
+      const card = document.createElement('article');
+      card.className = 'c-card';
+      card.dataset.word = slot.word;
+      card.innerHTML = `
+        <div class="c-card__head">
+          <h3 class="c-card__word"><span class="c-card__badge">${i + 1}</span>${slot.word}</h3>
+          <button type="button" class="c-card__remove" data-remove="${slot.word}" aria-label="제거">
+            <i class="ti ti-x" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="c-card__map"><div class="map__ol" id="cmap-${slot.id}"></div></div>
+        <div class="c-card__legend" id="cleg-${slot.id}"></div>
+      `;
+      compareGrid.appendChild(card);
+
+      // mini legend pills
+      const forms = uniqueForms(slot.formMap);
+      const leg = card.querySelector(`#cleg-${slot.id}`);
+      if (forms.length <= 1) {
+        leg.innerHTML = `<span class="c-card__empty-leg">지역 차이가 적거나 샘플이 같아요</span>`;
+      } else {
+        leg.innerHTML = forms.map((f) =>
+          `<span class="c-pill"><i class="c-pill__dot" style="background:${slot.colors[f]}"></i>${f}</span>`
+        ).join('');
+      }
+    });
+
+    // 열 수(data-count) = 실제 지도 수. CSS가 1~4열 레이아웃에 사용
+    compareGrid.dataset.count = String(n);
+
+    // 안내: 단어가 없으면 시작 안내, 1~3개면 "더 추가" 힌트 노출
+    if (!n) {
+      compareGrid.innerHTML = `
+        <div class="compare-empty">
+          <i class="ti ti-map-search" aria-hidden="true"></i>
+          <p>비교할 단어를 골라 주세요</p>
+          <span>위 목록에서 단어를 누르면 여기에 비교 지도가 생겨요 · 최대 ${MAX_COMPARE}개</span>
+        </div>`;
+    }
+    if (compareHint) compareHint.hidden = !(n >= 1 && n < MAX_COMPARE);
+
+    if (btnClearCompare) btnClearCompare.hidden = !compareSlots.length;
+
+    // 지도 lazy init (DOM 붙인 뒤)
+    requestAnimationFrame(() => {
+      compareSlots.forEach((slot) => {
+        const el = document.getElementById('cmap-' + slot.id);
+        if (!el) return;
+        const created = createMapOn(el, slot.formMap, slot.colors, {
+          withLabels: false,
+          zoom: 6.2,
+          labelSize: 11,
+        });
+        if (created) {
+          slot.map = created.map;
+          slot.layer = created.layer;
+          slot.regions = created.regions;
+          slot.overlays = created.overlays;
+        }
+      });
+    });
+
+    renderWordGrid();
+  }
+
+  compareSlotChips.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-remove]');
+    if (btn) removeCompareWord(btn.dataset.remove);
+  });
+
+  compareGrid.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-remove]');
+    if (btn) removeCompareWord(btn.dataset.remove);
+  });
+
+  btnClearCompare.addEventListener('click', () => {
+    destroyAllCompareMaps();
+    compareSlots = [];
+    renderCompareUI();
+    updateCompareProgress();
+    showToast('비교를 비웠어요');
+  });
+
+  function zoomBy(delta) {
+    if (!olMap) return;
+    const view = olMap.getView();
+    const z = view.getZoom();
+    if (z == null) return;
+    view.animate({ zoom: z + delta, duration: 200 });
+  }
+
+  function resetMapView() {
+    if (!olMap) return;
+    olMap.getView().animate({
+      center: ol.proj.fromLonLat(MAP_CENTER),
+      zoom: MAP_ZOOM,
+      duration: 250,
+    });
+  }
+
+  function renderLegend(formMap, colors) {
+    const forms = uniqueForms(formMap);
+    const hasVariation = forms.length > 1;
+    legendList.innerHTML = forms.map((f, i) => `
+      <li>
+        <button type="button" class="legend-item" data-form="${f}">
+          <span class="legend-swatch" style="background:${colors[f]}"></span>
+          <span class="legend-word">${f}
+            <span class="legend-where">${regionsOfForm(formMap, f)}</span>
+          </span>
+          <span class="legend-play" data-play="${f}" title="발음 듣기"><i class="ti ti-volume" aria-hidden="true"></i></span>
+        </button>
+      </li>
+    `).join('');
+    if (!hasVariation) {
+      const note = document.createElement('p');
+      note.className = 'placeholder-soft';
+      note.style.marginTop = '8px';
+      note.textContent = '이 단어는 지역 차이가 적거나, 프로토타입에 상세 분포 샘플이 없습니다. 전문가용 지도에서 확인해 보세요.';
+      legendList.appendChild(note);
+    }
+  }
+
+  function showRegion(regionKey, provinceName) {
+    if (!currentFormMap || !regionKey) return;
+    selectedRegion = regionKey;
+    paintMap();
+    regionPlaceholder.hidden = true;
+    regionBody.hidden = false;
+    const meta = REGION_META[regionKey];
+    document.getElementById('rdName').textContent = provinceName
+      ? `${provinceName} · ${meta.short}`
+      : meta.name;
+    document.getElementById('rdForm').textContent = currentFormMap[regionKey];
+    document.getElementById('rdStd').textContent = currentWord;
+  }
+
+  function selectWord(word) {
+    if (!WORDS.includes(word)) {
+      showToast(`「${word}」는 지도 표기 가능 단어가 아닙니다`);
+      return;
+    }
+
+    // 비교 모드: 슬롯에 추가 / 토글 제거
+    if (viewMode === 'compare') {
+      if (compareSlots.some((s) => s.word === word)) {
+        removeCompareWord(word);
+        return;
+      }
+      addCompareWord(word);
+      return;
+    }
+
+    currentWord = word;
+    selectedRegion = null;
+    currentFormMap = formsFor(word);
+    const forms = uniqueForms(currentFormMap);
+    currentColors = colorMap(forms);
+
+    emptyState.classList.add('is-hidden');
+    mapHint.hidden = false;
+
+    const variation = forms.length > 1;
+    mapTitle.innerHTML = variation
+      ? `「<b>${word}</b>」를 지역마다 이렇게 불러요`
+      : `「<b>${word}</b>」— 지도로 보기`;
+    mapSub.textContent = variation
+      ? `서로 다른 말 ${forms.length}가지가 보여요. 색이 같은 곳은 같은 표현입니다.`
+      : '프로토타입 샘플 기준입니다. 지역 차이가 적거나 상세 샘플이 없을 수 있어요.';
+
+    paintMap();
+    renderLegend(currentFormMap, currentColors);
+    renderWordGrid();
+
+    regionPlaceholder.hidden = false;
+    regionPlaceholder.textContent = '지도에서 색 있는 시·도를 눌러 보세요.';
+    regionBody.hidden = true;
+
+    setCatalogOpen(false);
+    if (olMap) requestAnimationFrame(() => olMap.updateSize());
+  }
+
+  wordGrid.addEventListener('click', (e) => {
+    const btn = e.target.closest('.wbtn');
+    if (!btn || btn.classList.contains('is-disabled')) return;
+    selectWord(btn.dataset.word);
+  });
+
+  initials.addEventListener('click', (e) => {
+    const btn = e.target.closest('.initial');
+    if (!btn) return;
+    initialFilter = btn.dataset.ini;
+    initials.querySelectorAll('.initial').forEach((b) => b.classList.toggle('is-active', b === btn));
+    renderWordGrid();
+  });
+
+  // 범례
+  legendList.addEventListener('click', (e) => {
+    const play = e.target.closest('[data-play]');
+    if (play) {
+      e.preventDefault();
+      showToast(`「${play.dataset.play}」 발음 듣기 (프로토타입 · 음성 미연동)`);
+      return;
+    }
+    const item = e.target.closest('.legend-item');
+    if (!item || !currentFormMap) return;
+    const form = item.dataset.form;
+    const reg = REGION_ORDER.find((r) => currentFormMap[r] === form);
+    if (reg) showRegion(reg);
+    legendList.querySelectorAll('.legend-item').forEach((el) => {
+      el.classList.toggle('is-active', el.dataset.form === form);
+    });
+  });
+
+  document.getElementById('zoomIn').addEventListener('click', () => zoomBy(1));
+  document.getElementById('zoomOut').addEventListener('click', () => zoomBy(-1));
+  document.getElementById('mapReset').addEventListener('click', resetMapView);
+
+  document.getElementById('btnListen').addEventListener('click', () => {
+    const form = document.getElementById('rdForm').textContent;
+    showToast(`「${form}」 발음 듣기 (프로토타입 · 음성 미연동)`);
+  });
+
+  document.getElementById('btnShare').addEventListener('click', () => {
+    const name = document.getElementById('rdName').textContent;
+    const form = document.getElementById('rdForm').textContent;
+    const text = `[지역어 지도 비교] ${name}에서는 「${currentWord}」를 「${form}」라고 해요. — 국립국어원`;
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(() => showToast('공유 문장을 복사했어요'));
+    } else showToast(text);
+  });
+
+  // ── 지도 설정 (모든 비교 지도에 공통 적용) ──
+  function eachSlotMap(cb) {
+    compareSlots.forEach((s) => { if (s.map) cb(s); });
+  }
+
+  function applyOverlay(key, on) {
+    mapSettings.overlays[key] = on;
+    eachSlotMap((s) => { if (s.overlays) s.overlays.show(key, on); });
+  }
+  function applySido(on) {
+    mapSettings.sido = on;
+    eachSlotMap((s) => { if (s.regions) s.regions.showSido(on); });
+  }
+  function applySigungu(on) {
+    mapSettings.sigungu = on;
+    eachSlotMap((s) => { if (s.regions) s.regions.showSigungu(on); });
+  }
+  function applyHideArea(hide) {
+    mapSettings.hideArea = hide;
+    eachSlotMap((s) => {
+      if (!s.layer) return;
+      s.layer.setStyle(makeProvinceStyle(s.formMap, s.colors, {
+        showLabel: true, labelSize: 11, hideArea: hide,
+      }));
+      s.layer.changed();
+    });
+  }
+
+  [['ovRivers', 'rivers'], ['ovRail', 'rail'], ['ovRoads', 'roads'], ['ovMountains', 'mountains']].forEach((pair) => {
+    const el = document.getElementById(pair[0]);
+    if (el) el.addEventListener('change', function () { applyOverlay(pair[1], this.checked); });
+  });
+  const elSido = document.getElementById('lblSido');
+  if (elSido) elSido.addEventListener('change', function () { applySido(this.checked); });
+  const elSigungu = document.getElementById('lblSigungu');
+  if (elSigungu) elSigungu.addEventListener('change', function () { applySigungu(this.checked); });
+  const elHideArea = document.getElementById('hideArea');
+  if (elHideArea) elHideArea.addEventListener('change', function () { applyHideArea(this.checked); });
+
+  // 팝오버 열고 닫기 (지도 설정 / 다운로드)
+  function bindPop(btnId, popId) {
+    const btn = document.getElementById(btnId);
+    const pop = document.getElementById(popId);
+    if (!btn || !pop) return;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = pop.hidden;
+      document.querySelectorAll('.popmenu').forEach((p) => { p.hidden = true; });
+      pop.hidden = !willOpen;
+      btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    });
+    pop.addEventListener('click', (e) => e.stopPropagation());
+  }
+  bindPop('btnSettings', 'popSettings');
+  bindPop('btnDownload', 'popDownload');
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.popmenu').forEach((p) => { p.hidden = true; });
+    document.querySelectorAll('[aria-haspopup="true"]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+  });
+
+  // ── 지도 이동 동기화 ──
+  const btnSyncViews = document.getElementById('btnSyncViews');
+  function setSyncViews(on) {
+    syncViews = on;
+    if (btnSyncViews) {
+      btnSyncViews.classList.toggle('is-active', on);
+      btnSyncViews.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+    if (on) {
+      // 켤 때 모든 지도를 첫 지도의 시점으로 맞춘다
+      const first = compareSlots.find((s) => s.map);
+      if (first) {
+        const v0 = first.map.getView();
+        const c = v0.getCenter(), res = v0.getResolution(), rot = v0.getRotation();
+        syncingNow = true;
+        compareSlots.forEach((s) => {
+          if (!s.map || s.map === first.map) return;
+          const v = s.map.getView();
+          v.setCenter(c); v.setResolution(res); v.setRotation(rot);
+        });
+        syncingNow = false;
+      }
+    }
+  }
+  if (btnSyncViews) btnSyncViews.addEventListener('click', () => {
+    setSyncViews(!syncViews);
+    showToast(syncViews ? '지도 이동을 동기화했어요' : '지도 이동 동기화를 껐어요');
+  });
+
+  // ── 화면 다운로드 (PNG / 인쇄·PDF) ──
+  function captureCompare(cb) {
+    const target = document.getElementById('compareGrid');
+    if (!target || !compareSlots.some((s) => s.map)) {
+      showToast('내려받을 지도가 없어요. 단어를 먼저 골라 주세요.');
+      return;
+    }
+    if (typeof html2canvas !== 'function') {
+      showToast('캡처 모듈을 불러오지 못했어요 (네트워크 확인).');
+      return;
+    }
+    // OL 지도들을 먼저 렌더 동기화
+    compareSlots.forEach((s) => { if (s.map) s.map.renderSync(); });
+    document.body.classList.add('is-capturing');
+    html2canvas(target, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true,
+      logging: false,
+    }).then((canvas) => {
+      document.body.classList.remove('is-capturing');
+      cb(canvas);
+    }).catch(() => {
+      document.body.classList.remove('is-capturing');
+      showToast('이미지를 만들지 못했어요. 다시 시도해 주세요.');
+    });
+  }
+
+  function triggerDownload(href, filename) {
+    const a = document.createElement('a');
+    a.href = href;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  const elDlImage = document.getElementById('dlImage');
+  if (elDlImage) elDlImage.addEventListener('click', () => {
+    captureCompare((canvas) => {
+      const words = compareSlots.map((s) => s.word).join('-') || '비교';
+      triggerDownload(canvas.toDataURL('image/png'), `우리동네말_${words}.png`);
+      showToast('이미지를 저장했어요');
+    });
+  });
+
+  const elDlPdf = document.getElementById('dlPdf');
+  if (elDlPdf) elDlPdf.addEventListener('click', () => {
+    captureCompare((canvas) => {
+      const url = canvas.toDataURL('image/png');
+      const w = window.open('', '_blank');
+      if (!w) { showToast('팝업이 차단되어 PDF 저장 창을 열 수 없어요.'); return; }
+      const words = compareSlots.map((s) => s.word).join(', ');
+      w.document.write(
+        '<html><head><title>지역어 지도 비교 · ' + words + '</title>' +
+        '<style>@page{margin:12mm;} body{margin:0;} img{width:100%;}</style></head>' +
+        '<body><img src="' + url + '" onload="setTimeout(function(){window.focus();window.print();},300)"></body></html>'
+      );
+      w.document.close();
+    });
+  });
+
+  // init — 비교하기 전용
+  initKoreaMap();
+  setMode('compare');
+  renderWordGrid();
+
+  // URL ?word= 지원
+  const params = new URLSearchParams(location.search);
+  const w = params.get('word');
+  if (w && WORDS.includes(w)) selectWord(w);
+})();
+</script>
+</body>
+</html>

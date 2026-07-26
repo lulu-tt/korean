@@ -175,6 +175,39 @@ body {
   min-height: 0; /* flex item이 콘텐츠 높이 아래로 못 줄어드는 문제 방지 */
   flex-shrink: 0;
 }
+/* 영상 썸네일 (부채 공예 등) — 이미지 배경과 동일하게 cover */
+.rc-cat__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+  background: #0f172a;
+}
+.rc-cat__media-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.3) 0%, rgba(15, 23, 42, 0.7) 100%);
+}
+.rc-cat__media > .rc-cat__scrap,
+.rc-cat__media > .rc-cat__count-badge {
+  z-index: 2;
+}
+.rc-cat__media > .rc-cat__hero-body {
+  position: relative;
+  z-index: 2;
+}
+.rc-cat__thumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
 .rc-cat:hover .rc-cat__media, .rc-cat.is-hover .rc-cat__media {
   height: 68%; /* 호버 시 68%로 축소 */
 }
@@ -436,11 +469,11 @@ const THEMES = [
 ];
 
 const CATEGORIES = [
-  { id:'tteok',    name:'떡류',         emoji:'🍡', theme:'food',  accent:'#f43f5e', img:'200911310.jpg',   region:'전국',        desc:'집집마다, 고을마다 다르게 부르던 갖가지 떡의 이름' },
+  { id:'tteok',    name:'떡류',         emoji:'🍡', theme:'food',  accent:'#f43f5e', img:'200911310.jpg', video:'tteok.mp4', region:'전국',        desc:'집집마다, 고을마다 다르게 부르던 갖가지 떡의 이름' },
   { id:'kimchi',   name:'김치·저장음식', emoji:'🥬', theme:'food',  accent:'#10b981', img:'200811853.jpg',   region:'전라·경상',   desc:'긴 겨울을 나기 위해 담그던 김치와 짠지의 방언' },
   { id:'root',     name:'구황작물',      emoji:'🥔', theme:'food',  accent:'#f59e0b', img:'200911311-1.jpg', region:'제주·강원',   desc:'배고픈 시절을 견디게 해 준 감자와 그 별칭들' },
   { id:'field',    name:'밭작물',        emoji:'🌱', theme:'food',  accent:'#06b6d4', img:'200811821.jpg',   region:'남부 지방',   desc:'밭에서 거두던 콩과 채소를 이르던 여러 이름' },
-  { id:'buchae',   name:'부채 공예',     emoji:'🪭', theme:'craft', accent:'#3b82f6', img:'200710306.jpg',   region:'전라·경상',   desc:'바람을 만들던 장인의 손끝에서 나온 부채' },
+  { id:'buchae',   name:'부채 공예',     emoji:'🪭', theme:'craft', accent:'#3b82f6', img:'200710306.jpg', video:'buchae-craft.mp4', region:'전라·경상',   desc:'바람을 만들던 장인의 손끝에서 나온 부채' },
   { id:'jangseok', name:'장석 공예',     emoji:'🔩', theme:'craft', accent:'#8b5cf6', img:'200805001-1.jpg', region:'경기·서울',   desc:'가구를 화려하게 꾸미던 금속 장식, 두석' },
   { id:'nongak',   name:'농악기',        emoji:'🥁', theme:'folk',  accent:'#f97316', img:'200704347.jpg',   region:'경상·전라',   desc:'마을 굿과 두레를 울리던 풍물 악기의 이름' },
   { id:'weapon',   name:'전통 무기',     emoji:'⚔️', theme:'work',  accent:'#ef4444', img:'200908015.jpg',   region:'서울·경기',   desc:'옛 칼과 검, 그 부분마다 붙은 이름들' },
@@ -540,6 +573,15 @@ function filteredCategories() {
   });
 }
 
+function mediaThumbHTML(src, alt, isVideo) {
+  if (isVideo) {
+    return `<video muted loop playsinline autoplay preload="metadata" aria-hidden="true">
+      <source src="${IMG}${src}" type="video/mp4">
+    </video>`;
+  }
+  return `<img src="${IMG}${src}" alt="${alt}">`;
+}
+
 function catCardHTML(c, i) {
   const items = getItems(c.id);
   const subImgs = [];
@@ -550,11 +592,27 @@ function catCardHTML(c, i) {
     subImgs.push(c.img);
   }
   const previewImgs = subImgs.slice(0, 3);
+  const hasVideo = !!c.video;
+  // 영상 카드: video 요소 + 그라데이션 셰이드 / 이미지 카드: CSS background
+  const mediaBg = hasVideo
+    ? ''
+    : ` style="background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.3) 0%, rgba(15, 23, 42, 0.7) 100%), url('${IMG}${c.img}');"`;
+  const mediaVideo = hasVideo
+    ? `<video class="rc-cat__video" muted loop playsinline autoplay preload="metadata" poster="${IMG}${c.img}" aria-hidden="true">
+        <source src="${IMG}${c.video}" type="video/mp4">
+      </video>
+      <div class="rc-cat__media-shade" aria-hidden="true"></div>`
+    : '';
+  // 호버 미리보기: 영상이 있으면 첫 칸에 루프 재생
+  const thumb0 = hasVideo
+    ? mediaThumbHTML(c.video, '미리보기 1', true)
+    : mediaThumbHTML(previewImgs[0], '미리보기 1', false);
 
   return `
-    <div class="rc-cat" role="button" tabindex="0" onclick="location.href='./region_culture_list.html?cat=${c.id}'" style="animation-delay:${(i % PAGE) * 55}ms" aria-label="${c.name} 분류 열기">
-      <!-- 상단 영역: 이미지 배경 카드뉴스형 구조 -->
-      <div class="rc-cat__media" style="background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.3) 0%, rgba(15, 23, 42, 0.7) 100%), url('${IMG}${c.img}');">
+    <div class="rc-cat" role="button" tabindex="0" data-cat="${c.id}" onclick="location.href='./region_culture_list.html?cat=${c.id}'" style="animation-delay:${(i % PAGE) * 55}ms" aria-label="${c.name} 분류 열기">
+      <!-- 상단 영역: 이미지/영상 배경 카드뉴스형 구조 -->
+      <div class="rc-cat__media"${mediaBg}>
+        ${mediaVideo}
         <button type="button" class="rc-cat__scrap" aria-label="스크랩" onclick="event.stopPropagation();"><i class="ti ti-bookmark"></i></button>
         <div class="rc-cat__count-badge">+${items.length}</div>
         <div class="rc-cat__hero-body">
@@ -571,7 +629,7 @@ function catCardHTML(c, i) {
       <!-- 하단 숨겨진 호버 썸네일 미리보기 영역 -->
       <div class="rc-cat__hover-area">
         <div class="rc-cat__hover-inner">
-          <div class="rc-cat__thumb"><img src="${IMG}${previewImgs[0]}" alt="미리보기 1"></div>
+          <div class="rc-cat__thumb">${thumb0}</div>
           <div class="rc-cat__thumb"><img src="${IMG}${previewImgs[1]}" alt="미리보기 2"></div>
           <div class="rc-cat__thumb rc-cat__thumb--cta">
             <img src="${IMG}${previewImgs[2]}" alt="미리보기 3">

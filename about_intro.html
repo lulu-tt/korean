@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>지역어종합정보 — 사업 소개</title>
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="./styles.css">
+<link rel="stylesheet" href="./about.css">
+<script src="./gnb.js" defer></script>
+<script src="./share.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+  /* ===== 공통 타이틀 영역(sub-visual) : 기존 사이트와 동일 ===== */
+  .sub-visual{background:linear-gradient(180deg,#edf4ff 0%,#f8fafc 100%);border-bottom:1px solid #e2e8f0;padding:55px 0 50px;text-align:center;position:relative;overflow:visible;display:block;min-height:180px;}
+  .sub-visual::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(37,99,235,.03) 0%,transparent 40%);pointer-events:none;}
+  .sv-title{font-size:30px;font-weight:800;color:#1e3a8a;letter-spacing:-.03em;margin:0 0 16px;position:relative;z-index:1;}
+  .location-bar{display:inline-flex;align-items:center;gap:8px;background:#fff;padding:6px 20px;border-radius:99px;box-shadow:0 2px 8px rgba(15,23,42,.02);border:1px solid #cbd5e1;position:relative;z-index:1;}
+  .loc-item{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#475569;}
+  .loc-item.home{color:#3b82f6;font-size:14px;}
+  .loc-item select{border:none;background:transparent;font-size:13px;font-weight:600;color:#334155;padding:0 16px 0 0;cursor:pointer;appearance:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right center;font-family:inherit;}
+  .loc-item select:focus{outline:none;box-shadow:none;}
+  .loc-sep{color:#cbd5e1;font-size:12px;}
+
+  /* =====================================================================
+     사업 소개 전용 : Garden 스타일 (풀블리드 이미지 · 패럴렉스 · 넉넉한 여백)
+     - 이 페이지에서만 사용하며 다른 about_* 페이지에는 영향 없음.
+     ===================================================================== */
+  .garden{
+    --ink:#221F1A; --ink-soft:#544E45; --ink-mute:#8A8172;
+    --jade:#15545C; --jade-deep:#0E3B41; --ochre:#A9772B;
+    --paper:#EFEADD; --panel:#F6F3EC; --line:#E4DECF;
+    /* 폰트: 조사 현황(about_coverage.html)과 동일 — 시스템 폰트 스택 + 제목은 Georgia/Noto Serif KR 명조 */
+    --sys:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",system-ui,"Noto Sans KR",sans-serif;
+    --serif:Georgia,"Noto Serif KR","Apple SD Gothic Neo",serif;
+    --sans:var(--sys); --mono:var(--sys);
+    background:#fff; color:var(--ink); font-family:var(--sans); font-weight:400; line-height:1.8;
+    -webkit-font-smoothing:antialiased; overflow:hidden;
+  }
+  .garden *{box-sizing:border-box;}
+  /* 세리프 특유의 무게감을 잃지 않도록 주요 제목·숫자 굵기 보강 (조사 현황 페이지와 동일 방식) */
+  .garden .g-hero__title,.garden .g-narrate__h,.garden .g-values__head h3,
+  .garden .g-band__inner h3,.garden .g-explore__head h3,.garden .g-stat .n{font-weight:700;letter-spacing:-.01em;}
+  .garden .g-val h4,.garden .g-card h4{font-weight:600;}
+  .garden .g-wrap{max-width:1280px;margin:0 auto;padding:0 40px;}
+  /* 좁은 텍스트 블록(철학·설명문)은 넓어진 폭에서도 가독 폭을 유지 */
+  .garden .g-narrate .g-wrap{max-width:1080px;}
+
+  .garden .g-eyebrow{font-family:var(--sans);font-size:.95rem;font-weight:500;letter-spacing:.18em;color:var(--jade);}
+  .garden .g-eyebrow.light{color:rgba(255,255,255,.82);}
+
+  /* ---------- 패럴렉스 공통 (background-attachment:fixed) ---------- */
+  .garden .para{background-size:cover;background-position:center;background-repeat:no-repeat;background-attachment:fixed;}
+
+  /* ---------- 히어로 ---------- */
+  .garden .g-hero{position:relative;min-height:86vh;display:flex;align-items:center;justify-content:center;text-align:center;}
+  .garden .g-hero__veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,32,34,.30) 0%,rgba(14,32,34,.42) 55%,rgba(14,32,34,.72) 100%);}
+  .garden .g-hero__inner{position:relative;z-index:2;padding:0 28px;color:#fff;will-change:transform;}
+  .garden .g-hero__inner .g-eyebrow{display:block;margin-bottom:26px;}
+  .garden .g-hero__title{font-family:var(--serif);font-weight:400;font-size:clamp(2.8rem,6vw,5rem);line-height:1.12;letter-spacing:-.01em;margin:0 0 24px;text-shadow:0 2px 30px rgba(0,0,0,.28);}
+  .garden .g-hero__lead{font-size:clamp(1.05rem,2vw,1.35rem);color:rgba(255,255,255,.9);font-weight:500;max-width:40ch;margin:0 auto;}
+  .garden .g-scroll{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);z-index:2;font-family:var(--sans);font-size:.85rem;letter-spacing:.22em;color:rgba(255,255,255,.75);display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .garden .g-scroll::after{content:"";width:1px;height:44px;background:linear-gradient(rgba(255,255,255,.75),rgba(255,255,255,0));animation:scrolldrop 2.2s ease-in-out infinite;}
+  @keyframes scrolldrop{0%{opacity:0;transform:scaleY(.2);transform-origin:top;}45%{opacity:1;transform:scaleY(1);transform-origin:top;}100%{opacity:0;transform:scaleY(1);transform-origin:bottom;}}
+
+  /* ---------- 내러티브(철학) ---------- */
+  .garden .g-narrate{text-align:center;padding:130px 0;}
+  .garden .g-narrate .g-eyebrow{display:block;margin-bottom:30px;}
+  .garden .g-narrate__h{font-family:var(--serif);font-weight:400;font-size:clamp(1.9rem,4vw,3rem);line-height:1.35;letter-spacing:-.01em;color:var(--ink);margin:0 auto 34px;max-width:24ch;}
+  .garden .g-narrate__h em{font-style:normal;color:var(--jade);}
+  .garden .g-narrate__p{font-size:1.05rem;color:var(--ink-soft);max-width:60ch;margin:0 auto;}
+  .garden .g-rule{width:44px;height:1px;background:var(--ochre);margin:0 auto 30px;}
+
+  /* ---------- 가치 카드 01–04 ---------- */
+  .garden .g-values{padding:40px 0 130px;}
+  .garden .g-values__head{text-align:center;margin-bottom:70px;}
+  .garden .g-values__head .g-eyebrow{display:block;margin-bottom:20px;}
+  .garden .g-values__head h3{font-family:var(--serif);font-weight:400;font-size:clamp(1.7rem,3.4vw,2.4rem);color:var(--ink);margin:0;}
+  .garden .g-values__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--line);border-left:1px solid var(--line);}
+  .garden .g-val{padding:44px 30px 50px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);position:relative;transition:background .3s ease;}
+  .garden .g-val:hover{background:var(--panel);}
+  .garden .g-val__num{font-family:var(--mono);font-size:.95rem;letter-spacing:.14em;color:var(--ochre);}
+  .garden .g-val__ic{margin:22px 0 20px;font-size:2rem;color:var(--jade);line-height:1;}
+  .garden .g-val h4{font-family:var(--serif);font-weight:400;font-size:1.4rem;color:var(--ink);margin:0 0 14px;}
+  .garden .g-val p{font-size:1rem;color:var(--ink-soft);margin:0;}
+
+  /* ---------- 패럴렉스 통계 밴드 ---------- */
+  .garden .g-band{position:relative;padding:130px 0;color:#fff;}
+  .garden .g-band__veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,32,34,.62),rgba(14,32,34,.78));}
+  .garden .g-band__inner{position:relative;z-index:2;text-align:center;}
+  .garden .g-band__inner .g-eyebrow{display:block;margin-bottom:16px;}
+  .garden .g-band__inner h3{font-family:var(--serif);font-weight:400;font-size:clamp(1.8rem,3.6vw,2.6rem);margin:0 0 64px;letter-spacing:-.01em;}
+  .garden .g-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;max-width:1100px;margin:0 auto;}
+  .garden .g-stat{padding:0 18px;border-right:1px solid rgba(255,255,255,.18);}
+  .garden .g-stat:last-child{border-right:none;}
+  .garden .g-stat .n{font-family:var(--serif);font-weight:400;font-size:clamp(2.2rem,4.4vw,3.2rem);line-height:1;letter-spacing:-.02em;}
+  .garden .g-stat .n small{font-size:1rem;font-family:var(--sans);}
+  .garden .g-stat .l{margin-top:16px;font-size:.92rem;color:rgba(255,255,255,.82);line-height:1.55;}
+
+  /* ---------- 더 살펴보기 카드 ---------- */
+  .garden .g-explore{padding:130px 0;}
+  .garden .g-explore__head{text-align:center;margin-bottom:60px;}
+  .garden .g-explore__head .g-eyebrow{display:block;margin-bottom:20px;}
+  .garden .g-explore__head h3{font-family:var(--serif);font-weight:400;font-size:clamp(1.7rem,3.4vw,2.4rem);color:var(--ink);margin:0;}
+  .garden .g-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .garden .g-card{display:flex;flex-direction:column;text-decoration:none;color:inherit;padding:38px 32px 34px;border:1px solid var(--line);background:#fff;transition:transform .35s ease,box-shadow .35s ease,border-color .35s ease;}
+  .garden .g-card:hover{transform:translateY(-6px);box-shadow:0 24px 50px -28px rgba(14,32,34,.45);border-color:var(--jade);}
+  .garden .g-card .k{font-family:var(--sans);font-size:.88rem;font-weight:500;letter-spacing:.1em;color:var(--ochre);}
+  .garden .g-card h4{font-family:var(--serif);font-weight:400;font-size:1.55rem;color:var(--ink);margin:16px 0 12px;}
+  .garden .g-card p{font-size:1rem;color:var(--ink-soft);flex:1;margin:0;}
+  .garden .g-card .go{margin-top:24px;font-family:var(--sans);font-size:.92rem;font-weight:500;letter-spacing:.04em;color:var(--jade);display:inline-flex;align-items:center;gap:8px;}
+  .garden .g-card:hover .go i{transform:translateX(5px);}
+  .garden .g-card .go i{transition:transform .3s ease;}
+
+  /* ---------- 등장 애니메이션 ---------- */
+  .garden .reveal{opacity:0;transform:translateY(34px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1);}
+  .garden .reveal.in{opacity:1;transform:none;}
+  .garden .reveal.d1{transition-delay:.1s;}
+  .garden .reveal.d2{transition-delay:.2s;}
+  .garden .reveal.d3{transition-delay:.3s;}
+
+  @media(max-width:1000px){
+    .garden .g-values__grid{grid-template-columns:repeat(2,1fr);}
+    .garden .g-cards{grid-template-columns:1fr;}
+    .garden .g-stats{grid-template-columns:repeat(5,1fr);}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .garden .para{background-attachment:scroll;}
+    .garden .reveal{opacity:1;transform:none;transition:none;}
+    .garden .g-scroll::after{animation:none;}
+  }
+</style>
+</head>
+<body>
+
+<div id="gnb-common"></div>
+
+<!-- ===== 공통 타이틀 영역 ===== -->
+<div class="sub-visual">
+  <div class="wrap">
+    <h1 class="sv-title">사업 소개</h1>
+    <div class="location-bar">
+      <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer;" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select onchange="if(this.value) location.href=this.value;">
+          <option value="./about_intro.html" selected>누리집소개</option>
+          <option value="./dialect_search_prototype.html">지역어 검색</option>
+          <option value="./dialect_map.html">지역어 지도</option>
+          <option value="./notice.html">알림마당</option>
+        </select>
+      </div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select onchange="if(this.value) location.href=this.value;">
+          <option value="./about_intro.html" selected>사업 소개</option>
+          <option value="./about_history.html">사업 연혁</option>
+          <option value="./about_coverage.html">조사 현황</option>
+          <option value="./about_related.html">연계 사업</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 본문 영역 (Garden 스타일 · 패럴렉스) ===== -->
+<main class="garden">
+
+  <!-- 히어로 : 자연 이미지 패럴렉스 -->
+  <section class="g-hero para" style="background-image:url('./korean_dialect_nature.png');">
+    <div class="g-hero__veil"></div>
+    <div class="g-hero__inner" data-para="0.18">
+      <span class="g-eyebrow light">국립국어원</span>
+      <h2 class="g-hero__title">사라지는 말의<br>지도를 그리다</h2>
+      <p class="g-hero__lead">전국의 토박이말과 국외 이주 한민족의<br>우리말을 채록한 스무 해의 기록</p>
+    </div>
+    <div class="g-scroll" aria-hidden="true">아래로</div>
+  </section>
+
+  <!-- 철학 -->
+  <section class="g-narrate">
+    <div class="g-wrap">
+      <div class="reveal">
+        <div class="g-rule"></div>
+        <span class="g-eyebrow">사업 철학</span>
+        <h3 class="g-narrate__h">표준의 잣대가 아니라,<br><em>삶의 결</em>로 말을 기록합니다.</h3>
+        <p class="g-narrate__p">표준어의 확산과 세대의 교체 속에서 지역의 말은 빠르게 사라지고 있습니다.<br>지역어 조사 사업은 각 지역의 토박이말을 있는 그대로 채록·전사하여,<br>학술 연구의 자산이자 모두의 방언 지도로 되살리는<br>국립국어원의 장기 프로젝트입니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 가치 01–04 -->
+  <section class="g-values">
+    <div class="g-wrap">
+      <div class="g-values__head reveal">
+        <span class="g-eyebrow">핵심 가치</span>
+        <h3>말을 남기는 네가지 방식</h3>
+      </div>
+      <div class="g-values__grid">
+        <div class="g-val reveal">
+          <div class="g-val__num">01</div>
+          <div class="g-val__ic"><i class="ti ti-microphone-2"></i></div>
+          <h4>채록</h4>
+          <p>어휘·음운·문법과 구술 발화를 현장에서 음성으로 녹음하고 전사해, 지역별 원자료를 확보합니다.</p>
+        </div>
+        <div class="g-val reveal d1">
+          <div class="g-val__num">02</div>
+          <div class="g-val__ic"><i class="ti ti-map-2"></i></div>
+          <h4>분석</h4>
+          <p>수집한 자료를 표준화·기술 분석하고, 항목별 전국 방언 지도로 시각화합니다.</p>
+        </div>
+        <div class="g-val reveal d2">
+          <div class="g-val__num">03</div>
+          <div class="g-val__ic"><i class="ti ti-share-2"></i></div>
+          <h4>공유</h4>
+          <p>종합 정보 시스템과 ‘우리말샘’으로 성과를 누구나 검색·활용하도록 공개합니다.</p>
+        </div>
+        <div class="g-val reveal d3">
+          <div class="g-val__num">04</div>
+          <div class="g-val__ic"><i class="ti ti-seeding"></i></div>
+          <h4>계승</h4>
+          <p>방언 경연·축제와 생활어 조사로, 채록한 말을 다음 세대의 문화 자산으로 잇습니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 패럴렉스 통계 밴드 : 인터뷰 이미지 -->
+  <section class="g-band para" style="background-image:url('./korean_dialect_interview.png');">
+    <div class="g-band__veil"></div>
+    <div class="g-wrap g-band__inner reveal">
+      <span class="g-eyebrow light">스무 해의 기록</span>
+      <h3>여러 지역의 목소리가 모여, 우리말의 기록이 됩니다</h3>
+      <div class="g-stats">
+        <div class="g-stat"><div class="n">20<small>년</small></div><div class="l">지속된 조사 사업<br>2004 – 2024</div></div>
+        <div class="g-stat"><div class="n">61<small>개</small></div><div class="l">국내 조사 지점<br>9개 권역</div></div>
+        <div class="g-stat"><div class="n">10<small>개</small></div><div class="l">국외 한민족 지점<br>중국·중앙아시아</div></div>
+        <div class="g-stat"><div class="n">237,495</div><div class="l">조사 항목<br>구술·어휘·음운·문법</div></div>
+        <div class="g-stat"><div class="n">11<small>만여개</small></div><div class="l">‘우리말샘’ 지역어<br>표제어 정보</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 더 살펴보기 -->
+  <section class="g-explore">
+    <div class="g-wrap">
+      <div class="g-explore__head reveal">
+        <span class="g-eyebrow">더 살펴보기</span>
+        <h3>지역어 조사 세부 현황</h3>
+      </div>
+      <div class="g-cards">
+        <a class="g-card reveal" href="./about_history.html">
+          <span class="k">연혁</span>
+          <h4>지금도 이어지는 기록</h4>
+          <p>권역별 조사에서 방언 지도·시스템 구축을 거쳐, 세대·성별 변이 조사까지.</p>
+          <span class="go">연혁 보기 <i class="ti ti-arrow-right"></i></span>
+        </a>
+        <a class="g-card reveal d1" href="./about_coverage.html">
+          <span class="k">현황</span>
+          <h4>어떤 데이터가 축적되었나</h4>
+          <p>국내 9개 권역 61지점과 국외 10지점, 그리고 237,495개 조사 항목의 내역.</p>
+          <span class="go">현황 보기 <i class="ti ti-arrow-right"></i></span>
+        </a>
+        <a class="g-card reveal d2" href="./about_related.html">
+          <span class="k">연계</span>
+          <h4>말을 넘어 문화로</h4>
+          <p>민족생활어 조사와 방언 경연·축제 등 지역 언어문화 확산 사업.</p>
+          <span class="go">연계 사업 보기 <i class="ti ti-arrow-right"></i></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div id="footer-common"></div>
+
+<script>
+  (function(){
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // 1) 스크롤 등장 애니메이션
+    var reveals = document.querySelectorAll(".garden .reveal");
+    if(reduce || !("IntersectionObserver" in window)){
+      reveals.forEach(function(el){ el.classList.add("in"); });
+    } else {
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+      }, {threshold:0.16, rootMargin:"0px 0px -8% 0px"});
+      reveals.forEach(function(el){ io.observe(el); });
+    }
+
+    // 2) 히어로 텍스트 패럴렉스 (배경은 CSS background-attachment:fixed 로 처리)
+    if(!reduce){
+      var paras = Array.prototype.slice.call(document.querySelectorAll(".garden [data-para]"));
+      var ticking = false;
+      function update(){
+        var y = window.pageYOffset || document.documentElement.scrollTop;
+        paras.forEach(function(el){
+          var speed = parseFloat(el.getAttribute("data-para")) || 0;
+          el.style.transform = "translateY(" + (y * speed) + "px)";
+        });
+        ticking = false;
+      }
+      window.addEventListener("scroll", function(){
+        if(!ticking){ window.requestAnimationFrame(update); ticking = true; }
+      }, {passive:true});
+      update();
+    }
+  })();
+</script>
+</body>
+</html>
