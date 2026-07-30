@@ -51,27 +51,40 @@ body {
 .skiplink{ position:absolute; clip: rect(1px, 1px, 1px, 1px); padding: 0; border: 0; height: 1px; width: 1px; overflow: hidden; z-index: 5; }
 .skiplink:focus{ clip: auto; height: auto; width: auto; background: var(--card); padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); box-shadow: var(--shadow2); color: var(--text); }
 
-/* Gov Banner */
+/* KRDS 공식 배너 (Masthead) 표준 스타일 */
 .gov-banner {
-  background: #f3f4f6; /* Very light gray */
+  background-color: #f4f5f7;
   border-bottom: 1px solid #e5e7eb;
 }
-/* 선택자를 한 단계 구체화하여 페이지별 .wrap 재정의(padding 등)에 밀리지 않도록 함 */
 .gov-banner .gov-banner__inner {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 30px;
+  padding: 8px 30px;
   font-size: 13px;
-  color: #4b5563;
-  font-weight: 500;
-  max-width: 1920px; /* GNB는 1920까지 확장 (본문 .wrap 1440과 별개) */
+  color: #333333;
+  font-weight: 400;
+  max-width: 1920px;
   margin: 0 auto;
+  min-height: 36px;
+  box-sizing: border-box;
 }
-.gov-banner__icon {
-  height: 14px;
-  width: auto;
-  vertical-align: middle;
+.gov-banner__text {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.4;
+}
+.gov-banner__text::before {
+  content: "";
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-image: url('./flag.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  flex-shrink: 0;
 }
 
 /* Top bar */

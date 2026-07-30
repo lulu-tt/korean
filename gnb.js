@@ -4,9 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 1. GNB 마크업 동적 삽입
   gnbContainer.innerHTML = `
-<div class="gov-banner">
+<div class="gov-banner" id="krds-masthead">
   <div class="wrap gov-banner__inner">
-    <img src="./flag.svg" alt="태극기" class="gov-banner__icon">
     <span class="gov-banner__text">이 누리집은 대한민국 공식 전자정부 누리집입니다.</span>
   </div>
 </div>
