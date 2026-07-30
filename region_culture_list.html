@@ -209,13 +209,23 @@ function fetchRegionCultureItems(subject) {
   const url = `/api/region_culture_list?subject=${encodeURIComponent(subject)}`;
   
   fetch(url)
-    .then(res => res.json())
     .then(res => {
-      if(res.status === 'success') {
-        renderList(subject, res.data);
-      }
+      if(!res.ok) throw new Error('API not available');
+      return res.json();
     })
-    .catch(err => console.error('Region Culture List API error:', err));
+    .then(res => {
+      if(res.status === 'success') renderList(subject, res.data);
+    })
+    .catch(() => {
+      // GitHub Pages 정적 폴백
+      fetch('./data/processed/region_culture_list_map.json')
+        .then(r => r.json())
+        .then(res => {
+          const items = (res.data && res.data[subject]) ? res.data[subject] : [];
+          renderList(subject, items);
+        })
+        .catch(err => console.error('Region Culture List Fallback error:', err));
+    });
 }
 
 function renderList(subject, items) {

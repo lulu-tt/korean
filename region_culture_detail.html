@@ -312,24 +312,43 @@ function fetchRegionCultureDetail(id) {
   const url = `/api/region_culture_detail?id=${encodeURIComponent(id)}`;
   
   fetch(url)
-    .then(res => res.json())
+    .then(res => {
+      if(!res.ok) throw new Error('API not available');
+      return res.json();
+    })
     .then(res => {
       if(res.status === 'success' && res.data) {
-        const item = res.data;
-        document.title = `${item.title} 상세 보기 — 사진으로 보는 생활어`;
-        document.getElementById('rcSubTitle').innerText = item.subject || '사진으로 보는 생활어';
-        document.getElementById('rcBackBtn').onclick = () => {
-          location.href = `./region_culture_list.html?cat=${encodeURIComponent(item.subject)}`;
-        };
-        renderDetail(item);
+        handleItem(res.data);
       } else {
         location.href = './region_culture.html';
       }
     })
-    .catch(err => {
-      console.error('Detail API fetch error:', err);
-      location.href = './region_culture.html';
+    .catch(() => {
+      // GitHub Pages 정적 폴백
+      fetch('./data/processed/region_culture_detail_map.json')
+        .then(r => r.json())
+        .then(res => {
+          const item = (res.data && res.data[id]) ? res.data[id] : null;
+          if (item) {
+            handleItem(item);
+          } else {
+            location.href = './region_culture.html';
+          }
+        })
+        .catch(err => {
+          console.error('Detail Fallback error:', err);
+          location.href = './region_culture.html';
+        });
     });
+
+  function handleItem(item) {
+    document.title = `${item.title} 상세 보기 — 사진으로 보는 생활어`;
+    document.getElementById('rcSubTitle').innerText = item.subject || '사진으로 보는 생활어';
+    document.getElementById('rcBackBtn').onclick = () => {
+      location.href = `./region_culture_list.html?cat=${encodeURIComponent(item.subject)}`;
+    };
+    renderDetail(item);
+  }
 }
 
 function renderDetail(it) {
