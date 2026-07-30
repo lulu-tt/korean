@@ -22,81 +22,106 @@
 
   .rg-wrap {
     width: 100%;
-    max-width: 1160px;
+    max-width: 900px;
     margin: 0 auto;
-    padding: 10px 20px 90px;
+    padding: 10px 20px 110px;
     flex: 1;
     box-sizing: border-box;
   }
 
-  /* 단계 표시 */
-  .rg-steps { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); margin: 0; padding: 0; border-bottom: 1px solid #e2e8f0; }
-  .rg-step { position: relative; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 6px 0 20px; color: #b6bcc6; }
-  .rg-step__icon { width: 58px; height: 58px; border: 2px solid #cbd5e1; border-radius: 12px; display: grid; place-items: center; font-size: 27px; color: #cbd5e1; transition: 0.2s; }
-  .rg-step__label { font-size: 17px; font-weight: 600; }
-  .rg-step.is-done { color: #64748b; }
-  .rg-step.is-done .rg-step__icon { border-color: #94a3b8; color: #94a3b8; }
-  .rg-step.is-active { color: var(--rg); }
-  .rg-step.is-active .rg-step__icon { border-color: var(--rg); color: var(--rg); }
-  .rg-step.is-active .rg-step__label { font-weight: 800; }
-  .rg-step.is-active::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; background: var(--rg); border-radius: 3px 3px 0 0; }
-
-  /* 패널 공통 */
-  .rg-panel { margin-top: 46px; }
-  .rg-panel[hidden] { display: none; }
-  .rg-heading { font-size: 19px; font-weight: 800; color: #1e293b; margin: 0 0 18px; }
-
-  /* 약관 박스 */
-  .rg-terms {
-    border: 1px solid #e2e8f0; border-radius: 8px; background: #f8f9fb;
-    padding: 26px 30px; height: 470px; overflow-y: auto;
-    color: #475569; font-size: 14px; line-height: 1.75;
+  /* 안내 배너 */
+  .rg-notice {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: #eff4ff; border-radius: 14px;
+    padding: 20px 24px; margin: 0 0 44px;
+    font-size: 14.5px; color: #3f5170; line-height: 1.6;
   }
-  .rg-terms__chap { font-size: 15px; font-weight: 800; color: #1e293b; margin: 0 0 16px; }
-  .rg-terms__art { font-weight: 700; color: #1e293b; margin: 0 0 4px; }
-  .rg-terms p { margin: 0 0 4px; }
-  .rg-terms .rg-terms__block { margin-bottom: 24px; }
-  .rg-terms .rg-terms__block:last-child { margin-bottom: 0; }
-  .rg-terms ul { list-style: none; margin: 4px 0 0; padding: 0; }
-  .rg-terms ul li { margin-bottom: 4px; }
+  .rg-notice i { color: var(--rg); font-size: 20px; margin-top: 1px; flex-shrink: 0; }
 
-  .rg-agree { display: inline-flex; align-items: center; gap: 8px; margin: 18px 2px 0; font-size: 15px; color: #334155; cursor: pointer; user-select: none; }
-  .rg-agree input { width: 18px; height: 18px; accent-color: var(--rg); cursor: pointer; }
+  /* 섹션 헤더 */
+  .rg-section-title {
+    font-size: 21px; font-weight: 800; color: #1e293b; letter-spacing: -0.02em;
+    padding-bottom: 18px; border-bottom: 2px solid #1e293b; margin: 0 0 8px;
+  }
+  .rg-section-title.mt { margin-top: 60px; }
+  .rg-required-note { font-size: 13.5px; color: #64748b; margin: 16px 0 30px; }
+  .rg-required-note b { color: #e11d48; font-weight: 700; }
 
-  .rg-actions { display: flex; justify-content: center; gap: 12px; margin-top: 42px; }
-  .rg-btn { background: var(--rg); color: #ffffff; border: none; border-radius: 6px; padding: 14px 46px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; font-family: inherit; }
+  /* 가입 정보 입력 필드 */
+  .rg-fields { margin-top: 4px; }
+  .rg-field { margin-bottom: 34px; }
+  .rg-field:last-child { margin-bottom: 0; }
+  .rg-field__label { display: flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 12px; }
+  .rg-req { color: #e11d48; font-size: 13px; font-weight: 700; }
+  .rg-field__control { display: flex; gap: 10px; align-items: center; }
+  .rg-input {
+    flex: 1; min-width: 0; height: 56px; padding: 0 18px;
+    border: 1px solid #d7dbe0; border-radius: 12px; font-size: 15px; color: #1e293b;
+    box-sizing: border-box; font-family: inherit; transition: 0.15s; background: #fff;
+  }
+  .rg-input::placeholder { color: #9aa3af; }
+  .rg-input:focus { outline: none; border-color: var(--rg); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+  .rg-check-btn {
+    flex-shrink: 0; height: 56px; padding: 0 26px; white-space: nowrap;
+    border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; border-radius: 12px;
+    font-weight: 700; cursor: pointer; font-size: 15px; font-family: inherit; transition: 0.15s;
+  }
+  .rg-check-btn:hover { background: #eef2f7; }
+  .rg-field__hint { font-size: 13px; color: #94a3b8; margin: 10px 2px 0; }
+
+  /* 약관 동의 */
+  .rg-agree-all {
+    border: 1px solid #cdd3da; border-radius: 12px; padding: 22px 24px;
+    display: flex; justify-content: flex-end; margin: 30px 0 14px;
+  }
+  .rg-agree-all label { display: inline-flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 800; color: #1e293b; cursor: pointer; }
+  .rg-agree-row {
+    border: 1px solid #e6e9ee; border-radius: 12px; padding: 20px 24px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px;
+  }
+  .rg-agree-row__head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-width: 0; }
+  .rg-agree-row__q { font-size: 15px; font-weight: 700; color: #1e293b; }
+  .rg-agree-row__view { background: none; border: none; color: var(--rg); font-size: 13.5px; font-weight: 600; cursor: pointer; text-decoration: underline; padding: 0; font-family: inherit; }
+  .rg-agree-row__chk { display: inline-flex; align-items: center; gap: 8px; font-size: 14.5px; color: #334155; cursor: pointer; white-space: nowrap; }
+  .rg-agree-all input, .rg-agree-row__chk input { width: 20px; height: 20px; accent-color: var(--rg); cursor: pointer; }
+  .rg-agree-view {
+    border: 1px solid #e6e9ee; border-radius: 12px; background: #fafbfc;
+    padding: 24px 28px; max-height: 280px; overflow-y: auto; margin: -4px 0 16px;
+    color: #475569; font-size: 13.5px; line-height: 1.8;
+  }
+  .rg-agree-view[hidden] { display: none; }
+  .rg-agree-view h4 { font-size: 14px; font-weight: 800; color: #1e293b; margin: 0 0 8px; }
+  .rg-agree-view p { margin: 0 0 5px; }
+  .rg-agree-view .blk { margin-bottom: 18px; }
+  .rg-agree-view .blk:last-child { margin-bottom: 0; }
+  .rg-agree-view ul { list-style: none; margin: 4px 0 0; padding: 0; }
+  .rg-agree-view ul li { margin-bottom: 4px; }
+
+  /* 하단 버튼 */
+  .rg-actions { display: flex; justify-content: center; gap: 12px; margin-top: 52px; }
+  .rg-btn {
+    min-width: 168px; height: 58px; padding: 0 30px; background: var(--rg); color: #fff;
+    border: none; border-radius: 12px; font-size: 16.5px; font-weight: 700; cursor: pointer;
+    transition: background 0.2s; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
+  }
   .rg-btn:hover { background: var(--rg-dark); }
-  .rg-btn--ghost { background: #ffffff; color: #475569; border: 1px solid #cbd5e1; }
+  .rg-btn--ghost { background: #fff; color: #475569; border: 1px solid #cbd5e1; }
   .rg-btn--ghost:hover { background: #f1f5f9; }
 
-  /* 가입 정보 입력 표 */
-  .rg-form { width: 100%; border-collapse: collapse; border-top: 2px solid #334155; }
-  .rg-form th, .rg-form td { border-bottom: 1px solid #e2e8f0; padding: 16px 22px; text-align: left; vertical-align: middle; }
-  .rg-form th { width: 220px; background: #f8f9fb; font-weight: 700; color: #334155; font-size: 15px; }
-  .rg-input { height: 44px; padding: 0 14px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box; width: 100%; max-width: 420px; font-family: inherit; color: #334155; }
-  .rg-input::placeholder { color: #94a3b8; }
-  .rg-input:focus { outline: none; border-color: var(--rg); box-shadow: 0 0 0 3px rgba(109, 44, 61, 0.12); }
-  .rg-id-row { display: flex; gap: 10px; align-items: center; }
-  .rg-id-row .rg-input { max-width: 380px; }
-  .rg-check-btn { height: 44px; padding: 0 18px; white-space: nowrap; border: 1px solid #cbd5e1; background: #f1f5f9; color: #334155; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; font-family: inherit; }
-  .rg-check-btn:hover { background: #e2e8f0; }
-
   /* 완료 화면 */
-  .rg-done { text-align: center; padding: 50px 20px 20px; }
-  .rg-done__icon { width: 88px; height: 88px; border-radius: 50%; background: rgba(109, 44, 61, 0.08); color: var(--rg); display: grid; place-items: center; font-size: 46px; margin: 0 auto 24px; }
-  .rg-done__title { font-size: 24px; font-weight: 800; color: #1e293b; margin: 0 0 12px; letter-spacing: -0.02em; }
-  .rg-done__desc { font-size: 15px; color: #64748b; margin: 0 0 34px; line-height: 1.65; }
-  .rg-done__actions { display: flex; gap: 12px; justify-content: center; }
-  .rg-done__actions .rg-btn { text-decoration: none; display: inline-flex; align-items: center; }
+  #rgDone[hidden] { display: none; }
+  .rg-done { text-align: center; padding: 40px 20px 10px; }
+  .rg-done__icon { width: 96px; height: 96px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); color: var(--rg); display: grid; place-items: center; font-size: 50px; margin: 0 auto 26px; }
+  .rg-done__title { font-size: 26px; font-weight: 800; color: #1e293b; margin: 0 0 14px; letter-spacing: -0.02em; }
+  .rg-done__desc { font-size: 15.5px; color: #64748b; margin: 0 0 40px; line-height: 1.7; }
 
-  @media (max-width: 900px) {
-    .rg-title { font-size: 24px; margin-bottom: 32px; }
-    .rg-step__label { font-size: 13px; }
-    .rg-step__icon { width: 46px; height: 46px; font-size: 22px; }
-    .rg-terms { padding: 18px 16px; height: 380px; }
-    .rg-form th { width: 96px; padding: 14px 12px; font-size: 13px; }
-    .rg-form td { padding: 14px 12px; }
-    .rg-btn { padding: 13px 30px; font-size: 15px; }
+  @media (max-width: 720px) {
+    .rg-section-title { font-size: 18px; }
+    .rg-field__control { flex-wrap: wrap; }
+    .rg-check-btn { width: 100%; }
+    .rg-agree-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .rg-actions { flex-direction: column-reverse; }
+    .rg-btn { width: 100%; }
   }
 </style>
 </head>
@@ -118,34 +143,73 @@
 </div>
 
 <div class="rg-wrap">
-  <!-- 단계 표시 -->
-  <ol class="rg-steps">
-    <li class="rg-step is-active" data-step="1">
-      <span class="rg-step__icon"><i class="ti ti-checkbox"></i></span>
-      <span class="rg-step__label">01 이용 약관 동의</span>
-    </li>
-    <li class="rg-step" data-step="2">
-      <span class="rg-step__icon"><i class="ti ti-clipboard-list"></i></span>
-      <span class="rg-step__label">02 가입 정보 입력</span>
-    </li>
-    <li class="rg-step" data-step="3">
-      <span class="rg-step__icon"><i class="ti ti-device-mobile-check"></i></span>
-      <span class="rg-step__label">03 회원 가입 완료</span>
-    </li>
-  </ol>
+  <!-- 안내 배너 -->
+  <div class="rg-notice">
+    <i class="ti ti-shield-check" aria-hidden="true"></i>
+    <span>지역어 종합 정보는 회원님의 개인정보를 안전하게 보호하고 있으며, 회원님의 명백한 동의 없이는 공개하거나 제3자에게 제공하지 않습니다.</span>
+  </div>
 
-  <!-- 01 이용 약관 동의 -->
-  <section class="rg-panel" data-panel="1">
-    <h2 class="rg-heading">■ 서비스 이용 약관 동의</h2>
-    <div class="rg-terms" tabindex="0">
-      <div class="rg-terms__block">
-        <p class="rg-terms__chap">제1장 총칙</p>
-        <p class="rg-terms__art">제1조 (목적)</p>
+  <div id="rgForm">
+    <!-- 가입 정보 입력 -->
+    <h2 class="rg-section-title">가입 정보 입력</h2>
+    <p class="rg-required-note"><b>필수</b> 표시가 있는 항목은 반드시 입력해야 합니다.</p>
+
+    <div class="rg-fields">
+      <div class="rg-field">
+        <label class="rg-field__label" for="rgId">계정(ID) <span class="rg-req">필수</span></label>
+        <div class="rg-field__control">
+          <input type="text" id="rgId" class="rg-input" placeholder="영문자, 숫자 3자 이상">
+          <button type="button" class="rg-check-btn" onclick="checkDup()">중복 확인</button>
+        </div>
+      </div>
+
+      <div class="rg-field">
+        <label class="rg-field__label" for="rgPw">비밀번호 <span class="rg-req">필수</span></label>
+        <div class="rg-field__control">
+          <input type="password" id="rgPw" class="rg-input" placeholder="비밀번호를 입력하세요.">
+        </div>
+        <p class="rg-field__hint">영문자, 숫자, 특수 문자(2가지 이상)의 조합 9~16자</p>
+      </div>
+
+      <div class="rg-field">
+        <label class="rg-field__label" for="rgPw2">비밀번호 확인 <span class="rg-req">필수</span></label>
+        <div class="rg-field__control">
+          <input type="password" id="rgPw2" class="rg-input" placeholder="비밀번호를 한 번 더 입력하세요.">
+        </div>
+      </div>
+
+      <div class="rg-field">
+        <label class="rg-field__label" for="rgNick">별명 <span class="rg-req">필수</span></label>
+        <div class="rg-field__control">
+          <input type="text" id="rgNick" class="rg-input" placeholder="별명을 입력하세요.">
+        </div>
+      </div>
+    </div>
+
+    <!-- 약관 동의 -->
+    <h2 class="rg-section-title mt">약관 동의</h2>
+
+    <div class="rg-agree-all">
+      <label><input type="checkbox" id="agreeAll" onchange="toggleAll(this)"> 필수 항목 모두 동의합니다.</label>
+    </div>
+
+    <!-- 이용약관 -->
+    <div class="rg-agree-row">
+      <div class="rg-agree-row__head">
+        <span class="rg-agree-row__q">서비스 이용 약관에 동의하십니까? <span class="rg-req">필수</span></span>
+        <button type="button" class="rg-agree-row__view" onclick="toggleView('viewTerms', this)">약관 보기</button>
+      </div>
+      <label class="rg-agree-row__chk"><input type="checkbox" class="agree-req" id="agreeTerms" onchange="syncAll()"> 동의합니다</label>
+    </div>
+    <div class="rg-agree-view" id="viewTerms" hidden>
+      <div class="blk">
+        <h4>제1장 총칙</h4>
+        <p><b>제1조 (목적)</b></p>
         <p>이 약관은 국립국어원(이하 "국어원"이라 한다.)이 제공하는 누리집 서비스의 이용 조건 및 절차, 이용자와 국어원의 권리, 의무, 책임 사항과 기타 필요한 사항을 규정하기 위한 것입니다. 이 약관이 적용되는 누리집은 다음과 같습니다.</p>
         <p>- 지역어 종합 정보(dialect.korean.go.kr)</p>
       </div>
-      <div class="rg-terms__block">
-        <p class="rg-terms__art">제2조 (용어의 정의)</p>
+      <div class="blk">
+        <p><b>제2조 (용어의 정의)</b></p>
         <p>이 약관에서 사용하는 용어는 다음과 같이 정의합니다.</p>
         <ul>
           <li>① 누리집: 온라인을 통해 이용할 수 있는, 이 약관이 적용되는 인터넷 사이트(지역어 종합 정보)를 말합니다.</li>
@@ -158,98 +222,94 @@
           <li>⑧ 탈퇴: 회원이 누리집 이용을 하지 않기로 하여 회원 등록을 취소하는 행위를 말합니다.</li>
         </ul>
       </div>
-      <div class="rg-terms__block">
-        <p class="rg-terms__chap">제2장 서비스 이용 계약</p>
-        <p class="rg-terms__art">제3조 (이용 계약의 성립)</p>
-        <p>이용 계약은 이용자가 되고자 하는 자(이하 "가입 신청자")가 약관의 내용에 동의를 하고, 국어원이 정한 가입 양식에 따라 회원 정보를 기입하여 회원 가입을 신청한 후 국어원이 이를 승낙함으로써 성립합니다.</p>
+      <div class="blk">
+        <p><b>제3조 (약관의 효력과 변경)</b></p>
+        <p>① 국어원이 이 약관을 누리집에 게시하거나 기타의 방법으로 회원에게 공지하고, 이에 동의한 회원이 누리집에 가입하면 이 약관의 효력이 발생합니다.</p>
+        <p>② 이 약관은 누리집에 가입한 회원을 비롯하여 누리집에서 제공하는 서비스를 이용하고자 하는 이용자까지 누리집의 모든 이용자에게 그 효력이 발생합니다.</p>
+        <p>③ 누리집에 새로운 서비스를 추가하거나, 정책상 중요한 사유와 특별한 사정이 발생한 경우에 이 약관은 미리 고지하지 않고 변경될 수 있습니다. 변경된 약관은 누리집에 게재하여 회원과 이용자에게 공지하면 그 효력이 발생합니다.</p>
       </div>
-      <div class="rg-terms__block">
-        <p class="rg-terms__art">제4조 (개인정보의 보호 및 관리)</p>
-        <p>국어원은 관련 법령이 정하는 바에 따라 회원의 개인정보를 보호하기 위해 노력하며, 개인정보의 보호 및 이용에 관해서는 관련 법령 및 국어원의 개인정보처리방침이 적용됩니다.</p>
+      <div class="blk">
+        <h4>제2장 서비스 제공 및 이용</h4>
+        <p><b>제5조 (회원 가입의 성립 및 이용 제한)</b></p>
+        <p>① 회원 가입은 가입을 하고자 하는 이용자가 이 약관의 내용에 대해 동의를 한 후 회원 가입 신청을 한 것에 대해 국어원이 승낙함으로써 성립됩니다.</p>
+        <p>② 회원 탈퇴는 회원 본인이 누리집 내 ‘내 정보 관리’ 화면에서 회원 탈퇴를 신청함으로써 이루어집니다.</p>
+      </div>
+      <div class="blk">
+        <h4>제3장 의무 및 책임</h4>
+        <p><b>제10조 (회원과 이용자의 의무)</b></p>
+        <p>회원과 이용자는 서비스를 이용할 때 허위 사실 기재, 타인 정보 도용, 저작권 침해, 타인의 명예 훼손, 음란물 게재, 서비스 운영 방해 등의 행위를 하여서는 안 됩니다.</p>
+      </div>
+      <div class="blk">
+        <p>부칙 (2023년 3월 6일 약관) — 본 약관은 2023년 3월 6일부터 시행됩니다.</p>
       </div>
     </div>
 
-    <label class="rg-agree">
-      <input type="checkbox" id="agreeTerms">
-      서비스 이용 약관에 동의합니다.
-    </label>
-
-    <div class="rg-actions">
-      <button type="button" class="rg-btn" onclick="goStep2()">다음 단계</button>
+    <!-- 개인정보 수집·이용 -->
+    <div class="rg-agree-row">
+      <div class="rg-agree-row__head">
+        <span class="rg-agree-row__q">개인정보 수집·이용에 동의하십니까? <span class="rg-req">필수</span></span>
+        <button type="button" class="rg-agree-row__view" onclick="toggleView('viewPrivacy', this)">내용 보기</button>
+      </div>
+      <label class="rg-agree-row__chk"><input type="checkbox" class="agree-req" id="agreePrivacy" onchange="syncAll()"> 동의합니다</label>
     </div>
-  </section>
-
-  <!-- 02 가입 정보 입력 -->
-  <section class="rg-panel" data-panel="2" hidden>
-    <h2 class="rg-heading">■ 가입 정보 입력</h2>
-    <table class="rg-form">
-      <tbody>
-        <tr>
-          <th scope="row">계정(ID)</th>
-          <td>
-            <div class="rg-id-row">
-              <input type="text" id="rgId" class="rg-input" placeholder="영문자, 숫자(3자 이상)">
-              <button type="button" class="rg-check-btn" onclick="checkDup()">중복 확인</button>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <th scope="row">비밀번호</th>
-          <td><input type="password" id="rgPw" class="rg-input" placeholder="영문자, 숫자, 특수 문자(2가지 이상)의 조합(9~16자)"></td>
-        </tr>
-        <tr>
-          <th scope="row">비밀번호 확인</th>
-          <td><input type="password" id="rgPw2" class="rg-input"></td>
-        </tr>
-        <tr>
-          <th scope="row">별명</th>
-          <td><input type="text" id="rgNick" class="rg-input"></td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="rg-agree-view" id="viewPrivacy" hidden>
+      <div class="blk">
+        <h4>개인정보 수집·이용 동의</h4>
+        <p><b>1. 수집 항목</b></p>
+        <p>계정(ID), 비밀번호, 별명</p>
+      </div>
+      <div class="blk">
+        <p><b>2. 수집·이용 목적</b></p>
+        <p>회원 식별 및 본인 확인, 회원제 서비스 제공, 공지사항 전달 및 문의 응대</p>
+      </div>
+      <div class="blk">
+        <p><b>3. 보유 및 이용 기간</b></p>
+        <p>회원 탈퇴 시까지 보유하며, 탈퇴 시 지체 없이 파기합니다. (단, 관계 법령에 따라 보존할 필요가 있는 경우 해당 기간 동안 보관)</p>
+      </div>
+      <div class="blk">
+        <p>귀하는 개인정보 수집·이용에 동의하지 않을 수 있으며, 동의를 거부할 경우 회원 가입 및 회원제 서비스 이용이 제한됩니다.</p>
+      </div>
+    </div>
 
     <div class="rg-actions">
-      <button type="button" class="rg-btn rg-btn--ghost" onclick="setStep(1)">이전</button>
+      <a href="./login.html" class="rg-btn rg-btn--ghost">취소</a>
       <button type="button" class="rg-btn" onclick="submitRegister()">가입하기</button>
     </div>
-  </section>
+  </div>
 
-  <!-- 03 회원 가입 완료 -->
-  <section class="rg-panel" data-panel="3" hidden>
-    <h2 class="rg-heading">■ 회원 가입 완료</h2>
+  <!-- 회원 가입 완료 -->
+  <div id="rgDone" hidden>
     <div class="rg-done">
       <div class="rg-done__icon"><i class="ti ti-circle-check"></i></div>
       <p class="rg-done__title">회원 가입이 완료되었습니다.</p>
       <p class="rg-done__desc">지역어 종합 정보의 회원이 되신 것을 환영합니다.<br>로그인 후 다양한 서비스를 이용하실 수 있습니다.</p>
-      <div class="rg-done__actions">
+      <div class="rg-actions" style="margin-top:0;">
         <a href="./index.html" class="rg-btn rg-btn--ghost">메인으로</a>
         <a href="./login.html" class="rg-btn">로그인하기</a>
       </div>
     </div>
-  </section>
+  </div>
 </div>
 
 <div id="footer-common"></div>
 
 <script>
-  function setStep(n) {
-    document.querySelectorAll('.rg-step').forEach(function (s) {
-      var sn = parseInt(s.dataset.step, 10);
-      s.classList.toggle('is-active', sn === n);
-      s.classList.toggle('is-done', sn < n);
-    });
-    document.querySelectorAll('.rg-panel').forEach(function (p) {
-      p.hidden = (parseInt(p.dataset.panel, 10) !== n);
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  // 약관 보기/내용 보기 토글
+  function toggleView(id, btn) {
+    var el = document.getElementById(id);
+    el.hidden = !el.hidden;
+    if (btn) btn.textContent = el.hidden ? (id === 'viewTerms' ? '약관 보기' : '내용 보기') : '접기';
   }
 
-  function goStep2() {
-    if (!document.getElementById('agreeTerms').checked) {
-      alert('서비스 이용 약관에 동의해 주세요.');
-      return;
-    }
-    setStep(2);
+  // 전체 동의
+  function toggleAll(cb) {
+    document.querySelectorAll('.agree-req').forEach(function (c) { c.checked = cb.checked; });
+  }
+  // 개별 체크 → 전체 동의 동기화
+  function syncAll() {
+    var reqs = document.querySelectorAll('.agree-req');
+    var all = Array.prototype.every.call(reqs, function (c) { return c.checked; });
+    document.getElementById('agreeAll').checked = all;
   }
 
   function checkDup() {
@@ -263,11 +323,16 @@
     var pw = document.getElementById('rgPw').value;
     var pw2 = document.getElementById('rgPw2').value;
     var nick = document.getElementById('rgNick').value.trim();
-    if (!id) { alert('계정(ID)을 입력해 주세요.'); return; }
-    if (!pw) { alert('비밀번호를 입력해 주세요.'); return; }
-    if (pw !== pw2) { alert('비밀번호가 일치하지 않습니다.'); return; }
-    if (!nick) { alert('별명을 입력해 주세요.'); return; }
-    setStep(3);
+    if (!id) { alert('계정(ID)을 입력해 주세요.'); return document.getElementById('rgId').focus(); }
+    if (!pw) { alert('비밀번호를 입력해 주세요.'); return document.getElementById('rgPw').focus(); }
+    if (pw !== pw2) { alert('비밀번호가 일치하지 않습니다.'); return document.getElementById('rgPw2').focus(); }
+    if (!nick) { alert('별명을 입력해 주세요.'); return document.getElementById('rgNick').focus(); }
+    var reqUnchecked = Array.prototype.some.call(document.querySelectorAll('.agree-req'), function (c) { return !c.checked; });
+    if (reqUnchecked) { alert('필수 약관에 모두 동의해 주세요.'); return; }
+
+    document.getElementById('rgForm').hidden = true;
+    document.getElementById('rgDone').hidden = false;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 </script>
 

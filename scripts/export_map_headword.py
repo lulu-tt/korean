@@ -169,6 +169,15 @@ def norm_commentary(text) -> str:
 
 
 def export_headword(conn: sqlite3.Connection, headword_no: str) -> dict:
+    """
+    지도 export.
+    - groups/variants/points: 기호(마커)용
+    - regions: 면색용 (운영 dialect.korean.go.kr 과 동일 규칙)
+        · regionId = kd_region_code.sigungu_code (5자리 행정코드, 없으면 region_id)
+        · faceColor = 해당 지역의 첫 번째 방언형 face_color
+          (ORDER: mutation_group, mutation_seq, word — 운영 mapSymbols[0] 과 동일 취지)
+        · 좌표(PIP)·다수결·광역시 확장 없음
+    """
     h = conn.execute(
         """SELECT headword_id, headword_no, headword, meaning, word_class, map_make, commentary
            FROM kd_headword WHERE cast(headword_no as text)=? LIMIT 1""",
@@ -180,7 +189,7 @@ def export_headword(conn: sqlite3.Connection, headword_no: str) -> dict:
           d.hd_id, d.headword_no, d.word, d.face_color, d.mutation_group, d.mutation_seq,
           d.map_symbol_id, d.symbol_color,
           hdr.region_id, hdr.region_nm,
-          r.lng, r.lat, r.sido, r.sigungu, r.sigungu_nm
+          r.lng, r.lat, r.sido, r.sigungu, r.sigungu_nm, r.sigungu_code
         FROM tb_headword_dialect d
         JOIN tb_headword_dialect_region hdr ON cast(hdr.hd_id as text)=cast(d.hd_id as text)
         LEFT JOIN kd_region_code r ON cast(r.region_id as text)=cast(hdr.region_id as text)
@@ -191,21 +200,50 @@ def export_headword(conn: sqlite3.Connection, headword_no: str) -> dict:
     ).fetchall()
 
     groups_raw: OrderedDict = OrderedDict()
+    # 운영 bodyColor[regionId] = mapSymbols[0].faceColor — 지역당 첫 방언형만
+    # ※ 운영은 "미조사"도 면색에 포함. 마커(points)만 미조사 제외.
+    regions_first: OrderedDict = OrderedDict()
     skipped_no_coord = 0
     skipped_misurvey = 0
     for row in rows:
         word = (row["word"] or "").strip()
-        if not word or word == "미조사":
-            skipped_misurvey += 1
-            continue
+        is_misurvey = (not word) or word == "미조사"
         try:
             lng = float(row["lng"]) if row["lng"] not in (None, "") else None
             lat = float(row["lat"]) if row["lat"] not in (None, "") else None
         except (TypeError, ValueError):
             lng = lat = None
+        # 면색용 regionId — 좌표 없어도 region 메타만으로 등록 가능하면 포함
+        region_id = str(row["sigungu_code"] or "").strip()
+        if not region_id:
+            region_id = str(row["region_id"] or "").strip()
+
+        # 운영: 지역 목록에 미조사 포함 (예: 성남시·고양시 등 시 단위 미조사 면색)
+        if region_id and region_id not in regions_first:
+            # 좌표 없는 미조사도 면색 대상 (이름·코드 매칭)
+            if not (lng is None or lat is None or (lng == 0 and lat == 0)) or is_misurvey:
+                fc_raw = (row["face_color"] or "").strip()
+                regions_first[region_id] = {
+                    "regionId": region_id,
+                    "regionNm": (row["region_nm"] or "").strip(),
+                    "sido": (row["sido"] or "").strip(),
+                    "sigungu": (row["sigungu"] or row["sigungu_nm"] or "").strip(),
+                    "faceColor": fc_raw
+                    if (fc_raw and "," in fc_raw)
+                    else norm_color(row["symbol_color"], row["face_color"], 0),
+                    "word": word or "미조사",
+                    "lat": lat,
+                    "lng": lng,
+                }
+
+        # 마커/계열: 미조사·무좌표 제외 (기존과 동일)
+        if is_misurvey:
+            skipped_misurvey += 1
+            continue
         if lng is None or lat is None or (lng == 0 and lat == 0):
             skipped_no_coord += 1
             continue
+
         mg = int(float(row["mutation_group"] or 0))
         if mg not in groups_raw:
             groups_raw[mg] = {
@@ -226,6 +264,7 @@ def export_headword(conn: sqlite3.Connection, headword_no: str) -> dict:
         wmap[word]["points"].append([lng, lat])
         wmap[word]["places"].append(
             {
+                "region_id": region_id,
                 "region_nm": row["region_nm"] or "",
                 "sido": row["sido"] or "",
                 "sigungu": row["sigungu"] or row["sigungu_nm"] or "",
@@ -256,12 +295,16 @@ def export_headword(conn: sqlite3.Connection, headword_no: str) -> dict:
             "variants": variants,
         }
 
-    # DB 원본 색 중복 제거 (계열마다 표시 색 유일)
+    # DB 원본 색 중복 제거 (계열마다 표시 색 유일) — 마커/범례용. 면색은 regions[].faceColor 사용
     ensure_unique_group_colors(groups)
+
+    regions = list(regions_first.values())
 
     return {
         "source": "dialect_local.db",
         "policy": "raw_db_only_no_synthetic_points",
+        # 면색: 운영과 동일 — regionId 매칭 + 지역당 첫 faceColor (PIP/다수결 없음)
+        "fillPolicy": "region_id_first_face_color",
         "exported_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "headword_no": str(headword_no),
         "headword": h["headword"] if h else None,
@@ -276,7 +319,9 @@ def export_headword(conn: sqlite3.Connection, headword_no: str) -> dict:
             "groups": len(groups),
             "variants": sum(len(g["variants"]) for g in groups.values()),
             "points": sum(len(v["points"]) for g in groups.values() for v in g["variants"]),
+            "regions": len(regions),
         },
+        "regions": regions,
         "groups": groups,
     }
 

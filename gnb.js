@@ -35,8 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="mega-menu__item"><a href="./dialect_search_prototype.html" class="mega-menu__link">통합자료검색</a></div>
                 <div class="mega-menu__item"><a href="./vocab_dialect.html" class="mega-menu__link">어휘조사자료</a></div>
                 <div class="mega-menu__item"><a href="./oral_dialect.html" class="mega-menu__link">구술발화조사자료</a></div>
-                <div class="mega-menu__item"><a href="./dialect_variant_compare.html" class="mega-menu__link">지역어 변이형 비교</a></div>
-                <div class="mega-menu__item"><a href="./dialect_phonology_compare.html" class="mega-menu__link">지역어 음운 비교</a></div>
+                <div class="mega-menu__item"><a href="./dialect_phonology_compare.html" class="mega-menu__link">변이형 비교</a></div>
               </div>
             </div>
           </div>
@@ -103,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="mega-menu__item"><a href="./about_intro.html" class="mega-menu__link">사업 소개</a></div>
                 <div class="mega-menu__item"><a href="./about_history.html" class="mega-menu__link">사업 연혁</a></div>
                 <div class="mega-menu__item"><a href="./about_coverage.html" class="mega-menu__link">조사 현황</a></div>
-                <div class="mega-menu__item"><a href="./about_related.html" class="mega-menu__link">연계 사업</a></div>
               </div>
             </div>
           </div>
@@ -179,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const currentPath = window.location.pathname;
   let activeMenuId = "";
 
-  if (currentPath.includes('dialect_search_prototype.html') || currentPath.includes('vocab_dialect.html') || currentPath.includes('oral_dialect.html') || currentPath.includes('dialect_variant_compare.html') || currentPath.includes('dialect_phonology_compare.html')) {
+  if (currentPath.includes('dialect_search_prototype.html') || currentPath.includes('vocab_dialect.html') || currentPath.includes('oral_dialect.html') || currentPath.includes('dialect_phonology_compare.html')) {
     activeMenuId = "menu-search";
   } else if (currentPath.includes('dialect_map.html') || currentPath.includes('dialect_awareness.html') || currentPath.includes('dialect_our_town.html') || currentPath.includes('dialect_gisangdo.html')) {
     activeMenuId = "menu-map";
@@ -187,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     activeMenuId = "menu-archive";
   } else if (currentPath.includes('notice.html') || currentPath.includes('faq.html')) {
     activeMenuId = "menu-board";
-  } else if (currentPath.includes('about_intro.html') || currentPath.includes('about_history.html') || currentPath.includes('about_coverage.html') || currentPath.includes('about_related.html')) {
+  } else if (currentPath.includes('about_intro.html') || currentPath.includes('about_history.html') || currentPath.includes('about_coverage.html')) {
     activeMenuId = "menu-about";
   }
 

@@ -269,7 +269,9 @@
     var zIndex      = opts.zIndex != null ? opts.zIndex : 2;
     var visible     = typeof opts.visible === 'function' ? opts.visible : null;
     var labelProp   = opts.labelProp || null;       // 예: 'word' — 면 위에 방언형 글자
-    var showLabel   = opts.showLabel === true || !!labelProp;
+    // showLabel을 명시로 넘기면 그 값을 따른다(false로 끌 수 있어야 함).
+    // 안 넘기면 종전처럼 labelProp 유무로 판단.
+    var showLabel   = opts.showLabel != null ? opts.showLabel === true : !!labelProp;
     // 한반도 전체 줌(~6, res≈2000~3000)에서도 글자가 보이도록 기본값을 넉넉히
     var labelMinRes = opts.labelMinResolution != null ? opts.labelMinResolution : 20000;
     var labelSize   = opts.labelSize || 13;
@@ -340,6 +342,12 @@
       }
     });
     layer.setZIndex(zIndex);
+    // 생성 후에도 라벨만 켜고 끌 수 있게 (면색은 그대로 두고 글자만 감춤)
+    layer.setLabelsVisible = function (v) {
+      showLabel = !!v;
+      layer.changed();
+    };
+    layer.getLabelsVisible = function () { return showLabel; };
     return layer;
   }
 

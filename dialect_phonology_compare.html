@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>지역어 음운 비교 (프로토타입) — 국립국어원</title>
+<title>변이형 비교 (프로토타입) — 국립국어원</title>
 <link rel="shortcut icon" href="./favicon.ico">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <link rel="stylesheet" href="./styles.css">
@@ -203,7 +203,7 @@
 
   <div class="sub-visual">
     <div class="wrap">
-      <h1 class="sv-title">지역어 음운 비교</h1>
+      <h1 class="sv-title">변이형 비교</h1>
       <div class="location-bar">
         <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
         <i class="ti ti-chevron-right loc-sep" aria-hidden="true"></i>
@@ -222,8 +222,7 @@
             <option value="./dialect_search_prototype.html">통합자료검색</option>
             <option value="./vocab_dialect.html">어휘조사자료</option>
             <option value="./oral_dialect.html">구술발화조사자료</option>
-            <option value="./dialect_variant_compare.html">지역어 변이형 비교</option>
-            <option value="./dialect_phonology_compare.html" selected>지역어 음운 비교</option>
+            <option value="./dialect_phonology_compare.html" selected>변이형 비교</option>
           </select>
         </div>
       </div>
@@ -703,9 +702,32 @@
     try {
       const index = await loadJSON(BASE + '/phonology_items.json');
       state.parents = (index.items || []).filter(it => it.is_parent);
+      // 통합 검색 등에서 ?code= / ?q= 로 진입 시 해당 항목 선택
+      const params = new URLSearchParams(location.search || '');
+      const qParam = (params.get('q') || params.get('word') || '').trim();
+      const codeParam = (params.get('code') || '').trim();
+      if (qParam) {
+        state.query = qParam;
+        const ws = $('wordSearch');
+        if (ws) ws.value = qParam;
+        const wrap = $('wordSearchWrap');
+        if (wrap) wrap.classList.add('has-value');
+      }
       renderGrid();
+      let def = null;
+      if (codeParam) {
+        def = state.parents.find(p => String(p.item_code) === codeParam) || null;
+      }
+      if (!def && qParam) {
+        const qLow = qParam.toLowerCase();
+        def = state.parents.find(p => {
+          const form = (p.standard_form || '').toLowerCase();
+          const plain = form.replace(/[（(].*$/, '').trim();
+          return form.includes(qLow) || plain.includes(qLow) || String(p.item_code).includes(qLow);
+        }) || null;
+      }
       // 기본 선택: 테(輪) 있으면 그것으로, 없으면 첫 항목
-      const def = state.parents.find(p => p.item_code === '31001') || state.parents[0];
+      if (!def) def = state.parents.find(p => p.item_code === '31001') || state.parents[0];
       if (def) await selectParent(def.item_code);
     } catch (e) {
       $('bootError').classList.remove('hidden');

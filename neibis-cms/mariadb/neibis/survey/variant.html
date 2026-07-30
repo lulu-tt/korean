@@ -461,6 +461,12 @@
 										<li data-level="3" class="on">
 													<a href="/mariadb/neibis/survey/variant.do" >지역어 변이형 비교</a>
 										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/survey/search-std-vocab.do" >검색 표준어 어휘 관리</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/survey/search-topic.do" >검색 주제 분류 관리</a>
+										</li>
 										</ul></li>
 										<li data-level="2" >
 													<a href="javascript:void(0)">지역어 지도</a>
@@ -590,13 +596,124 @@
 							<span class="sr-only">메뉴</span>
 						</a>
 					</div>
+					
+					
 					<div class="content-body">
-						<div class="card">
-							<div class="text-center" style="padding:100px 20px;">
-								<p style="color:#94a3b8; font-size:15px;">준비 중인 페이지입니다.</p>
+						<form id="search-form" class="search-form" onsubmit="return false;">
+							<h3 class="title1 text-primary mt-md-4 ml-md-4">변이형 비교 항목 검색영역</h3>
+							<div class="card">
+								<div class="table table-form-basic">
+									<div class="table-inner">
+										<table>
+											<caption class="sr-only">변이형 비교 항목 검색조건</caption>
+											<tbody>
+												<tr>
+													<th scope="row">표준어(항목)</th>
+													<td>
+														<input type="text" class="form-control" id="schWord" style="max-width:320px" placeholder="표준어·코드 검색 (예: 테, 31001)" />
+													</td>
+													<th scope="row">구분</th>
+													<td>
+														<select class="form-control" id="schBand" style="width:180px" title="구분">
+															<option value="">전체</option>
+															<option value="310">체언 대립(310)</option>
+															<option value="320">활용 320</option>
+															<option value="321">활용 321</option>
+															<option value="322">활용 322</option>
+															<option value="323">활용 323</option>
+														</select>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">사용여부</th>
+													<td colspan="3">
+														<label class="check-item"><input type="radio" name="schUseYn" value="" checked /><span class="label">전체</span></label>
+														<label class="check-item"><input type="radio" name="schUseYn" value="Y" /><span class="label">사용(Y)</span></label>
+														<label class="check-item"><input type="radio" name="schUseYn" value="N" /><span class="label">미사용(N)</span></label>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="btn-group-center">
+									<button type="button" class="btn btn-md btn-outline-gray" id="btnInit"><i class="ico ico-undo-darkgray-md"></i><span class="text">초기화</span></button>
+									<button type="button" class="btn btn-md btn-primary" id="btnSearch"><i class="ico ico-search-white-md"></i><span class="text">검색</span></button>
+								</div>
 							</div>
-						</div>
+
+							<div class="card">
+								<div class="list-control">
+									<div class="left">
+										<p class="total">총 <strong class="text-primary" id="totalCnt">0</strong>건 <span id="pageInfo" style="color:#64748b;font-size:13px"></span></p>
+										<button type="button" class="btn btn-xs btn-outline-gray" id="btnDeselect">선택해제</button>
+										<button type="button" class="btn btn-xs btn-gray btn-delete" id="btnDeleteSel"><i class="ico ico-close-white-sm mr-0"></i> 선택삭제</button>
+										<button type="button" class="btn btn-xs btn-outline-gray" id="btnToggleUseY">선택 사용(Y)</button>
+										<button type="button" class="btn btn-xs btn-outline-gray" id="btnToggleUseN">선택 미사용(N)</button>
+									</div>
+									<div class="right">
+										<select class="form-control-sm" id="pageSize" style="min-width:100px" title="목록 수">
+											<option value="10">10</option>
+											<option value="20" selected>20</option>
+											<option value="50">50</option>
+											<option value="100">100</option>
+											<option value="9999">전체</option>
+										</select>
+										<button type="button" class="btn btn-sm btn-outline-gray ml-1" id="btnApplySize">적용</button>
+										<button type="button" class="btn btn-sm btn-primary ml-1" id="btnOpenReg"><i class="ico ico-plus-white-sm"></i><span>등록</span></button>
+										<button type="button" class="btn btn-sm btn-outline-gray ml-1" id="btnBulkOpen">일괄등록</button>
+										<button type="button" class="btn btn-sm btn-outline-gray ml-1" id="btnResetSeed">초기데이터 복원</button>
+										<button type="button" class="btn btn-sm btn-outline-gray ml-1" id="btnExportJson">JSON 내보내기</button>
+										<a href="http://127.0.0.1:8765/dialect_phonology_compare.html" target="_blank" class="btn btn-sm btn-outline-gray ml-1">사용자 화면</a>
+									</div>
+								</div>
+
+								<div class="table table-list">
+									<div class="table-inner">
+										<table>
+											<caption class="sr-only">변이형 비교 항목 목록</caption>
+											<colgroup>
+												<col style="width:48px" />
+												<col style="width:56px" />
+												<col style="width:100px" />
+												<col />
+												<col style="width:110px" />
+												<col style="width:80px" />
+												<col style="width:70px" />
+												<col style="width:80px" />
+												<col style="width:110px" />
+												<col style="width:200px" />
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col"><label class="check-item"><input type="checkbox" id="chkAll" /><span class="label sr-only">전체선택</span></label></th>
+													<th scope="col">번호</th>
+													<th scope="col">항목코드</th>
+													<th scope="col">표준어(항목)</th>
+													<th scope="col">구분</th>
+													<th scope="col">하위환경</th>
+													<th scope="col">정렬</th>
+													<th scope="col">사용</th>
+													<th scope="col">수정일</th>
+													<th scope="col">관리</th>
+												</tr>
+											</thead>
+											<tbody id="listBody">
+												<tr><td colspan="10" class="text-center" style="padding:40px;color:#94a3b8">불러오는 중…</td></tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="pagination" id="pagination" style="display:flex;justify-content:center;gap:4px;padding:16px 0;"></div>
+								<p class="mt-2" style="color:#64748b;font-size:13px;line-height:1.55;padding:0 4px 8px;">
+									※ 사용자 화면 <strong>변이형 비교</strong>·통합 검색 「변이형 비교」탭에 노출되는 <strong>비교 항목(부모 코드)</strong> 마스터입니다.
+									지점별 조사 원문(응답)은 <code>data/processed/items/{코드}.json</code> / DB에 있으며, 본 화면 1차 프로토타입은 항목·하위 환경 표제어 관리에 초점을 둡니다.
+									변경분은 브라우저 <code>localStorage</code>에 저장됩니다.
+								</p>
+							</div>
+						</form>
 					</div>
+
 				</article>
 			</div>
 		</div>
@@ -976,6 +1093,447 @@ const getMngrFail = function (xhr, status, error) {
 	})
 }
 </script>
+		<!-- 등록/수정 모달 -->
+		<div class="modal-popup modal-md hide" id="layer-variant-form">
+			<div class="dimed" onclick="closeVariantForm()"></div>
+			<div class="popup-inner" style="max-width:640px">
+				<div class="popup-header">
+					<h2 class="popup-title" id="variantFormTitle">변이형 항목 등록</h2>
+				</div>
+				<div class="popup-body">
+					<div class="table table-form-basic">
+						<div class="table-inner">
+							<table>
+								<caption class="sr-only">변이형 항목 등록/수정</caption>
+								<tbody>
+									<tr>
+										<th scope="row"><label for="fCode">항목코드<i class="req">필수입력</i></label></th>
+										<td><input type="text" id="fCode" class="form-control" maxlength="40" placeholder="예: 31001" /></td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="fForm">표준어(항목)<i class="req">필수입력</i></label></th>
+										<td><input type="text" id="fForm" class="form-control" maxlength="80" placeholder="예: 테(輪)" /></td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="fBand">구분</label></th>
+										<td>
+											<select id="fBand" class="form-control" style="max-width:220px">
+												<option value="310">체언 대립 (310)</option>
+												<option value="320">활용 (320)</option>
+												<option value="321">활용 (321)</option>
+												<option value="322">활용 (322)</option>
+												<option value="323">활용 (323)</option>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="fSort">정렬순서</label></th>
+										<td><input type="number" id="fSort" class="form-control" style="max-width:140px" min="1" step="1" /></td>
+									</tr>
+									<tr>
+										<th scope="row">사용여부</th>
+										<td>
+											<label class="check-item"><input type="radio" name="fUseYn" value="Y" checked /><span class="label">사용(Y)</span></label>
+											<label class="check-item"><input type="radio" name="fUseYn" value="N" /><span class="label">미사용(N)</span></label>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="fRmrk">비고</label></th>
+										<td><input type="text" id="fRmrk" class="form-control" maxlength="200" placeholder="선택 입력" /></td>
+									</tr>
+									<tr>
+										<th scope="row">하위 환경</th>
+										<td>
+											<p style="font-size:12px;color:#64748b;margin:0 0 8px">한 줄에 하나. 형식: <code>코드|표제어</code> 또는 표제어만 (코드 자동)</p>
+											<textarea id="fChildren" class="form-control" rows="6" placeholder="31001-0-1|-이/가&#10;31001-0-2|-보다"></textarea>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="popup-footer">
+					<div class="btn-group-center">
+						<button type="button" class="btn btn-md btn-outline-gray" onclick="closeVariantForm()">취소</button>
+						<button type="button" class="btn btn-md btn-primary" id="btnSaveForm"><i class="ico ico-save-white-md"></i><span>저장</span></button>
+					</div>
+				</div>
+			</div>
+		</div>
 
-	</body>
+		<!-- 일괄 등록 -->
+		<div class="modal-popup modal-md hide" id="layer-variant-bulk">
+			<div class="dimed" onclick="closeBulk()"></div>
+			<div class="popup-inner">
+				<div class="popup-header"><h2 class="popup-title">변이형 항목 일괄 등록</h2></div>
+				<div class="popup-body">
+					<p style="font-size:13px;color:#64748b;margin-bottom:10px;">한 줄에 하나. 형식: <code>항목코드|표준어|구분코드(310~323)</code></p>
+					<textarea id="bulkText" class="form-control" rows="12" placeholder="31999|새항목(例)|310&#10;32999|듣-테스트|320"></textarea>
+				</div>
+				<div class="popup-footer">
+					<div class="btn-group-center">
+						<button type="button" class="btn btn-md btn-outline-gray" onclick="closeBulk()">취소</button>
+						<button type="button" class="btn btn-md btn-primary" id="btnBulkSave"><i class="ico ico-save-white-md"></i><span>일괄 등록</span></button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+(function () {
+  var STORAGE_KEY = 'neibis.variantItems.v1';
+  var SEED_URL = '/mariadb/neibis/survey/data/variant-items-seed.json';
+  var BAND_LABEL = { '310': '체언 대립', '320': '활용', '321': '활용', '322': '활용', '323': '활용' };
+  var state = { items: [], filtered: [], page: 1, pageSize: 20, editId: null };
+
+  function today() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+  function loadLocal() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      var data = JSON.parse(raw);
+      return Array.isArray(data.items) ? data.items : null;
+    } catch (e) { return null; }
+  }
+  function saveLocal() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ items: state.items, updated: today() }));
+  }
+  function nextId() {
+    var max = 0;
+    state.items.forEach(function (it) { if (it.id > max) max = it.id; });
+    return max + 1;
+  }
+  function bandLabel(b) { return BAND_LABEL[b] || b || '기타'; }
+  function normalizeItem(it, i) {
+    var band = String(it.band || (String(it.item_code || '').slice(0, 3)) || '310');
+    return {
+      id: it.id || (i + 1),
+      item_code: String(it.item_code || '').trim(),
+      standard_form: String(it.standard_form || it.word || '').trim(),
+      band: band,
+      band_label: it.band_label || bandLabel(band),
+      is_parent: true,
+      useYn: it.useYn === 'N' ? 'N' : 'Y',
+      sortOrdr: Number(it.sortOrdr) || (i + 1),
+      rmrk: it.rmrk || '',
+      children: Array.isArray(it.children) ? it.children.map(function (c, j) {
+        return {
+          item_code: String(c.item_code || '').trim(),
+          standard_form: String(c.standard_form || '').trim(),
+          sortOrdr: Number(c.sortOrdr) || (j + 1),
+          useYn: c.useYn === 'N' ? 'N' : 'Y'
+        };
+      }) : [],
+      regDt: it.regDt || today(),
+      updDt: it.updDt || today()
+    };
+  }
+  function loadSeed(force) {
+    return fetch(SEED_URL).then(function (r) {
+      if (!r.ok) throw new Error('seed HTTP ' + r.status);
+      return r.json();
+    }).then(function (data) {
+      var items = (data.items || []).map(normalizeItem);
+      if (force || !loadLocal()) {
+        state.items = items;
+        saveLocal();
+      } else {
+        state.items = loadLocal().map(normalizeItem);
+      }
+      applyFilter(true);
+    }).catch(function (err) {
+      console.warn(err);
+      state.items = loadLocal() || [];
+      applyFilter(true);
+      alert('초기 데이터를 불러오지 못했습니다. 서버·경로를 확인해 주세요.');
+    });
+  }
+
+  function applyFilter(resetPage) {
+    var q = ($('#schWord').val() || '').trim().toLowerCase();
+    var band = $('#schBand').val() || '';
+    var use = $('input[name=schUseYn]:checked').val() || '';
+    var list = state.items.slice();
+    if (q) {
+      list = list.filter(function (it) {
+        return (it.standard_form || '').toLowerCase().indexOf(q) >= 0 ||
+          (it.item_code || '').toLowerCase().indexOf(q) >= 0 ||
+          (it.rmrk || '').toLowerCase().indexOf(q) >= 0;
+      });
+    }
+    if (band) list = list.filter(function (it) { return String(it.band) === band; });
+    if (use) list = list.filter(function (it) { return it.useYn === use; });
+    list.sort(function (a, b) {
+      if (a.sortOrdr !== b.sortOrdr) return a.sortOrdr - b.sortOrdr;
+      return String(a.item_code).localeCompare(String(b.item_code));
+    });
+    state.filtered = list;
+    if (resetPage) state.page = 1;
+    render();
+  }
+
+  function pageSlice() {
+    var size = state.pageSize;
+    if (size >= 9999) return { rows: state.filtered, pages: 1, start: 0 };
+    var pages = Math.max(1, Math.ceil(state.filtered.length / size));
+    if (state.page > pages) state.page = pages;
+    var start = (state.page - 1) * size;
+    return { rows: state.filtered.slice(start, start + size), pages: pages, start: start };
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function render() {
+    var slice = pageSlice();
+    var rows = slice.rows;
+    var start = slice.start || 0;
+    $('#totalCnt').text(state.filtered.length.toLocaleString('ko-KR'));
+    $('#pageInfo').text(state.filtered.length ? '(' + state.page + '/' + slice.pages + ' page)' : '');
+    var html = '';
+    if (!rows.length) {
+      html = '<tr><td colspan="10" class="text-center" style="padding:40px;color:#94a3b8">검색 결과가 없습니다.</td></tr>';
+    } else {
+      rows.forEach(function (it, i) {
+        var no = start + i + 1;
+        var childN = (it.children && it.children.length) || 0;
+        html += '<tr data-id="' + it.id + '">' +
+          '<td><label class="check-item"><input type="checkbox" name="chk" value="' + it.id + '" /><span class="label sr-only">선택</span></label></td>' +
+          '<td>' + no + '</td>' +
+          '<td><code>' + esc(it.item_code) + '</code></td>' +
+          '<td class="text-left"><strong>' + esc(it.standard_form) + '</strong>' +
+            (it.rmrk ? ' <span style="color:#94a3b8;font-size:12px">(' + esc(it.rmrk) + ')</span>' : '') + '</td>' +
+          '<td>' + esc(it.band_label || bandLabel(it.band)) + '<br><span style="font-size:11px;color:#94a3b8">' + esc(it.band) + '</span></td>' +
+          '<td>' + childN + '</td>' +
+          '<td>' + it.sortOrdr + '</td>' +
+          '<td>' + (it.useYn === 'Y' ? '<span class="text-primary">Y</span>' : '<span style="color:#94a3b8">N</span>') + '</td>' +
+          '<td>' + esc(it.updDt || '-') + '</td>' +
+          '<td>' +
+            '<button type="button" class="btn btn-xs btn-outline-gray btn-modify" data-act="edit"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></button> ' +
+            '<a class="btn btn-xs btn-outline-gray" target="_blank" href="http://127.0.0.1:8765/dialect_phonology_compare.html?code=' + encodeURIComponent(it.item_code) + '">미리보기</a> ' +
+            '<button type="button" class="btn btn-xs btn-gray btn-delete" data-act="del"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button>' +
+          '</td></tr>';
+      });
+    }
+    $('#listBody').html(html);
+    $('#chkAll').prop('checked', false);
+    renderPager(slice.pages);
+  }
+
+  function renderPager(pages) {
+    var $p = $('#pagination').empty();
+    if (pages <= 1) return;
+    function add(label, page, disabled, active) {
+      var $b = $('<button type="button" class="btn btn-sm ' + (active ? 'btn-primary' : 'btn-outline-gray') + '"/>').text(label);
+      if (disabled) $b.prop('disabled', true);
+      else $b.on('click', function () { state.page = page; render(); });
+      $p.append($b);
+    }
+    add('«', 1, state.page === 1);
+    add('‹', Math.max(1, state.page - 1), state.page === 1);
+    var from = Math.max(1, state.page - 2), to = Math.min(pages, state.page + 2);
+    for (var i = from; i <= to; i++) add(String(i), i, false, i === state.page);
+    add('›', Math.min(pages, state.page + 1), state.page === pages);
+    add('»', pages, state.page === pages);
+  }
+
+  function selectedIds() {
+    return $('input[name=chk]:checked').map(function () { return Number(this.value); }).get();
+  }
+
+  function childrenToText(children) {
+    return (children || []).map(function (c) {
+      if (c.item_code) return c.item_code + '|' + (c.standard_form || '');
+      return c.standard_form || '';
+    }).join('\n');
+  }
+  function parseChildren(text, parentCode) {
+    var lines = String(text || '').split(/\n+/).map(function (s) { return s.trim(); }).filter(Boolean);
+    var out = [];
+    lines.forEach(function (line, j) {
+      var code = '', form = line;
+      if (line.indexOf('|') >= 0) {
+        var parts = line.split('|');
+        code = parts[0].trim();
+        form = parts.slice(1).join('|').trim();
+      } else {
+        code = parentCode + '-0-' + (j + 1);
+      }
+      if (!form) return;
+      out.push({ item_code: code, standard_form: form, sortOrdr: j + 1, useYn: 'Y' });
+    });
+    return out;
+  }
+
+  function openForm(item) {
+    state.editId = item ? item.id : null;
+    $('#variantFormTitle').text(item ? '변이형 항목 수정' : '변이형 항목 등록');
+    $('#fCode').val(item ? item.item_code : '');
+    $('#fForm').val(item ? item.standard_form : '');
+    $('#fBand').val(item ? item.band : '310');
+    $('#fSort').val(item ? item.sortOrdr : nextId());
+    $('#fRmrk').val(item ? (item.rmrk || '') : '');
+    $('#fChildren').val(item ? childrenToText(item.children) : '');
+    $('input[name=fUseYn][value="' + (item && item.useYn === 'N' ? 'N' : 'Y') + '"]').prop('checked', true);
+    $('#layer-variant-form').removeClass('hide');
+    setTimeout(function () { $('#fForm').focus(); }, 50);
+  }
+  window.closeVariantForm = function () {
+    $('#layer-variant-form').addClass('hide');
+    state.editId = null;
+  };
+  window.closeBulk = function () {
+    $('#layer-variant-bulk').addClass('hide');
+    $('#bulkText').val('');
+  };
+
+  function saveForm() {
+    var code = ($('#fCode').val() || '').trim();
+    var form = ($('#fForm').val() || '').trim();
+    var band = $('#fBand').val() || '310';
+    var sortOrdr = parseInt($('#fSort').val(), 10) || nextId();
+    var useYn = $('input[name=fUseYn]:checked').val() || 'Y';
+    var rmrk = ($('#fRmrk').val() || '').trim();
+    if (!code) { alert('항목코드를 입력해 주세요.'); $('#fCode').focus(); return; }
+    if (!form) { alert('표준어(항목)를 입력해 주세요.'); $('#fForm').focus(); return; }
+    var dup = state.items.find(function (it) {
+      return it.item_code === code && it.id !== state.editId;
+    });
+    if (dup) { alert('이미 등록된 항목코드입니다: ' + code); return; }
+    var children = parseChildren($('#fChildren').val(), code);
+
+    if (state.editId) {
+      state.items = state.items.map(function (it) {
+        if (it.id !== state.editId) return it;
+        return Object.assign({}, it, {
+          item_code: code, standard_form: form, band: band, band_label: bandLabel(band),
+          sortOrdr: sortOrdr, useYn: useYn, rmrk: rmrk, children: children, updDt: today()
+        });
+      });
+    } else {
+      state.items.push({
+        id: nextId(), item_code: code, standard_form: form, band: band, band_label: bandLabel(band),
+        is_parent: true, useYn: useYn, sortOrdr: sortOrdr, rmrk: rmrk, children: children,
+        regDt: today(), updDt: today()
+      });
+    }
+    saveLocal();
+    closeVariantForm();
+    applyFilter(false);
+  }
+
+  function deleteIds(ids) {
+    if (!ids.length) { alert('선택된 항목이 없습니다.'); return; }
+    if (!confirm(ids.length + '건을 삭제할까요?')) return;
+    var set = {};
+    ids.forEach(function (id) { set[id] = true; });
+    state.items = state.items.filter(function (it) { return !set[it.id]; });
+    saveLocal();
+    applyFilter(false);
+  }
+  function setUseYn(ids, yn) {
+    if (!ids.length) { alert('선택된 항목이 없습니다.'); return; }
+    var set = {};
+    ids.forEach(function (id) { set[id] = true; });
+    state.items = state.items.map(function (it) {
+      if (!set[it.id]) return it;
+      return Object.assign({}, it, { useYn: yn, updDt: today() });
+    });
+    saveLocal();
+    applyFilter(false);
+  }
+  function bulkSave() {
+    var text = $('#bulkText').val() || '';
+    var lines = text.split(/\n+/).map(function (s) { return s.trim(); }).filter(Boolean);
+    if (!lines.length) { alert('등록할 항목을 입력해 주세요.'); return; }
+    var exist = {};
+    state.items.forEach(function (it) { exist[it.item_code] = true; });
+    var added = 0, skipped = 0;
+    lines.forEach(function (line) {
+      var parts = line.split('|').map(function (s) { return s.trim(); });
+      var code = parts[0] || '';
+      var form = parts[1] || '';
+      var band = parts[2] || (code.slice(0, 3) || '310');
+      if (!code || !form) { skipped++; return; }
+      if (exist[code]) { skipped++; return; }
+      exist[code] = true;
+      state.items.push({
+        id: nextId(), item_code: code, standard_form: form, band: band, band_label: bandLabel(band),
+        is_parent: true, useYn: 'Y', sortOrdr: nextId(), rmrk: '', children: [],
+        regDt: today(), updDt: today()
+      });
+      added++;
+    });
+    saveLocal();
+    closeBulk();
+    applyFilter(true);
+    alert('등록 ' + added + '건' + (skipped ? ', 건너뜀 ' + skipped + '건' : '') + ' 완료');
+  }
+  function exportJson() {
+    var blob = new Blob([JSON.stringify({
+      domain: 'phonology',
+      updated: today(),
+      items: state.items
+    }, null, 2)], { type: 'application/json;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'variant-items.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  $(function () {
+    $('#btnSearch').on('click', function () { applyFilter(true); });
+    $('#btnInit').on('click', function () {
+      $('#schWord').val('');
+      $('#schBand').val('');
+      $('input[name=schUseYn][value=""]').prop('checked', true);
+      applyFilter(true);
+    });
+    $('#schWord').on('keydown', function (e) { if (e.key === 'Enter') applyFilter(true); });
+    $('#btnApplySize').on('click', function () {
+      state.pageSize = parseInt($('#pageSize').val(), 10) || 20;
+      applyFilter(true);
+    });
+    $('#chkAll').on('change', function () { $('input[name=chk]').prop('checked', this.checked); });
+    $('#btnDeselect').on('click', function () { $('input[name=chk], #chkAll').prop('checked', false); });
+    $('#btnDeleteSel').on('click', function () { deleteIds(selectedIds()); });
+    $('#btnToggleUseY').on('click', function () { setUseYn(selectedIds(), 'Y'); });
+    $('#btnToggleUseN').on('click', function () { setUseYn(selectedIds(), 'N'); });
+    $('#btnOpenReg').on('click', function () { openForm(null); });
+    $('#btnSaveForm').on('click', saveForm);
+    $('#btnBulkOpen').on('click', function () { $('#layer-variant-bulk').removeClass('hide'); });
+    $('#btnBulkSave').on('click', bulkSave);
+    $('#btnResetSeed').on('click', function () {
+      if (!confirm('초기 데이터(phonology 부모 450항목)로 복원할까요? 현재 변경사항은 사라집니다.')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      loadSeed(true);
+    });
+    $('#btnExportJson').on('click', exportJson);
+    $('#listBody').on('click', '[data-act]', function () {
+      var id = Number($(this).closest('tr').data('id'));
+      var item = state.items.find(function (it) { return it.id === id; });
+      if (!item) return;
+      if (this.getAttribute('data-act') === 'edit') openForm(item);
+      else if (this.getAttribute('data-act') === 'del') deleteIds([id]);
+    });
+
+    var local = loadLocal();
+    if (local && local.length) {
+      state.items = local.map(normalizeItem);
+      applyFilter(true);
+    } else {
+      loadSeed(true);
+    }
+  });
+})();
+		</script>
+
+</body>
 </html>

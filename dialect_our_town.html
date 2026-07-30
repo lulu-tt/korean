@@ -823,6 +823,7 @@ body.is-compare .map-panel__head {
                 </div>
                 <div class="popmenu__sec">
                   <div class="popmenu__label">표시 요소</div>
+                  <label class="mschk"><input type="checkbox" class="mschk__cb" id="hideWords" checked> 지역어 단어 숨기기 <span style="color:#94a3b8;font-weight:600">(면색만 보기)</span></label>
                   <label class="mschk"><input type="checkbox" class="mschk__cb" id="hideArea"> 면색(분포권) 숨기기</label>
                 </div>
               </div>
@@ -969,6 +970,7 @@ body.is-compare .map-panel__head {
     sido: false,
     sigungu: false,
     hideArea: false,
+    hideWords: true,    // 면색 위의 방언형 글자 숨기기 (글자가 너무 겹쳐 기본 숨김)
   };
 
   /** 지도 이동 동기화 상태 */
@@ -1025,6 +1027,7 @@ body.is-compare .map-panel__head {
     api.showSido(!!mapSettings.sido);
     api.showSigungu(!!mapSettings.sigungu);
     api.setAreaVisible(!mapSettings.hideArea);
+    if (api.setAreaLabelsVisible) api.setAreaLabelsVisible(!mapSettings.hideWords);
     Object.keys(mapSettings.overlays).forEach((k) => {
       api.showOverlay(k, !!mapSettings.overlays[k]);
     });
@@ -1608,6 +1611,10 @@ body.is-compare .map-panel__head {
     mapSettings.hideArea = hide;
     eachMapApi((api) => api.setAreaVisible(!hide));
   }
+  function applyHideWords(hide) {
+    mapSettings.hideWords = hide;
+    eachMapApi((api) => { if (api.setAreaLabelsVisible) api.setAreaLabelsVisible(!hide); });
+  }
 
   [['ovRivers', 'rivers'], ['ovRail', 'rail'], ['ovRoads', 'roads'], ['ovMountains', 'mountains']].forEach((pair) => {
     const el = document.getElementById(pair[0]);
@@ -1619,6 +1626,8 @@ body.is-compare .map-panel__head {
   if (elSigungu) elSigungu.addEventListener('change', function () { applySigungu(this.checked); });
   const elHideArea = document.getElementById('hideArea');
   if (elHideArea) elHideArea.addEventListener('change', function () { applyHideArea(this.checked); });
+  const elHideWords = document.getElementById('hideWords');
+  if (elHideWords) elHideWords.addEventListener('change', function () { applyHideWords(this.checked); });
 
   // 팝오버 열고 닫기 (지도 설정 / 다운로드)
   function bindPop(btnId, popId) {

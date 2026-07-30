@@ -853,7 +853,9 @@
           fillAlpha: opts.areaFillAlpha != null ? opts.areaFillAlpha : 0.24,
           strokeAlpha: opts.areaStrokeAlpha != null ? opts.areaStrokeAlpha : 0.42,
           strokeWidth: 0.9,
-          labelProp: opts.areaLabels ? 'word' : null,
+          // labelProp는 항상 지정해 두고 표시 여부는 showLabel로만 제어한다.
+          // (나중에 setAreaLabelsVisible로 다시 켤 수 있어야 하므로)
+          labelProp: 'word',
           showLabel: !!opts.areaLabels,
           labelSize: opts.areaLabelSize || 13,
           // 한반도 전체(줌 ~6) 해상도에서도 글자 보이도록 여유 있게
@@ -1161,6 +1163,12 @@
         olMap.getView().animate({ center: ol.proj.fromLonLat(opts.center), zoom: opts.zoom, duration: 350 });
       },
       setAreaVisible: function (v) { if (areaLayer) areaLayer.setVisible(!!v); },
+      /* 면색 위의 방언형 글자만 켜고 끄기.
+         opts.areaLabels를 함께 갱신해, 단어 변경 등으로 면색 레이어가 다시 만들어져도 상태가 유지된다. */
+      setAreaLabelsVisible: function (v) {
+        opts.areaLabels = !!v;
+        if (areaLayer && areaLayer.setLabelsVisible) areaLayer.setLabelsVisible(!!v);
+      },
       setMarkersVisible: function (v) { if (markerLayer) markerLayer.setVisible(!!v); },
       showSido: function (v) { if (regionLayers) regionLayers.showSido(!!v); },
       showSigungu: function (v) { if (regionLayers) regionLayers.showSigungu(!!v); },
