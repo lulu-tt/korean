@@ -69,7 +69,9 @@ body {
   margin: 0 auto;
 }
 .gov-banner__icon {
-  font-size: 14px;
+  height: 14px;
+  width: auto;
+  vertical-align: middle;
 }
 
 /* Top bar */
