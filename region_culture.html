@@ -488,28 +488,44 @@ function renderChips() {
 
 function fetchRegionCultureData() {
   const q = curSearch.trim();
-  const url = `/api/region_culture?q=${encodeURIComponent(q)}`;
+  const url = q ? `/api/region_culture?q=${encodeURIComponent(q)}` : `/api/region_culture`;
   
   fetch(url)
-    .then(res => res.json())
     .then(res => {
-      if(res.status === 'success') {
-        CATEGORIES = res.data.map((c, i) => {
-          const sampleImg = (c.samples && c.samples[0] && c.samples[0].img) ? c.samples[0].img : './image/200911310.jpg';
-          return {
-            id: c.subject,
-            name: c.subject,
-            count: c.total_count,
-            region: c.regions || '전국',
-            img: sampleImg,
-            desc: (c.samples && c.samples[0] && c.samples[0].mean) ? c.samples[0].mean : `${c.subject} 분야의 사진 및 생활 어휘 조사 자료`,
-            samples: c.samples || []
-          };
-        });
-        renderCategories();
-      }
+      if(!res.ok) throw new Error('API not available');
+      return res.json();
     })
-    .catch(err => console.error('Region Culture API error:', err));
+    .then(res => processData(res.data))
+    .catch(() => {
+      // GitHub Pages 또는 파이썬 서버 미작동 시 정적 JSON 폴백
+      fetch('./data/processed/region_culture_categories.json')
+        .then(r => r.json())
+        .then(res => {
+          let list = res.data || [];
+          if (q) {
+            list = list.filter(c => c.subject.includes(q) || (c.samples && c.samples.some(s => (s.title && s.title.includes(q)) || (s.mean && s.mean.includes(q)))));
+          }
+          processData(list);
+        })
+        .catch(err => console.error('Region Culture fallback error:', err));
+    });
+
+  function processData(data) {
+    if(!data) return;
+    CATEGORIES = data.map((c, i) => {
+      const sampleImg = (c.samples && c.samples[0] && c.samples[0].img) ? c.samples[0].img : './image/200911310.jpg';
+      return {
+        id: c.subject,
+        name: c.subject,
+        count: c.total_count,
+        region: c.regions || '전국',
+        img: sampleImg,
+        desc: (c.samples && c.samples[0] && c.samples[0].mean) ? c.samples[0].mean : `${c.subject} 분야의 사진 및 생활 어휘 조사 자료`,
+        samples: c.samples || []
+      };
+    });
+    renderCategories();
+  }
 }
 
 function formatRegionDisplay(regionStr) {
