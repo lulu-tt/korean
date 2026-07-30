@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1440">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>지역어종합정보 — 자료실 상세</title>
 <link rel="shortcut icon" href="./favicon.ico">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
@@ -117,30 +117,6 @@
   .detail-meta-info span {
     margin-right: 16px;
   }
-  .detail-sns-share {
-    display: flex;
-    gap: 8px;
-  }
-  .sns-btn {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    border: 1px solid #e2e8f0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #475569;
-    background-color: #ffffff;
-    cursor: pointer;
-    font-size: 16px;
-    transition: all 0.2s ease;
-  }
-  .sns-btn:hover {
-    background-color: #f1f5f9;
-    color: #1e293b;
-    border-color: #cbd5e1;
-  }
-
   .divider-heavy {
     height: 2px;
     background-color: #1e293b;
@@ -495,12 +471,6 @@
         <span>등록일 2026-01-27</span>
         <span>조회수 663</span>
       </div>
-      <div class="detail-sns-share">
-        <button class="sns-btn" aria-label="페이스북 공유"><i class="ti ti-brand-facebook"></i></button>
-        <button class="sns-btn" aria-label="X 공유"><i class="ti ti-brand-x"></i></button>
-        <button class="sns-btn" aria-label="블로그 공유"><i class="ti ti-message-circle"></i></button>
-        <button class="sns-btn" aria-label="링크 복사"><i class="ti ti-link"></i></button>
-      </div>
     </div>
   </div>
 
@@ -619,6 +589,5 @@
     if (e.key === 'Escape') closePdfViewer();
   });
 </script>
-<script src="./share.js" defer></script>
 </body>
 </html>

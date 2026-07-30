@@ -1,5 +1,13 @@
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
+@font-face {
+  font-family: 'NanumBarunGothicYetHangul';
+  src: url('https://cdn.jsdelivr.net/npm/@kfonts/nanum-barun-gothic-yet-hangul-otf/NanumBarunGothic-YetHangul.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/npm/@kfonts/nanum-barun-gothic-yet-hangul-otf/NanumBarunGothic-YetHangul.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   --bg: #f8fafc;
   --card: #ffffff;
@@ -28,7 +36,7 @@ html { scrollbar-gutter: stable; overflow-y: scroll; }
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: 'Pretendard', system-ui, -apple-system, sans-serif;
+  font-family: 'Pretendard', 'NanumBarunGothicYetHangul', system-ui, -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;
@@ -53,10 +61,12 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 20px;
+  padding: 6px 30px;
   font-size: 13px;
   color: #4b5563;
   font-weight: 500;
+  max-width: 1920px; /* GNB는 1920까지 확장 (본문 .wrap 1440과 별개) */
+  margin: 0 auto;
 }
 .gov-banner__icon {
   font-size: 14px;
@@ -67,9 +77,10 @@ body {
   position: sticky; top: 0; z-index: 10;
   background: #ffffff;
   border-bottom: 1px solid var(--line);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+  /* GNB 하단 은은한 그라데이션형 그림자로 입체감 부여 */
+  box-shadow: 0 4px 8px -4px rgba(15, 23, 42, 0.05), 0 12px 24px -12px rgba(15, 23, 42, 0.10);
 }
-.topbar__inner{ display:flex; align-items:center; justify-content:space-between; gap: 18px; padding: 18px 20px !important; }
+.topbar__inner{ display:flex; align-items:center; justify-content:space-between; gap: 18px; padding: 18px 30px !important; max-width: 1920px; margin: 0 auto; }
 .brand{ display:flex; align-items:center; gap: 16px; min-width: 220px; }
 .brand__logo-org { height: 46px; border-right: 1px solid #cbd5e1; padding-right: 16px; }
 .brand__logo-svc { height: 37px; }
@@ -633,9 +644,13 @@ body {
   margin-top: 60px;
   color: #999999;
 }
-.footer__inner {
+.footer .footer__inner {
   display: flex;
   flex-direction: column;
+  max-width: 1920px; /* footer는 1920까지 확장 (페이지별 .wrap 1440 재정의보다 우선) */
+  margin: 0 auto;
+  padding: 0 30px; /* 1920 확장 시 좌우 끝에 붙지 않도록 */
+  box-sizing: border-box;
 }
 .footer__top {
   display: flex;
@@ -799,7 +814,7 @@ body {
    .topbar__inner가 positioning context가 되어, 메가메뉴(position:absolute;
    left:0; right:0)가 .topbar 전체폭 대신 1440px .wrap 기준으로 잡혀 양옆이
    잘린다. topbar__inner는 항상 static으로 고정해 메가메뉴가 .topbar 기준을 유지. */
-.topbar .topbar__inner { position: static; }
+.topbar .topbar__inner { position: static; max-width: 1920px; margin: 0 auto; } /* GNB 1920 (페이지별 .wrap 1440 재정의보다 우선) */
 
 .nav {
   display: flex;
@@ -820,7 +835,7 @@ body {
   font-weight: 700;
   padding: 12px 20px;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 17px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -960,7 +975,9 @@ body {
 
 @media (max-width: 900px) {
   .gov-banner .gov-banner__inner { flex-wrap: wrap; padding: 6px 14px; }
-  .topbar__inner { flex-wrap: wrap; }
+  /* 좁은 화면에서는 좌우 30px이 과하므로 정부배너(14px)와 같은 값으로 줄인다 */
+  .topbar__inner { flex-wrap: wrap; padding: 18px 14px !important; }
+  .footer .footer__inner { padding: 0 14px; }
   .brand { min-width: 0; flex: 1; }
   .brand__logo-org { height: 32px; padding-right: 10px; }
   .brand__logo-svc { height: 24px; }
@@ -1022,7 +1039,7 @@ body {
   .nav { flex-direction: column; align-items: stretch; gap: 0; width: 100%; }
   .nav__item { width: 100%; border-bottom: 1px solid var(--line); }
   .nav__item--auth { display: block; }
-  .nav__link-btn { width: 100%; justify-content: space-between; border-radius: 0; padding: 18px 4px; font-size: 18px; font-weight: 800; color: #0f172a; }
+  .nav__link-btn { width: 100%; justify-content: space-between; border-radius: 0; padding: 18px 4px; font-size: 19px; font-weight: 800; color: #0f172a; }
   .nav__link-btn.is-active { color: var(--blue); border-bottom-color: transparent; }
   .nav__arrow { font-size: 20px; color: #94a3b8; }
   .nav__link-btn.is-active .nav__arrow { color: var(--blue); }

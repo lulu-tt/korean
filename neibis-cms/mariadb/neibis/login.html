@@ -1,0 +1,317 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title id="neibisTopTitle">
+				</title>
+		<link rel="shortcut icon" href="/mariadb/assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="/mariadb/assets/neibis/css/style.css?dt=Mon Jul 27 13:01:14 KST 2026" />
+		<link rel="stylesheet" href="/mariadb/assets/neibis/css/board-attach-ext.css?dt=Mon Jul 27 13:01:14 KST 2026" />
+
+		<!-- JavaScript -->
+		<script src="/mariadb/assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="/mariadb/assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+
+		<!-- I.N.UIX NEIBIS -->
+		<script>
+			window.CONTEXT_ROOT = "mariadb"; // 컨텍스트 루트
+	        window.ACCEPTED_FILES = "";             //전체 허용확장자
+	        window.ACCEPTED_IMAGES = "";             //이미지 허용확장자
+	        window.ACCEPTED_MOVIES = "";             //동영상 허용확장자
+	        window.ACCEPTED_DOCUMENT = "";             //문서 허용확장자
+	        window.UPLOAD_MAX_FILE_SIZE = "";             //최대 용량
+		</script>
+
+
+		<!-- neibis develop plugin -->
+		<script src="/mariadb/assets/neibis/js/jquery.inuix.neibis.min.js?dt=Mon Jul 27 13:01:14 KST 2026"></script>
+		<script src='/mariadb/assets/neibis/js/neibis.messageWrapper.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.actionWrapper.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.ajaxWrapper.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.validator.js'></script>
+		<!-- neibis develop plugin -->
+
+		
+
+		<!-- dropzone -->
+		<script src='/mariadb/assets/neibis/plugins/dropzone/dropzone.min.js'></script>
+
+		<script src="/mariadb/assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="/mariadb/assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="/mariadb/assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="/mariadb/assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+		
+		<script>
+				// TODO : [개발] 정적 개발모드 전환
+				window.addEventListener("DOMContentLoaded", function () {
+					window.UIdevMode = false;
+				});
+
+
+			;
+		</script>
+	</head>
+	<body class="layout-type-sub">
+	<input type="hidden" id="_setToken" value="eyJ0eXAiOiJKV1QiLCJtZW51U24iOiIiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJTRUxFQ1QiLCJqdGkiOiIiLCJpYXQiOjE3ODUxMjQ4NzQsImV4cCI6MTc4NTEyODQ3NH0.cz68kwYz36J0duP_QGEy0-N-04Iiwy-HTgHlSNUxgR0XLmGKXuhch4JO0BB5RXRziuhsefqFd0sOMI7aWx6uZQ"/>
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+	
+				<article id="content">
+				
+					<div class="content-body">
+					
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+						<!-- 본문 영역 -->
+						
+						<div class="login-area">
+							<div class="cont-area">
+								<div class="logo-area">
+									<img src='/mariadb/assets/neibis/images/img-logo.png' alt="샘플 로고" />
+									<span class="text-system">관리시스템</span>
+								</div>
+								<h1 class="title">로그인</h1>
+								<p class="subject">로그인 후 콘텐츠를 손쉽게 관리해보세요.</p>
+				 				<form id="loginForm" action="login.do" method="post">
+									<fieldset>
+										<legend class="sr-only">로그인 정보 입력</legend>
+										<div class="input-area">
+											<div class="row">
+												<label for="userId">아이디</label>
+												<input
+													type="text"
+													id="userId"
+													class="form-control"
+													placeholder="아이디를 입력해주세요."
+													title="아이디를 입력해주세요."
+													autocomplete="username"
+												/>
+											</div>
+											<div class="row">
+												<label for="userPw">비밀번호</label>
+												<div class="input-group pw-group">
+													<input
+														type="password"
+														id="userPw"
+														class="form-control form-pw"
+														placeholder="비밀번호를 입력해주세요."
+														title="비밀번호를 입력해주세요."
+														autocomplete="current-password"
+													/>
+													<button type="button" class="btn btn-pw btn-pw-off">비밀번호 확인</button>
+												</div>
+											</div>
+											<div class="mt-lg-5 mt-md-3">
+												<span class="check-item">
+													<input type="checkbox" id="inputKeep" />
+													<label for="inputKeep">아이디 기억</label>
+												</span>
+											</div>
+											<p class="text-guide mt-5"  id="capsLockWarning" style="display:none; color: red;">
+												<i class="ico ico-exclamation-md"></i>
+												<span id="message-area"></span>
+											</p>
+											<p class="text-guide mt-5"  id="capsLockWarning" style="display:none; color: red;">
+												<i class="ico ico-exclamation-md"></i>
+												<span id="message-area"></span>
+											</p>
+										</div>
+
+										<div class="btn-area">
+											<button type="button" id="login-button" class="btn btn-lg btn-primary btn-block">로그인</button>
+										</div>
+									</fieldset>
+								</form>
+								<!-- 관리자 문의 정보 있을 경우 추가 -->
+								
+							</div>
+                            <div class="copyright-wrap">
+                                <p class="copyright">
+                                   COPYRIGHT SINCE 2023
+									<a href="https://inseq.co.kr/ko/index.do" class="link-text" target="_blank" title="새창 열림"
+										>INSEQUENCE Co., Ltd.</a
+									><br class="d-down-md" />
+									ALL RIGHTS RESERVED. POWERED BY
+									<a
+										href="https://inseq.co.kr/ko/cntnts/i-33/web.do"
+										class="link-text neibis"
+										target="_blank"
+										title="새창 열림"
+										>NEIBIS CMS.</a
+									>
+                                </p>
+							</div>
+						</div>
+						
+
+						<!-- // 본문 영역 -->
+<!-- 페이지 개별 스크립트 -->
+		<script>
+
+		$(function () {
+
+			
+
+			readyInit();	//최초 시작할 init
+			$("#neibisTopTitle").text("NEIBIS | 로그인");
+		});
+
+		const loginAction = function(e){
+			if($("#inputKeep").is(":checked")){
+				localStorage.setItem("idSave", $("#userId").val());
+			}else{
+				localStorage.removeItem("idSave");
+			}
+
+			let value = new NeibisValidator();
+				value.add("userId", {required: true});
+				value.add("userPw", {required: true});
+
+			let result = value.validate();
+			if(!result){
+				$(".text-guide").show();
+				//$("label[for="+value.getErrorElement().id+"]").closest("div").append('<p class="text-guide text-invalid"><span>'+value.getErrorMessage()+'</span></p>');
+				$("#message-area").text(value.getErrorMessage());
+				value.getErrorElement().focus();
+				return false;
+			}else{
+				let param = paramBinding();
+				Ajax.post("/mariadb/neibis-api/v1/core/login",success,fail,{data:JSON.stringify(param)});
+			}
+		}
+
+		const enterAction = function(e){
+			if(e.keyCode == 13){
+				$("#login-button").trigger("click");
+			}
+		}
+
+		const readyInit = function(){
+			$(".text-guide").hide();
+			if(localStorage.getItem("idSave")){
+				$("#userId").val(localStorage.getItem("idSave"));
+				$("#inputKeep").prop("checked",true);
+			}
+			ActionInit.click("#login-button",loginAction);
+			ActionInit.keydown("#userPw",enterAction);
+		}
+
+		const paramBinding = function(){
+			var obj = new Object();
+		//	var rsa = new RSAKey();
+		//	rsa.setPublic($('#RSAModulus').val(),$('#RSAExponent').val());
+			
+			obj.mngrCntnId = $("#userId").val();
+		//	obj.mngrPswdVl = rsa.encrypt($("#userPw").val());
+			obj.mngrPswdVl = $("#userPw").val();
+			return obj;
+		}
+
+		const success = function(data){
+			Message.success(data,function(){
+				window.location.href="/mariadb/neibis/index.do";
+			});
+		}
+
+		const fail = function(xhr, status, error){
+			Message.fail(xhr, status, error,function(){
+				window.location.reload();
+			})
+		}
+		
+		var prevMessage;
+		function checkCapsLock(event) {
+			let message = 'Caps Lock이 켜져있어요';
+			
+			if(typeof event.key !== "undefined"){
+			    const isCapsLock = event.getModifierState('CapsLock');
+			    const tmpMessage = $("#message-area").text();
+			    
+			    if(tmpMessage && tmpMessage != message) {
+		    		prevMessage = $("#message-area").text();
+		    	}
+			    
+			    if (isCapsLock) {
+			    	$("#message-area").text(message);
+			    	$("#capsLockWarning").show();
+			    } else if(prevMessage){
+			    	$("#message-area").text(prevMessage);
+			    	$("#capsLockWarning").show();
+			    } else {
+			    	$("#capsLockWarning").hide();
+			    	prevMessage='';
+			    }
+			}
+		}
+		 
+		document.getElementById('userId').addEventListener('keyup', checkCapsLock);
+		document.getElementById('userPw').addEventListener('keyup', checkCapsLock);
+
+		</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+					</div>
+				</article>
+			</div>
+		</div>
+		
+		
+		
+		
+		
+
+	</body>
+</html>

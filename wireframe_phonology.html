@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>와이어프레임 — 음운 자료 뷰어 (전문가용)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+<style>
+  :root {
+    --bg: #f1f5f9;
+    --card: #fff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --line2: #cbd5e1;
+    --blue: #2563eb;
+    --blue-soft: #eff6ff;
+    --amber: #f59e0b;
+    --amber-bg: #fffbeb;
+    --green: #059669;
+    --green-bg: #ecfdf5;
+    --rose: #e11d48;
+    --rose-bg: #fff1f2;
+    --slate: #475569;
+    --shadow: 0 1px 3px rgba(15,23,42,.06), 0 8px 24px rgba(15,23,42,.04);
+    --radius: 12px;
+    --nav-w: 280px;
+    --side-w: 320px;
+    --top-h: 52px;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: 'Pretendard', system-ui, -apple-system, sans-serif;
+    background: var(--bg); color: var(--text); font-size: 13.5px; line-height: 1.5;
+  }
+  button, input, select { font-family: inherit; }
+
+  /* ── 상단 바 ── */
+  .topbar {
+    height: var(--top-h); background: #0f172a; color: #fff;
+    display: flex; align-items: center; gap: 16px; padding: 0 18px;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .topbar__brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -.02em; }
+  .topbar__brand .wf { font-size: 10px; font-weight: 800; letter-spacing: .06em; background: #f59e0b; color: #0f172a; padding: 2px 7px; border-radius: 4px; }
+  .topbar__brand b { font-size: 14px; }
+  .topbar__meta { font-size: 12px; color: #94a3b8; font-weight: 600; }
+  .topbar__meta span { color: #e2e8f0; }
+  .topbar__right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .topbtn {
+    height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid #334155;
+    background: #1e293b; color: #e2e8f0; font-size: 12px; font-weight: 700; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .topbtn:hover { background: #334155; }
+  .topbtn--pri { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+  /* ── 레이아웃 ── */
+  .app { display: grid; grid-template-columns: var(--nav-w) minmax(0,1fr) var(--side-w); height: calc(100vh - var(--top-h)); }
+  .app.is-side-collapsed { grid-template-columns: var(--nav-w) minmax(0,1fr) 0; }
+  .app.is-side-collapsed .side { display: none; }
+
+  /* ── 좌: 탐색 ── */
+  .nav {
+    background: var(--card); border-right: 1px solid var(--line);
+    display: flex; flex-direction: column; min-height: 0;
+  }
+  .nav__sec { padding: 12px 12px 8px; border-bottom: 1px solid var(--line); }
+  .nav__label { font-size: 10.5px; font-weight: 800; color: #94a3b8; letter-spacing: .04em; margin-bottom: 8px; text-transform: uppercase; }
+  .band-tabs { display: flex; flex-wrap: wrap; gap: 4px; }
+  .band {
+    padding: 5px 9px; border-radius: 7px; border: 1px solid var(--line);
+    background: #fff; font-size: 11.5px; font-weight: 700; color: var(--slate); cursor: pointer;
+  }
+  .band:hover { border-color: #93c5fd; color: var(--blue); }
+  .band.is-on { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: 4px; }
+  .tag {
+    padding: 4px 8px; border-radius: 99px; border: 1px dashed var(--line2);
+    background: #f8fafc; font-size: 11px; font-weight: 700; color: var(--muted); cursor: pointer;
+  }
+  .tag:hover { border-color: #93c5fd; color: var(--blue); border-style: solid; }
+  .tag.is-on { background: #dbeafe; border-color: #93c5fd; color: #1d4ed8; border-style: solid; }
+
+  .nav-search {
+    width: 100%; height: 34px; padding: 0 10px 0 32px; border: 1px solid var(--line);
+    border-radius: 8px; font-size: 12.5px; font-weight: 600; outline: none; background: #f8fafc;
+  }
+  .nav-search:focus { border-color: #93c5fd; background: #fff; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+  .nav-search-wrap { position: relative; }
+  .nav-search-wrap i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 15px; }
+
+  .tree { flex: 1; overflow-y: auto; padding: 8px; }
+  .tree-group { margin-bottom: 2px; }
+  .tree-parent {
+    width: 100%; text-align: left; border: none; background: transparent;
+    padding: 7px 8px; border-radius: 8px; cursor: pointer; display: flex; align-items: flex-start; gap: 6px;
+    font-size: 12.5px; font-weight: 700; color: var(--text);
+  }
+  .tree-parent:hover { background: #f1f5f9; }
+  .tree-parent.is-on { background: var(--blue-soft); color: #1d4ed8; }
+  .tree-parent .chev { color: #94a3b8; font-size: 12px; margin-top: 1px; transition: transform .15s; }
+  .tree-parent.is-open .chev { transform: rotate(90deg); }
+  .tree-parent .code { font-variant-numeric: tabular-nums; color: #94a3b8; font-weight: 700; font-size: 11px; flex: none; }
+  .tree-parent.is-on .code { color: #60a5fa; }
+  .tree-parent .name { flex: 1; min-width: 0; }
+  .tree-parent .name small { display: block; font-weight: 600; color: var(--muted); font-size: 11px; margin-top: 1px; }
+  .tree-kids { padding: 0 0 4px 22px; display: none; }
+  .tree-group.is-open .tree-kids { display: block; }
+  .tree-child {
+    width: 100%; text-align: left; border: none; background: transparent;
+    padding: 5px 8px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--slate);
+    display: flex; gap: 6px; align-items: center;
+  }
+  .tree-child:hover { background: #f8fafc; color: var(--blue); }
+  .tree-child.is-on { background: #dbeafe; color: #1d4ed8; }
+  .tree-child .sc { font-size: 10.5px; color: #94a3b8; font-variant-numeric: tabular-nums; }
+
+  .nav-foot {
+    padding: 10px 12px; border-top: 1px solid var(--line); font-size: 11px; color: var(--muted); font-weight: 600;
+    background: #f8fafc;
+  }
+
+  /* ── 중: 작업 영역 ── */
+  .main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .work-head {
+    background: var(--card); border-bottom: 1px solid var(--line);
+    padding: 12px 16px 0; flex: none;
+  }
+  .work-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .work-title h1 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -.02em; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .work-title h1 .pid { font-size: 12px; font-weight: 800; color: var(--blue); background: var(--blue-soft); border: 1px solid #bfdbfe; padding: 2px 8px; border-radius: 6px; }
+  .work-title .sub { font-size: 12px; color: var(--muted); font-weight: 600; margin-top: 4px; }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .badge { font-size: 10.5px; font-weight: 800; padding: 2px 8px; border-radius: 99px; background: #f1f5f9; color: var(--slate); border: 1px solid var(--line); }
+  .badge--ph { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+  .badge--note { background: var(--amber-bg); color: #b45309; border-color: #fde68a; }
+
+  .modes { display: flex; gap: 2px; border-bottom: 2px solid var(--line); }
+  .mode {
+    padding: 10px 14px; border: none; background: transparent; font-size: 12.5px; font-weight: 700;
+    color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
+    display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
+  }
+  .mode:hover { color: var(--blue); }
+  .mode.is-on { color: var(--blue); border-bottom-color: var(--blue); }
+  .mode .n { font-size: 10px; font-weight: 800; background: #f1f5f9; color: #64748b; padding: 1px 6px; border-radius: 99px; }
+  .mode.is-on .n { background: #dbeafe; color: #1d4ed8; }
+
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    padding: 10px 16px; background: #f8fafc; border-bottom: 1px solid var(--line); flex: none;
+  }
+  .toolbar .lab { font-size: 11px; font-weight: 800; color: #94a3b8; margin-right: 2px; }
+  .chip {
+    height: 28px; padding: 0 11px; border-radius: 99px; border: 1px solid var(--line2);
+    background: #fff; font-size: 11.5px; font-weight: 700; color: var(--slate); cursor: pointer;
+  }
+  .chip:hover { border-color: #93c5fd; color: var(--blue); }
+  .chip.is-on { background: #0f172a; border-color: #0f172a; color: #fff; }
+  .chip.is-pin { background: var(--blue-soft); border-color: #93c5fd; color: #1d4ed8; }
+  .toolbar .grow { flex: 1; }
+  .hint { font-size: 11px; color: #94a3b8; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+
+  .work-body { flex: 1; overflow: auto; padding: 14px 16px 24px; min-height: 0; }
+  .panel { display: none; }
+  .panel.is-on { display: block; animation: fade .18s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  /* 와이어 주석 배너 */
+  .wf-note {
+    display: flex; gap: 10px; align-items: flex-start;
+    background: linear-gradient(90deg, #fff7ed, #fff); border: 1px solid #fed7aa;
+    border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; font-size: 12px; color: #9a3412; line-height: 1.55;
+  }
+  .wf-note i { font-size: 16px; flex: none; margin-top: 1px; }
+  .wf-note b { color: #7c2d12; }
+  .wf-note code { background: #ffedd5; padding: 0 4px; border-radius: 3px; font-size: 11px; }
+
+  /* ── 공통 표 ── */
+  .mtx-wrap {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    overflow: auto; max-height: calc(100vh - 280px); box-shadow: var(--shadow);
+  }
+  table.mtx { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 12.5px; }
+  table.mtx th, table.mtx td { border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); }
+  table.mtx th:last-child, table.mtx td:last-child { border-right: none; }
+  table.mtx thead th {
+    position: sticky; top: 0; z-index: 5; background: #f8fafc;
+    padding: 9px 10px; font-weight: 800; font-size: 11.5px; text-align: center; color: var(--text);
+  }
+  table.mtx thead th.corner {
+    position: sticky; left: 0; z-index: 8; text-align: left; min-width: 120px;
+    box-shadow: 1px 0 0 var(--line2); background: #f1f5f9;
+  }
+  table.mtx thead th .yr { display: block; font-size: 10px; font-weight: 600; color: #94a3b8; margin-top: 1px; }
+  table.mtx thead th.is-pinned { background: #dbeafe; }
+  td.rh {
+    position: sticky; left: 0; z-index: 3; background: #fff;
+    padding: 8px 10px; font-weight: 700; min-width: 120px; box-shadow: 1px 0 0 var(--line);
+    white-space: nowrap;
+  }
+  td.rh .env-code { font-size: 10px; color: #94a3b8; font-weight: 700; margin-right: 4px; }
+  td.cell {
+    text-align: center; padding: 0; height: 40px; min-width: 88px; cursor: pointer; vertical-align: middle;
+  }
+  td.cell:hover { outline: 2px solid rgba(37,99,235,.35); outline-offset: -2px; z-index: 1; position: relative; }
+  td.cell.is-sel { outline: 2px solid var(--blue); outline-offset: -2px; }
+  .cmark {
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    width: 100%; height: 100%; padding: 4px 6px; font-weight: 700; font-size: 12.5px;
+  }
+  .cmark .dot { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+  .cmark .dot--note { background: var(--amber); }
+  .cell--empty { background: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(15,23,42,.03) 4px, rgba(15,23,42,.03) 5px); }
+  .cell--star { background: #f8fafc; color: #94a3b8; font-weight: 700; }
+  .cell--merge { background: var(--rose-bg); }
+  .cell--keep { background: var(--green-bg); }
+  .cell--multi { background: #f0f9ff; }
+
+  tr.prov-bar td {
+    position: sticky; left: 0; background: #f1f5f9; font-weight: 800; font-size: 12px;
+    padding: 7px 10px; color: var(--text); box-shadow: 1px 0 0 var(--line2);
+  }
+  tr.prov-bar td span { font-weight: 600; color: var(--muted); font-size: 11px; margin-left: 6px; }
+
+  /* 최소대립 */
+  .pair-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .pair-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 12px 14px; box-shadow: var(--shadow);
+  }
+  .pair-card h3 { margin: 0 0 4px; font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .pair-card h3 .pid { font-size: 11px; color: var(--blue); font-weight: 800; }
+  .pair-card .desc { font-size: 12px; color: var(--muted); font-weight: 600; margin-bottom: 10px; }
+  .pair-sum {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;
+  }
+  .psum {
+    flex: 1; min-width: 100px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 10px; padding: 10px 12px; box-shadow: var(--shadow);
+  }
+  .psum .k { font-size: 11px; font-weight: 800; color: var(--muted); }
+  .psum .v { font-size: 20px; font-weight: 800; letter-spacing: -.02em; margin-top: 2px; }
+  .psum .v small { font-size: 12px; font-weight: 700; color: var(--muted); }
+  .leg { display: flex; flex-wrap: wrap; gap: 12px; margin: 10px 0 0; font-size: 11.5px; font-weight: 700; color: var(--muted); }
+  .leg i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 4px; border: 1px solid var(--line); }
+
+  /* 콘코던스 */
+  .conc-bar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .conc-bar input {
+    flex: 1; min-width: 200px; height: 36px; padding: 0 12px; border: 1px solid var(--line);
+    border-radius: 9px; font-size: 13px; font-weight: 600; outline: none;
+  }
+  .conc-bar input:focus { border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+  .conc-list { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+  .conc-row {
+    display: grid; grid-template-columns: 100px 72px 1fr auto; gap: 10px; align-items: start;
+    padding: 11px 14px; border-bottom: 1px solid var(--line); cursor: pointer;
+  }
+  .conc-row:last-child { border-bottom: none; }
+  .conc-row:hover, .conc-row.is-on { background: var(--blue-soft); }
+  .conc-row .code { font-size: 11px; font-weight: 800; color: var(--blue); font-variant-numeric: tabular-nums; }
+  .conc-row .site { font-size: 12px; font-weight: 800; }
+  .conc-row .site small { display: block; font-weight: 600; color: var(--muted); font-size: 10.5px; }
+  .conc-row .txt { font-size: 13px; font-weight: 600; line-height: 1.55; }
+  .conc-row .txt mark { background: #fef08a; padding: 0 2px; border-radius: 2px; }
+  .conc-row .txt .note { display: inline; color: #b45309; font-size: 11.5px; font-weight: 700; }
+  .conc-row .acts { display: flex; gap: 4px; }
+  .iconbtn {
+    width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 7px; background: #fff;
+    color: var(--muted); cursor: pointer; display: grid; place-items: center; font-size: 14px;
+  }
+  .iconbtn:hover { border-color: #93c5fd; color: var(--blue); }
+
+  /* ── 우: 근거 패널 ── */
+  .side {
+    background: var(--card); border-left: 1px solid var(--line);
+    display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+  }
+  .side__head {
+    padding: 12px 14px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between; flex: none;
+  }
+  .side__head h2 { margin: 0; font-size: 13px; font-weight: 800; }
+  .side__body { flex: 1; overflow-y: auto; padding: 12px 14px 20px; }
+  .blk { margin-bottom: 16px; }
+  .blk .k { font-size: 10.5px; font-weight: 800; color: #94a3b8; letter-spacing: .03em; margin-bottom: 6px; text-transform: uppercase; }
+  .blk .v { font-size: 13px; font-weight: 600; color: var(--text); }
+  .original {
+    background: #f8fafc; border: 1px solid var(--line); border-left: 3px solid var(--blue);
+    border-radius: 8px; padding: 10px 12px; font-size: 13.5px; font-weight: 600; line-height: 1.7;
+  }
+  .token-list { display: flex; flex-wrap: wrap; gap: 5px; }
+  .token {
+    padding: 4px 9px; border-radius: 7px; background: var(--blue-soft); border: 1px solid #bfdbfe;
+    font-size: 12px; font-weight: 800; color: #1d4ed8;
+  }
+  .token--note { background: var(--amber-bg); border-color: #fde68a; color: #b45309; }
+  .meta-dl { display: grid; grid-template-columns: 72px 1fr; gap: 5px 8px; font-size: 12px; }
+  .meta-dl dt { color: #94a3b8; font-weight: 700; }
+  .meta-dl dd { margin: 0; font-weight: 700; }
+  .side-actions { display: flex; flex-direction: column; gap: 6px; }
+  .side-actions button {
+    height: 34px; border-radius: 8px; border: 1px solid var(--line); background: #fff;
+    font-size: 12.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .side-actions button:hover { border-color: #93c5fd; color: var(--blue); }
+  .side-actions button.pri { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .side-empty {
+    text-align: center; padding: 40px 16px; color: var(--muted); font-size: 12.5px; font-weight: 600;
+  }
+  .side-empty i { font-size: 28px; display: block; margin-bottom: 8px; color: #cbd5e1; }
+
+  /* 미니맵 플레이스홀더 */
+  .minimap {
+    height: 140px; border-radius: 10px; border: 1px dashed var(--line2);
+    background: linear-gradient(160deg, #f8fafc, #e2e8f0);
+    display: grid; place-items: center; color: var(--muted); font-size: 11.5px; font-weight: 700;
+    position: relative; overflow: hidden;
+  }
+  .minimap .dots { position: absolute; inset: 0; }
+  .minimap .dotp {
+    position: absolute; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  }
+  .minimap .cap { position: relative; z-index: 1; background: rgba(255,255,255,.85); padding: 4px 10px; border-radius: 99px; }
+
+  /* 토스트 */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(12px);
+    background: #0f172a; color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 12.5px; font-weight: 700;
+    opacity: 0; pointer-events: none; transition: .2s; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,.2);
+  }
+  .toast.is-on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* 반응형 */
+  @media (max-width: 1100px) {
+    .app { grid-template-columns: 240px minmax(0,1fr); }
+    .side { position: fixed; right: 0; top: var(--top-h); bottom: 0; width: min(320px, 90vw); z-index: 40; box-shadow: -8px 0 30px rgba(0,0,0,.12); }
+    .app.is-side-collapsed .side { display: none; }
+  }
+  @media (max-width: 760px) {
+    .app { grid-template-columns: 1fr; }
+    .nav { display: none; }
+    .pair-grid { grid-template-columns: 1fr; }
+  }
+
+  /* 와이어프레임 오버레이 라벨 */
+  .wf-label {
+    position: absolute; top: 6px; right: 8px; font-size: 9px; font-weight: 800; letter-spacing: .04em;
+    color: #b45309; background: #ffedd5; border: 1px solid #fdba74; padding: 1px 6px; border-radius: 4px; z-index: 2;
+  }
+  .rel { position: relative; }
+</style>
+</head>
+<body>
+
+<!-- ════════════ 상단 ════════════ -->
+<header class="topbar">
+  <div class="topbar__brand">
+    <span class="wf">WF</span>
+    <b>음운 자료 뷰어</b>
+  </div>
+  <div class="topbar__meta">
+    와이어프레임 · 전문가용 · 샘플 데이터
+    · <span>항목 450</span> · <span>지점 12</span> · <span>2010 통합자료</span>
+  </div>
+  <div class="topbar__right">
+    <button type="button" class="topbtn" id="btnToggleSide"><i class="ti ti-layout-sidebar-right"></i> 근거 패널</button>
+    <button type="button" class="topbtn"><i class="ti ti-download"></i> CSV</button>
+    <button type="button" class="topbtn topbtn--pri"><i class="ti ti-quote"></i> 인용</button>
+  </div>
+</header>
+
+<div class="app" id="app">
+
+  <!-- ════════════ A. 탐색 ════════════ -->
+  <aside class="nav rel">
+    <span class="wf-label">A · 탐색</span>
+
+    <div class="nav__sec">
+      <div class="nav__label">코드 대역</div>
+      <div class="band-tabs" id="bandTabs">
+        <button type="button" class="band is-on" data-band="all">전체</button>
+        <button type="button" class="band" data-band="310">310 체언·대립</button>
+        <button type="button" class="band" data-band="320">320 활용</button>
+        <button type="button" class="band" data-band="321">321</button>
+        <button type="button" class="band" data-band="322">322</button>
+      </div>
+    </div>
+
+    <div class="nav__sec">
+      <div class="nav__label">현상 태그 (큐레이션)</div>
+      <div class="tag-row" id="tagRow">
+        <button type="button" class="tag is-on" data-tag="all">전체</button>
+        <button type="button" class="tag" data-tag="eae">에/애</button>
+        <button type="button" class="tag" data-tag="stem">어간교체</button>
+        <button type="button" class="tag" data-tag="pitch">성조표기</button>
+        <button type="button" class="tag" data-tag="note">조사자주석</button>
+      </div>
+    </div>
+
+    <div class="nav__sec">
+      <div class="nav-search-wrap">
+        <i class="ti ti-search"></i>
+        <input class="nav-search" id="navSearch" type="search" placeholder="코드·표준어·한자 검색" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="tree" id="tree" aria-label="항목 트리"></div>
+
+    <div class="nav-foot">
+      출처: 국립국어원 2010 지역어 조사 통합자료 · 음운 편<br>
+      지점 헤더는 정규화 매핑 적용(와이어 샘플 12지점)
+    </div>
+  </aside>
+
+  <!-- ════════════ B. 작업 뷰 ════════════ -->
+  <main class="main">
+    <div class="work-head rel">
+      <span class="wf-label">B · 작업 뷰</span>
+      <div class="work-title">
+        <div>
+          <h1>
+            <span class="pid" id="titleCode">31001</span>
+            <span id="titleName">테(輪)</span>
+          </h1>
+          <div class="sub" id="titleSub">최소대립 쌍 · 태(胎) 31002 와 연동 · 환경 2 · 지점 12</div>
+          <div class="badge-row">
+            <span class="badge badge--ph">에/애 대립</span>
+            <span class="badge">체언 310</span>
+            <span class="badge badge--note">주석 3건</span>
+          </div>
+        </div>
+      </div>
+      <div class="modes" id="modes" role="tablist">
+        <button type="button" class="mode is-on" data-mode="pair" role="tab"><i class="ti ti-arrows-left-right"></i> 최소대립 <span class="n">추천</span></button>
+        <button type="button" class="mode" data-mode="para" role="tab"><i class="ti ti-table"></i> 패러다임</button>
+        <button type="button" class="mode" data-mode="matrix" role="tab"><i class="ti ti-layout-grid"></i> 지점×환경</button>
+        <button type="button" class="mode" data-mode="conc" role="tab"><i class="ti ti-list-search"></i> 원문 검색</button>
+      </div>
+    </div>
+
+    <div class="toolbar" id="toolbar">
+      <span class="lab">도</span>
+      <button type="button" class="chip is-on" data-prov="all">전체</button>
+      <button type="button" class="chip" data-prov="GW">강원</button>
+      <button type="button" class="chip" data-prov="JN">전남</button>
+      <button type="button" class="chip" data-prov="GB">경북</button>
+      <button type="button" class="chip" data-prov="JJ">제주</button>
+      <span class="lab" style="margin-left:8px">고정 지점</span>
+      <button type="button" class="chip is-pin" data-pin="양양">양양</button>
+      <button type="button" class="chip is-pin" data-pin="곡성">곡성</button>
+      <button type="button" class="chip" data-pin="의성">의성</button>
+      <div class="grow"></div>
+      <span class="hint"><i class="ti ti-click"></i> 셀 클릭 → 우측 근거 패널</span>
+    </div>
+
+    <div class="work-body">
+
+      <!-- 모드: 최소대립 -->
+      <section class="panel is-on" id="panel-pair" data-panel="pair">
+        <div class="wf-note">
+          <i class="ti ti-info-circle"></i>
+          <div>
+            <b>최소대립 모드</b> — 의도된 대립쌍(테/태 등)을 같은 환경에서 나란히 비교합니다.
+            셀 배경: <code>유지</code> 초록 · <code>합류 추정</code> 분홍 · 주석 점은 조사자 메모.
+            자동 판정은 보조 표시이며, 확정은 원문·주석을 따릅니다.
+          </div>
+        </div>
+        <div class="pair-sum">
+          <div class="psum"><div class="k">비교 지점</div><div class="v">12 <small>곳</small></div></div>
+          <div class="psum"><div class="k">대립 유지 (추정)</div><div class="v" style="color:var(--green)">5 <small>곳</small></div></div>
+          <div class="psum"><div class="k">합류·주석 (추정)</div><div class="v" style="color:var(--rose)">4 <small>곳</small></div></div>
+          <div class="psum"><div class="k">결측·미조사</div><div class="v" style="color:var(--muted)">3 <small>곳</small></div></div>
+        </div>
+        <div class="pair-grid">
+          <div class="pair-card">
+            <h3><span class="pid">31001</span> 테(輪)</h3>
+            <div class="desc">안경테 등 · 목표 모음 ㅔ</div>
+          </div>
+          <div class="pair-card">
+            <h3><span class="pid">31002</span> 태(胎)</h3>
+            <div class="desc">태줄 등 · 목표 모음 ㅐ</div>
+          </div>
+        </div>
+        <div class="mtx-wrap" id="pairTableWrap"></div>
+        <div class="leg">
+          <span><i style="background:var(--green-bg)"></i>대립 유지(추정)</span>
+          <span><i style="background:var(--rose-bg)"></i>합류·혼동(추정)</span>
+          <span><i style="background:#f0f9ff"></i>복수 응답</span>
+          <span><i style="background:repeating-linear-gradient(45deg,transparent,transparent 3px,#e2e8f0 3px,#e2e8f0 4px)"></i>결측</span>
+          <span>● 조사자 주석 있음</span>
+        </div>
+      </section>
+
+      <!-- 모드: 패러다임 -->
+      <section class="panel" id="panel-para" data-panel="para">
+        <div class="wf-note">
+          <i class="ti ti-info-circle"></i>
+          <div>
+            <b>패러다임 모드</b> — 용언 항목(320대)에 최적화. <b>행 = 환경(어미)</b>, <b>열 = 지점</b>.
+            트리에서 <code>32004 듣-[ㄷ변]</code> 을 고르면 이 표가 기본 진입점이 됩니다.
+            (아래는 듣- 샘플. 현재 선택 항목이 체언이어도 와이어에서 샘플을 보여 줍니다.)
+          </div>
+        </div>
+        <div style="margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span class="badge" style="font-size:12px;padding:4px 10px">32004 · 듣-(聞)[ㄷ변]</span>
+          <span class="hint">어간 교체 확인용 · 열 고정: 양양 · 곡성</span>
+        </div>
+        <div class="mtx-wrap" id="paraTableWrap"></div>
+      </section>
+
+      <!-- 모드: 지점×환경 -->
+      <section class="panel" id="panel-matrix" data-panel="matrix">
+        <div class="wf-note">
+          <i class="ti ti-info-circle"></i>
+          <div>
+            <b>지점×환경 매트릭스</b> — 단일 항목 심층. 엑셀 음운 시트를 세로·가로만 재배치한 형태.
+            어휘 변이형 비교와 달리 <b>열은 방언형이 아니라 지점</b>, 행은 자식 코드(환경)입니다.
+          </div>
+        </div>
+        <div class="mtx-wrap" id="matrixTableWrap"></div>
+      </section>
+
+      <!-- 모드: 콘코던스 -->
+      <section class="panel" id="panel-conc" data-panel="conc">
+        <div class="wf-note">
+          <i class="ti ti-info-circle"></i>
+          <div>
+            <b>원문 검색(콘코던스)</b> — 논문·강의용 인용 워크플로. 키워드·주석·코드 단위 검색 후 복사·출처 자동 첨부.
+          </div>
+        </div>
+        <div class="conc-bar">
+          <input type="search" id="concQ" placeholder="예: 변별, 테가, 31001, 에와 애" value="변별">
+          <button type="button" class="chip is-on" style="height:36px">주석만</button>
+          <button type="button" class="chip" style="height:36px">성조 무시</button>
+          <button type="button" class="chip" style="height:36px">정규식</button>
+        </div>
+        <div class="conc-list" id="concList"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ════════════ C. 근거 패널 ════════════ -->
+  <aside class="side rel" id="side">
+    <span class="wf-label">C · 근거</span>
+    <div class="side__head">
+      <h2><i class="ti ti-file-description" style="vertical-align:-2px"></i> 셀 근거 · 메타</h2>
+      <button type="button" class="iconbtn" id="btnCloseSide" title="패널 접기"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="side__body" id="sideBody">
+      <div class="side-empty" id="sideEmpty">
+        <i class="ti ti-click"></i>
+        표의 셀을 클릭하면<br>원문·주석·출처가 여기에 표시됩니다.
+      </div>
+      <div id="sideContent" class="hidden"></div>
+    </div>
+  </aside>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   와이어프레임 샘플 데이터 (실제 엑셀 구조 모사)
+   ══════════════════════════════════════════════════════════ */
+const SITES = [
+  { id:'GW_YY', prov:'GW', provName:'강원', name:'양양', year:2006, pin:true },
+  { id:'GW_HC', prov:'GW', provName:'강원', name:'홍천', year:2007 },
+  { id:'GW_PC', prov:'GW', provName:'강원', name:'평창', year:2008 },
+  { id:'JN_GS', prov:'JN', provName:'전남', name:'곡성', year:2005, pin:true },
+  { id:'JN_JD', prov:'JN', provName:'전남', name:'진도', year:2006 },
+  { id:'JN_YG', prov:'JN', provName:'전남', name:'영광', year:2007 },
+  { id:'GB_US', prov:'GB', provName:'경북', name:'의성', year:null },
+  { id:'GB_CD', prov:'GB', provName:'경북', name:'청도', year:null },
+  { id:'GB_GY', prov:'GB', provName:'경북', name:'경주', year:null },
+  { id:'JJ_GS', prov:'JJ', provName:'제주', name:'가시', year:null },
+  { id:'JJ_DB', prov:'JJ', provName:'제주', name:'동복', year:null },
+  { id:'JJ_SD', prov:'JJ', provName:'제주', name:'색달', year:null },
+];
+
+const TREE = [
+  { code:'31001', name:'테(輪)', band:'310', tags:['eae'], pair:'31002',
+    kids:[
+      { code:'31001-0-1', env:'-이/가' },
+      { code:'31001-0-2', env:'-보다' },
+    ]},
+  { code:'31002', name:'태(胎)', band:'310', tags:['eae'], pair:'31001',
+    kids:[
+      { code:'31002-0-1', env:'-이/가' },
+      { code:'31002-0-2', env:'-보다' },
+    ]},
+  { code:'31003', name:'떼(群)', band:'310', tags:['eae'],
+    kids:[
+      { code:'31003-0-1', env:'-이/가' },
+      { code:'31003-0-2', env:'-보다' },
+    ]},
+  { code:'31004', name:'때(時)', band:'310', tags:['eae'],
+    kids:[
+      { code:'31004-0-1', env:'-이/가' },
+      { code:'31004-0-2', env:'-보다' },
+    ]},
+  { code:'32004', name:'듣-(聞)[ㄷ변]', band:'320', tags:['stem'],
+    kids:[
+      { code:'32004-0-1', env:'-지' },
+      { code:'32004-0-2', env:'-고' },
+      { code:'32004-0-3', env:'-더라' },
+      { code:'32004-0-4', env:'-으니까' },
+      { code:'32004-0-5', env:'-아/어(-았/었다)' },
+    ]},
+  { code:'32005', name:'많:-(多)[ㄶ]', band:'320', tags:['stem'],
+    kids:[
+      { code:'32005-0-1', env:'-지' },
+      { code:'32005-0-2', env:'-고' },
+      { code:'32005-0-5', env:'-아/어(-았/었다)' },
+    ]},
+  { code:'32001', name:'막-(防)[ㄱ]', band:'320', tags:['stem'],
+    kids:[
+      { code:'32001-0-1', env:'-지' },
+      { code:'32001-0-2', env:'-고' },
+    ]},
+];
+
+/* 셀: short, raw, note?, status: keep|merge|multi|empty|star */
+const PAIR_ENV = '31001-0-1 / 31002-0-1'; // -이/가
+const PAIR_CELLS = {
+  // siteId: { te: {...}, tae: {...}, status }
+  GW_YY: {
+    te:  { short:'테가', raw:"테가 조타(+이 지역에서는 ‘에’와 ‘애’의 변별 기능이 없음)", note:'에·애 변별 없음', status:'merge' },
+    tae: { short:'테가', raw:"태가 나오지(+이 지역에서는 ‘에’와 ‘애’의 변별 기능이 없음)", note:'에·애 변별 없음', status:'merge' },
+  },
+  GW_HC: {
+    te:  { short:'테가', raw:'테가 이따(+＇에＇와 ＇애＇의 구별이 있음)', note:'에·애 구별 있음', status:'keep' },
+    tae: { short:'태가', raw:'태가 질다', status:'keep' },
+  },
+  GW_PC: {
+    te:  { short:'테가', raw:'앙:경 테가 크다/앙경 테가', status:'multi' },
+    tae: { short:'태가', raw:'태가 크다', status:'keep' },
+  },
+  JN_GS: {
+    te:  { short:'테가', raw:'테가', status:'keep' },
+    tae: { short:'태가', raw:'태가', status:'keep' },
+  },
+  JN_JD: {
+    te:  { short:'테가', raw:'테가', status:'keep' },
+    tae: { short:'테가', raw:'테가', status:'merge' },
+  },
+  JN_YG: {
+    te:  { short:'텐디', raw:'텐디', status:'keep' },
+    tae: { short:'테가', raw:'테가 나와따', status:'merge' },
+  },
+  GB_US: {
+    te:  { short:"테＇가", raw:"테＇가", status:'keep' },
+    tae: { short:"태＇가", raw:"태＇가", status:'keep' },
+  },
+  GB_CD: {
+    te:  { short:"테＇가", raw:"테＇가(+이 지역에서는 \"ㅔ\"와 \"ㅐ\"모음이 구별되지 않음)", note:'ㅔ·ㅐ 구별 없음', status:'merge' },
+    tae: { short:"테＇가", raw:"테＇가(+동일 주석)", note:'ㅔ·ㅐ 구별 없음', status:'merge' },
+  },
+  GB_GY: {
+    te:  { short:"테＇가", raw:"테＇가", status:'keep' },
+    tae: { short:"태＇가아", raw:"태＇가아", status:'keep' },
+  },
+  JJ_GS: {
+    te:  { short:'테가', raw:'이 안경테가', status:'empty' }, // treat as weak
+    tae: { short:'—', raw:'', status:'empty' },
+  },
+  JJ_DB: {
+    te:  { short:'테가', raw:'이 테가', status:'keep' },
+    tae: { short:'—', raw:'', status:'empty' },
+  },
+  JJ_SD: {
+    te:  { short:'테가', raw:'이 테가 더 곱따', status:'keep' },
+    tae: { short:'—', raw:'', status:'star' },
+  },
+};
+
+const PARA_ENVS = [
+  { code:'32004-0-1', env:'-지' },
+  { code:'32004-0-2', env:'-고' },
+  { code:'32004-0-3', env:'-더라' },
+  { code:'32004-0-4', env:'-으니까' },
+  { code:'32004-0-5', env:'-아/어' },
+];
+const PARA_CELLS = {
+  '32004-0-1': { GW_YY:'듣:지', JN_GS:'듣제', GB_US:"듣＇지", JJ_GS:'드르지' },
+  '32004-0-2': { GW_YY:'듣고', JN_GS:'듣고', GB_US:"듣＇고", JJ_GS:'드르고' },
+  '32004-0-3': { GW_YY:'듣더라', JN_GS:'듣데라', GB_US:'—', JJ_GS:'드르더라' },
+  '32004-0-4': { GW_YY:'들으니까', JN_GS:'들으까', GB_US:"들＇으니까", JJ_GS:'들으니깐' },
+  '32004-0-5': { GW_YY:'들었다', JN_GS:'들엇다', GB_US:"들＇었다", JJ_GS:'들엇주' },
+};
+
+const CONC = [
+  { code:'31001-0-1', site:'양양', prov:'강원', year:2006, raw:"테가 조타(+이 지역에서는 ‘에’와 ‘애’의 변별 기능이 없음)", note:true },
+  { code:'31002-0-1', site:'양양', prov:'강원', year:2006, raw:"태가 나오지(+이 지역에서는 ‘에’와 ‘애’의 변별 기능이 없음)", note:true },
+  { code:'31001-0-1', site:'청도', prov:'경북', year:null, raw:"테＇가(+이 지역에서는 \"ㅔ\"와 \"ㅐ\"모음이 구별되지 않음)", note:true },
+  { code:'31001-0-1', site:'홍천', prov:'강원', year:2007, raw:"테가 이따(+＇에＇와 ＇애＇의 구별이 있음)", note:true },
+  { code:'31001-0-2', site:'양양', prov:'강원', year:2006, raw:"그테보당 이기 조타(+변별 기능이 없음)", note:true },
+  { code:'31002-0-1', site:'진도', prov:'전남', year:2006, raw:'테가', note:false },
+];
+
+const state = {
+  band: 'all',
+  tag: 'all',
+  mode: 'pair',
+  selected: '31001',
+  open: { '31001': true, '31002': true, '32004': true },
+  sideOpen: true,
+  cell: null,
+  prov: 'all',
+};
+
+/* ── helpers ── */
+const $ = (s, el=document) => el.querySelector(s);
+const $$ = (s, el=document) => [...el.querySelectorAll(s)];
+function toast(msg){
+  const t=$('#toast'); t.textContent=msg; t.classList.add('is-on');
+  clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('is-on'), 1800);
+}
+function siteLabel(s){ return s.year ? `${s.name}` : s.name; }
+
+/* ── tree ── */
+function filteredTree(){
+  return TREE.filter(it=>{
+    if(state.band!=='all' && it.band!==state.band) return false;
+    if(state.tag!=='all' && !(it.tags||[]).includes(state.tag) && state.tag!=='note') return false;
+    const q = ($('#navSearch').value||'').trim();
+    if(q){
+      const hay = (it.code+it.name+(it.kids||[]).map(k=>k.env).join('')).toLowerCase();
+      if(!hay.includes(q.toLowerCase())) return false;
+    }
+    return true;
+  });
+}
+function renderTree(){
+  const box=$('#tree');
+  const list=filteredTree();
+  if(!list.length){ box.innerHTML='<div style="padding:16px;color:#94a3b8;font-size:12px;font-weight:600;text-align:center">검색 결과 없음</div>'; return; }
+  box.innerHTML = list.map(it=>{
+    const open = !!state.open[it.code];
+    const on = state.selected===it.code;
+    const kids = (it.kids||[]).map(k=>`
+      <button type="button" class="tree-child" data-code="${it.code}" data-kid="${k.code}">
+        <span class="sc">${k.code.replace(it.code+'-','')}</span>${k.env}
+      </button>`).join('');
+    return `<div class="tree-group ${open?'is-open':''}" data-group="${it.code}">
+      <button type="button" class="tree-parent ${open?'is-open':''} ${on?'is-on':''}" data-code="${it.code}">
+        <i class="ti ti-chevron-right chev"></i>
+        <span class="code">${it.code}</span>
+        <span class="name">${it.name}${it.pair?`<small>대립: ${it.pair}</small>`:''}</span>
+      </button>
+      <div class="tree-kids">${kids}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── pair table ── */
+function renderPairTable(){
+  const sites = SITES.filter(s => state.prov==='all' || s.prov===state.prov);
+  let html = `<table class="mtx"><thead><tr>
+    <th class="corner">지점 \\ 환경 -이/가</th>
+    <th>테(輪) 31001</th>
+    <th>태(胎) 31002</th>
+    <th>판정(보조)</th>
+  </tr></thead><tbody>`;
+
+  let curProv=null;
+  sites.forEach(s=>{
+    if(s.provName!==curProv){
+      curProv=s.provName;
+      html += `<tr class="prov-bar"><td colspan="4">${curProv}<span>${sites.filter(x=>x.provName===curProv).length}지점</span></td></tr>`;
+    }
+    const cell = PAIR_CELLS[s.id] || {};
+    const te = cell.te || { short:'—', status:'empty' };
+    const tae = cell.tae || { short:'—', status:'empty' };
+    const st = te.status==='merge'||tae.status==='merge' ? 'merge'
+             : te.status==='empty'||tae.status==='empty'||te.status==='star'||tae.status==='star' ? 'empty'
+             : 'keep';
+    const stLabel = st==='merge'?'합류 추정':st==='empty'?'결측·불완전':'유지 추정';
+    const stClass = st==='merge'?'cell--merge':st==='empty'?'cell--empty':'cell--keep';
+
+    html += `<tr>
+      <td class="rh">${siteLabel(s)}${s.year?`<span style="color:#94a3b8;font-weight:600;font-size:11px;margin-left:4px">${s.year}</span>`:''}</td>
+      <td class="cell cell--${te.status==='multi'?'multi':te.status==='merge'?'merge':te.status==='keep'?'keep':te.status==='star'?'star':'empty'}"
+          data-site="${s.id}" data-item="31001" data-env="-이/가" data-which="te">
+        <div class="cmark">${te.note?'<span class="dot dot--note" title="주석"></span>':''}${esc(te.short)}</div>
+      </td>
+      <td class="cell cell--${tae.status==='multi'?'multi':tae.status==='merge'?'merge':tae.status==='keep'?'keep':tae.status==='star'?'star':'empty'}"
+          data-site="${s.id}" data-item="31002" data-env="-이/가" data-which="tae">
+        <div class="cmark">${tae.note?'<span class="dot dot--note" title="주석"></span>':''}${esc(tae.short||'—')}</div>
+      </td>
+      <td class="cell ${stClass}" style="cursor:default;font-size:11px;font-weight:800;color:#475569">${stLabel}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  $('#pairTableWrap').innerHTML = html;
+  bindCells('#pairTableWrap');
+}
+
+/* ── paradigm ── */
+function renderParaTable(){
+  const focus = SITES.filter(s => s.pin || ['GW_YY','JN_GS','GB_US','JJ_GS'].includes(s.id));
+  let html = `<table class="mtx"><thead><tr><th class="corner">환경 \\ 지점</th>`;
+  focus.forEach(s=>{
+    html += `<th class="${s.pin?'is-pinned':''}">${s.name}${s.year?`<span class="yr">${s.provName} · ${s.year}</span>`:`<span class="yr">${s.provName}</span>`}</th>`;
+  });
+  html += `</tr></thead><tbody>`;
+  PARA_ENVS.forEach(e=>{
+    html += `<tr><td class="rh"><span class="env-code">${e.code.split('-').slice(1).join('-')}</span>${e.env}</td>`;
+    focus.forEach(s=>{
+      const v = (PARA_CELLS[e.code]||{})[s.id] || '—';
+      const empty = v==='—';
+      html += `<td class="cell ${empty?'cell--empty':''}" data-site="${s.id}" data-item="32004" data-env="${e.env}" data-raw="${escAttr(v)}">
+        <div class="cmark">${esc(v)}</div></td>`;
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table>`;
+  $('#paraTableWrap').innerHTML = html;
+  bindCells('#paraTableWrap');
+}
+
+/* ── matrix (single item 테) ── */
+function renderMatrixTable(){
+  const item = TREE.find(t=>t.code==='31001');
+  const sites = SITES.filter(s => state.prov==='all' || s.prov===state.prov);
+  let html = `<table class="mtx"><thead><tr><th class="corner">환경 \\ 지점</th>`;
+  sites.forEach(s=>{
+    html += `<th class="${s.pin?'is-pinned':''}">${s.name}${s.year?`<span class="yr">${s.year}</span>`:''}</th>`;
+  });
+  html += `</tr></thead><tbody>`;
+  (item.kids||[]).forEach(k=>{
+    html += `<tr><td class="rh"><span class="env-code">${k.code}</span>${k.env}</td>`;
+    sites.forEach(s=>{
+      const pack = PAIR_CELLS[s.id];
+      const te = pack && pack.te;
+      // only show for -이/가 in sample; -보다 synthetic
+      let short='—', status='empty', note=null, raw='';
+      if(k.env==='-이/가' && te){ short=te.short; status=te.status; note=te.note; raw=te.raw; }
+      else if(k.env==='-보다' && te){
+        short = te.short.replace('가','보다').replace('디','보다');
+        status = te.status; raw = (te.raw||'') + ' [환경: -보다 샘플]';
+        note = te.note;
+      }
+      const cls = status==='merge'?'cell--merge':status==='keep'?'cell--keep':status==='multi'?'cell--multi':status==='star'?'cell--star':'cell--empty';
+      html += `<td class="cell ${cls}" data-site="${s.id}" data-item="31001" data-env="${k.env}" data-raw="${escAttr(raw||short)}" data-note="${escAttr(note||'')}">
+        <div class="cmark">${note?'<span class="dot dot--note"></span>':''}${esc(short)}</div></td>`;
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table>`;
+  $('#matrixTableWrap').innerHTML = html;
+  bindCells('#matrixTableWrap');
+}
+
+/* ── concordance ── */
+function renderConc(){
+  const q = ($('#concQ').value||'').trim();
+  const list = CONC.filter(r => !q || r.raw.includes(q) || r.code.includes(q) || r.site.includes(q));
+  $('#concList').innerHTML = list.map((r,i)=>{
+    let txt = esc(r.raw);
+    if(q) txt = txt.replaceAll(esc(q), `<mark>${esc(q)}</mark>`);
+    return `<div class="conc-row" data-idx="${i}" data-code="${r.code}" data-site="${r.site}">
+      <div class="code">${r.code}</div>
+      <div class="site">${r.site}<small>${r.prov}${r.year?' · '+r.year:''}</small></div>
+      <div class="txt">${txt}${r.note?' <span class="note">· 주석</span>':''}</div>
+      <div class="acts">
+        <button type="button" class="iconbtn" title="복사" data-copy="${escAttr(r.raw)}"><i class="ti ti-copy"></i></button>
+        <button type="button" class="iconbtn" title="인용"><i class="ti ti-quote"></i></button>
+      </div>
+    </div>`;
+  }).join('') || `<div style="padding:28px;text-align:center;color:#94a3b8;font-weight:600">검색 결과 없음</div>`;
+
+  $$('#concList .conc-row').forEach(row=>{
+    row.addEventListener('click', e=>{
+      if(e.target.closest('[data-copy]')) return;
+      $$('#concList .conc-row').forEach(x=>x.classList.remove('is-on'));
+      row.classList.add('is-on');
+      const r = list[+row.dataset.idx];
+      if(!r) return;
+      showSide({
+        item: r.code.split('-')[0],
+        env: r.code,
+        siteName: r.site,
+        prov: r.prov,
+        year: r.year,
+        short: r.raw.slice(0,20),
+        raw: r.raw,
+        note: r.note ? '조사자 주석 포함' : null,
+        tokens: tokenize(r.raw),
+      });
+    });
+  });
+  $$('#concList [data-copy]').forEach(b=>{
+    b.addEventListener('click', e=>{
+      e.stopPropagation();
+      navigator.clipboard?.writeText(b.dataset.copy).then(()=>toast('원문을 복사했습니다'));
+    });
+  });
+}
+
+function tokenize(raw){
+  if(!raw) return [];
+  const note = raw.match(/\(\+[^)]+\)/g) || [];
+  const body = raw.replace(/\(\+[^)]+\)/g,'').trim();
+  const parts = body.split(/\s*[|/]\s*/).map(s=>s.trim()).filter(Boolean);
+  return { forms: parts.slice(0,4), notes: note.map(n=>n.slice(2,-1)) };
+}
+
+/* ── side panel ── */
+function showSide(d){
+  state.cell = d;
+  $('#sideEmpty').classList.add('hidden');
+  const sc = $('#sideContent');
+  sc.classList.remove('hidden');
+  const tok = d.tokens || tokenize(d.raw||'');
+  const forms = (tok.forms||[]).map(f=>`<span class="token">${esc(f)}</span>`).join('') || '<span class="muted">—</span>';
+  const notes = (tok.notes||[]).map(n=>`<span class="token token--note">${esc(n)}</span>`).join('')
+    || (d.note ? `<span class="token token--note">${esc(d.note)}</span>` : '<span class="muted">없음</span>');
+
+  sc.innerHTML = `
+    <div class="blk">
+      <div class="k">원문 (raw)</div>
+      <div class="original">${esc(d.raw || d.short || '—')}</div>
+    </div>
+    <div class="blk">
+      <div class="k">표면형 후보 (자동 분리)</div>
+      <div class="token-list">${forms}</div>
+    </div>
+    <div class="blk">
+      <div class="k">조사자 주석</div>
+      <div class="token-list">${notes}</div>
+    </div>
+    <div class="blk">
+      <div class="k">메타</div>
+      <dl class="meta-dl">
+        <dt>항목</dt><dd>${esc(d.item||'')} ${d.env? '· '+esc(d.env):''}</dd>
+        <dt>지점</dt><dd>${esc(d.prov||'')} ${esc(d.siteName||'')}${d.year?' · '+d.year:''}</dd>
+        <dt>출처</dt><dd>2010 지역어 조사 · 음운 편</dd>
+        <dt>파일</dt><dd>…${esc(d.prov||'')}…_통합자료</dd>
+      </dl>
+    </div>
+    <div class="blk">
+      <div class="k">지점 위치 (미니맵 자리)</div>
+      <div class="minimap">
+        <div class="dots">
+          <span class="dotp" style="left:58%;top:28%;background:#e11d48"></span>
+          <span class="dotp" style="left:42%;top:48%;background:#2563eb"></span>
+          <span class="dotp" style="left:55%;top:55%;background:#94a3b8"></span>
+        </div>
+        <span class="cap">와이어 · 지도 연동 예정</span>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="k">액션</div>
+      <div class="side-actions">
+        <button type="button" class="pri" id="actCopy"><i class="ti ti-copy"></i> 원문 복사</button>
+        <button type="button" id="actCite"><i class="ti ti-quote"></i> 인용 문구 복사</button>
+        <button type="button" id="actPair"><i class="ti ti-arrows-left-right"></i> 대립 항목으로 이동</button>
+      </div>
+    </div>`;
+  $('#actCopy')?.addEventListener('click', ()=>{
+    navigator.clipboard?.writeText(d.raw||d.short||'').then(()=>toast('원문을 복사했습니다'));
+  });
+  $('#actCite')?.addEventListener('click', ()=>{
+    const cite = `${d.item||''} ${d.env||''} / ${d.prov||''} ${d.siteName||''}${d.year?' ('+d.year+')':''}: 「${d.raw||d.short}」 (국립국어원 2010 지역어 조사 음운)`;
+    navigator.clipboard?.writeText(cite).then(()=>toast('인용 문구를 복사했습니다'));
+  });
+  $('#actPair')?.addEventListener('click', ()=>{
+    state.mode='pair'; setMode('pair'); toast('최소대립 모드로 이동');
+  });
+  if(!state.sideOpen){ state.sideOpen=true; $('#app').classList.remove('is-side-collapsed'); }
+}
+
+function bindCells(rootSel){
+  $$(rootSel+' td.cell[data-site]').forEach(td=>{
+    td.addEventListener('click', ()=>{
+      $$(rootSel+' td.cell').forEach(x=>x.classList.remove('is-sel'));
+      td.classList.add('is-sel');
+      const site = SITES.find(s=>s.id===td.dataset.site);
+      let raw = td.dataset.raw || '';
+      let note = td.dataset.note || '';
+      let short = td.querySelector('.cmark')?.textContent?.trim() || '';
+      if(td.dataset.which){
+        const pack = PAIR_CELLS[td.dataset.site];
+        const side = pack && pack[td.dataset.which];
+        if(side){ raw=side.raw; note=side.note||''; short=side.short; }
+      }
+      showSide({
+        item: td.dataset.item,
+        env: td.dataset.env,
+        siteName: site?.name,
+        prov: site?.provName,
+        year: site?.year,
+        short, raw, note,
+        tokens: tokenize(raw),
+      });
+    });
+  });
+}
+
+function esc(s){ return String(s??'').replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+function escAttr(s){ return esc(s).replace(/\n/g,' '); }
+
+/* ── title / mode ── */
+function updateTitle(){
+  const it = TREE.find(t=>t.code===state.selected) || TREE[0];
+  $('#titleCode').textContent = it.code;
+  $('#titleName').textContent = it.name;
+  const pair = it.pair ? `최소대립 쌍 · ${TREE.find(t=>t.code===it.pair)?.name||it.pair} 와 연동 · ` : '';
+  $('#titleSub').textContent = `${pair}환경 ${(it.kids||[]).length} · 샘플 지점 ${SITES.length}`;
+}
+function setMode(mode){
+  state.mode = mode;
+  $$('.mode').forEach(b=>b.classList.toggle('is-on', b.dataset.mode===mode));
+  $$('.panel').forEach(p=>p.classList.toggle('is-on', p.dataset.panel===mode));
+  if(mode==='pair') renderPairTable();
+  if(mode==='para') renderParaTable();
+  if(mode==='matrix') renderMatrixTable();
+  if(mode==='conc') renderConc();
+}
+
+/* ── events ── */
+function bind(){
+  $('#bandTabs').addEventListener('click', e=>{
+    const b=e.target.closest('.band'); if(!b) return;
+    state.band=b.dataset.band;
+    $$('.band').forEach(x=>x.classList.toggle('is-on', x===b));
+    renderTree();
+  });
+  $('#tagRow').addEventListener('click', e=>{
+    const t=e.target.closest('.tag'); if(!t) return;
+    state.tag=t.dataset.tag;
+    $$('.tag').forEach(x=>x.classList.toggle('is-on', x===t));
+    renderTree();
+  });
+  $('#navSearch').addEventListener('input', ()=>renderTree());
+  $('#tree').addEventListener('click', e=>{
+    const parent=e.target.closest('.tree-parent');
+    const child=e.target.closest('.tree-child');
+    if(child){
+      state.selected=child.dataset.code;
+      state.open[child.dataset.code]=true;
+      renderTree(); updateTitle();
+      // jump mode by band
+      const it=TREE.find(t=>t.code===state.selected);
+      if(it?.band==='320') setMode('para');
+      else if(it?.pair) setMode('pair');
+      else setMode('matrix');
+      return;
+    }
+    if(parent){
+      const code=parent.dataset.code;
+      // toggle open if already selected, else select+open
+      if(state.selected===code){
+        state.open[code]=!state.open[code];
+      } else {
+        state.selected=code;
+        state.open[code]=true;
+      }
+      renderTree(); updateTitle();
+      const it=TREE.find(t=>t.code===code);
+      if(it?.band==='320') setMode('para');
+      else if(it?.pair) setMode('pair');
+      else setMode('matrix');
+    }
+  });
+  $('#modes').addEventListener('click', e=>{
+    const m=e.target.closest('.mode'); if(!m) return;
+    setMode(m.dataset.mode);
+  });
+  $('#toolbar').addEventListener('click', e=>{
+    const c=e.target.closest('.chip[data-prov]'); if(!c) return;
+    state.prov=c.dataset.prov;
+    $$('#toolbar .chip[data-prov]').forEach(x=>x.classList.toggle('is-on', x===c));
+    if(state.mode==='pair') renderPairTable();
+    if(state.mode==='matrix') renderMatrixTable();
+  });
+  $('#btnToggleSide').addEventListener('click', ()=>{
+    state.sideOpen=!state.sideOpen;
+    $('#app').classList.toggle('is-side-collapsed', !state.sideOpen);
+  });
+  $('#btnCloseSide').addEventListener('click', ()=>{
+    state.sideOpen=false;
+    $('#app').classList.add('is-side-collapsed');
+  });
+  $('#concQ').addEventListener('input', ()=>{ if(state.mode==='conc') renderConc(); });
+}
+
+/* ── boot ── */
+bind();
+renderTree();
+updateTitle();
+setMode('pair');
+// demo: open first interesting cell
+setTimeout(()=>{
+  const td = document.querySelector('#pairTableWrap td.cell[data-site="GW_YY"][data-which="te"]');
+  td?.click();
+}, 200);
+</script>
+</body>
+</html>

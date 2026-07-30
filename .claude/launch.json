@@ -6,6 +6,12 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "8899"],
       "port": 8899
+    },
+    {
+      "name": "neibis-cms",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["neibis-cms/serve.py"],
+      "port": 8877
     }
   ]
 }

@@ -1,0 +1,8 @@
+@charset "utf-8";
+
+/* 공통 스타일 - 반드시 scss에서 수정 */
+@import url("common.css");
+@import url("layout.css");
+@import url("content.css");
+
+/* 사이트별 오버라이드 스타일 - 하단에 css 추가 가능 */

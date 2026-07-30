@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1440">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>지역어종합정보 — 회원가입</title>
 <link rel="shortcut icon" href="./favicon.ico">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
@@ -10,156 +10,93 @@
 <script src="./gnb.js" defer></script>
 <script src="./footer.js" defer></script>
 <style>
+  :root { --rg: #2563eb; --rg-dark: #1d4ed8; }
+
   body {
-    background: #f1f5f9;
+    background: #ffffff;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
     margin: 0;
   }
 
-  /* 회원가입 페이지 중앙 배치 컨테이너 */
-  .register-container {
-    max-width: 520px;
+  .rg-wrap {
     width: 100%;
+    max-width: 1160px;
     margin: 0 auto;
-    padding: 60px 20px;
+    padding: 10px 20px 90px;
     flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     box-sizing: border-box;
   }
 
-  .register-card {
-    background: #ffffff;
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    padding: 50px 40px;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
-    text-align: center;
-    width: 100%;
-    box-sizing: border-box;
-  }
+  /* 단계 표시 */
+  .rg-steps { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); margin: 0; padding: 0; border-bottom: 1px solid #e2e8f0; }
+  .rg-step { position: relative; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 6px 0 20px; color: #b6bcc6; }
+  .rg-step__icon { width: 58px; height: 58px; border: 2px solid #cbd5e1; border-radius: 12px; display: grid; place-items: center; font-size: 27px; color: #cbd5e1; transition: 0.2s; }
+  .rg-step__label { font-size: 17px; font-weight: 600; }
+  .rg-step.is-done { color: #64748b; }
+  .rg-step.is-done .rg-step__icon { border-color: #94a3b8; color: #94a3b8; }
+  .rg-step.is-active { color: var(--rg); }
+  .rg-step.is-active .rg-step__icon { border-color: var(--rg); color: var(--rg); }
+  .rg-step.is-active .rg-step__label { font-weight: 800; }
+  .rg-step.is-active::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; background: var(--rg); border-radius: 3px 3px 0 0; }
 
-  .register-title {
-    font-size: 28px;
-    font-weight: 800;
-    color: #1e293b;
-    margin-bottom: 8px;
-    letter-spacing: -0.03em;
-  }
+  /* 패널 공통 */
+  .rg-panel { margin-top: 46px; }
+  .rg-panel[hidden] { display: none; }
+  .rg-heading { font-size: 19px; font-weight: 800; color: #1e293b; margin: 0 0 18px; }
 
-  .register-subtitle {
-    font-size: 13.5px;
-    font-weight: 500;
-    color: #64748b;
-    margin-bottom: 35px;
+  /* 약관 박스 */
+  .rg-terms {
+    border: 1px solid #e2e8f0; border-radius: 8px; background: #f8f9fb;
+    padding: 26px 30px; height: 470px; overflow-y: auto;
+    color: #475569; font-size: 14px; line-height: 1.75;
   }
+  .rg-terms__chap { font-size: 15px; font-weight: 800; color: #1e293b; margin: 0 0 16px; }
+  .rg-terms__art { font-weight: 700; color: #1e293b; margin: 0 0 4px; }
+  .rg-terms p { margin: 0 0 4px; }
+  .rg-terms .rg-terms__block { margin-bottom: 24px; }
+  .rg-terms .rg-terms__block:last-child { margin-bottom: 0; }
+  .rg-terms ul { list-style: none; margin: 4px 0 0; padding: 0; }
+  .rg-terms ul li { margin-bottom: 4px; }
 
-  .register-submit-btn {
-    width: 100%;
-    background: #404040;
-    color: #ffffff;
-    border: none;
-    padding: 15px;
-    border-radius: 10px;
-    font-size: 15.5px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s;
-    display: block;
-    text-decoration: none;
-    box-sizing: border-box;
-  }
+  .rg-agree { display: inline-flex; align-items: center; gap: 8px; margin: 18px 2px 0; font-size: 15px; color: #334155; cursor: pointer; user-select: none; }
+  .rg-agree input { width: 18px; height: 18px; accent-color: var(--rg); cursor: pointer; }
 
-  .register-submit-btn:hover {
-    background: #2d2d2d;
-  }
+  .rg-actions { display: flex; justify-content: center; gap: 12px; margin-top: 42px; }
+  .rg-btn { background: var(--rg); color: #ffffff; border: none; border-radius: 6px; padding: 14px 46px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; font-family: inherit; }
+  .rg-btn:hover { background: var(--rg-dark); }
+  .rg-btn--ghost { background: #ffffff; color: #475569; border: 1px solid #cbd5e1; }
+  .rg-btn--ghost:hover { background: #f1f5f9; }
 
-  /* 소셜 가입 구분선 */
-  .social-divider-row {
-    display: flex;
-    align-items: center;
-    margin: 35px 0 25px;
-  }
+  /* 가입 정보 입력 표 */
+  .rg-form { width: 100%; border-collapse: collapse; border-top: 2px solid #334155; }
+  .rg-form th, .rg-form td { border-bottom: 1px solid #e2e8f0; padding: 16px 22px; text-align: left; vertical-align: middle; }
+  .rg-form th { width: 220px; background: #f8f9fb; font-weight: 700; color: #334155; font-size: 15px; }
+  .rg-input { height: 44px; padding: 0 14px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box; width: 100%; max-width: 420px; font-family: inherit; color: #334155; }
+  .rg-input::placeholder { color: #94a3b8; }
+  .rg-input:focus { outline: none; border-color: var(--rg); box-shadow: 0 0 0 3px rgba(109, 44, 61, 0.12); }
+  .rg-id-row { display: flex; gap: 10px; align-items: center; }
+  .rg-id-row .rg-input { max-width: 380px; }
+  .rg-check-btn { height: 44px; padding: 0 18px; white-space: nowrap; border: 1px solid #cbd5e1; background: #f1f5f9; color: #334155; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; font-family: inherit; }
+  .rg-check-btn:hover { background: #e2e8f0; }
 
-  .social-divider-line {
-    flex: 1;
-    height: 1px;
-    background: #e2e8f0;
-  }
-
-  .social-divider-text {
-    padding: 0 15px;
-    font-size: 12px;
-    color: #94a3b8;
-    font-weight: 600;
-  }
-
-  /* 소셜 버튼 */
-  .social-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .social-btn {
-    width: 100%;
-    height: 52px;
-    border-radius: 10px;
-    border: none;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    text-decoration: none;
-    transition: opacity 0.2s;
-  }
-
-  .social-btn:hover {
-    opacity: 0.9;
-  }
-
-  .social-btn--kakao {
-    background: #FFE812;
-    color: #3C1E1E;
-  }
-
-  .social-btn--naver {
-    background: #03C75A;
-    color: #ffffff;
-  }
-
-  .social-icon-kakao {
-    font-size: 18px;
-    color: #3C1E1E;
-  }
-
-  .social-icon-naver {
-    font-size: 16px;
-    font-weight: 900;
-    font-family: Arial, sans-serif;
-    display: inline-block;
-    background: #ffffff;
-    color: #03C75A;
-    width: 22px;
-    height: 22px;
-    line-height: 22px;
-    text-align: center;
-    border-radius: 4px;
-  }
+  /* 완료 화면 */
+  .rg-done { text-align: center; padding: 50px 20px 20px; }
+  .rg-done__icon { width: 88px; height: 88px; border-radius: 50%; background: rgba(109, 44, 61, 0.08); color: var(--rg); display: grid; place-items: center; font-size: 46px; margin: 0 auto 24px; }
+  .rg-done__title { font-size: 24px; font-weight: 800; color: #1e293b; margin: 0 0 12px; letter-spacing: -0.02em; }
+  .rg-done__desc { font-size: 15px; color: #64748b; margin: 0 0 34px; line-height: 1.65; }
+  .rg-done__actions { display: flex; gap: 12px; justify-content: center; }
+  .rg-done__actions .rg-btn { text-decoration: none; display: inline-flex; align-items: center; }
 
   @media (max-width: 900px) {
-    .register-container {
-      margin: 40px auto;
-    }
-    .register-card {
-      padding: 35px 24px;
-    }
+    .rg-title { font-size: 24px; margin-bottom: 32px; }
+    .rg-step__label { font-size: 13px; }
+    .rg-step__icon { width: 46px; height: 46px; font-size: 22px; }
+    .rg-terms { padding: 18px 16px; height: 380px; }
+    .rg-form th { width: 96px; padding: 14px 12px; font-size: 13px; }
+    .rg-form td { padding: 14px 12px; }
+    .rg-btn { padding: 13px 30px; font-size: 15px; }
   }
 </style>
 </head>
@@ -167,35 +104,172 @@
 
 <div id="gnb-common"></div>
 
-<div class="register-container">
-  <div class="register-card">
-    <h1 class="register-title">회원가입</h1>
-    <p class="register-subtitle">함께 하는 순간을 기다리고 있었습니다 :-)</p>
-    
-    <a href="#" class="register-submit-btn" onclick="event.preventDefault(); alert('이메일 회원가입 양식으로 이동');">
-      이메일 주소로 회원가입
-    </a>
-
-    <div class="social-divider-row">
-      <div class="social-divider-line"></div>
-      <span class="social-divider-text">소셜미디어 계정으로 가입</span>
-      <div class="social-divider-line"></div>
-    </div>
-
-    <div class="social-buttons">
-      <a href="#" class="social-btn social-btn--kakao" onclick="event.preventDefault(); alert('카카오 가입 시도');">
-        <i class="ti ti-message-circle-2-filled social-icon-kakao"></i>
-        카카오 계정으로 시작하기
-      </a>
-      <a href="#" class="social-btn social-btn--naver" onclick="event.preventDefault(); alert('네이버 가입 시도');">
-        <span class="social-icon-naver">N</span>
-        네이버 계정으로 시작하기
-      </a>
+<div class="sub-visual">
+  <div class="wrap">
+    <h1 class="sv-title">회원 가입</h1>
+    <div class="location-bar">
+      <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer;" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">회원서비스</div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">회원가입</div>
     </div>
   </div>
 </div>
 
+<div class="rg-wrap">
+  <!-- 단계 표시 -->
+  <ol class="rg-steps">
+    <li class="rg-step is-active" data-step="1">
+      <span class="rg-step__icon"><i class="ti ti-checkbox"></i></span>
+      <span class="rg-step__label">01 이용 약관 동의</span>
+    </li>
+    <li class="rg-step" data-step="2">
+      <span class="rg-step__icon"><i class="ti ti-clipboard-list"></i></span>
+      <span class="rg-step__label">02 가입 정보 입력</span>
+    </li>
+    <li class="rg-step" data-step="3">
+      <span class="rg-step__icon"><i class="ti ti-device-mobile-check"></i></span>
+      <span class="rg-step__label">03 회원 가입 완료</span>
+    </li>
+  </ol>
+
+  <!-- 01 이용 약관 동의 -->
+  <section class="rg-panel" data-panel="1">
+    <h2 class="rg-heading">■ 서비스 이용 약관 동의</h2>
+    <div class="rg-terms" tabindex="0">
+      <div class="rg-terms__block">
+        <p class="rg-terms__chap">제1장 총칙</p>
+        <p class="rg-terms__art">제1조 (목적)</p>
+        <p>이 약관은 국립국어원(이하 "국어원"이라 한다.)이 제공하는 누리집 서비스의 이용 조건 및 절차, 이용자와 국어원의 권리, 의무, 책임 사항과 기타 필요한 사항을 규정하기 위한 것입니다. 이 약관이 적용되는 누리집은 다음과 같습니다.</p>
+        <p>- 지역어 종합 정보(dialect.korean.go.kr)</p>
+      </div>
+      <div class="rg-terms__block">
+        <p class="rg-terms__art">제2조 (용어의 정의)</p>
+        <p>이 약관에서 사용하는 용어는 다음과 같이 정의합니다.</p>
+        <ul>
+          <li>① 누리집: 온라인을 통해 이용할 수 있는, 이 약관이 적용되는 인터넷 사이트(지역어 종합 정보)를 말합니다.</li>
+          <li>② 서비스: 구현되는 단말기(PC, TV, 휴대형 단말기 등의 각종 유무선 장치를 포함)와 상관없이 이용할 수 있는 누리집이 제공하는 제반 서비스를 말합니다.</li>
+          <li>③ 이용자: 이 약관에 따라 누리집에서 제공하는 서비스를 이용하는 자를 말합니다.</li>
+          <li>④ 가입: 이 약관에 동의하고, 누리집에서 제공하는 신청서 양식에 해당 정보를 기입하여 누리집 이용 계약을 완료하는 행위를 말합니다.</li>
+          <li>⑤ 회원 정보: 국어원이 이용자에게 누리집의 회원 가입 신청서 양식을 통해 수집하는 회원의 별명, 계정(ID), 비밀번호를 말합니다.</li>
+          <li>⑥ 계정(ID): 회원의 식별과 누리집에서 제공하는 정보 이용을 위해서 회원이 정하고, 국어원이 승인하는 영문자, 숫자의 조합(3자 이상)을 말합니다.</li>
+          <li>⑦ 비밀번호: 회원과 회원 계정(ID)이 일치하는지를 확인하고 통신상 자신의 개인 정보 보호를 위하여 회원 자신이 정한 영문자, 숫자, 특수 문자(2가지 이상)의 조합(9~16자)을 말합니다.</li>
+          <li>⑧ 탈퇴: 회원이 누리집 이용을 하지 않기로 하여 회원 등록을 취소하는 행위를 말합니다.</li>
+        </ul>
+      </div>
+      <div class="rg-terms__block">
+        <p class="rg-terms__chap">제2장 서비스 이용 계약</p>
+        <p class="rg-terms__art">제3조 (이용 계약의 성립)</p>
+        <p>이용 계약은 이용자가 되고자 하는 자(이하 "가입 신청자")가 약관의 내용에 동의를 하고, 국어원이 정한 가입 양식에 따라 회원 정보를 기입하여 회원 가입을 신청한 후 국어원이 이를 승낙함으로써 성립합니다.</p>
+      </div>
+      <div class="rg-terms__block">
+        <p class="rg-terms__art">제4조 (개인정보의 보호 및 관리)</p>
+        <p>국어원은 관련 법령이 정하는 바에 따라 회원의 개인정보를 보호하기 위해 노력하며, 개인정보의 보호 및 이용에 관해서는 관련 법령 및 국어원의 개인정보처리방침이 적용됩니다.</p>
+      </div>
+    </div>
+
+    <label class="rg-agree">
+      <input type="checkbox" id="agreeTerms">
+      서비스 이용 약관에 동의합니다.
+    </label>
+
+    <div class="rg-actions">
+      <button type="button" class="rg-btn" onclick="goStep2()">다음 단계</button>
+    </div>
+  </section>
+
+  <!-- 02 가입 정보 입력 -->
+  <section class="rg-panel" data-panel="2" hidden>
+    <h2 class="rg-heading">■ 가입 정보 입력</h2>
+    <table class="rg-form">
+      <tbody>
+        <tr>
+          <th scope="row">계정(ID)</th>
+          <td>
+            <div class="rg-id-row">
+              <input type="text" id="rgId" class="rg-input" placeholder="영문자, 숫자(3자 이상)">
+              <button type="button" class="rg-check-btn" onclick="checkDup()">중복 확인</button>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">비밀번호</th>
+          <td><input type="password" id="rgPw" class="rg-input" placeholder="영문자, 숫자, 특수 문자(2가지 이상)의 조합(9~16자)"></td>
+        </tr>
+        <tr>
+          <th scope="row">비밀번호 확인</th>
+          <td><input type="password" id="rgPw2" class="rg-input"></td>
+        </tr>
+        <tr>
+          <th scope="row">별명</th>
+          <td><input type="text" id="rgNick" class="rg-input"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="rg-actions">
+      <button type="button" class="rg-btn rg-btn--ghost" onclick="setStep(1)">이전</button>
+      <button type="button" class="rg-btn" onclick="submitRegister()">가입하기</button>
+    </div>
+  </section>
+
+  <!-- 03 회원 가입 완료 -->
+  <section class="rg-panel" data-panel="3" hidden>
+    <h2 class="rg-heading">■ 회원 가입 완료</h2>
+    <div class="rg-done">
+      <div class="rg-done__icon"><i class="ti ti-circle-check"></i></div>
+      <p class="rg-done__title">회원 가입이 완료되었습니다.</p>
+      <p class="rg-done__desc">지역어 종합 정보의 회원이 되신 것을 환영합니다.<br>로그인 후 다양한 서비스를 이용하실 수 있습니다.</p>
+      <div class="rg-done__actions">
+        <a href="./index.html" class="rg-btn rg-btn--ghost">메인으로</a>
+        <a href="./login.html" class="rg-btn">로그인하기</a>
+      </div>
+    </div>
+  </section>
+</div>
+
 <div id="footer-common"></div>
+
+<script>
+  function setStep(n) {
+    document.querySelectorAll('.rg-step').forEach(function (s) {
+      var sn = parseInt(s.dataset.step, 10);
+      s.classList.toggle('is-active', sn === n);
+      s.classList.toggle('is-done', sn < n);
+    });
+    document.querySelectorAll('.rg-panel').forEach(function (p) {
+      p.hidden = (parseInt(p.dataset.panel, 10) !== n);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goStep2() {
+    if (!document.getElementById('agreeTerms').checked) {
+      alert('서비스 이용 약관에 동의해 주세요.');
+      return;
+    }
+    setStep(2);
+  }
+
+  function checkDup() {
+    var id = document.getElementById('rgId').value.trim();
+    if (!id) { alert('계정(ID)을 입력해 주세요.'); return; }
+    alert('사용 가능한 계정(ID)입니다. (정적 프로토타입)');
+  }
+
+  function submitRegister() {
+    var id = document.getElementById('rgId').value.trim();
+    var pw = document.getElementById('rgPw').value;
+    var pw2 = document.getElementById('rgPw2').value;
+    var nick = document.getElementById('rgNick').value.trim();
+    if (!id) { alert('계정(ID)을 입력해 주세요.'); return; }
+    if (!pw) { alert('비밀번호를 입력해 주세요.'); return; }
+    if (pw !== pw2) { alert('비밀번호가 일치하지 않습니다.'); return; }
+    if (!nick) { alert('별명을 입력해 주세요.'); return; }
+    setStep(3);
+  }
+</script>
 
 </body>
 </html>

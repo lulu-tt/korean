@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>지역어 음운 비교 (프로토타입) — 국립국어원</title>
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="./styles.css">
+<script src="./gnb.js" defer></script>
+<script src="./share.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+  @font-face {
+    font-family: 'NanumBarunGothicYetHangul';
+    src: url('https://cdn.jsdelivr.net/npm/@kfonts/nanum-barun-gothic-yet-hangul-otf/NanumBarunGothic-YetHangul.woff2') format('woff2'),
+         url('https://cdn.jsdelivr.net/npm/@kfonts/nanum-barun-gothic-yet-hangul-otf/NanumBarunGothic-YetHangul.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  html { scrollbar-gutter: stable; }
+  body {
+    font-family: 'Pretendard', 'NanumBarunGothicYetHangul', system-ui, -apple-system, sans-serif;
+    font-variant-ligatures: normal;
+    font-feature-settings: "liga" 1, "clig" 1, "ccmp" 1;
+    background: #ffffff;
+  }
+  .container { max-width: 1440px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  .sub-visual { background: #ffffff; border-bottom: 1px solid var(--line); padding: 50px 0 40px; text-align: center; position: relative; overflow: hidden; }
+  .sub-visual::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.05) 0%, transparent 40%); pointer-events: none; }
+  .sv-title { font-size: 30px; font-weight: 800; color: #1e3a8a; letter-spacing: -0.02em; margin: 0 0 16px; position: relative; z-index: 1; }
+  .location-bar { display: inline-flex; align-items: center; gap: 12px; background: #ffffff; padding: 8px 24px; border-radius: 99px; box-shadow: var(--shadow2); border: 1px solid var(--line); position: relative; z-index: 1; }
+  .loc-item { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #475569; }
+  .loc-item.home { color: var(--blue); font-size: 16px; }
+  .loc-item select { border: none; background: transparent; font-size: 14px; font-weight: 700; color: var(--text); padding: 0 20px 0 0; cursor: pointer; appearance: none; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%2364748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>') no-repeat right center; }
+  .loc-item select:focus { outline: none; box-shadow: none; }
+  .loc-sep { color: #cbd5e1; font-size: 14px; }
+
+  .pick-panel { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 18px 22px 16px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04); }
+  .pick-panel__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .pick-panel__label { font-size: 15px; font-weight: 800; color: var(--text); display: inline-flex; align-items: center; gap: 6px; margin: 0; }
+  .pick-panel__count { font-size: 11px; font-weight: 700; color: var(--blue); background: var(--blue-light); border: 1px solid #bfdbfe; padding: 3px 9px; border-radius: 99px; }
+
+  .empty-result { text-align: center; padding: 60px 24px; background: var(--card); border: 1px dashed var(--border-strong, #cbd5e1); border-radius: 20px; }
+  .empty-result__icon { width: 64px; height: 64px; margin: 0 auto 18px; border-radius: 50%; background: var(--blue-light); color: var(--blue); display: grid; place-items: center; font-size: 30px; }
+  .empty-result__title { font-size: 18px; font-weight: 800; color: var(--text); margin: 0 0 8px; letter-spacing: -0.02em; }
+  .empty-result__desc { font-size: 14px; color: var(--muted); font-weight: 500; margin: 0; line-height: 1.6; }
+
+  .word-search { position: relative; margin-bottom: 10px; }
+  .word-search__input {
+    width: 100%; height: 42px; padding: 0 38px; box-sizing: border-box;
+    border: 1px solid #cbd5e1; border-radius: 11px; background: #fff;
+    font-size: 14px; font-weight: 600; color: var(--text); font-family: inherit; outline: none; transition: 0.15s;
+  }
+  .word-search__input::placeholder { color: #94a3b8; font-weight: 500; }
+  .word-search__input:focus { border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+  .word-search__ico { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 17px; pointer-events: none; }
+  .word-search__clear { position: absolute; right: 9px; top: 50%; transform: translateY(-50%); width: 26px; height: 26px; border: none; border-radius: 8px; background: transparent; color: #94a3b8; cursor: pointer; display: none; place-items: center; font-size: 15px; font-family: inherit; }
+  .word-search.has-value .word-search__clear { display: grid; }
+  .word-search__clear:hover { background: #f1f5f9; color: #475569; }
+
+  .band-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+  .band-btn {
+    min-height: 32px; padding: 0 12px; border: 1px solid var(--line); background: #fff; border-radius: 8px;
+    font-size: 12.5px; font-weight: 700; color: #475569; cursor: pointer; font-family: inherit;
+  }
+  .band-btn:hover { border-color: #93c5fd; color: var(--blue); }
+  .band-btn.is-active { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28); }
+
+  .initials { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; background: #ffffff; }
+  .initial { min-width: 34px; height: 34px; padding: 0 8px; border: 1px solid var(--line); background: #fff; border-radius: 8px; font-size: 12.5px; font-weight: 700; color: #475569; cursor: pointer; font-family: inherit; transition: 0.12s; }
+  .initial:hover { border-color: #93c5fd; color: var(--blue); }
+  .initial.is-active { background: #0f172a; border-color: #0f172a; color: #fff; }
+
+  .word-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 7px; max-height: 240px; overflow-y: auto; padding-right: 2px; scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+  .word-grid-empty { grid-column: 1 / -1; text-align: center; padding: 22px 8px; font-size: 13px; font-weight: 600; color: #94a3b8; }
+  .wbtn {
+    appearance: none; border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 12px 10px;
+    font-size: 13px; font-weight: 700; color: #334155; cursor: pointer; font-family: inherit; transition: 0.12s;
+    text-align: center; min-height: 44px;
+  }
+  .wbtn:hover { border-color: #93c5fd; background: var(--blue-light); color: #1d4ed8; }
+  .wbtn.is-active { border-color: var(--blue); background: var(--blue); color: #fff; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3); }
+
+  .word-header { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+  .word-header .word { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; color: var(--text); }
+  .word-header .meta { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .word-header .badge { font-size: 12px; padding: 4px 12px; border-radius: 99px; background: var(--blue-light); color: var(--blue); font-weight: 800; border: 1px solid #bfdbfe; }
+
+  .table-controls { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .table-controls .label { font-size: 13px; color: var(--muted); font-weight: 700; margin-right: 2px; }
+  .chip-btn {
+    padding: 7px 16px; border: 1px solid #cbd5e1; background: #ffffff;
+    border-radius: 99px; font-size: 13px; cursor: pointer; color: #475569; transition: all 0.2s; font-family: inherit; font-weight: 600; box-shadow: var(--shadow2);
+  }
+  .chip-btn:hover { border-color: #94a3b8; color: var(--text); }
+  .chip-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); font-weight: 700; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15); }
+  .spacer { flex: 1; }
+  .scroll-hint { font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 4px; font-weight: 600; }
+
+  .matrix-wrap {
+    border: 1px solid var(--line); border-radius: 16px; overflow: auto;
+    max-height: 70vh; position: relative; box-shadow: var(--shadow2); background: #ffffff;
+  }
+  table.matrix { border-collapse: separate; border-spacing: 0; font-size: 14px; width: 100%; }
+  table.matrix th, table.matrix td { border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); }
+  table.matrix th:last-child, table.matrix td:last-child { border-right: none; }
+
+  table.matrix thead th {
+    position: sticky; top: 0; z-index: 20; background: #f8fafc;
+    padding: 12px 14px; font-weight: 700; text-align: center; color: var(--text);
+    font-size: 13px; vertical-align: middle; white-space: nowrap;
+  }
+  table.matrix thead th .col-count { display: block; font-size: 11px; font-weight: 500; color: #94a3b8; margin-top: 3px; }
+  table.matrix thead th.corner {
+    position: sticky; left: 0; z-index: 30; background: #f8fafc;
+    text-align: left; min-width: 120px; box-shadow: 1px 0 0 #cbd5e1;
+  }
+
+  tr.prov-row td {
+    position: sticky; left: 0; z-index: 15;
+    background: #f1f5f9; font-weight: 800; font-size: 13px;
+    padding: 9px 14px; cursor: pointer; user-select: none; color: var(--text);
+    box-shadow: 1px 0 0 #cbd5e1;
+  }
+  tr.prov-row td .toggle { display: inline-block; font-size: 10px; color: #94a3b8; margin-right: 6px; transition: transform 0.2s; }
+  tr.prov-row.collapsed td .toggle { transform: rotate(-90deg); }
+  tr.prov-row td .prov-meta { font-weight: 500; color: #94a3b8; font-size: 12px; margin-left: 8px; }
+
+  td.rowhead {
+    position: sticky; left: 0; z-index: 10; background: #ffffff;
+    padding: 10px 14px; font-weight: 700; min-width: 120px; color: var(--text);
+    box-shadow: 1px 0 0 var(--line); white-space: nowrap;
+  }
+  tbody tr:hover td.rowhead { background: #f8fafc; }
+
+  /* 음운: 원문 셀 (색 추정 없음) */
+  td.cell { text-align: left; padding: 0; min-height: 48px; position: relative; vertical-align: middle; min-width: 140px; max-width: 260px; }
+  td.cell.filled { cursor: pointer; }
+  td.cell .mark {
+    display: block; width: 100%; min-height: 48px; padding: 10px 12px; box-sizing: border-box;
+    font-weight: 600; font-size: 13px; line-height: 1.45; color: var(--text);
+    white-space: pre-wrap; word-break: break-word;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
+  td.cell.filled:hover .mark { background: #eff6ff; box-shadow: inset 0 0 0 2px rgba(37,99,235,0.25); }
+  td.cell.empty { background: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(15,23,42,0.02) 5px, rgba(15,23,42,0.02) 6px); }
+  td.cell.miss .mark { color: #94a3b8; font-weight: 600; font-size: 12px; }
+  td.cell .note-dot {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #f59e0b;
+    margin-right: 5px; vertical-align: middle;
+  }
+
+  .legend-box { margin-bottom: 14px; padding: 16px 18px; background: #f8fafc; border: 1px solid var(--line); border-radius: 16px; font-size: 12.5px; color: var(--muted); box-shadow: var(--shadow2); }
+  .legend-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+  .legend-swatch { width: 16px; height: 16px; border-radius: 4px; border: 1px solid #cbd5e1; }
+  .legend-swatch.empty { background: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(15,23,42,0.02) 5px, rgba(15,23,42,0.02) 6px); }
+  .legend-swatch.note { background: #fffbeb; border-color: #fcd34d; position: relative; }
+  .legend-swatch.note::after { content:''; position:absolute; width:6px; height:6px; border-radius:50%; background:#f59e0b; top:4px; left:4px; }
+
+  .overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 100; display: none; padding: 40px 20px; overflow-y: auto; }
+  .overlay.show { display: flex; align-items: center; justify-content: center; animation: ph-fadein 0.2s ease; }
+  @keyframes ph-fadein { from { opacity: 0; } to { opacity: 1; } }
+  .detail-modal {
+    background: #ffffff; border-radius: 24px; border: 1px solid var(--line);
+    width: 100%; max-width: 520px; margin: auto;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18); overflow: hidden;
+  }
+  .detail-modal__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 22px 26px; border-bottom: 1px solid var(--line); background: #f8fafc; }
+  .detail-modal__head h2 { font-size: 20px; margin: 0 0 4px; color: var(--text); font-weight: 800; }
+  .detail-modal__head .subtitle { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .detail-modal .close { flex-shrink: 0; background: #ffffff; border: 1px solid var(--line); border-radius: 12px; width: 36px; height: 36px; font-size: 18px; cursor: pointer; color: var(--muted); display: flex; align-items: center; justify-content: center; }
+  .detail-modal .close:hover { background: #f1f5f9; color: var(--text); }
+  .detail-modal__body { padding: 24px 26px; max-height: 65vh; overflow-y: auto; }
+  .detail-block { margin-bottom: 18px; }
+  .detail-block .k { font-size: 12px; color: #94a3b8; margin-bottom: 6px; font-weight: 800; letter-spacing: 0.02em; }
+  .detail-block .v { font-size: 15px; color: var(--text); font-weight: 600; }
+  .detail-block .original { background: #f8fafc; border-radius: 12px; padding: 12px 14px; font-size: 14px; line-height: 1.7; color: var(--text); border-left: 3px solid var(--blue); font-weight: 500; white-space: pre-wrap; word-break: break-word; }
+  .copy-btn {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 9px 14px; border-radius: 10px;
+    border: 1px solid var(--line); background: #fff; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; color: #334155;
+  }
+  .copy-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+
+  .load-err { padding: 28px; border-radius: 16px; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+  .load-err code { background: #fee2e2; padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+
+  .hidden { display: none !important; }
+  @media (max-width: 640px) {
+    .container { padding: 24px 16px 60px; }
+    .sub-visual { padding: 30px 0 26px; }
+    .word-header .word { font-size: 22px; }
+    .detail-modal { max-width: 100%; }
+    table.matrix thead th.corner, td.rowhead { min-width: 92px; }
+  }
+</style>
+</head>
+<body>
+
+  <div id="gnb-common"></div>
+
+  <div class="sub-visual">
+    <div class="wrap">
+      <h1 class="sv-title">지역어 음운 비교</h1>
+      <div class="location-bar">
+        <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
+        <i class="ti ti-chevron-right loc-sep" aria-hidden="true"></i>
+        <div class="loc-item">
+          <select aria-label="상위 메뉴" onchange="if(this.value) location.href=this.value;">
+            <option value="./dialect_search_prototype.html" selected>지역어 검색</option>
+            <option value="./dialect_map.html">지역어 지도</option>
+            <option value="./region_culture.html">지역어 자료관</option>
+            <option value="./notice.html">알림마당</option>
+            <option value="./about_intro.html">누리집소개</option>
+          </select>
+        </div>
+        <i class="ti ti-chevron-right loc-sep" aria-hidden="true"></i>
+        <div class="loc-item">
+          <select aria-label="현재 페이지" onchange="if(this.value) location.href=this.value;">
+            <option value="./dialect_search_prototype.html">통합자료검색</option>
+            <option value="./vocab_dialect.html">어휘조사자료</option>
+            <option value="./oral_dialect.html">구술발화조사자료</option>
+            <option value="./dialect_variant_compare.html">지역어 변이형 비교</option>
+            <option value="./dialect_phonology_compare.html" selected>지역어 음운 비교</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap container">
+
+    <div id="bootError" class="load-err hidden"></div>
+
+    <div class="pick-panel">
+      <div class="pick-panel__head">
+        <p class="pick-panel__label">
+          <i class="ti ti-sound" style="color:var(--blue)" aria-hidden="true"></i>
+          <span>비교할 음운 항목</span>
+          <span class="pick-panel__count" id="wordCountMeta">—개</span>
+        </p>
+      </div>
+      <div class="word-search" id="wordSearchWrap">
+        <i class="ti ti-search word-search__ico" aria-hidden="true"></i>
+        <input type="search" class="word-search__input" id="wordSearch" placeholder="표준어 검색 (예: 테, 태, 듣)" autocomplete="off" aria-label="음운 항목 검색">
+        <button type="button" class="word-search__clear" id="wordSearchClear" aria-label="검색어 지우기"><i class="ti ti-x" aria-hidden="true"></i></button>
+      </div>
+      <div class="band-row" id="bandRow" role="tablist" aria-label="코드 대역"></div>
+      <div class="initials" id="initials" role="tablist" aria-label="초성 필터"></div>
+      <div class="word-grid" id="wordGrid" role="listbox" aria-label="음운 항목 목록"></div>
+    </div>
+
+    <div class="empty-result" id="emptyResult">
+      <div class="empty-result__icon"><i class="ti ti-list-search" aria-hidden="true"></i></div>
+      <p class="empty-result__title">비교할 음운 항목을 골라 주세요</p>
+      <p class="empty-result__desc">위 목록에서 항목을 선택하면 지역·환경별 조사 원문을 표로 비교할 수 있습니다.</p>
+    </div>
+
+    <div id="resultArea" class="hidden">
+      <div class="word-header">
+        <span class="word" id="currentWord"></span>
+        <span class="badge" id="wordCat"></span>
+        <span class="meta" id="wordMeta"></span>
+      </div>
+
+      <div class="table-controls">
+        <span class="label">도 필터</span>
+        <button type="button" class="chip-btn active" data-prov="all">전체</button>
+        <button type="button" class="chip-btn" data-prov="GG">경기</button>
+        <button type="button" class="chip-btn" data-prov="GW">강원</button>
+        <button type="button" class="chip-btn" data-prov="CB">충북</button>
+        <button type="button" class="chip-btn" data-prov="CN">충남</button>
+        <button type="button" class="chip-btn" data-prov="JB">전북</button>
+        <button type="button" class="chip-btn" data-prov="JN">전남</button>
+        <button type="button" class="chip-btn" data-prov="GB">경북</button>
+        <button type="button" class="chip-btn" data-prov="GN">경남</button>
+        <button type="button" class="chip-btn" data-prov="JJ">제주</button>
+        <button type="button" class="chip-btn" id="collapseBtn">도별 모두 접기</button>
+        <div class="spacer"></div>
+        <span class="scroll-hint"><i class="ti ti-arrows-horizontal"></i> 환경별 원문 · 가로 스크롤 · 셀 클릭 시 전문</span>
+      </div>
+
+      <div class="legend-box" id="legendBox"></div>
+
+      <div class="matrix-wrap" id="matrixWrap">
+        <table class="matrix" id="matrix"></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="detail-modal" id="detailPanel" role="dialog" aria-modal="true" aria-labelledby="detailWord" onclick="event.stopPropagation()">
+      <div class="detail-modal__head">
+        <div>
+          <h2 id="detailWord"></h2>
+          <div class="subtitle" id="detailSub"></div>
+        </div>
+        <button type="button" class="close" id="detailClose" aria-label="닫기"><i class="ti ti-x" aria-hidden="true"></i></button>
+      </div>
+      <div class="detail-modal__body">
+        <div class="detail-block">
+          <div class="k">조사 원문 (엑셀 셀 정본)</div>
+          <div class="original" id="detailOriginal"></div>
+          <button type="button" class="copy-btn" id="copyRaw"><i class="ti ti-copy"></i> 원문 복사</button>
+        </div>
+          <div class="detail-block"><div class="k">항목 · 환경</div><div class="v" id="detailItem"></div></div>
+        <div class="detail-block"><div class="k">조사 지점</div><div class="v" id="detailPlace"></div></div>
+        <div class="detail-block"><div class="k">지점 헤더 (정본)</div><div class="v" id="detailHeader" style="font-size:13px;word-break:break-all"></div></div>
+        <div class="detail-block"><div class="k">출처 파일</div><div class="v" id="detailFile" style="font-size:12px;word-break:break-all;color:#64748b"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer-common"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  const BASE = './data/processed';
+  const CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+  const CHO14 = ['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+  const CHO_FOLD = { 'ㄲ':'ㄱ','ㄸ':'ㄷ','ㅃ':'ㅂ','ㅆ':'ㅅ','ㅉ':'ㅈ' };
+  const PROV_ORDER = ['GG','GW','CB','CN','JB','JN','GB','GN','JJ'];
+  const PROV_NAME = { GG:'경기', GW:'강원', CB:'충북', CN:'충남', JB:'전북', JN:'전남', GB:'경북', GN:'경남', JJ:'제주' };
+
+  const state = {
+    parents: [],
+    band: 'all',
+    initial: '전체',
+    query: '',
+    selected: null,       // parent item
+    envList: [],          // 표 열: 부모 + 자식 환경
+    provFilter: 'all',
+    collapsed: {},
+    allCollapsed: false,
+    cache: {},            // item_code -> bundle
+    detailRaw: '',
+  };
+
+  const $ = (id) => document.getElementById(id);
+
+  function esc(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+
+  function choseong(s) {
+    const ch = (s || '').replace(/[^가-힣]/g, '');
+    if (!ch) return '';
+    const c = ch.charCodeAt(0) - 0xAC00;
+    if (c < 0 || c > 11171) return '';
+    const raw = CHO[Math.floor(c / 588)];
+    return CHO_FOLD[raw] || raw;
+  }
+
+  function bandOf(code) {
+    const m = String(code).match(/^(\d{3})/);
+    return m ? m[1] : '';
+  }
+
+  function shortText(raw, n) {
+    const t = (raw || '').replace(/\s+/g, ' ').trim();
+    if (t.length <= n) return t;
+    return t.slice(0, n) + '…';
+  }
+
+  function hasNote(raw) {
+    return /\(\+[^)]+\)/.test(raw || '');
+  }
+
+  async function loadJSON(url) {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(url + ' → HTTP ' + r.status);
+    return r.json();
+  }
+
+  async function loadItem(code) {
+    if (state.cache[code]) return state.cache[code];
+    const safe = encodeURIComponent(String(code).replace(/\//g, '_'));
+    const data = await loadJSON(BASE + '/items/' + safe + '.json');
+    state.cache[code] = data;
+    return data;
+  }
+
+  function matchesBand(itemCode) {
+    if (state.band === 'all') return true;
+    const b = bandOf(itemCode);
+    if (state.band === '310') return b === '310';
+    if (state.band === 'verb') return b === '320' || b === '321' || b === '322' || b === '323';
+    return b === state.band;
+  }
+
+  function filteredParents() {
+    const q = state.query.trim().toLowerCase();
+    return state.parents.filter(p => {
+      if (!matchesBand(p.item_code)) return false;
+      if (state.initial !== '전체') {
+        const ch = choseong(p.standard_form || '');
+        if (ch !== state.initial) return false;
+      }
+      if (q) {
+        const hay = (p.item_code + ' ' + (p.standard_form || '')).toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }
+
+  function renderBands() {
+    // 310 = 체언·대립, 320~323 = 활용(하나로 묶음)
+    const bands = ['all', '310', 'verb'];
+    const labels = { all: '전체', '310': '체언·대립', verb: '활용' };
+    $('bandRow').innerHTML = bands.map(b =>
+      `<button type="button" class="band-btn ${state.band === b ? 'is-active' : ''}" data-band="${b}">${labels[b]}</button>`
+    ).join('');
+  }
+
+  function renderInitials() {
+    const opts = ['전체'].concat(CHO14);
+    $('initials').innerHTML = opts.map(c =>
+      `<button type="button" class="initial ${state.initial === c ? 'is-active' : ''}" data-ini="${c}">${c}</button>`
+    ).join('');
+  }
+
+  function renderGrid() {
+    const list = filteredParents();
+    $('wordCountMeta').textContent = list.length + '개';
+    if (!list.length) {
+      $('wordGrid').innerHTML = '<div class="word-grid-empty">검색 결과가 없습니다</div>';
+      return;
+    }
+    // 상단 버튼: 표제어만 (환경 N개 문구 없음)
+    $('wordGrid').innerHTML = list.map(p => {
+      const on = state.selected && state.selected.item_code === p.item_code;
+      const label = p.standard_form || '(표제어 없음)';
+      return `<button type="button" class="wbtn ${on ? 'is-active' : ''}" role="option" aria-selected="${on}" data-code="${esc(p.item_code)}">
+        <span>${esc(label)}</span>
+      </button>`;
+    }).join('');
+  }
+
+  function buildEnvList(parent) {
+    // 표 열 = 부모 기본형 + 모든 자식 환경 (코드 숫자는 표시하지 않음)
+    const envs = [];
+    envs.push({ code: parent.item_code, label: parent.standard_form || '기본형', isParent: true });
+    (parent.children || []).forEach(c => {
+      const lab = (c.standard_form && c.standard_form.trim()) ? c.standard_form : '환경';
+      envs.push({ code: c.item_code, label: lab, isParent: false });
+    });
+    state.envList = envs;
+  }
+
+  async function selectParent(code) {
+    const parent = state.parents.find(p => p.item_code === code);
+    if (!parent) return;
+    state.selected = parent;
+    state.collapsed = {};
+    state.allCollapsed = false;
+    buildEnvList(parent);
+    renderGrid();
+    $('emptyResult').classList.add('hidden');
+    $('resultArea').classList.remove('hidden');
+    $('currentWord').textContent = parent.standard_form || '선택 항목';
+    const b = bandOf(parent.item_code);
+    const bandLabel = b === '310' ? '체언·대립'
+      : (b === '320' || b === '321' || b === '322' || b === '323') ? '활용'
+      : '음운';
+    $('wordCat').textContent = '음운 · ' + bandLabel;
+    $('wordMeta').textContent = '지역 · 환경별 조사 원문';
+    await renderMatrix();
+  }
+
+  function groupSitesFromList(siteList) {
+    let sites = siteList.slice();
+    if (state.provFilter !== 'all') {
+      sites = sites.filter(s => s.province_code === state.provFilter);
+    }
+    sites.sort((a, b) => {
+      const ia = PROV_ORDER.indexOf(a.province_code);
+      const ib = PROV_ORDER.indexOf(b.province_code);
+      if (ia !== ib) return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+      return (a.place_name || a.raw_header || '').localeCompare(b.place_name || b.raw_header || '', 'ko');
+    });
+    const groups = [];
+    let cur = null;
+    sites.forEach(s => {
+      const pn = s.province_name || PROV_NAME[s.province_code] || s.province_code || '기타';
+      if (!cur || cur.name !== pn) {
+        cur = { name: pn, code: s.province_code, sites: [] };
+        groups.push(cur);
+      }
+      cur.sites.push(s);
+    });
+    return groups;
+  }
+
+  async function renderMatrix() {
+    const table = $('matrix');
+    const envs = state.envList;
+    if (!envs.length) return;
+
+    const colCount = envs.length + 1;
+    table.innerHTML = `<tbody><tr><td colspan="${colCount}" style="padding:24px;color:#64748b;font-weight:600">원문 불러오는 중…</td></tr></tbody>`;
+
+    let bundles;
+    try {
+      bundles = await Promise.all(envs.map(e => loadItem(e.code)));
+    } catch (e) {
+      table.innerHTML = `<tbody><tr><td colspan="${colCount}" style="padding:24px;color:#b91c1c;font-weight:600">로드 실패: ${esc(e.message || e)}</td></tr></tbody>`;
+      return;
+    }
+
+    const siteMap = new Map();
+    const cell = {};
+    envs.forEach((env, i) => {
+      (bundles[i].responses || []).forEach(r => {
+        cell[env.code + '|' + r.site_id] = r;
+        if (!siteMap.has(r.site_id)) {
+          siteMap.set(r.site_id, {
+            site_id: r.site_id,
+            province_code: r.province_code,
+            province_name: r.province_name,
+            raw_header: r.raw_header,
+            place_name: r.place_name,
+            survey_year: r.survey_year,
+            source_file: r.source_file,
+          });
+        }
+      });
+    });
+
+    const groups = groupSitesFromList([...siteMap.values()]);
+
+    $('legendBox').innerHTML = `
+      <div class="legend-row">
+        <b style="color:var(--text)">표시</b>
+        <div class="legend-item"><div class="legend-swatch" style="background:#fff"></div><span>조사 원문 (엑셀 셀)</span></div>
+        <div class="legend-item"><div class="legend-swatch empty"></div><span>빈칸 또는 * (결측)</span></div>
+        <div class="legend-item"><div class="legend-swatch note"></div><span>원문에 조사 메모 (+…) 포함</span></div>
+      </div>`;
+
+    let html = `<thead><tr>
+      <th class="corner">지역 <span class="col-count">도 · 지점</span></th>`;
+    envs.forEach(env => {
+      html += `<th>${esc(env.label)}</th>`;
+    });
+    html += `</tr></thead><tbody>`;
+
+    if (!groups.length) {
+      html += `<tr><td colspan="${colCount}" style="padding:28px;text-align:center;color:#94a3b8;font-weight:600">이 도 필터에 해당하는 지점이 없습니다.</td></tr>`;
+    }
+
+    groups.forEach(g => {
+      const key = g.code || g.name;
+      const collapsed = !!state.collapsed[key];
+      html += `<tr class="prov-row ${collapsed ? 'collapsed' : ''}" data-prov="${esc(key)}">
+        <td colspan="${colCount}"><span class="toggle">▼</span>${esc(g.name)}<span class="prov-meta">${g.sites.length}개 지점</span></td>
+      </tr>`;
+      if (collapsed) return;
+      g.sites.forEach(s => {
+        const place = s.place_name || s.raw_header || '—';
+        html += `<tr>
+          <td class="rowhead">${esc(place)}</td>`;
+        envs.forEach(env => {
+          const r = cell[env.code + '|' + s.site_id];
+          const miss = !r || r.is_missing;
+          const raw = r ? (r.raw_text ?? '') : '';
+          let display;
+          if (!r) display = '—';
+          else if (miss) display = raw === '*' ? '*' : '(빈칸)';
+          else display = shortText(raw, 40);
+          const note = !miss && hasNote(raw);
+          html += `<td class="cell ${miss || !r ? 'empty miss' : 'filled'}"
+              data-raw="${esc(raw)}"
+              data-place="${esc(place)}"
+              data-year="${esc(s.survey_year || '')}"
+              data-header="${esc(s.raw_header)}"
+              data-prov="${esc(s.province_name || '')}"
+              data-file="${esc(s.source_file || '')}"
+              data-envlabel="${esc(env.label)}"
+              data-std="${esc(state.selected.standard_form || '')}"
+              data-miss="${miss || !r ? 1 : 0}">
+            <div class="mark">${note ? '<span class="note-dot" title="조사 메모"></span>' : ''}${esc(display)}</div>
+          </td>`;
+        });
+        html += `</tr>`;
+      });
+    });
+
+    html += '</tbody>';
+    table.innerHTML = html;
+  }
+
+  function openDetail(td) {
+    const raw = td.dataset.raw ?? '';
+    const miss = td.dataset.miss === '1';
+    state.detailRaw = raw;
+    $('detailWord').textContent = state.selected.standard_form || '선택 항목';
+    $('detailSub').textContent = (td.dataset.prov || '') + ' ' + (td.dataset.place || '') +
+      (td.dataset.year ? ' · ' + td.dataset.year : '');
+    $('detailOriginal').textContent = miss
+      ? (raw === '*' ? '*' : '(빈 문자열 — 엑셀 결측)')
+      : (raw || '(빈 문자열)');
+    $('detailItem').textContent = `${td.dataset.std || ''} · ${td.dataset.envlabel || ''}`.replace(/ · $/, '');
+    $('detailPlace').textContent = `${td.dataset.prov || ''} ${td.dataset.place || ''}${td.dataset.year ? ' · ' + td.dataset.year : ''}`;
+    $('detailHeader').textContent = td.dataset.header || '—';
+    $('detailFile').textContent = '2010 지역어 조사 통합자료 · 음운';
+    $('overlay').classList.add('show');
+  }
+
+  function closeDetail() {
+    $('overlay').classList.remove('show');
+  }
+
+  function bindUI() {
+    $('bandRow').addEventListener('click', e => {
+      const b = e.target.closest('[data-band]');
+      if (!b) return;
+      state.band = b.dataset.band;
+      renderBands();
+      renderGrid();
+    });
+    $('initials').addEventListener('click', e => {
+      const b = e.target.closest('[data-ini]');
+      if (!b) return;
+      state.initial = b.dataset.ini;
+      renderInitials();
+      renderGrid();
+    });
+    $('wordGrid').addEventListener('click', e => {
+      const b = e.target.closest('[data-code]');
+      if (!b) return;
+      selectParent(b.dataset.code);
+    });
+    const ws = $('wordSearch');
+    const wrap = $('wordSearchWrap');
+    ws.addEventListener('input', () => {
+      state.query = ws.value;
+      wrap.classList.toggle('has-value', !!ws.value);
+      renderGrid();
+    });
+    $('wordSearchClear').addEventListener('click', () => {
+      ws.value = ''; state.query = '';
+      wrap.classList.remove('has-value');
+      renderGrid(); ws.focus();
+    });
+    document.querySelector('.table-controls').addEventListener('click', e => {
+      const chip = e.target.closest('[data-prov]');
+      if (chip) {
+        state.provFilter = chip.dataset.prov;
+        document.querySelectorAll('.table-controls [data-prov]').forEach(c => {
+          c.classList.toggle('active', c.dataset.prov === state.provFilter);
+        });
+        renderMatrix();
+        return;
+      }
+      if (e.target.id === 'collapseBtn' || e.target.closest('#collapseBtn')) {
+        state.allCollapsed = !state.allCollapsed;
+        const groups = PROV_ORDER.concat(['기타']);
+        // collapse all current province keys
+        document.querySelectorAll('tr.prov-row').forEach(tr => {
+          state.collapsed[tr.dataset.prov] = state.allCollapsed;
+        });
+        // also set known codes
+        PROV_ORDER.forEach(p => { state.collapsed[p] = state.allCollapsed; });
+        $('collapseBtn').textContent = state.allCollapsed ? '도별 모두 펼치기' : '도별 모두 접기';
+        renderMatrix();
+      }
+    });
+    $('matrix').addEventListener('click', e => {
+      const prov = e.target.closest('tr.prov-row');
+      if (prov) {
+        const k = prov.dataset.prov;
+        state.collapsed[k] = !state.collapsed[k];
+        renderMatrix();
+        return;
+      }
+      const cell = e.target.closest('td.cell.filled, td.cell.miss');
+      if (cell) openDetail(cell);
+    });
+    $('overlay').addEventListener('click', closeDetail);
+    $('detailClose').addEventListener('click', closeDetail);
+    $('detailPanel').addEventListener('click', e => e.stopPropagation());
+    $('copyRaw').addEventListener('click', () => {
+      navigator.clipboard?.writeText(state.detailRaw || '').then(() => {
+        const b = $('copyRaw');
+        const t = b.innerHTML;
+        b.innerHTML = '<i class="ti ti-check"></i> 복사됨';
+        setTimeout(() => { b.innerHTML = t; }, 1200);
+      });
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeDetail();
+    });
+  }
+
+  async function boot() {
+    bindUI();
+    renderBands();
+    renderInitials();
+    try {
+      const index = await loadJSON(BASE + '/phonology_items.json');
+      state.parents = (index.items || []).filter(it => it.is_parent);
+      renderGrid();
+      // 기본 선택: 테(輪) 있으면 그것으로, 없으면 첫 항목
+      const def = state.parents.find(p => p.item_code === '31001') || state.parents[0];
+      if (def) await selectParent(def.item_code);
+    } catch (e) {
+      $('bootError').classList.remove('hidden');
+      $('bootError').innerHTML = `
+        실데이터를 불러오지 못했습니다. ETL 산출물이 있는지, 로컬 서버로 열었는지 확인해 주세요.<br><br>
+        <code>python3 scripts/etl_phonology.py</code><br>
+        <code>python3 -m http.server 8765</code> 후<br>
+        <code>http://127.0.0.1:8765/dialect_phonology_compare.html</code><br><br>
+        ${esc(e.message || e)}`;
+      $('wordGrid').innerHTML = '<div class="word-grid-empty">데이터 없음</div>';
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+</body>
+</html>

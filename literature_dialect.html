@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=1440">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>문학 속 지역어 — 국립국어원</title>
 
   <!-- 파비콘 및 폰트 아이콘 -->
@@ -18,6 +18,14 @@
   <script src="./footer.js" defer></script>
 
   <style>
+    @font-face {
+      font-family: 'NanumBarunGothicYetHangul';
+      src: url('https://cdn.jsdelivr.net/npm/@kfonts/nanum-barun-gothic-yet-hangul-otf/NanumBarunGothic-YetHangul.woff2') format('woff2'),
+           url('https://cdn.jsdelivr.net/npm/@kfonts/nanum-barun-gothic-yet-hangul-otf/NanumBarunGothic-YetHangul.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+
     :root {
       --primary: #2563EB;
       --primary-dark: #1D4ED8;
@@ -113,7 +121,7 @@
       flex-direction: column;
       min-height: 100vh;
       margin: 0;
-      font-family: Pretendard, -apple-system, sans-serif;
+      font-family: 'Pretendard', 'NanumBarunGothicYetHangul', -apple-system, sans-serif;
     }
 
     /* 본문 영역 커스텀 백그라운드 디자인 */
@@ -609,6 +617,50 @@
     }
     .view-toggle button:hover { border-color: #94a3b8; color: #374151; }
     .view-toggle button.active { background: #111827; color: #fff; border-color: #111827; }
+    /* Board Pagination Styles */
+    .board-pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      margin-top: 40px;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+    .board-pagination a, .board-pagination span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748b;
+      text-decoration: none;
+      border-radius: 50%;
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+    }
+    .board-pagination a.page-num:hover {
+      background-color: #f1f5f9;
+      color: #1e293b;
+    }
+    .board-pagination span.current {
+      background-color: #1e3a8a;
+      color: #ffffff;
+      font-weight: 700;
+    }
+    .board-pagination .arrow-btn {
+      border: 1px solid #e2e8f0;
+      color: #94a3b8;
+      font-size: 16px;
+    }
+    .board-pagination .arrow-btn:hover {
+      background-color: #f1f5f9;
+      color: #1e293b;
+      border-color: #cbd5e1;
+    }
+
     .mobile .result-cards, .tablet .result-cards { grid-template-columns: 1fr; }
     .result-card {
       background: #ffffff; 
@@ -711,7 +763,7 @@
     /* 용례 목록 (1건 이상) + 접기/펼치기 — 카드형·목록형 공용 */
     .eg-block { margin: 8px 0 20px; flex: 1; }
     .eg-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
-    .eg-list.collapsed > .eg-item:nth-child(n+3) { display: none; }
+    .eg-list.collapsed > .eg-item:nth-child(n+2) { display: none; }
     .eg-item { display: flex; gap: 8px; font-size: 14.5px; line-height: 1.75; color: #111827; }
     .eg-mark { color: #2563eb; font-weight: 700; flex: 0 0 auto; }
     .eg-text { flex: 1; min-width: 0; }
@@ -992,20 +1044,6 @@
     /* 자세히 검색 모드에서는 상단 간단 검색줄 숨김 (프로토타입과 동일한 배타적 구성) */
     .state-expanded .simple-search, .state-results .simple-search { display: none; }
 
-    /* ── 엑셀 내려받기 버튼 (height 38px 통일) ── */
-    .excel-btn-rect {
-      height: 38px; padding: 0 16px; box-sizing: border-box;
-      background: #217346; border: 1px solid #217346; color: #ffffff;
-      font-size: 13px; font-weight: 700; cursor: pointer;
-      border-radius: 8px; transition: all 0.2s ease;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-family: inherit;
-    }
-    .excel-btn-rect:hover {
-      background: #1a5c34; border-color: #1a5c34; color: #ffffff;
-      transform: translateY(-1px); box-shadow: 0 4px 10px rgba(33, 115, 70, 0.25);
-    }
-    .excel-btn-rect i { font-size: 16px; }
   </style>
 </head>
 <body>
@@ -1068,7 +1106,7 @@
 
               <!-- 검색어 입력 + 실행 -->
               <div class="simple-row">
-                <input type="text" class="search-input" value="감자" placeholder="예: 감자, 옥수수, 부추" aria-label="검색어 입력">
+                <input type="text" class="search-input" value="" placeholder="예: 감자, 옥수수, 부추" aria-label="검색어 입력">
                 <div class="simple-actions">
                   <button type="button" class="btn-outline">옛 한글</button>
                   <button type="button" class="btn-primary" aria-label="검색"><i class="ti ti-search" aria-hidden="true"></i> 검색</button>
@@ -1321,13 +1359,12 @@
                 <div style="display: inline-block;">
                   <h2 style="font-size: 22px; font-weight: 800; color: #1e3a8a; margin: 0 0 6px; letter-spacing: -0.02em;">선택 조건 방언 검색 결과</h2>
                   <p style="font-size: 14px; color: var(--muted); margin: 0; font-weight: 500;">
-                    선택된 조건으로 검색된 지역어는 총 <strong style="color: var(--primary); font-weight: 800;">11</strong>건입니다. (해설, 용례, 다른 방언형 중심)
+                    선택된 조건으로 검색된 지역어는 총 <strong id="resultTotalCount" style="color: var(--primary); font-weight: 800;">11</strong>건입니다. (해설, 용례, 다른 방언형 중심)
                   </p>
               </div>
 
-              <!-- 우측 상단 액션 행 (한 줄 수평 배치: 엑셀 내려받기 + 카드형/목록형) -->
+              <!-- 우측 상단 액션 행 (카드형/목록형 전환) -->
               <div class="result-actions-row">
-                <button class="excel-btn-rect" type="button" onclick="downloadExcel()"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> 엑셀 내려받기</button>
                 <div class="view-toggle" role="group" aria-label="보기 방식 전환">
                   <button type="button" id="btnCardView" class="active" aria-pressed="true" onclick="setResultView('card')">▦ 카드형</button>
                   <button type="button" id="btnListView" aria-pressed="false" onclick="setResultView('list')">≣ 목록형</button>
@@ -1682,6 +1719,9 @@
                   <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">가시나, 가스나, 가스내</span></div>
                 </article>
               </div>
+
+              <!-- 동적 페이징 영역 -->
+              <div class="board-pagination" id="litPagination"></div>
             </div>
           </section>
         </div>
@@ -1835,37 +1875,235 @@
       device.classList.add('state-' + btn.dataset.state);
     });
   });
+</script>
 
-  /* ── 엑셀 내려받기 기능 ── */
-  function downloadExcel() {
-    const cards = document.querySelectorAll('#viewCards .result-card, #viewList .lit-entry');
-    let csv = "\uFEFF번호,지역어,지역,품사,대응 표준어,용례,출처,뜻풀이,다른 방언형\n";
-    let idx = 0;
-    cards.forEach(card => {
-      const word = (card.querySelector('.dialect-word strong, .lit-word')?.innerText || '').trim();
-      if (!word) return;
-      idx++;
-      const region = (card.querySelector('.tag.region, .lit-head-right b')?.innerText || '').trim();
-      const pos = (card.querySelector('.tag.type, .lit-pos')?.innerText || '').trim();
-      const std = (card.querySelector('.source-meta')?.innerText || '').replace('대응 표준어:', '').trim();
-      const egText = (card.querySelector('.eg-text')?.innerText || '').replace(/\n/g, ' ').trim();
-      const egSrc = (card.querySelector('.eg-src')?.innerText || '').trim();
-      const rmLines = card.querySelectorAll('.rm-line');
-      const defLine = rmLines.length > 0 ? (rmLines[0]?.innerText || '').replace(/^뜻풀이/, '').trim() : '';
-      const altLine = rmLines.length > 1 ? (rmLines[1]?.innerText || '').replace(/^다른 방언형/, '').trim() : '';
+<script>
+  // Dynamic API Fetch & Render for Literature Dialects
+  let currentLitPage = 1;
+  const currentLitLimit = 12;
 
-      const clean = str => `"${(str || '').replace(/"/g, '""')}"`;
-      csv += [idx, clean(word), clean(region), clean(pos), clean(std), clean(egText), clean(egSrc), clean(defLine), clean(altLine)].join(',') + "\n";
+  function loadLiteratureData(page = 1) {
+    currentLitPage = page;
+    const searchInput = document.querySelector('.search-input');
+    const q = searchInput ? searchInput.value.trim() : '';
+    
+    // Region chips
+    const selectedRegions = [];
+    document.querySelectorAll('.chip-multi .ms-chip[aria-pressed="true"]:not([data-all])').forEach(c => {
+      selectedRegions.push(c.textContent.trim());
     });
+    const regionStr = selectedRegions.join(',');
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `문학속지역어_검색결과_${new Date().toISOString().slice(0,10)}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    const url = `/api/literatures?q=${encodeURIComponent(q)}&region=${encodeURIComponent(regionStr)}&page=${page}&limit=${currentLitLimit}`;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(res => {
+        if(res.status === 'success') {
+          renderLiteratureView(res.data, res.total, page, currentLitLimit);
+        }
+      })
+      .catch(err => console.error('Literature API fetch error:', err));
   }
+
+  function renderLiteratureView(items, total, page, limit) {
+    // 1. Total Count & Metrics
+    const totalCountElem = document.getElementById('resultTotalCount');
+    if(totalCountElem) totalCountElem.textContent = total.toLocaleString();
+
+    const countBadges = document.querySelectorAll('.count-badge b');
+    if(countBadges.length > 0) countBadges[0].textContent = total.toLocaleString();
+
+    const summaryCount = document.querySelector('.summary-card h2');
+    if(summaryCount) {
+      summaryCount.textContent = `검색 결과 (총 ${total.toLocaleString()}건)`;
+    }
+
+    // 2. Render Cards View (#viewCards)
+    const cardsContainer = document.getElementById('viewCards');
+    if(cardsContainer) {
+      if(items.length === 0) {
+        cardsContainer.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:50px; color:#64748b; font-size:16px;">검색 결과가 없습니다.</div>`;
+      } else {
+        cardsContainer.innerHTML = items.map((item, i) => {
+          const region = item.region_nm || '전국';
+          const pos = item.word_class || '어휘';
+          const std = item.std_tp || '대응 표준어 없음';
+          const mean = item.mean || '';
+          const relDlt = item.rel_dlt || '-';
+
+          let egHtml = '';
+          if(item.examples && item.examples.length > 0) {
+            const hasMore = item.examples.length > 1;
+            egHtml = `
+              <div class="eg-block">
+                <ul class="eg-list collapsed">
+                  ${item.examples.map(ex => `
+                    <li class="eg-item">
+                      <span class="eg-mark">▸</span>
+                      <span class="eg-text">${ex.example || ''} <span class="eg-src">〈${ex.writer || ''} ${ex.book_name || ''} ${ex.publish_year || ''}〉</span></span>
+                    </li>
+                  `).join('')}
+                </ul>
+                ${hasMore ? `
+                  <button type="button" class="eg-toggle" onclick="toggleExamples(this)">
+                    용례 더보기 (총 ${item.examples.length}건) <span class="eg-caret">▾</span>
+                  </button>
+                ` : ''}
+              </div>
+            `;
+          }
+
+          return `
+            <article class="result-card">
+              <div class="result-head">
+                <div class="dialect-word"><strong>${item.dlt_tp}</strong><span class="tag region">${region}</span><span class="tag type">${pos}</span></div>
+                <div class="source-meta">대응 표준어: ${std}</div>
+              </div>
+              ${egHtml}
+              <div class="result-meta">
+                <span class="rm-line"><b>뜻풀이</b>${mean}</span>
+                <span class="rm-line"><b>다른 방언형</b>${relDlt}</span>
+              </div>
+            </article>
+          `;
+        }).join('');
+      }
+    }
+
+    // 3. Render List View (#viewList)
+    const listContainer = document.getElementById('viewList');
+    if(listContainer) {
+      if(items.length === 0) {
+        listContainer.innerHTML = `<div style="text-align:center; padding:50px; color:#64748b; font-size:16px;">검색 결과가 없습니다.</div>`;
+      } else {
+        listContainer.innerHTML = items.map((item, i) => {
+          const num = (page - 1) * limit + i + 1;
+          const region = item.region_nm || '전국';
+          const pos = item.word_class || '어휘';
+          const std = item.std_tp || '대응 표준어 없음';
+          const mean = item.mean || '';
+          const relDlt = item.rel_dlt || '-';
+
+          let egBlockHtml = '';
+          if(item.examples && item.examples.length > 0) {
+            const hasMore = item.examples.length > 1;
+            egBlockHtml = `
+              <div class="eg-block">
+                <ul class="eg-list collapsed">
+                  ${item.examples.map(ex => `
+                    <li class="eg-item">
+                      <span class="eg-mark">▸</span>
+                      <span class="eg-text">${ex.example || ''} <span class="eg-src">〈${ex.writer || ''} ${ex.book_name || ''} ${ex.publish_year || ''}〉</span></span>
+                    </li>
+                  `).join('')}
+                </ul>
+                ${hasMore ? `
+                  <button type="button" class="eg-toggle" onclick="toggleExamples(this)">
+                    용례 더보기 (총 ${item.examples.length}건) <span class="eg-caret">▾</span>
+                  </button>
+                ` : ''}
+              </div>
+            `;
+          }
+
+          return `
+            <article class="lit-entry">
+              <div class="lit-head">
+                <span class="lit-num">${num}</span>
+                <div class="lit-head-main">
+                  <span class="lit-word">${item.dlt_tp}</span>
+                  <span class="lit-pos">(${pos})</span>
+                </div>
+                <div class="lit-head-right">
+                  <span>지역: <b>${region}</b></span>
+                  <span>대응 표준어: <b>${std}</b></span>
+                </div>
+              </div>
+              <div class="lit-row">
+                <div class="lit-label">뜻풀이</div>
+                <div class="lit-value">${mean}</div>
+              </div>
+              ${egBlockHtml ? `
+                <div class="lit-row">
+                  <div class="lit-label">문학 용례</div>
+                  <div class="lit-value">${egBlockHtml}</div>
+                </div>
+              ` : ''}
+              <div class="lit-row">
+                <div class="lit-label">다른 방언형</div>
+                <div class="lit-value">${relDlt}</div>
+              </div>
+            </article>
+          `;
+        }).join('');
+      }
+    }
+
+    // 4. Render Pagination (#litPagination)
+    const pagContainer = document.getElementById('litPagination');
+    if(pagContainer) {
+      const totalPages = Math.ceil(total / limit);
+      if(totalPages <= 1) {
+        pagContainer.innerHTML = '';
+      } else {
+        let pagHtml = '';
+        const maxPagesToShow = 10;
+        let startPage = Math.max(1, page - Math.floor(maxPagesToShow / 2));
+        let endPage = startPage + maxPagesToShow - 1;
+        if (endPage > totalPages) {
+          endPage = totalPages;
+          startPage = Math.max(1, endPage - maxPagesToShow + 1);
+        }
+
+        // Prev Arrow
+        if (page > 1) {
+          pagHtml += `<a href="javascript:void(0)" class="arrow-btn" onclick="loadLiteratureData(${page - 1})" aria-label="이전 페이지"><i class="ti ti-chevron-left"></i></a>`;
+        } else {
+          pagHtml += `<span class="arrow-btn disabled" style="opacity:0.4; cursor:not-allowed;"><i class="ti ti-chevron-left"></i></span>`;
+        }
+
+        // Page Numbers
+        for (let p = startPage; p <= endPage; p++) {
+          if (p === page) {
+            pagHtml += `<span class="current">${p}</span>`;
+          } else {
+            pagHtml += `<a href="javascript:void(0)" class="page-num" onclick="loadLiteratureData(${p})">${p}</a>`;
+          }
+        }
+
+        // Next Arrow
+        if (page < totalPages) {
+          pagHtml += `<a href="javascript:void(0)" class="arrow-btn" onclick="loadLiteratureData(${page + 1})" aria-label="다음 페이지"><i class="ti ti-chevron-right"></i></a>`;
+        } else {
+          pagHtml += `<span class="arrow-btn disabled" style="opacity:0.4; cursor:not-allowed;"><i class="ti ti-chevron-right"></i></span>`;
+        }
+
+        pagContainer.innerHTML = pagHtml;
+      }
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Search Button Click Event
+    const searchBtn = document.querySelector('.search-panel .btn-primary');
+    if(searchBtn) {
+      searchBtn.addEventListener('click', function() {
+        loadLiteratureData(1);
+      });
+    }
+
+    // Input Enter Event
+    const searchInput = document.querySelector('.search-input');
+    if(searchInput) {
+      searchInput.addEventListener('keyup', function(e) {
+        if(e.key === 'Enter') loadLiteratureData(1);
+      });
+    }
+
+    // Initial Load
+    loadLiteratureData(1);
+  });
 </script>
 
 <script src="./share.js" defer></script>

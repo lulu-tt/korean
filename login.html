@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1440">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>지역어종합정보 — 로그인</title>
 <link rel="shortcut icon" href="./favicon.ico">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
@@ -10,20 +10,22 @@
 <script src="./gnb.js" defer></script>
 <script src="./footer.js" defer></script>
 <style>
+  :root { --lg-blue: #3b4cc9; --lg-blue-dark: #2f3ea8; }
+
   body {
-    background: #f1f5f9;
+    background: #ffffff;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
     margin: 0;
   }
 
-  /* 로그인 페이지 중앙 배치 컨테이너 */
+  /* 로그인 페이지 중앙 배치 */
   .login-container {
-    max-width: 520px;
+    max-width: 600px;
     width: 100%;
     margin: 0 auto;
-    padding: 60px 20px;
+    padding: 60px 20px 90px;
     flex: 1;
     display: flex;
     align-items: center;
@@ -32,175 +34,132 @@
   }
 
   .login-card {
-    background: #ffffff;
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    padding: 50px 40px;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
-    text-align: center;
     width: 100%;
     box-sizing: border-box;
   }
 
   .login-title {
-    font-size: 28px;
+    font-size: 27px;
     font-weight: 800;
     color: #1e293b;
-    margin-bottom: 35px;
+    text-align: center;
+    margin: 0 0 40px;
     letter-spacing: -0.03em;
   }
 
   .login-form {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
   }
 
+  /* 아이콘 입력 필드 */
+  .login-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .login-field__icon {
+    position: absolute;
+    left: 20px;
+    font-size: 20px;
+    color: #9aa3af;
+    pointer-events: none;
+  }
   .login-input {
     width: 100%;
+    height: 56px;
     font-size: 15px;
     font-weight: 500;
-    padding: 14px 18px;
-    border-radius: 10px;
-    border: 1px solid #cbd5e1;
+    padding: 0 18px 0 50px;
+    border-radius: 12px;
+    border: 1px solid #d7dbe0;
     background: #ffffff;
     color: var(--text);
     outline: none;
     transition: 0.2s;
     box-sizing: border-box;
   }
-
+  .login-input::placeholder { color: #9aa3af; font-weight: 500; }
   .login-input:focus {
-    border-color: #64748b;
-    box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.15);
+    border-color: var(--lg-blue);
+    box-shadow: 0 0 0 3px rgba(59, 76, 201, 0.12);
   }
+  .login-field .login-input { padding-right: 52px; }
+  .login-field__toggle {
+    position: absolute;
+    right: 16px;
+    width: 30px; height: 30px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: none; background: transparent; color: #9aa3af;
+    font-size: 20px; cursor: pointer; border-radius: 6px;
+  }
+  .login-field__toggle:hover { color: #475569; }
 
   .login-submit-btn {
     width: 100%;
-    background: #404040;
+    height: 56px;
+    background: var(--lg-blue);
     color: #ffffff;
     border: none;
-    padding: 15px;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 16px;
     font-weight: 700;
     cursor: pointer;
-    margin-top: 10px;
+    margin-top: 8px;
     transition: background 0.2s;
   }
-
-  .login-submit-btn:hover {
-    background: #2d2d2d;
-  }
+  .login-submit-btn:hover { background: var(--lg-blue-dark); }
 
   .login-links {
-    margin-top: 24px;
-    font-size: 13px;
-    color: #64748b;
+    margin-top: 22px;
+    font-size: 14px;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 12px;
+    gap: 22px;
   }
-
   .login-link {
-    color: #64748b;
+    color: #475569;
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 700;
     transition: color 0.2s;
   }
+  .login-link:hover { color: #1e293b; }
+  .login-divider { color: #d7dbe0; }
 
-  .login-link:hover {
-    color: #1e293b;
-  }
-
-  .login-divider {
-    color: #cbd5e1;
-  }
-
-  /* 소셜 로그인 구분선 */
-  .social-divider-row {
+  /* 하단 안내(회원가입) 카드 */
+  .login-promo {
+    margin-top: 44px;
+    background: #f4f5f7;
+    border-radius: 14px;
+    padding: 26px 28px;
     display: flex;
     align-items: center;
-    margin: 35px 0 25px;
+    justify-content: space-between;
+    gap: 20px;
   }
-
-  .social-divider-line {
-    flex: 1;
-    height: 1px;
-    background: #e2e8f0;
-  }
-
-  .social-divider-text {
-    padding: 0 15px;
-    font-size: 12px;
-    color: #94a3b8;
-    font-weight: 600;
-  }
-
-  /* 소셜 버튼 */
-  .social-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .social-btn {
-    width: 100%;
-    height: 52px;
-    border-radius: 10px;
-    border: none;
+  .login-promo__info { min-width: 0; }
+  .login-promo__logo { height: 24px; display: block; margin-bottom: 12px; }
+  .login-promo__text { margin: 0; font-size: 14px; line-height: 1.55; color: #475569; font-weight: 500; }
+  .login-promo__btn {
+    flex-shrink: 0;
+    background: #1f2733;
+    color: #ffffff;
+    text-decoration: none;
     font-size: 15px;
     font-weight: 700;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    text-decoration: none;
-    transition: opacity 0.2s;
+    padding: 13px 22px;
+    border-radius: 10px;
+    transition: background 0.2s;
+    white-space: nowrap;
   }
+  .login-promo__btn:hover { background: #0f172a; }
 
-  .social-btn:hover {
-    opacity: 0.9;
-  }
-
-  .social-btn--kakao {
-    background: #FFE812;
-    color: #3C1E1E;
-  }
-
-  .social-btn--naver {
-    background: #03C75A;
-    color: #ffffff;
-  }
-
-  .social-icon-kakao {
-    font-size: 18px;
-    color: #3C1E1E;
-  }
-
-  .social-icon-naver {
-    font-size: 16px;
-    font-weight: 900;
-    font-family: Arial, sans-serif;
-    display: inline-block;
-    background: #ffffff;
-    color: #03C75A;
-    width: 22px;
-    height: 22px;
-    line-height: 22px;
-    text-align: center;
-    border-radius: 4px;
-  }
-
-  @media (max-width: 900px) {
-    .login-container {
-      margin: 40px auto;
-    }
-    .login-card {
-      padding: 35px 24px;
-    }
+  @media (max-width: 560px) {
+    .login-container { padding: 40px 18px 60px; }
+    .login-promo { flex-direction: column; align-items: flex-start; }
+    .login-promo__btn { align-self: stretch; text-align: center; }
   }
 </style>
 </head>
@@ -211,39 +170,53 @@
 <div class="login-container">
   <div class="login-card">
     <h1 class="login-title">로그인</h1>
-    
+
     <form class="login-form" onsubmit="event.preventDefault(); alert('로그인 시도');">
-      <input type="text" class="login-input" placeholder="아이디 또는 이메일주소" required aria-label="아이디 또는 이메일주소">
-      <input type="password" class="login-input" placeholder="비밀번호" required aria-label="비밀번호">
+      <div class="login-field">
+        <i class="ti ti-user login-field__icon" aria-hidden="true"></i>
+        <input type="text" class="login-input" placeholder="아이디를 입력하세요." required aria-label="아이디">
+      </div>
+      <div class="login-field">
+        <i class="ti ti-lock login-field__icon" aria-hidden="true"></i>
+        <input type="password" id="loginPw" class="login-input" placeholder="패스워드를 입력하세요." required aria-label="패스워드">
+        <button type="button" class="login-field__toggle" id="pwToggle" onclick="togglePw()" aria-label="비밀번호 표시/숨기기">
+          <i class="ti ti-eye-off" id="pwEye" aria-hidden="true"></i>
+        </button>
+      </div>
       <button type="submit" class="login-submit-btn">로그인</button>
     </form>
 
     <div class="login-links">
-      <a href="./register.html" class="login-link">회원가입</a>
+      <a href="#" class="login-link">아이디 찾기</a>
       <span class="login-divider">|</span>
-      <a href="#" class="login-link">로그인 정보 찾기</a>
+      <a href="#" class="login-link">패스워드 찾기</a>
     </div>
 
-    <div class="social-divider-row">
-      <div class="social-divider-line"></div>
-      <span class="social-divider-text">소셜미디어 계정으로 로그인</span>
-      <div class="social-divider-line"></div>
-    </div>
-
-    <div class="social-buttons">
-      <a href="#" class="social-btn social-btn--kakao" onclick="event.preventDefault(); alert('카카오 로그인 시도');">
-        <i class="ti ti-message-circle-2-filled social-icon-kakao"></i>
-        카카오 계정으로 로그인
-      </a>
-      <a href="#" class="social-btn social-btn--naver" onclick="event.preventDefault(); alert('네이버 로그인 시도');">
-        <span class="social-icon-naver">N</span>
-        네이버 계정으로 로그인
-      </a>
+    <div class="login-promo">
+      <div class="login-promo__info">
+        <img src="./logo_dialect.png" alt="국립국어원 지역어 종합 정보" class="login-promo__logo">
+        <p class="login-promo__text">국립국어원 지역어 종합 정보 회원이 되시면<br>누리집의 다양한 서비스를 경험하실 수 있습니다.</p>
+      </div>
+      <a href="./register.html" class="login-promo__btn">회원가입</a>
     </div>
   </div>
 </div>
 
 <div id="footer-common"></div>
+
+<script>
+  function togglePw() {
+    var input = document.getElementById('loginPw');
+    var eye = document.getElementById('pwEye');
+    if (input.type === 'password') {
+      input.type = 'text';
+      eye.className = 'ti ti-eye';
+    } else {
+      input.type = 'password';
+      eye.className = 'ti ti-eye-off';
+    }
+  }
+</script>
 
 </body>
 </html>

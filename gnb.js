@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="mega-menu__item"><a href="./vocab_dialect.html" class="mega-menu__link">어휘조사자료</a></div>
                 <div class="mega-menu__item"><a href="./oral_dialect.html" class="mega-menu__link">구술발화조사자료</a></div>
                 <div class="mega-menu__item"><a href="./dialect_variant_compare.html" class="mega-menu__link">지역어 변이형 비교</a></div>
+                <div class="mega-menu__item"><a href="./dialect_phonology_compare.html" class="mega-menu__link">지역어 음운 비교</a></div>
               </div>
             </div>
           </div>
@@ -179,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const currentPath = window.location.pathname;
   let activeMenuId = "";
 
-  if (currentPath.includes('dialect_search_prototype.html') || currentPath.includes('vocab_dialect.html') || currentPath.includes('oral_dialect.html') || currentPath.includes('dialect_variant_compare.html')) {
+  if (currentPath.includes('dialect_search_prototype.html') || currentPath.includes('vocab_dialect.html') || currentPath.includes('oral_dialect.html') || currentPath.includes('dialect_variant_compare.html') || currentPath.includes('dialect_phonology_compare.html')) {
     activeMenuId = "menu-search";
   } else if (currentPath.includes('dialect_map.html') || currentPath.includes('dialect_awareness.html') || currentPath.includes('dialect_our_town.html') || currentPath.includes('dialect_gisangdo.html')) {
     activeMenuId = "menu-map";

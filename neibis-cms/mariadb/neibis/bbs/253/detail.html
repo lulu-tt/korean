@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title id="neibisTopTitle">사이트별 운영관리
+
+				| 샘플페이지
+
+				| 지역어 자료관
+
+				| 사진으로 보는 생활어
+				</title>
+		<link rel="shortcut icon" href="/mariadb/assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="/mariadb/assets/neibis/css/style.css" />
+		<link rel="stylesheet" href="/mariadb/assets/neibis/css/board-attach-ext.css" />
+
+		<!-- JavaScript -->
+		<script src="/mariadb/assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="/mariadb/assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+
+		<!-- I.N.UIX NEIBIS -->
+		<script>
+			window.CONTEXT_ROOT = "mariadb"; // 컨텍스트 루트
+	        window.ACCEPTED_FILES = ".gif,.bmp,.jpg,.png,.jpeg,.svg,.mp4,.wmv,.avi,.hwp,.hwpx,.doc,.docx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //전체 허용확장자
+	        window.ACCEPTED_IMAGES = ".gif,.bmp,.jpg,.png,.jpeg,.jfif,.svg";             //이미지 허용확장자
+	        window.ACCEPTED_MOVIES = ".mp4,.wmv,.avi";             //동영상 허용확장자
+	        window.ACCEPTED_DOCUMENT = ".hwp,.hwpx,.doc,.docx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //문서 허용확장자
+	        window.UPLOAD_MAX_FILE_SIZE = "50";             //최대 용량
+		</script>
+
+
+		<!-- neibis develop plugin -->
+		<script src="/mariadb/assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+		<script src='/mariadb/assets/neibis/js/neibis.messageWrapper.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.actionWrapper.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.ajaxWrapper.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.validator.js'></script>
+		<!-- neibis develop plugin -->
+
+		<!-- login.do 빼고사용 -->
+
+		<!-- neibis develop plugin -->
+		<script src='/mariadb/assets/neibis/js/neibis.cmmn.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.moveAction.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.validWrapper.js'></script>
+		<script src='/mariadb/assets/neibis/js/moment-with-locales.js'></script>
+		<script src="/mariadb/assets/neibis/js/dropzone.inuix.neibis.js"></script>
+		<script src='/mariadb/assets/neibis/js/neibis.popupWrapper.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.excelDownload.js'></script>
+		<!-- neibis develop plugin -->
+
+		<script type="text/javascript" src="/mariadb/assets/neibis/lib/jquery-filedown/jquery.fileDownload.js"></script>
+
+		<!-- CodeMirror -->
+		<link rel="stylesheet" href='/mariadb/assets/neibis/plugins/codemirror/codemirror.min.css' />
+		<link rel="stylesheet" href='/mariadb/assets/neibis/plugins/codemirror/idea.min.css' />
+		<script src='/mariadb/assets/neibis/plugins/codemirror/codemirror.min.js'></script>
+		<script src='/mariadb/assets/neibis/plugins/codemirror/xml.min.js'></script>
+		<script src='/mariadb/assets/neibis/plugins/codemirror/css.min.js'></script>
+		<script src='/mariadb/assets/neibis/plugins/codemirror/javascript.min.js'></script>
+
+		<!-- beautify -->
+		<script src='/mariadb/assets/neibis/plugins/beautify/beautify.min.js'></script>
+		<script src='/mariadb/assets/neibis/plugins/beautify/beautify-css.min.js'></script>
+		<script src='/mariadb/assets/neibis/plugins/beautify/beautify-html.min.js'></script>
+
+		<script src='/mariadb/assets/neibis/plugins/ckeditor4/ckeditor.js'></script>
+		<script src='/mariadb/assets/neibis/plugins/ckeditor4/ckeditor.inuix.neibis.js'></script>
+
+
+
+		<!-- dropzone -->
+		<script src='/mariadb/assets/neibis/plugins/dropzone/dropzone.min.js'></script>
+
+		<script src="/mariadb/assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="/mariadb/assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="/mariadb/assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="/mariadb/assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<script>
+				window.addEventListener("DOMContentLoaded", function () {
+					window.UIdevMode = false;
+				});
+
+
+			<!-- login.do 빼고사용 -->
+			$(document).ready(function() {
+				if(history.length <= 1) {
+				    $('i.ico-back').parent('a').remove();
+				}
+
+				var tooltipFile="/mariadb/assets/neibis/json/tooltip.json";
+				$.getJSON(tooltipFile, function(data) {
+				    let currentPath = getTooltipPath(window.location.pathname);
+
+				    let originPath = window.location.origin+"/"+window.CONTEXT_ROOT;
+					let neibisContextPath = "/mariadb";
+
+					let pathWithoutContext =""
+					if(neibisContextPath != ""){
+						pathWithoutContext = currentPath.replace(neibisContextPath, '');
+					}else{
+						pathWithoutContext = currentPath;
+					}
+
+					let hlp_cn ="등록된 툴팁이 없어요."
+					let btn_one_nm =""
+					let btn_one_link =""
+					let btn_two_nm =""
+					let btn_two_link ="";
+
+					data.forEach(function(item, index) {
+						let menu_sn = getTooltipPath(item["menu_sn"]);
+						if (menu_sn == pathWithoutContext) {
+							   hlp_cn = item?.hlp_cn ?? "등록된 툴팁이 없어요.";
+							   btn_one_nm = item?.btn_one_nm ?? "";
+							   btn_one_link = item?.btn_one_link ? originPath + item.btn_one_link : "javascript:void(0);";
+							   btn_two_nm = item?.btn_two_nm ?? "";
+							   btn_two_link = item?.btn_two_link ? originPath + item.btn_two_link : "javascript:void(0);";
+						}
+					})
+
+					$("#tooltip_p").html(hlp_cn);
+
+					 if(btn_one_nm != "" ||  btn_two_nm != ""){
+						let html ="";
+						if(btn_one_nm != ""){
+							html +="<a href='"+btn_one_link+"' class='btn btn-sm btn-primary' target='_blank'>"+btn_one_nm+"</a>";
+						}
+						if(btn_two_nm != ""){
+							html +="<a href='"+btn_two_link+"' class='btn btn-sm btn-primary' target='_blank'>"+btn_two_nm+"</a>";
+					 	}
+						$("#tooltip_btn").html(html);
+					  }else if(btn_one_nm != "" &&  btn_two_nm != ""){
+						  $("#tooltip_btn").attr("style","display:none");
+					  }
+				})
+				.fail(function(jqxhr, textStatus, error) {
+				});
+
+			function getTooltipPath(path){
+				let currentPath = path;
+				 if (currentPath.indexOf(".do") !== -1) {
+			    	   let indexBeforeDo = currentPath.lastIndexOf(".do");
+			    	    let lastSlashIndex = currentPath.lastIndexOf("/");
+			    	    const lastDashIndex = currentPath.lastIndexOf("-");
+			    	    let closestIndex;
+			    	   if (lastSlashIndex > -1 && (lastDashIndex === -1 || Math.abs(indexBeforeDo - lastSlashIndex) < Math.abs(indexBeforeDo - lastDashIndex))) {
+			    	       closestIndex = lastSlashIndex;
+			    	   } else if (lastDashIndex > -1) {
+			    	       closestIndex = lastDashIndex;
+			    	   }
+			    	 if (closestIndex !== undefined) {
+			    	    currentPath = currentPath.substring(0, closestIndex);
+			    	 }
+			    }
+				 return currentPath
+			}
+			});
+			;
+		</script>
+	</head>
+	<body class="layout-type-sub">
+	<input type="hidden" id="_setToken" value=""/>
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+	<!-- login.do 빼고사용 -->
+				<aside id="sidebar">
+					<div class="sidebar-header">
+						<h1 class="sidebar-title">
+							<a href='/mariadb/neibis/index.do'>
+								<img src="/mariadb/assets/neibis/images/logo.png" alt="neibis" />
+								<span class="logo-text">관리시스템</span>
+							</a>
+						</h1>
+						<div class="toolbar">
+							<button type="button" class="btn btn-icon btn-upside-down">
+								<i class="ico ico-bararrowsv-gray-sm"></i>
+								<span class="text">메뉴순서 상하반전</span>
+							</button>
+							<button type="button" class="btn btn-icon btn-collapse">
+								<i class="ico ico-chevrondouble-left-gray-sm"></i>
+								<span class="text">메뉴 <span class="close">접기</span><span class="open">펼치기</span></span>
+							</button>
+						</div>
+					</div>
+
+					<!-- 콘텐츠 영역 -->
+					<div class="sidebar-body">
+						<div class="favorit-area variable-area">
+							<h2 class="favorit-title">
+								<button type="button" class="btn-favorit" title="여닫기">
+									<i class="ico ico-favorit-gray-md"></i>
+									<span class="text">즐겨찾기</span>
+								</button>
+							</h2>
+							<div class="favorit-body">
+								<nav class="favorit-menu">
+									<div class="title-area">
+										<i class="ico ico-favorit-gray-md"></i>
+										<span class="text">즐겨찾기</span>
+									</div>
+									<ul class="favorit-list">
+										<li id="fvrt5">
+											<a href="/mariadb/neibis/conts/5/list.do ">웹콘텐츠 관리</a>
+										</li>
+										<li id="fvrt116">
+											<a href="/mariadb/neibis/bbs/__NEIBIS_MENU_REPLACE__/list.do">용정보원-국문 &gt; 테스트 메뉴 &gt; 테스트 게시판3</a>
+										</li>
+									</ul>
+								</nav>
+							</div>
+						</div>
+						<div class="separator separator1"></div>
+						<nav id="gnb-area" class="variable-area">
+							<ul class="gnb-list">
+								<li >
+									<a href="/mariadb/neibis/index.do">
+										<i class="ico ico-dashboard-gray-md"></i>
+										<span class="text">대시보드</span>
+									</a>
+								</li>
+								<li>
+									<a href="#;">
+										<i class="ico ico-operation-gray-md"></i>
+										<span class="text">운영</span>
+									</a>
+									<div class="gnb-container">
+											<ul>
+											<li><a href="/mariadb/neibis/conts/5/list.do ">웹콘텐츠 관리</a></li>
+											<li>
+												<a href="/mariadb/neibis/directory/7/directory.do">팝업/배너 관리</a>
+												<ul>
+											<li><a href="/mariadb/neibis/site/12/promtn/list.do">프로모션 영역 관리</a></li>
+											<li><a href="/mariadb/neibis/site/18/layer-popup/list.do">레이어 팝업 관리</a></li>
+											<li><a href="/mariadb/neibis/site/14/popup/list.do">팝업 관리</a></li>
+											<li><a href="/mariadb/neibis/site/13/popzn/list.do">팝업존 관리</a></li>
+											<li><a href="/mariadb/neibis/site/15/bann/list.do">배너 관리</a></li>
+											<li><a href="/mariadb/neibis/site/16/mini-popup/list.do">미니팝업존 관리</a></li>
+											<li><a href="/mariadb/neibis/site/17/mini-bann/list.do">미니배너 관리</a></li>
+											<li><a href="/mariadb/neibis/site/19/fmly/list.do">패밀리 관리</a></li>
+											<li><a href="/mariadb/neibis/site/256/image-maker/list.do">팝업·배너 이미지 제작</a></li>
+												</ul></li>
+											<li>
+												<a href="/mariadb/neibis/directory/8/directory.do">설문조사 관리</a>
+												<ul>
+											<li><a href="/mariadb/neibis/extn/20/srvy-mngr/list.do">설문조사 관리</a></li>
+											<li><a href="/mariadb/neibis/extn/21/srvy-prtc/list.do">설문조사 참여</a></li>
+												</ul></li>
+											<li>
+												<a href="/mariadb/neibis/directory/9/directory.do">조직 관리</a>
+												<ul>
+											<li><a href="/mariadb/neibis/extn/22/ognz-dept/list.do">부서 및 직원업무 설정</a></li>
+											<li><a href="/mariadb/neibis/extn/205/ognz-emp/list.do">직원검색</a></li>
+												</ul></li>
+											<li><a href="/mariadb/neibis/extn/41/plan/list.do">일정관리</a></li>
+											<li><a href="/mariadb/neibis/extn/195/bfhd-info/list.do">사전정보공표</a></li>
+											<li>
+												<a href="/mariadb/neibis/directory/207/directory.do">공공데이터포털API</a>
+												<ul>
+											<li><a href="/mariadb/neibis/extn/204/apis-data/bid-pbanc/list.do">입찰공고</a></li>
+											<li><a href="/mariadb/neibis/extn/212/apis-data/cntrct-info/list.do">계약현황 </a></li>
+												</ul></li>
+											<li>
+												<a href="/mariadb/neibis/conts/257/directory.do">실험실</a>
+												<ul>
+											<li>
+												<a href="/mariadb/neibis/conts/258/directory.do">채용관리</a>
+												<ul>
+											<li><a href="/mariadb/neibis/extn/259/rcrt-pbanc/list.do">채용공고관리</a></li>
+											<li><a href="/mariadb/neibis/extn/260/rcrt-aplct/list.do">지원자관리</a></li>
+											<li><a href="/mariadb/neibis/extn/261/rcrt-qstn/list.do">면접자료관리  </a></li>
+											<li><a href="/mariadb/neibis/extn/262/rcrt-intv-schdl/list.do">면접일정관리</a></li>
+											<li><a href="/mariadb/neibis/extn/263/rcrt-intv/list.do">면접평가관리</a></li>
+										</ul></li></ul></li>
+									</div>
+								</li>
+								<li>
+									<a href="#;">
+										<i class="ico ico-monitor-gray-md"></i>
+										<span class="text">시스템</span>
+									</a>
+									<div class="gnb-container">
+										<ul>
+									<li ><a href="#">메뉴관리</a>
+										<ul>
+												<li ><a href="/mariadb/system/menu/mngr-list.do">관리자메뉴</a></li>
+												<li ><a href="/mariadb/system/menu/user-list.do">사용자메뉴</a></li>
+										</ul>
+									</li>
+									<li ><a href="/mariadb/system/sitemst-main/list.do">메인설정</a></li>
+									<li ><a href="#">게시판 관리</a>
+										<ul>
+												<li ><a href="/mariadb/system/bbs-mst/list.do">게시판 설정</a></li>
+												<li ><a href="/mariadb/system/bbs-restore/list.do">게시물 복원 관리</a></li>
+										</ul>
+									</li>
+									<li ><a href="#">코드관리</a>
+										<ul>
+												<li ><a href="/mariadb/system/code/list.do">코드설정</a></li>
+												<li ><a href="/mariadb/system/mltipl/list.do">다중항목코드 설정</a></li>
+										</ul>
+									</li>
+									<li ><a href="#">정보관리</a>
+										<ul>
+												<li ><a href="/mariadb/system/mngr-info/list.do">관리자 등록관리</a></li>
+												<li ><a href="/mariadb/system/mngr-ip/list.do">관리자 아이피관리</a></li>
+												<li ><a href="/mariadb/system/mngr-Stng/list.do">로그인 보안설정</a></li>
+										</ul>
+									</li>
+									<li ><a href="#">권한관리</a>
+										<ul>
+												<li ><a href="/mariadb/system/mngr-menu-authrt/list.do">관리자 메뉴권한</a></li>
+												<li ><a href="/mariadb/system/user-cont-authrt/list.do">사용자 콘텐츠 관리권한</a></li>
+												<li ><a href="/mariadb/system/authrt-group/list.do">권한그룹 관리</a></li>
+												<li ><a href="/mariadb/system/authrt-menu/list.do">(구) 관리자 메뉴권한</a></li>
+												<li ><a href="/mariadb/system/authrt-conts/list.do">(구) 웹콘텐츠 권한</a></li>
+										</ul>
+									</li>
+										</ul>
+									</div>
+								</li>
+								<li>
+									<a href="#;">
+										<i class="ico ico ico-log-gray-md"></i>
+										<span class="text">로그</span>
+									</a>
+									<div class="gnb-container">
+										<ul>
+									<li ><a href="/mariadb/weblog/mngr-log/list.do">관리자 접속 로그</a></li>
+									<li ><a href="#">메뉴별 로그</a>
+										<ul>
+												<li ><a href="/mariadb/weblog/menu-log/mngr-list.do">관리자 메뉴로그</a></li>
+												<li ><a href="/mariadb/weblog/menu-log/user-list.do">사용자 메뉴로그</a></li>
+										</ul>
+									</li>
+									<li ><a href="/mariadb/weblog/privacy-log/list.do">개인정보 열람이력</a></li>
+									<li ><a href="/mariadb/weblog/bbs-log/list.do">게시물 변경 이력</a></li>
+									<li ><a href="/mariadb/weblog/conts-hstry/list.do">웹콘텐츠 이력</a></li>
+									<li ><a href="/mariadb/weblog/mngr-chg-hstry/list.do">관리자 계정 변경 이력</a></li>
+									<li ><a href="/mariadb/weblog/mngr-menu-hstry/list.do">관리자 메뉴 권한 변경 이력</a></li>
+										</ul>
+									</div>
+								</li>
+								<li>
+									<a href="#;">
+										<i class="ico ico-chartbar-gray-md"></i>
+										<span class="text">통계</span>
+									</a>
+									<div class="gnb-container">
+										<ul>
+									<li ><a href="/mariadb/stats/mngr/login-list.do">관리자 접속자 통계</a></li>
+									<li ><a href="/mariadb/stats/user/cnt-list.do">사용자 방문자 통계</a></li>
+									<li ><a href="/mariadb/stats/menu/list.do">사용자 메뉴별 통계</a></li>
+									<li ><a href="/mariadb/stats/dgstfn/list.do">만족도 통계</a></li>
+									<li ><a href="/mariadb/stats/bbs/inq-list.do">게시판 통계</a></li>
+									<li ><a href="/mariadb/stats/conts/list.do">웹콘텐츠 통계</a></li>
+									<li ><a href="/mariadb/stats/bbs-downnl/list.do">게시물 다운로드 통계</a></li>
+										</ul>
+									</div>
+								</li>
+								<li >
+									<a href="/mariadb/stats/rptp/stats-view.do">
+										<i class="ico ico-report-gray-md"></i>
+										<span class="text">방문자 통계 요약 보고서</span>
+									</a>
+								</li>
+							</ul>
+						</nav>
+						<div class="separator separator2"></div>
+						<div class="site-manage-area variable-area">
+							<h2 class="site-manage-title">
+								<button type="button" class="btn-site-manage">
+									<i class="ico ico-earth-md"></i>
+									<span>사이트 관리</span>
+								</button>
+							</h2>
+							<div class="site-manage-body">
+								<div class="title-area">
+									<i class="ico ico-earth-md"></i>
+									<span>사이트 관리</span>
+								</div>
+								<form action="#;" class="site-search">
+									<fieldset>
+										<legend class="sr-only">사이트 검색</legend>
+										<input
+											type="text" name="siteSearchKeyword" id="siteSearchKeyword"
+											class="form-control"
+											placeholder="사이트를 검색해 주세요"
+											title="사이트를 검색해 주세요"
+										/>
+										<button type="button" class="btn-search" id="siteSearchBtn">
+											<i class="ico ico-search-gray-sm"></i><span class="sr-only">검색</span>
+										</button>
+									</fieldset>
+								</form>
+								<nav class="site-menu">
+									<ul class="site-list">
+										<li data-level="1" >
+													<a href="javascript:void(0)">샘플페이지</a>
+										<ul style="display:none;">
+										<li data-level="2" >
+													<a href="javascript:void(0)">조사자료</a>
+										<ul style="display:none;">
+										<li data-level="3">
+													<a href="/mariadb/neibis/survey/vocab.do" >어휘조사자료</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/survey/oral.do" >구술발화조사자료</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/survey/variant.do" >지역어 변이형 비교</a>
+										</li>
+										</ul></li>
+										<li data-level="2" >
+													<a href="javascript:void(0)">지역어 지도</a>
+										<ul style="display:none;">
+										<li data-level="3">
+													<a href="/mariadb/neibis/map/dialect.do" >지역어 지도</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/map/weather.do" >지역어 기상도</a>
+										</li>
+										</ul></li>
+										<li data-level="2" >
+													<a href="javascript:void(0)">알림마당</a>
+										<ul style="display:none;">
+										<li data-level="3">
+													<a href="/mariadb/neibis/bbs/246/list.do" >공지사항</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/bbs/251/list.do" >도움말(FAQ)</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/bbs/254/list.do" >의견제시</a>
+										</li>
+										</ul></li>
+										<li data-level="2" >
+													<a href="javascript:void(0)">지역어 자료관</a>
+										<ul style="display:none;">
+										<li data-level="3">
+													<a href="/mariadb/neibis/bbs/252/list.do" >문학 속 지역어</a>
+										</li>
+										<li data-level="3" class="on">
+													<a href="/mariadb/neibis/bbs/253/list.do" >사진으로 보는 생활어</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/bbs/256/list.do" >자료실</a>
+										</li>
+										</ul></li>
+										<li data-level="2" >
+													<a href="javascript:void(0)">참여마당</a>
+										<ul style="display:none;">
+										<li data-level="3" >
+													<a href="/mariadb/neibis/bbs/255/list.do" >고객의 소리</a>
+										</li>
+									</ul></li></ul></li>
+								</nav>
+							</div>
+						</div>
+					</div>
+
+					<div class="user-info-area">
+						<div class="info">
+							<span class="profile">
+								<button type="button" class="profile-thumb">
+									<img src="/mariadb/assets/neibis/images/img-profile-gold-blue-md@2x.png" alt="프로필 이미지" />
+								</button>
+								<strong class="text-normal">시스템관리자</strong>
+							</span>
+							<span class="time-info">
+								<dl class="time">
+									<dt class="time-title"><i class="ico ico-clock-gray-sm"></i><span class="sr-only">남은시간</span></dt>
+									<dd class="login-time">60:00</dd>
+								</dl>
+								<a href="#;" class="btn-ellipsis">
+									<i class="ico ico-ellipsis-gray-md"></i><span class="sr-only">더보기</span>
+								</a>
+							</span>
+						</div>
+						<div class="info-detail">
+							<div class="user-profile">
+								<span class="info-top">
+									<strong class="name">홍길동</strong>
+									<span class="rating"><i class="ico ico-system-gold-md"></i>시스템관리자</span>
+								</span>
+								<span class="info-bottom time">
+									<dl class="time-item">
+										<dt class="time-title"><i class="ico ico-calendar-lightgray-sm"></i>마지막 접속시간</dt>
+										<dd>2026-07-23 15:51</dd>
+									</dl>
+									<dl class="time-item">
+										<dt class="time-title"><i class="ico ico-clock-gray-sm"></i>남은 시간</dt>
+										<dd class="login-time">60:00</dd>
+									</dl>
+								</span>
+							</div>
+							<div class="btn-group">
+								<a href="#layer-admin-info-revise" id="extend-button" class="btn btn-sm"><i class="ico ico-plus-gray-md"></i>접속시간 연장하기</button>
+								<a href="#layer-adinfo-revise" data-modal="open" class="btn btn-sm" onclick="mngrCmmnFormReset();"
+									><i class="ico ico-edit-gray-md"></i>정보수정</a
+								>
+								<a href='/mariadb/neibis/logout.do' class="btn btn-sm"><i class="ico ico-logout-gray-md"></i>로그아웃</a>
+							</div>
+						</div>
+					</div>
+					<button type="button" class="btn btn-allmenu-close">
+						<i class="ico ico-allmenu-close"></i>
+						<span class="sr-only">메뉴 닫기</span>
+					</button>
+				</aside>
+
+				<article id="content">
+				<!-- login.do 빼고사용 -->
+					<div class="content-header">
+							<a href="#;" class="btn-tile btn-back list-button" onclick="history.back(); return false;">
+							<i class="ico ico-back"></i>
+							<span class="sr-only">뒤로가기</span>
+						</a>
+						<div class="tile">
+							<div class="location">
+								<button type="button" class="btn btn-icon btn-copy">
+									<i class="ico ico-copy-gray-sm"></i>
+									<span class="sr-only">복사</span>
+								</button>
+								<ol class="breadcrumb-list">
+									<li>사이트별 운영관리</li>
+									<li>샘플페이지</li>
+									<li>지역어 자료관</li>
+									<li>사진으로 보는 생활어</li>
+								</ol>
+							</div>
+							<div class="content-title">
+								<div class="tooltip" id="tooltip_area">
+									<p id="tooltip_p"></p>
+									<div class='btn-group' id="tooltip_btn"></div>
+								</div>
+								<h2 class="title">사진으로 보는 생활어</h2>
+								<button type="button" id="favorit-add-button" class="btn-favorit">
+									<i class="ico ico-favorit"></i>
+									<span class="sr-only">즐겨찾기</span>
+								</button>
+							</div>
+						</div>
+						<a href="#;" class="btn-tile btn-allmenu-open">
+							<i class="ico ico-allmenu"></i>
+							<span class="sr-only">메뉴</span>
+						</a>
+					</div>
+
+					<div class="content-body">
+
+<!-- 본문 영역 -->
+						<div class="card">
+							<div class="table table-row">
+								<div class="table-inner">
+								<form action="list.do" method="post" id="detail-form">
+								<input type="hidden" name="bbsId" value="20260416141311"/>
+								<input type="hidden" name="pageIndex" value="1"/>
+								<input type="hidden" name="pageItm" value="10"/>
+								<input type="hidden" name="searchOrderSort" value="0"/>
+								<input type="hidden" name="searchGbn" value="0"/>
+									<table>
+										<caption class="sr-only">
+											사진으로 보는 생활어 상세
+										</caption>
+										<tbody>
+											<!--  게시여부 공지여부 기본 항목 -->
+												<tr>
+													<th scope="row">
+														<span>게시여부 <i class="req">필수입력</i></span>
+													</th>
+													<td >
+														<label class="check-item">
+															<input type="radio"  name="dataSttsCd" id="dataSttsCdA"  disabled="disabled" />
+															<span class="label">게시</span>
+														</label>
+														<label class="check-item">
+															<input type="radio"  name="dataSttsCd" id="dataSttsCdH" checked disabled="disabled" />
+															<span class="label">미게시</span>
+														</label>
+													</td>
+													<th scope="row">
+														<span>공지여부 <i class="req">필수입력</i></span>
+													</th>
+													<td>
+														<label class="check-item">
+															<input type="radio"  name="ntcYn" id="ntcYnY"  disabled="disabled"  />
+															<span class="label">공지</span>
+														</label>
+														<label class="check-item">
+															<input type="radio"   name="ntcYn" id="ntcYnN" checked disabled="disabled" />
+															<span class="label">일반</span>
+														</label>
+													</td>
+												</tr>
+												<!--  등록/수정 기본 항목 -->
+												<tr>
+													<th scope="row"><span>등록일시 <i class="req">필수입력</i></span></th>
+													<td>2026.07.23 14:48:40</td>
+													<th scope="row"><span>수정일시 <i class="req">필수입력</i></span></th>
+													<td>2026.07.23 14:48:40</td>
+												</tr>
+												<!-- 등록자 부서명 항목 -->
+												<tr>
+													<th scope="row">
+														<span>등록자</span>
+													</th>
+													<td colspan="3" >
+														홍길동
+													</td>
+												</tr>
+												<!-- 조회수 -->
+												<tr>
+													<th scope="row"><span>조회수 <i class="req">필수입력</i></span></th>
+													<td>0</td>
+												</tr>
+												<!-- 제목 항목 -->
+												<tr>
+													<th scope="row">
+														<span>제목<i class="req">필수입력</i></span>
+													</th>
+													<td colspan="3">
+														VIEWER-2WORKER-SMOKE-20260723
+													</td>
+												</tr>
+												<!-- 첨부 -->
+												<tr>
+													<th scope="row">
+														<span>첨부</span>
+													</th>
+														<td colspan="3">
+															<div class="file-add-area">
+																<div class="file-list">
+																	<div class="file-item">
+																		<div class="preview">
+																		</div>
+																		<div class="info">
+																			<p class="name">
+																				blocker-a.pptx
+																			</p>
+																			<p class="size">5587511 KB</p>
+																		</div>
+																		<div class="btn-area">
+																			<a href="/mariadb/neibis/cmmn/viewer/doc-viewer.do?sourceType=bbs&amp;accessMode=admin&amp;menuSn=246&amp;dataTypeCd=A&amp;pstSn=22&amp;atchFileSn=1" class="btn btn-preview" target="_blank" rel="noopener noreferrer" title="미리보기">
+																				<i class="ico ico-preview-md" aria-hidden="true">
+																					<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+																						<path d="M1.75 8s2.25-4 6.25-4 6.25 4 6.25 4-2.25 4-6.25 4-6.25-4-6.25-4Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+																						<circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.4"/>
+																					</svg>
+																				</i>
+																				<span class="sr-only">미리보기</span>
+																			</a>
+																			<a href="/mariadb/neibis/cmmn/download.do?dn=20260723024739614.pptx&amp;path=%2Fbbs%2F20260416141311&amp;fn=blocker-a.pptx&amp;bbsId=20260416141311&amp;pstSn=22&amp;atchFileSn=1" class="btn btn-download" download>
+																				<i class="ico ico-download-md"></i> <span class="sr-only">다운로드</span>
+																			</a>
+																		</div>
+																	</div>
+																	<div class="file-item">
+																		<div class="preview">
+																		</div>
+																		<div class="info">
+																			<p class="name">
+																				blocker-b.pptx
+																			</p>
+																			<p class="size">5587511 KB</p>
+																		</div>
+																		<div class="btn-area">
+																			<a href="/mariadb/neibis/cmmn/viewer/doc-viewer.do?sourceType=bbs&amp;accessMode=admin&amp;menuSn=246&amp;dataTypeCd=A&amp;pstSn=22&amp;atchFileSn=2" class="btn btn-preview" target="_blank" rel="noopener noreferrer" title="미리보기">
+																				<i class="ico ico-preview-md" aria-hidden="true">
+																					<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+																						<path d="M1.75 8s2.25-4 6.25-4 6.25 4 6.25 4-2.25 4-6.25 4-6.25-4-6.25-4Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+																						<circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.4"/>
+																					</svg>
+																				</i>
+																				<span class="sr-only">미리보기</span>
+																			</a>
+																			<a href="/mariadb/neibis/cmmn/download.do?dn=20260723024740620.pptx&amp;path=%2Fbbs%2F20260416141311&amp;fn=blocker-b.pptx&amp;bbsId=20260416141311&amp;pstSn=22&amp;atchFileSn=2" class="btn btn-download" download>
+																				<i class="ico ico-download-md"></i> <span class="sr-only">다운로드</span>
+																			</a>
+																		</div>
+																	</div>
+																</div>
+															</div>
+													</td>
+												</tr>
+										</tbody>
+									</table>
+									</form>
+								</div>
+							</div>
+
+							<!-- 내용 항목 -->
+							<div class="info-editor-area">
+								<h3 class="title1 mt-5">내용</h3>
+								<div class="editor-wrap" style="width: 100%; padding-bottom: 100px;">
+									<span>
+										 <p>Viewer Linux 2-worker 병렬 변환 검증용 미게시 게시물입니다.</p>
+									</span>
+								</div>
+							</div>
+							<!-- 내용 항목 -->
+
+							<!-- 모바일에서 노출되는 버튼 그룹  -->
+							<div class="btn-group-between">
+								<div class="left">
+									<a href="list.do?pageIndex=1&pageItm=10&searchOrderSort=0&searchGbn=0" class="btn btn-lg btn-outline-gray">
+										<i class="ico ico-chevron-left-gray-md"></i>
+										<span>목록</span>
+									</a>
+								</div>
+								<div class="right">
+									<button type="button" class="btn btn-lg btn-gray btn-delete delete-button">
+										<i class="ico ico-trash-white-md"></i>
+										<span>삭제</span>
+									</button>
+									<a href="updt.do?pageIndex=1&pageItm=10&searchOrderSort=0&searchGbn=0&pstSn=22" class="btn btn-lg btn-primary-soft updt-button" data-ans-dp="0">
+										<i class="ico ico-pen-primary-md"></i>
+										<span>수정</span>
+									</a>
+								</div>
+							</div>
+						</div>
+
+						<ul class="article-nav">
+							<li class="prev">
+								<a href="detail.do?pageIndex=1&pageItm=10&searchOrderSort=0&searchGbn=0&pstSn=21" class="item move-button" data-sn="21">
+									<span><i class="ico ico-prev-gray-sm mr-1"></i>이전글</span>
+									<strong class="link-info"> PREWARM-TERMINAL-READY-20260722-1125</strong>
+								</a>
+							</li>
+							<li class="next">
+							<a href="#" class="item">
+								<span>다음글<i class="ico ico-next-gray-sm ml-1"></i></span>
+								<strong class="link-info"> 다음글이 없습니다.</strong>
+							</a>
+							</li>
+						</ul>
+
+						<!-- 상단 고정 액션 버튼 -->
+						<div class="btn-group-fixed">
+							<button type="button" class="btn btn-lg btn-gray btn-delete delete-button">
+								<i class="ico ico-trash-white-md"></i>
+								<span>삭제</span>
+							</button>
+							<a href="updt.do?pageIndex=1&pageItm=10&searchOrderSort=0&searchGbn=0&pstSn=22" class="btn btn-lg btn-primary-soft updt-button" data-ans-dp="0">
+								<i class="ico ico-pen-primary-md"></i>
+								<span>수정</span>
+							</a>
+						</div>
+						<!-- // 본문 영역 -->
+<!-- 공통 스크립트 -->
+<script>
+
+var value = new NeibisValidWrapper();
+
+var _bbsId = "20260416141311";
+var _pstSn = "22";
+$(function () {
+
+	ActionInit.click(".list-button",listAction);
+	ActionInit.click("#cmnt-save-button",cmntSaveAction,this);
+	ActionInit.click(".cmnt-del-button",cmntDelAction,this);
+	ActionInit.click("#rply-save-button",rplySaveAction);
+	ActionInit.click("#save-button",saveAction);
+ 	ActionInit.click("#updt-button",updateAction);
+	ActionInit.click(".delete-button",delAction,this);
+	value.init();
+
+	$('.list-button').attr('onclick', '');
+});
+
+const listAction = function(e){
+	e.preventDefault();
+	$("#detail-form").attr("action","list.do").submit();
+}
+
+const rplySaveAction = function(){
+	var param = paramRplyBinding();
+	Message.confirm({
+		icon: "warning",
+		title: "답글을 등록하시겠어요?",
+		message: "등록하시려면 ‘확인’을 눌러주세요."
+    },function(){
+    	Ajax.post("/mariadb/neibis-api/v1/core/bbs/"+_pstSn+"/rply?action=post",rplySuccess,fail,{data:JSON.stringify(param)});
+    });
+}
+
+const cmntSaveAction = function(e,_this){
+	if(!$("#cmntCn").val()){
+		alert("댓글을 입력해주세요.");
+		$("#cmntCn").focus();
+		return false;
+	}
+
+	var param = paramCmntBinding();
+	Message.confirm({
+		icon: "warning",
+		title: "댓글을 등록하시겠어요?",
+		message: "등록하시려면 ‘확인’을 눌러주세요."
+    },function(){
+		Ajax.post("/mariadb/neibis-api/v1/core/bbs/"+_pstSn+"/cmnt?action=post",detailSuccess,fail,{data:JSON.stringify(param)});
+    });
+}
+
+const cmntDelAction = function(e,_this){
+	var cmntSn = $(_this).data("sn");
+	var param = paramCmntBinding();
+
+	Message.confirm({
+        icon: "warning",
+        title: "댓글을 삭제합니다",
+        message: "삭제 하시겠어요?"
+    },function(){
+    	Ajax.post("/mariadb/neibis-api/v1/core/bbs/"+_pstSn+"/cmnt/"+cmntSn+"?action=delete",detailSuccess,fail,{data:JSON.stringify(param)});
+    });
+}
+
+const saveAction = function(e){
+	$("#pstCn").val(window.htmlCentralData.html);
+
+	$(".text-invalid").remove();
+	var valid = value.valid("ans-form");
+	if(!valid.result){
+		var errorArea = typeof $("#"+valid.element.id).closest("td").html() !== "undefined" ? $("#"+valid.element.id).closest("td") : $("#"+valid.element.id).closest("div");
+		errorArea.append($("<span>").addClass("text-guide text-invalid").text(valid.message));
+		var offset = $("#"+valid.element.id).offset();
+		$("html, body").animate({scrollTop: offset.top-100},400);
+		return $("#"+valid.element.id).focus();
+	}
+
+	Message.confirm({
+		icon: "warning",
+		title: "답변을 등록하시겠어요?",
+		message: "등록하시려면 ‘확인’을 눌러주세요."
+    },function(){
+		var param = valid.data
+		param.bbsId = _bbsId
+		param.pstSn = _pstSn
+
+		if(fileTmprList.length > 0){
+			param.fileTmprList = fileTmprList;
+		}
+
+		if(atchFileSnArr.length > 0){
+			param.atchFileSnArr = atchFileSnArr;
+		}
+		Ajax.post("/mariadb/neibis-api/v1/core/bbs/22/ans?action=post",detailSuccess,fail,{data:JSON.stringify(param)});
+    });
+}
+
+const updateAction = function(e){
+	$("#pstCn").val(window.htmlCentralData.html);
+
+	$(".text-invalid").remove();
+	var valid = value.valid("ans-form");
+	if(!valid.result){
+		var errorArea = typeof $("#"+valid.element.id).closest("td").html() !== "undefined" ? $("#"+valid.element.id).closest("td") : $("#"+valid.element.id).closest("div");
+		errorArea.append($("<span>").addClass("text-guide text-invalid").text(valid.message));
+		var offset = $("#"+valid.element.id).offset();
+		$("html, body").animate({scrollTop: offset.top-100},400);
+		return $("#"+valid.element.id).focus();
+	}
+	Message.confirm({
+		icon: "warning",
+		title: "답변을 수정하시겠어요?",
+		message: "수정하시려면 ‘확인’을 눌러주세요."
+    },function(){
+		var param = valid.data;
+		param.bbsId = _bbsId
+		param.pstSn = _pstSn
+
+		if(fileTmprList.length > 0){
+			param.fileTmprList = fileTmprList;
+		}
+
+		if(atchFileSnArr.length > 0){
+			param.atchFileSnArr = atchFileSnArr;
+		}
+		Ajax.post("/mariadb/neibis-api/v1/core/bbs/22/ans?action=put",success,fail,{data:JSON.stringify(param)});
+    });
+}
+
+const delAction = function(e,_this){
+	var param = new Object();
+	param.bbsId = _bbsId
+	param.pstSn = _pstSn
+
+	e.preventDefault();
+	Message.confirm({
+        icon: "warning",
+        title: "게시물을 삭제합니다",
+        message: "그래도 삭제 하시겠어요?"
+    },function(){
+    	let url ="/mariadb/neibis-api/v1/core/bbs/"+_pstSn+"?action=delete"
+    	Ajax.post(url,success,fail,{data:JSON.stringify(param)});
+    });
+}
+
+const paramRplyBinding = function(){
+	var obj = new Object();
+	obj.bbsId = $("input[name=bbsId]").val();
+	obj.ansDpVl = $("#ansDpVl").val();
+	obj.ttl = $("#rply-ttl").val();
+	obj.pstCn = CKEDITOR.instances["rply-pstCn"].getData();
+	obj.userNm = $("#userNm").val();
+	obj.userCntnId = $("#userCntnId").val();
+	obj.userEmlAddr = $("#userEmlAddr").val();
+
+	return obj;
+}
+
+const paramCmntBinding = function(){
+	var obj = new Object();
+	obj.bbsId = $("input[name=bbsId]").val();
+	obj.cmntCn = $("#cmntCn").val();
+	obj.upCmntSn = 0;
+	obj.cmntDpVl = 0;
+
+	if(fileTmprList.length > 0){
+		obj.fileTmprList = fileTmprList;
+	}
+
+	if(atchFileSnArr.length > 0){
+	obj.atchFileSnArr = atchFileSnArr;
+	}
+
+	return obj;
+}
+
+const detailSuccess = function(data){
+	Message.success(data,function(){
+		location.href = 'detail.do?pageIndex=1&pageItm=10&searchOrderSort=0&searchGbn=0&pstSn='+_pstSn
+	});
+}
+
+const rplySuccess = function(data){
+	console.log(data);
+	Message.success(data,function(){
+		let moveSn = data?.data?.pstSn;
+		if(moveSn){
+			location.href = 'detail.do?pageIndex=1&pageItm=10&searchOrderSort=0&searchGbn=0&pstSn='+moveSn
+		}else{
+			location.href = 'list.do?pageIndex=1&pageItm=10&searchOrderSort=0&searchGbn=0'
+		}
+	});
+}
+
+const success = function(data){
+	console.log(data);
+	Message.success(data,function(){
+		location.href = 'list.do?pageIndex=1&pageItm=10&searchOrderSort=0&searchGbn=0'
+	});
+}
+
+const fail = function(xhr, status, error){
+	Message.fail(xhr, status, error,function(){
+		window.location.reload();
+	})
+}
+
+setCkEditorUplodUrl("neibis","246");
+
+
+var thisMenuSn =  "246";
+var thisStieId = "neibis"
+var thisEdtrSecd = "3";
+
+	$(document).ready(function(){
+		if(thisEdtrSecd =='3'){
+			webeditorToggleTabs();
+		}else{
+			codeToggleTabs();
+		}
+
+		setCkEditorUplodUrl(thisStieId,thisMenuSn);
+		window.WebEditorPlugin.changeWebContentHtml($("#pstCn").val() || "");
+	});
+
+
+</script>
+<!-- 공통 스크립트 -->
+<!-- 개별 스크립트 -->
+<script>
+</script>
+<!-- 개별 스크립트 -->
+
+					</div>
+				</article>
+			</div>
+		</div>
+
+		<!-- login.do 빼고사용 -->
+		<!-- Modal Popup : 관리자 계정 정보수정 -->
+		<div class="modal-popup modal-lg hide info-revise-pop" id="layer-adinfo-revise">
+			<div class="dimed"></div>
+			<form class="popup-inner" id="mngrCmmnForm" name="mngrCmmnForm">
+				<div class="popup-header">
+					<h2 class="popup-title">관리자 계정 정보수정</h2>
+				</div>
+				<div class="popup-body">
+					<div class="table table-form-basic">
+						<div class="table-inner">
+							<table>
+								<caption class="sr-only">
+									관리자 계정 정보수정
+								</caption>
+								<tbody>
+									<tr>
+										<th scope="row">아이디</th>
+										<td colspan="3">neibis</td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="mngrPswdVlLayer">현재 비밀번호<i class="req">필수입력</i></label></th>
+										<td colspan="3">
+											<div class="input-group pw-group" style="max-width: 405px">
+												<input
+													type="password"
+													id="mngrPswdVlLayer" name="mngrPswdVl"
+													class="form-control form-pw"
+													placeholder="비밀번호를 입력해주세요."
+													title="비밀번호를 입력해주세요."
+													autocomplete="off"
+													value=""
+													required
+												/>
+												<button type="button" class="btn btn-pw btn-pw-off">비밀번호 확인</button>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="newMngrPswdVlLayer">변경 비밀번호</label></th>
+										<td>
+											<div class="input-group pw-group">
+												<input
+													type="password"
+													id="newMngrPswdVlLayer" name="newMngrPswdVl"
+													class="form-control form-pw"
+													placeholder="비밀번호를 입력해주세요."
+													title="변경 비밀번호"
+													autocomplete="off"
+													value=""
+													required
+												/>
+												<button type="button" class="btn btn-pw btn-pw-off">비밀번호 확인</button>
+											</div>
+											<span class="text-guide">8자 이상, 하나 이상의 숫자 및 대문자를 모두 포함</span>
+										</td>
+										<th scope="row"><label for="newMngrPswdVlConfLayer">변경 비밀번호 확인</label></th>
+										<td>
+											<div class="input-group pw-group">
+												<input
+													type="password"
+													id="newMngrPswdVlConfLayer" name="newMngrPswdVlConf"
+													class="form-control form-pw"
+													placeholder="비밀번호를 한번 더 입력해주세요."
+													title="변경 비밀번호 확인"
+													autocomplete="off"
+													value=""
+													required
+												/>
+												<button type="button" class="btn btn-pw btn-pw-off">비밀번호 확인</button>
+											</div>
+										</td>
+									</tr>
+								</tbody>
+								<tbody>
+									<tr>
+										<th scope="row"><label for="mngrNmLayer">성명<i class="req">필수입력</i></label></th>
+										<td colspan="3">
+											<input
+												type="text"
+												id="mngrNmLayer" name="mngrNm"
+												value="홍길동"
+												class="form-control full"
+												style="max-width: 405px"
+											/>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="mngrDeptNmLayer">담당부서</label></th>
+										<td>
+											<input type="text" id="mngrDeptNmLayer" name="mngrDeptNm" class="form-control full" value="" />
+										</td>
+										<th scope="row"><label for="mngrTelnoLayer">전화번호</label></th>
+										<td>
+											<input type="text" id="mngrTelnoLayer" name="mngrTelno" class="form-control full" placeholder="숫자만 입력 (예: 0314567890)" value="" />
+										</td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="mngrEmlAddrLayer">이메일</label></th>
+										<td>
+											<input type="text" id="mngrEmlAddrLayer" name="mngrEmlAddr" class="form-control full" value="" />
+										</td>
+										<th scope="row"><label for="mngrMblTelnoLayer">휴대폰</label></th>
+										<td>
+											<input type="text" id="mngrMblTelnoLayer" name="mngrMblTelno" class="form-control full" placeholder="숫자만 입력 (예: 01012345678)" value="" />
+										</td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="mngrFxnoLayer">팩스</label></th>
+										<td colspan="3">
+											<input
+												type="text"
+												id="mngrFxnoLayer" name="mngrFxno"
+												class="form-control"  placeholder="숫자만 입력 (예: 0212345678)"
+												value=""
+												style="width: 405px"
+											/>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="popup-footer">
+					<div class="btn-group-center">
+						<button type="button" class="btn btn-lg btn-outline-gray" data-modal="close">닫기</button>
+						<button type="button" class="btn btn-lg btn-primary" data-modal-submit="mngrCmmnSaveBtn">저장</button>
+					</div>
+				</div>
+				<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+			</form>
+		</div>
+
+
+<!-- login.do 빼고사용 -->
+<script>
+const date = moment().format("YYYY-MM-DD HH");
+const time = "00:00";
+var timeClock;
+
+$(function () {
+	timerScript(time);
+	ActionInit.click("#extend-button",onExtend);
+});
+var timerScript = function(setTime){
+	var remainTime = moment(date+":"+setTime);
+	let subtractTime = remainTime.subtract(1, "seconds").format("mm:ss");
+	$(".login-time").text(subtractTime);
+	if (subtractTime == "00:00"){
+		location.href='/mariadb/neibis/logout.do?type=timerlogout';
+		return;
+	}
+	timeClock = window.setTimeout(() => timerScript(subtractTime),1000);
+}
+
+var onExtend = function(){
+	window.clearTimeout(timeClock);
+	$(".login-time").text("60:00");
+	window.setTimeout(() => timerScript(time),1000);
+}
+
+$("#favorit-add-button").on("click", function() {
+	let obj = new Object();
+	obj["menuSn"] =  253
+	let url = "/mariadb/neibis-api/v1/menu/fvrt/253?";
+	if(!$(this).hasClass("on")) url+="action=post"
+	else url+="action=delete"
+	Ajax.post(url,menuFvrtSuccess,menuFvrtFail,{data:JSON.stringify(obj)});
+});
+function removeDeletedMenu(menuSn) {
+	let data = new Object();
+	data.message ="현재 메뉴는 시스템관리자에 의해 삭제 및 변경되었거나 이동할 수 없는 메뉴입니다.<br/>해당 즐겨찾기 메뉴를 삭제 하시겠습니까?";
+	data.icon = "warning";
+	let obj = new Object;
+	obj["menuSn"] =  menuSn;
+	Message.confirm(data, function () {
+		let url = "/mariadb/neibis-api/v1/menu/fvrt/"+menuSn+"?action=delete";
+		Ajax.post(url,deleteMenuFvrtSuccess,menuFvrtFail,{data:JSON.stringify(obj)});
+	});
+}
+const deleteMenuFvrtSuccess = function (data) {
+	if(data.icon == "success"){
+		Message.success(data,function(){
+			deleteFvrt(data.data);
+		});
+	}
+}
+
+const menuFvrtSuccess = function (data) {
+	if(data.icon == "success"){
+		Message.success(data,function(){
+			if($("#favorit-add-button").hasClass("on")) {
+				if($(".favorit-list").length == 0) {
+					$(".favorit-menu").find(".nodata").remove();
+					$(".favorit-menu").prepend('<ul class="favorit-list"></ul>')
+				}
+				$(".favorit-list").prepend('<li id="fvrt'+data.data.menuSn+'"><a href="/mariadb'+data.data.menuUrlAddr+'">'+data.data.menuPath+'</a></li>')
+			}else {
+				deleteFvrt(data.data);
+			}
+		});
+	}
+}
+const menuFvrtFail = function (xhr, status, error) {
+	Message.fail(xhr, status, error,function(){
+		window.location.reload();
+	})
+}
+function deleteFvrt(data) {
+	$("#fvrt"+data).remove();
+	if($(".favorit-list").find("li").length == 0) {
+		let html = '';
+		html+='<p class="nodata">'
+		html+='	<strong>저장된 메뉴가 없어요.</strong>'
+		html+='	<span>'
+		html+='		페이지 상단의 ⭐모양을 클릭하면<br />'
+		html+='		즐겨찾기 메뉴에 저장할 수 있어요.'
+		html+='	</span>'
+		html+='</p>'
+		$(".favorit-menu").prepend(html);
+		$(".favorit-list").remove();
+	}
+}
+$(document).on("click","#siteSearchBtn", function() {
+	let url = "/mariadb/neibis-api/v1/site/menu?action=get&siteSearchKeyword="+$("#siteSearchKeyword").val();
+	Ajax.get(url,siteSearchSuccess,siteSearchFail);
+}).on("keypress","#siteSearchKeyword", function(e) {
+	if (e.keyCode === 13) {
+		e.preventDefault();
+		$("#siteSearchBtn").trigger("click");
+	}
+});
+
+	const siteSearchSuccess = function (data) {
+	if(data.icon == "success") {
+		$(".site-menu").html(siteList(data.data))
+	}
+}
+
+const siteSearchFail = function (xhr, status, error) {
+	Message.fail(xhr, status, error,function(){
+		window.location.reload();
+	})
+}
+function siteList(data) {
+	let html = ''
+	if(data.length > 0 ) {
+		let preLevel = 0;
+		$.each(data, function(i,v) {
+			if(i == 0) html += '<ul class="site-list">'
+			if(v.dataSttsCd == 'A') {
+				let hasChild = v.hasChild;
+				if(preLevel - v.level > 0) {
+					for(let i=0; i  < preLevel-v.level; i++) {
+						html += '</ul></li>';
+					}
+				}
+				if(preLevel < v.level && i != 0) html += '<ul>'
+				html += '<li data-level="'+v.level+'" '+(v.hasChild ? 'class="collapse"' : '' )+'>'
+				let siteUrl = "/mariadb"+v.menuUrlAddr;
+				let hrefUrl;
+			    if (siteUrl.includes('directory.do')) {
+			        hrefUrl = '#';
+			    } else {
+			        hrefUrl = siteUrl;
+			    }
+				if(siteUrl)
+				html += '<a href="'+hrefUrl+'"';
+				if(v.npagYn == 'Y') html += 'target="_blank" title="새창으로 열림">'
+				html += '>'+v.menuNm+'</a>'
+				if(!v.hasChild) html+='</li>'
+				preLevel = v.level;
+			}
+		});
+		for(let i=0; i < preLevel; i++){
+			html += '</ul></li>'
+		}
+	}else {
+		html += '<p class="nodata">'
+		html += '	<strong>아직 접속 가능한 사이트가 없어요.</strong>'
+		html += '	<span>'
+		html += '		시스템 관리자에게<br />'
+		html += '		메뉴권한을 요청해보시겠어요?'
+		html += '	</span>'
+		html += '</p>'
+	}
+	return html;
+}
+
+$("button[data-modal-submit='mngrCmmnSaveBtn']").on("click", function() {
+	let value = new NeibisValidator(document.forms["mngrCmmnForm"]);
+	formInputAttPassword("mngrCmmnForm");
+	value.add("newMngrPswdVl",{required:false,option:"password",match:"newMngrPswdVlConf"});
+	value.add("mngrNm",{required:true})
+	value.add("mngrTelno",{required:false,option:"homephone"})
+	value.add("mngrEmlAddr",{required:false,option:"email"})
+	value.add("mngrMblTelno",{required:false,option:"handphone"})
+	value.add("mngrFxno",{required:false,option:"fax"})
+
+	$("#mngrCmmnForm").find(".text-invalid").remove();
+	let result = value.validate();
+	if(!result){
+		let errorElementId =value.getErrorElement().id+"Layer";
+		let invalidText = '<span class="text-guide text-invalid">'+value.getErrorMessage()+'</span>'
+		$(value.getErrorElement()).closest("td").append(invalidText);
+		let offset = $("#"+errorElementId).offset();
+		return $("#mngrCmmnForm").find("#"+errorElementId).focus();
+	}
+
+	Message.confirm({
+		icon: "warning",
+		title: "저장하시겠어요?",
+		message: "저장하시려면 ‘확인’을 눌러주세요."
+    },function(){
+		let formData = $("#mngrCmmnForm").serializeArray();
+	 	let obj = new Object();
+		$.each(formData,function(i,v) {
+			obj[this.name] = this.value;
+		});
+		let url = "/mariadb/neibis-api/v1/mngr/cmmn/neibis?action=put";
+		Ajax.post(url,updtCmmnMngrSuccess,updtCmmnMngrFail,{data:JSON.stringify(obj)});
+    });
+});
+
+const updtCmmnMngrSuccess = function (data) {
+	if(data.icon == "success") {
+		Message.success(data,function(){
+			window.location.reload();
+		});
+	}else if(data.icon == "warning") {
+		$("#mngrCmmnForm").find("#mngrPswdVlLayer").closest("td").append($("<span>").addClass("text-guide text-invalid").text(data.message));
+		$("#mngrCmmnForm").find("#mngrPswdVlLayer").focus();
+	}
+}
+
+const updtCmmnMngrFail = function (xhr, status, error) {
+	Message.fail(xhr, status, error,function(){
+		window.location.reload();
+	})
+}
+function mngrCmmnFormReset() {
+	let url = "/mariadb/neibis-api/v1/mngr/cmmn/neibis?action=get";
+	Ajax.get(url,getMngrSuccess,getMngrFail);
+}
+const getMngrSuccess = function(data) {
+	if(data.icon == 'success') {
+		const {mngrNm, mngrDeptNm, mngrTelno, mngrEmlAddr, mngrMblTelno, mngrFxno} = data.data;
+		$("#mngrNmLayer").val(mngrNm);
+		$("#mngrDeptNmLayer").val(mngrDeptNm);
+		$("#mngrTelnoLayer").val(mngrTelno);
+		$("#mngrEmlAddrLayer").val(mngrEmlAddr);
+		$("#mngrMblTelnoLayer").val(mngrMblTelno);
+		$("#mngrFxnoLayer").val(mngrFxno);
+	}
+}
+
+const getMngrFail = function (xhr, status, error) {
+	Message.fail(xhr, status, error,function(){
+		window.location.reload();
+	})
+}
+</script>
+
+	</body>
+</html>

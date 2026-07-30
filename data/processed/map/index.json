@@ -1,0 +1,1077 @@
+{
+  "source": "dialect_local.db",
+  "policy": "raw_db_only_no_synthetic_points",
+  "items": [
+    {
+      "headword_no": "50285",
+      "headword": "자치기",
+      "points": 165,
+      "groups": 10,
+      "variants": 40
+    },
+    {
+      "headword_no": "50286",
+      "headword": "호미씻이",
+      "points": 177,
+      "groups": 10,
+      "variants": 86
+    },
+    {
+      "headword_no": "50287",
+      "headword": "곁두리",
+      "points": 218,
+      "groups": 8,
+      "variants": 42
+    },
+    {
+      "headword_no": "50288",
+      "headword": "구유",
+      "points": 178,
+      "groups": 8,
+      "variants": 50
+    },
+    {
+      "headword_no": "50289",
+      "headword": "새끼",
+      "points": 190,
+      "groups": 7,
+      "variants": 43
+    },
+    {
+      "headword_no": "50290",
+      "headword": "멍석",
+      "points": 212,
+      "groups": 3,
+      "variants": 28
+    },
+    {
+      "headword_no": "50291",
+      "headword": "혓바늘",
+      "points": 162,
+      "groups": 6,
+      "variants": 32
+    },
+    {
+      "headword_no": "50292",
+      "headword": "귀청",
+      "points": 171,
+      "groups": 5,
+      "variants": 26
+    },
+    {
+      "headword_no": "50293",
+      "headword": "볏가리",
+      "points": 192,
+      "groups": 3,
+      "variants": 72
+    },
+    {
+      "headword_no": "50294",
+      "headword": "새꽤기",
+      "points": 172,
+      "groups": 6,
+      "variants": 112
+    },
+    {
+      "headword_no": "50295",
+      "headword": "무",
+      "points": 199,
+      "groups": 5,
+      "variants": 13
+    },
+    {
+      "headword_no": "50296",
+      "headword": "오이",
+      "points": 207,
+      "groups": 3,
+      "variants": 21
+    },
+    {
+      "headword_no": "50297",
+      "headword": "부추",
+      "points": 190,
+      "groups": 3,
+      "variants": 22
+    },
+    {
+      "headword_no": "50298",
+      "headword": "엿기름",
+      "points": 185,
+      "groups": 3,
+      "variants": 26
+    },
+    {
+      "headword_no": "50299",
+      "headword": "간장",
+      "points": 202,
+      "groups": 3,
+      "variants": 21
+    },
+    {
+      "headword_no": "50300",
+      "headword": "뒤주",
+      "points": 176,
+      "groups": 5,
+      "variants": 30
+    },
+    {
+      "headword_no": "50301",
+      "headword": "이엉",
+      "points": 181,
+      "groups": 6,
+      "variants": 34
+    },
+    {
+      "headword_no": "50302",
+      "headword": "콩나물",
+      "points": 188,
+      "groups": 4,
+      "variants": 17
+    },
+    {
+      "headword_no": "50303",
+      "headword": "그을음",
+      "points": 200,
+      "groups": 5,
+      "variants": 56
+    },
+    {
+      "headword_no": "50304",
+      "headword": "변소",
+      "points": 266,
+      "groups": 9,
+      "variants": 45
+    },
+    {
+      "headword_no": "50306",
+      "headword": "자루",
+      "points": 215,
+      "groups": 6,
+      "variants": 30
+    },
+    {
+      "headword_no": "50307",
+      "headword": "거지",
+      "points": 220,
+      "groups": 5,
+      "variants": 40
+    },
+    {
+      "headword_no": "50308",
+      "headword": "가위",
+      "points": 204,
+      "groups": 4,
+      "variants": 17
+    },
+    {
+      "headword_no": "50309",
+      "headword": "다리미",
+      "points": 180,
+      "groups": 4,
+      "variants": 24
+    },
+    {
+      "headword_no": "50310",
+      "headword": "길마",
+      "points": 148,
+      "groups": 5,
+      "variants": 34
+    },
+    {
+      "headword_no": "50311",
+      "headword": "갈퀴",
+      "points": 168,
+      "groups": 5,
+      "variants": 30
+    },
+    {
+      "headword_no": "50312",
+      "headword": "귀지",
+      "points": 163,
+      "groups": 7,
+      "variants": 29
+    },
+    {
+      "headword_no": "50314",
+      "headword": "다르다",
+      "points": 187,
+      "groups": 5,
+      "variants": 23
+    },
+    {
+      "headword_no": "50315",
+      "headword": "딸꾹질",
+      "points": 196,
+      "groups": 12,
+      "variants": 70
+    },
+    {
+      "headword_no": "50316",
+      "headword": "목말",
+      "points": 157,
+      "groups": 14,
+      "variants": 49
+    },
+    {
+      "headword_no": "50317",
+      "headword": "누나",
+      "points": 263,
+      "groups": 7,
+      "variants": 21
+    },
+    {
+      "headword_no": "50318",
+      "headword": "사위",
+      "points": 177,
+      "groups": 6,
+      "variants": 11
+    },
+    {
+      "headword_no": "50319",
+      "headword": "벌레",
+      "points": 215,
+      "groups": 7,
+      "variants": 20
+    },
+    {
+      "headword_no": "50320",
+      "headword": "고양이",
+      "points": 201,
+      "groups": 4,
+      "variants": 37
+    },
+    {
+      "headword_no": "50321",
+      "headword": "모이",
+      "points": 171,
+      "groups": 3,
+      "variants": 16
+    },
+    {
+      "headword_no": "50322",
+      "headword": "억새",
+      "points": 185,
+      "groups": 7,
+      "variants": 70
+    },
+    {
+      "headword_no": "50323",
+      "headword": "노을",
+      "points": 171,
+      "groups": 5,
+      "variants": 35
+    },
+    {
+      "headword_no": "50324",
+      "headword": "모레",
+      "points": 160,
+      "groups": 2,
+      "variants": 6
+    },
+    {
+      "headword_no": "50325",
+      "headword": "글피",
+      "points": 166,
+      "groups": 5,
+      "variants": 17
+    },
+    {
+      "headword_no": "50326",
+      "headword": "그저께",
+      "points": 178,
+      "groups": 4,
+      "variants": 27
+    },
+    {
+      "headword_no": "50327",
+      "headword": "그끄저께",
+      "points": 152,
+      "groups": 5,
+      "variants": 31
+    },
+    {
+      "headword_no": "50328",
+      "headword": "우박",
+      "points": 172,
+      "groups": 4,
+      "variants": 9
+    },
+    {
+      "headword_no": "50329",
+      "headword": "어레미",
+      "points": 175,
+      "groups": 7,
+      "variants": 32
+    },
+    {
+      "headword_no": "50331",
+      "headword": "키",
+      "points": 163,
+      "groups": 5,
+      "variants": 15
+    },
+    {
+      "headword_no": "50332",
+      "headword": "시루",
+      "points": 172,
+      "groups": 3,
+      "variants": 10
+    },
+    {
+      "headword_no": "50333",
+      "headword": "흰자위",
+      "points": 167,
+      "groups": 5,
+      "variants": 35
+    },
+    {
+      "headword_no": "50334",
+      "headword": "입술",
+      "points": 187,
+      "groups": 4,
+      "variants": 25
+    },
+    {
+      "headword_no": "50388",
+      "headword": "복사뼈",
+      "points": 165,
+      "groups": 6,
+      "variants": 36
+    },
+    {
+      "headword_no": "50389",
+      "headword": "눕히다",
+      "points": 171,
+      "groups": 5,
+      "variants": 20
+    },
+    {
+      "headword_no": "50394",
+      "headword": "쓸개",
+      "points": 180,
+      "groups": 6,
+      "variants": 17
+    },
+    {
+      "headword_no": "50395",
+      "headword": "휘파람",
+      "points": 169,
+      "groups": 7,
+      "variants": 40
+    },
+    {
+      "headword_no": "50396",
+      "headword": "귀이개",
+      "points": 172,
+      "groups": 10,
+      "variants": 73
+    },
+    {
+      "headword_no": "50397",
+      "headword": "겨드랑",
+      "points": 179,
+      "groups": 7,
+      "variants": 52
+    },
+    {
+      "headword_no": "50398",
+      "headword": "감기",
+      "points": 218,
+      "groups": 6,
+      "variants": 23
+    },
+    {
+      "headword_no": "50399",
+      "headword": "계집아이",
+      "points": 230,
+      "groups": 6,
+      "variants": 56
+    },
+    {
+      "headword_no": "50400",
+      "headword": "아우 타다",
+      "points": 173,
+      "groups": 7,
+      "variants": 35
+    },
+    {
+      "headword_no": "50401",
+      "headword": "곤지곤지",
+      "points": 167,
+      "groups": 7,
+      "variants": 43
+    },
+    {
+      "headword_no": "50402",
+      "headword": "구레나룻",
+      "points": 167,
+      "groups": 11,
+      "variants": 88
+    },
+    {
+      "headword_no": "50403",
+      "headword": "콧구멍",
+      "points": 189,
+      "groups": 5,
+      "variants": 20
+    },
+    {
+      "headword_no": "50404",
+      "headword": "소꿉놀이",
+      "points": 187,
+      "groups": 11,
+      "variants": 98
+    },
+    {
+      "headword_no": "50405",
+      "headword": "그네",
+      "points": 193,
+      "groups": 6,
+      "variants": 31
+    },
+    {
+      "headword_no": "50406",
+      "headword": "졸음",
+      "points": 179,
+      "groups": 4,
+      "variants": 29
+    },
+    {
+      "headword_no": "50407",
+      "headword": "하품",
+      "points": 160,
+      "groups": 4,
+      "variants": 17
+    },
+    {
+      "headword_no": "50408",
+      "headword": "사마귀",
+      "points": 168,
+      "groups": 5,
+      "variants": 21
+    },
+    {
+      "headword_no": "50409",
+      "headword": "배꼽",
+      "points": 173,
+      "groups": 7,
+      "variants": 29
+    },
+    {
+      "headword_no": "50410",
+      "headword": "냄새",
+      "points": 171,
+      "groups": 4,
+      "variants": 20
+    },
+    {
+      "headword_no": "50411",
+      "headword": "무릎",
+      "points": 218,
+      "groups": 10,
+      "variants": 44
+    },
+    {
+      "headword_no": "50412",
+      "headword": "눈두덩",
+      "points": 169,
+      "groups": 8,
+      "variants": 63
+    },
+    {
+      "headword_no": "50426",
+      "headword": "기지개",
+      "points": 162,
+      "groups": 3,
+      "variants": 19
+    },
+    {
+      "headword_no": "50428",
+      "headword": "고춧가루",
+      "points": 180,
+      "groups": 4,
+      "variants": 30
+    },
+    {
+      "headword_no": "50429",
+      "headword": "까끄라기",
+      "points": 183,
+      "groups": 8,
+      "variants": 68
+    },
+    {
+      "headword_no": "50430",
+      "headword": "벽",
+      "points": 223,
+      "groups": 6,
+      "variants": 52
+    },
+    {
+      "headword_no": "50431",
+      "headword": "뚜껑",
+      "points": 196,
+      "groups": 6,
+      "variants": 46
+    },
+    {
+      "headword_no": "50432",
+      "headword": "매달다",
+      "points": 177,
+      "groups": 4,
+      "variants": 21
+    },
+    {
+      "headword_no": "50433",
+      "headword": "구멍",
+      "points": 186,
+      "groups": 6,
+      "variants": 20
+    },
+    {
+      "headword_no": "50434",
+      "headword": "마루",
+      "points": 208,
+      "groups": 6,
+      "variants": 42
+    },
+    {
+      "headword_no": "50435",
+      "headword": "찌꺼기",
+      "points": 184,
+      "groups": 5,
+      "variants": 42
+    },
+    {
+      "headword_no": "50436",
+      "headword": "사닥다리",
+      "points": 171,
+      "groups": 6,
+      "variants": 19
+    },
+    {
+      "headword_no": "50437",
+      "headword": "메밀",
+      "points": 168,
+      "groups": 3,
+      "variants": 14
+    },
+    {
+      "headword_no": "50438",
+      "headword": "시래기",
+      "points": 179,
+      "groups": 5,
+      "variants": 27
+    },
+    {
+      "headword_no": "50439",
+      "headword": "건더기",
+      "points": 173,
+      "groups": 4,
+      "variants": 22
+    },
+    {
+      "headword_no": "50440",
+      "headword": "달걀",
+      "points": 247,
+      "groups": 7,
+      "variants": 24
+    },
+    {
+      "headword_no": "50441",
+      "headword": "부지깽이",
+      "points": 168,
+      "groups": 5,
+      "variants": 40
+    },
+    {
+      "headword_no": "50442",
+      "headword": "헹구다",
+      "points": 175,
+      "groups": 7,
+      "variants": 26
+    },
+    {
+      "headword_no": "50443",
+      "headword": "벼",
+      "points": 217,
+      "groups": 3,
+      "variants": 12
+    },
+    {
+      "headword_no": "50444",
+      "headword": "호미",
+      "points": 202,
+      "groups": 4,
+      "variants": 17
+    },
+    {
+      "headword_no": "50445",
+      "headword": "보리",
+      "points": 169,
+      "groups": 2,
+      "variants": 11
+    },
+    {
+      "headword_no": "50446",
+      "headword": "겨",
+      "points": 164,
+      "groups": 4,
+      "variants": 37
+    },
+    {
+      "headword_no": "50452",
+      "headword": "삽",
+      "points": 188,
+      "groups": 5,
+      "variants": 19
+    },
+    {
+      "headword_no": "50458",
+      "headword": "놉",
+      "points": 194,
+      "groups": 5,
+      "variants": 31
+    },
+    {
+      "headword_no": "50464",
+      "headword": "쥐불놀이",
+      "points": 144,
+      "groups": 5,
+      "variants": 27
+    },
+    {
+      "headword_no": "50465",
+      "headword": "표주박",
+      "points": 197,
+      "groups": 7,
+      "variants": 89
+    },
+    {
+      "headword_no": "50466",
+      "headword": "함지",
+      "points": 163,
+      "groups": 5,
+      "variants": 34
+    },
+    {
+      "headword_no": "50467",
+      "headword": "아궁이",
+      "points": 206,
+      "groups": 4,
+      "variants": 62
+    },
+    {
+      "headword_no": "50468",
+      "headword": "용마름",
+      "points": 173,
+      "groups": 4,
+      "variants": 49
+    },
+    {
+      "headword_no": "50469",
+      "headword": "장독대",
+      "points": 177,
+      "groups": 6,
+      "variants": 29
+    },
+    {
+      "headword_no": "50470",
+      "headword": "발채",
+      "points": 173,
+      "groups": 5,
+      "variants": 51
+    },
+    {
+      "headword_no": "50471",
+      "headword": "부리망",
+      "points": 169,
+      "groups": 4,
+      "variants": 43
+    },
+    {
+      "headword_no": "50472",
+      "headword": "쐐기",
+      "points": 178,
+      "groups": 4,
+      "variants": 57
+    },
+    {
+      "headword_no": "50473",
+      "headword": "다듬잇돌",
+      "points": 180,
+      "groups": 6,
+      "variants": 58
+    },
+    {
+      "headword_no": "50474",
+      "headword": "멱둥구미",
+      "points": 162,
+      "groups": 7,
+      "variants": 65
+    },
+    {
+      "headword_no": "50475",
+      "headword": "반짇고리",
+      "points": 175,
+      "groups": 5,
+      "variants": 63
+    },
+    {
+      "headword_no": "50476",
+      "headword": "꽹과리",
+      "points": 187,
+      "groups": 8,
+      "variants": 54
+    },
+    {
+      "headword_no": "50477",
+      "headword": "꾸다",
+      "points": 211,
+      "groups": 4,
+      "variants": 31
+    },
+    {
+      "headword_no": "50478",
+      "headword": "꾸러미",
+      "points": 181,
+      "groups": 4,
+      "variants": 36
+    },
+    {
+      "headword_no": "50479",
+      "headword": "고삐",
+      "points": 180,
+      "groups": 5,
+      "variants": 56
+    },
+    {
+      "headword_no": "50480",
+      "headword": "풀무",
+      "points": 168,
+      "groups": 3,
+      "variants": 25
+    },
+    {
+      "headword_no": "50481",
+      "headword": "씨아",
+      "points": 156,
+      "groups": 4,
+      "variants": 40
+    },
+    {
+      "headword_no": "50482",
+      "headword": "짚신",
+      "points": 197,
+      "groups": 4,
+      "variants": 28
+    },
+    {
+      "headword_no": "50483",
+      "headword": "시렁",
+      "points": 175,
+      "groups": 4,
+      "variants": 32
+    },
+    {
+      "headword_no": "50487",
+      "headword": "덤",
+      "points": 166,
+      "groups": 4,
+      "variants": 33
+    },
+    {
+      "headword_no": "50497",
+      "headword": "할머니",
+      "points": 185,
+      "groups": 7,
+      "variants": 21
+    },
+    {
+      "headword_no": "50498",
+      "headword": "외삼촌",
+      "points": 188,
+      "groups": 3,
+      "variants": 31
+    },
+    {
+      "headword_no": "50499",
+      "headword": "쉬슬다",
+      "points": 194,
+      "groups": 13,
+      "variants": 87
+    },
+    {
+      "headword_no": "50500",
+      "headword": "파리",
+      "points": 170,
+      "groups": 3,
+      "variants": 13
+    },
+    {
+      "headword_no": "50501",
+      "headword": "회충",
+      "points": 195,
+      "groups": 11,
+      "variants": 51
+    },
+    {
+      "headword_no": "50503",
+      "headword": "여우",
+      "points": 190,
+      "groups": 4,
+      "variants": 26
+    },
+    {
+      "headword_no": "50504",
+      "headword": "뱀딸기",
+      "points": 168,
+      "groups": 10,
+      "variants": 65
+    },
+    {
+      "headword_no": "50505",
+      "headword": "누에",
+      "points": 178,
+      "groups": 5,
+      "variants": 22
+    },
+    {
+      "headword_no": "50506",
+      "headword": "강아지",
+      "points": 171,
+      "groups": 5,
+      "variants": 13
+    },
+    {
+      "headword_no": "50507",
+      "headword": "고기",
+      "points": 169,
+      "groups": 3,
+      "variants": 17
+    },
+    {
+      "headword_no": "50508",
+      "headword": "모기",
+      "points": 191,
+      "groups": 4,
+      "variants": 13
+    },
+    {
+      "headword_no": "50509",
+      "headword": "구더기",
+      "points": 171,
+      "groups": 9,
+      "variants": 39
+    },
+    {
+      "headword_no": "50522",
+      "headword": "겨울",
+      "points": 183,
+      "groups": 6,
+      "variants": 25
+    },
+    {
+      "headword_no": "50523",
+      "headword": "동풍",
+      "points": 163,
+      "groups": 3,
+      "variants": 19
+    },
+    {
+      "headword_no": "50524",
+      "headword": "모래",
+      "points": 203,
+      "groups": 6,
+      "variants": 15
+    },
+    {
+      "headword_no": "50525",
+      "headword": "오디",
+      "points": 180,
+      "groups": 5,
+      "variants": 48
+    },
+    {
+      "headword_no": "50526",
+      "headword": "가을",
+      "points": 190,
+      "groups": 4,
+      "variants": 17
+    },
+    {
+      "headword_no": "50527",
+      "headword": "돌",
+      "points": 193,
+      "groups": 4,
+      "variants": 22
+    },
+    {
+      "headword_no": "50528",
+      "headword": "서풍",
+      "points": 163,
+      "groups": 4,
+      "variants": 35
+    },
+    {
+      "headword_no": "50529",
+      "headword": "언제",
+      "points": 163,
+      "groups": 5,
+      "variants": 17
+    },
+    {
+      "headword_no": "50530",
+      "headword": "바위",
+      "points": 194,
+      "groups": 6,
+      "variants": 22
+    },
+    {
+      "headword_no": "50531",
+      "headword": "회오리바람",
+      "points": 184,
+      "groups": 7,
+      "variants": 58
+    },
+    {
+      "headword_no": "50532",
+      "headword": "무지개",
+      "points": 156,
+      "groups": 2,
+      "variants": 7
+    },
+    {
+      "headword_no": "50545",
+      "headword": "새벽",
+      "points": 185,
+      "groups": 6,
+      "variants": 14
+    },
+    {
+      "headword_no": "50547",
+      "headword": "번데기",
+      "points": 177,
+      "groups": 6,
+      "variants": 35
+    },
+    {
+      "headword_no": "50548",
+      "headword": "누이",
+      "points": 191,
+      "groups": 4,
+      "variants": 22
+    },
+    {
+      "headword_no": "50549",
+      "headword": "언니",
+      "points": 216,
+      "groups": 7,
+      "variants": 27
+    },
+    {
+      "headword_no": "50550",
+      "headword": "미꾸라지",
+      "points": 189,
+      "groups": 5,
+      "variants": 32
+    },
+    {
+      "headword_no": "50551",
+      "headword": "메뚜기",
+      "points": 192,
+      "groups": 6,
+      "variants": 49
+    },
+    {
+      "headword_no": "50552",
+      "headword": "갈치",
+      "points": 157,
+      "groups": 3,
+      "variants": 3
+    },
+    {
+      "headword_no": "50553",
+      "headword": "아우",
+      "points": 225,
+      "groups": 4,
+      "variants": 15
+    },
+    {
+      "headword_no": "50554",
+      "headword": "돼지",
+      "points": 174,
+      "groups": 3,
+      "variants": 21
+    },
+    {
+      "headword_no": "50555",
+      "headword": "노루",
+      "points": 182,
+      "groups": 4,
+      "variants": 11
+    },
+    {
+      "headword_no": "50556",
+      "headword": "뱀",
+      "points": 175,
+      "groups": 5,
+      "variants": 23
+    },
+    {
+      "headword_no": "50557",
+      "headword": "박쥐",
+      "points": 166,
+      "groups": 6,
+      "variants": 25
+    },
+    {
+      "headword_no": "50558",
+      "headword": "형",
+      "points": 249,
+      "groups": 6,
+      "variants": 27
+    },
+    {
+      "headword_no": "50559",
+      "headword": "벌",
+      "points": 169,
+      "groups": 4,
+      "variants": 13
+    },
+    {
+      "headword_no": "50560",
+      "headword": "매미",
+      "points": 179,
+      "groups": 8,
+      "variants": 29
+    },
+    {
+      "headword_no": "50561",
+      "headword": "개미",
+      "points": 162,
+      "groups": 2,
+      "variants": 6
+    },
+    {
+      "headword_no": "50562",
+      "headword": "지렁이",
+      "points": 195,
+      "groups": 8,
+      "variants": 51
+    },
+    {
+      "headword_no": "50563",
+      "headword": "세 되",
+      "points": 189,
+      "groups": 4,
+      "variants": 28
+    },
+    {
+      "headword_no": "50608",
+      "headword": "똬리",
+      "points": 168,
+      "groups": 4,
+      "variants": 29
+    }
+  ]
+}

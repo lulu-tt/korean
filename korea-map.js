@@ -268,17 +268,75 @@
     var strokeWidth = opts.strokeWidth != null ? opts.strokeWidth : 1;
     var zIndex      = opts.zIndex != null ? opts.zIndex : 2;
     var visible     = typeof opts.visible === 'function' ? opts.visible : null;
+    var labelProp   = opts.labelProp || null;       // 예: 'word' — 면 위에 방언형 글자
+    var showLabel   = opts.showLabel === true || !!labelProp;
+    // 한반도 전체 줌(~6, res≈2000~3000)에서도 글자가 보이도록 기본값을 넉넉히
+    var labelMinRes = opts.labelMinResolution != null ? opts.labelMinResolution : 20000;
+    var labelSize   = opts.labelSize || 13;
+
+    function labelPoint(geom) {
+      if (!geom) return null;
+      try {
+        var type = geom.getType();
+        if (type === 'Polygon') return geom.getInteriorPoint();
+        if (type === 'MultiPolygon') {
+          var polys = geom.getPolygons();
+          var best = polys[0], bestArea = 0, i;
+          for (i = 0; i < polys.length; i++) {
+            var a = polys[i].getArea();
+            if (a > bestArea) { bestArea = a; best = polys[i]; }
+          }
+          return best ? best.getInteriorPoint() : null;
+        }
+        return new ol.geom.Point(ol.extent.getCenter(geom.getExtent()));
+      } catch (e) {
+        try {
+          return new ol.geom.Point(ol.extent.getCenter(geom.getExtent()));
+        } catch (e2) {
+          return null;
+        }
+      }
+    }
 
     var layer = new ol.layer.Vector({
       source: new ol.source.Vector({ features: readFeatures(geojson) }),
-      style: function (feature) {
+      // 라벨이 잘리지 않도록 업데이트 시 extent 여유
+      updateWhileAnimating: true,
+      updateWhileInteracting: true,
+      style: function (feature, resolution) {
         if (visible && !visible(feature)) return null;
         var c = feature.get(colorProp) || fallback;
         var s = {
           fill: new ol.style.Fill({ color: hexToRgba(c, fillAlpha) })
         };
         if (strokeAlpha > 0) s.stroke = new ol.style.Stroke({ color: hexToRgba(c, strokeAlpha), width: strokeWidth });
-        return new ol.style.Style(s);
+        var styles = [new ol.style.Style(s)];
+
+        if (showLabel && labelProp && resolution < labelMinRes) {
+          var text = feature.get(labelProp);
+          if (text) {
+            var pt = labelPoint(feature.getGeometry());
+            if (pt) {
+              // 축소 시 글자 약간 키워 가독성 확보 (해상도↑ = 축소)
+              var px = Math.max(10, labelSize - 2);
+              if (resolution > 4000) px = Math.max(10, labelSize - 3);
+              if (resolution < 1000) px = labelSize - 1;
+              styles.push(new ol.style.Style({
+                geometry: pt,
+                text: new ol.style.Text({
+                  text: String(text),
+                  font: '500 ' + px + 'px Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif',
+                  fill: new ol.style.Fill({ color: '#0f172a' }),
+                  stroke: new ol.style.Stroke({ color: 'rgba(255,255,255,0.95)', width: 3 }),
+                  overflow: true,
+                  textAlign: 'center',
+                  textBaseline: 'middle'
+                })
+              }));
+            }
+          }
+        }
+        return styles;
       }
     });
     layer.setZIndex(zIndex);

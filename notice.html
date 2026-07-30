@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1440">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>지역어종합정보 — 공지사항</title>
 <link rel="shortcut icon" href="./favicon.ico">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
@@ -412,5 +412,58 @@
 <div id="footer-common"></div>
 
 <script src="./share.js" defer></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/notices')
+      .then(response => response.json())
+      .then(res => {
+        if(res.status === 'success') {
+          const notices = res.data;
+          const tbody = document.querySelector('.board-list tbody');
+          const countElem = document.querySelector('.board-count');
+          
+          if(countElem) {
+            countElem.innerHTML = `<strong>${notices.length}건</strong> (DB 실시간 연동)`;
+          }
+          
+          if(tbody) {
+            tbody.innerHTML = '';
+            notices.forEach((item, index) => {
+              const tr = document.createElement('tr');
+              if(item.fix_yn === 'Y') {
+                tr.className = 'notice-row';
+              }
+              
+              // Timestamp formatting
+              let dateStr = '-';
+              if(item.create_dt) {
+                const date = new Date(parseInt(item.create_dt));
+                if(!isNaN(date.getTime())) {
+                  const yyyy = date.getFullYear();
+                  const mm = String(date.getMonth() + 1).padStart(2, '0');
+                  const dd = String(date.getDate()).padStart(2, '0');
+                  dateStr = `${yyyy}.${mm}.${dd}`;
+                }
+              }
+              
+              const hits = item.view_count ? Number(item.view_count).toLocaleString() : '0';
+              const numTd = item.fix_yn === 'Y' 
+                ? `<span class="notice-badge">공지</span>` 
+                : (notices.length - index);
+
+              tr.innerHTML = `
+                <td class="num">${numTd}</td>
+                <td class="subject"><a href="./notice_detail.html?id=${item.post_id}">${item.title}</a></td>
+                <td class="date">${dateStr}</td>
+                <td class="hits">${hits}</td>
+              `;
+              tbody.appendChild(tr);
+            });
+          }
+        }
+      })
+      .catch(err => console.error('DB Notice fetch error:', err));
+  });
+</script>
 </body>
 </html>

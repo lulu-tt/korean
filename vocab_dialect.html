@@ -923,6 +923,50 @@
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
   }
 
+
+  /* ===== 북한 지역어 (자료가 있을 때만 렌더되는 부가 요소) ===== */
+  /* 지역 셀: 쉼표 구분은 유지해야 지도 집계(updateMapWithSearchResults)가 그대로 동작한다 */
+  /* 지역 칸의 북한 시·도는 남한 시·도와 동일하게 출력한다.
+     구분은 지역어 칸의 '북' 배지 하나로 충분하므로 별도 서체·색을 쓰지 않는다.
+     span은 데이터 구분용 훅으로만 남겨 둔다. */
+  /* 지역어 칸의 '북' 배지. updateSearchBadges()가 .col-dialect의 innerHTML을 다시 쓰므로
+     실제 노드로 넣으면 지워진다. ::after로 붙여 JS를 건드리지 않는다. */
+  .vocab-table tr.row-nk .col-dialect::after {
+    content: '북'; display: inline-block; margin-left: 6px; padding: 0 5px; border-radius: 4px;
+    font-size: 10px; font-weight: 800; line-height: 16px; vertical-align: 2px;
+    color: #0f766e; background: rgba(20,184,166,.12); border: 1px solid #99f6e4;
+  }
+  /* 상세표 – 북한 조사 행 */
+  /* 주석 행: 기본 접힘. 상세표는 남한과 똑같이 '제보자 1명 = 1행' 구조를 유지한다 */
+  .details-table tr.dt-note { display: none; }
+  .details-table tr.dt-note.open { display: table-row; }
+  .details-table tr.dt-note td {
+    background: #ffffff; text-align: left; padding: 13px 20px 15px; border-bottom: 1px solid #e2e8f0;
+  }
+  /* 제보자 칸의 펼침 버튼 — 발화·발음·비고가 있는 행에만 붙는다 */
+  .dt-note-toggle {
+    margin-left: 8px; padding: 0; width: 22px; height: 22px; border-radius: 50%;
+    background: #ffffff; border: 1px solid var(--line); color: #64748b; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; vertical-align: -5px;
+  }
+  .dt-note-toggle:hover { background: #f1f5f9; color: #0f172a; border-color: #cbd5e1; }
+  .dt-note-toggle i { font-size: 13px; transition: transform 0.25s ease; }
+  .dt-note-toggle.open { border-color: #cbd5e1; background: #f1f5f9; }
+  .dt-note-toggle.open i { transform: rotate(180deg); color: var(--blue); }
+  .dt-note-box { display: flex; flex-direction: column; gap: 7px; }
+  .dt-note-line { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; line-height: 1.7; color: #64748b; }
+  .dt-note-key {
+    flex: none; margin-top: 2px; padding: 0 7px; border-radius: 4px; font-size: 10.5px; font-weight: 800;
+    line-height: 17px; color: #475569; background: #eef2f7; border: 1px solid #e2e8f0; white-space: nowrap;
+  }
+  /* 비고 — 정정·단서 등 주의해서 읽어야 하는 내용 */
+  .dt-note-line.is-warn { color: #78350f; }
+  .dt-note-line.is-warn .dt-note-key { color: #92400e; background: #fef3c7; border-color: #fde68a; }
+  @media (max-width: 768px) {
+    .details-table tr.dt-note td { padding: 10px 8px 12px; }
+    .dt-note-line { font-size: 11.5px; }
+  }
+
   /* DETAILS TABLE GROUP STYLES */
   .details-table tbody tr.group-header td {
     background: #f1f5f9;
@@ -1932,6 +1976,206 @@
       <tr id="details-10" class="details-row">
         <td colspan="5"><div class="details-container"><div class="details-title">음성 자료가 없습니다.</div></div></td>
       </tr>
+
+      <!-- 번호 11 -->
+      <tr id="row-11" class="row-nk">
+        <td class="col-num">11</td>
+        <td class="col-dialect">궁게</td>
+        <td class="col-regions"><span class="rgn-nk">함경북도</span></td>
+        <td class="col-std">구멍</td>
+        <td class="col-more">
+          <button class="row-more-btn" onclick="toggleDetails('11')"><i class="ti ti-chevron-down"></i></button>
+        </td>
+      </tr>
+      <tr id="details-11" class="details-row">
+        <td colspan="5">
+          <div class="details-container">
+            <div class="details-header">
+              <div class="details-title">궁게의 지역별 음성 듣기</div>
+              <div class="details-header-actions">
+                <button type="button" class="details-map-btn" onclick="openMapModal('궁게')">
+                  <i class="ti ti-map-2" aria-hidden="true"></i> 지도로 보기
+                </button>
+              </div>
+            </div>
+            <div class="details-table-wrapper">
+              <table class="details-table" role="table">
+                <caption class="sr-only">지역별 음성 자료 목록. 지역, 시군, 조사시기, 제보자, 음성 정보 표시</caption>
+                <thead>
+                  <tr>
+                    <th style="width: 20%;" scope="col">지역</th>
+                    <th style="width: 20%;" scope="col">시·군</th>
+                    <th style="width: 15%;" scope="col">조사시기</th>
+                    <th style="width: 30%;" scope="col">제보자</th>
+                    <th style="width: 15%;" scope="col">음성</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="dt-nk">
+                    <td>함경북도</td>
+                    <td>청진시</td>
+                    <td>2025년</td>
+                    <td>여성, 1968년생<button type="button" class="dt-note-toggle" onclick="toggleUtterNote(this)" aria-expanded="false" aria-label="조사 내용 펼치기"><i class="ti ti-chevron-down"></i></button></td>
+                    <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
+                  </tr>
+                  <tr class="dt-note dt-nk">
+                    <td colspan="5">
+                      <div class="dt-note-box">
+                          <div class="dt-note-line"><span class="dt-note-key">발화</span><span>긍게 쿠다</span></div>
+                          <div class="dt-note-line"><span class="dt-note-key">발음</span><span>궁게의 ㅜ가 ㅡ에 가깝게 실현되고, 크다의 ㅡ는 ㅜ에 가깝게 실현되어, 긍게 쿠다처럼 들림.</span></div>
+                      </div>
+                    </td>
+                  </tr>
+                  <!-- 아래 2명은 제보자가 여러 명일 때의 배치 확인용 예시 (실제 조사 자료 아님) -->
+                  <tr class="dt-nk">
+                    <td>함경북도</td>
+                    <td>회령시</td>
+                    <td>2025년</td>
+                    <td>남성, 1957년생 (예시)<button type="button" class="dt-note-toggle" onclick="toggleUtterNote(this)" aria-expanded="false" aria-label="조사 내용 펼치기"><i class="ti ti-chevron-down"></i></button></td>
+                    <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
+                  </tr>
+                  <tr class="dt-note dt-nk">
+                    <td colspan="5">
+                      <div class="dt-note-box">
+                          <div class="dt-note-line"><span class="dt-note-key">발화</span><span>궁게</span></div>
+                          <div class="dt-note-line"><span class="dt-note-key">발음</span><span>어두 ㄱ이 다소 강하게 실현됨. 어말 ㅔ는 ㅐ와 구별되지 않음.</span></div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="dt-nk">
+                    <td>함경북도</td>
+                    <td>무산군</td>
+                    <td>2025년</td>
+                    <td>여성, 1981년생 (예시)<button type="button" class="dt-note-toggle" onclick="toggleUtterNote(this)" aria-expanded="false" aria-label="조사 내용 펼치기"><i class="ti ti-chevron-down"></i></button></td>
+                    <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
+                  </tr>
+                  <tr class="dt-note dt-nk">
+                    <td colspan="5">
+                      <div class="dt-note-box">
+                          <div class="dt-note-line"><span class="dt-note-key">발화</span><span>궁게가 뚧어졌다</span></div>
+                          <div class="dt-note-line"><span class="dt-note-key">발음</span><span>뚫어지다의 어간말 자음군이 단순화되어 [뚜러졋다]로 실현됨.</span></div>
+                          <div class="dt-note-line is-warn"><span class="dt-note-key">비고</span><span>구멍이라는 어형도 함께 쓴다고 함. 젊은 층은 구멍을 더 많이 쓴다고 응답.</span></div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </td>
+      </tr>
+
+      <!-- 번호 12 -->
+      <tr id="row-12" class="row-nk">
+        <td class="col-num">12</td>
+        <td class="col-dialect">다듬잇돌</td>
+        <td class="col-regions"><span class="rgn-nk">함경북도</span></td>
+        <td class="col-std">다듬잇돌</td>
+        <td class="col-more">
+          <button class="row-more-btn" onclick="toggleDetails('12')"><i class="ti ti-chevron-down"></i></button>
+        </td>
+      </tr>
+      <tr id="details-12" class="details-row">
+        <td colspan="5">
+          <div class="details-container">
+            <div class="details-header">
+              <div class="details-title">다듬잇돌의 지역별 음성 듣기</div>
+              <div class="details-header-actions">
+                <button type="button" class="details-map-btn" onclick="openMapModal('다듬잇돌')">
+                  <i class="ti ti-map-2" aria-hidden="true"></i> 지도로 보기
+                </button>
+              </div>
+            </div>
+            <div class="details-table-wrapper">
+              <table class="details-table" role="table">
+                <caption class="sr-only">지역별 음성 자료 목록. 지역, 시군, 조사시기, 제보자, 음성 정보 표시</caption>
+                <thead>
+                  <tr>
+                    <th style="width: 20%;" scope="col">지역</th>
+                    <th style="width: 20%;" scope="col">시·군</th>
+                    <th style="width: 15%;" scope="col">조사시기</th>
+                    <th style="width: 30%;" scope="col">제보자</th>
+                    <th style="width: 15%;" scope="col">음성</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="dt-nk">
+                    <td>함경북도</td>
+                    <td>청진시</td>
+                    <td>2025년</td>
+                    <td>여성, 1968년생<button type="button" class="dt-note-toggle" onclick="toggleUtterNote(this)" aria-expanded="false" aria-label="조사 내용 펼치기"><i class="ti ti-chevron-down"></i></button></td>
+                    <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
+                  </tr>
+                  <tr class="dt-note dt-nk">
+                    <td colspan="5">
+                      <div class="dt-note-box">
+                          <div class="dt-note-line"><span class="dt-note-key">발화</span><span>이거는 돌이니까 다듬잇돌</span></div>
+                          <div class="dt-note-line"><span class="dt-note-key">발음</span><span>사진에 있는 물건은 돌로 만든 것이니 다듬잇돌이라고 한다고 함. 돌의 ㅗ의 개구도가 커서 ㅓ에 가깝게 들림.</span></div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </td>
+      </tr>
+
+      <!-- 번호 13 -->
+      <tr id="row-13" class="row-nk">
+        <td class="col-num">13</td>
+        <td class="col-dialect">셋바눌</td>
+        <td class="col-regions"><span class="rgn-nk">함경북도</span></td>
+        <td class="col-std">혓바늘</td>
+        <td class="col-more">
+          <button class="row-more-btn" onclick="toggleDetails('13')"><i class="ti ti-chevron-down"></i></button>
+        </td>
+      </tr>
+      <tr id="details-13" class="details-row">
+        <td colspan="5">
+          <div class="details-container">
+            <div class="details-header">
+              <div class="details-title">셋바눌의 지역별 음성 듣기</div>
+              <div class="details-header-actions">
+                <button type="button" class="details-map-btn" onclick="openMapModal('셋바눌')">
+                  <i class="ti ti-map-2" aria-hidden="true"></i> 지도로 보기
+                </button>
+              </div>
+            </div>
+            <div class="details-table-wrapper">
+              <table class="details-table" role="table">
+                <caption class="sr-only">지역별 음성 자료 목록. 지역, 시군, 조사시기, 제보자, 음성 정보 표시</caption>
+                <thead>
+                  <tr>
+                    <th style="width: 20%;" scope="col">지역</th>
+                    <th style="width: 20%;" scope="col">시·군</th>
+                    <th style="width: 15%;" scope="col">조사시기</th>
+                    <th style="width: 30%;" scope="col">제보자</th>
+                    <th style="width: 15%;" scope="col">음성</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="dt-nk">
+                    <td>함경북도</td>
+                    <td>청진시</td>
+                    <td>2025년</td>
+                    <td>여성, 1968년생<button type="button" class="dt-note-toggle" onclick="toggleUtterNote(this)" aria-expanded="false" aria-label="조사 내용 펼치기"><i class="ti ti-chevron-down"></i></button></td>
+                    <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
+                  </tr>
+                  <tr class="dt-note dt-nk">
+                    <td colspan="5">
+                      <div class="dt-note-box">
+                          <div class="dt-note-line"><span class="dt-note-key">발화</span><span>셋바눌</span></div>
+                          <div class="dt-note-line is-warn"><span class="dt-note-key">비고</span><span>조사 후에 쓰리, 쓰리가 돋았다라고 한다고 정정함. 강아지 혀 밑에 나는 것은 혓바늘이라고 하고, 사람 혀에 나는 것은 쓰리라고 한다고 함.</span></div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </td>
+      </tr>
     </tbody>
     </table>
 
@@ -2182,6 +2426,13 @@ function hideEmptyState() {
 // 과거 카드 변환 방식은 폐기 — 남아 있는 카드 컨테이너가 있으면 정리만 한다.
 function createMobileCards() {
   document.querySelectorAll('.vocab-table-card').forEach(c => c.remove());
+}
+
+// 북한 시·도 목록 (지도 시야 판단용)
+const NK_SIDO = ['함경북도', '함경남도', '평안북도', '평안남도', '황해북도', '황해남도',
+                 '자강도', '량강도', '평양시', '남포시', '라선시', '개성시'];
+function hasNorthRegions() {
+  return Object.keys(lastRegionData || {}).some(r => NK_SIDO.indexOf(r) !== -1);
 }
 
 // 검색 결과를 지도에 반영
@@ -2601,7 +2852,22 @@ const provinceCoords = {
   '제주특별자치도': [126.50, 33.50],
   '충청남도': [127.10, 36.80],
   '충청북도': [127.40, 36.80],
-  '세종특별자치시': [127.30, 36.48]
+  '세종특별자치시': [127.30, 36.48],
+  // ── 북한 시·도 ──
+  // 주의: 북한에도 '강원도'가 있으나 남한 강원도와 키가 겹쳐 여기에 넣을 수 없다.
+  //       시·도명 문자열만으로 식별하는 현재 구조의 한계 → 지역 코드 도입이 필요한 지점.
+  '함경북도': [129.60, 41.60],
+  '함경남도': [127.90, 40.20],
+  '량강도': [128.20, 41.30],
+  '자강도': [126.60, 40.60],
+  '평안북도': [125.60, 40.00],
+  '평안남도': [126.20, 39.30],
+  '황해북도': [126.35, 38.50],
+  '황해남도': [125.50, 38.20],
+  '평양시': [125.75, 39.03],
+  '남포시': [125.40, 38.75],
+  '라선시': [130.30, 42.30],
+  '개성시': [126.55, 37.97]
 };
 
 // 색상 팔레트
@@ -2649,8 +2915,9 @@ function initVocabMap(ctx) {
         })
       ],
       view: new ol.View({
-        center: ol.proj.fromLonLat([127.0, 37.5]),
-        zoom: 7
+        // 결과에 북한 지역이 있을 때만 한반도 전체로 넓힌다(없으면 기존 남한 뷰 그대로)
+        center: ol.proj.fromLonLat(hasNorthRegions() ? [127.6, 39.2] : [127.0, 37.5]),
+        zoom: hasNorthRegions() ? 6.05 : 7
       })
     });
 
@@ -2867,6 +3134,14 @@ function updateSearchBadges() {
     });
   });
 }
+function toggleUtterNote(btn) {
+  const note = btn.closest('tr').nextElementSibling;
+  if (!note || !note.classList.contains('dt-note')) return;
+  const open = note.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', String(open));
+}
+
 function showModal() { document.getElementById('modalOverlay').classList.add('show'); }
 function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
 function handleOverlayClick(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }

@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1440">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>지역어종합정보 — 공지사항 상세</title>
 <link rel="shortcut icon" href="./favicon.ico">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
@@ -117,30 +117,6 @@
   .detail-meta-info span {
     margin-right: 16px;
   }
-  .detail-sns-share {
-    display: flex;
-    gap: 8px;
-  }
-  .sns-btn {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    border: 1px solid #e2e8f0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #475569;
-    background-color: #ffffff;
-    cursor: pointer;
-    font-size: 16px;
-    transition: all 0.2s ease;
-  }
-  .sns-btn:hover {
-    background-color: #f1f5f9;
-    color: #1e293b;
-    border-color: #cbd5e1;
-  }
-
   .divider-heavy {
     height: 2px;
     background-color: #1e293b;
@@ -272,12 +248,6 @@
         <span>등록일 2026-06-29</span>
         <span>조회수 17</span>
       </div>
-      <div class="detail-sns-share">
-        <button class="sns-btn" aria-label="페이스북 공유"><i class="ti ti-brand-facebook"></i></button>
-        <button class="sns-btn" aria-label="X 공유"><i class="ti ti-brand-x"></i></button>
-        <button class="sns-btn" aria-label="블로그 공유"><i class="ti ti-message-circle"></i></button>
-        <button class="sns-btn" aria-label="링크 복사"><i class="ti ti-link"></i></button>
-      </div>
     </div>
   </div>
 
@@ -317,6 +287,93 @@
 
 <div id="footer-common"></div>
 
-<script src="./share.js" defer></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const postId = urlParams.get('id') || '';
+
+    fetch(`/api/notice_detail?id=${encodeURIComponent(postId)}`)
+      .then(response => response.json())
+      .then(res => {
+        if(res.status === 'success' && res.data) {
+          const post = res.data;
+          
+          // Title
+          const titleElem = document.querySelector('.detail-title');
+          if(titleElem) titleElem.textContent = post.title;
+          document.title = `지역어종합정보 — ${post.title}`;
+
+          // Meta (Date & View Count)
+          let dateStr = '-';
+          if(post.create_dt) {
+            const date = new Date(parseInt(post.create_dt));
+            if(!isNaN(date.getTime())) {
+              const yyyy = date.getFullYear();
+              const mm = String(date.getMonth() + 1).padStart(2, '0');
+              const dd = String(date.getDate()).padStart(2, '0');
+              dateStr = `${yyyy}.${mm}.${dd}`;
+            }
+          }
+          
+          const metaElem = document.querySelector('.detail-meta-info');
+          if(metaElem) {
+            metaElem.innerHTML = `
+              <span>등록일 ${dateStr}</span>
+              <span>조회수 ${Number(post.view_count).toLocaleString()}</span>
+            `;
+          }
+
+          // Content
+          const bodyElem = document.querySelector('.detail-body');
+          if(bodyElem) {
+            bodyElem.innerHTML = post.content || '<p>내용이 없습니다.</p>';
+          }
+
+          // Prev / Next Links
+          const navContainer = document.querySelector('.detail-nav-links');
+          if(navContainer) {
+            let navHtml = '';
+            
+            // Previous Post
+            if(post.prev_post) {
+              navHtml += `
+                <div class="nav-link-row" onclick="location.href='./notice_detail.html?id=${post.prev_post.post_id}'" style="cursor: pointer;">
+                  <a href="./notice_detail.html?id=${post.prev_post.post_id}" class="nav-link-title">${post.prev_post.title}</a>
+                  <span class="nav-link-label">이전글</span>
+                </div>
+              `;
+            } else {
+              navHtml += `
+                <div class="nav-link-row">
+                  <span class="nav-link-title" style="color: #94a3b8; cursor: default;">이전글이 없습니다.</span>
+                  <span class="nav-link-label">이전글</span>
+                </div>
+              `;
+            }
+
+            // Next Post
+            if(post.next_post) {
+              navHtml += `
+                <div class="nav-link-row" onclick="location.href='./notice_detail.html?id=${post.next_post.post_id}'" style="cursor: pointer;">
+                  <a href="./notice_detail.html?id=${post.next_post.post_id}" class="nav-link-title">${post.next_post.title}</a>
+                  <span class="nav-link-label">다음글</span>
+                </div>
+              `;
+            } else {
+              navHtml += `
+                <div class="nav-link-row">
+                  <span class="nav-link-title" style="color: #94a3b8; cursor: default;">다음글이 없습니다.</span>
+                  <span class="nav-link-label">다음글</span>
+                </div>
+              `;
+            }
+
+            navContainer.innerHTML = navHtml;
+          }
+        }
+      })
+      .catch(err => console.error('Notice detail fetch error:', err));
+  });
+</script>
 </body>
 </html>

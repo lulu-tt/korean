@@ -1,0 +1,5 @@
+*.db
+*.log
+*.csv
+_dm_shot*.png
+neibis-cms/

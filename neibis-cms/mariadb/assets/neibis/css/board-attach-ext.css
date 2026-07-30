@@ -1,0 +1,318 @@
+@charset "UTF-8";
+/* ============================================================
+   board-attach-ext.css
+   ─ NEIBIS 관리자 게시판 첨부영역 텍스트 보조 버튼 보강
+   ─ 기존 32×32 아이콘 버튼 규칙(content.css:2903, common.css:2693)을
+     건드리지 않고, .btn-text 가 붙은 버튼에만 텍스트형 형태를 부여한다.
+   ─ 적용 범위는 .file-add-area / .file-upload 스코프 한정.
+   ============================================================ */
+
+/* ─────────────────────────────────────────────
+   1. 상세(.file-add-area) 텍스트형 보조 버튼
+   ───────────────────────────────────────────── */
+.file-add-area .file-list .btn-area .btn.btn-text {
+    width: auto;
+    height: 32px;
+    padding: 0 10px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    line-height: 1;
+    color: #374151;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    white-space: nowrap;
+}
+.file-add-area .file-list .btn-area .btn.btn-text:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+.file-add-area .file-list .btn-area .btn.btn-text .ico {
+    width: 14px;
+    height: 14px;
+    margin-right: 0;
+    flex: 0 0 14px;
+}
+.file-add-area .file-list .btn-area .btn.btn-text .btn-label {
+    font-weight: 500;
+}
+
+/* ─────────────────────────────────────────────
+   1-b. 상세 — 미리보기 "아이콘" 버튼 (.btn-preview)
+   ─ 다운로드 버튼과 동일 32×32 / hover #e5e7eb 그대로 상속.
+     .btn 기본 규칙(content.css:2903) 위에 inline-flex / svg 사이즈만 보강.
+     호버·포커스 시 아이콘 색만 옅은 파랑(#1d4ed8)으로 의미 hint.
+   ───────────────────────────────────────────── */
+.file-add-area .file-list .btn-area .btn-preview {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+.file-add-area .file-list .btn-area .btn-preview .ico {
+    width: 16px;
+    height: 16px;
+    color: #4b5563;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    text-indent: 0;
+    background: none;
+}
+.file-add-area .file-list .btn-area .btn-preview .ico svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+}
+.file-add-area .file-list .btn-area .btn-preview .ico-preview-md:empty {
+    background: url("../images/ico-preview-gray-md@2x.png") center / 16px 16px no-repeat;
+}
+.file-add-area .file-list .btn-area .btn-preview:hover .ico,
+.file-add-area .file-list .btn-area .btn-preview:focus-visible .ico {
+    color: #1d4ed8;
+}
+
+/* 상세 모바일: 한 행 wrap → 2행 (정보 / 버튼군) */
+@media (max-width: 767.98px) {
+    .file-add-area .file-list .file-item {
+        flex-wrap: wrap;
+        row-gap: 8px;
+    }
+    .file-add-area .file-list .info {
+        width: calc(100% - 64px);
+    }
+    .file-add-area .file-list .info .name {
+        white-space: normal;
+        word-break: break-all;
+    }
+    .file-add-area .file-list .btn-area {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+/* ─────────────────────────────────────────────
+   2. 등록/수정(.file-upload) 텍스트형 보조 버튼
+   ───────────────────────────────────────────── */
+.file-upload .preview-area .btn-area .btn.btn-text {
+    width: auto;
+    height: 32px;
+    padding: 0 10px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    line-height: 1;
+    color: #374151;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    white-space: nowrap;
+}
+.file-upload .preview-area .btn-area .btn.btn-text:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+.file-upload .preview-area .btn-area .btn.btn-text .ico {
+    width: 14px;
+    height: 14px;
+    margin-right: 0;
+}
+
+/* 본문 반영 의미 — 가져오기 어휘(teal) */
+.file-upload .preview-area .btn-area .btn-apply-body {
+    height: 26px;
+    min-width: auto;
+    padding: 0 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #0f766e;
+    border-color: #a7f3d0;
+}
+.file-upload .preview-area .btn-area .btn-apply-body:hover {
+    background: #ecfdf5;
+    border-color: #0f766e;
+}
+.file-upload .preview-area .btn-area .btn-apply-body[disabled] {
+    opacity: .65;
+    cursor: wait;
+    pointer-events: none;
+}
+.file-upload .preview-area .btn-area .hwpx-apply-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    margin-left: 6px;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+.file-upload .preview-area .btn-area .hwpx-apply-status::before {
+    content: "";
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+    border: 2px solid #cbd5e1;
+    border-top-color: #0f766e;
+    border-radius: 50%;
+    animation: hwpx-apply-spin .8s linear infinite;
+}
+@keyframes hwpx-apply-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 데스크탑: .btn-area 가 absolute(우상단) 일 때 텍스트 버튼이 끼면
+   살짝 위로 올라가지 않도록 top 미세조정 */
+@media (min-width: 1025px) {
+    .file-upload.has-doc-actions .preview-area .btn-area {
+        position: absolute;
+        right: 12px;
+        top: 20px;
+    }
+}
+
+/* 모바일: absolute 해제, 2행 정렬 */
+@media (max-width: 767.98px) {
+    .file-upload .preview-area .file-item {
+        flex-wrap: wrap;
+        row-gap: 8px;
+    }
+    .file-upload .preview-area .btn-area {
+        /* 모바일에서도 메뉴 기준점 유지 위해 relative 로 (absolute 우상단만 해제) */
+        position: relative !important;
+        width: 100%;
+        justify-content: flex-end;
+        right: auto !important;
+        top: auto !important;
+    }
+}
+
+/* ============================================================
+   3. 첨부 행 "더보기" 액션 메뉴 (.btn-more-attach + .attach-more-menu)
+   ─ HWPX 등 보조 액션 전용. 첨부 행 기본 액션(다운로드/삭제) 옆에
+     아이콘 버튼 한 칸으로 조용히 자리잡고, 클릭 시 드롭다운 메뉴.
+   ─ 기존 32×32 .btn 규칙(content.css:2903 / common.css:2693)을 그대로
+     상속하므로 다운로드·삭제 버튼과 같은 톤·크기가 자동 보장된다.
+   ============================================================ */
+
+/* .btn-area 를 메뉴 기준점으로 (포지셔닝 컨텍스트) */
+.file-add-area .file-list .btn-area {
+    position: relative;
+}
+.file-upload.has-doc-actions .preview-area,
+.file-upload.has-doc-actions .preview-area .file-item,
+.file-upload.has-doc-actions .preview-area .btn-area {
+    overflow: visible;
+}
+
+/* 더보기 토글 버튼 — 추가 형태 정의는 거의 없음.
+   기존 .btn(32×32, border-radius:6px, hover #e5e7eb)을 그대로 따름. */
+.btn-more-attach {
+    /* 시각 강조는 활성 상태에서만 */
+}
+.btn-more-attach[aria-expanded="true"] {
+    background-color: #e5e7eb;
+}
+.btn-more-attach {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+.btn-more-attach .ico {
+    /* 케밥 아이콘은 살짝 작게 — 다운로드 아이콘 톤과 어울림 */
+    width: 16px;
+    height: 16px;
+    color: #4b5563;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    text-indent: 0;
+    background: none;
+}
+.btn-more-attach .ico svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+}
+
+/* 드롭다운 메뉴 컨테이너 */
+.attach-more-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 30;
+    min-width: 148px;
+    padding: 4px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, .12);
+}
+.attach-more-menu[hidden] {
+    display: none;
+}
+
+/* 메뉴 아이템 — 좌측 정렬 텍스트 + 아이콘 */
+.attach-more-menu__item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 32px;
+    padding: 0 8px;
+    border: 0;
+    background: transparent;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1;
+    color: #374151;
+    text-align: left;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.attach-more-menu__item:hover,
+.attach-more-menu__item:focus-visible {
+    background: #f3f4f6;
+    color: #0f766e;
+    outline: none;
+}
+.attach-more-menu__item .ico {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 14px;
+    color: currentColor;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    text-indent: 0;
+    background: none;
+}
+.attach-more-menu__item .ico svg {
+    display: block;
+    width: 14px;
+    height: 14px;
+}
+.attach-more-menu__item[disabled] {
+    opacity: .55;
+    cursor: not-allowed;
+    color: #9ca3af;
+}
+
+/* 모바일: 메뉴가 화면 밖으로 잘리지 않도록 우측 여백 + 폭 상한 */
+@media (max-width: 767.98px) {
+    .attach-more-menu {
+        right: 0;
+        max-width: calc(100vw - 32px);
+    }
+}

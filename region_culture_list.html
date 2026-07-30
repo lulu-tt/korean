@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1440">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>어휘 목록 — 국립국어원</title>
 
 <!-- 파비콘 및 폰트 아이콘 -->
@@ -193,144 +193,52 @@ body {
 <div id="footer-common"></div>
 
 <script>
-const IMG = './image/';
+/* ────────────── DB 연동 및 데이터 렌더링 ────────────── */
+const urlParams = new URLSearchParams(window.location.search);
+const subjectParam = urlParams.get('cat') || '';
 
-const CATEGORIES = [
-  { id:'tteok',    name:'떡류',         emoji:'🍡', theme:'food',  accent:'#f43f5e', img:'200911310.jpg',   region:'전국',        desc:'집집마다, 고을마다 다르게 부르던 갖가지 떡의 이름' },
-  { id:'kimchi',   name:'김치·저장음식', emoji:'🥬', theme:'food',  accent:'#10b981', img:'200811853.jpg',   region:'전라·경상',   desc:'긴 겨울을 나기 위해 담그던 김치와 짠지의 방언' },
-  { id:'root',     name:'구황작물',      emoji:'🥔', theme:'food',  accent:'#f59e0b', img:'200911311-1.jpg', region:'제주·강원',   desc:'배고픈 시절을 견디게 해 준 감자와 그 별칭들' },
-  { id:'field',    name:'밭작물',        emoji:'🌱', theme:'food',  accent:'#06b6d4', img:'200811821.jpg',   region:'남부 지방',   desc:'밭에서 거두던 콩과 채소를 이르던 여러 이름' },
-  { id:'buchae',   name:'부채 공예',     emoji:'🪭', theme:'craft', accent:'#3b82f6', img:'200710306.jpg',   region:'전라·경상',   desc:'바람을 만들던 장인의 손끝에서 나온 부채' },
-  { id:'jangseok', name:'장석 공예',     emoji:'🔩', theme:'craft', accent:'#8b5cf6', img:'200805001-1.jpg', region:'경기·서울',   desc:'가구를 화려하게 꾸미던 금속 장식, 두석' },
-  { id:'nongak',   name:'농악기',        emoji:'🥁', theme:'folk',  accent:'#f97316', img:'200704347.jpg',   region:'경상·전라',   desc:'마을 굿과 두레를 울리던 풍물 악기의 이름' },
-  { id:'weapon',   name:'전통 무기',     emoji:'⚔️', theme:'work',  accent:'#ef4444', img:'200908015.jpg',   region:'서울·경기',   desc:'옛 칼과 검, 그 부분마다 붙은 이름들' },
-  { id:'jangajji', name:'장아찌·짠지',   emoji:'🥒', theme:'food',  img:'200811853.jpg',   region:'전라·충청',   desc:'오래 두고 먹으려 절이던 장아찌와 짠지의 여러 이름' },
-  { id:'namul',    name:'나물·푸성귀',   emoji:'🌿', theme:'food',  img:'200811821.jpg',   region:'강원·경상',   desc:'산과 들에서 캐어 무쳐 먹던 나물을 이르던 말' },
-  { id:'japgok',   name:'잡곡·곡물',     emoji:'🌾', theme:'food',  img:'200911311-1.jpg', region:'전국',        desc:'조·수수·기장 등 갖가지 잡곡을 부르던 이름' },
-  { id:'juk',      name:'죽과 미음',     emoji:'🥣', theme:'food',  img:'200911310.jpg',   region:'전라·제주',   desc:'곡물을 묽게 끓여 먹던 죽과 미음의 방언' },
-  { id:'guksu',    name:'국수·수제비',   emoji:'🍜', theme:'food',  img:'200911620.jpg',   region:'경상·강원',   desc:'밀가루로 만든 국수와 수제비의 지역별 이름' },
-  { id:'jeotgal',  name:'젓갈·해산물',   emoji:'🦐', theme:'food',  img:'200811853.jpg',   region:'서해·남해',   desc:'바다에서 나는 것을 삭혀 먹던 젓갈의 이름' },
-  { id:'mokgi',    name:'목기·소반',     emoji:'🪵', theme:'craft', img:'200805001-1.jpg', region:'전라·강원',   desc:'나무를 깎아 만든 그릇과 소반을 이르던 말' },
-  { id:'najeon',   name:'자개·나전',     emoji:'🐚', theme:'craft', img:'200805001-1.jpg', region:'경남·전남',   desc:'조개껍데기로 무늬를 놓은 나전 공예의 이름' },
-  { id:'seok',     name:'돗자리·화문석', emoji:'🟨', theme:'craft', img:'200710306.jpg',   region:'인천·전남',   desc:'왕골로 짠 자리와 무늬 자리를 부르던 말' },
-  { id:'munbang',  name:'붓·문방',       emoji:'🖌️', theme:'craft', img:'200710306.jpg',   region:'전북·충남',   desc:'붓과 벼루 등 글방 물건에 붙은 여러 이름' },
-  { id:'pungmul',  name:'풍물·굿',       emoji:'🎏', theme:'folk',  img:'200704347.jpg',   region:'전라·경상',   desc:'마을 굿과 풍물놀이에서 쓰이던 말' },
-  { id:'nori',     name:'놀이·세시',     emoji:'🎎', theme:'folk',  img:'200704347.jpg',   region:'전국',        desc:'명절과 절기마다 즐기던 놀이의 이름' },
-  { id:'eoro',     name:'어로·고기잡이', emoji:'🎣', theme:'work',  img:'200811821.jpg',   region:'서남 해안',   desc:'고기잡이 도구와 방법을 이르던 뱃사람의 말' },
-  { id:'sanyang',  name:'사냥·덫',       emoji:'🏹', theme:'work',  img:'200908015.jpg',   region:'강원·경북',   desc:'짐승을 잡던 덫과 사냥 연장을 부르던 이름' },
-  { id:'daejang',  name:'대장간·연장',   emoji:'🔨', theme:'work',  img:'200908015.jpg',   region:'전국',        desc:'쇠를 벼려 만든 연장과 그 지역별 이름' },
-  { id:'yeombu',   name:'소금·염전',     emoji:'🧂', theme:'work',  img:'200811821.jpg',   region:'서해안',      desc:'소금을 만들고 나르던 일과 그에 얽힌 말' },
-];
-
-const ITEMS = {
-  tteok: [
-    { word:'반데기', std:'절편', region:'경상북도 안동시', year:2009, source:'2009년 민족생활어 조사 3', img:'200911310.jpg',
-      theme:'식생활 › 떡', desc:'쌀가루를 쪄서 떡메로 친 뒤 떡살로 눌러 모양을 낸 흰떡. 명절과 제사에 빠지지 않으며, 경북 지역에서는 흔히 ‘반데기’라 부른다.',
-      ex:'이 반데기 좀 썰어 오이라.', aka:['반떼기','절편떡'] },
-    { word:'옹심이', std:'새알심', region:'강원도 강릉시', year:2009, source:'2009년 민족생활어 조사 5', img:'200911620.jpg',
-      theme:'식생활 › 떡', desc:'찹쌀가루나 감자녹말을 새알처럼 동그랗게 빚은 작은 떡. 팥죽이나 미역국에 넣어 먹으며, 강원도에서는 ‘옹심이’라 한다.',
-      ex:'팥죽에 옹심이 마이 옇어 드시더.', aka:['옹시미','새알'] },
-    { word:'모시떡', std:'쑥떡', region:'전라남도 영광군', year:2009, source:'2009년 민족생활어 조사 7', img:'200911701.jpg',
-      theme:'식생활 › 떡', desc:'쑥이나 모시잎을 넣어 짙푸른 빛이 도는 떡. 봄철에 만들어 먹으며 잎의 향이 진하게 배어 있다.',
-      ex:'봄 되믄 모시떡 해 묵제.', aka:['모싯잎떡','쑥버무리'] },
-  ],
-  kimchi: [
-    { word:'감자때짠지', std:'고구마순김치', region:'전라남도 순천시', year:2008, source:'2008년 민족생활어 조사 2', img:'200811853.jpg',
-      theme:'식생활 › 저장음식', desc:'고구마 줄기를 삶아 고춧가루 양념에 버무린 김치. 전남에서는 고구마를 ‘감자’라 불러 그 줄기 김치를 ‘감자때짠지’라 한다.',
-      ex:'감자때짠지가 아조 밥도둑이여.', aka:['감자대짠지','고구마순지'] },
-    { word:'골곰짠지', std:'무말랭이무침', region:'경상북도 경주시', year:2008, source:'2008년 민족생활어 조사 4', img:'200811853.jpg',
-      theme:'식생활 › 저장음식', desc:'무를 썰어 꾸덕하게 말린 뒤 고춧가루 양념에 무친 반찬. 오독오독 씹히는 맛이 특징이며 경북에서 ‘골곰짠지’로 통한다.',
-      ex:'골곰짠지 한 접시믄 밥 한 그릇 뚝딱이제.', aka:['골금짠지','오그락지'] },
-  ],
-  root: [
-    { word:'지슬', std:'감자', region:'제주특별자치도 서귀포시', year:2009, source:'2009년 민족생활어 조사 6', img:'200911311-1.jpg',
-      theme:'식생활 › 구황작물', desc:'땅속 열매라는 뜻의 제주말. 삶아 그대로 먹거나 으깨어 먹었으며, 흉년에 끼니를 대신하던 귀한 먹거리였다.',
-      ex:'지슬 삶아 먹게 솥에 안치라.', aka:['지실','지실감저'] },
-    { word:'감자밥', std:'감자밥', region:'강원도 정선군', year:2009, source:'2009년 민족생활어 조사 6', img:'200911311-1.jpg',
-      theme:'식생활 › 구황작물', desc:'쌀이 귀하던 시절 감자를 큼직하게 썰어 넣고 지은 밥. 강원 산간에서는 주식이나 다름없었다.',
-      ex:'오늘은 감자밥 해 먹자.', aka:['감자곰밥','감자곤밥'] },
-  ],
-  field: [
-    { word:'광저기', std:'동부', region:'전라남도 해남군', year:2008, source:'2008년 민족생활어 조사 1', img:'200811821.jpg',
-      theme:'식생활 › 밭작물', desc:'길고 가는 꼬투리를 맺는 콩과 작물. 밥에 두어 먹거나 떡소로 썼으며, 전남에서는 ‘광저기’라 부른다.',
-      ex:'광저기 밥에 두어 묵으믄 맛나제.', aka:['광정이','돈부'] },
-    { word:'푸르대콩', std:'청대콩', region:'충청북도 제천시', year:2008, source:'2008년 민족생활어 조사 1', img:'200811821.jpg',
-      theme:'식생활 › 밭작물', desc:'다 여물어도 껍질과 알이 푸른 콩. 밥밑콩이나 콩고물로 쓰였으며 지역에 따라 ‘푸르대콩’이라 한다.',
-      ex:'푸르대콩 볶아서 콩고물 맹근다.', aka:['푸르데콩','청태'] },
-  ],
-  buchae: [
-    { word:'뀌지부채', std:'접부채', region:'전라남도 담양군', year:2007, source:'2007년 민족생활어 조사 3', img:'200710306.jpg',
-      theme:'생활 › 공예', desc:'대오리에 종이를 붙여 접었다 폈다 하는 부채. 살수가 적고 살대가 가늘며, 담양 일대에서 ‘뀌지부채’로 불렸다.',
-      ex:'더운데 뀌지부채나 부치제.', aka:['꿰지부채','쥘부채'] },
-    { word:'합죽선', std:'합죽선', region:'전라북도 전주시', year:2007, source:'2007년 민족생활어 조사 3', img:'200710306.jpg',
-      theme:'생활 › 공예', desc:'겉대 두 쪽을 맞붙여 만든 고급 접부채. 전주 부채의 대표로, 선비들이 격식을 갖춰 지니던 물건이다.',
-      ex:'선비가 합죽선 들고 나선다.', aka:['합죽부채'] },
-  ],
-  jangseok: [
-    { word:'두석', std:'장석', region:'경기도 안성시', year:2008, source:'200805001-1.jpg',
-      theme:'생활 › 공예', desc:'구리와 아연을 섞은 놋쇠붙이. 장롱이나 문갑의 경첩·자물쇠·손잡이로 쓰여 가구를 화려하게 꾸몄다.',
-      ex:'장롱에 두석 물려 꾸민다.', aka:['두석장식','장석'] },
-    { word:'대접쇠', std:'경첩', region:'서울특별시', year:2008, source:'200805001-1.jpg',
-      theme:'생활 › 공예', desc:'문짝을 여닫도록 다는 두 쪽짜리 쇠붙이. 나비 모양으로 새겨 장식을 겸했으며 ‘대접쇠’라고도 불렀다.',
-      ex:'문에 대접쇠 달아라.', aka:['나비경첩','돌쩌귀'] },
-  ],
-  nongak: [
-    { word:'대고', std:'큰북', region:'경상북도 김천시', year:2007, source:'200704347.jpg',
-      theme:'민속 › 농악', desc:'가죽을 팽팽히 메워 만든 큰 북. 풍물놀이의 흥을 돋우며, 경북에서는 이 큰북을 ‘대고’라 부른다.',
-      ex:'대고를 둥둥 울린다.', aka:['큰북','한북'] },
-    { word:'매구북', std:'풍물북', region:'전라남도 진도군', year:2007, source:'200704347.jpg',
-      theme:'민속 › 농악', desc:'마을 굿(매구)에서 치던 북. 어깨에 메고 두드리며 가락을 이끌었고, 진도에서는 ‘매구북’이라 한다.',
-      ex:'매구북 메고 마당 돈다.', aka:['풍물북','걸립북'] },
-  ],
-  weapon: [
-    { word:'궤혈', std:'—', region:'서울특별시', year:2009, source:'200908015.jpg',
-      theme:'생업 › 무기', desc:'도검의 코등이에 뚫어 놓은 작은 구멍. 우리나라 전통 도검에는 본디 없었으나, 일본도의 영향을 받아 만들어진 것이다.',
-      ex:'코등이에 궤혈을 뚫어 두었다.', aka:[] },
-    { word:'코등이', std:'날밑', region:'경기도 이천시', year:2009, source:'200908015.jpg',
-      theme:'생업 › 무기', desc:'칼날과 손잡이 사이에 끼워 손을 보호하는 둥근 쇠. 표준어로는 ‘날밑’이며, 흔히 ‘코등이’라 불린다.',
-      ex:'칼에 코등이를 끼운다.', aka:['날밑','칼코등이'] },
-  ],
-};
-
-function getItems(catId) {
-  if (ITEMS[catId]) return ITEMS[catId];
-  const c = CATEGORIES.find(x => x.id === catId);
-  if (!c) return [];
-  return [{ word: c.name, std: '', region: c.region + ' 일원', year: 2010, source: '민족생활어 조사 자료',
-    img: c.img, theme: c.name, desc: c.desc + '. 관련 어휘의 상세 조사 자료는 준비 중입니다.' }];
-}
-
-// 쿼리 스트링 획득
-const catId = new URLSearchParams(window.location.search).get('cat');
-if (!catId) {
+if (!subjectParam) {
   location.href = './region_culture.html';
 } else {
-  const c = CATEGORIES.find(x => x.id === catId);
-  if (c) {
-    document.title = `${c.name} 어휘 목록 — 사진으로 보는 생활어`;
-    document.getElementById('rcSubTitle').innerText = c.name;
-    renderList(catId);
-  } else {
-    location.href = './region_culture.html';
-  }
+  document.title = `${subjectParam} 어휘 목록 — 사진으로 보는 생활어`;
+  document.getElementById('rcSubTitle').innerText = subjectParam;
+  fetchRegionCultureItems(subjectParam);
 }
 
-function renderList(catId) {
-  const c = CATEGORIES.find(x => x.id === catId);
-  const items = getItems(catId);
-  document.getElementById('rcItemResult').innerHTML = `주제 <span class="rc-hl">${c.name}</span> 에 대한 검색 결과는 <b>${items.length}건</b>입니다.`;
+function fetchRegionCultureItems(subject) {
+  const url = `/api/region_culture_list?subject=${encodeURIComponent(subject)}`;
+  
+  fetch(url)
+    .then(res => res.json())
+    .then(res => {
+      if(res.status === 'success') {
+        renderList(subject, res.data);
+      }
+    })
+    .catch(err => console.error('Region Culture List API error:', err));
+}
+
+function renderList(subject, items) {
+  document.getElementById('rcItemResult').innerHTML = `주제 <span class="rc-hl">${subject}</span> 에 대한 검색 결과는 <b>${items.length}건</b>입니다.`;
   const grid = document.getElementById('rcItemGrid');
+  
+  if (items.length === 0) {
+    grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:50px; color:#64748b;">등록된 어휘가 없습니다.</div>`;
+    return;
+  }
+
   grid.innerHTML = items.map((it, i) => `
-    <div class="rc-item" role="button" tabindex="0" onclick="location.href='./region_culture_detail.html?cat=${catId}&idx=${i}'" aria-label="${it.word} 상세 보기">
+    <div class="rc-item" role="button" tabindex="0" onclick="location.href='./region_culture_detail.html?id=${it.id}'" aria-label="${it.title} 상세 보기">
       <div class="rc-item__media">
-        <img class="rc-item__img" src="${IMG}${it.img}" alt="${it.word}">
+        <img class="rc-item__img" src="${it.img}" alt="${it.title}">
       </div>
       <div class="rc-item__body">
         <div class="rc-item__head">
-          <span class="rc-item__word">${it.word}</span>
+          <span class="rc-item__word">${it.title}</span>
+          ${it.std ? `<span style="font-size:13px; color:#64748b;">(표준어: ${it.std})</span>` : ''}
         </div>
-        <div class="rc-item__meta"><i class="ti ti-calendar-event" style="font-size:14px"></i>${it.year}년 조사 · ${it.region}</div>
-        <p class="rc-item__desc">${it.desc}</p>
+        <div class="rc-item__meta"><i class="ti ti-map-pin" style="font-size:14px"></i>조사 지역: ${it.region}</div>
+        <p class="rc-item__desc">${it.mean || it.usage || '설명 정보가 없습니다.'}</p>
         <span class="rc-item__cta">상세 보기 <i class="ti ti-arrow-right"></i></span>
       </div>
     </div>`).join('');
