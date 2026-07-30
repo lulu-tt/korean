@@ -51,7 +51,7 @@ body {
 .skiplink{ position:absolute; clip: rect(1px, 1px, 1px, 1px); padding: 0; border: 0; height: 1px; width: 1px; overflow: hidden; z-index: 5; }
 .skiplink:focus{ clip: auto; height: auto; width: auto; background: var(--card); padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); box-shadow: var(--shadow2); color: var(--text); }
 
-/* KRDS 공식 배너 (Masthead) 표준 스타일 */
+/* KRDS 공식 배너 (Masthead) 표준 스타일 (100% KRDS 규격 일치) */
 .gov-banner {
   background-color: #f4f5f7;
   border-bottom: 1px solid #e5e7eb;
@@ -61,25 +61,27 @@ body {
   align-items: center;
   gap: 8px;
   padding: 8px 30px;
-  font-size: 13px;
-  color: #333333;
-  font-weight: 400;
   max-width: 1920px;
   margin: 0 auto;
-  min-height: 36px;
+  min-height: 40px;
   box-sizing: border-box;
 }
 .gov-banner__text {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  line-height: 1.4;
+  font-family: 'Pretendard GOV', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #1a1a1a;
+  line-height: 1.5;
+  letter-spacing: -0.02em;
 }
 .gov-banner__text::before {
   content: "";
   display: inline-block;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   background-image: url('./flag.svg');
   background-repeat: no-repeat;
   background-position: center;
