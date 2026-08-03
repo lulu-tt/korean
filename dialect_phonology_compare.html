@@ -60,13 +60,6 @@
   .word-search.has-value .word-search__clear { display: grid; }
   .word-search__clear:hover { background: #f1f5f9; color: #475569; }
 
-  .band-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
-  .band-btn {
-    min-height: 32px; padding: 0 12px; border: 1px solid var(--line); background: #fff; border-radius: 8px;
-    font-size: 12.5px; font-weight: 700; color: #475569; cursor: pointer; font-family: inherit;
-  }
-  .band-btn:hover { border-color: #93c5fd; color: var(--blue); }
-  .band-btn.is-active { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28); }
 
   .initials { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; background: #ffffff; }
   .initial { min-width: 34px; height: 34px; padding: 0 8px; border: 1px solid var(--line); background: #fff; border-radius: 8px; font-size: 12.5px; font-weight: 700; color: #475569; cursor: pointer; font-family: inherit; transition: 0.12s; }
@@ -86,7 +79,6 @@
   .word-header { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
   .word-header .word { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; color: var(--text); }
   .word-header .meta { font-size: 13px; color: var(--muted); font-weight: 600; }
-  .word-header .badge { font-size: 12px; padding: 4px 12px; border-radius: 99px; background: var(--blue-light); color: var(--blue); font-weight: 800; border: 1px solid #bfdbfe; }
 
   .table-controls { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
   .table-controls .label { font-size: 13px; color: var(--muted); font-weight: 700; margin-right: 2px; }
@@ -246,7 +238,6 @@
         <input type="search" class="word-search__input" id="wordSearch" placeholder="표준어 검색 (예: 테, 태, 듣)" autocomplete="off" aria-label="음운 항목 검색">
         <button type="button" class="word-search__clear" id="wordSearchClear" aria-label="검색어 지우기"><i class="ti ti-x" aria-hidden="true"></i></button>
       </div>
-      <div class="band-row" id="bandRow" role="tablist" aria-label="코드 대역"></div>
       <div class="initials" id="initials" role="tablist" aria-label="초성 필터"></div>
       <div class="word-grid" id="wordGrid" role="listbox" aria-label="음운 항목 목록"></div>
     </div>
@@ -260,7 +251,6 @@
     <div id="resultArea" class="hidden">
       <div class="word-header">
         <span class="word" id="currentWord"></span>
-        <span class="badge" id="wordCat"></span>
         <span class="meta" id="wordMeta"></span>
       </div>
 
@@ -327,7 +317,6 @@
 
   const state = {
     parents: [],
-    band: 'all',
     initial: '전체',
     query: '',
     selected: null,       // parent item
@@ -354,11 +343,6 @@
     return CHO_FOLD[raw] || raw;
   }
 
-  function bandOf(code) {
-    const m = String(code).match(/^(\d{3})/);
-    return m ? m[1] : '';
-  }
-
   function shortText(raw, n) {
     const t = (raw || '').replace(/\s+/g, ' ').trim();
     if (t.length <= n) return t;
@@ -383,18 +367,9 @@
     return data;
   }
 
-  function matchesBand(itemCode) {
-    if (state.band === 'all') return true;
-    const b = bandOf(itemCode);
-    if (state.band === '310') return b === '310';
-    if (state.band === 'verb') return b === '320' || b === '321' || b === '322' || b === '323';
-    return b === state.band;
-  }
-
   function filteredParents() {
     const q = state.query.trim().toLowerCase();
     return state.parents.filter(p => {
-      if (!matchesBand(p.item_code)) return false;
       if (state.initial !== '전체') {
         const ch = choseong(p.standard_form || '');
         if (ch !== state.initial) return false;
@@ -405,15 +380,6 @@
       }
       return true;
     });
-  }
-
-  function renderBands() {
-    // 310 = 체언·대립, 320~323 = 활용(하나로 묶음)
-    const bands = ['all', '310', 'verb'];
-    const labels = { all: '전체', '310': '체언·대립', verb: '활용' };
-    $('bandRow').innerHTML = bands.map(b =>
-      `<button type="button" class="band-btn ${state.band === b ? 'is-active' : ''}" data-band="${b}">${labels[b]}</button>`
-    ).join('');
   }
 
   function renderInitials() {
@@ -462,11 +428,6 @@
     $('emptyResult').classList.add('hidden');
     $('resultArea').classList.remove('hidden');
     $('currentWord').textContent = parent.standard_form || '선택 항목';
-    const b = bandOf(parent.item_code);
-    const bandLabel = b === '310' ? '체언·대립'
-      : (b === '320' || b === '321' || b === '322' || b === '323') ? '활용'
-      : '음운';
-    $('wordCat').textContent = '음운 · ' + bandLabel;
     $('wordMeta').textContent = '지역 · 환경별 조사 원문';
     await renderMatrix();
   }
@@ -614,13 +575,6 @@
   }
 
   function bindUI() {
-    $('bandRow').addEventListener('click', e => {
-      const b = e.target.closest('[data-band]');
-      if (!b) return;
-      state.band = b.dataset.band;
-      renderBands();
-      renderGrid();
-    });
     $('initials').addEventListener('click', e => {
       const b = e.target.closest('[data-ini]');
       if (!b) return;
@@ -697,7 +651,6 @@
 
   async function boot() {
     bindUI();
-    renderBands();
     renderInitials();
     try {
       const index = await loadJSON(BASE + '/phonology_items.json');
