@@ -720,15 +720,16 @@
   .phono-table tbody tr:last-child td { border-bottom: none; }
   .phono-table tbody tr:hover td { background: #f8fafc; }
   .phono-table .col-num { width: 64px; text-align: center; color: #64748b; font-weight: 600; font-variant-numeric: tabular-nums; }
-  .phono-table .col-form { width: 200px; text-align: center; font-size: 15px; font-weight: 800; color: #0f172a; }
-  .phono-table .col-band { width: 120px; text-align: center; }
-  .phono-table .col-meta { color: #475569; font-size: 13.5px; font-weight: 500; text-align: left; }
+  .phono-table .col-form { width: 160px; text-align: center; font-size: 15px; font-weight: 800; color: #0f172a; }
+  .phono-table .col-code { width: 110px; text-align: center; color: #64748b; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .phono-table .col-var { text-align: left; }
   .phono-table .col-go { width: 140px; text-align: center; }
-  .phono-band {
-    display: inline-block; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 99px;
-    background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;
+  .phono-var { display: flex; flex-wrap: wrap; gap: 6px; }
+  .phono-var .vchip {
+    display: inline-block; font-size: 12.5px; font-weight: 700; color: #334155;
+    background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 8px; padding: 3px 9px;
   }
-  .phono-band--verb { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
+  .phono-var .vnone { color: #94a3b8; font-size: 13px; font-weight: 600; }
   .phono-go {
     display: inline-flex; align-items: center; gap: 4px; padding: 8px 12px; border-radius: 10px;
     border: 1px solid #93c5fd; background: #fff; color: var(--blue); font-size: 13px; font-weight: 700;
@@ -1518,13 +1519,13 @@
   <div class="scard open" id="cPhono" data-cat="phono">
     <div class="card-body show" id="body-cPhono">
       <table class="phono-table" role="table" id="phonoTable">
-        <caption class="sr-only">변이형 비교(음운) 검색 결과. 표준어 항목, 구분, 조사 요약, 비교 페이지 이동</caption>
+        <caption class="sr-only">변이형 비교(음운) 검색 결과. 표준어, 항목코드, 조사 항목, 비교 페이지 이동</caption>
         <thead>
           <tr>
             <th class="col-num" scope="col">번호</th>
-            <th class="col-form" scope="col">표준어(항목)</th>
-            <th class="col-band" scope="col">구분</th>
-            <th class="col-meta" scope="col">조사 요약</th>
+            <th class="col-form" scope="col">표준어</th>
+            <th class="col-code" scope="col">항목코드</th>
+            <th class="col-var" scope="col">조사 항목</th>
             <th class="col-go" scope="col">비교</th>
           </tr>
         </thead>
@@ -2192,13 +2193,6 @@ function goToTab(cat) {
   if (tab) { setTab(tab); tab.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
 }
 
-function phonoBandOf(itemCode) {
-  const b = String(itemCode || '').slice(0, 3);
-  if (b === '310') return { key: 'noun', label: '체언 대립' };
-  if (b === '320' || b === '321' || b === '322' || b === '323') return { key: 'verb', label: '활용' };
-  return { key: 'other', label: '음운' };
-}
-
 function phonoPlainForm(standardForm) {
   // "테(輪)" → "테", "듣-(聞)[ㄷ변]" → "듣-"
   return String(standardForm || '').replace(/[（(].*$/, '').trim();
@@ -2256,19 +2250,17 @@ function renderPhonoResults(query) {
   }
 
   tbody.innerHTML = hits.map((p, i) => {
-    const band = phonoBandOf(p.item_code);
-    const bandCls = band.key === 'verb' ? 'phono-band phono-band--verb' : 'phono-band';
-    const childN = (p.children && p.children.length) || 0;
-    const meta = '항목코드 ' + escHtml(p.item_code) +
-      (childN ? ' · 하위 환경 ' + childN + '개' : '') +
-      ' · 지역·환경별 원문 비교';
+    const children = (p.children || []).filter(c => c && (c.standard_form || '').trim());
+    const varHtml = children.length
+      ? '<div class="phono-var">' + children.map(c => '<span class="vchip">' + escHtml(c.standard_form) + '</span>').join('') + '</div>'
+      : '<span class="vnone">—</span>';
     const href = './dialect_phonology_compare.html?code=' + encodeURIComponent(p.item_code) +
       '&q=' + encodeURIComponent(phonoPlainForm(p.standard_form) || q);
     return '<tr data-phono-row>' +
       '<td class="col-num">' + (i + 1) + '</td>' +
       '<td class="col-form">' + highlightQuery(p.standard_form, q) + '</td>' +
-      '<td class="col-band"><span class="' + bandCls + '">' + escHtml(band.label) + '</span></td>' +
-      '<td class="col-meta">' + meta + '</td>' +
+      '<td class="col-code">' + escHtml(p.item_code) + '</td>' +
+      '<td class="col-var">' + varHtml + '</td>' +
       '<td class="col-go"><a class="phono-go" href="' + href + '">비교표 보기 <i class="ti ti-arrow-right" aria-hidden="true"></i></a></td>' +
       '</tr>';
   }).join('');
