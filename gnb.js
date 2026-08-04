@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="mega-menu__grid">
                 <div class="mega-menu__item"><a href="./dialect_map.html" class="mega-menu__link">지역어 지도</a></div>
                 <div class="mega-menu__item"><a href="./dialect_our_town.html" class="mega-menu__link">지역어 지도 비교</a></div>
-                <div class="mega-menu__item"><a href="#" class="mega-menu__link">나만의 지도 제작</a></div>
+                <div class="mega-menu__item"><a href="./dialect_my_map.html" class="mega-menu__link">나만의 지도 제작</a></div>
                 <div class="mega-menu__item"><a href="./dialect_gisangdo.html" class="mega-menu__link">지역어 기상도</a></div>
               </div>
             </div>
@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (currentPath.includes('dialect_search_prototype.html') || currentPath.includes('vocab_dialect.html') || currentPath.includes('oral_dialect.html') || currentPath.includes('dialect_phonology_compare.html')) {
     activeMenuId = "menu-search";
-  } else if (currentPath.includes('dialect_map.html') || currentPath.includes('dialect_awareness.html') || currentPath.includes('dialect_our_town.html') || currentPath.includes('dialect_gisangdo.html')) {
+  } else if (currentPath.includes('dialect_map.html') || currentPath.includes('dialect_awareness.html') || currentPath.includes('dialect_our_town.html') || currentPath.includes('dialect_gisangdo.html') || currentPath.includes('dialect_my_map.html')) {
     activeMenuId = "menu-map";
   } else if (currentPath.includes('region_culture.html') || currentPath.includes('literature_dialect.html') || currentPath.includes('data_room.html') || currentPath.includes('data_room_detail.html')) {
     activeMenuId = "menu-archive";

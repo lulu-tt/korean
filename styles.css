@@ -972,6 +972,17 @@ body {
   background: #eff6ff;
 }
 
+.mega-menu__link.is-current,
+.mega-menu__link[aria-current="page"] {
+  color: var(--blue);
+  background: #eff6ff;
+  font-weight: 700;
+}
+.mega-menu__link.is-current::before,
+.mega-menu__link[aria-current="page"]::before {
+  color: var(--blue);
+}
+
 /* ── GNB 모바일 햄버거 메뉴 ──
    기본(데스크톱)에서는 숨겨두고, 뷰포트가 device-width로 반응하는 페이지에서
    900px 이하가 되면(다른 컴포넌트의 반응형 기준과 동일) 전역 메뉴를 로고 옆 버튼 + 드로어로 대체한다. */

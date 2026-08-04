@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지역어종합정보 — 저작권 정책</title>
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="./styles.css">
+<script src="./gnb.js" defer></script>
+<script src="./share.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+  :root { --cp: #2563eb; --cp-dark: #1e3a8a; --cp-soft: #eff4ff; }
+
+  body {
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  /* ===== 공통 타이틀 영역(sub-visual) ===== */
+  .sub-visual{background:linear-gradient(180deg,#edf4ff 0%,#f8fafc 100%);border-bottom:1px solid #e2e8f0;padding:55px 0 50px;text-align:center;position:relative;overflow:visible;display:block;min-height:180px;}
+  .sub-visual::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(37,99,235,.03) 0%,transparent 40%);pointer-events:none;}
+  .sv-title{font-size:30px;font-weight:800;color:#1e3a8a;letter-spacing:-.03em;margin:0 0 16px;position:relative;z-index:1;}
+  .location-bar{display:inline-flex;align-items:center;gap:8px;background:#fff;padding:6px 20px;border-radius:99px;box-shadow:0 2px 8px rgba(15,23,42,.02);border:1px solid #cbd5e1;position:relative;z-index:1;}
+  .loc-item{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#475569;}
+  .loc-item.home{color:#3b82f6;font-size:14px;}
+  .loc-sep{color:#cbd5e1;font-size:12px;}
+
+  /* ===== 본문 ===== */
+  .cp-wrap {
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 56px 20px 110px;
+    flex: 1;
+    box-sizing: border-box;
+  }
+
+  /* 리드 문단 */
+  .cp-lead {
+    font-size: 17px; line-height: 1.75; color: #334155;
+    text-align: center; margin: 0 auto 48px; max-width: 640px; letter-spacing: -0.01em;
+  }
+  .cp-lead b { color: var(--cp-dark); font-weight: 700; }
+
+  /* 공공누리 마크 카드 */
+  .cp-hero {
+    background: linear-gradient(180deg, var(--cp-soft) 0%, #f8fafc 100%);
+    border: 1px solid #dbe6ff; border-radius: 20px;
+    padding: 40px 36px; margin-bottom: 44px; text-align: center;
+  }
+  .cp-hero__mark {
+    display: block; height: 92px; width: auto; max-width: 100%;
+    margin: 0 auto 22px; border-radius: 6px;
+  }
+  .cp-hero__title { font-size: 22px; font-weight: 800; color: #1e293b; margin: 0 0 30px; letter-spacing: -0.02em; }
+  .cp-hero__type { font-size: 15px; color: #475569; margin: 0 0 30px; }
+  .cp-hero__type strong { color: var(--cp); font-weight: 800; }
+
+  /* 이용 조건 아이콘 3종 */
+  .cp-conds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .cp-cond {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
+    padding: 24px 14px 22px; display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .cp-cond__ic {
+    width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center;
+    font-size: 25px; background: var(--cp-soft); color: var(--cp);
+  }
+  .cp-cond--allow .cp-cond__ic { background: #e7f6ec; color: #16a34a; }
+  .cp-cond--deny .cp-cond__ic { background: #fdeaea; color: #dc2626; }
+  .cp-cond__label { font-size: 15px; font-weight: 700; color: #1e293b; }
+  .cp-cond__desc { font-size: 12.5px; color: #64748b; line-height: 1.5; }
+
+  /* 섹션 */
+  .cp-section { margin-bottom: 40px; }
+  .cp-section__title {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 19px; font-weight: 800; color: #1e293b; letter-spacing: -0.02em;
+    padding-bottom: 14px; border-bottom: 2px solid #1e293b; margin: 0 0 20px;
+  }
+  .cp-section__title--between { justify-content: space-between; }
+  .cp-section__title-l { display: inline-flex; align-items: center; gap: 10px; }
+  .cp-section__title i { color: var(--cp); font-size: 21px; }
+
+  /* 리스트 */
+  .cp-list { list-style: none; margin: 0; padding: 0; }
+  .cp-list li {
+    position: relative; padding: 0 0 0 26px; margin-bottom: 14px;
+    font-size: 15px; line-height: 1.72; color: #3f4c5f;
+  }
+  .cp-list li:last-child { margin-bottom: 0; }
+  .cp-list li::before {
+    content: ''; position: absolute; left: 4px; top: 9px;
+    width: 6px; height: 6px; border-radius: 50%; background: var(--cp);
+  }
+  .cp-list.cp-list--deny li::before { background: #dc2626; border-radius: 2px; }
+  .cp-list b { color: #1e293b; font-weight: 700; }
+
+  /* 출처 표기 문안 박스 */
+  .cp-cite {
+    background: #f8fafc; border: 1px solid #e2e8f0;
+    border-radius: 12px; padding: 24px 26px; position: relative;
+  }
+  .cp-cite__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .cp-cite__label { font-size: 13px; font-weight: 700; color: var(--cp); letter-spacing: 0.02em; }
+  .cp-cite__copy {
+    display: inline-flex; align-items: center; gap: 6px; background: #fff;
+    border: 1px solid #cbd5e1; border-radius: 8px; padding: 7px 14px;
+    font-size: 13px; font-weight: 600; color: #334155; cursor: pointer; font-family: inherit; transition: 0.15s;
+  }
+  .cp-cite__copy:hover { background: #f1f5f9; border-color: #94a3b8; }
+  .cp-cite__copy.done { color: #16a34a; border-color: #86efac; background: #f0fdf4; }
+  .cp-cite__text { font-size: 15px; line-height: 1.8; color: #334155; margin: 0; }
+  .cp-cite__text a { color: var(--cp); text-decoration: none; font-weight: 600; }
+  .cp-cite__text a:hover { text-decoration: underline; }
+
+  /* 문의처 */
+  .cp-contact {
+    display: flex; align-items: flex-start; gap: 14px;
+    background: var(--cp-soft); border-radius: 14px; padding: 22px 26px;
+    font-size: 14.5px; color: #3f5170; line-height: 1.7;
+  }
+  .cp-contact i { color: var(--cp); font-size: 22px; margin-top: 2px; flex-shrink: 0; }
+  .cp-contact b { color: #1e293b; font-weight: 700; }
+
+  @media (max-width: 640px) {
+    .cp-conds { grid-template-columns: 1fr; }
+    .cp-hero { padding: 32px 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="gnb-common"></div>
+
+<!-- ===== 공통 타이틀 영역 ===== -->
+<div class="sub-visual">
+  <div class="wrap">
+    <h1 class="sv-title">저작권 정책</h1>
+    <div class="location-bar">
+      <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer;" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">이용안내</div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">저작권정책</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 본문 ===== -->
+<main class="cp-wrap">
+
+  <!-- 공공누리 유형 카드 -->
+  <section class="cp-hero">
+    <img class="cp-hero__mark" src="./image/copyright.jpg" alt="공공누리 제2유형 : 출처표시, 상업적 이용금지 - 공공저작물 자유이용허락">
+    <h2 class="cp-hero__title">제2유형 · 출처표시 + 상업적 이용금지</h2>
+
+    <div class="cp-conds">
+      <div class="cp-cond cp-cond--allow">
+        <div class="cp-cond__ic"><i class="ti ti-quote"></i></div>
+        <div class="cp-cond__label">출처 표시</div>
+        <div class="cp-cond__desc">이용 시 반드시<br>출처를 표기</div>
+      </div>
+      <div class="cp-cond cp-cond--deny">
+        <div class="cp-cond__ic"><i class="ti ti-businessplan"></i></div>
+        <div class="cp-cond__label">상업적 이용 금지</div>
+        <div class="cp-cond__desc">영리 목적의<br>이용 불가</div>
+      </div>
+      <div class="cp-cond cp-cond--deny">
+        <div class="cp-cond__ic"><i class="ti ti-edit-off"></i></div>
+        <div class="cp-cond__label">변경 금지</div>
+        <div class="cp-cond__desc">문학 작품 예문 등<br>2차 변형 불가</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 이용 조건 -->
+  <section class="cp-section">
+    <h3 class="cp-section__title"><i class="ti ti-circle-check"></i> 이용 조건</h3>
+    <ul class="cp-list">
+      <li>본 누리집의 저작물은 <b>"공공저작물 자유이용 허락 표시 기준(공공누리, KOGL) 제2유형"</b>이 적용됩니다.</li>
+      <li>저작물을 이용할 때에는 아래의 <b>출처 표기 문안</b>을 반드시 함께 표기해야 합니다.</li>
+    </ul>
+  </section>
+
+  <!-- 출처 표기 문안 -->
+  <section class="cp-section">
+    <h3 class="cp-section__title cp-section__title--between">
+      <span class="cp-section__title-l"><i class="ti ti-quote"></i> 출처 표기 문안</span>
+      <button type="button" class="cp-cite__copy" id="citeCopy" onclick="copyCite()">
+        <i class="ti ti-copy"></i> 복사
+      </button>
+    </h3>
+    <div class="cp-cite">
+      <p class="cp-cite__text" id="citeText">이 저작물은 국립국어원에서 <b>공공누리 제2유형</b>으로 개방한 「지역어 종합 정보 누리집」의 자료를 이용하였으며, 해당 저작물은 국립국어원 지역어 종합 정보 누리집(<a href="http://dialect.korean.go.kr" target="_blank" rel="noopener">http://dialect.korean.go.kr</a>)에서 무료로 내려받으실 수 있습니다.</p>
+    </div>
+  </section>
+
+  <!-- 제한 사항 -->
+  <section class="cp-section">
+    <h3 class="cp-section__title"><i class="ti ti-alert-triangle"></i> 제한 사항</h3>
+    <ul class="cp-list cp-list--deny">
+      <li>이용자는 국립국어원이 이용자를 후원한다거나 국립국어원과 이용자가 <b>특수한 관계에 있는 것처럼 제3자가 오인하게 하는 표시</b>를 해서는 안 됩니다.</li>
+      <li>공공누리 제2유형이 적용되는 저작물의 경우 <b>상업적 이용이 금지</b>되어 있으므로 영리 행위와 직접 또는 간접으로 관련된 행위를 위하여 이용될 수 없습니다.</li>
+      <li>'문학 속 지역어'에 포함된 문학 작품의 예문은 인용한 것으로, <b>변형 등 2차적 저작물의 작성이 불가</b>합니다.</li>
+    </ul>
+  </section>
+
+  <!-- 문의처 -->
+  <div class="cp-contact">
+    <i class="ti ti-map-pin" aria-hidden="true"></i>
+    <span>
+      저작권 및 자료 이용에 관한 문의는 아래로 연락해 주시기 바랍니다.<br>
+      <b>국립국어원</b> · 서울시 강서구 금낭화로 154(방화동) · 대표전화 <b>02-2669-9775</b>
+    </span>
+  </div>
+
+</main>
+
+<div id="footer-common"></div>
+
+<script>
+  function copyCite() {
+    var el = document.getElementById('citeText');
+    var text = el.textContent.trim();
+    var btn = document.getElementById('citeCopy');
+    function markDone() {
+      btn.classList.add('done');
+      btn.innerHTML = '<i class="ti ti-check"></i> 복사됨';
+      setTimeout(function () { btn.classList.remove('done'); btn.innerHTML = '<i class="ti ti-copy"></i> 복사'; }, 2000);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(markDone).catch(function () { fallbackCopy(text, markDone); });
+    } else {
+      fallbackCopy(text, markDone);
+    }
+  }
+  function fallbackCopy(text, cb) {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); cb(); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+</script>
+
+</body>
+</html>

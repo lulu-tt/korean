@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>나만의 지도 제작 — 국립국어원</title>
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.9.0/ol.css">
+<link rel="stylesheet" href="./styles.css">
+<script src="./gnb.js" defer></script>
+<script src="./share.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+.sub-visual {
+  background: linear-gradient(180deg, #edf4ff 0%, #f8fafc 100%);
+  border-bottom: 1px solid #e2e8f0;
+  padding: 48px 0 42px;
+  text-align: center;
+  position: relative;
+}
+.sub-visual::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(37,99,235,.03) 0%, transparent 40%);
+  pointer-events: none;
+}
+.sv-title {
+  font-size: 30px; font-weight: 800; color: #1e3a8a;
+  letter-spacing: -.03em; margin: 0 0 14px; position: relative; z-index: 1;
+}
+.loc-sep { color: #cbd5e1; font-size: 12px; }
+/* 위치(브레드크럼) — 다른 페이지와 동일한 흰색 알약 스타일 */
+.crumbs { display: inline-flex; align-items: center; gap: 8px; background: #ffffff; padding: 8px 20px; border-radius: 99px; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02); border: 1px solid #cbd5e1; position: relative; z-index: 1; }
+.crumbs a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #64748b; text-decoration: none; }
+.crumbs a:hover { color: var(--blue); text-decoration: underline; }
+.crumbs [aria-current="page"] { font-size: 13px; font-weight: 800; color: #1e3a8a; }
+@media (max-width: 720px) {
+  .crumbs { gap: 5px; padding: 6px 14px; }
+  .crumbs a, .crumbs [aria-current="page"] { font-size: 11.5px; }
+  .crumbs i { font-size: 12px; }
+}
+body { background: #fff; }
+#main.wrap { margin-top: 24px; margin-bottom: 72px; }
+
+/* 단계 탭 — dialect_search_prototype.html 의 언더라인 탭(.tab-bar) 스타일과 통일 */
+.mm-steps {
+  display: flex;
+  border-bottom: 1px solid #e2e8f0;
+  gap: 0;
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+.mm-step {
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: #64748b;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s;
+}
+.mm-step:hover { color: #111827; }
+.mm-step:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: -2px;
+  z-index: 1;
+}
+.mm-step.is-active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+  font-weight: 800;
+}
+/* 완료 표시 없음 — 활성/비활성 두 상태만 구분 (완료 탭도 일반 비활성과 동일) */
+.mm-step__n {
+  flex-shrink: 0;
+  min-width: 22px; height: 22px; border-radius: 999px; padding: 0 7px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800;
+  background: #f1f5f9; color: #94a3b8;
+}
+.mm-step__n span { color: inherit; font-weight: 800; line-height: 1; }
+.mm-step.is-active .mm-step__n { background: #eff6ff; color: #2563eb; }
+.mm-step__label {
+  text-align: left;
+  line-height: 1.25;
+}
+.mm-step__sub {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+.mm-step.is-active .mm-step__sub { color: #60a5fa; }
+
+@media (max-width: 900px) {
+  .mm-step { padding: 12px 10px; font-size: 13px; }
+  .mm-step__sub { display: none; }
+}
+
+.mm-shell {
+  display: grid;
+  grid-template-columns: minmax(320px, 400px) minmax(0, 1fr);
+  gap: 18px; align-items: start;
+}
+.mm-side {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(15,23,42,.04);
+  display: flex; flex-direction: column; height: 995px; min-height: 520px; overflow: hidden;
+}
+.mm-side__scroll { overflow: auto; padding: 16px; flex: 1; }
+.mm-panel { display: none; }
+.mm-panel.is-open { display: block; }
+
+.mm-panel__title {
+  margin: 0 0 12px; font-size: 16px; font-weight: 800; color: #0f172a;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.mm-panel__hint { font-size: 12px; color: #64748b; font-weight: 400; margin: -6px 0 12px; line-height: 1.45; }
+
+.mm-field { margin-bottom: 12px; }
+.mm-field__label {
+  display: block; font-size: 12px; font-weight: 800; color: #64748b; margin-bottom: 6px;
+}
+.mm-field__label .req { color: #ef4444; margin-left: 2px; }
+.mm-input, .mm-select, .mm-textarea {
+  width: 100%; box-sizing: border-box;
+  border: 1px solid #cbd5e1; border-radius: 10px;
+  padding: 10px 12px; font-size: 14px; font-weight: 600;
+  font-family: inherit; color: #0f172a; background: #fff;
+}
+.mm-textarea { min-height: 72px; resize: vertical; font-weight: 500; line-height: 1.45; }
+.mm-input:focus, .mm-select:focus, .mm-textarea:focus {
+  outline: 2px solid #93c5fd; border-color: #3b82f6;
+}
+
+.mm-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border-radius: 10px; border: 1px solid transparent;
+  padding: 9px 14px; font-size: 13px; font-weight: 700;
+  font-family: inherit; cursor: pointer; text-decoration: none; white-space: nowrap;
+}
+.mm-btn--primary { background: #2563eb; color: #fff; }
+.mm-btn--primary:hover { background: #1d4ed8; }
+.mm-btn--primary:disabled { background: #94a3b8; cursor: not-allowed; }
+.mm-btn--ghost { background: #fff; border-color: #cbd5e1; color: #334155; }
+.mm-btn--ghost:hover { border-color: #3b82f6; color: #2563eb; }
+.mm-btn--danger:hover { border-color: #fca5a5; color: #dc2626; }
+.mm-btn--sm { padding: 6px 10px; font-size: 12px; }
+.mm-btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+/* 표제어 목록 */
+.hw-list { display: flex; flex-direction: column; gap: 8px; }
+.hw-card {
+  border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;
+  cursor: pointer; background: #fff; transition: .15s;
+}
+.hw-card:hover { border-color: #93c5fd; }
+.hw-card.is-selected {
+  border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); background: #f8fbff;
+}
+.hw-card__title { font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 4px; }
+.hw-card__meta { font-size: 12px; color: #64748b; font-weight: 600; display: flex; flex-wrap: wrap; gap: 6px; }
+.hw-card__meta span {
+  background: #f1f5f9; border-radius: 999px; padding: 2px 8px;
+}
+.hw-card__actions { margin-top: 8px; display: flex; gap: 6px; }
+
+/* 지역어 카드 — 컴팩트 */
+.df-list { display: flex; flex-direction: column; gap: 7px; }
+.df-card {
+  border: 1px solid #e2e8f0; border-radius: 10px; padding: 7px 10px; background: #fff; cursor: pointer;
+}
+/* 같은 그룹 내 카드 사이 간격 (기존 0 → 일관된 간격) */
+.df-card + .df-card { margin-top: 6px; }
+.df-card.is-selected {
+  border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,.12); background: #f8fbff;
+}
+.df-card__head { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+.df-card__word {
+  flex: 1; min-width: 0; font-weight: 800; font-size: 14px; border: none; background: none;
+  text-align: left; font-family: inherit; cursor: pointer; color: #0f172a; padding: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.df-card__cnt {
+  flex-shrink: 0; font-size: 11px; font-weight: 700; color: #64748b;
+  background: #f1f5f9; border-radius: 999px; padding: 2px 8px;
+}
+.df-card__gear {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 7px;
+  border: 1px solid #e2e8f0; background: #fff; color: #64748b; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 14px;
+}
+.df-card__gear:hover { border-color: #93c5fd; color: #2563eb; }
+.df-card__del:hover { border-color: #fca5a5; color: #dc2626; }
+.df-card__meta { font-size: 11px; color: #64748b; font-weight: 600; display: flex; align-items: center; flex-wrap: wrap; gap: 3px; }
+.df-card__face { display: inline-block; width: 13px; height: 13px; border-radius: 3px; vertical-align: middle; box-shadow: inset 0 0 0 1px rgba(15,23,42,.18); margin-left: 2px; }
+.df-card__sym { display: inline-flex; align-items: center; margin-left: 2px; }
+.df-card__sym svg { display: block; }
+.df-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.df-grid .mm-field { margin-bottom: 0; }
+.df-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.df-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;
+  border-radius: 999px; padding: 3px 6px 3px 10px; font-size: 11px; font-weight: 700;
+}
+.df-chip button {
+  border: none; background: transparent; color: #60a5fa; cursor: pointer; font-size: 14px; line-height: 1;
+}
+
+/* 도움말 박스 */
+.mm-help {
+  background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;
+  padding: 10px 12px; margin: 12px 0 0;
+}
+.mm-help__head { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 6px; }
+.mm-help__head i { color: #94a3b8; font-size: 15px; }
+.mm-help__line { margin: 4px 0 0; font-size: 12px; color: #64748b; font-weight: 400; line-height: 1.45; }
+.mm-help__line:first-of-type { margin-top: 0; }
+
+/* 그룹설정 (다중 선택 → 그룹 일괄 지정) — 박스 없이 타이틀+서브텍스트 */
+.df-groupset { margin-bottom: 12px; }
+.df-groupset__title {
+  font-size: 15px; font-weight: 800; color: #0f172a;
+  display: flex; align-items: center; gap: 7px;
+}
+.df-groupset__title::before {
+  content: ''; flex-shrink: 0;
+  width: 9px; height: 9px; border-radius: 2px; background: #2563eb;
+}
+.df-groupset__sub { font-size: 12px; color: #64748b; font-weight: 400; margin-top: 2px; line-height: 1.45; }
+.df-groupset.is-active .df-groupset__sub { color: #1d4ed8; }
+.df-groupset__row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.df-batch__group { width: auto; min-width: 120px; flex: 0 1 auto; padding: 7px 10px; font-size: 13px; }
+
+/* 그룹 블록 */
+.df-group { margin-bottom: 12px; }
+.df-group__head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 2px 8px;
+}
+.df-group__label { font-size: 13px; font-weight: 800; color: #0f172a; }
+.df-group__count {
+  font-size: 11px; font-weight: 700; color: #64748b;
+  background: #f1f5f9; border-radius: 999px; padding: 1px 8px;
+}
+.df-group__color {
+  margin-left: auto;
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 26px; padding: 0 8px 0 6px; border-radius: 8px;
+  border: 1px solid #e2e8f0; background: #fff; cursor: pointer;
+  font-family: inherit; font-size: 11px; font-weight: 700; color: #334155;
+  box-shadow: inset 0 0 0 1px rgba(15,23,42,.04);
+}
+.df-group__color:hover { border-color: #93c5fd; }
+.df-group__color:not(.is-empty) { color: #fff; text-shadow: 0 1px 2px rgba(15,23,42,.35); }
+.df-group__color.is-empty { border-style: dashed; color: #2563eb; border-color: #bfdbfe; }
+.df-group__colortext { line-height: 1; }
+.df-grouppalette { margin: 0 0 10px; }
+
+/* 3단계 지도 확인 — 읽기 전용 그룹별 목록 */
+.review-list { display: flex; flex-direction: column; gap: 14px; }
+.rv-group { border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #fff; }
+.rv-group__head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px; background: #f8fafc; border-bottom: 1px solid #eef2f7;
+}
+.rv-group__swatch {
+  width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(15,23,42,.18);
+}
+.rv-group__swatch.is-empty {
+  background: repeating-linear-gradient(45deg, #e2e8f0, #e2e8f0 3px, #f8fafc 3px, #f8fafc 6px);
+}
+.rv-group__label { font-size: 13px; font-weight: 800; color: #0f172a; }
+.rv-group__count { margin-left: auto; font-size: 11px; font-weight: 700; color: #64748b; background: #eef2f7; border-radius: 999px; padding: 1px 8px; }
+.rv-card { display: flex; align-items: center; gap: 8px; padding: 8px 12px; }
+.rv-card + .rv-card { border-top: 1px solid #f1f5f9; }
+.rv-card__seq { font-size: 11px; font-weight: 800; color: #94a3b8; min-width: 16px; text-align: center; }
+.rv-card__word { flex: 1; min-width: 0; font-size: 14px; font-weight: 700; color: #0f172a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rv-card__sym { flex-shrink: 0; width: 20px; display: inline-flex; align-items: center; justify-content: center; }
+.rv-card__cnt { flex-shrink: 0; min-width: 46px; box-sizing: border-box; text-align: center; font-size: 11px; font-weight: 700; color: #64748b; background: #f1f5f9; border-radius: 999px; padding: 2px 8px; }
+
+/* 카드 체크박스 · 미설정 배지 */
+.df-card__check { width: 16px; height: 16px; flex-shrink: 0; accent-color: #2563eb; cursor: pointer; margin: 0; }
+.df-card__na {
+  display: inline-block; font-size: 10px; font-weight: 700; color: #94a3b8;
+  background: #f1f5f9; border-radius: 999px; padding: 1px 7px; vertical-align: middle;
+}
+
+/* 면색 팔레트 (~70색) */
+.mm-palette {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 5px;
+  max-height: 168px;
+  overflow: auto;
+  padding: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+.mm-palette--sym { max-height: 92px; margin-bottom: 8px; }
+.mm-palette__swatch {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: inset 0 0 0 1px rgba(15,23,42,0.12);
+  transition: transform 0.1s, border-color 0.1s;
+}
+.mm-palette__swatch:hover { transform: scale(1.08); border-color: #94a3b8; }
+.mm-palette__swatch.is-selected {
+  border-color: #0f172a;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #2563eb;
+  transform: scale(1.06);
+}
+.mm-palette__swatch:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* 상징 부호 그리드 피커 — 테두리 박스 없이 이미지만 정렬, 한 줄 10개 */
+.mm-symgrid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 2px;
+  padding: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  max-height: 220px; overflow-y: auto;
+}
+.mm-symbtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  aspect-ratio: 1; width: 100%;
+  background: none; border: none; border-radius: 6px;
+  cursor: pointer; padding: 3px;
+  transition: background 0.1s, box-shadow 0.1s;
+}
+.mm-symbtn svg { display: block; }
+.symimg { display: inline-block; }
+.mm-symbtn:hover { background: #e8eef6; }
+.mm-symbtn.is-selected {
+  background: #dbeafe;
+  box-shadow: inset 0 0 0 2px #2563eb;
+}
+.mm-symbtn:focus-visible { outline: 2px solid #2563eb; outline-offset: -2px; }
+@media (max-width: 900px) { .mm-symgrid { grid-template-columns: repeat(8, 1fr); } }
+
+/* 범례 SVG 마커 */
+.dfmark-svg { display: inline-flex; width: 18px; height: 18px; flex-shrink: 0; align-items: center; justify-content: center; }
+.dfmark-svg svg { display: block; }
+
+.mm-empty {
+  text-align: center; padding: 20px 12px; color: #94a3b8; font-size: 13px; font-weight: 600;
+  border: 1px dashed #e2e8f0; border-radius: 12px; background: #f8fafc;
+}
+
+.mm-side__foot {
+  border-top: 1px solid #f1f5f9; padding: 12px 16px;
+  display: flex; flex-wrap: wrap; gap: 8px; background: #fafbfc; align-items: center;
+}
+.mm-stepind { flex: 1; text-align: center; font-size: 12px; font-weight: 800; color: #334155; }
+.mm-badge--temp { background: #fffbeb; color: #b45309; }
+
+/* 지도 */
+.mm-main { display: flex; flex-direction: column; gap: 10px; min-width: 0; height: 995px; min-height: 520px; }
+.mapbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 16px;
+  padding: 12px 16px; flex-wrap: wrap;
+  box-shadow: 0 2px 10px rgba(15,23,42,.04);
+}
+.mapbar__title { font-size: 17px; font-weight: 800; color: #0f172a; }
+.mapbar__meta { font-size: 12px; color: #64748b; margin-top: 2px; }
+.mapbar__actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* 지도 도구(설정·공유·다운로드) — 3단계에서만 노출 */
+.mm-map-tools { display: flex; gap: 8px; align-items: center; }
+/* 지도 설정·다운로드 팝오버 */
+.mm-pop-wrap { position: relative; display: inline-block; }
+.mm-pop {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 50;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(15,23,42,.16); padding: 10px; min-width: 230px;
+}
+.mm-pop[hidden] { display: none; }
+.mm-pop__sec { padding: 6px 4px; }
+.mm-pop__sec + .mm-pop__sec { border-top: 1px solid #f1f5f9; margin-top: 4px; }
+.mm-pop__label { font-size: 11px; font-weight: 800; color: #94a3b8; margin: 2px 4px 6px; }
+.mm-chk {
+  display: flex; align-items: center; gap: 7px; padding: 6px 6px; border-radius: 8px;
+  font-size: 13px; font-weight: 600; color: #334155; cursor: pointer;
+}
+.mm-chk:hover { background: #f8fafc; }
+.mm-chk input { width: 15px; height: 15px; accent-color: #2563eb; cursor: pointer; }
+.mm-chk__dot { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
+.mm-pop__item {
+  display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+  border: none; background: none; font-family: inherit; font-size: 13px; font-weight: 700;
+  color: #334155; padding: 9px 10px; border-radius: 8px; cursor: pointer;
+}
+.mm-pop__item:hover { background: #eff6ff; color: #1d4ed8; }
+.mm-pop__note { font-size: 11px; color: #94a3b8; font-weight: 600; line-height: 1.45; padding: 8px 8px 2px; display: flex; gap: 6px; }
+.mm-badge {
+  font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px;
+  background: #f1f5f9; color: #475569;
+}
+.mm-badge--saved { background: #ecfdf5; color: #047857; }
+.mm-mode {
+  font-size: 13px; font-weight: 700; color: #1e40af;
+  background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 10px 14px;
+}
+.coach {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 14px;
+  padding: 12px 16px; font-size: 13px; color: #1e40af; line-height: 1.5;
+}
+.coach > i { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.coach span { flex: 1; }
+.coach__close { background: none; border: none; color: #60a5fa; cursor: pointer; font-size: 16px; }
+
+.mm-mapcard {
+  position: relative; border: 1px solid #e2e8f0; border-radius: 16px;
+  overflow: hidden; background: #e8eef5;
+  flex: 1; min-height: 0;
+}
+#mm-map { width: 100%; height: 100%; outline: none; }
+.mm-mapui {
+  position: absolute; right: 12px; top: 12px; z-index: 4;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.mm-mapui button {
+  width: 36px; height: 36px; border-radius: 10px; border: 1px solid #e2e8f0;
+  background: rgba(255,255,255,.96); cursor: pointer; color: #334155; font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+}
+.maplegend {
+  position: absolute; left: 12px; bottom: 12px; z-index: 3;
+  background: rgba(255,255,255,.96); border: 1px solid #e2e8f0; border-radius: 14px;
+  padding: 12px 14px; min-width: 150px; box-shadow: 0 4px 16px rgba(15,23,42,.1);
+}
+.maplegend__head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  width: 100%; background: none; border: none; padding: 0; cursor: pointer;
+  font-family: inherit; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 8px;
+}
+.maplegend__chev { font-size: 15px; color: #94a3b8; transition: transform .15s; }
+.maplegend.is-collapsed .maplegend__head { margin-bottom: 0; }
+.maplegend.is-collapsed .maplegend__chev { transform: rotate(-90deg); }
+.maplegend.is-collapsed .maplegend__list { display: none; }
+.maplegend__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: min(52vh, 380px); overflow-y: auto; }
+.maplegend__row { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: #334155; }
+.dfmark { width: 12px; height: 12px; border-radius: 999px; border: 1px solid rgba(15,23,42,.12); flex-shrink: 0; }
+.dfmark--square { border-radius: 2px; }
+.dfmark--diamond { border-radius: 2px; transform: rotate(45deg); }
+
+.mm-search-wrap { position: relative; margin-top: 8px; }
+.mm-suggest {
+  position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 20;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(15,23,42,.12); max-height: 200px; overflow: auto; padding: 6px;
+}
+.mm-suggest__item {
+  display: block; width: 100%; text-align: left; border: none; background: none;
+  font: inherit; font-size: 13px; font-weight: 600; color: #334155;
+  padding: 8px 10px; border-radius: 8px; cursor: pointer;
+}
+.mm-suggest__item:hover, .mm-suggest__item.is-active { background: #eff6ff; color: #1d4ed8; }
+
+/* 지역 지정(페인팅) 모드 툴바 — 지도 위 플로팅, 바 자체만 클릭 캡처 */
+.mm-paint {
+  position: absolute; top: 12px; left: 12px; right: 12px; z-index: 5;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: rgba(255,255,255,.97); border: 1px solid #dbe4ef; border-radius: 12px;
+  padding: 8px 12px; box-shadow: 0 6px 20px rgba(15,23,42,.12);
+}
+.mm-paint[hidden] { display: none; }
+.mm-paint__dot { width: 14px; height: 14px; border-radius: 999px; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(15,23,42,.15); }
+.mm-paint__label { font-size: 13px; font-weight: 700; color: #334155; white-space: nowrap; }
+.mm-paint__label b { color: #0f172a; }
+.mm-paint__search { flex: 1 1 160px; min-width: 140px; margin-top: 0; }
+.mm-input--sm { padding: 7px 12px; font-size: 13px; }
+.mm-paint #mm-region-suggest { top: calc(100% + 6px); }
+
+/* modal */
+.mm-modal[hidden] { display: none !important; }
+.mm-modal {
+  position: fixed; inset: 0; z-index: 1200;
+  display: flex; align-items: center; justify-content: center;
+}
+.mm-modal__backdrop { position: absolute; inset: 0; background: rgba(15,23,42,.45); }
+.mm-modal__panel {
+  position: relative; background: #fff; border-radius: 16px;
+  padding: 24px; width: min(94vw, 480px); max-height: 90vh; overflow: auto;
+  box-shadow: 0 20px 50px rgba(15,23,42,.25);
+}
+.mm-modal__title { margin: 0 0 6px; font-size: 18px; font-weight: 800; }
+.mm-modal__desc { margin: 0 0 16px; font-size: 13px; color: #64748b; line-height: 1.5; }
+.mm-modal--wide .mm-modal__panel { width: min(94vw, 560px); }
+.mm-modal__x {
+  position: absolute; top: 14px; right: 14px; width: 32px; height: 32px;
+  border: none; background: #f1f5f9; color: #475569; border-radius: 8px;
+  cursor: pointer; font-size: 18px; display: inline-flex; align-items: center; justify-content: center;
+}
+.mm-modal__x:hover { background: #e2e8f0; color: #0f172a; }
+
+#mm-toast {
+  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
+  z-index: 1300; background: #0f172a; color: #fff;
+  font-size: 14px; font-weight: 700; padding: 12px 18px; border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(15,23,42,.25); max-width: min(90vw, 420px); text-align: center;
+}
+
+@media (max-width: 960px) {
+  .mm-shell { grid-template-columns: 1fr; }
+  .mm-side { height: auto; max-height: none; min-height: 0; }
+  .mm-main { height: auto; min-height: 0; }
+  .mm-mapcard { flex: none; }
+  #mm-map { height: 400px; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">본문 바로가기</a>
+<div id="gnb-common"></div>
+
+<div class="sub-visual">
+  <div class="wrap">
+    <h1 class="sv-title">나만의 지도 제작</h1>
+    <nav class="crumbs" aria-label="현재 위치">
+      <a href="./index.html"><i class="ti ti-home" aria-hidden="true"></i> 홈</a>
+      <i class="ti ti-chevron-right loc-sep" aria-hidden="true"></i>
+      <a href="./dialect_map.html">지역어 지도</a>
+      <i class="ti ti-chevron-right loc-sep" aria-hidden="true"></i>
+      <span aria-current="page">나만의 지도 제작</span>
+    </nav>
+  </div>
+</div>
+
+<main id="main" class="wrap">
+  <!-- 제작 단계 탭 (본문 너비 · 클릭 이동) -->
+  <div class="mm-steps" role="tablist" aria-label="제작 단계">
+    <button type="button" class="mm-step is-active" role="tab" aria-selected="true" data-step="1" id="tab-step-1">
+      <span class="mm-step__n"><span>1</span></span>
+      <span class="mm-step__label">표제어 등록<span class="mm-step__sub">주제 선택·추가</span></span>
+    </button>
+    <button type="button" class="mm-step" role="tab" aria-selected="false" data-step="2" id="tab-step-2">
+      <span class="mm-step__n"><span>2</span></span>
+      <span class="mm-step__label">어휘 · 설정<span class="mm-step__sub">지역어·그룹·부호·면색·지역</span></span>
+    </button>
+    <button type="button" class="mm-step" role="tab" aria-selected="false" data-step="3" id="tab-step-3">
+      <span class="mm-step__n"><span>3</span></span>
+      <span class="mm-step__label">지도 확인<span class="mm-step__sub">미리보기·저장</span></span>
+    </button>
+  </div>
+
+  <div class="mm-shell">
+    <aside class="mm-side" aria-label="편집 패널">
+      <div class="mm-side__scroll">
+
+        <!-- ① 표제어 -->
+        <section class="mm-panel is-open" id="panel-headword" aria-labelledby="p1-title">
+          <h2 class="mm-panel__title" id="p1-title">
+            1. 표제어 등록
+            <button type="button" class="mm-btn mm-btn--primary mm-btn--sm" id="btn-hw-new">+ 추가 등록</button>
+          </h2>
+          <p class="mm-panel__hint">운영과 동일하게 표제어·품사·의미·서비스 신청을 입력합니다. (데이터는 기기 저장 · DB 연동은 최종 단계)</p>
+          <div id="hw-list" class="hw-list" role="listbox" aria-label="내 표제어 목록"></div>
+        </section>
+
+        <!-- ② 어휘 -->
+        <section class="mm-panel" id="panel-dialect" aria-labelledby="p2-title">
+          <h2 class="mm-panel__title" id="p2-title">
+            2. 어휘 · 설정
+          </h2>
+
+          <div class="mm-field">
+            <label class="mm-field__label" for="df-word">지역어 추가 <span class="req">*</span></label>
+            <input id="df-word" class="mm-input" type="text" maxlength="50" placeholder="예: 가새" autocomplete="off">
+          </div>
+          <div class="mm-field">
+            <label class="mm-field__label" for="df-group">그룹 선택 <span class="req">*</span></label>
+            <select id="df-group" class="mm-select" aria-describedby="df-group-hint"></select>
+            <p id="df-group-hint" class="mm-panel__hint" style="margin:6px 0 0">
+              그룹은 1부터 순차로만 만들 수 있습니다. (1그룹 없이 2그룹 생성 불가)
+            </p>
+          </div>
+          <div class="mm-btn-row" style="margin:14px 0 0">
+            <button type="button" class="mm-btn mm-btn--primary mm-btn--sm" id="btn-df-add">지역어 추가</button>
+            <button type="button" class="mm-btn mm-btn--ghost mm-btn--sm" id="btn-df-excel"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> 엑셀 추가</button>
+            <button type="button" class="mm-btn mm-btn--ghost mm-btn--sm" id="btn-df-excel-tpl" title="등록 양식(xlsx) 내려받기"><i class="ti ti-download" aria-hidden="true"></i> 양식</button>
+            <button type="button" class="mm-btn mm-btn--ghost mm-btn--sm" id="btn-df-export" title="현재 설정을 엑셀(xlsx)로 내려받기"><i class="ti ti-file-export" aria-hidden="true"></i> 설정 내려받기</button>
+            <input type="file" id="df-excel-file" accept=".xlsx,.xlsm,.xls" hidden>
+          </div>
+          <div class="mm-help">
+            <div class="mm-help__head"><i class="ti ti-help-circle" aria-hidden="true"></i> 도움말</div>
+            <p class="mm-help__line"><b>엑셀 추가</b>: <b>지역명·지역어</b> 열이 있는 xlsx를 반영합니다. 한 지역에 여러 지역어는 쉼표(,)로 구분하세요.</p>
+            <p class="mm-help__line">그룹 내 순서는 자동으로 맨 뒤에 붙습니다. 순서는 설정버튼을 눌러 변경할 수 있습니다.</p>
+          </div>
+          <div id="df-list" class="df-list" style="margin-top:14px"></div>
+        </section>
+
+        <!-- ③ 지도 확인 (읽기 전용 그룹별 목록) -->
+        <section class="mm-panel" id="panel-review" aria-labelledby="p3-title">
+          <h2 class="mm-panel__title" id="p3-title">3. 지도 확인</h2>
+          <p class="mm-panel__hint">설정한 그룹별 지역어 목록입니다. 지도와 함께 확인하고 최종 저장하세요. 수정하려면 <b>2. 어휘·설정</b> 탭으로 돌아가세요.</p>
+          <div id="review-list" class="review-list"></div>
+        </section>
+
+      </div>
+
+      <div class="mm-side__foot">
+        <button type="button" class="mm-btn mm-btn--ghost mm-btn--sm" id="btn-step-prev" disabled>
+          <i class="ti ti-arrow-left" aria-hidden="true"></i> 이전
+        </button>
+        <span id="mm-step-indicator" class="mm-stepind">1 / 3 · 표제어 등록</span>
+        <button type="button" class="mm-btn mm-btn--primary mm-btn--sm" id="btn-step-next">
+          다음 <i class="ti ti-arrow-right" aria-hidden="true"></i>
+        </button>
+      </div>
+    </aside>
+
+    <section class="mm-main" aria-label="지도 미리보기">
+      <header class="mapbar">
+        <div>
+          <div class="mapbar__title" id="map-title">표제어를 선택하세요</div>
+          <div class="mapbar__meta">설정 즉시 반영 · 3. 지도 확인 (별도 조회 팝업 없음)</div>
+        </div>
+        <div class="mapbar__actions">
+          <span id="mm-status" class="mm-badge">프로토</span>
+
+          <div id="mm-map-tools" class="mm-map-tools">
+          <div class="mm-pop-wrap">
+            <button type="button" class="mm-btn mm-btn--ghost mm-btn--sm" id="mm-btn-settings" aria-haspopup="true" aria-expanded="false"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> 지도 설정</button>
+            <div class="mm-pop" id="mm-pop-settings" hidden>
+              <div class="mm-pop__sec">
+                <div class="mm-pop__label">지도 레이어</div>
+                <label class="mm-chk"><input type="checkbox" id="ov-rivers"><span class="mm-chk__dot" style="background:#3b5bdb"></span> 하천</label>
+                <label class="mm-chk"><input type="checkbox" id="ov-rail"><span class="mm-chk__dot" style="background:#2f9e44"></span> 철도</label>
+                <label class="mm-chk"><input type="checkbox" id="ov-roads"><span class="mm-chk__dot" style="background:#e8590c"></span> 도로</label>
+                <label class="mm-chk"><input type="checkbox" id="ov-mountains"><span class="mm-chk__dot" style="background:#5f6f6a"></span> 산맥</label>
+              </div>
+              <div class="mm-pop__sec">
+                <div class="mm-pop__label">지역명 표시</div>
+                <label class="mm-chk"><input type="checkbox" id="lbl-sido" checked> 시·도 이름</label>
+                <label class="mm-chk"><input type="checkbox" id="lbl-sigungu"> 시·군·구 이름 <span style="color:#94a3b8;font-weight:600">(확대 시)</span></label>
+              </div>
+              <div class="mm-pop__sec">
+                <div class="mm-pop__label">표시 요소</div>
+                <label class="mm-chk"><input type="checkbox" id="hide-area"> 면색(분포권) 숨기기</label>
+                <label class="mm-chk"><input type="checkbox" id="hide-symbol"> 상징 부호 숨기기</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="mm-pop-wrap">
+            <button type="button" class="mm-btn mm-btn--ghost mm-btn--sm" id="mm-btn-download" aria-haspopup="true" aria-expanded="false"><i class="ti ti-download" aria-hidden="true"></i> 다운로드</button>
+            <div class="mm-pop" id="mm-pop-download" hidden>
+              <button type="button" class="mm-pop__item" id="mm-dl-png"><i class="ti ti-photo" aria-hidden="true"></i> 지도 이미지 (PNG)</button>
+              <button type="button" class="mm-pop__item" id="mm-dl-pdf"><i class="ti ti-file-text" aria-hidden="true"></i> 인쇄용 지도 (PDF)</button>
+              <button type="button" class="mm-pop__item" id="mm-dl-csv"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> 방언형 자료 (CSV)</button>
+              <div class="mm-pop__note"><i class="ti ti-info-circle" aria-hidden="true"></i> 이미지·PDF에는 표제어·범례·출처가 함께 담깁니다.</div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="mm-mapcard">
+        <div id="mm-map" tabindex="0" aria-label="나만의 지역어 지도"></div>
+
+        <!-- 지역 지정(지도 페인팅) 모드 툴바 — 지도 클릭을 막지 않는 플로팅 바 -->
+        <div id="mm-paint" class="mm-paint" hidden>
+          <span class="mm-paint__dot" id="mm-paint-dot"></span>
+          <span class="mm-paint__label"><b id="mm-paint-word">지역어</b> 지정 중 · <span id="mm-paint-count">0</span>곳</span>
+          <div class="mm-search-wrap mm-paint__search">
+            <input id="mm-region-search" class="mm-input mm-input--sm" type="search" placeholder="시·군·구 검색" autocomplete="off"
+                   aria-autocomplete="list" aria-controls="mm-region-suggest" aria-expanded="false">
+            <div id="mm-region-suggest" class="mm-suggest" role="listbox" hidden></div>
+          </div>
+          <button type="button" class="mm-btn mm-btn--ghost mm-btn--sm" id="mm-paint-settings" title="상세 설정"><i class="ti ti-settings" aria-hidden="true"></i></button>
+          <button type="button" class="mm-btn mm-btn--primary mm-btn--sm" id="mm-paint-done">완료</button>
+        </div>
+
+        <div class="mm-mapui">
+          <button type="button" id="mm-zoom-in" aria-label="확대"><i class="ti ti-plus"></i></button>
+          <button type="button" id="mm-zoom-out" aria-label="축소"><i class="ti ti-minus"></i></button>
+          <button type="button" id="mm-zoom-reset" aria-label="초기 위치"><i class="ti ti-focus-2"></i></button>
+        </div>
+        <div class="maplegend">
+          <button type="button" class="maplegend__head" id="mm-legend-toggle" aria-expanded="true" aria-controls="mm-legend-list">
+            <span>범례</span>
+            <i class="ti ti-chevron-down maplegend__chev" aria-hidden="true"></i>
+          </button>
+          <ul id="mm-legend-list" class="maplegend__list"></ul>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- 표제어 등록/수정 모달 -->
+<div id="hw-modal" class="mm-modal" hidden role="dialog" aria-modal="true" aria-labelledby="hw-modal-title">
+  <div class="mm-modal__backdrop" data-close-hw></div>
+  <div class="mm-modal__panel">
+    <h2 class="mm-modal__title" id="hw-modal-title">표제어 추가</h2>
+    <p class="mm-modal__desc">운영 「표제어 추가」 항목과 동일합니다. (mode=C/M)</p>
+    <input type="hidden" id="hw-edit-no" value="">
+    <div class="mm-field">
+      <label class="mm-field__label" for="hw-headword">표제어 <span class="req">*</span></label>
+      <input id="hw-headword" class="mm-input" type="text" maxlength="125" placeholder="표제어를 입력하세요.">
+    </div>
+    <div class="mm-field">
+      <label class="mm-field__label" for="hw-class">품사 <span class="req">*</span></label>
+      <select id="hw-class" class="mm-select">
+        <option value="">품사를 선택하세요</option>
+      </select>
+    </div>
+    <div class="mm-field">
+      <label class="mm-field__label" for="hw-meaning">의미</label>
+      <textarea id="hw-meaning" class="mm-textarea" placeholder="의미를 입력하세요."></textarea>
+    </div>
+    <div class="mm-field">
+      <label class="mm-field__label" for="hw-appro">서비스 신청 <span class="req">*</span></label>
+      <select id="hw-appro" class="mm-select">
+        <option value="">서비스 신청 여부를 선택하세요</option>
+        <option value="Y">신청</option>
+        <option value="N">미신청</option>
+      </select>
+    </div>
+    <div class="mm-field">
+      <label class="mm-field__label">서비스 상태</label>
+      <input class="mm-input" type="text" id="hw-use-yn" value="미처리 (N)" readonly>
+    </div>
+    <div class="mm-btn-row">
+      <button type="button" class="mm-btn mm-btn--primary" id="btn-hw-save">저장</button>
+      <button type="button" class="mm-btn mm-btn--ghost" data-close-hw>취소</button>
+    </div>
+  </div>
+</div>
+
+<!-- 지역어 상세 설정 레이어 팝업 -->
+<div id="style-modal" class="mm-modal mm-modal--wide" hidden role="dialog" aria-modal="true" aria-labelledby="style-modal-title">
+  <div class="mm-modal__backdrop" data-close-style></div>
+  <div class="mm-modal__panel">
+    <button type="button" class="mm-modal__x" data-close-style aria-label="닫기"><i class="ti ti-x" aria-hidden="true"></i></button>
+    <h2 class="mm-modal__title" id="style-modal-title">지역어 상세 설정</h2>
+    <p class="mm-modal__desc">그룹·순서·상징·면색·지역을 설정합니다. 변경 시 <strong>자동 저장</strong>됩니다.</p>
+    <div id="style-form">
+      <div class="mm-field">
+        <label class="mm-field__label" for="st-word">지역어</label>
+        <input id="st-word" class="mm-input" type="text" maxlength="50">
+      </div>
+      <div class="df-grid">
+        <div class="mm-field">
+          <label class="mm-field__label" for="st-group">그룹 선택 (mutation_group)</label>
+          <select id="st-group" class="mm-select"></select>
+        </div>
+        <div class="mm-field">
+          <label class="mm-field__label" for="st-seq">그룹 내 순서 (mutation_seq)</label>
+          <select id="st-seq" class="mm-select"></select>
+          <p class="mm-panel__hint" style="margin:6px 0 0">같은 순서는 불가 · 변경 시 나머지가 자동 재정렬됩니다.</p>
+        </div>
+      </div>
+      <div class="mm-field" style="margin-top:10px;">
+        <label class="mm-field__label">상징 부호 · 색상
+          <span style="font-weight:600;color:#94a3b8;margin-left:6px;">색상을 고른 뒤 부호를 클릭하세요 (면색과 별개)</span>
+        </label>
+        <input type="hidden" id="st-symbol" value="1">
+        <input type="hidden" id="st-symcolor" value="">
+        <div id="st-symcolor-palette" class="mm-palette mm-palette--sym" role="listbox" aria-label="부호 색상"></div>
+        <div id="st-symbol-grid" class="mm-symgrid" role="listbox" aria-label="상징 부호"></div>
+      </div>
+      <div class="mm-field" style="margin-top:14px;">
+        <label class="mm-field__label">매핑된 지역 <span id="st-region-count" style="font-weight:600;color:#94a3b8;margin-left:4px;"></span></label>
+        <div id="st-regions" class="df-chips"></div>
+        <div class="mm-btn-row" style="margin-top:10px;">
+          <button type="button" class="mm-btn mm-btn--primary mm-btn--sm" id="btn-paint-from-modal"><i class="ti ti-map-pin" aria-hidden="true"></i> 지도에서 지역 지정</button>
+        </div>
+        <p class="mm-panel__hint" style="margin:8px 0 0">「지도에서 지역 지정」을 누르면 팝업이 닫히고 <b>지도 클릭</b>으로 지역을 추가/제거합니다.</p>
+      </div>
+      <div class="mm-btn-row" style="margin-top:16px;">
+        <button type="button" class="mm-btn mm-btn--ghost mm-btn--sm" data-close-style>확인</button>
+        <button type="button" class="mm-btn mm-btn--ghost mm-btn--sm mm-btn--danger" id="btn-df-del">지역어 삭제</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="mm-toast" role="status" aria-live="polite" hidden></div>
+<div id="footer-common"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/ol@v10.9.0/dist/ol.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="./skorea-provinces.js"></script>
+<script src="./skorea-labels.js"></script>
+<script src="./skorea-municipalities.js"></script>
+<script src="./korea-map.js"></script>
+<script src="./my-map-regions.js?v=20260804grpset"></script>
+<script src="./my-map-store.js?v=20260804grpset"></script>
+<script src="./my-map.js?v=20260804grpset"></script>
+</body>
+</html>

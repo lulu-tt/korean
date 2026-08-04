@@ -929,13 +929,8 @@
   /* 지역 칸의 북한 시·도는 남한 시·도와 동일하게 출력한다.
      구분은 지역어 칸의 '북' 배지 하나로 충분하므로 별도 서체·색을 쓰지 않는다.
      span은 데이터 구분용 훅으로만 남겨 둔다. */
-  /* 지역어 칸의 '북' 배지. updateSearchBadges()가 .col-dialect의 innerHTML을 다시 쓰므로
-     실제 노드로 넣으면 지워진다. ::after로 붙여 JS를 건드리지 않는다. */
-  .vocab-table tr.row-nk .col-dialect::after {
-    content: '북'; display: inline-block; margin-left: 6px; padding: 0 5px; border-radius: 4px;
-    font-size: 10px; font-weight: 800; line-height: 16px; vertical-align: 2px;
-    color: #0f766e; background: rgba(20,184,166,.12); border: 1px solid #99f6e4;
-  }
+  /* 지역어 칸의 '북' 배지 제거 요청 반영 */
+  /* .vocab-table tr.row-nk .col-dialect::after { display: none; } */
   /* 상세표 – 북한 조사 행 */
   /* 주석 행: 기본 접힘. 상세표는 남한과 똑같이 '제보자 1명 = 1행' 구조를 유지한다 */
   .details-table tr.dt-note { display: none; }
@@ -943,16 +938,17 @@
   .details-table tr.dt-note td {
     background: #ffffff; text-align: left; padding: 13px 20px 15px; border-bottom: 1px solid #e2e8f0;
   }
-  /* 제보자 칸의 펼침 버튼 — 발화·발음·비고가 있는 행에만 붙는다 */
+  /* 제보자 칸의 펼침 버튼 — '추가정보' 직관 배지 버튼 */
   .dt-note-toggle {
-    margin-left: 8px; padding: 0; width: 22px; height: 22px; border-radius: 50%;
-    background: #ffffff; border: 1px solid var(--line); color: #64748b; cursor: pointer;
-    display: inline-flex; align-items: center; justify-content: center; vertical-align: -5px;
+    margin-left: 8px; padding: 3px 9px; border-radius: 6px;
+    background: #f8fafc; border: 1px solid #cbd5e1; color: #475569; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 4px; vertical-align: 1px;
+    font-size: 11.5px; font-weight: 700; font-family: inherit; transition: 0.15s ease;
   }
-  .dt-note-toggle:hover { background: #f1f5f9; color: #0f172a; border-color: #cbd5e1; }
-  .dt-note-toggle i { font-size: 13px; transition: transform 0.25s ease; }
-  .dt-note-toggle.open { border-color: #cbd5e1; background: #f1f5f9; }
-  .dt-note-toggle.open i { transform: rotate(180deg); color: var(--blue); }
+  .dt-note-toggle:hover { background: #eff6ff; color: var(--blue); border-color: #93c5fd; }
+  .dt-note-toggle i { font-size: 12px; transition: transform 0.25s ease; }
+  .dt-note-toggle.open { border-color: var(--blue); background: var(--blue); color: #ffffff; }
+  .dt-note-toggle.open i { transform: rotate(180deg); color: #ffffff; }
   .dt-note-box { display: flex; flex-direction: column; gap: 7px; }
   .dt-note-line { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; line-height: 1.7; color: #64748b; }
   .dt-note-key {
@@ -1978,7 +1974,7 @@
       </tr>
 
       <!-- 번호 11 -->
-      <tr id="row-11" class="row-nk">
+      <tr id="row-11">
         <td class="col-num">11</td>
         <td class="col-dialect">궁게</td>
         <td class="col-regions"><span class="rgn-nk">함경북도</span></td>
@@ -2015,46 +2011,28 @@
                     <td>함경북도</td>
                     <td>청진시</td>
                     <td>2025년</td>
-                    <td>여성, 1968년생<button type="button" class="dt-note-toggle" onclick="toggleUtterNote(this)" aria-expanded="false" aria-label="조사 내용 펼치기"><i class="ti ti-chevron-down"></i></button></td>
+                    <td>여성, 1968년생</td>
                     <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
-                  </tr>
-                  <tr class="dt-note dt-nk">
-                    <td colspan="5">
-                      <div class="dt-note-box">
-                          <div class="dt-note-line"><span class="dt-note-key">발화</span><span>긍게 쿠다</span></div>
-                          <div class="dt-note-line"><span class="dt-note-key">발음</span><span>궁게의 ㅜ가 ㅡ에 가깝게 실현되고, 크다의 ㅡ는 ㅜ에 가깝게 실현되어, 긍게 쿠다처럼 들림.</span></div>
-                      </div>
-                    </td>
                   </tr>
                   <!-- 아래 2명은 제보자가 여러 명일 때의 배치 확인용 예시 (실제 조사 자료 아님) -->
                   <tr class="dt-nk">
                     <td>함경북도</td>
                     <td>회령시</td>
                     <td>2025년</td>
-                    <td>남성, 1957년생 (예시)<button type="button" class="dt-note-toggle" onclick="toggleUtterNote(this)" aria-expanded="false" aria-label="조사 내용 펼치기"><i class="ti ti-chevron-down"></i></button></td>
+                    <td>남성, 1957년생 (예시)</td>
                     <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
-                  </tr>
-                  <tr class="dt-note dt-nk">
-                    <td colspan="5">
-                      <div class="dt-note-box">
-                          <div class="dt-note-line"><span class="dt-note-key">발화</span><span>궁게</span></div>
-                          <div class="dt-note-line"><span class="dt-note-key">발음</span><span>어두 ㄱ이 다소 강하게 실현됨. 어말 ㅔ는 ㅐ와 구별되지 않음.</span></div>
-                      </div>
-                    </td>
                   </tr>
                   <tr class="dt-nk">
                     <td>함경북도</td>
                     <td>무산군</td>
                     <td>2025년</td>
-                    <td>여성, 1981년생 (예시)<button type="button" class="dt-note-toggle" onclick="toggleUtterNote(this)" aria-expanded="false" aria-label="조사 내용 펼치기"><i class="ti ti-chevron-down"></i></button></td>
+                    <td>여성, 1981년생 (예시)<button type="button" class="dt-note-toggle" onclick="toggleUtterNote(this)" aria-expanded="false" aria-label="추가정보 펼치기"><span>추가정보</span> <i class="ti ti-chevron-down"></i></button></td>
                     <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
                   </tr>
                   <tr class="dt-note dt-nk">
                     <td colspan="5">
                       <div class="dt-note-box">
-                          <div class="dt-note-line"><span class="dt-note-key">발화</span><span>궁게가 뚧어졌다</span></div>
-                          <div class="dt-note-line"><span class="dt-note-key">발음</span><span>뚫어지다의 어간말 자음군이 단순화되어 [뚜러졋다]로 실현됨.</span></div>
-                          <div class="dt-note-line is-warn"><span class="dt-note-key">비고</span><span>구멍이라는 어형도 함께 쓴다고 함. 젊은 층은 구멍을 더 많이 쓴다고 응답.</span></div>
+                          <div class="dt-note-line is-warn"><span class="dt-note-key">추가정보</span><span>구멍이라는 어형도 함께 쓴다고 함. 젊은 층은 구멍을 더 많이 쓴다고 응답.</span></div>
                       </div>
                     </td>
                   </tr>
@@ -2066,7 +2044,7 @@
       </tr>
 
       <!-- 번호 12 -->
-      <tr id="row-12" class="row-nk">
+      <tr id="row-12">
         <td class="col-num">12</td>
         <td class="col-dialect">다듬잇돌</td>
         <td class="col-regions"><span class="rgn-nk">함경북도</span></td>
@@ -2103,16 +2081,8 @@
                     <td>함경북도</td>
                     <td>청진시</td>
                     <td>2025년</td>
-                    <td>여성, 1968년생<button type="button" class="dt-note-toggle" onclick="toggleUtterNote(this)" aria-expanded="false" aria-label="조사 내용 펼치기"><i class="ti ti-chevron-down"></i></button></td>
+                    <td>여성, 1968년생</td>
                     <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
-                  </tr>
-                  <tr class="dt-note dt-nk">
-                    <td colspan="5">
-                      <div class="dt-note-box">
-                          <div class="dt-note-line"><span class="dt-note-key">발화</span><span>이거는 돌이니까 다듬잇돌</span></div>
-                          <div class="dt-note-line"><span class="dt-note-key">발음</span><span>사진에 있는 물건은 돌로 만든 것이니 다듬잇돌이라고 한다고 함. 돌의 ㅗ의 개구도가 커서 ㅓ에 가깝게 들림.</span></div>
-                      </div>
-                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -2122,7 +2092,7 @@
       </tr>
 
       <!-- 번호 13 -->
-      <tr id="row-13" class="row-nk">
+      <tr id="row-13">
         <td class="col-num">13</td>
         <td class="col-dialect">셋바눌</td>
         <td class="col-regions"><span class="rgn-nk">함경북도</span></td>
@@ -2159,14 +2129,13 @@
                     <td>함경북도</td>
                     <td>청진시</td>
                     <td>2025년</td>
-                    <td>여성, 1968년생<button type="button" class="dt-note-toggle" onclick="toggleUtterNote(this)" aria-expanded="false" aria-label="조사 내용 펼치기"><i class="ti ti-chevron-down"></i></button></td>
+                    <td>여성, 1968년생<button type="button" class="dt-note-toggle" onclick="toggleUtterNote(this)" aria-expanded="false" aria-label="추가정보 펼치기"><span>추가정보</span> <i class="ti ti-chevron-down"></i></button></td>
                     <td class="audio-cell center"><button class="audio-play-inline"><i class="ti ti-volume"></i></button></td>
                   </tr>
                   <tr class="dt-note dt-nk">
                     <td colspan="5">
                       <div class="dt-note-box">
-                          <div class="dt-note-line"><span class="dt-note-key">발화</span><span>셋바눌</span></div>
-                          <div class="dt-note-line is-warn"><span class="dt-note-key">비고</span><span>조사 후에 쓰리, 쓰리가 돋았다라고 한다고 정정함. 강아지 혀 밑에 나는 것은 혓바늘이라고 하고, 사람 혀에 나는 것은 쓰리라고 한다고 함.</span></div>
+                          <div class="dt-note-line is-warn"><span class="dt-note-key">추가정보</span><span>조사 후에 쓰리, 쓰리가 돋았다라고 한다고 정정함. 강아지 혀 밑에 나는 것은 혓바늘이라고 하고, 사람 혀에 나는 것은 쓰리라고 한다고 함.</span></div>
                       </div>
                     </td>
                   </tr>

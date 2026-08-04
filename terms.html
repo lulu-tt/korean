@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지역어종합정보 — 서비스 이용약관</title>
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="./styles.css">
+<script src="./gnb.js" defer></script>
+<script src="./share.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+  :root { --tm: #2563eb; --tm-dark: #1e3a8a; --tm-soft: #eff4ff; }
+
+  body {
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  /* ===== 공통 타이틀 영역(sub-visual) ===== */
+  .sub-visual{background:linear-gradient(180deg,#edf4ff 0%,#f8fafc 100%);border-bottom:1px solid #e2e8f0;padding:55px 0 50px;text-align:center;position:relative;overflow:visible;display:block;min-height:180px;}
+  .sub-visual::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(37,99,235,.03) 0%,transparent 40%);pointer-events:none;}
+  .sv-title{font-size:30px;font-weight:800;color:#1e3a8a;letter-spacing:-.03em;margin:0 0 16px;position:relative;z-index:1;}
+  .location-bar{display:inline-flex;align-items:center;gap:8px;background:#fff;padding:6px 20px;border-radius:99px;box-shadow:0 2px 8px rgba(15,23,42,.02);border:1px solid #cbd5e1;position:relative;z-index:1;}
+  .loc-item{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#475569;}
+  .loc-item.home{color:#3b82f6;font-size:14px;}
+  .loc-sep{color:#cbd5e1;font-size:12px;}
+
+  /* ===== 본문 ===== */
+  .tm-wrap {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 56px 20px 110px;
+    flex: 1;
+    box-sizing: border-box;
+  }
+
+  /* 상단 메타 배너 */
+  .tm-meta {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    background: linear-gradient(180deg, var(--tm-soft) 0%, #f8fafc 100%);
+    border: 1px solid #dbe6ff; border-radius: 16px; padding: 22px 26px; margin-bottom: 20px;
+  }
+  .tm-meta__l { display: flex; align-items: center; gap: 14px; }
+  .tm-meta__ic { width: 46px; height: 46px; border-radius: 12px; background: var(--tm-dark); color: #fff; display: grid; place-items: center; font-size: 24px; flex-shrink: 0; }
+  .tm-meta__t { font-size: 16px; font-weight: 800; color: #1e293b; margin: 0 0 2px; letter-spacing: -0.01em; }
+  .tm-meta__s { font-size: 13.5px; color: #64748b; margin: 0; }
+  .tm-meta__date { font-size: 13px; font-weight: 700; color: var(--tm); background: #fff; border: 1px solid #dbe6ff; border-radius: 99px; padding: 8px 16px; white-space: nowrap; }
+
+  /* 목차 */
+  .tm-toc {
+    border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px 26px; margin-bottom: 44px;
+  }
+  .tm-toc__title { font-size: 13px; font-weight: 700; color: #94a3b8; letter-spacing: 0.06em; margin: 0 0 14px; }
+  .tm-toc__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 28px; }
+  .tm-toc a {
+    display: flex; align-items: center; gap: 8px; text-decoration: none;
+    font-size: 14.5px; color: #334155; padding: 6px 0; transition: color 0.15s;
+  }
+  .tm-toc a:hover { color: var(--tm); }
+  .tm-toc a i { color: var(--tm); font-size: 15px; }
+
+  /* 장(chapter) */
+  .tm-chapter { margin-bottom: 46px; scroll-margin-top: 24px; }
+  .tm-chapter__head {
+    display: flex; align-items: center; gap: 12px;
+    padding-bottom: 14px; border-bottom: 2px solid #1e293b; margin-bottom: 8px;
+  }
+  .tm-chapter__no {
+    font-size: 12px; font-weight: 800; color: #fff; background: var(--tm-dark);
+    border-radius: 6px; padding: 4px 10px; letter-spacing: 0.02em; flex-shrink: 0;
+  }
+  .tm-chapter__title { font-size: 20px; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.02em; }
+
+  /* 조(article) */
+  .tm-article { padding: 22px 0 6px; border-bottom: 1px solid #eef2f6; }
+  .tm-article:last-child { border-bottom: none; }
+  .tm-article__title { font-size: 16px; font-weight: 700; color: #1e293b; margin: 0 0 12px; letter-spacing: -0.01em; }
+  .tm-article__title .num { color: var(--tm); margin-right: 4px; }
+  .tm-article p { font-size: 15px; line-height: 1.78; color: #3f4c5f; margin: 0 0 10px; }
+  .tm-article p:last-child { margin-bottom: 0; }
+
+  /* 조문 항목 리스트(①②③ / 1.2.3.) */
+  .tm-clauses { list-style: none; margin: 0; padding: 0; }
+  .tm-clauses > li { font-size: 15px; line-height: 1.78; color: #3f4c5f; margin-bottom: 10px; }
+  .tm-clauses > li:last-child { margin-bottom: 0; }
+  .tm-sub { list-style: none; margin: 8px 0 4px; padding: 0 0 0 18px; }
+  .tm-sub li {
+    position: relative; padding-left: 20px; margin-bottom: 6px;
+    font-size: 14.5px; line-height: 1.7; color: #55627a;
+  }
+  .tm-sub li::before {
+    content: ''; position: absolute; left: 4px; top: 10px;
+    width: 5px; height: 5px; border-radius: 50%; background: #cbd5e1;
+  }
+  .tm-quote { color: #1e293b; }
+
+  /* 부칙 */
+  .tm-addendum {
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px;
+    padding: 22px 26px; display: flex; align-items: center; gap: 14px;
+    font-size: 15px; color: #334155;
+  }
+  .tm-addendum i { color: var(--tm); font-size: 22px; flex-shrink: 0; }
+  .tm-addendum b { color: #1e293b; font-weight: 700; }
+
+  @media (max-width: 640px) {
+    .tm-toc__grid { grid-template-columns: 1fr; }
+    .tm-meta { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div id="gnb-common"></div>
+
+<!-- ===== 공통 타이틀 영역 ===== -->
+<div class="sub-visual">
+  <div class="wrap">
+    <h1 class="sv-title">서비스 이용약관</h1>
+    <div class="location-bar">
+      <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer;" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">이용안내</div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">서비스 이용약관</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 본문 ===== -->
+<main class="tm-wrap">
+
+  <!-- 상단 메타 -->
+  <div class="tm-meta">
+    <div class="tm-meta__l">
+      <div class="tm-meta__ic"><i class="ti ti-file-description"></i></div>
+      <div>
+        <p class="tm-meta__t">지역어 종합 정보 누리집 서비스 이용약관</p>
+        <p class="tm-meta__s">누리집 서비스의 이용 조건·절차 및 이용자와 국어원의 권리·의무를 규정합니다.</p>
+      </div>
+    </div>
+    <span class="tm-meta__date">시행일 2023. 3. 6.</span>
+  </div>
+
+  <!-- 목차 -->
+  <nav class="tm-toc" aria-label="약관 목차">
+    <p class="tm-toc__title">목차</p>
+    <div class="tm-toc__grid">
+      <a href="#ch1"><i class="ti ti-chevron-right"></i> 제1장 총칙</a>
+      <a href="#ch2"><i class="ti ti-chevron-right"></i> 제2장 서비스 제공 및 이용</a>
+      <a href="#ch3"><i class="ti ti-chevron-right"></i> 제3장 의무 및 책임</a>
+      <a href="#addendum"><i class="ti ti-chevron-right"></i> 부칙</a>
+    </div>
+  </nav>
+
+  <!-- 제1장 총칙 -->
+  <section class="tm-chapter" id="ch1">
+    <div class="tm-chapter__head">
+      <span class="tm-chapter__no">제1장</span>
+      <h2 class="tm-chapter__title">총칙</h2>
+    </div>
+
+    <div class="tm-article">
+      <h3 class="tm-article__title"><span class="num">제1조</span> 목적</h3>
+      <p>이 약관은 국립국어원(이하 "국어원"이라 한다.)이 제공하는 누리집 서비스의 이용 조건 및 절차, 이용자와 국어원의 권리, 의무, 책임 사항과 기타 필요한 사항을 규정하기 위한 것입니다. 이 약관이 적용되는 누리집은 지역어 종합 정보(dialect.korean.go.kr)입니다.</p>
+    </div>
+
+    <div class="tm-article">
+      <h3 class="tm-article__title"><span class="num">제2조</span> 용어의 정의</h3>
+      <p>이 약관에서 사용하는 용어의 정의는 다음과 같습니다.</p>
+      <ul class="tm-clauses">
+        <li>① <b class="tm-quote">누리집</b>: 온라인을 통해 이용할 수 있는, 이 약관이 적용되는 인터넷 사이트(지역어 종합 정보)를 말합니다.</li>
+        <li>② <b class="tm-quote">서비스</b>: 구현되는 단말기(PC, TV, 휴대형 단말기 등 각종 유·무선 장치 포함)와 상관없이 이용할 수 있는 누리집이 제공하는 제반 서비스를 말합니다.</li>
+        <li>③ <b class="tm-quote">이용자</b>: 이 약관에 따라 누리집에서 제공하는 서비스를 이용하는 자를 말합니다.</li>
+        <li>④ <b class="tm-quote">가입</b>: 이 약관에 동의하고, 누리집에서 제공하는 신청서 양식에 해당 정보를 기입하여 누리집 이용 계약을 완료하는 행위를 말합니다.</li>
+        <li>⑤ <b class="tm-quote">회원 정보</b>: 국어원이 회원 가입 신청서 양식을 통해 수집하는 회원의 별명, 계정(ID), 비밀번호를 말합니다.</li>
+        <li>⑥ <b class="tm-quote">계정(ID)</b>: 회원의 식별과 정보 이용을 위해 회원이 정하고 국어원이 승인하는 영문자, 숫자의 조합(3자 이상)을 말합니다.</li>
+        <li>⑦ <b class="tm-quote">비밀번호</b>: 회원과 계정(ID)이 일치하는지 확인하고 개인 정보 보호를 위해 회원 자신이 정한 영문자, 숫자, 특수 문자(2가지 이상)의 조합(9~16자)을 말합니다.</li>
+        <li>⑧ <b class="tm-quote">탈퇴</b>: 회원이 누리집 이용을 하지 않기로 하여 회원 등록을 취소하는 행위를 말합니다.</li>
+      </ul>
+    </div>
+
+    <div class="tm-article">
+      <h3 class="tm-article__title"><span class="num">제3조</span> 약관의 효력과 변경</h3>
+      <ul class="tm-clauses">
+        <li>① 국어원이 이 약관을 누리집에 게시하거나 기타의 방법으로 회원에게 공지하고, 이에 동의한 회원이 누리집에 가입하면 이 약관의 효력이 발생합니다.</li>
+        <li>② 이 약관은 누리집에 가입한 회원을 비롯하여 서비스를 이용하고자 하는 이용자까지 모든 이용자에게 그 효력이 발생합니다.</li>
+        <li>③ 새로운 서비스를 추가하거나 정책상 중요한 사유와 특별한 사정이 발생한 경우 이 약관은 미리 고지하지 않고 변경될 수 있으며, 변경된 약관은 누리집에 게재하여 공지하면 효력이 발생합니다. 회원이 변경 약관에 동의하지 않을 경우 탈퇴할 수 있으며, 탈퇴를 신청하지 않으면 변경에 동의한 것으로 봅니다.</li>
+      </ul>
+    </div>
+
+    <div class="tm-article">
+      <h3 class="tm-article__title"><span class="num">제4조</span> 약관 외 준칙</h3>
+      <p>이 약관에 명시되지 않은 사항은 전기통신기본법, 전기통신사업법, 방송통신심의위원회 심의 규정, 개인정보 보호법, 정보통신망 이용촉진 및 정보보호 등에 관한 법률, 저작권법 및 기타 관련 법령의 규정에 따릅니다.</p>
+    </div>
+  </section>
+
+  <!-- 제2장 서비스 제공 및 이용 -->
+  <section class="tm-chapter" id="ch2">
+    <div class="tm-chapter__head">
+      <span class="tm-chapter__no">제2장</span>
+      <h2 class="tm-chapter__title">서비스 제공 및 이용</h2>
+    </div>
+
+    <div class="tm-article">
+      <h3 class="tm-article__title"><span class="num">제5조</span> 회원 가입의 성립 및 이용 제한</h3>
+      <ul class="tm-clauses">
+        <li>① 회원 가입은 가입하고자 하는 이용자가 이 약관의 내용에 동의한 후 회원 가입 신청을 한 것에 대해 국어원이 승낙함으로써 성립됩니다.</li>
+        <li>② 이용자가 "동의합니다" 단추를 클릭하면 이 약관에 동의한 것으로 봅니다.</li>
+        <li>③ 회원 가입은 가입 신청서 양식에 정보를 입력·전송함으로써 성립됩니다.</li>
+        <li>④ 다음 각 호에 해당하는 경우 국어원은 가입을 취소할 수 있습니다.
+          <ul class="tm-sub">
+            <li>사회의 안녕질서 또는 미풍양속을 저해할 목적으로 신청한 경우</li>
+            <li>타인의 누리집 이용을 방해하거나 그 정보를 도용하는 행위를 한 경우</li>
+            <li>이용 규칙 및 제10조의 금지 행위를 한 경우</li>
+          </ul>
+        </li>
+        <li>⑤ 회원 탈퇴는 회원 본인이 누리집 내 '내 정보 관리' 화면에서 회원 탈퇴를 신청함으로써 이루어집니다.</li>
+      </ul>
+    </div>
+
+    <div class="tm-article">
+      <h3 class="tm-article__title"><span class="num">제6조</span> 게시물의 저작권</h3>
+      <ul class="tm-clauses">
+        <li>① 누리집의 텍스트 저작물은 공공저작물 자유이용 허락 표시 기준(공공누리, KOGL) 제2유형을 적용하며, 자료를 사용할 때에는 출처를 필수로 표시해야 합니다.</li>
+        <li>② '문학 속 지역어'의 문학 작품 예문은 별도로 설정된 저작권 정책을 적용합니다.</li>
+      </ul>
+    </div>
+
+    <div class="tm-article">
+      <h3 class="tm-article__title"><span class="num">제7조</span> 서비스 이용 시간</h3>
+      <ul class="tm-clauses">
+        <li>① 서비스의 이용은 연중무휴, 1일 24시간을 원칙으로 합니다.</li>
+        <li>② 정기 점검 등의 필요로 국어원이 정한 날이나 시간은 예외로 합니다.</li>
+      </ul>
+    </div>
+
+    <div class="tm-article">
+      <h3 class="tm-article__title"><span class="num">제8조</span> 서비스의 중단</h3>
+      <ul class="tm-clauses">
+        <li>① 다음 각 호에 해당하는 경우 국어원은 서비스를 제한하거나 중지할 수 있습니다.
+          <ul class="tm-sub">
+            <li>설비의 점검·보수·교체·고장 또는 통신 두절이 발생한 경우</li>
+            <li>기간통신사업자가 전기통신 서비스를 중지한 경우</li>
+            <li>정전, 제반 설비 장애 또는 이용량 폭주 등으로 정상적인 이용에 지장이 있는 경우</li>
+            <li>국어원의 제반 사정으로 서비스를 유지할 수 없는 경우</li>
+            <li>국가 비상사태, 천재지변 등 불가항력적인 사유가 발생한 경우</li>
+          </ul>
+        </li>
+        <li>② 국어원은 서비스를 중단하는 경우 그 사실과 사유, 제한 기간을 누리집에 게시하여 공지합니다.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 제3장 의무 및 책임 -->
+  <section class="tm-chapter" id="ch3">
+    <div class="tm-chapter__head">
+      <span class="tm-chapter__no">제3장</span>
+      <h2 class="tm-chapter__title">의무 및 책임</h2>
+    </div>
+
+    <div class="tm-article">
+      <h3 class="tm-article__title"><span class="num">제9조</span> 국어원의 의무</h3>
+      <p>국어원은 이 누리집을 통한 서비스 제공 및 보안과 관련된 설비를 지속적이고 안정적으로 할 수 있도록 시스템의 유지, 점검 또는 복구 등의 조치를 성실히 이행하여야 합니다.</p>
+    </div>
+
+    <div class="tm-article">
+      <h3 class="tm-article__title"><span class="num">제10조</span> 회원과 이용자의 의무</h3>
+      <ul class="tm-clauses">
+        <li>① 회원과 이용자는 서비스를 이용할 때 다음 각 호의 행위를 하여서는 안 됩니다.
+          <ul class="tm-sub">
+            <li>허위 사실 기재, 타인 계정(ID)의 도용 또는 부정 사용</li>
+            <li>저작권 정책에 위배되는 행위</li>
+            <li>타인의 명예를 손상하거나 불이익을 주는 행위</li>
+            <li>게시판에 음란물을 게재하거나 음란 사이트를 링크하는 행위</li>
+            <li>공공질서 및 미풍양속에 위반되는 정보·문장·도형·음성·영상을 게시하는 행위</li>
+            <li>컴퓨터 바이러스에 감염된 자료를 등록하거나 유포하는 행위</li>
+            <li>서비스 운영을 방해하거나 광고성 정보·스팸을 전송하는 행위</li>
+            <li>타인을 가장하거나 관계를 허위로 명시하는 행위</li>
+            <li>허위 정보를 유통시키는 행위</li>
+            <li>상품을 판매하거나 영리를 목적으로 하는 활동</li>
+            <li>해킹, 광고, 음란 사이트를 홍보하는 행위</li>
+            <li>수치심·혐오감·공포심을 야기하는 글·이미지·영상을 게시하는 행위</li>
+            <li>타인의 정보를 불법으로 변경하는 행위</li>
+            <li>전송·게시가 금지된 정보(컴퓨터 프로그램 포함)를 전송·게시하는 행위</li>
+            <li>국어원 직원·운영자를 가장하거나 타인의 명의를 도용하여 글·전자 우편을 발송하는 행위</li>
+            <li>컴퓨터 코드·파일·프로그램을 포함한 자료를 게시하는 행위</li>
+            <li>과잉 접근(stalking) 등 타인을 괴롭히는 행위</li>
+            <li>1개월 내에 가입 후 해지를 3회 이상 반복하는 등 부당하게 악용하는 행위</li>
+            <li>기타 불법적이거나 부당한 행위</li>
+          </ul>
+        </li>
+        <li>② 회원과 이용자는 관계 법령, 이 약관, 세부 이용 지침, 서비스 이용 안내 및 공지 사항 등을 준수하여야 하며, 국어원의 업무를 방해하는 행위를 하여서는 안 됩니다.</li>
+        <li>③ 회원은 이용 권한 및 계약상 지위를 타인에게 양도·증여할 수 없으며, 이를 위반할 경우 국어원은 계약을 해지하거나 서비스를 제한·중지할 수 있습니다.</li>
+      </ul>
+    </div>
+
+    <div class="tm-article">
+      <h3 class="tm-article__title"><span class="num">제11조</span> 분쟁 해결</h3>
+      <ul class="tm-clauses">
+        <li>① 국어원은 이용자가 제기하는 정당한 의견을 반영하고 불만을 해결하기 위해 노력합니다.</li>
+        <li>② 이용자가 제기하는 불만 사항 및 의견은 우선적으로 처리하며, 신속한 처리가 곤란한 경우에는 그 사유와 처리 일정을 통보합니다.</li>
+      </ul>
+    </div>
+
+    <div class="tm-article">
+      <h3 class="tm-article__title"><span class="num">제12조</span> 정보의 제공 및 홍보물 게재</h3>
+      <ul class="tm-clauses">
+        <li>① 국어원은 누리집 운영을 위하여 각종 정보를 누리집에 게재하거나 전자 우편·서신 우편 등으로 회원에게 제공할 수 있습니다.</li>
+        <li>② 국어원은 적절하다고 판단되거나 공익성이 있는 홍보물을 게재할 수 있습니다.</li>
+      </ul>
+    </div>
+
+    <div class="tm-article">
+      <h3 class="tm-article__title"><span class="num">제13조</span> 책임 제한</h3>
+      <ul class="tm-clauses">
+        <li>① 국어원은 천재지변 또는 이에 준하는 불가항력으로 서비스를 제공할 수 없는 경우 책임이 면제됩니다.</li>
+        <li>② 국어원은 기간통신사업자가 전기통신 서비스를 중지하여 발생한 손해에 대해 책임이 면제됩니다.</li>
+        <li>③ 국어원은 설비의 보수·교체·정기 점검·공사 등 부득이한 사유로 발생한 손해에 대해 책임이 면제됩니다.</li>
+        <li>④ 국어원은 이용자의 컴퓨터 오류 또는 회원의 부실한 정보 기재로 발생한 손해에 대해 책임을 지지 않습니다.</li>
+        <li>⑤ 국어원은 이용자가 서비스 이용으로 기대하는 수익을 상실하거나 서비스를 통해 획득한 자료로 인한 손해에 대해 책임을 지지 않습니다.</li>
+        <li>⑥ 국어원은 이용자가 게재한 의견·정보·자료의 신뢰도, 정확성 등 내용에 대하여 책임을 지지 않습니다.</li>
+        <li>⑦ 국어원은 서비스를 매개로 이용자 상호 간에 이루어진 물품·금전 거래와 관련하여 책임을 지지 않습니다.</li>
+        <li>⑧ 국어원은 서비스 이용과 관련한 손해 중 회원·이용자의 고의·과실로 인한 손해에 대해 책임을 지지 않습니다.</li>
+        <li>⑨ 국어원은 게시된 유관 기관 정보의 정확성·완전성·질을 보장하지 않으며, 그 이용으로 발생한 손실·손해에 대해 책임을 지지 않습니다.</li>
+        <li>⑩ 국어원은 다른 이용자로 인해 입게 되는 정신적 피해에 대하여 보상할 책임을 지지 않습니다.</li>
+      </ul>
+    </div>
+
+    <div class="tm-article">
+      <h3 class="tm-article__title"><span class="num">제14조</span> 합의 관할</h3>
+      <p>이 약관에 의한 서비스 이용과 관련한 제반 분쟁 및 소송은 국어원의 소재지를 관할하는 법원을 관할 법원으로 합니다.</p>
+    </div>
+  </section>
+
+  <!-- 부칙 -->
+  <div class="tm-addendum" id="addendum">
+    <i class="ti ti-calendar-check" aria-hidden="true"></i>
+    <span><b>부칙</b> — 이 약관은 <b>2023년 3월 6일</b>부터 시행됩니다.</span>
+  </div>
+
+</main>
+
+<div id="footer-common"></div>
+
+</body>
+</html>

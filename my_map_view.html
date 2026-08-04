@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>나의 지도 보기 — 국립국어원</title>
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.9.0/ol.css">
+<link rel="stylesheet" href="./styles.css">
+<script src="./gnb.js" defer></script>
+<script src="./share.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+/* dialect_map.html 계열 3열 셸 */
+.sub-visual {
+  background: linear-gradient(180deg, #edf4ff 0%, #f8fafc 100%);
+  border-bottom: 1px solid #e2e8f0;
+  padding: 55px 0 50px; text-align: center;
+  position: relative; overflow: visible; min-height: 180px;
+}
+.sub-visual::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 80% 20%, rgba(37,99,235,.03) 0%, transparent 40%); pointer-events: none; }
+.sv-title { font-size: 30px; font-weight: 800; color: #1e3a8a; margin: 0 0 16px; letter-spacing: -0.03em; position: relative; z-index: 1; }
+.loc-sep { color: #cbd5e1; font-size: 12px; }
+/* 위치(브레드크럼) — dialect_map과 동일한 흰색 알약 */
+.crumbs { display: inline-flex; align-items: center; gap: 8px; background: #ffffff; padding: 8px 20px; border-radius: 99px; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02); border: 1px solid #cbd5e1; position: relative; z-index: 1; }
+.crumbs a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #64748b; text-decoration: none; }
+.crumbs a:hover { color: var(--blue); text-decoration: underline; }
+.crumbs [aria-current="page"] { font-size: 13px; font-weight: 800; color: #1e3a8a; }
+body { background: #fff; }
+#main.wrap { margin-top: 32px; margin-bottom: 80px; }
+
+.shell {
+  display: grid;
+  grid-template-columns: 262px minmax(0, 1fr) 306px;
+  gap: 20px;
+  align-items: start;
+}
+.shell .side, .shell .info { align-self: start; }
+
+.card {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(15,23,42,.04);
+}
+.card--side { padding: 14px; display: flex; flex-direction: column; }
+
+.side-title {
+  flex-shrink: 0;
+  font-size: 14px; font-weight: 800; color: #0f172a; margin: 0 0 10px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.wlist {
+  flex: 1 1 auto; min-height: 0; max-height: none; overflow: auto;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.witem {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  text-align: left; border: 1px solid transparent; background: #fff;
+  border-radius: 10px; padding: 10px 12px; cursor: pointer;
+  font-family: inherit; font-size: 14px; font-weight: 700; color: #334155;
+  transition: 0.12s;
+}
+.witem:hover { background: #f8fafc; border-color: #e2e8f0; }
+.witem.is-active {
+  background: #eff6ff; border-color: #93c5fd; color: #1d4ed8;
+}
+.witem__meta { font-size: 11px; font-weight: 600; color: #94a3b8; margin-left: auto; }
+.side-foot { flex-shrink: 0; margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+
+/* 이 지도 요약·분포 패널 */
+.ms { flex: 1 1 auto; min-height: 0; overflow: auto; }
+.ms__word { font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; }
+.ms__meta { font-size: 12px; color: #64748b; font-weight: 600; margin-top: 4px; }
+.ms__mean { font-size: 12px; color: #475569; margin-top: 8px; line-height: 1.5; background: #f8fafc; border: 1px solid #eef2f7; border-radius: 10px; padding: 8px 10px; }
+.ms__stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0 4px; }
+.ms__stat { text-align: center; background: #f8fafc; border: 1px solid #eef2f7; border-radius: 12px; padding: 10px 6px; }
+.ms__stat b { display: block; font-size: 19px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; }
+.ms__stat span { display: block; font-size: 11px; color: #94a3b8; font-weight: 700; margin-top: 2px; }
+.ms__sec { margin-top: 18px; }
+.ms__sec-h { font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 8px; }
+.ms__stack { display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: #f1f5f9; }
+.ms__stack i { display: block; height: 100%; }
+.ms__glist { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.ms__grow { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #334155; font-weight: 600; }
+.ms__dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(15,23,42,.15); }
+.ms__grow .gname { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ms__grow .gval { flex-shrink: 0; font-weight: 700; color: #64748b; }
+.ms__bar { height: 10px; border-radius: 999px; background: #f1f5f9; overflow: hidden; }
+.ms__bar i { display: block; height: 100%; background: #2563eb; border-radius: 999px; }
+.ms__barlabel { font-size: 11px; color: #64748b; font-weight: 700; margin-top: 6px; }
+.ms__top { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.ms__toprow { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #334155; font-weight: 700; }
+.ms__rank { width: 18px; height: 18px; border-radius: 6px; background: #eff6ff; color: #2563eb; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ms__toprow .tname { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ms__toprow .tval { flex-shrink: 0; font-size: 12px; color: #64748b; }
+.ms__save { margin-top: 18px; font-size: 11px; font-weight: 700; color: #94a3b8; display: inline-flex; align-items: center; gap: 5px; }
+.ms__save.is-final { color: #15803d; }
+.ms__empty { font-size: 13px; color: #94a3b8; font-weight: 600; padding: 8px 0; }
+
+/* 지도 열: 제목바·안내·지도 간격을 지역어 지도(dialect_map)와 동일하게 (flex gap) */
+.maincol { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+
+.mapbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 16px;
+  padding: 14px 18px; box-shadow: 0 2px 10px rgba(15,23,42,.04);
+  flex-wrap: wrap;
+}
+.mapbar__title { font-size: 20px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; }
+.mapbar__title b { color: #2563eb; }
+.mapbar__meta { font-size: 12px; color: #64748b; margin-top: 3px; font-weight: 600; }
+.mapbar__actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.toolbtn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 700; color: #475569;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+  padding: 9px 14px; cursor: pointer; font-family: inherit; transition: 0.15s;
+}
+.toolbtn i { font-size: 16px; }
+.toolbtn:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+/* 안내 배너 — dialect_map의 coach와 동일 */
+.coach { display: flex; align-items: center; gap: 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 14px; padding: 12px 18px; font-size: 13px; color: #1e40af; line-height: 1.5; }
+.coach > i { font-size: 18px; flex-shrink: 0; color: #2563eb; }
+.coach span { flex: 1; }
+.coach__close { background: none; border: none; color: #60a5fa; font-size: 16px; cursor: pointer; padding: 4px; flex-shrink: 0; }
+.coach__close:hover { color: #1d4ed8; }
+.coach[hidden] { display: none; }
+.toolbtn--primary { background: #2563eb; border-color: #2563eb; color: #fff; }
+.toolbtn--primary:hover { background: #1d4ed8; color: #fff; }
+
+.popwrap { position: relative; }
+.popmenu {
+  position: absolute; right: 0; top: calc(100% + 6px); z-index: 20;
+  min-width: 220px; background: #fff; border: 1px solid #e2e8f0;
+  border-radius: 12px; box-shadow: 0 12px 28px rgba(15,23,42,.12);
+  padding: 10px; display: flex; flex-direction: column; gap: 4px;
+}
+.popmenu[hidden] { display: none; }
+.popmenu__sec { padding: 6px 4px 10px; border-bottom: 1px solid #f1f5f9; margin-bottom: 4px; }
+.popmenu__sec:last-child { border-bottom: none; margin-bottom: 0; }
+.popmenu__label { font-size: 11px; font-weight: 800; color: #94a3b8; margin-bottom: 8px; letter-spacing: 0.02em; }
+.mschk {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 600; color: #334155;
+  padding: 6px 4px; cursor: pointer;
+}
+.mschk__cb { width: 15px; height: 15px; accent-color: #2563eb; }
+.ovdot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; }
+.dlmenu__item {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  border: none; background: none; text-align: left;
+  font: inherit; font-size: 13px; font-weight: 700; color: #334155;
+  padding: 10px 10px; border-radius: 8px; cursor: pointer;
+}
+.dlmenu__item:hover { background: #eff6ff; color: #1d4ed8; }
+.dlmenu__note {
+  font-size: 11px; color: #94a3b8; font-weight: 600; line-height: 1.45;
+  padding: 8px 10px 4px;
+}
+
+.mapcard {
+  position: relative; border: 1px solid #e2e8f0; border-radius: 16px;
+  overflow: hidden; background: #e8eef5;
+  box-shadow: 0 2px 10px rgba(15,23,42,.04);
+}
+#olmap { width: 100%; height: 640px; outline: none; }
+
+.mapui { position: absolute; right: 14px; top: 14px; z-index: 4; display: flex; flex-direction: column; gap: 6px; }
+.mapui__btn {
+  width: 36px; height: 36px; border-radius: 10px; border: 1px solid #e2e8f0;
+  background: rgba(255,255,255,.96); cursor: pointer; color: #334155; font-size: 18px;
+  display: flex; align-items: center; justify-content: center; font-weight: 700;
+}
+
+.maplegend {
+  position: absolute; left: 16px; bottom: 16px; z-index: 3;
+  background: rgba(255,255,255,.96); backdrop-filter: blur(10px);
+  border: 1px solid #e2e8f0; border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(15,23,42,.1); padding: 12px 14px; min-width: 168px;
+}
+.maplegend__head { font-size: 12px; font-weight: 800; color: #475569; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.maplegend__list { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.maplegend__row { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: #334155; }
+.maplegend__name { flex: 1; }
+.maplegend__fold { background: none; border: none; color: #94a3b8; font-size: 15px; cursor: pointer; padding: 2px; display: flex; }
+.maplegend__fold:hover { color: var(--blue); }
+.maplegend.is-folded .maplegend__list { display: none; }
+.maplegend.is-folded { min-width: 0; }
+.maplegend.is-folded .maplegend__head { margin-bottom: 0; }
+.dfmark { width: 14px; height: 14px; flex-shrink: 0; }
+.dfmark--circle { border-radius: 50%; }
+.dfmark--square { border-radius: 3px; }
+.dfmark--diamond { width: 12px; height: 12px; border-radius: 2px; transform: rotate(45deg); }
+
+/* RIGHT info */
+.info__card { flex: 0 0 auto; padding: 0; overflow: hidden; display: flex; flex-direction: column; min-height: 520px; }
+.info__head { padding: 12px 14px 0; border-bottom: 1px solid #f1f5f9; }
+.seg { display: flex; }
+.seg__btn {
+  flex: 1; border: none; background: none; color: #0f172a;
+  font: inherit; font-size: 14px; font-weight: 800; padding: 0 0 12px;
+  cursor: default; text-align: left; margin: 0;
+}
+.seg__btn.is-active { background: none; color: #0f172a; box-shadow: none; }
+.segpanes { padding: 14px; flex: 1; overflow: auto; }
+/* 우측 표시·범례 — dialect_map과 동일한 계열 아코디언 */
+.dform__word { font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+.dform__meta { font-size: 13px; color: #475569; margin-top: 6px; }
+.dform__meta b { font-weight: 700; color: #334155; }
+.dform__sep { color: #cbd5e1; margin: 0 8px; }
+.dflist { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.dfitem { border: 1px solid var(--line); border-radius: 14px; background: #fff; overflow: hidden; transition: border-color 0.15s, box-shadow 0.15s; }
+.dfitem.is-open { border-color: #cbd5e1; box-shadow: var(--shadow2); }
+.dfitem__head { display: flex; align-items: center; gap: 10px; width: 100%; padding: 14px 18px; }
+.dfcb { width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--blue); cursor: pointer; }
+.dfitem__expand { flex: 1; min-width: 0; display: flex; align-items: center; gap: 11px; padding: 0; background: none; border: none; cursor: pointer; font-family: inherit; text-align: left; }
+.dfitem__headmain { flex: 1; min-width: 0; }
+.dfitem__word { font-size: 16px; font-weight: 800; color: var(--text); white-space: nowrap; }
+.dfitem__group { font-size: 13px; font-weight: 600; color: #94a3b8; white-space: nowrap; }
+.dfchev { color: #94a3b8; font-size: 18px; transition: transform 0.2s; flex-shrink: 0; }
+.dfitem.is-open .dfchev { transform: rotate(180deg); }
+.dfitem__panel { display: none; padding: 4px 18px 16px; }
+.dfitem.is-open .dfitem__panel { display: block; }
+.dfvarlist { display: flex; flex-direction: column; border-top: 1px dashed var(--line); padding-top: 4px; }
+.dfvarrow { display: flex; align-items: center; gap: 9px; padding: 11px 4px; border-top: 1px solid #f1f5f9; cursor: pointer; }
+.dfvarrow:first-child { border-top: none; }
+.dfvarcb { width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--blue); cursor: pointer; }
+.dfvarrow__mark { flex-shrink: 0; display: block; }
+.dfvarrow__word { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; color: #334155; }
+.dfvarrow__n { font-size: 12px; font-weight: 700; color: #94a3b8; }
+
+.mm-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border-radius: 10px; border: 1px solid transparent;
+  padding: 9px 12px; font-size: 13px; font-weight: 700;
+  font-family: inherit; cursor: pointer; text-decoration: none;
+}
+.mm-btn--primary { background: #2563eb; color: #fff; }
+.mm-btn--ghost { background: #fff; border-color: #cbd5e1; color: #334155; }
+.mm-btn--block { width: 100%; }
+
+#toast {
+  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
+  z-index: 1000; background: #0f172a; color: #fff;
+  font-size: 14px; font-weight: 700; padding: 12px 18px; border-radius: 999px;
+}
+.empty-box {
+  grid-column: 1 / -1; text-align: center; padding: 60px 20px;
+  border: 1px dashed #cbd5e1; border-radius: 16px; background: #f8fafc; color: #64748b;
+}
+
+@media (max-width: 1100px) {
+  .shell { grid-template-columns: 1fr; }
+  #olmap { height: 480px !important; }
+  .card--side, .info__card { height: auto !important; }
+  .info__card { min-height: 0; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">본문 바로가기</a>
+<div id="gnb-common"></div>
+
+<div class="sub-visual">
+  <div class="wrap">
+    <h1 class="sv-title">나의 지도 보기</h1>
+    <nav class="crumbs" aria-label="현재 위치">
+      <a href="./index.html"><i class="ti ti-home" aria-hidden="true"></i> 홈</a>
+      <i class="ti ti-chevron-right loc-sep" aria-hidden="true"></i>
+      <a href="./mypage_map.html">나의 지도</a>
+      <i class="ti ti-chevron-right loc-sep" aria-hidden="true"></i>
+      <span aria-current="page">지도 보기</span>
+    </nav>
+  </div>
+</div>
+
+<main id="main" class="wrap">
+  <div id="view-empty" class="empty-box" hidden>
+    <h2 style="color:#0f172a;margin:0 0 10px;">표시할 지도가 없습니다</h2>
+    <p>표제어를 선택하거나, 나만의 지도 제작에서 작성 후 최종 저장해 주세요.</p>
+    <p style="margin-top:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+      <a class="mm-btn mm-btn--primary" href="./dialect_my_map.html">지도 제작</a>
+      <a class="mm-btn mm-btn--ghost" href="./mypage_map.html">목록</a>
+    </p>
+  </div>
+
+  <section class="shell" id="view-shell" aria-label="나의 지도">
+    <!-- LEFT: 이 지도 요약·분포 -->
+    <aside class="side" aria-label="이 지도 요약">
+      <section class="card card--side">
+        <div class="side-title">
+          이 지도 요약
+          <a href="./dialect_my_map.html" class="mm-btn mm-btn--ghost" style="padding:5px 8px;font-size:11px;"><i class="ti ti-pencil" aria-hidden="true"></i> 편집</a>
+        </div>
+        <div class="ms" id="mapSummary"></div>
+        <div class="side-foot">
+          <a class="mm-btn mm-btn--ghost mm-btn--block" href="./mypage_map.html">나의 지도 목록</a>
+          <a class="mm-btn mm-btn--primary mm-btn--block" href="./dialect_my_map.html"><i class="ti ti-plus" aria-hidden="true"></i> 새로운 지도 만들기</a>
+        </div>
+      </section>
+    </aside>
+
+    <!-- CENTER: 지도 -->
+    <section class="maincol" aria-label="지도">
+      <header class="mapbar">
+        <div>
+          <div class="mapbar__title">‘<b id="mapWord">—</b>’의 방언 분포 지도</div>
+          <div class="mapbar__meta" id="mapMeta">나만의 지도 · 면색 · 상징 부호</div>
+        </div>
+        <div class="mapbar__actions">
+          <div class="popwrap">
+            <button class="toolbtn" type="button" id="btnSettings" aria-haspopup="true" aria-expanded="false">
+              <i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> 지도 설정
+            </button>
+            <div class="popmenu" id="popSettings" hidden>
+              <div class="popmenu__sec">
+                <div class="popmenu__label">지도 레이어</div>
+                <label class="mschk"><input type="checkbox" class="mschk__cb" id="ovRivers"> <span class="ovdot" style="background:#3b5bdb"></span> 하천</label>
+                <label class="mschk"><input type="checkbox" class="mschk__cb" id="ovRail"> <span class="ovdot" style="background:#2f9e44"></span> 철도</label>
+                <label class="mschk"><input type="checkbox" class="mschk__cb" id="ovRoads"> <span class="ovdot" style="background:#e8590c"></span> 도로</label>
+                <label class="mschk"><input type="checkbox" class="mschk__cb" id="ovMountains"> <span class="ovdot" style="background:#5f6f6a"></span> 산맥</label>
+              </div>
+              <div class="popmenu__sec">
+                <div class="popmenu__label">지역명 표시</div>
+                <label class="mschk"><input type="checkbox" class="mschk__cb" id="lblSido" checked> 시·도 이름</label>
+                <label class="mschk"><input type="checkbox" class="mschk__cb" id="lblSigungu"> 시·군·구 이름 (확대 시)</label>
+              </div>
+              <div class="popmenu__sec">
+                <div class="popmenu__label">표시 요소</div>
+                <label class="mschk"><input type="checkbox" class="mschk__cb" id="hideArea"> 면색(분포권) 숨기기</label>
+                <label class="mschk"><input type="checkbox" class="mschk__cb" id="hideSymbol"> 상징 부호 숨기기</label>
+              </div>
+            </div>
+          </div>
+          <div class="popwrap">
+            <button class="toolbtn toolbtn--primary" type="button" id="btnDownload" aria-haspopup="true" aria-expanded="false">
+              <i class="ti ti-download" aria-hidden="true"></i> 다운로드
+            </button>
+            <div class="popmenu" id="popDownload" hidden>
+              <button class="dlmenu__item" type="button" id="dlImage"><i class="ti ti-photo" aria-hidden="true"></i> 지도 이미지 (PNG)</button>
+              <button class="dlmenu__item" type="button" id="dlPdf"><i class="ti ti-file-text" aria-hidden="true"></i> 인쇄용 지도 (PDF)</button>
+              <button class="dlmenu__item" type="button" id="dlCsv"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> 방언형 자료 (CSV)</button>
+              <div class="dlmenu__note"><i class="ti ti-info-circle" aria-hidden="true"></i> 이미지·PDF에는 현재 화면 기준 지도가 담깁니다.</div>
+            </div>
+          </div>
+          <a class="toolbtn" id="btnEdit" href="./dialect_my_map.html"><i class="ti ti-pencil" aria-hidden="true"></i> 편집</a>
+        </div>
+      </header>
+
+      <div class="coach" id="coach" role="note">
+        <i class="ti ti-bulb" aria-hidden="true"></i>
+        <span>부호의 <b>모양·색</b>은 방언 계열(그룹)을, 흐린 <b>면색</b>은 분포권을 나타냅니다. 우측 <b>표시·범례</b>에서 방언형을 켜고 끄며 지도를 확인하세요.</span>
+        <button class="coach__close" type="button" id="coachClose" aria-label="안내 닫기"><i class="ti ti-x" aria-hidden="true"></i></button>
+      </div>
+
+      <div class="mapcard">
+        <div id="olmap" tabindex="0" aria-label="나의 지역어 지도"></div>
+        <div class="mapui">
+          <button class="mapui__btn" type="button" id="map-reset" title="처음 위치로"><i class="ti ti-refresh"></i></button>
+          <button class="mapui__btn" type="button" id="zoom-in" aria-label="확대">+</button>
+          <button class="mapui__btn" type="button" id="zoom-out" aria-label="축소">−</button>
+        </div>
+        <div class="maplegend" id="maplegend">
+          <div class="maplegend__head">범례 · 방언 계열
+            <button class="maplegend__fold" type="button" id="legendFold" aria-label="범례 접기"><i class="ti ti-chevron-down" aria-hidden="true"></i></button>
+          </div>
+          <ul class="maplegend__list" id="maplegendList"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: 표시·범례 -->
+    <aside class="info" aria-label="표시·범례">
+      <section class="card info__card">
+        <div class="info__head">
+          <div class="seg" role="tablist">
+            <button class="seg__btn is-active" type="button" data-seg="desc">표시·범례</button>
+          </div>
+        </div>
+        <div class="segpanes">
+          <div class="dform">
+            <div class="dform__word" id="infoWord">—</div>
+            <div class="dform__meta" id="infoMeta">표제어를 선택하세요</div>
+            <ul class="dflist" id="dfList" aria-label="지역어 목록"></ul>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </section>
+</main>
+
+<div id="toast" hidden></div>
+<div id="footer-common"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/ol@v10.9.0/dist/ol.js"></script>
+<script src="./skorea-provinces.js"></script>
+<script src="./skorea-labels.js"></script>
+<script src="./skorea-municipalities.js"></script>
+<script src="./korea-map.js"></script>
+<script src="./my-map-regions.js?v=viewlayout1"></script>
+<script src="./my-map-store.js?v=viewlayout1"></script>
+<script>
+(function () {
+  'use strict';
+
+  var state = {
+    olMap: null,
+    regionLayers: null,
+    overlays: null,
+    fillLayer: null,
+    symbolLayer: null,
+    headwordNo: null,
+    /** hd_id → visible */
+    visible: {},
+    dialects: []
+  };
+
+  function $(id) { return document.getElementById(id); }
+  function toast(msg) {
+    var t = $('toast');
+    t.hidden = false; t.textContent = msg;
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { t.hidden = true; }, 2400);
+  }
+  function q(name) {
+    var m = location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+    return m ? decodeURIComponent(m[1]) : '';
+  }
+  // 상징 부호 마스터(흰색 실루엣 PNG)를 색으로 틴트해 사용 (편집 화면 my-map.js와 동일)
+  var MASK_BASE = './symbol_mask/';
+  function markerStyle(color, file, big) {
+    if (!window.ol) return null;
+    if (!file) file = '001.png';
+    return new ol.style.Style({
+      image: new ol.style.Icon({
+        src: MASK_BASE + file,
+        color: color,
+        scale: (big ? 17 : 14) / 23
+      })
+    });
+  }
+  function shapeClass(shape) {
+    if (shape === 'square') return 'dfmark--square';
+    if (shape === 'diamond') return 'dfmark--diamond';
+    return 'dfmark--circle';
+  }
+  /** 우측 목록 방언형 마커 (색·부호 모양) — dialect_map 스타일 SVG */
+  function markSVG(color, shape) {
+    var inner;
+    if (shape === 'square') inner = '<rect x="1.5" y="1.5" width="11" height="11" rx="1.5"/>';
+    else if (shape === 'diamond') inner = '<polygon points="7,1 13,7 7,13 1,7"/>';
+    else if (shape === 'triangle') inner = '<polygon points="7,1 12.2,10.5 1.8,10.5"/>';
+    else if (shape === 'star') inner = '<polygon points="7,1 8.41,5.06 12.71,5.15 9.28,7.74 10.53,11.85 7,9.4 3.47,11.85 4.72,7.74 1.29,5.15 5.59,5.06"/>';
+    else if (shape === 'cross') inner = '<path d="M5.5 1.5h3v4h4v3h-4v4h-3v-4h-4v-3h4z"/>';
+    else inner = '<circle cx="7" cy="7" r="6"/>';
+    return '<svg class="dfvarrow__mark" width="14" height="14" viewBox="0 0 14 14" fill="' + color + '" aria-hidden="true">' + inner + '</svg>';
+  }
+  /** 실제 등록 부호(마스터 PNG)를 색으로 틴트한 인라인 마커 (지도와 동일) */
+  function symMaskHTML(file, color, size) {
+    size = size || 16;
+    var url = MASK_BASE + (file || '001.png');
+    return '<span class="dfvarrow__mark" style="width:' + size + 'px;height:' + size + 'px;' +
+      'background-color:' + color + ';' +
+      '-webkit-mask:url(' + url + ') center/contain no-repeat;' +
+      'mask:url(' + url + ') center/contain no-repeat;" aria-hidden="true"></span>';
+  }
+
+  /* ── 팝오버 ── */
+  function closePops() {
+    ['popSettings', 'popDownload'].forEach(function (id) {
+      var el = $(id); if (el) el.hidden = true;
+    });
+    ['btnSettings', 'btnDownload'].forEach(function (id) {
+      var b = $(id); if (b) b.setAttribute('aria-expanded', 'false');
+    });
+  }
+  function bindPop(btnId, menuId) {
+    var btn = $(btnId), menu = $(menuId);
+    if (!btn || !menu) return;
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = menu.hidden;
+      closePops();
+      if (open) {
+        menu.hidden = false;
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  /** 좌측: 이 지도 요약 + 분포 통계 */
+  function renderMapSummary(hw) {
+    var box = $('mapSummary');
+    if (!box) return;
+    if (!hw) { box.innerHTML = '<div class="ms__empty">표시할 지도가 없습니다.</div>'; return; }
+
+    var hn = hw.headword_no;
+    var dialects = MyMapStore.listDialects(hn);
+    var owned = MyMapStore.buildFillByHeadword(hn);           // rid → info (그룹·색)
+    var ridList = Object.keys(owned);
+    var totalMapped = ridList.length;
+    var totalRegions = (window.MyMapRegions && MyMapRegions.all) ? MyMapRegions.all().length : 0;
+
+    // 그룹별 지역 수 (지도에 실제 칠해진 기준)
+    var gCount = {}, gColor = {};
+    ridList.forEach(function (rid) {
+      var g = owned[rid].mutation_group;
+      if (g == null || g === '') g = '_none';
+      gCount[g] = (gCount[g] || 0) + 1;
+      if (!gColor[g]) gColor[g] = MyMapStore.rgbToHex(owned[rid].face_color || '#94a3b8');
+    });
+    // 그룹 대표어(순서 1)
+    var gRep = {};
+    dialects.forEach(function (d) {
+      var g = (d.mutation_group == null || d.mutation_group === '') ? '_none' : String(d.mutation_group);
+      if (!gRep[g]) gRep[g] = d.word;
+    });
+    var groupKeys = Object.keys(gCount).sort(function (a, b) { return gCount[b] - gCount[a]; });
+    var groupNum = groupKeys.filter(function (g) { return g !== '_none'; }).length;
+
+    // 최다 분포 지역어 Top 3
+    var top = dialects.map(function (d) {
+      return { word: d.word, n: MyMapStore.countRegionsForDialect(d.hd_id) };
+    }).filter(function (x) { return x.n > 0; })
+      .sort(function (a, b) { return b.n - a.n; }).slice(0, 3);
+
+    var covPct = totalRegions ? Math.round(totalMapped / totalRegions * 100) : 0;
+
+    var html = '';
+    html += '<div class="ms__word">' + esc(hw.headword) + '</div>';
+    html += '<div class="ms__meta">' + esc(hw.word_class || '-') +
+      ' · 나만의 지도' + (hw.appro === 'Y' ? ' · 서비스 신청' : '') + '</div>';
+    if (hw.meaning) html += '<div class="ms__mean">' + esc(hw.meaning) + '</div>';
+
+    // 핵심 수치
+    html += '<div class="ms__stats">' +
+      '<div class="ms__stat"><b>' + dialects.length + '</b><span>지역어</span></div>' +
+      '<div class="ms__stat"><b>' + totalMapped + '</b><span>지역</span></div>' +
+      '<div class="ms__stat"><b>' + groupNum + '</b><span>그룹</span></div>' +
+      '</div>';
+
+    // 그룹별 분포
+    if (totalMapped) {
+      html += '<div class="ms__sec"><div class="ms__sec-h">그룹별 분포</div>';
+      html += '<div class="ms__stack">';
+      groupKeys.forEach(function (g) {
+        var pct = Math.round(gCount[g] / totalMapped * 100);
+        html += '<i style="width:' + pct + '%;background:' + gColor[g] + '"></i>';
+      });
+      html += '</div><ul class="ms__glist">';
+      groupKeys.forEach(function (g) {
+        var pct = Math.round(gCount[g] / totalMapped * 100);
+        var name = g === '_none' ? '미지정' : (g + '그룹 · ' + esc(gRep[g] || ''));
+        html += '<li class="ms__grow"><span class="ms__dot" style="background:' + gColor[g] + '"></span>' +
+          '<span class="gname">' + name + '</span>' +
+          '<span class="gval">' + gCount[g] + '곳 (' + pct + '%)</span></li>';
+      });
+      html += '</ul></div>';
+    }
+
+    // 전국 커버리지
+    if (totalRegions) {
+      html += '<div class="ms__sec"><div class="ms__sec-h">전국 커버리지</div>' +
+        '<div class="ms__bar"><i style="width:' + covPct + '%"></i></div>' +
+        '<div class="ms__barlabel">' + totalMapped + ' / ' + totalRegions + '곳 · ' + covPct + '%</div></div>';
+    }
+
+    // 최다 분포 지역어
+    if (top.length) {
+      html += '<div class="ms__sec"><div class="ms__sec-h">최다 분포 지역어</div><ol class="ms__top">';
+      top.forEach(function (t, i) {
+        html += '<li class="ms__toprow"><span class="ms__rank">' + (i + 1) + '</span>' +
+          '<span class="tname">' + esc(t.word) + '</span><span class="tval">' + t.n + '곳</span></li>';
+      });
+      html += '</ol></div>';
+    }
+
+    // 최종저장 상태
+    var isFinal = !!hw.finalized_at;
+    var when = hw.finalized_at ? String(hw.finalized_at).slice(0, 10) : '';
+    html += '<div class="ms__save' + (isFinal ? ' is-final' : '') + '">' +
+      '<i class="ti ' + (isFinal ? 'ti-circle-check' : 'ti-clock') + '" aria-hidden="true"></i> ' +
+      (isFinal ? ('최종저장 · ' + when) : '작성 중 (임시)') + '</div>';
+
+    box.innerHTML = html;
+  }
+
+  function renderRightPanel(hw) {
+    $('infoWord').textContent = hw ? hw.headword : '—';
+    if (!hw) {
+      $('infoMeta').textContent = '표제어를 선택하세요';
+      $('dfList').innerHTML = '';
+      return;
+    }
+    var dialects = state.dialects;
+    $('infoMeta').innerHTML =
+      '표준어: <b>' + (hw.headword || '-') + '</b>' +
+      ' <span class="dform__sep">|</span> 품사: <b>' + (hw.word_class || '-') + '</b>' +
+      ' <span class="dform__sep">|</span> <span style="color:#64748b;font-weight:600">나만의 지도</span>';
+
+    var ul = $('dfList');
+    while (ul.firstChild) ul.removeChild(ul.firstChild);
+    if (!dialects.length) {
+      ul.innerHTML = '<li class="dfitem" style="padding:16px;color:#94a3b8;font-weight:600;">표시할 방언형이 없습니다.</li>';
+      return;
+    }
+
+    // 그룹(계열)별로 묶기 — dialects는 그룹·순서 정렬 상태
+    var groups = {}, order = [];
+    dialects.forEach(function (d) {
+      var g = (d.mutation_group == null || d.mutation_group === '') ? '_none' : String(d.mutation_group);
+      if (!groups[g]) { groups[g] = []; order.push(g); }
+      groups[g].push(d);
+    });
+    order.sort(function (a, b) {
+      if (a === '_none') return 1;
+      if (b === '_none') return -1;
+      return (+a) - (+b);
+    });
+
+    order.forEach(function (g, gi) {
+      var members = groups[g];
+      var rep = members[0];
+      var isNone = (g === '_none');
+      var gColor = isNone ? '#94a3b8'
+        : MyMapStore.rgbToHex(MyMapStore.getGroupColor(hw.headword_no, g) || rep.face_color || '#94a3b8');
+      var gLabel = isNone ? '그룹 미지정' : rep.word;
+      var openCls = gi < 3 ? ' is-open' : '';
+
+      var li = document.createElement('li');
+      li.className = 'dfitem' + openCls;
+
+      // 헤더: 그룹 체크박스 + 대표 마커 + 이름(N형) + 펼침
+      var head = document.createElement('div');
+      head.className = 'dfitem__head';
+      var gcb = document.createElement('input');
+      gcb.type = 'checkbox';
+      gcb.className = 'dfcb';
+      gcb.setAttribute('aria-label', gLabel + ' 지도 표시');
+      var expandBtn = document.createElement('button');
+      expandBtn.type = 'button';
+      expandBtn.className = 'dfitem__expand';
+      expandBtn.setAttribute('aria-expanded', gi < 3 ? 'true' : 'false');
+      expandBtn.innerHTML =
+        '<span class="dfmark" style="background:' + gColor + ';width:12px;height:12px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px ' + gColor + '" aria-hidden="true"></span>' +
+        '<span class="dfitem__headmain"><span class="dfitem__word">' + gLabel + '</span>' +
+        '<span class="dfitem__group">(' + members.length + '형)</span></span>' +
+        '<i class="ti ti-chevron-down dfchev" aria-hidden="true"></i>';
+      expandBtn.addEventListener('click', function () {
+        var o = li.classList.toggle('is-open');
+        expandBtn.setAttribute('aria-expanded', o ? 'true' : 'false');
+      });
+      head.appendChild(gcb);
+      head.appendChild(expandBtn);
+      li.appendChild(head);
+
+      // 패널: 방언형 행 목록
+      var panel = document.createElement('div');
+      panel.className = 'dfitem__panel';
+      var vlist = document.createElement('div');
+      vlist.className = 'dfvarlist';
+
+      function syncGroupCb() {
+        var on = members.filter(function (m) { return state.visible[m.hd_id] !== false; }).length;
+        gcb.checked = on === members.length;
+        gcb.indeterminate = on > 0 && on < members.length;
+      }
+
+      members.forEach(function (d) {
+        var row = document.createElement('label');
+        row.className = 'dfvarrow';
+        var vcb = document.createElement('input');
+        vcb.type = 'checkbox';
+        vcb.className = 'dfvarcb';
+        vcb.checked = state.visible[d.hd_id] !== false;
+        vcb.setAttribute('aria-label', d.word + ' 지도 표시');
+        vcb.addEventListener('change', function () {
+          state.visible[d.hd_id] = vcb.checked;
+          syncGroupCb();
+          rebuildMapLayers();
+          renderLegendOverlay();
+        });
+        var symColor = (d.symbol_color && String(d.symbol_color)) || MyMapStore.rgbToHex(d.face_color || gColor);
+        var markWrap = document.createElement('span');
+        markWrap.innerHTML = d.map_symbol_id
+          ? symMaskHTML(MyMapStore.symbolFileById(d.map_symbol_id), symColor, 16)
+          : markSVG(MyMapStore.rgbToHex(d.face_color || gColor), 'circle');
+        var word = document.createElement('span');
+        word.className = 'dfvarrow__word';
+        word.textContent = d.word;
+        var n = document.createElement('span');
+        n.className = 'dfvarrow__n';
+        n.title = '지점 수';
+        n.textContent = MyMapStore.countRegionsForDialect(d.hd_id) + '곳';
+        row.appendChild(vcb);
+        row.appendChild(markWrap.firstChild);
+        row.appendChild(word);
+        row.appendChild(n);
+        vlist.appendChild(row);
+      });
+      panel.appendChild(vlist);
+      li.appendChild(panel);
+      ul.appendChild(li);
+
+      syncGroupCb();
+      gcb.addEventListener('click', function (e) { e.stopPropagation(); });
+      gcb.addEventListener('change', function () {
+        gcb.indeterminate = false;
+        members.forEach(function (m) { state.visible[m.hd_id] = gcb.checked; });
+        vlist.querySelectorAll('.dfvarcb').forEach(function (cb) { cb.checked = gcb.checked; });
+        rebuildMapLayers();
+        renderLegendOverlay();
+      });
+    });
+  }
+
+  function renderLegendOverlay() {
+    var ul = $('maplegendList');
+    while (ul.firstChild) ul.removeChild(ul.firstChild);
+
+    // 그룹(계열)별로 묶어 대표(첫 번째) 방언형만 한 줄로 표기
+    var groups = {}, order = [];
+    state.dialects.forEach(function (d) {
+      var g = (d.mutation_group == null || d.mutation_group === '') ? '_none' : String(d.mutation_group);
+      if (!groups[g]) { groups[g] = { rep: d, shown: false }; order.push(g); }
+      // 면색 범례: 체크박스와 무관하게 지역이 매핑된 그룹은 항상 표기
+      if (MyMapStore.countRegionsForDialect(d.hd_id) > 0) {
+        groups[g].shown = true;
+      }
+    });
+    order.sort(function (a, b) {
+      if (a === '_none') return 1;
+      if (b === '_none') return -1;
+      return (+a) - (+b);
+    });
+
+    var any = false;
+    order.forEach(function (g) {
+      var info = groups[g];
+      if (!info.shown) return;
+      any = true;
+      var rep = info.rep;
+      var gColor = (g === '_none') ? '#94a3b8'
+        : MyMapStore.rgbToHex(MyMapStore.getGroupColor(state.headwordNo, g) || rep.face_color || '#94a3b8');
+      var li = document.createElement('li');
+      li.className = 'maplegend__row';
+      var mark = document.createElement('span');
+      mark.className = 'dfmark dfmark--circle';
+      mark.style.background = gColor;
+      var name = document.createElement('span');
+      name.className = 'maplegend__name';
+      name.textContent = rep.word;
+      li.appendChild(mark);
+      li.appendChild(name);
+      ul.appendChild(li);
+    });
+    if (!any) {
+      var e = document.createElement('li');
+      e.className = 'maplegend__row';
+      e.style.color = '#94a3b8';
+      e.textContent = '표시 항목 없음';
+      ul.appendChild(e);
+    }
+  }
+
+  function rebuildMapLayers() {
+    if (!state.olMap) return;
+    if (state.fillLayer) { state.olMap.removeLayer(state.fillLayer); state.fillLayer = null; }
+    if (state.symbolLayer) { state.olMap.removeLayer(state.symbolLayer); state.symbolLayer = null; }
+    if (!state.headwordNo) return;
+
+    var owned = MyMapStore.buildFillByHeadword(state.headwordNo);
+    var fillFc = { type: 'FeatureCollection', features: [] };
+    var markers = [];
+    var hideArea = $('hideArea') && $('hideArea').checked;
+    var hideSym = $('hideSymbol') && $('hideSymbol').checked;
+
+    Object.keys(owned).forEach(function (rid) {
+      var info = owned[rid];
+      var geom = MyMapRegions.getGeometry(rid);
+      if (!geom) return;
+      var color = MyMapStore.rgbToHex(info.face_color);
+      // 면색(영역)은 체크박스와 무관하게 항상 표시
+      fillFc.features.push({
+        type: 'Feature',
+        properties: { id: rid, color: color, word: info.word },
+        geometry: geom
+      });
+      // 상징 부호(표시)만 체크 해제 시 감춤 · 부호 미설정이면 표시 안 함
+      if (state.visible[info.hd_id] === false) return;
+      if (!info.map_symbol_id) return;
+      var ll = MyMapRegions.getCentroidLonLat(rid);
+      if (ll) {
+        var symFile = MyMapStore.symbolFileById ? MyMapStore.symbolFileById(info.map_symbol_id) : '001.png';
+        var symColor = info.symbol_color ? String(info.symbol_color) : color;
+        markers.push(new ol.Feature({
+          geometry: new ol.geom.Point(ol.proj.fromLonLat(ll)),
+          color: symColor,
+          symFile: symFile,
+          word: info.word
+        }));
+      }
+    });
+
+    if (!hideArea) {
+      state.fillLayer = KoreaMap.createFillLayer(fillFc, {
+        zIndex: 2, fillAlpha: 0.35, colorProp: 'color'
+      });
+      if (state.fillLayer) state.olMap.addLayer(state.fillLayer);
+    }
+    if (!hideSym && markers.length) {
+      state.symbolLayer = new ol.layer.Vector({
+        source: new ol.source.Vector({ features: markers }),
+        style: function (f) {
+          return markerStyle(f.get('color') || '#3b82f6', f.get('symFile') || '001.png', false);
+        },
+        zIndex: 5
+      });
+      state.olMap.addLayer(state.symbolLayer);
+    }
+  }
+
+  function loadHeadword(headwordNo, pushUrl) {
+    var hw = MyMapStore.getHeadword(headwordNo);
+    if (!hw) {
+      toast('표제어를 찾을 수 없습니다.');
+      return;
+    }
+    state.headwordNo = String(headwordNo);
+    MyMapStore.setSelectedHeadwordNo(state.headwordNo);
+    state.dialects = MyMapStore.listDialects(state.headwordNo);
+    state.visible = {};
+    state.dialects.forEach(function (d) { state.visible[d.hd_id] = true; });
+
+    $('mapWord').textContent = hw.headword;
+    $('mapMeta').textContent =
+      (hw.word_class || '') + ' · 지역어 ' + state.dialects.length +
+      ' · 지역 ' + MyMapStore.listRegionsByHeadword(state.headwordNo).length +
+      (hw.map_make === 'Y' ? ' · 최종저장' : ' · 임시') +
+      ' · 나만의 지도';
+    $('btnEdit').href = './dialect_my_map.html';
+
+    renderMapSummary(hw);
+    renderRightPanel(hw);
+    rebuildMapLayers();
+    renderLegendOverlay();
+
+    if (pushUrl && history.replaceState) {
+      history.replaceState(null, '', './my_map_view.html?headword_no=' + encodeURIComponent(state.headwordNo));
+    }
+  }
+
+  function initMap() {
+    state.olMap = KoreaMap.create('olmap', {
+      controls: [],
+      center: [127.8, 38.1],
+      zoom: 6.4
+    });
+    if (!state.olMap) return;
+    if (KoreaMap.attachRegionLayers) {
+      state.regionLayers = KoreaMap.attachRegionLayers(state.olMap, {
+        sidoVisible: true,
+        sigunguVisible: false
+      });
+    }
+    if (KoreaMap.attachOverlays) {
+      state.overlays = KoreaMap.attachOverlays(state.olMap);
+    }
+    function resize() { if (state.olMap) state.olMap.updateSize(); }
+    setTimeout(resize, 0);
+    setTimeout(resize, 200);
+    window.addEventListener('resize', resize);
+
+    $('zoom-in').onclick = function () {
+      var v = state.olMap.getView();
+      v.animate({ zoom: Math.min((v.getZoom() || 6) + 1, 12), duration: 200 });
+    };
+    $('zoom-out').onclick = function () {
+      var v = state.olMap.getView();
+      v.animate({ zoom: Math.max((v.getZoom() || 6) - 1, 5), duration: 200 });
+    };
+    $('map-reset').onclick = function () {
+      state.olMap.getView().animate({
+        center: ol.proj.fromLonLat([127.8, 38.1]),
+        zoom: 6.4,
+        duration: 250
+      });
+    };
+
+    // layer toggles
+    function bindOv(id, key) {
+      var el = $(id);
+      if (!el) return;
+      el.addEventListener('change', function () {
+        if (state.overlays) state.overlays.show(key, el.checked);
+      });
+    }
+    bindOv('ovRivers', 'rivers');
+    bindOv('ovRail', 'rail');
+    bindOv('ovRoads', 'roads');
+    bindOv('ovMountains', 'mountains');
+
+    if ($('lblSido')) {
+      $('lblSido').addEventListener('change', function () {
+        if (state.regionLayers && state.regionLayers.showSido) {
+          state.regionLayers.showSido(this.checked);
+        }
+      });
+    }
+    if ($('lblSigungu')) {
+      $('lblSigungu').addEventListener('change', function () {
+        if (state.regionLayers && state.regionLayers.showSigungu) {
+          state.regionLayers.showSigungu(this.checked);
+        }
+      });
+    }
+    if ($('hideArea')) $('hideArea').addEventListener('change', rebuildMapLayers);
+    if ($('hideSymbol')) $('hideSymbol').addEventListener('change', rebuildMapLayers);
+  }
+
+  /* 다운로드 */
+  function withMapCanvas(cb) {
+    if (!state.olMap) return;
+    state.olMap.once('rendercomplete', function () {
+      var size = state.olMap.getSize();
+      var out = document.createElement('canvas');
+      out.width = size[0];
+      out.height = size[1];
+      var ctx = out.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, out.width, out.height);
+      document.querySelectorAll('#olmap canvas').forEach(function (canvas) {
+        if (canvas.width === 0) return;
+        var op = canvas.parentNode.style.opacity || canvas.style.opacity;
+        ctx.globalAlpha = op === '' ? 1 : Number(op);
+        var t = canvas.style.transform;
+        var m = /^matrix\(([^\)]*)\)$/.exec(t);
+        if (m) {
+          var v = m[1].split(',').map(Number);
+          ctx.setTransform(v[0], v[1], v[2], v[3], v[4], v[5]);
+        } else ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.drawImage(canvas, 0, 0);
+      });
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.globalAlpha = 1;
+      // title banner
+      var word = $('mapWord').textContent || '지도';
+      ctx.fillStyle = 'rgba(15,23,42,0.82)';
+      ctx.fillRect(0, 0, out.width, 36);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 15px sans-serif';
+      ctx.fillText('‘' + word + '’의 방언 분포 지도 · 나만의 지도', 12, 24);
+      cb(out);
+    });
+    state.olMap.renderSync();
+  }
+  function triggerDownload(href, filename) {
+    var a = document.createElement('a');
+    a.href = href; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  /* 좌·중·우 열 높이를 지역어 지도(dialect_map)와 동일하게 고정 (내부 스크롤).
+     dialect_map은 좌측 목록(.wlist max-height 620) + 최근 카드로 열 높이가 995px로 고정됨. */
+  var UNIFIED_COL_H = 995;
+  function relayout() {
+    var sideCard = document.querySelector('.card--side');
+    var infoCard = document.querySelector('.info__card');
+    var olmap = $('olmap');
+    var mobile = window.innerWidth <= 1100;
+    if (mobile) {
+      if (sideCard) sideCard.style.height = '';
+      if (infoCard) infoCard.style.height = '';
+      if (olmap) olmap.style.height = '';
+      if (state.olMap) state.olMap.updateSize();
+      return;
+    }
+    if (sideCard) sideCard.style.height = UNIFIED_COL_H + 'px';
+    if (infoCard) infoCard.style.height = UNIFIED_COL_H + 'px';
+    // 지도 높이 = 좌측 열 하단선까지 (지도 열 = 제목바 + 안내 + 지도)
+    if (olmap && sideCard) {
+      var mh = Math.max(360, Math.round(
+        sideCard.getBoundingClientRect().bottom - olmap.getBoundingClientRect().top - 1));
+      olmap.style.height = mh + 'px';
+    }
+    if (state.olMap) state.olMap.updateSize();
+  }
+
+  function boot() {
+    if (!window.MyMapStore || !window.MyMapRegions || !window.KoreaMap) {
+      toast('모듈 로드 실패');
+      return;
+    }
+    MyMapRegions.rebuild();
+    bindPop('btnSettings', 'popSettings');
+    bindPop('btnDownload', 'popDownload');
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.popwrap')) closePops();
+    });
+
+    initMap();
+
+    var items = MyMapStore.listHeadwords();
+    var hn = q('headword_no') || MyMapStore.getSelectedHeadwordNo();
+    if (hn && MyMapStore.getHeadword(hn)) {
+      loadHeadword(hn, false);
+    } else if (items.length) {
+      loadHeadword(items[0].headword_no, true);
+    } else {
+      $('view-empty').hidden = false;
+      $('view-shell').hidden = true;
+      return;
+    }
+
+    $('dlImage').addEventListener('click', function () {
+      closePops();
+      var word = $('mapWord').textContent || 'map';
+      withMapCanvas(function (canvas) {
+        triggerDownload(canvas.toDataURL('image/png'), '나의지도_' + word + '.png');
+      });
+    });
+    $('dlPdf').addEventListener('click', function () {
+      closePops();
+      var word = $('mapWord').textContent || 'map';
+      withMapCanvas(function (canvas) {
+        var url = canvas.toDataURL('image/png');
+        var w = window.open('', '_blank');
+        if (!w) { alert('팝업이 차단되어 인쇄 창을 열 수 없습니다.'); return; }
+        w.document.write('<html><head><title>나의 지도 - ' + word + '</title></head>' +
+          '<body style="margin:0"><img src="' + url + '" style="width:100%" ' +
+          'onload="setTimeout(function(){window.focus();window.print();},300)"></body></html>');
+        w.document.close();
+      });
+    });
+    $('dlCsv').addEventListener('click', function () {
+      closePops();
+      if (!state.headwordNo) return;
+      var rows = [['표제어', '지역어', '그룹', '순서', '면색', '상징ID', '지역수', '지역목록']];
+      var hw = MyMapStore.getHeadword(state.headwordNo);
+      state.dialects.forEach(function (d) {
+        var regs = MyMapStore.listRegions(d.hd_id);
+        rows.push([
+          hw ? hw.headword : '',
+          d.word,
+          d.mutation_group || '',
+          d.mutation_seq || '',
+          d.face_color || '',
+          d.map_symbol_id || '',
+          String(regs.length),
+          regs.map(function (r) { return r.region_nm; }).join('|')
+        ]);
+      });
+      var csv = '\uFEFF' + rows.map(function (r) {
+        return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(',');
+      }).join('\r\n');
+      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      var url = URL.createObjectURL(blob);
+      var word = hw ? hw.headword : 'map';
+      triggerDownload(url, '나의지도_' + word + '_방언형.csv');
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    });
+
+    relayout();
+    setTimeout(relayout, 60);
+    window.addEventListener('load', relayout);
+    window.addEventListener('resize', relayout);
+  }
+
+  // region layer API compatibility (korea-map variants)
+  // showSido may not exist — try common methods when toggling
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+
+  // 안내 배너 닫기
+  var coachClose = document.getElementById('coachClose');
+  if (coachClose) coachClose.addEventListener('click', function () {
+    var c = document.getElementById('coach');
+    if (c) c.hidden = true;
+    relayout();
+  });
+
+  // 지도 범례 접기/펼치기
+  var legendFold = document.getElementById('legendFold');
+  if (legendFold) legendFold.addEventListener('click', function () {
+    var lg = document.getElementById('maplegend');
+    var folded = lg.classList.toggle('is-folded');
+    this.setAttribute('aria-label', folded ? '범례 펼치기' : '범례 접기');
+    this.innerHTML = folded
+      ? '<i class="ti ti-chevron-up" aria-hidden="true"></i>'
+      : '<i class="ti ti-chevron-down" aria-hidden="true"></i>';
+  });
+})();
+</script>
+</body>
+</html>

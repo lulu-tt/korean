@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>원본 심볼 지도 데모 — 고양이</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.9.0/ol.css">
+<style>
+  body { margin:0; font-family:'Pretendard',system-ui,sans-serif; background:#eef2f7; }
+  header { padding:14px 20px; background:#fff; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  header h1 { font-size:18px; margin:0; font-weight:800; color:#1e293b; }
+  header .meta { font-size:13px; color:#64748b; }
+  header .badge { font-size:12px; font-weight:700; color:#2563eb; background:#eff6ff; padding:4px 10px; border-radius:99px; }
+  #map { width:100%; height:calc(100vh - 58px); background:#e5eaf1; }
+  .ol-tooltip { position:absolute; background:#0f172a; color:#fff; font-size:12px; padding:6px 10px; border-radius:8px; pointer-events:none; transform:translate(-50%,-140%); white-space:nowrap; opacity:0; transition:.1s; }
+  .ol-tooltip.on { opacity:1; }
+</style>
+</head>
+<body>
+<header>
+  <h1>지역어 지도 · <span style="color:#2563eb">고양이</span></h1>
+  <span class="badge">원본 심볼 PNG</span>
+  <span class="meta" id="meta">불러오는 중…</span>
+</header>
+<div id="map"></div>
+<div class="ol-tooltip" id="tt"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/ol@v10.9.0/dist/ol.js"></script>
+<script src="skorea-provinces.js"></script>
+<script src="korea-map.js"></script>
+<script>
+(function(){
+  var base = (window.KoreaMap && KoreaMap.createBaseLayer({ zIndex:0 })) || null;
+  var vsrc = new ol.source.Vector();
+  var vlayer = new ol.layer.Vector({ source: vsrc, zIndex: 5 });
+  var map = new ol.Map({
+    target: 'map',
+    layers: base ? [base, vlayer] : [vlayer],
+    controls: ol.control.defaults.defaults({ attribution:false }),
+    view: new ol.View({ center: ol.proj.fromLonLat([127.8, 36.3]), zoom: 6.6, minZoom:5, maxZoom:12 })
+  });
+
+  var SYMBOL_PX = 13;  // 운영과 동일 크기(약 10~15px). 필요시 조정
+  var STEP = 9;        // 같은 좌표 마커 가로 스택 간격(px)
+  var _styleCache = {};
+  function iconStyle(file, dx){
+    var key = file + '|' + dx;
+    if (_styleCache[key]) return _styleCache[key];
+    var icon = new ol.style.Icon({
+      src: './symbol/' + file,
+      anchor: [0.5, 0.5],
+      displacement: [dx, 0]
+    });
+    // 원본 자연 크기를 로드해 SYMBOL_PX 로 정규화(23/24px 혼재 대응)
+    var img = icon.getImage();
+    function fit(){
+      var w = (img && img.naturalWidth) || 23;
+      icon.setScale(SYMBOL_PX / w);
+      vsrc.changed();
+    }
+    if (img && img.naturalWidth) fit();
+    else if (img) img.addEventListener('load', fit, { once:true });
+    var st = new ol.style.Style({ image: icon });
+    _styleCache[key] = st;
+    return st;
+  }
+
+  fetch('./data/processed/map_symbols/50320.json', { cache:'no-cache' })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      // 같은 좌표 그룹핑 → 가로 스택
+      var groups = {};
+      data.markers.forEach(function(m){
+        var k = m.lat.toFixed(4)+','+m.lng.toFixed(4);
+        (groups[k] = groups[k] || []).push(m);
+      });
+      var feats = [];
+      Object.keys(groups).forEach(function(k){
+        var arr = groups[k];
+        arr.forEach(function(m, i){
+          var dx = (i - (arr.length-1)/2) * STEP;
+          var f = new ol.Feature({ geometry: new ol.geom.Point(ol.proj.fromLonLat([m.lng, m.lat])) });
+          f.set('m', m);
+          f.setStyle(iconStyle(m.file, dx));
+          feats.push(f);
+        });
+      });
+      vsrc.addFeatures(feats);
+      document.getElementById('meta').textContent =
+        '마커 ' + data.markers.length + '개 · 지점 ' + Object.keys(groups).length + '곳 · 원본 심볼 이미지 사용';
+    })
+    .catch(function(e){ document.getElementById('meta').textContent = '로드 실패: ' + e.message; });
+
+  // 툴팁
+  var tt = document.getElementById('tt');
+  map.on('pointermove', function(e){
+    var hit = map.forEachFeatureAtPixel(e.pixel, function(f){ return f; });
+    if (hit && hit.get('m')){
+      var m = hit.get('m');
+      tt.textContent = m.word + ' · ' + (m.region||'');
+      tt.style.left = e.pixel[0] + 'px'; tt.style.top = e.pixel[1] + 'px';
+      tt.classList.add('on');
+      map.getTargetElement().style.cursor = 'pointer';
+    } else { tt.classList.remove('on'); map.getTargetElement().style.cursor=''; }
+  });
+})();
+</script>
+</body>
+</html>

@@ -11,16 +11,9 @@
 <script src="./share.js" defer></script>
 <script src="./footer.js" defer></script>
 <style>
-  @font-face {
-    font-family: 'NanumBarunGothicYetHangul';
-    src: url('https://cdn.jsdelivr.net/npm/@kfonts/nanum-barun-gothic-yet-hangul-otf/NanumBarunGothic-YetHangul.woff2') format('woff2'),
-         url('https://cdn.jsdelivr.net/npm/@kfonts/nanum-barun-gothic-yet-hangul-otf/NanumBarunGothic-YetHangul.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
-  }
+  :root { --rg: #2563eb; --rg-dark: #1d4ed8; }
 
   body {
-    font-family: 'Pretendard', 'NanumBarunGothicYetHangul', system-ui, -apple-system, sans-serif;
     background: #ffffff;
     display: flex;
     flex-direction: column;
@@ -28,165 +21,76 @@
     margin: 0;
   }
 
-  .container { width: 100%; max-width: 1100px; margin: 0 auto; padding: 50px 20px 100px; flex: 1; box-sizing: border-box; }
-
-  .sub-visual {
-    background: linear-gradient(180deg, #edf4ff 0%, #f8fafc 100%);
-    border-bottom: 1px solid #e2e8f0;
-    padding: 55px 0 50px;
-    text-align: center;
-    position: relative;
-    overflow: visible;
-    display: block !important;
-    height: auto !important;
-    min-height: 180px;
-  }
-  .sub-visual::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.03) 0%, transparent 40%); pointer-events: none; }
-  .sv-title {
-    font-size: 30px;
-    font-weight: 800;
-    color: #1e3a8a;
-    letter-spacing: -0.03em;
-    margin: 0 0 16px;
-    position: relative;
-    z-index: 1;
-  }
-  .location-bar {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #ffffff;
-    padding: 6px 20px;
-    border-radius: 99px;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
-    border: 1px solid #cbd5e1;
-    position: relative;
-    z-index: 1;
-  }
-  .loc-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #475569;
-  }
-  .loc-item.home { color: #3b82f6; font-size: 14px; }
-  .loc-item select {
-    border: none;
-    background: transparent;
-    font-size: 13px;
-    font-weight: 600;
-    color: #334155;
-    padding: 0 16px 0 0;
-    cursor: pointer;
-    appearance: none;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right center;
-    font-family: inherit;
-  }
-  .loc-item select:focus { outline: none; box-shadow: none; }
-  .loc-sep { color: #cbd5e1; font-size: 12px; }
-
-  /* 필수 안내 */
-  .form-required-note {
-    text-align: right;
-    font-size: 13px;
-    color: #64748b;
-    margin: 0 0 12px;
-  }
-  .form-required-note .req { color: #dc2626; }
-
-  /* 정보 수정 폼 */
-  .edit-form {
+  .rg-wrap {
     width: 100%;
-    border-collapse: collapse;
-    border-top: 2px solid #1e3a8a;
-    border-bottom: 1px solid #94a3b8;
-  }
-  .edit-form th {
-    width: 180px;
-    padding: 20px 22px;
-    background: #f8fafc;
-    border-bottom: 1px solid #eef2f6;
-    border-right: 1px solid #eef2f6;
-    font-size: 15px;
-    font-weight: 600;
-    color: #334155;
-    text-align: left;
-    vertical-align: middle;
-  }
-  .edit-form th .req { color: #dc2626; margin-left: 2px; }
-  .edit-form td {
-    padding: 16px 22px;
-    border-bottom: 1px solid #eef2f6;
-    vertical-align: middle;
-  }
-  .edit-form tr:last-child th,
-  .edit-form tr:last-child td { border-bottom: none; }
-
-  .fld-input {
-    height: 44px;
-    width: 100%;
-    max-width: 420px;
-    padding: 0 16px;
-    font-size: 14px;
-    color: #334155;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10px 20px 110px;
+    flex: 1;
     box-sizing: border-box;
-    font-family: inherit;
-    background: #ffffff;
   }
-  .fld-input::placeholder { color: #94a3b8; }
-  .fld-input:focus {
-    outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+
+  /* 안내 배너 */
+  .rg-notice {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: #eff4ff; border-radius: 14px;
+    padding: 20px 24px; margin: 0 0 44px;
+    font-size: 14.5px; color: #3f5170; line-height: 1.6;
   }
-  .fld-static {
-    font-size: 15px;
-    font-weight: 600;
-    color: #1e293b;
+  .rg-notice i { color: var(--rg); font-size: 20px; margin-top: 1px; flex-shrink: 0; }
+
+  /* 섹션 헤더 */
+  .rg-section-title {
+    font-size: 21px; font-weight: 800; color: #1e293b; letter-spacing: -0.02em;
+    padding-bottom: 18px; border-bottom: 2px solid #1e293b; margin: 0 0 8px;
   }
-  .fld-guide {
-    display: block;
-    font-size: 13px;
-    color: #64748b;
-    margin-top: 8px;
+  .rg-section-title.mt { margin-top: 60px; }
+  .rg-required-note { font-size: 13.5px; color: #64748b; margin: 16px 0 30px; }
+  .rg-required-note b { color: #e11d48; font-weight: 700; }
+
+  /* 정보 입력 필드 */
+  .rg-fields { margin-top: 4px; }
+  .rg-field { margin-bottom: 34px; }
+  .rg-field:last-child { margin-bottom: 0; }
+  .rg-field__label { display: flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 12px; }
+  .rg-req { color: #e11d48; font-size: 13px; font-weight: 700; }
+  .rg-field__control { display: flex; gap: 10px; align-items: center; }
+  .rg-input {
+    flex: 1; min-width: 0; height: 56px; padding: 0 18px;
+    border: 1px solid #d7dbe0; border-radius: 12px; font-size: 15px; color: #1e293b;
+    box-sizing: border-box; font-family: inherit; transition: 0.15s; background: #fff;
   }
+  .rg-input::placeholder { color: #9aa3af; }
+  .rg-input:focus { outline: none; border-color: var(--rg); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+  .rg-input:disabled, .rg-input[readonly] {
+    background: #f4f6f9; color: #64748b; cursor: default; border-color: #e2e8f0;
+  }
+  .rg-field__hint { font-size: 13px; color: #94a3b8; margin: 10px 2px 0; }
 
   /* 하단 버튼 */
-  .form-actions {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 30px;
+  .rg-actions { display: flex; justify-content: center; gap: 12px; margin-top: 52px; }
+  .rg-btn {
+    min-width: 168px; height: 58px; padding: 0 30px; background: var(--rg); color: #fff;
+    border: none; border-radius: 12px; font-size: 16.5px; font-weight: 700; cursor: pointer;
+    transition: background 0.2s; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
   }
-  .btn-cancel, .btn-submit {
-    height: 46px;
-    padding: 0 40px;
-    font-size: 15px;
-    font-weight: 700;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: inherit;
-    display: inline-flex;
-    align-items: center;
-    text-decoration: none;
-    transition: all 0.15s ease;
+  .rg-btn:hover { background: var(--rg-dark); }
+  .rg-btn--ghost { background: #fff; color: #475569; border: 1px solid #cbd5e1; }
+  .rg-btn--ghost:hover { background: #f1f5f9; }
+
+  /* 완료 화면 */
+  #editDone[hidden] { display: none; }
+  .rg-done { text-align: center; padding: 40px 20px 10px; }
+  .rg-done__icon { width: 96px; height: 96px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); color: var(--rg); display: grid; place-items: center; font-size: 50px; margin: 0 auto 26px; }
+  .rg-done__title { font-size: 26px; font-weight: 800; color: #1e293b; margin: 0 0 14px; letter-spacing: -0.02em; }
+  .rg-done__desc { font-size: 15.5px; color: #64748b; margin: 0 0 40px; line-height: 1.7; }
+
+  @media (max-width: 720px) {
+    .rg-section-title { font-size: 18px; }
+    .rg-field__control { flex-wrap: wrap; }
+    .rg-actions { flex-direction: column-reverse; }
+    .rg-btn { width: 100%; }
   }
-  .btn-cancel {
-    color: #334155;
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-  }
-  .btn-cancel:hover { background: #f1f5f9; border-color: #94a3b8; }
-  .btn-submit {
-    color: #ffffff;
-    background: #1e3a8a;
-    border: none;
-  }
-  .btn-submit:hover { background: #1e40af; }
 </style>
 </head>
 <body>
@@ -213,45 +117,87 @@
   </div>
 </div>
 
-<!-- 본문: 정보 수정 폼 -->
-<div class="wrap container edit-content" id="editContent">
-  <p class="form-required-note"><span class="req">*</span> 표시는 필수 입력 사항입니다</p>
+<div class="rg-wrap">
+  <!-- 안내 배너 -->
+  <div class="rg-notice">
+    <i class="ti ti-shield-check" aria-hidden="true"></i>
+    <span>지역어 종합 정보는 회원님의 개인정보를 안전하게 보호하고 있으며, 회원님의 명백한 동의 없이는 공개하거나 제3자에게 제공하지 않습니다.</span>
+  </div>
 
-  <form onsubmit="return false;">
-    <table class="edit-form">
-      <tbody>
-        <tr>
-          <th>아이디</th>
-          <td><span class="fld-static">hanguk_user</span></td>
-        </tr>
-        <tr>
-          <th>별명<span class="req">*</span></th>
-          <td><input type="text" class="fld-input" value="지역어사랑" aria-label="별명"></td>
-        </tr>
-        <tr>
-          <th>비밀번호 수정<span class="req">*</span></th>
-          <td>
-            <input type="password" class="fld-input" placeholder="새 비밀번호를 입력해주세요" aria-label="새 비밀번호">
-            <span class="fld-guide">※ 영문, 숫자, 특수문자 두 가지 종류 이상의 문자구성으로 10자리 이상의 길이로 설정해주세요.</span>
-          </td>
-        </tr>
-        <tr>
-          <th>비밀번호 확인<span class="req">*</span></th>
-          <td><input type="password" class="fld-input" placeholder="새 비밀번호를 다시 입력해주세요" aria-label="새 비밀번호 확인"></td>
-        </tr>
-      </tbody>
-    </table>
+  <div id="editForm">
+    <!-- 회원 정보 -->
+    <h2 class="rg-section-title">회원 정보 수정</h2>
+    <p class="rg-required-note"><b>필수</b> 표시가 있는 항목은 반드시 입력해야 합니다.</p>
 
-    <!-- 하단 버튼 -->
-    <div class="form-actions">
-      <a href="./index.html" class="btn-cancel">취소</a>
-      <button type="submit" class="btn-submit">저장</button>
+    <div class="rg-fields">
+      <div class="rg-field">
+        <label class="rg-field__label" for="edId">계정(ID)</label>
+        <div class="rg-field__control">
+          <input type="text" id="edId" class="rg-input" value="hanguk_user" readonly>
+        </div>
+        <p class="rg-field__hint">계정(ID)은 변경할 수 없습니다.</p>
+      </div>
+
+      <div class="rg-field">
+        <label class="rg-field__label" for="edNick">별명 <span class="rg-req">필수</span></label>
+        <div class="rg-field__control">
+          <input type="text" id="edNick" class="rg-input" value="지역어사랑" placeholder="별명을 입력하세요.">
+        </div>
+      </div>
+
+      <div class="rg-field">
+        <label class="rg-field__label" for="edPw">비밀번호 수정 <span class="rg-req">필수</span></label>
+        <div class="rg-field__control">
+          <input type="password" id="edPw" class="rg-input" placeholder="새 비밀번호를 입력하세요.">
+        </div>
+        <p class="rg-field__hint">영문자, 숫자, 특수 문자(2가지 이상)의 조합 10자 이상</p>
+      </div>
+
+      <div class="rg-field">
+        <label class="rg-field__label" for="edPw2">비밀번호 확인 <span class="rg-req">필수</span></label>
+        <div class="rg-field__control">
+          <input type="password" id="edPw2" class="rg-input" placeholder="새 비밀번호를 한 번 더 입력하세요.">
+        </div>
+      </div>
     </div>
-  </form>
+
+    <div class="rg-actions">
+      <a href="./index.html" class="rg-btn rg-btn--ghost">취소</a>
+      <button type="button" class="rg-btn" onclick="submitEdit()">저장</button>
+    </div>
+  </div>
+
+  <!-- 정보 수정 완료 -->
+  <div id="editDone" hidden>
+    <div class="rg-done">
+      <div class="rg-done__icon"><i class="ti ti-circle-check"></i></div>
+      <p class="rg-done__title">회원 정보가 수정되었습니다.</p>
+      <p class="rg-done__desc">변경하신 정보가 정상적으로 저장되었습니다.</p>
+      <div class="rg-actions" style="margin-top:0;">
+        <a href="./index.html" class="rg-btn rg-btn--ghost">메인으로</a>
+        <a href="./mypage_edit.html" class="rg-btn">내정보로</a>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="footer-common"></div>
 
-<script src="./share.js" defer></script>
+<script>
+  function submitEdit() {
+    var nick = document.getElementById('edNick').value.trim();
+    var pw = document.getElementById('edPw').value;
+    var pw2 = document.getElementById('edPw2').value;
+    if (!nick) { alert('별명을 입력해 주세요.'); return document.getElementById('edNick').focus(); }
+    if (pw || pw2) {
+      if (!pw) { alert('새 비밀번호를 입력해 주세요.'); return document.getElementById('edPw').focus(); }
+      if (pw !== pw2) { alert('비밀번호가 일치하지 않습니다.'); return document.getElementById('edPw2').focus(); }
+    }
+    document.getElementById('editForm').hidden = true;
+    document.getElementById('editDone').hidden = false;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
 </body>
 </html>

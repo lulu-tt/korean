@@ -7,11 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
   <div class="wrap footer__inner">
     <div class="footer__top">
       <div class="footer__links">
-        <a href="#" class="privacy">개인정보처리방침</a>
+        <a href="https://korean.go.kr/front/nuri/pageView.do?page_id=P000186&mkn=2" class="privacy" target="_blank" rel="noopener">개인정보처리방침</a>
         <span class="divider">|</span>
-        <a href="#">저작권정책</a>
+        <a href="./terms.html">서비스 이용약관</a>
         <span class="divider">|</span>
-        <a href="#">오시는길</a>
+        <a href="./copyright.html">저작권정책</a>
       </div>
       <div class="footer__family">
         <select aria-label="패밀리 사이트 선택" class="family-select" onchange="if(this.value) window.open(this.value);">

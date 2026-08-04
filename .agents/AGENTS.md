@@ -12,3 +12,18 @@
 ## 3. 레이아웃 흔들림(Layout Shift) 방지 필수
 - 본문이 긴 페이지와 짧은 페이지 간의 전환 시, 브라우저 우측 세로 스크롤바 유무에 의해 레이아웃 전체가 좌우로 움직이며 흔들리는 현상을 차단합니다.
 - 이를 위해 모든 HTML 파일은 `styles.css`에 선언된 `html { scrollbar-gutter: stable; }` 공통 레이아웃 규칙을 상속받아 흔들림 없는 뷰포트를 제공해야 합니다.
+
+## 4. 관리자 개발서버(AS-IS) 및 DB 접속/재기동 절차
+- **서버 용도**: `korean` 관리자 개발서버 (as-is) (`inseqdev-proj-t550`)
+- **IP**: `192.168.0.223` (SSH Port 22)
+- **계정/비밀번호**: `tomcat` / `xhazot123!@#$$%%`
+- **서버 중단/재기동 명령 절차**:
+  1. `./02-tomcat-proj-pgm-kill.sh` (프로세스 종료)
+  2. `./02-tomcat-proj-pgm-start.sh` (프로세스 시작)
+- **CUBRID DB 접속 정보**:
+  - Host / IP: `192.168.0.221` (Port 30000)
+  - Database: `dialect`
+  - 계정 / 비밀번호: `dialect` / `dialect1!`
+  - JDBC URL: `jdbc:cubrid:192.168.0.221:30000:dialect:::`
+
+

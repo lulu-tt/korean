@@ -961,7 +961,9 @@
         el.innerHTML = g.variants.map(function (v) {
           return '<label class="dfvarrow">' +
             '<input type="checkbox" class="dfvarcb" data-vid="' + v.id + '" data-group="' + gkey + '" checked aria-label="' + v.word + ' 지도 표시">' +
-            variantMarkSVG(g.color, v.shape) +
+            (v.symbolFile
+              ? '<img class="dfvarrow__sym" src="' + (opts.symbolBase || './symbol/') + v.symbolFile + '?v=3" width="16" height="16" alt="" style="vertical-align:middle;flex:0 0 auto">'
+              : variantMarkSVG(g.color, v.shape)) +
             '<span class="dfvarrow__word">' + v.word + '</span>' +
             '<span class="dfvarrow__n" title="지점 수">' + v.n + '곳</span>' +
           '</label>';
@@ -1042,6 +1044,31 @@
       if (closer) closer.onclick = function () { popupOverlay.setPosition(undefined); return false; };
     }
 
+    // 원본 심볼 PNG 아이콘 스타일 (symbolFile 있을 때 사용). 크기는 운영과 동일(~13px)로 정규화.
+    function iconStyle(file, big) {
+      var base = opts.symbolBase || './symbol/';
+      var icon = new ol.style.Icon({ src: base + file + '?v=3', anchor: [0.5, 0.5] });
+      var target = big ? (opts.symbolPxBig || 13) : (opts.symbolPx || 10);
+      var im = icon.getImage();
+      function fit() { var w = (im && im.naturalWidth) || 23; icon.setScale(target / w); if (markerLayer) markerLayer.changed(); }
+      if (im && im.naturalWidth) fit(); else if (im) im.addEventListener('load', fit, { once: true });
+      // 원본 심볼 PNG 자체에 흰색/불투명 배경이 구워져 있어(운영과 동일) 별도 플레이트 불필요.
+      // 필요 시 opts.symbolWhiteBg === true 로 뒤에 흰 원을 덧그릴 수 있음(기본 꺼짐).
+      if (opts.symbolWhiteBg === true) {
+        return [
+          new ol.style.Style({
+            image: new ol.style.Circle({
+              radius: target * 0.72 + 1.5,
+              fill: new ol.style.Fill({ color: '#ffffff' }),
+              stroke: new ol.style.Stroke({ color: 'rgba(15,23,42,0.15)', width: 0.8 })
+            })
+          }),
+          new ol.style.Style({ image: icon })
+        ];
+      }
+      return new ol.style.Style({ image: icon });
+    }
+
     function applyMapPayload(payload) {
       GROUPS = {};
       activeVariants = {};
@@ -1062,7 +1089,8 @@
               points: v.points || [],
               places: v.places || [],
               id: gkey + '-' + i,
-              shape: VAR_SHAPES[i % VAR_SHAPES.length]
+              shape: VAR_SHAPES[i % VAR_SHAPES.length],
+              symbolFile: v.symbolFile || null
             };
           })
         };
@@ -1073,8 +1101,15 @@
         var g = GROUPS[gkey];
         g.variants.forEach(function (v) {
           activeVariants[v.id] = true;
-          variantStyles[v.id] = markerStyle(g.color, v.shape);
-          variantStylesBig[v.id] = markerStyle(g.color, v.shape, true);
+          if (v.symbolFile) {
+            // 운영과 동일한 원본 심볼 PNG 사용
+            variantStyles[v.id] = iconStyle(v.symbolFile, false);
+            variantStylesBig[v.id] = iconStyle(v.symbolFile, true);
+          } else {
+            // 심볼 파일이 없으면 기존 벡터 도형으로 폴백
+            variantStyles[v.id] = markerStyle(g.color, v.shape);
+            variantStylesBig[v.id] = markerStyle(g.color, v.shape, true);
+          }
           variantColors[v.id] = g.color;
           (v.places || []).forEach(function (pl) {
             if (pl.lng == null || pl.lat == null) return;

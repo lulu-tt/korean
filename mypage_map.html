@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>나의 지도 — 국립국어원</title>
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="./styles.css">
+<script src="./gnb.js" defer></script>
+<script src="./share.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+body {
+  font-family: 'Pretendard', system-ui, sans-serif;
+  background: #fff; display: flex; flex-direction: column; min-height: 100vh; margin: 0;
+}
+.container { width: 100%; max-width: 1100px; margin: 0 auto; padding: 40px 20px 100px; flex: 1; box-sizing: border-box; }
+.sub-visual {
+  background: linear-gradient(180deg, #edf4ff 0%, #f8fafc 100%);
+  border-bottom: 1px solid #e2e8f0; padding: 55px 0 50px; text-align: center; position: relative;
+}
+.sv-title { font-size: 30px; font-weight: 800; color: #1e3a8a; margin: 0 0 16px; position: relative; z-index: 1; }
+.location-bar {
+  display: inline-flex; align-items: center; gap: 8px; background: #fff;
+  padding: 6px 20px; border-radius: 99px; border: 1px solid #cbd5e1; position: relative; z-index: 1;
+}
+.loc-item { font-size: 13px; font-weight: 600; color: #475569; }
+.loc-item.home { color: #3b82f6; cursor: pointer; }
+.loc-sep { color: #cbd5e1; font-size: 12px; }
+.list-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+.list-head__title { margin: 0; font-size: 20px; font-weight: 800; }
+.list-head__meta { font-size: 13px; color: #64748b; margin-top: 4px; }
+.mm-btn {
+  display: inline-flex; align-items: center; gap: 6px; border-radius: 10px; border: 1px solid transparent;
+  padding: 10px 16px; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; text-decoration: none;
+}
+.mm-btn--primary { background: #2563eb; color: #fff; }
+.mm-btn--ghost { background: #fff; border-color: #cbd5e1; color: #334155; }
+.mm-btn--sm { padding: 7px 12px; font-size: 13px; }
+.mm-btn--danger:hover { border-color: #fca5a5; color: #dc2626; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.map-card {
+  border: 1px solid #e2e8f0; border-radius: 16px; background: #fff; padding: 20px 18px 16px;
+  box-shadow: 0 2px 10px rgba(15,23,42,.03); display: flex; flex-direction: column; gap: 10px;
+}
+.map-card__title { margin: 0; font-size: 17px; font-weight: 800; }
+.map-card__meta { display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; font-weight: 700; color: #64748b; }
+.map-card__pill { background: #f1f5f9; border-radius: 999px; padding: 3px 10px; }
+.map-card__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+.empty-state {
+  text-align: center; padding: 56px 20px; border: 1px dashed #cbd5e1; border-radius: 16px; background: #f8fafc;
+}
+.empty-state__title { font-size: 18px; font-weight: 800; margin: 0 0 8px; }
+.empty-state__desc { font-size: 14px; color: #64748b; margin: 0 0 20px; }
+.note {
+  font-size: 13px; color: #64748b; background: #f8fafc; border: 1px solid #e2e8f0;
+  border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; line-height: 1.5;
+}
+#toast {
+  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 1000;
+  background: #0f172a; color: #fff; font-size: 14px; font-weight: 700; padding: 12px 18px; border-radius: 999px;
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">본문 바로가기</a>
+<div id="gnb-common"></div>
+
+<div class="sub-visual">
+  <div class="wrap">
+    <h1 class="sv-title">나의 지도</h1>
+    <div class="location-bar">
+      <div class="loc-item home" onclick="location.href='./index.html'"><i class="ti ti-home"></i></div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">내 정보</div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">나의 지도</div>
+    </div>
+  </div>
+</div>
+
+<main id="main" class="container">
+  <div class="list-head">
+    <div>
+      <h2 class="list-head__title">내가 등록한 지도</h2>
+      <div class="list-head__meta" id="list-meta">불러오는 중…</div>
+    </div>
+    <a class="mm-btn mm-btn--primary" href="./dialect_my_map.html">
+      <i class="ti ti-plus"></i> 나만의 지도 제작
+    </a>
+  </div>
+
+  <div id="card-grid" class="card-grid"></div>
+  <div id="empty-state" class="empty-state" hidden>
+    <h3 class="empty-state__title">등록된 표제어가 없습니다</h3>
+    <p class="empty-state__desc">표제어 등록 → 어휘 추가 → 그룹·면색·지역 매핑 순으로 지도를 만듭니다.</p>
+    <a class="mm-btn mm-btn--primary" href="./dialect_my_map.html">시작하기</a>
+  </div>
+</main>
+
+<div id="toast" hidden role="status"></div>
+<div id="footer-common"></div>
+<script src="./my-map-store.js?v=20260803sym"></script>
+<script>
+(function () {
+  function toast(msg) {
+    var t = document.getElementById('toast');
+    t.hidden = false; t.textContent = msg;
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { t.hidden = true; }, 2500);
+  }
+  function load() {
+    if (!MyMapStore.isLoggedIn()) MyMapStore.loginMock();
+    var list = MyMapStore.listHeadwords().map(MyMapStore.headwordSummary);
+    var grid = document.getElementById('card-grid');
+    var empty = document.getElementById('empty-state');
+    var meta = document.getElementById('list-meta');
+    while (grid.firstChild) grid.removeChild(grid.firstChild);
+    meta.textContent = list.length ? ('전체 ' + list.length + '개') : '없음';
+    if (!list.length) { empty.hidden = false; return; }
+    empty.hidden = true;
+    list.forEach(function (s) {
+      var card = document.createElement('article');
+      card.className = 'map-card';
+      var h = document.createElement('h3');
+      h.className = 'map-card__title';
+      h.textContent = s.headword;
+      var metaRow = document.createElement('div');
+      metaRow.className = 'map-card__meta';
+      [s.word_class, '어휘 ' + s.dialect_count, '지역 ' + s.region_count,
+        '신청 ' + s.appro
+      ].forEach(function (t) {
+        var p = document.createElement('span');
+        p.className = 'map-card__pill';
+        p.textContent = t;
+        metaRow.appendChild(p);
+      });
+      var actions = document.createElement('div');
+      actions.className = 'map-card__actions';
+      var view = document.createElement('a');
+      view.className = 'mm-btn mm-btn--primary mm-btn--sm';
+      view.href = './my_map_view.html?headword_no=' + encodeURIComponent(s.headword_no);
+      view.textContent = '지도보기';
+      view.addEventListener('click', function () {
+        MyMapStore.setSelectedHeadwordNo(s.headword_no);
+      });
+
+      var edit = document.createElement('a');
+      edit.className = 'mm-btn mm-btn--ghost mm-btn--sm';
+      edit.href = './dialect_my_map.html';
+      edit.textContent = '편집';
+      edit.addEventListener('click', function () {
+        MyMapStore.setSelectedHeadwordNo(s.headword_no);
+      });
+
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'mm-btn mm-btn--ghost mm-btn--sm mm-btn--danger';
+      del.textContent = '삭제';
+      del.addEventListener('click', function () {
+        if (!confirm('「' + s.headword + '」를 삭제할까요?')) return;
+        MyMapStore.removeHeadword(s.headword_no);
+        toast('삭제했습니다.');
+        load();
+      });
+
+      actions.appendChild(view);
+      actions.appendChild(edit);
+      actions.appendChild(del);
+      card.appendChild(h);
+      card.appendChild(metaRow);
+      card.appendChild(actions);
+      grid.appendChild(card);
+    });
+  }
+  load();
+})();
+</script>
+</body>
+</html>
