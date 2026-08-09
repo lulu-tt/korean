@@ -108,6 +108,18 @@ def is_missing_text(raw: str) -> bool:
     return raw == "" or raw == "*"
 
 
+# 변이형 검색 정규화: (...)주석 제거, 구분기호·장음(:)·구두점 삭제, 소문자화.
+# 프런트(dialect_phonology_compare.html)의 normalizeVariant()와 규칙을 동일하게 유지할 것.
+_VARIANT_MARK_RE = re.compile(r"[\s'’‘＇ʹ:\*#/、·．。,\-]+")
+
+
+def normalize_variant_text(s: str) -> str:
+    s = re.sub(r"\([^)]*\)", " ", s or "")  # (…) 주석 제거
+    s = re.sub(r"（.*$", " ", s)             # 전각 괄호 이후 주석 제거
+    s = _VARIANT_MARK_RE.sub("", s)         # 구분기호·마크 제거
+    return s.lower()
+
+
 def is_header_cell(val) -> bool:
     if val is None:
         return False
@@ -687,6 +699,32 @@ def export_json(conn: sqlite3.Connection, out_dir: Path, site_map_rows: list, im
             ),
             encoding="utf-8",
         )
+
+    # 변이형(조사 원문) 검색용 인덱스: parent_code -> 정규화 blob
+    # 프런트 dialect_phonology_compare.html 에서 표준어뿐 아니라
+    # 실제 조사 원문(변이형)으로도 항목 검색을 가능하게 한다.
+    variant_sets: dict[str, set[str]] = defaultdict(set)
+    for code, rows in by_item.items():
+        pk = parent_code_of(code) or code
+        for d in rows:
+            if d.get("is_missing"):
+                continue
+            n = normalize_variant_text(d.get("raw_text") or "")
+            if n:
+                variant_sets[pk].add(n)
+    variant_index = {
+        "domain": DOMAIN,
+        "policy": "raw_excel_only_no_synthetic",
+        "imported_at": imported_at,
+        "description": (
+            "parent_code -> 정규화된 변이형(조사 원문) 검색용 blob. "
+            "(...)주석·구분기호 제거, 공백/장음(:)/구두점 삭제, 소문자화."
+        ),
+        "variants": {pk: "".join(sorted(v)) for pk, v in variant_sets.items()},
+    }
+    (out_dir / "phonology_variant_index.json").write_text(
+        json.dumps(variant_index, ensure_ascii=False), encoding="utf-8"
+    )
 
     # site_map CSV + YAML-like JSON
     (out_dir / "site_map.json").write_text(

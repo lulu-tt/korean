@@ -75,6 +75,8 @@
   }
   .wbtn:hover { border-color: #93c5fd; background: var(--blue-light); color: #1d4ed8; }
   .wbtn.is-active { border-color: var(--blue); background: var(--blue); color: #fff; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3); }
+  .wbtn__vtag { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 6px; background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; font-size: 10px; font-weight: 800; vertical-align: middle; }
+  .wbtn.is-active .wbtn__vtag { background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.35); }
 
   .word-header { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
   .word-header .word { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; color: var(--text); }
@@ -205,7 +207,7 @@
             <option value="./dialect_map.html">지역어 지도</option>
             <option value="./region_culture.html">지역어 자료관</option>
             <option value="./notice.html">알림마당</option>
-            <option value="./about_intro.html">누리집소개</option>
+            <option value="./about_intro.html">누리집 소개</option>
           </select>
         </div>
         <i class="ti ti-chevron-right loc-sep" aria-hidden="true"></i>
@@ -235,7 +237,7 @@
       </div>
       <div class="word-search" id="wordSearchWrap">
         <i class="ti ti-search word-search__ico" aria-hidden="true"></i>
-        <input type="search" class="word-search__input" id="wordSearch" placeholder="표준어 검색 (예: 테, 태, 듣)" autocomplete="off" aria-label="음운 항목 검색">
+        <input type="search" class="word-search__input" id="wordSearch" placeholder="표준어·변이형 검색 (예: 테, 안경테, 앵경둘래)" autocomplete="off" aria-label="음운 항목 검색">
         <button type="button" class="word-search__clear" id="wordSearchClear" aria-label="검색어 지우기"><i class="ti ti-x" aria-hidden="true"></i></button>
       </div>
       <div class="initials" id="initials" role="tablist" aria-label="초성 필터"></div>
@@ -326,6 +328,7 @@
     allCollapsed: false,
     cache: {},            // item_code -> bundle
     detailRaw: '',
+    variantIndex: {},     // parent item_code -> 정규화된 변이형(조사 원문) blob
   };
 
   const $ = (id) => document.getElementById(id);
@@ -353,6 +356,16 @@
     return /\(\+[^)]+\)/.test(raw || '');
   }
 
+  // 변이형(조사 원문) 검색 정규화. scripts/etl_phonology.py normalize_variant_text()와 규칙 동일 유지.
+  const VARIANT_MARK_RE = /[\s'’‘＇ʹ:*#/、·．。,\-]+/g;
+  function normalizeVariant(s) {
+    return String(s ?? '')
+      .replace(/\([^)]*\)/g, ' ')  // (…) 주석 제거
+      .replace(/（.*$/, ' ')        // 전각 괄호 이후 주석 제거
+      .replace(VARIANT_MARK_RE, '')
+      .toLowerCase();
+  }
+
   async function loadJSON(url) {
     const r = await fetch(url);
     if (!r.ok) throw new Error(url + ' → HTTP ' + r.status);
@@ -369,6 +382,7 @@
 
   function filteredParents() {
     const q = state.query.trim().toLowerCase();
+    const qv = normalizeVariant(state.query);   // 변이형 매칭용 정규화 질의
     return state.parents.filter(p => {
       if (state.initial !== '전체') {
         const ch = choseong(p.standard_form || '');
@@ -376,7 +390,14 @@
       }
       if (q) {
         const hay = (p.item_code + ' ' + (p.standard_form || '')).toLowerCase();
-        if (!hay.includes(q)) return false;
+        const stdHit = hay.includes(q);
+        // 표준어/코드에 없으면 조사 원문(변이형)에서도 찾는다
+        const varHit = !stdHit && qv &&
+          (state.variantIndex[p.item_code] || '').includes(qv);
+        if (!stdHit && !varHit) return false;
+        p._variantOnly = varHit;   // 렌더에서 '변이형' 배지 표시용
+      } else {
+        p._variantOnly = false;
       }
       return true;
     });
@@ -400,8 +421,9 @@
     $('wordGrid').innerHTML = list.map(p => {
       const on = state.selected && state.selected.item_code === p.item_code;
       const label = p.standard_form || '(표제어 없음)';
+      const badge = p._variantOnly ? '<span class="wbtn__vtag">변이형</span>' : '';
       return `<button type="button" class="wbtn ${on ? 'is-active' : ''}" role="option" aria-selected="${on}" data-code="${esc(p.item_code)}">
-        <span>${esc(label)}</span>
+        <span>${esc(label)}</span>${badge}
       </button>`;
     }).join('');
   }
@@ -655,6 +677,11 @@
     try {
       const index = await loadJSON(BASE + '/phonology_items.json');
       state.parents = (index.items || []).filter(it => it.is_parent);
+      // 변이형(조사 원문) 검색 인덱스 — 없어도 표준어 검색은 정상 동작
+      try {
+        const vidx = await loadJSON(BASE + '/phonology_variant_index.json');
+        state.variantIndex = vidx.variants || {};
+      } catch (_) { state.variantIndex = {}; }
       // 통합 검색 등에서 ?code= / ?q= 로 진입 시 해당 항목 선택
       const params = new URLSearchParams(location.search || '');
       const qParam = (params.get('q') || params.get('word') || '').trim();
