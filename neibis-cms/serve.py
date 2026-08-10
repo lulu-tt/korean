@@ -16,6 +16,7 @@ import socketserver
 import sqlite3
 import unicodedata
 import urllib.parse
+import wave
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from pathlib import Path
@@ -799,6 +800,209 @@ def api_oral_save_raw(body: dict) -> dict:
         "bytes": len(data.encode("utf-8")),
         "message": "원본 파일에 저장되었습니다.",
     }
+
+
+ORAL_UPLOAD_DIR = ORAL_DATA_ROOT / "uploads"
+
+
+def _parse_multipart(raw: bytes, ctype: str) -> dict:
+    """multipart/form-data 최소 파서 → {files:[{field,filename,data}], fields:{}}."""
+    out = {"files": [], "fields": {}}
+    if "multipart/form-data" not in (ctype or "") or "boundary=" not in ctype:
+        return out
+    boundary = ctype.split("boundary=", 1)[1].strip().strip('"')
+    sep = b"--" + boundary.encode()
+    for part in raw.split(sep):
+        part = part.strip(b"\r\n")
+        if not part or part == b"--":
+            continue
+        if b"\r\n\r\n" not in part:
+            continue
+        head, data = part.split(b"\r\n\r\n", 1)
+        data = data.rstrip(b"\r\n")
+        head_txt = head.decode("utf-8", "replace")
+        nm = re.search(r'name="([^"]*)"', head_txt)
+        fm = re.search(r'filename="([^"]*)"', head_txt)
+        name = nm.group(1) if nm else ""
+        if fm and fm.group(1):
+            out["files"].append({
+                "field": name,
+                "filename": unicodedata.normalize("NFC", fm.group(1)),
+                "data": data,
+            })
+        else:
+            out["fields"][name] = data.decode("utf-8", "replace")
+    return out
+
+
+def _wav_duration_sec(path: Path) -> float:
+    try:
+        with wave.open(str(path), "rb") as w:
+            fr = w.getframerate() or 0
+            return (w.getnframes() / fr) if fr else 0.0
+    except (wave.Error, OSError, EOFError):
+        return 0.0
+
+
+def api_oral_upload(raw: bytes, ctype: str) -> dict:
+    """등록 ① 업로드+파싱 — .eaf/.wav 저장 후 파일별 정보 반환."""
+    mp = _parse_multipart(raw, ctype)
+    if not mp["files"]:
+        return {"ok": False, "message": "업로드된 파일이 없습니다."}
+    ORAL_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    results = []
+    for f in mp["files"]:
+        fname = re.sub(r"[^\w.\-가-힣]", "_", f["filename"])
+        if not fname:
+            continue
+        dest = ORAL_UPLOAD_DIR / fname
+        dest.write_bytes(f["data"])
+        ext = fname.rsplit(".", 1)[-1].lower() if "." in fname else ""
+        base = _oral_id_of(dest)
+        if ext == "eaf":
+            try:
+                rec = parse_eaf(dest)
+            except Exception as e:
+                results.append({"ok": False, "fileName": fname, "message": f"EAF 파싱 실패: {e}"})
+                continue
+            results.append({
+                "ok": True, "kind": "eaf", "fileName": fname, "baseId": base,
+                "durationSec": round(rec["durationMs"] / 1000, 3),
+                "durationHms": _ms_to_hms(rec["durationMs"]),
+                "segmentCount": rec["segmentCount"],
+                "version": "1",
+                "meta": {
+                    "region": rec["region"], "sidoCd": rec["sidoCd"],
+                    "year": rec["year"], "contentCode": rec["contentCode"],
+                    "topic": rec["topic"], "informant": rec["informant"],
+                    "sex": rec["sex"], "birth": rec["birth"],
+                },
+            })
+        elif ext == "wav":
+            sec = _wav_duration_sec(dest)
+            results.append({
+                "ok": True, "kind": "wav", "fileName": fname, "baseId": base,
+                "waveSec": round(sec, 3), "waveTimeHms": _sec_to_hms(sec),
+            })
+        else:
+            results.append({"ok": False, "fileName": fname, "message": "지원하지 않는 형식(.eaf/.wav)"})
+    return {"ok": True, "results": results}
+
+
+def _next_id(con, table: str, col: str) -> int:
+    row = con.execute(f"SELECT MAX(CAST({col} AS INTEGER)) FROM {table}").fetchone()
+    return (row[0] or 0) + 1
+
+
+def api_oral_create(body: dict) -> dict:
+    """등록 ② insert — 업로드된 eaf별 wb_trs_file_talk + wb_trs_line_talk,
+    조사지역 wb_research_region, 제보자 wb_source 생성."""
+    files = body.get("files") or []
+    if not files:
+        return {"ok": False, "message": "등록할 전사자료(.eaf)가 없습니다."}
+    region = body.get("region") or {}
+    headword = (body.get("headword") or "").strip()
+    use_yn = "N" if str(body.get("useYn") or "Y").upper() == "N" else "Y"
+    year = (region.get("researchYear") or "").strip()
+    degree = "2" if (year.isdigit() and int(year) >= 2022) else "1"
+    sex_code = {"남": "0", "여": "1", "man": "0", "woman": "1", "wom": "1"}
+
+    def src_rows(lst, base_se):
+        out = []
+        for i, s in enumerate(lst or []):
+            nm = (s.get("name") or "").strip()
+            if not nm:
+                continue
+            out.append({
+                "se": str(base_se + i),
+                "name": nm,
+                "sex": sex_code.get((s.get("sex") or "").strip(), (s.get("sex") or "").strip()),
+                "age": (s.get("age") or "").strip(),
+                "birth": (s.get("birth") or "").strip(),
+            })
+        return out
+
+    created = []
+    with db_connect() as con:
+        rrid = _next_id(con, "wb_research_region", "research_region_id")
+        con.execute(
+            """INSERT INTO wb_research_region
+               (research_region_id, region_nm, sigungu_nm, legal_region_code, region_nm_yn,
+                region_remark, research_place, first_place, researcher, transcriber,
+                mic, recorder, file_uniqueness, research_year, start_date, end_date)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            (
+                str(rrid),
+                (region.get("regionNm") or "").strip(),
+                (region.get("sigunguNm") or "").strip(),
+                (region.get("legalRegionCode") or "").strip(),
+                (region.get("regionNmYn") or "").strip(),
+                (region.get("regionRemark") or "").strip(),
+                (region.get("researchPlace") or "").strip(),
+                (region.get("firstPlace") or "").strip(),
+                (region.get("researcher") or "").strip(),
+                (region.get("transcriber") or "").strip(),
+                (region.get("mic") or "").strip(),
+                (region.get("recorder") or "").strip(),
+                (region.get("fileUniqueness") or "").strip(),
+                year,
+                _date_to_epoch_ms(region.get("startDate")),
+                _date_to_epoch_ms(region.get("endDate")),
+            ),
+        )
+        # 제보자 (주=se 0.., 부=se 1..) — 목록 표시는 se 문자열로 구분
+        sid = _next_id(con, "wb_source", "source_id")
+        for s in src_rows(body.get("mainSources"), 0) + src_rows(body.get("subSources"), 1):
+            con.execute(
+                """INSERT INTO wb_source (source_id, research_region_id, se, name, sex, age, birth)
+                   VALUES (?,?,?,?,?,?,?)""",
+                (str(sid), str(rrid), s["se"], s["name"], s["sex"], s["age"], s["birth"]),
+            )
+            sid += 1
+
+        next_trs = _next_id(con, "wb_trs_file_talk", "trs_id")
+        next_line = _next_id(con, "wb_trs_line_talk", "trs_line_id")
+        for fname in files:
+            safe = re.sub(r"[^\w.\-가-힣]", "_", str(fname))
+            p = ORAL_UPLOAD_DIR / safe
+            if not p.is_file():
+                return {"ok": False, "message": f"업로드 파일을 찾을 수 없습니다: {safe}"}
+            rec = parse_eaf(p)
+            base = _oral_id_of(p)
+            wav = base + ".wav"
+            wav_sec = _wav_duration_sec(ORAL_UPLOAD_DIR / wav) if (ORAL_UPLOAD_DIR / wav).is_file() else 0.0
+            trs_id = str(next_trs)
+            next_trs += 1
+            con.execute(
+                """INSERT INTO wb_trs_file_talk
+                   (trs_id, research_region_id, upper_headword, trs_file_nm, trs_time,
+                    wave_file_nm, wave_time, research_degree, audio_filename, ver, use_yn)
+                   VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+                (
+                    trs_id, str(rrid), headword, base + ".eaf",
+                    str(round(rec["durationMs"] / 1000, 3)),
+                    wav, str(round(wav_sec, 3)) if wav_sec else "",
+                    degree, base, "1", use_yn,
+                ),
+            )
+            for i, sg in enumerate(rec["segments"], 1):
+                line = _compose_trs_line(sg["speaker"], sg["form"], sg["std"])
+                con.execute(
+                    """INSERT INTO wb_trs_line_talk
+                       (trs_line_id, trs_id, trs_line_no, trs_line_se, trs_line_text_no,
+                        trs_line, start_time, end_time)
+                       VALUES (?,?,?,?,?,?,?,?)""",
+                    (
+                        str(next_line), trs_id, str(i), "text", str(i), line,
+                        str(round(sg["startMs"] / 1000, 3)), str(round(sg["endMs"] / 1000, 3)),
+                    ),
+                )
+                next_line += 1
+            created.append({"trsId": trs_id, "fileName": base + ".eaf", "segments": rec["segmentCount"]})
+        con.commit()
+
+    return {"ok": True, "researchRegionId": str(rrid), "created": created,
+            "message": f"{len(created)}개 전사자료가 등록되었습니다."}
 
 
 def _speaker_to_marker(speaker: str) -> str:
@@ -2154,7 +2358,21 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         length = int(self.headers.get("Content-Length") or 0)
-        raw = self.rfile.read(length) if length else b"{}"
+        raw = self.rfile.read(length) if length else b""
+        ctype = self.headers.get("Content-Type", "")
+
+        # 멀티파트 업로드(등록 ①)는 JSON 파싱 전에 처리
+        if path in (
+            "/mariadb/neibis-api/oral/upload",
+            "/mariadb/neibis-api/v1/oral/upload",
+            "/mariadb/neibis-api/survey/oral/upload",
+        ):
+            try:
+                self._send_json(api_oral_upload(raw, ctype))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
         try:
             body = json.loads(raw.decode("utf-8") or "{}")
         except Exception:
@@ -2236,6 +2454,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 self._send_json(api_oral_save_raw(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/oral/create",
+            "/mariadb/neibis-api/v1/oral/create",
+            "/mariadb/neibis-api/survey/oral/create",
+        ):
+            try:
+                self._send_json(api_oral_create(body))
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return

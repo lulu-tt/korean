@@ -643,11 +643,11 @@
 												<th scope="row"><span>전사자료 등록<i class="req">필수입력</i></span></th>
 												<td>
 													<label class="file-picker">
-														<input type="file" id="trsFiles" accept=".trs,.wav" multiple onchange="renderTrsList(this)" />
+														<input type="file" id="trsFiles" accept=".eaf,.trs,.wav" multiple onchange="uploadTrsFiles(this)" />
 														<span class="file-btn">파일 선택</span>
 														<span class="file-name" id="trsFilesName">선택된 파일 없음</span>
 													</label>
-													<p class="text-guide">전사자료(.trs)와 음성자료(.wav)를 등록하세요. (여러 파일 선택 가능)</p>
+													<p class="text-guide">전사자료(.eaf/.trs)와 음성자료(.wav)를 등록하세요. 업로드 시 조사연도·지역·제보자·발화주제가 자동 채워집니다. (여러 파일 선택 가능)</p>
 												</td>
 											</tr>
 											<tr>
@@ -874,33 +874,67 @@ function srcCancel(id){
 
 
 // 전사자료 목록 렌더링
-function renderTrsList(input){
+// 업로드 상태: 등록에 넘길 eaf 파일명 목록 + 자동채움 메타
+window._uploadedEafs = [];
+window._uploadMeta = null;
+
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);});}
+
+function uploadTrsFiles(input){
 	var body = document.getElementById('trsListBody');
 	var nameSpan = document.getElementById('trsFilesName');
 	var files = input.files;
 	if(!files || files.length === 0){
-		nameSpan.textContent = '선택된 파일 없음';
-		nameSpan.classList.remove('has-file');
+		nameSpan.textContent = '선택된 파일 없음'; nameSpan.classList.remove('has-file');
 		body.innerHTML = '<tr class="nodata-row"><td colspan="5" class="text-center" style="color:#94a3b8">등록된 전사자료가 없습니다.</td></tr>';
 		return;
 	}
 	nameSpan.textContent = files.length > 1 ? (files[0].name + ' 외 ' + (files.length-1) + '건') : files[0].name;
 	nameSpan.classList.add('has-file');
-	var map = {}, order = [];
-	for(var i=0; i<files.length; i++){
-		var n = files[i].name, dot = n.lastIndexOf('.');
-		var ext = dot >= 0 ? n.slice(dot+1).toLowerCase() : '';
-		var base = dot >= 0 ? n.slice(0, dot) : n;
-		if(!map[base]){ map[base] = {trs:'', wav:''}; order.push(base); }
-		if(ext === 'trs') map[base].trs = n;
-		else if(ext === 'wav') map[base].wav = n;
+	body.innerHTML = '<tr class="nodata-row"><td colspan="5" class="text-center" style="color:#94a3b8">업로드 중…</td></tr>';
+	var fd = new FormData();
+	for(var i=0;i<files.length;i++) fd.append('files', files[i]);
+	fetch('/mariadb/neibis-api/oral/upload', {method:'POST', body:fd})
+		.then(function(r){return r.json();})
+		.then(function(d){
+			if(!d || !d.ok){ throw new Error((d&&d.message)||'업로드 실패'); }
+			var eafs={}, wavs={}, order=[];
+			(d.results||[]).forEach(function(r){
+				if(!r.ok) return;
+				if(order.indexOf(r.baseId)<0) order.push(r.baseId);
+				if(r.kind==='eaf') eafs[r.baseId]=r; else if(r.kind==='wav') wavs[r.baseId]=r;
+			});
+			window._uploadedEafs = order.filter(function(b){return eafs[b];}).map(function(b){return eafs[b].fileName;});
+			window._uploadMeta = order.length && eafs[order[0]] ? eafs[order[0]].meta : null;
+			var html='';
+			order.forEach(function(b){
+				var e=eafs[b], w=wavs[b];
+				html += '<tr><td class="text-left">'+esc(e?e.fileName:'-')+'</td><td>'+esc(e?e.durationHms:'-')+'</td>'+
+					'<td class="text-left">'+esc(w?w.fileName:'-')+'</td><td>'+esc(w?w.waveTimeHms:'-')+'</td><td>'+esc(e?('1 (신규)'):'-')+'</td></tr>';
+			});
+			body.innerHTML = html || '<tr class="nodata-row"><td colspan="5" class="text-center" style="color:#dc2626">유효한 .eaf 파일이 없습니다.</td></tr>';
+			autofillFromMeta(window._uploadMeta, order.length && eafs[order[0]] ? eafs[order[0]].fileName : '');
+		})
+		.catch(function(e){
+			body.innerHTML = '<tr class="nodata-row"><td colspan="5" class="text-center" style="color:#dc2626">업로드 실패: '+esc(e.message)+'</td></tr>';
+		});
+}
+
+// 첫 eaf 메타로 폼 자동 채움 (빈 값만 채우고 사용자가 덮어쓸 수 있게)
+function autofillFromMeta(meta, eafName){
+	if(!meta) return;
+	function setIfEmpty(id, val){ var el=document.getElementById(id); if(el && !el.value.trim() && val) el.value=val; }
+	setIfEmpty('oriTrsfilenm', eafName);
+	setIfEmpty('headword', meta.topic);
+	setIfEmpty('researchYear', meta.year);
+	setIfEmpty('regionNm', meta.region);
+	// 주제보자1: "이름 ( 성별 나이 )"
+	if(meta.informant){
+		var age = (meta.year && meta.birth) ? (Number(meta.year)-Number(meta.birth)+1) : '';
+		var label = meta.informant + ' ( ' + (meta.sex||'') + (age?(' '+age):'') + ' )';
+		setIfEmpty('mainsource1', label);
+		window._autoSource = {name:meta.informant, sex:meta.sex, age:String(age||''), birth:meta.birth};
 	}
-	var html = '';
-	order.forEach(function(base){
-		var r = map[base];
-		html += '<tr><td class="text-left">' + (r.trs || '-') + '</td><td>-</td><td class="text-left">' + (r.wav || '-') + '</td><td>-</td><td>1 (신규)</td></tr>';
-	});
-	body.innerHTML = html;
 }
 
 // 저장 (정적 프로토타입: 필수값 검증 후 안내)
@@ -919,8 +953,32 @@ function oralSave(){
 	if(!document.getElementById('startDate').value.trim() || !document.getElementById('endDate').value.trim()){
 		msgWarn('조사기간(시작일~종료일)을 입력해 주세요.'); return document.getElementById('startDate').focus();
 	}
+	if(!window._uploadedEafs || !window._uploadedEafs.length){ msgWarn('전사자료(.eaf) 업로드가 완료되지 않았습니다.'); return; }
 	var done = function(){
-		if(window.Message){Message.alert({icon:'info',message:'정적 프로토타입입니다. 실제 저장은 수행되지 않습니다.'});}else{alert('정적 프로토타입: 저장 미수행');}
+		var g = function(id){ var e=document.getElementById(id); return e?e.value:''; };
+		var uyEl = document.querySelector('input[name="trsfileUseYn"]:checked');
+		var mains = window._autoSource ? [window._autoSource] : [];
+		var payload = {
+			files: window._uploadedEafs,
+			headword: g('headword'),
+			useYn: uyEl ? uyEl.value : 'Y',
+			region: {
+				researchYear: g('researchYear'), regionNm: g('regionNm'),
+				legalRegionCode: g('legalRegionCode'), regionNmYn: g('regionNmYn'),
+				regionRemark: g('regionRemark'), researchPlace: g('researchPlace'),
+				firstPlace: g('firstPlace'), researcher: g('researcher'),
+				transcriber: g('transcriber'), mic: g('mic'), recorder: g('recorder'),
+				fileUniqueness: g('fileUniqueness'), startDate: g('startDate'), endDate: g('endDate')
+			},
+			mainSources: mains, subSources: []
+		};
+		fetch('/mariadb/neibis-api/oral/create', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)})
+			.then(function(r){return r.json();}).then(function(d){
+				if(d && d.ok){
+					if(window.Message){Message.alert({icon:'success',message:d.message||'등록되었습니다.'}, function(){ location.href='oral.do'; });}
+					else { alert(d.message||'등록되었습니다.'); location.href='oral.do'; }
+				} else { msgWarn('등록 실패: ' + ((d&&d.message)||'알 수 없는 오류')); }
+			}).catch(function(e){ msgWarn('등록 실패: ' + e.message); });
 	};
 	if(window.Message){
 		Message.confirm({icon:'warning', title:'저장하시겠어요?', message:'저장하시려면 ‘확인’을 눌러주세요.'}, done);
