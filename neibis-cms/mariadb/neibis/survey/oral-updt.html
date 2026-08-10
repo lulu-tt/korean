@@ -1548,5 +1548,119 @@ const getMngrFail = function (xhr, status, error) {
 }
 </script>
 
-	</body>
+	
+<script>
+/* ── 구술발화 수정폼 조회 DB 연동 (api_oral_meta / oral_detail) ───────── */
+(function(){
+  var API='/mariadb/neibis-api/oral';
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);});}
+  function setVal(id,v){var el=document.getElementById(id); if(el) el.value=(v==null?'':v);}
+  var curTrsId=(new URLSearchParams(location.search).get('id')||'').trim();
+
+  function fileTbody(){
+    var tb=null;
+    document.querySelectorAll('#save-form .table-list table, .table-list table').forEach(function(t){
+      var h=t.querySelector('thead th'); if(h && h.textContent.trim()==='구술자료') tb=t.querySelector('tbody');
+    });
+    return tb;
+  }
+  function renderFiles(files){
+    var tb=fileTbody(); if(!tb) return;
+    if(!files.length){ tb.innerHTML='<tr><td colspan="5" style="padding:20px;text-align:center;color:#94a3b8">등록된 구술자료가 없습니다.</td></tr>'; return; }
+    tb.innerHTML=files.map(function(f){
+      var hl=(f.trsId===curTrsId)?' style="background:#eff6ff"':'';
+      return '<tr'+hl+'>'+
+        '<td class="text-left" style="white-space:nowrap"><a href="#layer-trs-view" data-modal="open" class="link js-oral-open" data-oral-id="'+esc(f.trsId)+'">'+esc(f.trsFileNm)+'</a></td>'+
+        '<td>'+esc(f.trsTime)+'</td>'+
+        '<td class="text-left" style="white-space:nowrap">'+esc(f.waveFileNm)+'</td>'+
+        '<td>'+esc(f.waveTime)+'</td>'+
+        '<td>'+esc(f.ver)+'</td></tr>';
+    }).join('');
+  }
+  function fillMeta(d){
+    setVal('headword', d.headword);
+    var rg=d.region||{};
+    setVal('researchYear', rg.researchYear);
+    setVal('a1', rg.sigunguNm);
+    setVal('regionNm', rg.regionNm);
+    setVal('legalRegionCode', rg.legalRegionCode);
+    setVal('regionNmYn', rg.regionNmYn);
+    setVal('researchRegionId', rg.researchRegionId);
+    setVal('startDate', rg.startDate);
+    setVal('endDate', rg.endDate);
+    setVal('regionRemark', rg.regionRemark);
+    setVal('researchPlace', rg.researchPlace);
+    setVal('firstPlace', rg.firstPlace);
+    setVal('researcher', rg.researcher);
+    setVal('transcriber', rg.transcriber);
+    setVal('mic', rg.mic);
+    setVal('recorder', rg.recorder);
+    setVal('fileUniqueness', rg.fileUniqueness);
+    var uy=(d.useYn==='N')?'N':'Y';
+    document.querySelectorAll('input[name="trsfileUseYn"]').forEach(function(r){ r.checked=(r.value===uy); });
+    var mains=d.mainSources||[], subs=d.subSources||[];
+    for(var i=1;i<=3;i++) setVal('mainsource'+i, mains[i-1]?mains[i-1].label:'');
+    for(var j=1;j<=5;j++) setVal('subsource'+j, subs[j-1]?subs[j-1].label:'');
+    renderFiles(d.files||[]);
+  }
+
+  /* ── 상세 보기(trs-view) : oral.do와 동일 로직 ── */
+  function ensureAudio(){ var a=document.getElementById('oralAudio'); if(!a){a=document.createElement('audio');a.id='oralAudio';a.preload='none';document.body.appendChild(a);} return a; }
+  var _stopAt=null;
+  window.oralPlaySeg=function(s,e){ var a=ensureAudio(); if(!a.src){ if(window.Message){Message.alert({icon:'warning',message:'이 자료는 음성 파일이 없습니다.'});}else{alert('음성 파일이 없습니다.');} return;} _stopAt=e/1000; a.currentTime=s/1000; a.play().catch(function(){}); };
+  function segLineHtml(sg){
+    var spk=sg.speaker||'', color=(spk==='조사자')?'#0ea5e9':'#7c3aed';
+    var t1=(sg.startMs/1000).toFixed(2), t2=(sg.endMs/1000).toFixed(2);
+    var stdDiff=(sg.std && sg.std!==sg.form);
+    return '<div class="trs-line"><div class="trs-header" style="display:none"><dl>'+
+      '<dt>순번</dt><dd>'+sg.seq+'</dd><dt>화자</dt><dd>'+esc(spk)+'</dd>'+
+      '<dt>주제</dt><dd>'+esc(window._oralTopic||'-')+'</dd><dt>항목번호</dt><dd>'+esc(sg.item||'-')+'</dd></dl></div>'+
+      '<div class="trs-text"><span class="ui-line-no">'+sg.seq+'</span>'+
+      '<button type="button" class="btn-play" onclick="oralPlaySeg('+sg.startMs+','+sg.endMs+')" title="구간 재생">▶</button>'+
+      '<span class="chk-col"><label class="check-item"><input type="checkbox" name="trsChk" /><span class="label sr-only">선택</span></label></span>'+
+      '<span class="ui-play-time">'+t1+' 초 ~ '+t2+' 초</span>'+
+      '<div style="flex:1 1 auto"><span style="display:inline-block;min-width:44px;font-size:11px;font-weight:700;color:'+color+'">'+esc(spk)+'</span>'+
+      '<pre style="display:inline">'+esc(sg.form)+'</pre>'+
+      (stdDiff?'<div style="margin-top:2px;font-size:13px;color:#64748b"><span style="font-size:11px;color:#94a3b8">표준어대역</span> '+esc(sg.std)+'</div>':'')+
+      '</div></div></div>';
+  }
+  window.openOralDetail=function(oralId){
+    var lines=document.getElementById('trsLines');
+    var sub=document.querySelector('#layer-trs-view .trs-subtitle');
+    if(lines) lines.innerHTML='<div style="padding:40px;text-align:center;color:#94a3b8">전사 자료를 불러오는 중…</div>';
+    if(sub) sub.innerHTML='불러오는 중…';
+    fetch(API+'/detail?id='+encodeURIComponent(oralId)).then(function(r){return r.json();}).then(function(d){
+      if(!d||!d.ok) throw new Error((d&&d.message)||'상세 로드 실패');
+      window._oralTopic=d.topic;
+      if(sub){ var who=d.informant?(' · 제보자 '+esc(d.informant)+'('+esc(d.sex)+(d.age?', '+esc(d.age)+'세':'')+')'):'';
+        sub.innerHTML=esc(d.region)+' ('+esc(d.year)+'년) '+esc(d.topic)+' 조사 &ndash; <span class="fname">'+esc(d.fileName)+'</span>'+
+          (d.hasMedia?' ( <span class="fname">'+esc(d.wavFileName||'')+'</span> )':' <span style="color:#dc2626">(음성없음)</span>')+who+' · 전사 '+d.segmentCount+'행 · '+esc(d.duration); }
+      var a=ensureAudio(); a.pause(); a.removeAttribute('src'); a.load();
+      if(d.hasMedia && d.mediaUrl){ a.src=d.mediaUrl; a.ontimeupdate=function(){ if(_stopAt!=null && a.currentTime>=_stopAt){ a.pause(); _stopAt=null; } }; }
+      if(lines) lines.innerHTML=(d.segments||[]).map(segLineHtml).join('')||'<div style="padding:40px;text-align:center;color:#94a3b8">전사 데이터가 없습니다.</div>';
+      if(typeof trsResetMarks==='function') trsResetMarks();
+      var tg=document.getElementById('trsToggleHeader'); if(tg) tg.checked=false;
+    }).catch(function(e){ if(lines) lines.innerHTML='<div style="padding:40px;text-align:center;color:#dc2626">상세 로드 실패: '+esc(e.message)+'</div>'; });
+  };
+
+  document.addEventListener('click',function(e){
+    if(!e.target.closest) return;
+    var op=e.target.closest('.js-oral-open');
+    if(op){ window.openOralDetail(op.getAttribute('data-oral-id')); return; }
+    var vb=e.target.closest('a[href="#layer-trs-view"][data-modal="open"]');
+    if(vb){ if(curTrsId) window.openOralDetail(curTrsId); return; }
+    var cl=e.target.closest('#layer-trs-view [data-modal="close"], #layer-trs-view .dimed');
+    if(cl){ var a=document.getElementById('oralAudio'); if(a)a.pause(); _stopAt=null; }
+  });
+
+  function boot(){
+    if(!curTrsId) return;
+    fetch(API+'/meta?id='+encodeURIComponent(curTrsId)).then(function(r){return r.json();})
+      .then(function(d){ if(d&&d.ok) fillMeta(d); }).catch(function(){});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+})();
+</script>
+
+</body>
 </html>

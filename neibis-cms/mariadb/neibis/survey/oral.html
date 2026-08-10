@@ -876,7 +876,7 @@ $(function(){
 /* ── 구술발화 목록/상세 실데이터 연동 (api_oral_*) ───────────────── */
 (function(){
   var API='/mariadb/neibis-api/oral';
-  var state={page:1,pageSize:300};
+  var state={page:1,pageSize:10};
 
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);});}
 
@@ -886,6 +886,8 @@ $(function(){
     var sexEl=document.querySelector('input[name="sex"]:checked');
     var sex=sexEl?sexEl.value:'';
     var kw=(document.getElementById('oralSearchKw')||{}).value||'';
+    var psEl=document.querySelector('.list-control .right select');
+    state.pageSize=(psEl&&parseInt(psEl.value,10))||10;
     var qs='page='+state.page+'&pageSize='+state.pageSize;
     if(sido) qs+='&sido='+encodeURIComponent(sido);
     if(year) qs+='&year='+encodeURIComponent(year);
@@ -897,7 +899,7 @@ $(function(){
   function rowHtml(it){
     var openTxt=(it.openYn==='Y'?'사용':'미사용')+' , '+(it.audioState||'-');
     var media=it.hasMedia?'':' <span style="color:#dc2626;font-size:12px">(음성없음)</span>';
-    var degree=(parseInt(it.year,10)>=2022)?'2':'1';  // 2004~2012=1차, 2022~2023=2차
+    var degree=it.researchDegree||((parseInt(it.year,10)>=2022)?'2':'1');  // 2004~2012=1차, 2022~2023=2차
     return ''+
       '<tr data-degree="'+degree+'">'+
       '<td><label class="check-item"><input type="checkbox" name="chk" value="'+esc(it.oralId)+'" /><span class="label sr-only">선택</span></label></td>'+
@@ -925,13 +927,29 @@ $(function(){
         if(!d.list.length){ tb.innerHTML='<tr><td colspan="9" style="padding:40px;text-align:center;color:#94a3b8">검색 결과가 없습니다.</td></tr>'; }
         else { tb.innerHTML=d.list.map(rowHtml).join(''); }
         var tot=document.querySelector('.list-control .total');
-        if(tot) tot.innerHTML='총 <strong class="text-primary">'+Number(d.total).toLocaleString()+'</strong>건(1/1 page)';
+        if(tot) tot.innerHTML='총 <strong class="text-primary">'+Number(d.total).toLocaleString()+'</strong>건('+d.page+'/'+d.totalPages+' page)';
+        renderOralPagination(d);
         var chkAll=document.getElementById('chkAll'); if(chkAll) chkAll.checked=false;
       })
       .catch(function(e){
         tb.innerHTML='<tr><td colspan="9" style="padding:40px;text-align:center;color:#dc2626">목록 로드 실패: '+esc(e.message)+'</td></tr>';
       });
   };
+
+  /* 페이지네이션 렌더 (최대 10개 번호 + 처음/이전/다음/끝) */
+  window.goOralPage=function(p){ if(p<1)return; state.page=p; window.loadOralList(); };
+  function renderOralPagination(d){
+    var el=document.querySelector('.pagination');
+    if(!el) return;
+    var cur=d.page, last=d.totalPages;
+    if(last<=1){ el.innerHTML='<strong>1</strong>'; return; }
+    var win=10, group=Math.floor((cur-1)/win), start=group*win+1, end=Math.min(start+win-1,last);
+    var h='';
+    if(cur>1){ h+='<a href="javascript:void(0)" onclick="goOralPage(1)">처음</a> '; h+='<a href="javascript:void(0)" onclick="goOralPage('+(cur-1)+')">이전</a> '; }
+    for(var i=start;i<=end;i++){ h+=(i===cur)?('<strong>'+i+'</strong> '):('<a href="javascript:void(0)" onclick="goOralPage('+i+')">'+i+'</a> '); }
+    if(cur<last){ h+='<a href="javascript:void(0)" onclick="goOralPage('+(cur+1)+')">다음</a> '; h+='<a href="javascript:void(0)" onclick="goOralPage('+last+')">끝</a>'; }
+    el.innerHTML=h;
+  }
 
   /* 검색/초기화 버튼을 실데이터 재조회로 재정의 */
   window.searchList=function(){ state.page=1; window.loadOralList(); };
@@ -991,9 +1009,9 @@ $(function(){
         if(!d||!d.ok){throw new Error((d&&d.message)||'상세 로드 실패');}
         window._oralTopic=d.topic;
         if(sub){
-          var age=(d.birth&&d.year)?(' · 제보자 '+esc(d.informant)+'('+esc(d.sex)+', '+(Number(d.year)-Number(d.birth)+1)+'세)'):'';
+          var who=d.informant?(' · 제보자 '+esc(d.informant)+'('+esc(d.sex)+(d.age?', '+esc(d.age)+'세':'')+')'):'';
           sub.innerHTML=esc(d.region)+' ('+esc(d.year)+'년) '+esc(d.topic)+' 조사 &ndash; <span class="fname">'+esc(d.fileName)+'</span>'+
-            (d.hasMedia?' ( <span class="fname">'+esc(d.oralId)+'.wav</span> )':' <span style="color:#dc2626">(음성없음)</span>')+age+' · 전사 '+d.segmentCount+'행 · '+esc(d.duration);
+            (d.hasMedia?' ( <span class="fname">'+esc(d.wavFileName||'')+'</span> )':' <span style="color:#dc2626">(음성없음)</span>')+who+' · 전사 '+d.segmentCount+'행 · '+esc(d.duration);
         }
         var a=ensureAudio(); a.pause(); a.removeAttribute('src'); a.load();
         if(d.hasMedia && d.mediaUrl){ a.src=d.mediaUrl; a.ontimeupdate=function(){ if(_stopAt!=null && a.currentTime>=_stopAt){ a.pause(); _stopAt=null; } }; }

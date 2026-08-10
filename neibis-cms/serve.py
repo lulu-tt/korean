@@ -282,8 +282,63 @@ def _load_oral(eaf_path: Path) -> dict:
     return data
 
 
+# 시도 코드 → region_nm 접두어 (wb_research_region.region_nm 매칭용)
+SIDO_CD_TO_PREFIX = {
+    "11": "서울", "26": "부산", "27": "대구", "28": "인천", "29": "광주",
+    "30": "대전", "31": "울산", "36": "세종", "41": "경기", "42": "강원",
+    "43": "충청북도", "44": "충청남도", "45": "전라북도", "46": "전라남도",
+    "47": "경상북도", "48": "경상남도", "50": "제주",
+}
+
+
+def _sec_to_hms(sec) -> str:
+    try:
+        total = int(float(sec))
+    except (TypeError, ValueError):
+        return "00:00:00"
+    h, rem = divmod(total, 3600)
+    m, s = divmod(rem, 60)
+    return f"{h:02d}:{m:02d}:{s:02d}"
+
+
+def _parse_trs_line(txt: str) -> dict:
+    """.trs 라인 마커 파싱.
+    @=조사자, #n=제보자n / %1=형태음소전사, %2 {..}=표준어대역.
+    """
+    t = (txt or "").strip()
+    speaker = "조사자"
+    m = re.match(r"^\s*(@|#\d*)", t)
+    if m:
+        tok = m.group(1)
+        speaker = "조사자" if tok == "@" else ("제보자" + (tok[1:] or "1"))
+        t = t[m.end():].strip()
+    std = ""
+    m2 = re.search(r"%2\s*\{(.*)\}\s*$", t, re.S)
+    if m2:
+        std = m2.group(1).strip()
+        t = t[:m2.start()].strip()
+    else:
+        m2b = re.search(r"%2\s*(.*)$", t, re.S)
+        if m2b:
+            std = m2b.group(1).strip().strip("{}").strip()
+            t = t[:m2b.start()].strip()
+    m1 = re.search(r"%1\s*(.*)$", t, re.S)
+    form = (m1.group(1) if m1 else t).strip()
+    if not form and not std:
+        form = (txt or "").strip()
+    return {"speaker": speaker, "form": form, "std": std}
+
+
+def _oral_media_id(audio_filename, trs_file_nm) -> str:
+    """미디어 파일 베이스명 (audio_filename 우선, 없으면 파일명에서 확장자 제거)."""
+    if audio_filename:
+        return str(audio_filename)
+    base = str(trs_file_nm or "")
+    return base.rsplit(".", 1)[0] if "." in base else base
+
+
 def api_oral_list(qs: dict) -> dict:
-    """구술발화조사자료 목록 — 데이터 루트의 .eaf 스캔."""
+    """구술발화조사자료 목록 — 기존 DB(wb_trs_file_talk) 기반."""
     def q1(key, default=""):
         return (qs.get(key) or [default])[0].strip()
 
@@ -300,66 +355,89 @@ def api_oral_list(qs: dict) -> dict:
 
     sido = q1("sido") or q1("sidoCd")
     year = q1("year") or q1("researchYear")
-    sex = q1("sex")           # '' | man | woman | 남 | 여
+    sex = q1("sex")           # '' | man | woman | wom | 남 | 여
     q = q1("q") or q1("searchValue")
 
-    records = [_load_oral(p) for p in _scan_oral_files()]
-
-    def sex_ok(rec) -> bool:
-        if not sex:
-            return True
-        s = rec.get("sex", "")
-        if sex in ("man", "남"):
-            return s == "남"
-        if sex in ("woman", "wom", "여"):
-            return s == "여"
-        return True
-
-    filtered = []
-    for rec in records:
-        if sido and rec.get("sidoCd") != sido:
-            continue
-        if year and rec.get("year") != year:
-            continue
-        if not sex_ok(rec):
-            continue
-        if q:
-            hay = " ".join([
-                rec.get("oralId", ""), rec.get("region", ""),
-                rec.get("topic", ""), rec.get("informant", ""),
-                rec.get("contentCode", ""),
-            ]).lower()
-            if q.lower() not in hay:
-                continue
-        filtered.append(rec)
-
-    total = len(filtered)
+    where: list[str] = []
+    params: list = []
+    if year:
+        where.append("IFNULL(rr.research_year,'') = ?")
+        params.append(year)
+    if sido:
+        pref = SIDO_CD_TO_PREFIX.get(sido)
+        if pref:
+            where.append("(IFNULL(rr.region_nm,'') LIKE ? OR IFNULL(rr.sigungu_nm,'') LIKE ?)")
+            params += [pref + "%", pref + "%"]
+    if q:
+        like = "%" + q + "%"
+        where.append(
+            "(IFNULL(f.trs_file_nm,'') LIKE ? OR IFNULL(f.upper_headword,'') LIKE ? "
+            "OR IFNULL(f.headword,'') LIKE ? OR IFNULL(rr.region_nm,'') LIKE ?)"
+        )
+        params += [like, like, like, like]
+    sex_code = "0" if sex in ("man", "남") else ("1" if sex in ("woman", "wom", "여") else "")
+    if sex_code:
+        where.append(
+            "EXISTS (SELECT 1 FROM wb_source s WHERE s.research_region_id = f.research_region_id AND s.sex = ?)"
+        )
+        params.append(sex_code)
+    wh = ("WHERE " + " AND ".join(where)) if where else ""
     offset = (page - 1) * page_size
-    page_recs = filtered[offset:offset + page_size]
 
-    def sex_label(v) -> str:
-        return v or "-"
+    with db_connect() as con:
+        total = con.execute(
+            f"""SELECT COUNT(*) FROM wb_trs_file_talk f
+                LEFT JOIN wb_research_region rr ON rr.research_region_id = f.research_region_id {wh}""",
+            params,
+        ).fetchone()[0]
+        rows = con.execute(
+            f"""
+            SELECT f.trs_id, f.trs_file_nm, f.wave_file_nm, f.audio_filename,
+                   f.upper_headword, f.headword, f.trs_time, f.use_yn,
+                   f.research_degree, f.remark,
+                   rr.region_nm, rr.sigungu_nm, rr.research_year
+            FROM wb_trs_file_talk f
+            LEFT JOIN wb_research_region rr ON rr.research_region_id = f.research_region_id
+            {wh}
+            ORDER BY CAST(f.trs_id AS INTEGER) DESC
+            LIMIT ? OFFSET ?
+            """,
+            params + [page_size, offset],
+        ).fetchall()
+
+        trs_ids = [str(r["trs_id"]) for r in rows if r["trs_id"] is not None]
+        durmap: dict[str, float] = {}
+        segmap: dict[str, int] = {}
+        if trs_ids:
+            ph = ",".join("?" * len(trs_ids))
+            for nr in con.execute(
+                f"""SELECT trs_id, MAX(CAST(end_time AS REAL)) dur, COUNT(*) cnt
+                    FROM wb_trs_line_talk
+                    WHERE trs_line_se='text' AND trs_id IN ({ph})
+                    GROUP BY trs_id""",
+                trs_ids,
+            ).fetchall():
+                durmap[str(nr["trs_id"])] = nr["dur"] or 0
+                segmap[str(nr["trs_id"])] = nr["cnt"] or 0
 
     items = []
-    for idx, rec in enumerate(page_recs, start=offset + 1):
+    for idx, r in enumerate(rows, start=offset + 1):
+        tid = str(r["trs_id"])
+        dur_sec = durmap.get(tid, 0)
+        audio_id = _oral_media_id(r["audio_filename"], r["trs_file_nm"])
         items.append({
             "no": idx,
-            "oralId": rec["oralId"],
-            "year": rec.get("year", ""),
-            "region": rec.get("region", ""),
-            "sidoCd": rec.get("sidoCd", ""),
-            "topic": rec.get("topic", ""),
-            "contentCode": rec.get("contentCode", ""),
-            "fileName": rec["oralId"] + ".eaf",
-            "duration": _ms_to_hms(rec.get("durationMs", 0)),
-            "durationMs": rec.get("durationMs", 0),
-            "segmentCount": rec.get("segmentCount", 0),
-            "informant": rec.get("informant", ""),
-            "sex": rec.get("sex", ""),
-            "sexLabel": sex_label(rec.get("sex", "")),
-            "birth": rec.get("birth", ""),
-            "hasMedia": rec.get("hasMedia", False),
-            "openYn": "Y",  # 원천 파일 기반: 기본 사용
+            "oralId": tid,
+            "year": r["research_year"] or "",
+            "region": r["region_nm"] or r["sigungu_nm"] or "-",
+            "topic": r["upper_headword"] or r["headword"] or "-",
+            "fileName": r["trs_file_nm"] or (audio_id + ".eaf"),
+            "duration": _sec_to_hms(dur_sec),
+            "durationMs": int((dur_sec or 0) * 1000),
+            "segmentCount": segmap.get(tid, 0),
+            "researchDegree": r["research_degree"] or "",
+            "hasMedia": _find_oral_media(audio_id, "wav") is not None,
+            "openYn": (r["use_yn"] or "Y"),
             "audioState": "이상없음",
         })
 
@@ -371,41 +449,183 @@ def api_oral_list(qs: dict) -> dict:
         "pageSize": page_size,
         "totalPages": total_pages,
         "list": items,
-        "dataRoot": str(ORAL_DATA_ROOT),
+        "db": str(DB_PATH),
     }
 
 
 def api_oral_detail(qs: dict) -> dict:
-    """구술발화 상세 — 세그먼트(형태음소전사/표준어대역) 반환."""
-    oral_id = (qs.get("id") or qs.get("oralId") or [""])[0].strip()
-    if not oral_id:
+    """구술발화 상세 — wb_trs_line_talk 라인을 세그먼트로 반환."""
+    trs_id = (qs.get("id") or qs.get("trsId") or qs.get("oralId") or [""])[0].strip()
+    if not trs_id:
         return {"ok": False, "message": "id 파라미터가 필요합니다."}
-    target = None
-    for p in _scan_oral_files():
-        if _oral_id_of(p) == oral_id:
-            target = p
-            break
-    if target is None:
-        return {"ok": False, "message": f"해당 자료를 찾을 수 없습니다: {oral_id}"}
-    rec = _load_oral(target)
+
+    with db_connect() as con:
+        f = con.execute(
+            """
+            SELECT f.trs_id, f.research_region_id, f.trs_file_nm, f.wave_file_nm,
+                   f.audio_filename, f.upper_headword, f.headword, f.use_yn, f.remark,
+                   rr.region_nm, rr.sigungu_nm, rr.research_year,
+                   rr.researcher, rr.transcriber, rr.mic, rr.recorder
+            FROM wb_trs_file_talk f
+            LEFT JOIN wb_research_region rr ON rr.research_region_id = f.research_region_id
+            WHERE f.trs_id = ?
+            """,
+            (trs_id,),
+        ).fetchone()
+        if not f:
+            return {"ok": False, "message": f"해당 자료를 찾을 수 없습니다: {trs_id}"}
+        src = con.execute(
+            """SELECT name, sex, age, birth FROM wb_source
+               WHERE research_region_id = ?
+               ORDER BY CAST(source_id AS INTEGER) LIMIT 1""",
+            (f["research_region_id"],),
+        ).fetchone()
+        lines = con.execute(
+            """SELECT trs_line_no, trs_line, start_time, end_time
+               FROM wb_trs_line_talk
+               WHERE trs_id = ? AND trs_line_se = 'text'
+               ORDER BY CAST(trs_line_no AS INTEGER)""",
+            (trs_id,),
+        ).fetchall()
+
+    def to_ms(v):
+        try:
+            return int(float(v) * 1000)
+        except (TypeError, ValueError):
+            return 0
+
+    segments = []
+    for i, ln in enumerate(lines, 1):
+        p = _parse_trs_line(ln["trs_line"])
+        segments.append({
+            "seq": i,
+            "speaker": p["speaker"],
+            "startMs": to_ms(ln["start_time"]),
+            "endMs": to_ms(ln["end_time"]),
+            "form": p["form"],
+            "std": p["std"],
+            "item": ln["trs_line_no"] or "",
+        })
+    dur_ms = max((s["endMs"] for s in segments), default=0)
+
+    sex_map = {"0": "남", "1": "여"}
+    sex_raw = (src["sex"] if src else "") or ""
+    audio_id = _oral_media_id(f["audio_filename"], f["trs_file_nm"])
+    has_media = _find_oral_media(audio_id, "wav") is not None
+
     return {
         "ok": True,
-        "oralId": rec["oralId"],
-        "region": rec.get("region", ""),
-        "year": rec.get("year", ""),
-        "topic": rec.get("topic", ""),
-        "contentCode": rec.get("contentCode", ""),
-        "informant": rec.get("informant", ""),
-        "sex": rec.get("sex", ""),
-        "birth": rec.get("birth", ""),
-        "duration": _ms_to_hms(rec.get("durationMs", 0)),
-        "durationMs": rec.get("durationMs", 0),
-        "segmentCount": rec.get("segmentCount", 0),
-        "hasMedia": rec.get("hasMedia", False),
-        "mediaUrl": f"/oral-media/{oral_id}.wav" if rec.get("hasMedia") else "",
-        "fileName": rec["oralId"] + ".eaf",
-        "segments": rec.get("segments", []),
-        "tiers": rec.get("tiers", {}),
+        "oralId": str(f["trs_id"]),
+        "region": f["region_nm"] or f["sigungu_nm"] or "-",
+        "year": f["research_year"] or "",
+        "topic": f["upper_headword"] or f["headword"] or "-",
+        "informant": (src["name"] if src else "") or "",
+        "sex": sex_map.get(sex_raw, sex_raw),
+        "age": (src["age"] if src else "") or "",
+        "birth": (src["birth"] if src else "") or "",
+        "researcher": f["researcher"] or "",
+        "transcriber": f["transcriber"] or "",
+        "duration": _sec_to_hms(dur_ms / 1000),
+        "durationMs": dur_ms,
+        "segmentCount": len(segments),
+        "hasMedia": has_media,
+        "mediaUrl": f"/oral-media/{audio_id}.wav" if has_media else "",
+        "fileName": f["trs_file_nm"] or (audio_id + ".eaf"),
+        "wavFileName": f["wave_file_nm"] or (audio_id + ".wav"),
+        "segments": segments,
+    }
+
+
+def api_oral_meta(qs: dict) -> dict:
+    """구술발화 수정폼 메타 — 조사지역/제보자/지역내 파일목록 (wb_research_region 등)."""
+    trs_id = (qs.get("id") or qs.get("trsId") or qs.get("oralId") or [""])[0].strip()
+    if not trs_id:
+        return {"ok": False, "message": "id 파라미터가 필요합니다."}
+
+    with db_connect() as con:
+        f = con.execute(
+            """SELECT trs_id, research_region_id, upper_headword, headword,
+                      use_yn, trs_file_nm, audio_filename
+               FROM wb_trs_file_talk WHERE trs_id = ?""",
+            (trs_id,),
+        ).fetchone()
+        if not f:
+            return {"ok": False, "message": f"해당 자료를 찾을 수 없습니다: {trs_id}"}
+        rrid = f["research_region_id"]
+        rr = con.execute(
+            "SELECT * FROM wb_research_region WHERE research_region_id = ?", (rrid,)
+        ).fetchone()
+        sources = con.execute(
+            """SELECT se, name, sex, age, birth FROM wb_source
+               WHERE research_region_id = ? ORDER BY se, CAST(source_id AS INTEGER)""",
+            (rrid,),
+        ).fetchall()
+        files = con.execute(
+            """SELECT trs_id, trs_file_nm, trs_time, wave_file_nm, wave_time, ver, upper_headword
+               FROM wb_trs_file_talk WHERE research_region_id = ?
+               ORDER BY CAST(trs_id AS INTEGER)""",
+            (rrid,),
+        ).fetchall()
+
+    sex_map = {"0": "남", "1": "여"}
+
+    def src_dict(s):
+        return {
+            "name": s["name"] or "",
+            "sex": sex_map.get(s["sex"] or "", s["sex"] or ""),
+            "age": s["age"] or "",
+            "birth": s["birth"] or "",
+            "label": f"{s['name'] or ''} ( {sex_map.get(s['sex'] or '', '')} {s['age'] or ''} )".strip(),
+        }
+
+    mains = [src_dict(s) for s in sources if (s["se"] in ("0", None, ""))]
+    subs = [src_dict(s) for s in sources if (s["se"] not in ("0", None, ""))]
+
+    file_list = []
+    for r in files:
+        file_list.append({
+            "trsId": str(r["trs_id"]),
+            "trsFileNm": r["trs_file_nm"] or "",
+            "trsTime": _sec_to_hms(r["trs_time"]) if r["trs_time"] else "00:00:00",
+            "waveFileNm": r["wave_file_nm"] or "",
+            "waveTime": _sec_to_hms(r["wave_time"]) if r["wave_time"] else "00:00:00",
+            "ver": r["ver"] or "-",
+            "topic": r["upper_headword"] or "",
+        })
+
+    region = {}
+    if rr:
+        keys = rr.keys()
+        sigungu = rr["sigungu_nm"] if "sigungu_nm" in keys else ""
+        region = {
+            "researchRegionId": str(rrid or ""),
+            "regionNm": rr["region_nm"] or "",
+            "sigunguNm": sigungu or "",
+            "researchYear": rr["research_year"] or "",
+            "regionRemark": rr["region_remark"] or "",
+            "researchPlace": rr["research_place"] or "",
+            "firstPlace": rr["first_place"] or "",
+            "researcher": rr["researcher"] or "",
+            "transcriber": rr["transcriber"] or "",
+            "mic": rr["mic"] or "",
+            "recorder": rr["recorder"] or "",
+            "fileUniqueness": rr["file_uniqueness"] or "",
+            "legalRegionCode": rr["legal_region_code"] or "",
+            "regionNmYn": rr["region_nm_yn"] or "",
+            "startDate": _fmt_epoch_ms(rr["start_date"]) or "",
+            "endDate": _fmt_epoch_ms(rr["end_date"]) or "",
+        }
+
+    return {
+        "ok": True,
+        "trsId": str(f["trs_id"]),
+        "headword": f["upper_headword"] or f["headword"] or "",
+        "useYn": f["use_yn"] or "Y",
+        "fileName": f["trs_file_nm"] or "",
+        "region": region,
+        "mainSources": mains,
+        "subSources": subs,
+        "files": file_list,
     }
 
 
@@ -1870,6 +2090,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 self._send_json(api_oral_detail(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/oral/meta",
+            "/mariadb/neibis-api/v1/oral/meta",
+            "/mariadb/neibis-api/survey/oral/meta",
+        ):
+            try:
+                self._send_json(api_oral_meta(qs))
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return
