@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>제보자 선택 | 지역어 종합정보 관리자</title>
+	<link rel="shortcut icon" href="/mariadb/assets/neibis/images/favicon.png" />
+	<link rel="stylesheet" href="/mariadb/assets/neibis/css/style.css" />
+	<script src="/mariadb/assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+	<style>
+		html, body { background: #f8fafc; margin: 0; padding: 0; }
+		.sf-wrap { padding: 16px 18px 20px; }
+		.sf-title { font-size: 18px; font-weight: 700; margin: 0 0 12px; color: #111827; }
+		.sf-toolbar {
+			display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+			justify-content: space-between; margin-bottom: 12px;
+		}
+		.sf-toolbar .left, .sf-toolbar .right { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+		.sf-table-wrap {
+			background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
+			overflow: auto; max-height: calc(100vh - 160px);
+		}
+		.sf-table { width: 100%; border-collapse: collapse; min-width: 720px; }
+		.sf-table th, .sf-table td {
+			padding: 9px 10px; border-bottom: 1px solid #f1f5f9;
+			font-size: 13px; text-align: center; white-space: nowrap;
+		}
+		.sf-table th { background: #f8fafc; color: #475569; font-weight: 600; position: sticky; top: 0; z-index: 1; }
+		.sf-table td.text-left { text-align: left; }
+		.sf-table tbody tr { cursor: pointer; }
+		.sf-table tbody tr:hover { background: #f8fafc; }
+		.sf-table tbody tr.is-selected { background: #eff6ff; }
+		.sf-guide { margin-top: 10px; font-size: 12px; color: #64748b; line-height: 1.5; }
+		.sf-empty { padding: 40px; text-align: center; color: #94a3b8; }
+	</style>
+</head>
+<body>
+	<div class="sf-wrap">
+		<h1 class="sf-title">제보자 선택</h1>
+		<div class="sf-toolbar">
+			<div class="left">
+				<input type="text" id="sfSearch" class="form-control-sm" style="width:220px" placeholder="이름 검색" />
+				<button type="button" class="btn btn-sm btn-primary" id="sfSearchBtn"><span>검색</span></button>
+				<button type="button" class="btn btn-sm btn-outline-gray" id="sfResetBtn"><span>초기화</span></button>
+			</div>
+			<div class="right">
+				<button type="button" class="btn btn-sm btn-primary" id="sfSelectBtn"><i class="ico ico-check-white-sm"></i><span>선택</span></button>
+				<button type="button" class="btn btn-sm btn-outline-gray" id="sfAddBtn"><i class="ico ico-plus-gray-sm"></i><span>추가</span></button>
+				<button type="button" class="btn btn-sm btn-outline-gray" id="sfCloseBtn"><span>닫기</span></button>
+			</div>
+		</div>
+		<input type="hidden" id="researchRegionId" value="" />
+		<input type="hidden" id="targetField" value="" />
+		<div class="sf-table-wrap">
+			<table class="sf-table">
+				<thead>
+					<tr>
+						<th style="width:44px">선택</th>
+						<th style="width:52px">번호</th>
+						<th>이름</th>
+						<th style="width:56px">성별</th>
+						<th style="width:56px">나이</th>
+						<th style="width:80px">출생연도</th>
+						<th class="text-left">거주지</th>
+					</tr>
+				</thead>
+				<tbody id="sfBody">
+					<tr><td colspan="7" class="sf-empty">불러오는 중…</td></tr>
+				</tbody>
+			</table>
+		</div>
+		<p class="sf-guide">
+			※ 행을 클릭하거나 라디오 선택 후 <strong>선택</strong>을 누르면 부모 화면에 반영됩니다. 행 더블클릭으로도 선택할 수 있습니다.<br />
+			※ 제보자 추가 시 새 창의 등록 화면이 열립니다. (정적 프로토타입)
+		</p>
+	</div>
+	<script>
+(function () {
+	var DATA_URL = '/mariadb/neibis/survey/data/source-find.json';
+	var allItems = [];
+	var filtered = [];
+	var selectedId = null;
+
+	function qs(name) {
+		var m = new RegExp('[?&]' + name + '=([^&]*)').exec(location.search);
+		return m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : '';
+	}
+	function sexLabel(it) {
+		if (it.sexLabel) return it.sexLabel;
+		if (String(it.sex) === '1') return '남';
+		if (String(it.sex) === '0') return '여';
+		return '-';
+	}
+	function displayName(it) {
+		// live format: "이름 ( 남 26 )"
+		return it.name + ' ( ' + sexLabel(it) + ' ' + (it.age || '-') + ' )';
+	}
+	function esc(s) {
+		return String(s == null ? '' : s)
+			.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;');
+	}
+
+	function applyFilter() {
+		var q = ($('#sfSearch').val() || '').trim();
+		filtered = allItems.filter(function (it) {
+			if (!q) return true;
+			return (it.name || '').indexOf(q) >= 0
+				|| (it.residence || '').indexOf(q) >= 0;
+		});
+		render();
+	}
+
+	function render() {
+		var html = '';
+		if (!filtered.length) {
+			html = '<tr><td colspan="7" class="sf-empty">검색 결과가 없습니다.</td></tr>';
+		} else {
+			filtered.forEach(function (it, i) {
+				var checked = selectedId === String(it.sourceId) ? ' checked' : '';
+				var selCls = selectedId === String(it.sourceId) ? ' is-selected' : '';
+				html += '<tr class="' + selCls + '" data-id="' + esc(it.sourceId) + '">' +
+					'<td><input type="radio" name="sfRadio" value="' + esc(it.sourceId) + '"' + checked + ' /></td>' +
+					'<td>' + (i + 1) + '</td>' +
+					'<td>' + esc(it.name) + '</td>' +
+					'<td>' + esc(sexLabel(it)) + '</td>' +
+					'<td>' + esc(it.age || '-') + '</td>' +
+					'<td>' + esc(it.birth || '-') + '</td>' +
+					'<td class="text-left">' + esc(it.residence || '-') + '</td>' +
+					'</tr>';
+			});
+		}
+		$('#sfBody').html(html);
+	}
+
+	function getSelectedItem() {
+		if (!selectedId) return null;
+		for (var i = 0; i < filtered.length; i++) {
+			if (String(filtered[i].sourceId) === String(selectedId)) return filtered[i];
+		}
+		for (var j = 0; j < allItems.length; j++) {
+			if (String(allItems[j].sourceId) === String(selectedId)) return allItems[j];
+		}
+		return null;
+	}
+
+	function applyToOpener(it) {
+		if (!it) {
+			alert('제보자를 선택해 주세요.');
+			return;
+		}
+		var name = displayName(it);
+		var id = it.sourceId;
+		var regionId = it.researchRegionId || $('#researchRegionId').val() || '';
+		var target = $('#targetField').val() || qs('target') || '';
+
+		try {
+			if (window.opener && !window.opener.closed) {
+				// live 호환
+				if (typeof window.opener.setChildValue === 'function') {
+					window.opener.setChildValue(name, id, regionId);
+				} else if (typeof window.opener.applySourceFind === 'function') {
+					window.opener.applySourceFind(target, name, id, regionId);
+				} else if (target && window.opener.document) {
+					var el = window.opener.document.getElementById(target);
+					if (el) {
+						el.value = name;
+						el.setAttribute('data-source-id', id);
+					}
+				} else {
+					alert('부모 창을 찾을 수 없습니다. 목록 화면에서 다시 열어 주세요.');
+					return;
+				}
+				window.close();
+				return;
+			}
+		} catch (e) {
+			console.warn(e);
+		}
+		alert('부모 창과 연결할 수 없습니다.');
+	}
+
+	$(function () {
+		$('#researchRegionId').val(qs('researchRegionId') || '3276');
+		$('#targetField').val(qs('target') || '');
+
+		$('#sfSearchBtn').on('click', applyFilter);
+		$('#sfResetBtn').on('click', function () {
+			$('#sfSearch').val('');
+			selectedId = null;
+			applyFilter();
+		});
+		$('#sfSearch').on('keydown', function (e) {
+			if (e.key === 'Enter') { e.preventDefault(); applyFilter(); }
+		});
+		$('#sfCloseBtn').on('click', function () { window.close(); });
+		$('#sfAddBtn').on('click', function () {
+			window.open('/mariadb/neibis/survey/source-save.do', 'sourceWrite', 'width=1000,height=720,scrollbars=yes,resizable=yes');
+		});
+		$('#sfSelectBtn').on('click', function () {
+			applyToOpener(getSelectedItem());
+		});
+		$('#sfBody').on('click', 'tr[data-id]', function () {
+			selectedId = String($(this).data('id'));
+			$(this).find('input[type=radio]').prop('checked', true);
+			$('#sfBody tr').removeClass('is-selected');
+			$(this).addClass('is-selected');
+		});
+		$('#sfBody').on('dblclick', 'tr[data-id]', function () {
+			selectedId = String($(this).data('id'));
+			applyToOpener(getSelectedItem());
+		});
+		$('#sfBody').on('change', 'input[name=sfRadio]', function () {
+			selectedId = String(this.value);
+			$('#sfBody tr').removeClass('is-selected');
+			$(this).closest('tr').addClass('is-selected');
+		});
+
+		fetch(DATA_URL).then(function (r) {
+			if (!r.ok) throw new Error('load fail');
+			return r.json();
+		}).then(function (data) {
+			allItems = data.items || [];
+			applyFilter();
+		}).catch(function () {
+			allItems = [];
+			$('#sfBody').html('<tr><td colspan="7" class="sf-empty">제보자 목록을 불러오지 못했습니다.</td></tr>');
+		});
+	});
+})();
+	</script>
+</body>
+</html>

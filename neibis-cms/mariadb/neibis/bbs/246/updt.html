@@ -5,14 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 		<meta name="format-detection" content="telephone=no" />
-		<title id="neibisTopTitle">사이트별 운영관리
-
-				| 샘플페이지
-
-				| 알림마당
-
-				| 공지사항
-				</title>
+		<title id="neibisTopTitle">사이트별 운영관리 | 지역어 종합 정보 | 알림마당 | 공지사항</title>
 		<link rel="shortcut icon" href="/mariadb/assets/neibis/images/favicon.png" />
 		<link rel="stylesheet" href="/mariadb/assets/neibis/css/style.css" />
 		<link rel="stylesheet" href="/mariadb/assets/neibis/css/board-attach-ext.css" />
@@ -178,7 +171,7 @@
 					<div class="sidebar-header">
 						<h1 class="sidebar-title">
 							<a href='/mariadb/neibis/index.do'>
-								<img src="/mariadb/assets/neibis/images/logo.png" alt="neibis" />
+								<img src="/mariadb/assets/neibis/images/logo_dialect.png" alt="지역어 종합 정보" />
 								<span class="logo-text">관리시스템</span>
 							</a>
 						</h1>
@@ -405,9 +398,9 @@
 								</form>
 								<nav class="site-menu">
 									<ul class="site-list">
-										<li data-level="1" >
-													<a href="javascript:void(0)">샘플페이지</a>
-										<ul style="display:none;">
+										<li data-level="1" class="on">
+													<a href="javascript:void(0)">지역어 종합 정보</a>
+										<ul style="display:block;">
 										<li data-level="2" >
 													<a href="javascript:void(0)">조사자료</a>
 										<ul style="display:none;">
@@ -418,7 +411,7 @@
 													<a href="/mariadb/neibis/survey/oral.do" >구술발화조사자료</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/survey/variant.do" >지역어 변이형 비교</a>
+													<a href="/mariadb/neibis/survey/variant.do" >지역별 이형태 관리</a>
 										</li>
 										<li data-level="3">
 													<a href="/mariadb/neibis/survey/search-std-vocab.do" >검색 표준어 어휘 관리</a>
@@ -436,10 +429,13 @@
 										<li data-level="3">
 													<a href="/mariadb/neibis/map/weather.do" >지역어 기상도</a>
 										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/map/symbol.do" >상징 부호 관리</a>
+										</li>
 										</ul></li>
-										<li data-level="2" >
+										<li data-level="2" class="on">
 													<a href="javascript:void(0)">알림마당</a>
-										<ul style="display:none;">
+										<ul style="display:block;">
 										<li data-level="3" class="on">
 													<a href="/mariadb/neibis/bbs/246/list.do" >공지사항</a>
 										</li>
@@ -454,22 +450,42 @@
 													<a href="javascript:void(0)">지역어 자료관</a>
 										<ul style="display:none;">
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/252/list.do" >문학 속 지역어</a>
+													<a href="/mariadb/neibis/archive/literature.do" >문학 속 지역어</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/253/list.do" >사진으로 보는 생활어</a>
+													<a href="/mariadb/neibis/archive/region-photo.do" >사진으로 보는 생활어</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/256/list.do" >자료실</a>
+													<a href="/mariadb/neibis/archive/data-room.do" >자료실</a>
 										</li>
 										</ul></li>
-										<li data-level="2" >
-													<a href="javascript:void(0)">참여마당</a>
+																				<li data-level="2" >
+													<a href="javascript:void(0)">Open API관리</a>
 										<ul style="display:none;">
 										<li data-level="3" >
-													<a href="/mariadb/neibis/bbs/255/list.do" >고객의 소리</a>
+													<a href="/mariadb/neibis/stats/api.do" >Open API사용현황</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI.do" >호출 단어 순위</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI2.do" >호출 URL 순위</a>
 										</li>
 									</ul></li></ul></li>
+								
+										<li data-level="1" >
+													<a href="javascript:void(0)">기타 관리</a>
+										<ul style="display:none;">
+										<li data-level="2" >
+													<a href="/mariadb/neibis/system/user.do" >사용자 계정관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/source.do" >제보자 관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/surveyList.do" >설문조사 관리</a>
+										</li>
+									</ul></li>
 								</nav>
 							</div>
 						</div>
@@ -540,7 +556,7 @@
 								</button>
 								<ol class="breadcrumb-list">
 									<li>사이트별 운영관리</li>
-									<li>샘플페이지</li>
+									<li>지역어 종합 정보</li>
 									<li>알림마당</li>
 									<li>공지사항</li>
 								</ol>
@@ -568,9 +584,9 @@
 <!-- 본문 영역 -->
 							<!-- 입력폼 -->
 			<div class="card">
-					<form id="updt-form" action="list.do" method="post">
-					<input type="hidden" id="bbsId" value="20260416141311"/>
-					<input type="hidden" id="pstSn" value="22"/>
+					<form id="updt-form" action="list.do" onsubmit="return false;" method="post">
+					<input type="hidden" id="bbsId" value="notice"/>
+					<input type="hidden" id="pstSn" value="90"/>
 								<div class="table table-row">
 									<div class="table-inner">
 										<table>
@@ -585,11 +601,11 @@
 													</th>
 													<td >
 														<label class="check-item">
-															<input type="radio"  name="dataSttsCd" id="dataSttsCdA"  value="A" />
+															<input type="radio"  name="dataSttsCd" id="dataSttsCdA" checked value="A" >
 															<span class="label">게시</span>
 														</label>
 														<label class="check-item">
-															<input type="radio"  name="dataSttsCd" id="dataSttsCdH" checked value="H" />
+															<input type="radio"  name="dataSttsCd" id="dataSttsCdH" value="H" >
 															<span class="label">미게시</span>
 														</label>
 													</td>
@@ -598,11 +614,11 @@
 													</th>
 													<td>
 														<label class="check-item">
-															<input type="radio"  name="ntcYn" id="ntcYnY"  value="Y"  />
+															<input type="radio"  name="ntcYn" id="ntcYnY" value="Y" checked >
 															<span class="label">공지</span>
 														</label>
 														<label class="check-item">
-															<input type="radio"   name="ntcYn" id="ntcYnN" value="N"  checked />
+															<input type="radio"   name="ntcYn" id="ntcYnN" value="N" >
 															<span class="label">일반</span>
 														</label>
 													</td>
@@ -649,7 +665,7 @@
 																title="등록일"
 																id="strRegDt"
 																placeholder="YYYY.MM.DD"
-																value="2026.07.23"
+																value="2026.06.29"
 															/>
 														</div>
 													</td>
@@ -663,7 +679,7 @@
 																title="수정일"
 																id="strMdfcnDt"
 																placeholder="YYYY.MM.DD"
-																value="2026.07.23"
+																value="2026.06.29"
 															/>
 														</div>
 													</td>
@@ -679,7 +695,7 @@
 																id="userNm"
 																class="form-control full"
 																placeholder="등록자 입력"
-																value="홍길동"
+																value="isskor"
 															/>
 													</td>
 												</tr>
@@ -694,7 +710,7 @@
 															id="ttl"
 															class="form-control full"
 															placeholder="제목 입력"
-															value="VIEWER-2WORKER-SMOKE-20260723"
+															value="지역어 종합 정보 누리집 서비스 일시 중단 안내(2026. 7. 9.)"
 															required
 														/>
 													</td>
@@ -703,28 +719,14 @@
 												<tr>
 													<th>다중 파일 업로드</th>
 													<td colspan="3">
-														<div class="file-upload file-upload-multiple" data-file-type="A" data-enable-hwpx-body="true" data-site-id="neibis" data-menu-sn="246" data-body-target-id="pstCn" data-body-editor-id="ckeditor_pstCn" data-body-store-name="htmlCentralData">
+														<div class="file-upload file-upload-multiple" data-file-type="A" data-enable-hwpx-body="true" data-site-id="neibis" data-menu-sn="246" data-body-target-id="pstCn" data-body-editor-id="ckeditor_pstCn" data-body-store-name="htmlCentralData"><p class="text-guide" style="margin-top:8px;color:#6b7280;">기존 첨부: 없음</p>
 															<input type="hidden" name="dataTypeCd" id="dataTypeCd1" value="A" />
 															<input type="hidden" name="atchFileTypeCd" id="atchFileTypeCd1" value="D" />
 															<input type="hidden" id="fileList1" class="fileList"
-																	data-atch-file-nm="blocker-a.pptx"
-																	data-atch-file-size="5587511"
-																	data-atch-file-sn="1"
-																	data-atch-file-extn-nm="pptx"
-																	data-atch-body-import-url="/mariadb/neibis/bbs/246/hwpx-body-source.do?pstSn=22&amp;atchFileSn=1"
-																	data-editor-image-url="/mariadb/neibis/cmmn/bbs-editor-image.do?bbsId=20260416141311&amp;pstSn=22&amp;atchFileSn=1&amp;menuSn=246"
-																	data-atch-download-url="/mariadb/neibis/cmmn/download.do?dn=20260723024739614.pptx&amp;path=/bbs/20260416141311&amp;fn=blocker-a.pptx"
-																	data-atch-viewer-url="/mariadb/neibis/cmmn/viewer/doc-viewer.do?sourceType=bbs&amp;accessMode=admin&amp;menuSn=246&amp;pstSn=22&amp;dataTypeCd=A&amp;atchFileSn=1"
-															/>
-															<input type="hidden" id="fileList2" class="fileList"
-																	data-atch-file-nm="blocker-b.pptx"
-																	data-atch-file-size="5587511"
-																	data-atch-file-sn="2"
-																	data-atch-file-extn-nm="pptx"
-																	data-atch-body-import-url="/mariadb/neibis/bbs/246/hwpx-body-source.do?pstSn=22&amp;atchFileSn=2"
-																	data-editor-image-url="/mariadb/neibis/cmmn/bbs-editor-image.do?bbsId=20260416141311&amp;pstSn=22&amp;atchFileSn=2&amp;menuSn=246"
-																	data-atch-download-url="/mariadb/neibis/cmmn/download.do?dn=20260723024740620.pptx&amp;path=/bbs/20260416141311&amp;fn=blocker-b.pptx"
-																	data-atch-viewer-url="/mariadb/neibis/cmmn/viewer/doc-viewer.do?sourceType=bbs&amp;accessMode=admin&amp;menuSn=246&amp;pstSn=22&amp;dataTypeCd=A&amp;atchFileSn=2"
+																	data-atch-file-nm=""
+																	data-atch-file-size="0"
+																	data-atch-file-sn=""
+																	data-atch-file-extn-nm=""
 															/>
 														</div>
 													</td>
@@ -758,8 +760,7 @@
 														<h4 class="code-item-title">HTML</h4>
 													</div>
 													<div class="code-item-body">
-														<textarea class="form-code html-code" name="pstCn" id="pstCn" >&lt;p&gt;Viewer Linux 2-worker 병렬 변환 검증용 미게시 게시물입니다.&lt;/p&gt;
-</textarea>
+														<textarea class="form-code html-code" name="pstCn" id="pstCn" >&lt;p&gt;&lt;b&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;지역어 종합 정보 누리집 서비스 일시 중단 안내&lt;/span&gt;&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;국립국어원 전산 시스템 유지보수 작업으로 인하여 &lt;/p&gt;&lt;p&gt;지역어 종합 정보 누리집 서비스가 일시적으로 중단될 예정이오니 이용에 참고하시기 바랍니다.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;ㅇ 서비스 중단 일시 :&lt;font color=&quot;#0000ff&quot;&gt; &lt;b&gt;&lt;u&gt;2026. 7. 9.(목) 18:00 ~ 19:00&amp;nbsp;&lt;/u&gt;&lt;/b&gt;&lt;/font&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;중단 시간은 작업 진행 상황에 따라 다소 변동될 수 있습니다.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;이용에 불편을 드려 죄송합니다.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;</textarea>
 													</div>
 												</div>
 											</div>
@@ -786,7 +787,7 @@
 								<!-- 모바일에서 노출되는 버튼 그룹  -->
 								<div class="btn-group-between">
 									<div class="left">
-										<a href="list.do?pageIndex=1&pageItm=10&searchOrderSort=0&searchGbn=0" data-confirm="leave-saver" class="btn btn-lg btn-outline-gray">
+										<a href="list.do" data-confirm="leave-saver" class="btn btn-lg btn-outline-gray">
 											<i class="ico ico-chevron-left-gray-md"></i>
 											<span>목록</span>
 										</a>
@@ -808,7 +809,7 @@
 								</button>
 							</div>
 						<!-- // 본문 영역 -->
-<form id="list-form" action="list.do" method="post">
+<form id="list-form" action="list.do" onsubmit="return false;" method="post">
 						<input type="hidden" name="pageIndex" value="1"/>
 						<input type="hidden" name="pageItm" value="10"/>
 						<input type="hidden" name="searchOrderSort" value="0"/>
@@ -821,12 +822,21 @@ var value = new NeibisValidWrapper();
 var htmlEditorOvrvwCn;
 
 $(function () {
-	ActionInit.click(".list-button",listAction);
-	ActionInit.click(".save-button",saveAction);
+	$(".list-button").on("click", function(e){ e.preventDefault(); location.href="list.do"; });
+	$(".save-button").on("click", function(){
+		var ttl=($("#ttl").val()||"").trim();
+		if(!ttl){ Message.alert({icon:"warning",message:"제목을 입력해주세요."}); return $("#ttl").focus(); }
+		Message.confirm({icon:"warning", title:"저장하시겠어요?", message:"정적 프로토타입입니다."}, function(){ location.href="detail.do"; });
+	});
 	ActionInit.click("#search-adres-button",adresPopup);
 	ActionInit.click("input[name=ntcYn]",ntcYnClickProc,this);
 	ActionInit.click("#ntcDtResetBtn",ntcDtReset);
 	value.init();
+	$(".delete-button").on("click", function(){
+		Message.confirm({icon:"warning", title:"게시물을 삭제합니다", message:"그래도 삭제 하시겠어요?"}, function(){
+			Message.alert({icon:"info", message:"정적 프로토타입입니다."}, function(){ location.href="list.do"; });
+		});
+	});
 
 	$('.list-button').attr('onclick', '');
 	setBbsAtchFilePrmsnExtnNm();

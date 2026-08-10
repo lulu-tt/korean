@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 		<meta name="format-detection" content="telephone=no" />
-		<title id="neibisTopTitle">사이트별 운영관리 | 샘플페이지 | 조사자료 | 지역어 변이형 비교</title>
+		<title id="neibisTopTitle">사이트별 운영관리 | 지역어 종합 정보 | 조사자료 | 지역별 이형태 관리</title>
 		<link rel="shortcut icon" href="/mariadb/assets/neibis/images/favicon.png" />
 		<link rel="stylesheet" href="/mariadb/assets/neibis/css/style.css" />
 		<link rel="stylesheet" href="/mariadb/assets/neibis/css/board-attach-ext.css" />
@@ -180,7 +180,7 @@
 					<div class="sidebar-header">
 						<h1 class="sidebar-title">
 							<a href='/mariadb/neibis/index.do'>
-								<img src="/mariadb/assets/neibis/images/logo.png" alt="neibis" />
+								<img src="/mariadb/assets/neibis/images/logo_dialect.png" alt="지역어 종합 정보" />
 								<span class="logo-text">관리시스템</span>
 							</a>
 
@@ -447,7 +447,7 @@
 								<nav class="site-menu">
 									<ul class="site-list">
 										<li data-level="1" >
-													<a href="javascript:void(0)">샘플페이지</a>
+													<a href="javascript:void(0)">지역어 종합 정보</a>
 										<ul style="display:none;">
 										<li data-level="2" >
 													<a href="javascript:void(0)">조사자료</a>
@@ -459,7 +459,7 @@
 													<a href="/mariadb/neibis/survey/oral.do" >구술발화조사자료</a>
 										</li>
 										<li data-level="3" class="on">
-													<a href="/mariadb/neibis/survey/variant.do" >지역어 변이형 비교</a>
+													<a href="/mariadb/neibis/survey/variant.do" >지역별 이형태 관리</a>
 										</li>
 										<li data-level="3">
 													<a href="/mariadb/neibis/survey/search-std-vocab.do" >검색 표준어 어휘 관리</a>
@@ -476,6 +476,9 @@
 										</li>
 										<li data-level="3">
 													<a href="/mariadb/neibis/map/weather.do" >지역어 기상도</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/map/symbol.do" >상징 부호 관리</a>
 										</li>
 										</ul></li>
 										<li data-level="2" >
@@ -495,22 +498,42 @@
 													<a href="javascript:void(0)">지역어 자료관</a>
 										<ul style="display:none;">
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/252/list.do" >문학 속 지역어</a>
+													<a href="/mariadb/neibis/archive/literature.do" >문학 속 지역어</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/253/list.do" >사진으로 보는 생활어</a>
+													<a href="/mariadb/neibis/archive/region-photo.do" >사진으로 보는 생활어</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/256/list.do" >자료실</a>
+													<a href="/mariadb/neibis/archive/data-room.do" >자료실</a>
 										</li>
 										</ul></li>
-										<li data-level="2" >
-													<a href="javascript:void(0)">참여마당</a>
+																				<li data-level="2" >
+													<a href="javascript:void(0)">Open API관리</a>
 										<ul style="display:none;">
 										<li data-level="3" >
-													<a href="/mariadb/neibis/bbs/255/list.do" >고객의 소리</a>
+													<a href="/mariadb/neibis/stats/api.do" >Open API사용현황</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI.do" >호출 단어 순위</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI2.do" >호출 URL 순위</a>
 										</li>
 									</ul></li></ul></li>
+								
+										<li data-level="1" >
+													<a href="javascript:void(0)">기타 관리</a>
+										<ul style="display:none;">
+										<li data-level="2" >
+													<a href="/mariadb/neibis/system/user.do" >사용자 계정관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/source.do" >제보자 관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/surveyList.do" >설문조사 관리</a>
+										</li>
+									</ul></li>
 								</nav>
 							</div>
 						</div>
@@ -580,11 +603,11 @@
 									<i class="ico ico-copy-gray-sm"></i>
 									<span class="sr-only">복사</span>
 								</button>
-								<ol class="breadcrumb-list"><li>사이트별 운영관리</li><li>샘플페이지</li><li>조사자료</li><li>지역어 변이형 비교</li></ol>
+								<ol class="breadcrumb-list"><li>사이트별 운영관리</li><li>지역어 종합 정보</li><li>조사자료</li><li>지역별 이형태 관리</li></ol>
 							</div>
 							<div class="content-title">
 								<div class="tooltip" id="tooltip_area"><p id="tooltip_p"></p><div class='btn-group' id="tooltip_btn"></div></div>
-								<h2 class="title">지역어 변이형 비교</h2>
+								<h2 class="title">지역별 이형태 관리</h2>
 								<button type="button" id="favorit-add-button" class="btn-favorit">
 									<i class="ico ico-favorit"></i>
 									<span class="sr-only">즐겨찾기</span>
@@ -653,18 +676,13 @@
 									</div>
 									<div class="right">
 										<select class="form-control-sm" id="pageSize" style="min-width:100px" title="목록 수">
-											<option value="10">10</option>
-											<option value="20" selected>20</option>
+											<option value="10" selected>10</option>
+											<option value="20">20</option>
 											<option value="50">50</option>
 											<option value="100">100</option>
 											<option value="9999">전체</option>
 										</select>
 										<button type="button" class="btn btn-sm btn-outline-gray ml-1" id="btnApplySize">적용</button>
-										<button type="button" class="btn btn-sm btn-primary ml-1" id="btnOpenReg"><i class="ico ico-plus-white-sm"></i><span>등록</span></button>
-										<button type="button" class="btn btn-sm btn-outline-gray ml-1" id="btnBulkOpen">일괄등록</button>
-										<button type="button" class="btn btn-sm btn-outline-gray ml-1" id="btnResetSeed">초기데이터 복원</button>
-										<button type="button" class="btn btn-sm btn-outline-gray ml-1" id="btnExportJson">JSON 내보내기</button>
-										<a href="http://127.0.0.1:8765/dialect_phonology_compare.html" target="_blank" class="btn btn-sm btn-outline-gray ml-1">사용자 화면</a>
 									</div>
 								</div>
 
@@ -704,13 +722,14 @@
 										</table>
 									</div>
 								</div>
-								<div class="pagination" id="pagination" style="display:flex;justify-content:center;gap:4px;padding:16px 0;"></div>
-								<p class="mt-2" style="color:#64748b;font-size:13px;line-height:1.55;padding:0 4px 8px;">
-									※ 사용자 화면 <strong>변이형 비교</strong>·통합 검색 「변이형 비교」탭에 노출되는 <strong>비교 항목(부모 코드)</strong> 마스터입니다.
-									지점별 조사 원문(응답)은 <code>data/processed/items/{코드}.json</code> / DB에 있으며, 본 화면 1차 프로토타입은 항목·하위 환경 표제어 관리에 초점을 둡니다.
-									변경분은 브라우저 <code>localStorage</code>에 저장됩니다.
-								</p>
-							</div>
+								<div class="pagination" id="pagination"></div>
+								<div class="btn-group-between">
+									<div class="right">
+										<a href="#layer-variant-bulk" data-modal="open" class="btn btn-lg btn-outline-gray" id="btnBulkOpen"><i class="ico ico-plus-gray-md"></i><span>일괄 등록</span></a>
+										<button type="button" class="btn btn-lg btn-primary" id="btnOpenReg"><i class="ico ico-plus-white-md"></i><span>등록</span></button>
+									</div>
+								</div>
+</div>
 						</form>
 					</div>
 
@@ -1162,30 +1181,150 @@ const getMngrFail = function (xhr, status, error) {
 			</div>
 		</div>
 
-		<!-- 일괄 등록 -->
-		<div class="modal-popup modal-md hide" id="layer-variant-bulk">
-			<div class="dimed" onclick="closeBulk()"></div>
-			<div class="popup-inner">
-				<div class="popup-header"><h2 class="popup-title">변이형 항목 일괄 등록</h2></div>
+		
+		<!-- Modal Popup : 변이형 항목 일괄 등록 -->
+
+		<style>
+			#layer-variant-bulk .popup-inner{
+				width: 440px;
+				max-width: calc(100% - 40px);
+				margin-left: auto;
+				margin-right: auto;
+			}
+			#layer-variant-bulk .table-form-basic th{
+				width: 130px !important;
+				white-space: nowrap;
+			}
+			#layer-variant-bulk .file-picker{
+				display: inline-flex;
+				align-items: center;
+				gap: 8px;
+				cursor: pointer;
+				margin: 0;
+			}
+			#layer-variant-bulk .file-picker input[type="file"]{
+				position: absolute;
+				width: 1px;
+				height: 1px;
+				padding: 0;
+				margin: -1px;
+				overflow: hidden;
+				clip: rect(0 0 0 0);
+				border: 0;
+			}
+			#layer-variant-bulk .file-picker .file-btn{
+				display: inline-block;
+				padding: 5px 12px;
+				border: 1px solid #d1d5db;
+				border-radius: 6px;
+				background: #f3f4f6;
+				color: #374151;
+				font-size: 13px;
+				line-height: 1.4;
+				white-space: nowrap;
+			}
+			#layer-variant-bulk .file-picker:hover .file-btn{ background: #e5e7eb; }
+			#layer-variant-bulk .file-name{
+				color: #6b7280;
+				font-size: 13px;
+			}
+			#layer-variant-bulk .file-name.has-file{ color: #374151; }
+			#layer-variant-bulk .input-addon{ color: #374151; }
+		</style>
+
+		<div class="modal-popup modal-lg hide" id="layer-variant-bulk">
+			<div class="dimed"></div>
+			<form class="popup-inner" id="layer-variant-bulk-form" onsubmit="return false;">
+				<div class="popup-header">
+					<h2 class="popup-title">일괄 등록</h2>
+				</div>
 				<div class="popup-body">
-					<p style="font-size:13px;color:#64748b;margin-bottom:10px;">한 줄에 하나. 형식: <code>항목코드|표준어|구분코드(310~323)</code></p>
-					<textarea id="bulkText" class="form-control" rows="12" placeholder="31999|새항목(例)|310&#10;32999|듣-테스트|320"></textarea>
+					<div class="table table-form-basic">
+						<div class="table-inner">
+							<table>
+								<caption class="sr-only">변이형 비교 일괄 등록</caption>
+								<colgroup>
+									<col style="width:150px" />
+									<col />
+								</colgroup>
+								<tbody>
+									<tr>
+										<th scope="row" style="white-space:nowrap"><span>엑셀파일등록<i class="req">필수입력</i></span></th>
+										<td>
+											<label class="file-picker">
+												<input type="file" id="bulkExcelFileVariant" name="excelFile" accept=".xls,.xlsx" required onchange="bulkFileName(this,'bulkExcelNameVariant')" />
+												<span class="file-btn">파일 선택</span>
+												<span class="file-name" id="bulkExcelNameVariant">선택된 파일 없음</span>
+											</label>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">서식 파일</th>
+										<td>
+											<button type="button" class="btn btn-sm btn-outline-gray" onclick="bulkTemplateDown()"><i class="ico ico-download-gray-md"></i><span>저장</span></button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
 				</div>
 				<div class="popup-footer">
 					<div class="btn-group-center">
-						<button type="button" class="btn btn-md btn-outline-gray" onclick="closeBulk()">취소</button>
-						<button type="button" class="btn btn-md btn-primary" id="btnBulkSave"><i class="ico ico-save-white-md"></i><span>일괄 등록</span></button>
+						<button type="button" class="btn btn-lg btn-outline-gray" data-modal="close">취소</button>
+						<button type="button" class="btn btn-lg btn-primary" onclick="variantBulkSave()"><i class="ico ico-save-white-md"></i><span>저장</span></button>
 					</div>
 				</div>
-			</div>
+			</form>
 		</div>
+
+
+		<script>
+		function bulkFileName(input, nameId){
+			var span = document.getElementById(nameId);
+			if(!span) return;
+			if(input.files && input.files.length){
+				span.textContent = input.files.length > 1 ? (input.files[0].name + ' 외 ' + (input.files.length-1) + '건') : input.files[0].name;
+				span.classList.add('has-file');
+			}else{
+				span.textContent = '선택된 파일 없음';
+				span.classList.remove('has-file');
+			}
+		}
+		function bulkTemplateDown(){
+			if(window.Message){ Message.alert({icon:'info', message:'[서식 파일 다운로드] 정적 프로토타입 버튼입니다.'}); }
+			else { alert('서식 파일 다운로드'); }
+		}
+		function bulkExcelSave(excelInputId){
+			var xls = document.getElementById(excelInputId);
+			if(!xls || !xls.files || xls.files.length === 0){
+				if(window.Message){ Message.alert({icon:'warning', message:'엑셀 파일을 등록해 주세요.'}); }
+				else { alert('엑셀 파일을 등록해 주세요.'); }
+				if(xls) xls.focus();
+				return;
+			}
+			var doneMsg = function(){
+				if(window.Message){ Message.alert({icon:'info', message:'정적 프로토타입입니다. 실제 업로드는 수행되지 않습니다.'}); }
+				else { alert('정적 프로토타입: 업로드 미수행'); }
+			};
+			if(window.Message){
+				Message.confirm({icon:'warning', title:'일괄 등록하시겠어요?', message:'등록하시려면 ‘확인’을 눌러주세요.'}, doneMsg);
+			}else if(confirm('일괄 등록하시겠어요?')){
+				doneMsg();
+			}
+		}
+		</script>
+
+		<script>
+		function variantBulkSave(){ bulkExcelSave('bulkExcelFileVariant'); }
+		</script>
 
 		<script>
 (function () {
   var STORAGE_KEY = 'neibis.variantItems.v1';
   var SEED_URL = '/mariadb/neibis/survey/data/variant-items-seed.json';
   var BAND_LABEL = { '310': '체언 대립', '320': '활용', '321': '활용', '322': '활용', '323': '활용' };
-  var state = { items: [], filtered: [], page: 1, pageSize: 20, editId: null };
+  var state = { items: [], filtered: [], page: 1, pageSize: 10, editId: null };
 
   function today() {
     var d = new Date();
@@ -1328,19 +1467,44 @@ const getMngrFail = function (xhr, status, error) {
 
   function renderPager(pages) {
     var $p = $('#pagination').empty();
-    if (pages <= 1) return;
-    function add(label, page, disabled, active) {
-      var $b = $('<button type="button" class="btn btn-sm ' + (active ? 'btn-primary' : 'btn-outline-gray') + '"/>').text(label);
-      if (disabled) $b.prop('disabled', true);
-      else $b.on('click', function () { state.page = page; render(); });
-      $p.append($b);
+    if (!pages || pages < 1) pages = 1;
+    // vocab.do 스타일: 현재 페이지 <strong>, 나머지 <a>
+    var windowSize = 5;
+    var start = Math.max(1, state.page - Math.floor(windowSize / 2));
+    var end = Math.min(pages, start + windowSize - 1);
+    start = Math.max(1, end - windowSize + 1);
+    if (state.page > 1) {
+      $p.append($('<a href="#;" class="page-nav"></a>').text('«').on('click', function (e) {
+        e.preventDefault(); state.page = 1; render();
+      }));
+      $p.append(document.createTextNode(' '));
+      $p.append($('<a href="#;" class="page-nav"></a>').text('‹').on('click', function (e) {
+        e.preventDefault(); state.page = Math.max(1, state.page - 1); render();
+      }));
+      $p.append(document.createTextNode(' '));
     }
-    add('«', 1, state.page === 1);
-    add('‹', Math.max(1, state.page - 1), state.page === 1);
-    var from = Math.max(1, state.page - 2), to = Math.min(pages, state.page + 2);
-    for (var i = from; i <= to; i++) add(String(i), i, false, i === state.page);
-    add('›', Math.min(pages, state.page + 1), state.page === pages);
-    add('»', pages, state.page === pages);
+    for (var i = start; i <= end; i++) {
+      if (i === state.page) {
+        $p.append($('<strong></strong>').text(String(i)));
+      } else {
+        (function (page) {
+          $p.append($('<a href="#;"></a>').text(String(page)).on('click', function (e) {
+            e.preventDefault(); state.page = page; render();
+          }));
+        })(i);
+      }
+      if (i < end) $p.append(document.createTextNode(' '));
+    }
+    if (state.page < pages) {
+      $p.append(document.createTextNode(' '));
+      $p.append($('<a href="#;" class="page-nav"></a>').text('›').on('click', function (e) {
+        e.preventDefault(); state.page = Math.min(pages, state.page + 1); render();
+      }));
+      $p.append(document.createTextNode(' '));
+      $p.append($('<a href="#;" class="page-nav"></a>').text('»').on('click', function (e) {
+        e.preventDefault(); state.page = pages; render();
+      }));
+    }
   }
 
   function selectedIds() {
@@ -1389,8 +1553,9 @@ const getMngrFail = function (xhr, status, error) {
     state.editId = null;
   };
   window.closeBulk = function () {
-    $('#layer-variant-bulk').addClass('hide');
-    $('#bulkText').val('');
+    $('#layer-variant-bulk').addClass('hide').removeClass('show');
+    var f = document.getElementById('bulkExcelFileVariant');
+    if (f) { f.value = ''; bulkFileName(f, 'bulkExcelNameVariant'); }
   };
 
   function saveForm() {
@@ -1498,7 +1663,7 @@ const getMngrFail = function (xhr, status, error) {
     });
     $('#schWord').on('keydown', function (e) { if (e.key === 'Enter') applyFilter(true); });
     $('#btnApplySize').on('click', function () {
-      state.pageSize = parseInt($('#pageSize').val(), 10) || 20;
+      state.pageSize = parseInt($('#pageSize').val(), 10) || 10;
       applyFilter(true);
     });
     $('#chkAll').on('change', function () { $('input[name=chk]').prop('checked', this.checked); });
@@ -1508,8 +1673,8 @@ const getMngrFail = function (xhr, status, error) {
     $('#btnToggleUseN').on('click', function () { setUseYn(selectedIds(), 'N'); });
     $('#btnOpenReg').on('click', function () { openForm(null); });
     $('#btnSaveForm').on('click', saveForm);
-    $('#btnBulkOpen').on('click', function () { $('#layer-variant-bulk').removeClass('hide'); });
-    $('#btnBulkSave').on('click', bulkSave);
+    
+    
     $('#btnResetSeed').on('click', function () {
       if (!confirm('초기 데이터(phonology 부모 450항목)로 복원할까요? 현재 변경사항은 사라집니다.')) return;
       localStorage.removeItem(STORAGE_KEY);

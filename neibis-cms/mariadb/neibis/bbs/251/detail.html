@@ -5,14 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 		<meta name="format-detection" content="telephone=no" />
-		<title id="neibisTopTitle">사이트별 운영관리
-
-				| 샘플페이지
-
-				| 알림마당
-
-				| 도움말(FAQ)
-				</title>
+		<title id="neibisTopTitle">사이트별 운영관리 | 지역어 종합 정보 | 알림마당 | 도움말(FAQ)</title>
 		<link rel="shortcut icon" href="/mariadb/assets/neibis/images/favicon.png" />
 		<link rel="stylesheet" href="/mariadb/assets/neibis/css/style.css" />
 		<link rel="stylesheet" href="/mariadb/assets/neibis/css/board-attach-ext.css" />
@@ -178,7 +171,7 @@
 					<div class="sidebar-header">
 						<h1 class="sidebar-title">
 							<a href='/mariadb/neibis/index.do'>
-								<img src="/mariadb/assets/neibis/images/logo.png" alt="neibis" />
+								<img src="/mariadb/assets/neibis/images/logo_dialect.png" alt="지역어 종합 정보" />
 								<span class="logo-text">관리시스템</span>
 							</a>
 						</h1>
@@ -405,9 +398,9 @@
 								</form>
 								<nav class="site-menu">
 									<ul class="site-list">
-										<li data-level="1" >
-													<a href="javascript:void(0)">샘플페이지</a>
-										<ul style="display:none;">
+										<li data-level="1" class="on">
+													<a href="javascript:void(0)">지역어 종합 정보</a>
+										<ul style="display:block;">
 										<li data-level="2" >
 													<a href="javascript:void(0)">조사자료</a>
 										<ul style="display:none;">
@@ -418,7 +411,7 @@
 													<a href="/mariadb/neibis/survey/oral.do" >구술발화조사자료</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/survey/variant.do" >지역어 변이형 비교</a>
+													<a href="/mariadb/neibis/survey/variant.do" >지역별 이형태 관리</a>
 										</li>
 										<li data-level="3">
 													<a href="/mariadb/neibis/survey/search-std-vocab.do" >검색 표준어 어휘 관리</a>
@@ -436,10 +429,13 @@
 										<li data-level="3">
 													<a href="/mariadb/neibis/map/weather.do" >지역어 기상도</a>
 										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/map/symbol.do" >상징 부호 관리</a>
+										</li>
 										</ul></li>
-										<li data-level="2" >
+										<li data-level="2" class="on">
 													<a href="javascript:void(0)">알림마당</a>
-										<ul style="display:none;">
+										<ul style="display:block;">
 										<li data-level="3">
 													<a href="/mariadb/neibis/bbs/246/list.do" >공지사항</a>
 										</li>
@@ -454,22 +450,42 @@
 													<a href="javascript:void(0)">지역어 자료관</a>
 										<ul style="display:none;">
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/252/list.do" >문학 속 지역어</a>
+													<a href="/mariadb/neibis/archive/literature.do" >문학 속 지역어</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/253/list.do" >사진으로 보는 생활어</a>
+													<a href="/mariadb/neibis/archive/region-photo.do" >사진으로 보는 생활어</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/256/list.do" >자료실</a>
+													<a href="/mariadb/neibis/archive/data-room.do" >자료실</a>
 										</li>
 										</ul></li>
-										<li data-level="2" >
-													<a href="javascript:void(0)">참여마당</a>
+																				<li data-level="2" >
+													<a href="javascript:void(0)">Open API관리</a>
 										<ul style="display:none;">
 										<li data-level="3" >
-													<a href="/mariadb/neibis/bbs/255/list.do" >고객의 소리</a>
+													<a href="/mariadb/neibis/stats/api.do" >Open API사용현황</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI.do" >호출 단어 순위</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI2.do" >호출 URL 순위</a>
 										</li>
 									</ul></li></ul></li>
+								
+										<li data-level="1" >
+													<a href="javascript:void(0)">기타 관리</a>
+										<ul style="display:none;">
+										<li data-level="2" >
+													<a href="/mariadb/neibis/system/user.do" >사용자 계정관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/source.do" >제보자 관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/surveyList.do" >설문조사 관리</a>
+										</li>
+									</ul></li>
 								</nav>
 							</div>
 						</div>
@@ -540,7 +556,7 @@
 								</button>
 								<ol class="breadcrumb-list">
 									<li>사이트별 운영관리</li>
-									<li>샘플페이지</li>
+									<li>지역어 종합 정보</li>
 									<li>알림마당</li>
 									<li>도움말(FAQ)</li>
 								</ol>
@@ -570,7 +586,7 @@
 							<div class="table table-row">
 								<div class="table-inner">
 								<form action="list.do" method="post" id="detail-form">
-								<input type="hidden" name="bbsId" value="20260416141311"/>
+								<input type="hidden" name="bbsId" value="faq"/>
 								<input type="hidden" name="pageIndex" value="1"/>
 								<input type="hidden" name="pageItm" value="10"/>
 								<input type="hidden" name="searchOrderSort" value="0"/>
@@ -580,28 +596,28 @@
 											도움말(FAQ) 상세
 										</caption>
 										<tbody>
-											<!--  게시여부 공지여부 기본 항목 -->
+											<!--  게시여부 상단고정 기본 항목 -->
 												<tr>
 													<th scope="row">
 														<span>게시여부 <i class="req">필수입력</i></span>
 													</th>
 													<td >
 														<label class="check-item">
-															<input type="radio"  name="dataSttsCd" id="dataSttsCdA"  disabled="disabled" />
+															<input type="radio"  name="dataSttsCd" id="dataSttsCdA" checked disabled="disabled" />
 															<span class="label">게시</span>
 														</label>
 														<label class="check-item">
-															<input type="radio"  name="dataSttsCd" id="dataSttsCdH" checked disabled="disabled" />
+															<input type="radio"  name="dataSttsCd" id="dataSttsCdH" disabled="disabled" />
 															<span class="label">미게시</span>
 														</label>
 													</td>
 													<th scope="row">
-														<span>공지여부 <i class="req">필수입력</i></span>
+														<span>상단고정 <i class="req">필수입력</i></span>
 													</th>
 													<td>
 														<label class="check-item">
 															<input type="radio"  name="ntcYn" id="ntcYnY"  disabled="disabled"  />
-															<span class="label">공지</span>
+															<span class="label">고정</span>
 														</label>
 														<label class="check-item">
 															<input type="radio"   name="ntcYn" id="ntcYnN" checked disabled="disabled" />
@@ -612,9 +628,9 @@
 												<!--  등록/수정 기본 항목 -->
 												<tr>
 													<th scope="row"><span>등록일시 <i class="req">필수입력</i></span></th>
-													<td>2026.07.23 14:48:40</td>
+													<td>2024.11.04 13:53:58</td>
 													<th scope="row"><span>수정일시 <i class="req">필수입력</i></span></th>
-													<td>2026.07.23 14:48:40</td>
+													<td>2025.04.24 18:12:21</td>
 												</tr>
 												<!-- 등록자 부서명 항목 -->
 												<tr>
@@ -622,13 +638,13 @@
 														<span>등록자</span>
 													</th>
 													<td colspan="3" >
-														홍길동
+														iss
 													</td>
 												</tr>
 												<!-- 조회수 -->
 												<tr>
 													<th scope="row"><span>조회수 <i class="req">필수입력</i></span></th>
-													<td>0</td>
+													<td>19</td>
 												</tr>
 												<!-- 제목 항목 -->
 												<tr>
@@ -636,7 +652,7 @@
 														<span>제목<i class="req">필수입력</i></span>
 													</th>
 													<td colspan="3">
-														VIEWER-2WORKER-SMOKE-20260723
+														회원 정보
 													</td>
 												</tr>
 												<!-- 첨부 -->
@@ -652,12 +668,12 @@
 																		</div>
 																		<div class="info">
 																			<p class="name">
-																				blocker-a.pptx
+																				회원정보.pdf
 																			</p>
-																			<p class="size">5587511 KB</p>
+																			<p class="size">110 KB</p>
 																		</div>
 																		<div class="btn-area">
-																			<a href="/mariadb/neibis/cmmn/viewer/doc-viewer.do?sourceType=bbs&amp;accessMode=admin&amp;menuSn=246&amp;dataTypeCd=A&amp;pstSn=22&amp;atchFileSn=1" class="btn btn-preview" target="_blank" rel="noopener noreferrer" title="미리보기">
+																			<a href="javascript:void(0)" class="btn btn-preview" onclick="alert('정적 프로토타입: 미리보기'); return false;" title="미리보기">
 																				<i class="ico ico-preview-md" aria-hidden="true">
 																					<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
 																						<path d="M1.75 8s2.25-4 6.25-4 6.25 4 6.25 4-2.25 4-6.25 4-6.25-4-6.25-4Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -666,31 +682,7 @@
 																				</i>
 																				<span class="sr-only">미리보기</span>
 																			</a>
-																			<a href="/mariadb/neibis/cmmn/download.do?dn=20260723024739614.pptx&amp;path=%2Fbbs%2F20260416141311&amp;fn=blocker-a.pptx&amp;bbsId=20260416141311&amp;pstSn=22&amp;atchFileSn=1" class="btn btn-download" download>
-																				<i class="ico ico-download-md"></i> <span class="sr-only">다운로드</span>
-																			</a>
-																		</div>
-																	</div>
-																	<div class="file-item">
-																		<div class="preview">
-																		</div>
-																		<div class="info">
-																			<p class="name">
-																				blocker-b.pptx
-																			</p>
-																			<p class="size">5587511 KB</p>
-																		</div>
-																		<div class="btn-area">
-																			<a href="/mariadb/neibis/cmmn/viewer/doc-viewer.do?sourceType=bbs&amp;accessMode=admin&amp;menuSn=246&amp;dataTypeCd=A&amp;pstSn=22&amp;atchFileSn=2" class="btn btn-preview" target="_blank" rel="noopener noreferrer" title="미리보기">
-																				<i class="ico ico-preview-md" aria-hidden="true">
-																					<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-																						<path d="M1.75 8s2.25-4 6.25-4 6.25 4 6.25 4-2.25 4-6.25 4-6.25-4-6.25-4Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-																						<circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.4"/>
-																					</svg>
-																				</i>
-																				<span class="sr-only">미리보기</span>
-																			</a>
-																			<a href="/mariadb/neibis/cmmn/download.do?dn=20260723024740620.pptx&amp;path=%2Fbbs%2F20260416141311&amp;fn=blocker-b.pptx&amp;bbsId=20260416141311&amp;pstSn=22&amp;atchFileSn=2" class="btn btn-download" download>
+																			<a href="javascript:void(0)" class="btn btn-download" onclick="alert('정적 프로토타입: 다운로드'); return false;">
 																				<i class="ico ico-download-md"></i> <span class="sr-only">다운로드</span>
 																			</a>
 																		</div>
@@ -710,8 +702,9 @@
 								<h3 class="title1 mt-5">내용</h3>
 								<div class="editor-wrap" style="width: 100%; padding-bottom: 100px;">
 									<span>
-										 <p>Viewer Linux 2-worker 병렬 변환 검증용 미게시 게시물입니다.</p>
-									</span>
+										 <p>회원정보 관련 도움말입니다.</p>
+<br>
+<br></span>
 								</div>
 							</div>
 							<!-- 내용 항목 -->
@@ -719,7 +712,7 @@
 							<!-- 모바일에서 노출되는 버튼 그룹  -->
 							<div class="btn-group-between">
 								<div class="left">
-									<a href="list.do?pageIndex=1&pageItm=10&searchOrderSort=0&searchGbn=0" class="btn btn-lg btn-outline-gray">
+									<a href="list.do" class="btn btn-lg btn-outline-gray">
 										<i class="ico ico-chevron-left-gray-md"></i>
 										<span>목록</span>
 									</a>
@@ -729,7 +722,7 @@
 										<i class="ico ico-trash-white-md"></i>
 										<span>삭제</span>
 									</button>
-									<a href="updt.do?pageIndex=1&pageItm=10&searchOrderSort=0&searchGbn=0&pstSn=22" class="btn btn-lg btn-primary-soft updt-button" data-ans-dp="0">
+									<a href="updt.do" class="btn btn-lg btn-primary-soft updt-button" data-ans-dp="0">
 										<i class="ico ico-pen-primary-md"></i>
 										<span>수정</span>
 									</a>
@@ -737,11 +730,11 @@
 							</div>
 						</div>
 
-						<ul class="article-nav">
+												<ul class="article-nav">
 							<li class="prev">
-								<a href="detail.do?pageIndex=1&pageItm=10&searchOrderSort=0&searchGbn=0&pstSn=21" class="item move-button" data-sn="21">
+								<a href="detail.do" class="item move-button" data-sn="66">
 									<span><i class="ico ico-prev-gray-sm mr-1"></i>이전글</span>
-									<strong class="link-info"> PREWARM-TERMINAL-READY-20260722-1125</strong>
+									<strong class="link-info"> 사진으로 보는 생활어</strong>
 								</a>
 							</li>
 							<li class="next">
@@ -758,7 +751,7 @@
 								<i class="ico ico-trash-white-md"></i>
 								<span>삭제</span>
 							</button>
-							<a href="updt.do?pageIndex=1&pageItm=10&searchOrderSort=0&searchGbn=0&pstSn=22" class="btn btn-lg btn-primary-soft updt-button" data-ans-dp="0">
+							<a href="updt.do" class="btn btn-lg btn-primary-soft updt-button" data-ans-dp="0">
 								<i class="ico ico-pen-primary-md"></i>
 								<span>수정</span>
 							</a>
@@ -769,8 +762,8 @@
 
 var value = new NeibisValidWrapper();
 
-var _bbsId = "20260416141311";
-var _pstSn = "22";
+var _bbsId = "faq";
+var _pstSn = "86";
 $(function () {
 
 	ActionInit.click(".list-button",listAction);
@@ -779,7 +772,11 @@ $(function () {
 	ActionInit.click("#rply-save-button",rplySaveAction);
 	ActionInit.click("#save-button",saveAction);
  	ActionInit.click("#updt-button",updateAction);
-	ActionInit.click(".delete-button",delAction,this);
+	$(".delete-button").on("click", function(){
+		Message.confirm({icon:"warning", title:"게시물을 삭제합니다", message:"그래도 삭제 하시겠어요?"}, function(){
+			Message.alert({icon:"info", message:"정적 프로토타입입니다."}, function(){ location.href="list.do"; });
+		});
+	});
 	value.init();
 
 	$('.list-button').attr('onclick', '');
@@ -787,7 +784,7 @@ $(function () {
 
 const listAction = function(e){
 	e.preventDefault();
-	$("#detail-form").attr("action","list.do").submit();
+	location.href="list.do";
 }
 
 const rplySaveAction = function(){
@@ -1169,8 +1166,8 @@ var onExtend = function(){
 
 $("#favorit-add-button").on("click", function() {
 	let obj = new Object();
-	obj["menuSn"] =  251
-	let url = "/mariadb/neibis-api/v1/menu/fvrt/251?";
+	obj["menuSn"] =  246
+	let url = "/mariadb/neibis-api/v1/menu/fvrt/246?";
 	if(!$(this).hasClass("on")) url+="action=post"
 	else url+="action=delete"
 	Ajax.post(url,menuFvrtSuccess,menuFvrtFail,{data:JSON.stringify(obj)});

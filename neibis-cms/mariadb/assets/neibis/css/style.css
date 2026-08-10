@@ -5,4 +5,7 @@
 @import url("layout.css");
 @import url("content.css");
 
+/* 지역어 옛한글(한양 PUA) 표시 — 관리자 전체 공통 */
+@import url("dialect-yet-hangul.css");
+
 /* 사이트별 오버라이드 스타일 - 하단에 css 추가 가능 */

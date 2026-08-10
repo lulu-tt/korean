@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 		<meta name="format-detection" content="telephone=no" />
-		<title id="neibisTopTitle">사이트별 운영관리 | 샘플페이지 | 조사자료 | 어휘조사자료</title>
+		<title id="neibisTopTitle">사이트별 운영관리 | 지역어 종합 정보 | 조사자료 | 어휘조사자료</title>
 		<link rel="shortcut icon" href="/mariadb/assets/neibis/images/favicon.png" />
 		<link rel="stylesheet" href="/mariadb/assets/neibis/css/style.css" />
 		<link rel="stylesheet" href="/mariadb/assets/neibis/css/board-attach-ext.css" />
@@ -180,7 +180,7 @@
 					<div class="sidebar-header">
 						<h1 class="sidebar-title">
 							<a href='/mariadb/neibis/index.do'>
-								<img src="/mariadb/assets/neibis/images/logo.png" alt="neibis" />
+								<img src="/mariadb/assets/neibis/images/logo_dialect.png" alt="지역어 종합 정보" />
 								<span class="logo-text">관리시스템</span>
 							</a>
 
@@ -447,7 +447,7 @@
 								<nav class="site-menu">
 									<ul class="site-list">
 										<li data-level="1" >
-													<a href="javascript:void(0)">샘플페이지</a>
+													<a href="javascript:void(0)">지역어 종합 정보</a>
 										<ul style="display:none;">
 										<li data-level="2" >
 													<a href="javascript:void(0)">조사자료</a>
@@ -459,7 +459,7 @@
 													<a href="/mariadb/neibis/survey/oral.do" >구술발화조사자료</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/survey/variant.do" >지역어 변이형 비교</a>
+													<a href="/mariadb/neibis/survey/variant.do" >지역별 이형태 관리</a>
 										</li>
 										<li data-level="3">
 													<a href="/mariadb/neibis/survey/search-std-vocab.do" >검색 표준어 어휘 관리</a>
@@ -476,6 +476,9 @@
 										</li>
 										<li data-level="3">
 													<a href="/mariadb/neibis/map/weather.do" >지역어 기상도</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/map/symbol.do" >상징 부호 관리</a>
 										</li>
 										</ul></li>
 										<li data-level="2" >
@@ -495,22 +498,42 @@
 													<a href="javascript:void(0)">지역어 자료관</a>
 										<ul style="display:none;">
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/252/list.do" >문학 속 지역어</a>
+													<a href="/mariadb/neibis/archive/literature.do" >문학 속 지역어</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/253/list.do" >사진으로 보는 생활어</a>
+													<a href="/mariadb/neibis/archive/region-photo.do" >사진으로 보는 생활어</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/256/list.do" >자료실</a>
+													<a href="/mariadb/neibis/archive/data-room.do" >자료실</a>
 										</li>
 										</ul></li>
-										<li data-level="2" >
-													<a href="javascript:void(0)">참여마당</a>
+																				<li data-level="2" >
+													<a href="javascript:void(0)">Open API관리</a>
 										<ul style="display:none;">
 										<li data-level="3" >
-													<a href="/mariadb/neibis/bbs/255/list.do" >고객의 소리</a>
+													<a href="/mariadb/neibis/stats/api.do" >Open API사용현황</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI.do" >호출 단어 순위</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI2.do" >호출 URL 순위</a>
 										</li>
 									</ul></li></ul></li>
+								
+										<li data-level="1" >
+													<a href="javascript:void(0)">기타 관리</a>
+										<ul style="display:none;">
+										<li data-level="2" >
+													<a href="/mariadb/neibis/system/user.do" >사용자 계정관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/source.do" >제보자 관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/surveyList.do" >설문조사 관리</a>
+										</li>
+									</ul></li>
 								</nav>
 							</div>
 						</div>
@@ -578,7 +601,7 @@
 								<button type="button" class="btn btn-icon btn-copy"><i class="ico ico-copy-gray-sm"></i><span class="sr-only">복사</span></button>
 								<ol class="breadcrumb-list">
 									<li>사이트별 운영관리</li>
-									<li>샘플페이지</li>
+									<li>지역어 종합 정보</li>
 									<li>조사자료</li>
 									<li>어휘조사자료</li>
 								</ol>
@@ -603,9 +626,9 @@
 										<tbody>
 											<tr>
 												<th scope="row"><label for="dltTp">표제어(지역어)<i class="req">필수입력</i></label></th>
-												<td><input type="text" id="dltTp" class="form-control-sm full" placeholder="표제어(지역어)를 입력해주세요." value="갠찮아여" required /></td>
+												<td><input type="text" id="dltTp" class="form-control-sm full" placeholder="표제어(지역어)를 입력해주세요." value="" required /></td>
 												<th scope="row"><label for="dltSeg">성조 표기</label></th>
-												<td><input type="text" id="dltSeg" class="form-control-sm full" /></td>
+												<td><input type="text" id="dltSeg" class="form-control-sm full" value="" /></td>
 											</tr>
 											<tr>
 												<th scope="row">품사</th>
@@ -615,22 +638,22 @@
 											</tr>
 											<tr>
 												<th scope="row"><label for="stdTp">대응 표준어<i class="req">필수입력</i></label></th>
-												<td><input type="text" id="stdTp" class="form-control-sm full" value="'감사합니다'에 대한 응답" required /></td>
+												<td><input type="text" id="stdTp" class="form-control-sm full" value="" required /></td>
 												<th scope="row"><label for="addMean">표준어 부가 의미</label></th>
-												<td><input type="text" id="addMean" class="form-control-sm full" /></td>
+												<td><input type="text" id="addMean" class="form-control-sm full" value="" /></td>
 											</tr>
 											<tr>
 												<th scope="row"><label for="mean">의미(뜻풀이)</label></th>
-												<td colspan="3"><input type="text" id="mean" class="form-control-sm full" placeholder="대응 표준어가 없는 지역어이거나 필요한 경우 의미를 입력하세요." /></td>
+												<td colspan="3"><input type="text" id="mean" class="form-control-sm full" placeholder="대응 표준어가 없는 지역어이거나 필요한 경우 의미를 입력하세요." value="" /></td>
 											</tr>
 											<tr>
 												<th scope="row"><label for="itemNm">항목 번호</label></th>
-												<td colspan="3"><input type="text" id="itemNm" class="form-control-sm full" value="22703" /></td>
+												<td colspan="3"><input type="text" id="itemNm" class="form-control-sm full" value="" /></td>
 											</tr>
 											<tr>
 												<th scope="row"><span>공개 여부<i class="req">필수입력</i></span></th>
 												<td colspan="3">
-													<label class="check-item"><input type="radio" name="NewuseYn" value="Y" checked /><span class="label">Y</span></label>
+													<label class="check-item"><input type="radio" name="NewuseYn" value="Y" /><span class="label">Y</span></label>
 													<label class="check-item"><input type="radio" name="NewuseYn" value="N" /><span class="label">N</span></label>
 												</td>
 											</tr>
@@ -638,7 +661,7 @@
 												<th scope="row">지역(음성)</th>
 												<td colspan="3">
 													<button type="button" class="btn btn-sm btn-outline-gray" onclick="addRegion()"><i class="ico ico-plus-gray-sm"></i><span>출처 추가</span></button>
-													<div id="region-list"><div class="sub-card" style="border:1px solid #e5e7eb; border-radius:8px; margin-top:10px; overflow:hidden;"><div class="table table-row"><div class="table-inner"><table><colgroup><col style="width:150px"><col style="width:150px"><col><col style="width:150px"><col></colgroup><tbody><tr><th scope="row"><span>출처<i class="req">필수입력</i></span></th><td colspan="4"><label class="check-item"><input type="radio" name="rBsrcD" value="지역어 조사" checked><span class="label">지역어 조사</span></label><label class="check-item"><input type="radio" name="rBsrcD" value="우리말 샘"><span class="label">우리말 샘</span></label></td></tr><tr><th scope="row" rowspan="6">음성 파일 등록</th><td colspan="4" style="position:relative;"><span style="margin-right:10px; font-weight:500;">GW2370FVE22703</span><input type="file" name="wavFile"><button type="button" class="btn btn-sm btn-outline-gray" style="position:absolute; right:12px; top:50%; transform:translateY(-50%);" onclick="delBlock(this)"><i class="ico ico-minus-gray-sm"></i><span>삭제</span></button></td></tr><tr><th scope="row"><span>지역어 음성<i class="req">필수입력</i></span></th><td colspan="3"><input type="text" class="form-control-sm full"></td></tr><tr><th scope="row">조사지역</th><td><input type="text" class="form-control-sm full" value="강원도 -&gt; 원주시" readonly></td><th scope="row">조사연도</th><td><input type="text" class="form-control-sm" style="width:120px" value="2023"></td></tr><tr><th scope="row">제보자 성별</th><td><label class="check-item"><input type="radio" name="rBsexD" value="1"><span class="label">남</span></label><label class="check-item"><input type="radio" name="rBsexD" value="0" checked><span class="label">여</span></label></td><th scope="row">제보자 나이</th><td><input type="text" class="form-control-sm" style="width:120px" value="70"></td></tr><tr><th scope="row">파일 공개여부</th><td><label class="check-item"><input type="radio" name="rBuseD" value="Y" checked><span class="label">Y</span></label><label class="check-item"><input type="radio" name="rBuseD" value="N"><span class="label">N</span></label></td><th scope="row">지역별 정보 공개 여부</th><td><label class="check-item"><input type="radio" name="rBinfoD" value="Y"><span class="label">Y</span></label><label class="check-item"><input type="radio" name="rBinfoD" value="N"><span class="label">N</span></label></td></tr><tr><th scope="row">음성 파일 메모</th><td colspan="3"><input type="text" class="form-control-sm full"></td></tr><tr><th scope="row">기타정보</th><td colspan="4"><input type="text" class="form-control-sm full"></td></tr><tr><th scope="row">추가정보</th><td colspan="4"><input type="text" class="form-control-sm full"></td></tr></tbody></table></div></div></div></div>
+													<div id="region-list"><p id="region-empty" style="padding:12px;color:#64748b;margin:10px 0 0">불러오는 중…</p></div>
 												</td>
 											</tr>
 											<tr>
@@ -673,49 +696,150 @@
 var SIDO_OPTS = "<option value=\"\">--전체--</option><option value=\"42\">강원도</option><option value=\"41\">경기도</option><option value=\"48\">경상남도</option><option value=\"47\">경상북도</option><option value=\"29\">광주광역시</option><option value=\"27\">대구광역시</option><option value=\"30\">대전광역시</option><option value=\"26\">부산광역시</option><option value=\"11\">서울특별시</option><option value=\"31\">울산광역시</option><option value=\"28\">인천광역시</option><option value=\"46\">전라남도</option><option value=\"45\">전라북도</option><option value=\"50\">제주특별자치도</option><option value=\"44\">충청남도</option><option value=\"43\">충청북도</option>";
 var GU_DATA = [["41","가평군"],["42","강릉시"],["46","강진군"],["28","강화군"],["48","거제시"],["48","거창군"],["47","경산시"],["47","경주시"],["44","계룡시"],["47","고령군"],["42","고성군"],["48","고성군"],["41","고양시"],["45","고창군"],["46","고흥군"],["46","곡성군"],["44","공주시"],["29","광산구"],["46","광양시"],["43","괴산군"],["46","구례군"],["41","구리시"],["47","구미시"],["45","군산시"],["47","군위군"],["44","금산군"],["26","기장군"],["45","김제시"],["47","김천시"],["41","김포시"],["48","김해시"],["46","나주시"],["29","남구"],["31","남구"],["45","남원시"],["48","남해군"],["44","논산시"],["43","단양군"],["27","달성군"],["46","담양군"],["44","당진시"],["42","동해시"],["46","목포시"],["46","무안군"],["45","무주군"],["47","문경시"],["48","밀양시"],["44","보령시"],["46","보성군"],["43","보은군"],["47","봉화군"],["45","부안군"],["44","부여군"],["29","북구"],["31","북구"],["48","사천시"],["48","산청군"],["42","삼척시"],["47","상주시"],["30","서구"],["50","서귀포시"],["44","서산시"],["44","서천군"],["47","성주군"],["44","세종시(연기군)"],["42","속초시"],["41","수원시"],["45","순창군"],["46","순천시"],["41","시흥시"],["46","신안군"],["44","아산시"],["47","안동시"],["41","안성시"],["42","양구군"],["48","양산시"],["42","양양군"],["41","양주시"],["41","양평군"],["46","여수시"],["41","여주시"],["28","연수구"],["41","연천군"],["46","영광군"],["47","영덕군"],["43","영동군"],["46","영암군"],["47","영양군"],["42","영월군"],["47","영주시"],["47","영천시"],["44","예산군"],["47","예천군"],["43","옥천군"],["28","옹진군"],["46","완도군"],["45","완주군"],["41","용인시"],["47","울릉군"],["31","울주군"],["47","울진군"],["42","원주시"],["43","음성군"],["48","의령군"],["47","의성군"],["41","이천시"],["45","익산시"],["42","인제군"],["45","임실군"],["46","장성군"],["45","장수군"],["46","장흥군"],["45","전주시"],["42","정선군"],["45","정읍시"],["50","제주시"],["43","제천시"],["11","종로구"],["31","중구"],["43","증평군"],["46","진도군"],["45","진안군"],["48","진주시"],["43","진천군"],["48","창녕군"],["48","창원시"],["44","천안시"],["42","철원군"],["47","청도군"],["47","청송군"],["44","청양군"],["43","청주시"],["42","춘천시"],["43","충주시"],["47","칠곡군"],["42","태백시"],["44","태안군"],["48","통영시"],["41","파주시"],["42","평창군"],["41","평택시"],["41","포천시"],["47","포항시"],["41","하남시"],["48","하동군"],["48","함안군"],["48","함양군"],["46","함평군"],["48","합천군"],["46","해남군"],["44","홍성군"],["42","홍천군"],["41","화성시"],["46","화순군"],["42","화천군"],["42","횡성군"]];
 var ri=0, ei=0;
+var detailState = { id: '', dialectId: '' };
 
-function stub(nm){ if(window.Message){Message.alert({icon:'info',message:'['+nm+'] 정적 프로토타입입니다.'});}else{alert(nm);} }
+function escHtml(s){
+	return String(s == null ? '' : s)
+		.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+		.replace(/"/g,'&quot;');
+}
+function escAttr(s){ return escHtml(s); }
+
+function stub(nm){ if(window.Message){Message.alert({icon:'info',message:'['+nm+'] 정적 프로토타입입니다. (조회만 DB 연동)'});}else{alert(nm);} }
 function delBlock(btn){ btn.closest('.sub-card').remove(); }
 
-function addRegion(){
-	ri++;
-	var html =
-	'<div class="sub-card" style="border:1px solid #e5e7eb; border-radius:8px; margin-top:10px; overflow:hidden;">'+
-	'<div class="table table-row"><div class="table-inner"><table>'+
-	'<colgroup><col style="width:150px"><col style="width:150px"><col><col style="width:150px"><col></colgroup><tbody>'+
-	'<tr><th scope="row">출처</th><td colspan="4" style="position:relative;">'+
-	'<label class="check-item"><input type="radio" name="rBsrc'+ri+'" value="지역어 조사" checked><span class="label">지역어 조사</span></label>'+
-	'<label class="check-item"><input type="radio" name="rBsrc'+ri+'" value="우리말 샘"><span class="label">우리말 샘</span></label>'+
-	'<button type="button" class="btn btn-sm btn-outline-gray" style="position:absolute; right:12px; top:50%; transform:translateY(-50%);" onclick="delBlock(this)"><i class="ico ico-minus-gray-sm"></i><span>삭제</span></button>'+
-	'</td></tr>'+
-	'<tr><th scope="row" rowspan="6">음성 파일 등록</th><td colspan="4"><input type="file" name="wavFile"></td></tr>'+
-	'<tr><th scope="row">지역어 음성</th><td colspan="3"><input type="text" class="form-control-sm full"></td></tr>'+
-	'<tr><th scope="row">조사지역</th><td><input type="text" class="form-control-sm full" readonly></td><th scope="row">조사연도</th><td><input type="text" class="form-control-sm" style="width:120px"></td></tr>'+
-	'<tr><th scope="row">제보자 성별</th><td><label class="check-item"><input type="radio" name="rBsex'+ri+'" value="1" checked><span class="label">남</span></label><label class="check-item"><input type="radio" name="rBsex'+ri+'" value="0"><span class="label">여</span></label></td><th scope="row">제보자 나이</th><td><input type="text" class="form-control-sm" style="width:120px"></td></tr>'+
-	'<tr><th scope="row">파일 공개여부</th><td><label class="check-item"><input type="radio" name="rBuse'+ri+'" value="Y" checked><span class="label">Y</span></label><label class="check-item"><input type="radio" name="rBuse'+ri+'" value="N"><span class="label">N</span></label></td><th scope="row">지역별 정보 공개 여부</th><td><label class="check-item"><input type="radio" name="rBinfo'+ri+'" value="Y" checked><span class="label">Y</span></label><label class="check-item"><input type="radio" name="rBinfo'+ri+'" value="N"><span class="label">N</span></label></td></tr>'+
-	'<tr><th scope="row">음성 파일 메모</th><td colspan="3"><input type="text" class="form-control-sm full"></td></tr>'+
-	'<tr><th scope="row">기타정보</th><td colspan="4"><input type="text" class="form-control-sm full"></td></tr>'+
-	'<tr><th scope="row">추가정보</th><td colspan="4"><input type="text" class="form-control-sm full"></td></tr>'+
-	'</tbody></table></div></div></div>';
-	document.getElementById('region-list').insertAdjacentHTML('beforeend', html);
+function queryId(){
+	try {
+		var p = new URLSearchParams(window.location.search || '');
+		return (p.get('id') || p.get('dialectRegionId') || '').trim();
+	} catch(e){ return ''; }
 }
 
-function addExample(){
-	ei++;
-	var html =
-	'<div class="sub-card" style="border:1px solid #e5e7eb; border-radius:8px; margin-top:10px; overflow:hidden; position:relative;">'+
+function setRadio(name, value){
+	var v = String(value == null ? '' : value);
+	var $els = $('input[name="'+name+'"]');
+	if(!$els.length) return;
+	$els.each(function(){
+		this.checked = (String(this.value) === v);
+	});
+}
+
+function sourceChecked(src, want){
+	var s = String(src || '');
+	if(want === '지역어 조사') return s.indexOf('지역어') >= 0 || s === '';
+	if(want === '우리말 샘' || want === '우리말샘') return s.indexOf('우리말') >= 0;
+	return s === want;
+}
+
+function regionCardHtml(r, idx){
+	ri = Math.max(ri, idx);
+	var name = 'rB' + idx;
+	var src = r.source || '';
+	var srcDlt = sourceChecked(src, '지역어 조사') ? ' checked' : '';
+	var srcSam = sourceChecked(src, '우리말 샘') ? ' checked' : '';
+	if(!srcDlt && !srcSam) srcDlt = ' checked';
+	var regionLabel = '';
+	if(r.sidoNm || r.sigunguNm){
+		regionLabel = escHtml((r.sidoNm || '') + (r.sigunguNm ? ' -> ' + r.sigunguNm : ''));
+	}
+	var sex = String(r.sex || '');
+	// DB: 0=남, 1=여
+	var sexM = sex === '0' ? ' checked' : '';
+	var sexF = sex === '1' ? ' checked' : '';
+	if(!sexM && !sexF) sexM = ' checked';
+	var fileOpen = String(r.fileOpenYn || '');
+	var foY = fileOpen === 'Y' ? ' checked' : '';
+	var foN = fileOpen === 'N' ? ' checked' : '';
+	if(!foY && !foN) foY = ' checked';
+	var info = String(r.infoYn || '').trim();
+	var infoY = info === 'Y' ? ' checked' : '';
+	var infoN = info === 'N' ? ' checked' : '';
+	if(!infoY && !infoN) infoN = ' checked';
+	var serial = escHtml(r.serialNm || '-');
+	var focus = (String(r.dialectRegionId) === String(detailState.id))
+		? ' outline:2px solid #3b82f6; outline-offset:1px;' : '';
+
+	return (
+	'<div class="sub-card" data-region-id="'+escAttr(r.dialectRegionId||'')+'" style="border:1px solid #e5e7eb; border-radius:8px; margin-top:10px; overflow:hidden;'+focus+'">'+
+	'<div class="table table-row"><div class="table-inner"><table>'+
+	'<colgroup><col style="width:150px"><col style="width:150px"><col><col style="width:150px"><col></colgroup><tbody>'+
+	'<tr><th scope="row"><span>출처<i class="req">필수입력</i></span></th><td colspan="4" style="position:relative;">'+
+	'<label class="check-item"><input type="radio" name="'+name+'src" value="지역어 조사"'+srcDlt+'><span class="label">지역어 조사</span></label>'+
+	'<label class="check-item"><input type="radio" name="'+name+'src" value="우리말 샘"'+srcSam+'><span class="label">우리말 샘</span></label>'+
+	'<button type="button" class="btn btn-sm btn-outline-gray" style="position:absolute; right:12px; top:50%; transform:translateY(-50%);" onclick="delBlock(this)"><i class="ico ico-minus-gray-sm"></i><span>삭제</span></button>'+
+	'</td></tr>'+
+	'<tr><th scope="row" rowspan="6">음성 파일 등록</th><td colspan="4" style="position:relative;">'+
+	'<span style="margin-right:10px; font-weight:500;">'+serial+'</span>'+
+	'<input type="file" name="wavFile">'+
+	'</td></tr>'+
+	'<tr><th scope="row"><span>지역어 음성</span></th><td colspan="3"><input type="text" class="form-control-sm full" value="'+escAttr(r.dltTell||'')+'"></td></tr>'+
+	'<tr><th scope="row">조사지역</th><td><input type="text" class="form-control-sm full" value="'+regionLabel+'" readonly></td>'+
+	'<th scope="row">조사연도</th><td><input type="text" class="form-control-sm" style="width:120px" value="'+escAttr(r.basisYear||'')+'"></td></tr>'+
+	'<tr><th scope="row">제보자 성별</th><td>'+
+	'<label class="check-item"><input type="radio" name="'+name+'sex" value="0"'+sexM+'><span class="label">남</span></label>'+
+	'<label class="check-item"><input type="radio" name="'+name+'sex" value="1"'+sexF+'><span class="label">여</span></label>'+
+	'</td><th scope="row">제보자 나이</th><td><input type="text" class="form-control-sm" style="width:120px" value="'+escAttr(r.age||'')+'"></td></tr>'+
+	'<tr><th scope="row">파일 공개여부</th><td>'+
+	'<label class="check-item"><input type="radio" name="'+name+'file" value="Y"'+foY+'><span class="label">Y</span></label>'+
+	'<label class="check-item"><input type="radio" name="'+name+'file" value="N"'+foN+'><span class="label">N</span></label>'+
+	'</td><th scope="row">지역별 정보 공개 여부</th><td>'+
+	'<label class="check-item"><input type="radio" name="'+name+'info" value="Y"'+infoY+'><span class="label">Y</span></label>'+
+	'<label class="check-item"><input type="radio" name="'+name+'info" value="N"'+infoN+'><span class="label">N</span></label>'+
+	'</td></tr>'+
+	'<tr><th scope="row">음성 파일 메모</th><td colspan="3"><input type="text" class="form-control-sm full" value="'+escAttr(r.fileMemo||'')+'"></td></tr>'+
+	'<tr><th scope="row">기타정보</th><td colspan="4"><input type="text" class="form-control-sm full" value="'+escAttr(r.etc||'')+'"></td></tr>'+
+	'<tr><th scope="row">추가정보</th><td colspan="4"><input type="text" class="form-control-sm full" value=""></td></tr>'+
+	'</tbody></table></div></div></div>'
+	);
+}
+
+function exampleCardHtml(ex, idx){
+	ei = Math.max(ei, idx);
+	var sido = String(ex.sidoCodeExam || '');
+	var sigungu = String(ex.sigunguNmExam || '');
+	var sidoOpts = SIDO_OPTS;
+	if(sido){
+		sidoOpts = SIDO_OPTS.replace('value="'+sido+'"', 'value="'+sido+'" selected');
+	}
+	var guOpts = '<option value="">--전체--</option>';
+	GU_DATA.forEach(function(row){
+		if(row[0] === sido){
+			var sel = (row[1] === sigungu) ? ' selected' : '';
+			guOpts += '<option value="'+escAttr(row[1])+'"'+sel+'>'+escHtml(row[1])+'</option>';
+		}
+	});
+	return (
+	'<div class="sub-card" data-example-id="'+escAttr(ex.exampleId||'')+'" style="border:1px solid #e5e7eb; border-radius:8px; margin-top:10px; overflow:hidden; position:relative;">'+
 	'<button type="button" class="btn btn-sm btn-outline-gray" style="position:absolute; right:12px; top:10px; z-index:2;" onclick="delBlock(this)"><i class="ico ico-minus-gray-sm"></i><span>삭제</span></button>'+
 	'<div class="table table-row"><div class="table-inner"><table>'+
 	'<colgroup><col style="width:150px"><col></colgroup><tbody>'+
-	'<tr><th scope="row">지역어 예문</th><td><input type="text" class="form-control-sm full"></td></tr>'+
-	'<tr><th scope="row">표준어 대역문</th><td><input type="text" class="form-control-sm full"></td></tr>'+
+	'<tr><th scope="row">지역어 예문</th><td><input type="text" class="form-control-sm full" value="'+escAttr(ex.dltExam||'')+'"></td></tr>'+
+	'<tr><th scope="row">표준어 대역문</th><td><input type="text" class="form-control-sm full" value="'+escAttr(ex.stdExam||'')+'"></td></tr>'+
 	'<tr><th scope="row">지역 선택</th><td>'+
-	'<select class="form-control-sm ex-sido" style="width:280px" onchange="fillExSigungu(this)">'+SIDO_OPTS+'</select>'+
-	'<select class="form-control-sm ex-sigungu" style="width:280px; margin-top:6px;"><option value="">--전체--</option></select>'+
+	'<select class="form-control-sm ex-sido" style="width:280px" onchange="fillExSigungu(this)">'+sidoOpts+'</select>'+
+	'<select class="form-control-sm ex-sigungu" style="width:280px; margin-top:6px;">'+guOpts+'</select>'+
 	'</td></tr>'+
-	'<tr><th scope="row">출전</th><td><input type="text" class="form-control-sm full"></td></tr>'+
-	'</tbody></table></div></div></div>';
-	document.getElementById('example-list').insertAdjacentHTML('beforeend', html);
+	'<tr><th scope="row">출전</th><td><input type="text" class="form-control-sm full" value="'+escAttr(ex.sourceExam||'')+'"></td></tr>'+
+	'</tbody></table></div></div></div>'
+	);
+}
+
+function addRegion(){
+	ri++;
+	var empty = {
+		source: '지역어 조사', serialNm: '', dltTell: '', sidoNm: '', sigunguNm: '',
+		basisYear: '', sex: '0', age: '', fileOpenYn: 'Y', infoYn: 'N', fileMemo: '', etc: ''
+	};
+	$('#region-empty').remove();
+	document.getElementById('region-list').insertAdjacentHTML('beforeend', regionCardHtml(empty, ri));
+}
+
+function addExample(ex){
+	ei++;
+	var data = (ex && typeof ex === 'object' && !ex.type) ? ex : { dltExam:'', stdExam:'', sidoCodeExam:'', sigunguNmExam:'', sourceExam:'' };
+	// button onclick passes event; ignore non-data
+	if(ex && ex.preventDefault) data = { dltExam:'', stdExam:'', sidoCodeExam:'', sigunguNmExam:'', sourceExam:'' };
+	document.getElementById('example-list').insertAdjacentHTML('beforeend', exampleCardHtml(data, ei));
 }
 
 function fillExSigungu(sel){
@@ -724,6 +848,80 @@ function fillExSigungu(sel){
 	$box.empty().append('<option value="">--전체--</option>');
 	GU_DATA.forEach(function(r){ if(r[0]===v){ $box.append('<option value="'+r[1]+'">'+r[1]+'</option>'); } });
 }
+
+function applyDetail(res){
+	detailState.id = res.dialectRegionId || detailState.id;
+	detailState.dialectId = res.dialectId || '';
+	$('#dltTp').val(res.dltTp || '');
+	$('#dltSeg').val(res.dltSeg || '');
+	$('#stdTp').val(res.stdTp || '');
+	$('#addMean').val(res.addMean || '');
+	$('#mean').val(res.mean || '');
+	$('#itemNm').val(res.itemNm || '');
+	if(res.wordClass){
+		var $wc = $('#wordClass');
+		if($wc.find('option').filter(function(){ return this.value === res.wordClass; }).length){
+			$wc.val(res.wordClass);
+		} else {
+			$wc.append($('<option></option>').attr('value', res.wordClass).text(res.wordClass));
+			$wc.val(res.wordClass);
+		}
+	} else {
+		$('#wordClass').val('');
+	}
+	setRadio('NewuseYn', res.useYn || 'Y');
+
+	var $rl = $('#region-list').empty();
+	var regions = res.regions || [];
+	if(!regions.length){
+		$rl.html('<p id="region-empty" style="padding:12px;color:#64748b;margin:10px 0 0">등록된 지역(음성) 정보가 없습니다.</p>');
+	} else {
+		var focusId = String(detailState.id || '');
+		regions = regions.slice().sort(function(a,b){
+			var af = String(a.dialectRegionId) === focusId ? 0 : 1;
+			var bf = String(b.dialectRegionId) === focusId ? 0 : 1;
+			return af - bf;
+		});
+		regions.forEach(function(r, i){ $rl.append(regionCardHtml(r, i+1)); });
+		ri = regions.length;
+	}
+
+	var $el = $('#example-list').empty();
+	var examples = res.examples || [];
+	if(examples.length){
+		examples.forEach(function(ex, i){ $el.append(exampleCardHtml(ex, i+1)); });
+		ei = examples.length;
+	}
+}
+
+function loadDetail(){
+	var id = queryId();
+	detailState.id = id;
+	if(!id){
+		$('#region-list').html('<p id="region-empty" style="padding:12px;color:#b91c1c;margin:10px 0 0">상세 id 가 없습니다. 목록에서 항목을 선택해 주세요.</p>');
+		return;
+	}
+	$('#region-list').html('<p id="region-empty" style="padding:12px;color:#64748b;margin:10px 0 0">불러오는 중…</p>');
+	$.ajax({
+		url: '/mariadb/neibis-api/vocab/detail?id=' + encodeURIComponent(id),
+		method: 'GET',
+		dataType: 'json'
+	}).done(function(res){
+		if(!res || !res.ok){
+			var msg = (res && res.message) ? res.message : '상세를 불러오지 못했습니다.';
+			$('#region-list').html('<p id="region-empty" style="padding:12px;color:#b91c1c;margin:10px 0 0">'+escHtml(msg)+'</p>');
+			return;
+		}
+		applyDetail(res);
+	}).fail(function(xhr){
+		var msg = 'DB API 호출 실패';
+		if(xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+		else if(xhr.status) msg += ' (HTTP '+xhr.status+')';
+		$('#region-list').html('<p id="region-empty" style="padding:12px;color:#b91c1c;margin:10px 0 0">'+escHtml(msg)+'<br><span style="font-size:12px">serve.py 재시작 여부를 확인해 주세요.</span></p>');
+	});
+}
+
+$(function(){ loadDetail(); });
 </script>
 					</div>
 				</article>

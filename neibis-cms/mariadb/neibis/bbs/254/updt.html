@@ -5,14 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 		<meta name="format-detection" content="telephone=no" />
-		<title id="neibisTopTitle">사이트별 운영관리
-
-				| 샘플페이지
-
-				| 알림마당
-
-				| 의견제시
-				</title>
+		<title id="neibisTopTitle">사이트별 운영관리 | 지역어 종합 정보 | 알림마당 | 의견제시 | 수정</title>
 		<link rel="shortcut icon" href="/mariadb/assets/neibis/images/favicon.png" />
 		<link rel="stylesheet" href="/mariadb/assets/neibis/css/style.css" />
 		<link rel="stylesheet" href="/mariadb/assets/neibis/css/board-attach-ext.css" />
@@ -178,7 +171,7 @@
 					<div class="sidebar-header">
 						<h1 class="sidebar-title">
 							<a href='/mariadb/neibis/index.do'>
-								<img src="/mariadb/assets/neibis/images/logo.png" alt="neibis" />
+								<img src="/mariadb/assets/neibis/images/logo_dialect.png" alt="지역어 종합 정보" />
 								<span class="logo-text">관리시스템</span>
 							</a>
 						</h1>
@@ -405,9 +398,9 @@
 								</form>
 								<nav class="site-menu">
 									<ul class="site-list">
-										<li data-level="1" >
-													<a href="javascript:void(0)">샘플페이지</a>
-										<ul style="display:none;">
+										<li data-level="1" class="on">
+													<a href="javascript:void(0)">지역어 종합 정보</a>
+										<ul style="display:block;">
 										<li data-level="2" >
 													<a href="javascript:void(0)">조사자료</a>
 										<ul style="display:none;">
@@ -418,7 +411,7 @@
 													<a href="/mariadb/neibis/survey/oral.do" >구술발화조사자료</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/survey/variant.do" >지역어 변이형 비교</a>
+													<a href="/mariadb/neibis/survey/variant.do" >지역별 이형태 관리</a>
 										</li>
 										<li data-level="3">
 													<a href="/mariadb/neibis/survey/search-std-vocab.do" >검색 표준어 어휘 관리</a>
@@ -436,10 +429,13 @@
 										<li data-level="3">
 													<a href="/mariadb/neibis/map/weather.do" >지역어 기상도</a>
 										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/map/symbol.do" >상징 부호 관리</a>
+										</li>
 										</ul></li>
-										<li data-level="2" >
+										<li data-level="2" class="on">
 													<a href="javascript:void(0)">알림마당</a>
-										<ul style="display:none;">
+										<ul style="display:block;">
 										<li data-level="3">
 													<a href="/mariadb/neibis/bbs/246/list.do" >공지사항</a>
 										</li>
@@ -454,22 +450,42 @@
 													<a href="javascript:void(0)">지역어 자료관</a>
 										<ul style="display:none;">
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/252/list.do" >문학 속 지역어</a>
+													<a href="/mariadb/neibis/archive/literature.do" >문학 속 지역어</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/253/list.do" >사진으로 보는 생활어</a>
+													<a href="/mariadb/neibis/archive/region-photo.do" >사진으로 보는 생활어</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/256/list.do" >자료실</a>
+													<a href="/mariadb/neibis/archive/list.do" >자료실</a>
 										</li>
 										</ul></li>
-										<li data-level="2" >
-													<a href="javascript:void(0)">참여마당</a>
+																				<li data-level="2" >
+													<a href="javascript:void(0)">Open API관리</a>
 										<ul style="display:none;">
 										<li data-level="3" >
-													<a href="/mariadb/neibis/bbs/255/list.do" >고객의 소리</a>
+													<a href="/mariadb/neibis/stats/api.do" >Open API사용현황</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI.do" >호출 단어 순위</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI2.do" >호출 URL 순위</a>
 										</li>
 									</ul></li></ul></li>
+								
+										<li data-level="1" >
+													<a href="javascript:void(0)">기타 관리</a>
+										<ul style="display:none;">
+										<li data-level="2" >
+													<a href="/mariadb/neibis/system/user.do" >사용자 계정관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/source.do" >제보자 관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/surveyList.do" >설문조사 관리</a>
+										</li>
+									</ul></li>
 								</nav>
 							</div>
 						</div>
@@ -540,7 +556,7 @@
 								</button>
 								<ol class="breadcrumb-list">
 									<li>사이트별 운영관리</li>
-									<li>샘플페이지</li>
+									<li>지역어 종합 정보</li>
 									<li>알림마당</li>
 									<li>의견제시</li>
 								</ol>
@@ -550,7 +566,7 @@
 									<p id="tooltip_p"></p>
 									<div class='btn-group' id="tooltip_btn"></div>
 								</div>
-								<h2 class="title">의견제시</h2>
+								<h2 class="title">의견제시 수정</h2>
 								<button type="button" id="favorit-add-button" class="btn-favorit">
 									<i class="ico ico-favorit"></i>
 									<span class="sr-only">즐겨찾기</span>
@@ -566,249 +582,121 @@
 					<div class="content-body">
 
 <!-- 본문 영역 -->
-							<!-- 입력폼 -->
-			<div class="card">
-					<form id="updt-form" action="list.do" method="post">
-					<input type="hidden" id="bbsId" value="20260416141311"/>
-					<input type="hidden" id="pstSn" value="22"/>
-								<div class="table table-row">
-									<div class="table-inner">
-										<table>
-											<caption class="sr-only">
-												의견제시 수정
-											</caption>
-											<tbody>
-												<!--  게시여부 공지여부 기본 항목 -->
-												<tr>
-													<th scope="row">
-														<label>게시여부 <i class="req">필수입력</i></label>
-													</th>
-													<td >
-														<label class="check-item">
-															<input type="radio"  name="dataSttsCd" id="dataSttsCdA"  value="A" />
-															<span class="label">게시</span>
-														</label>
-														<label class="check-item">
-															<input type="radio"  name="dataSttsCd" id="dataSttsCdH" checked value="H" />
-															<span class="label">미게시</span>
-														</label>
-													</td>
-													<th scope="row">
-														<label>공지여부 <i class="req">필수입력</i></label>
-													</th>
-													<td>
-														<label class="check-item">
-															<input type="radio"  name="ntcYn" id="ntcYnY"  value="Y"  />
-															<span class="label">공지</span>
-														</label>
-														<label class="check-item">
-															<input type="radio"   name="ntcYn" id="ntcYnN" value="N"  checked />
-															<span class="label">일반</span>
-														</label>
-													</td>
-												</tr>
-											<tr class="ntc-period-row" style="display:none;">
-												<th scope="row">
-													<label>공지게시기간</label>
-												</th>
-												<td colspan="3">
-													<div class="input-wrap period-wrap">
-														<input type="text" name="ntcBgngDtYmd" id="ntcBgngDtYmd" class="form-control-sm form-datepicker" title="공지 시작일시" value="" readonly placeholder="YYYY.MM.DD" />
-														<select class="form-control-sm" title="시간 선택" name="ntcBgngDtHour" id="ntcBgngDtHour">
-															<option value="00" >00</option><option value="01" >01</option><option value="02" >02</option><option value="03" >03</option><option value="04" >04</option><option value="05" >05</option><option value="06" >06</option><option value="07" >07</option><option value="08" >08</option><option value="09" >09</option><option value="10" >10</option><option value="11" >11</option><option value="12" >12</option><option value="13" >13</option><option value="14" >14</option><option value="15" >15</option><option value="16" >16</option><option value="17" >17</option><option value="18" >18</option><option value="19" >19</option><option value="20" >20</option><option value="21" >21</option><option value="22" >22</option><option value="23" >23</option>
-														</select>
-														<select class="form-control-sm" title="분 선택" name="ntcBgngDtMin" id="ntcBgngDtMin">
-															<option value="00" >00</option><option value="01" >01</option><option value="02" >02</option><option value="03" >03</option><option value="04" >04</option><option value="05" >05</option><option value="06" >06</option><option value="07" >07</option><option value="08" >08</option><option value="09" >09</option><option value="10" >10</option><option value="11" >11</option><option value="12" >12</option><option value="13" >13</option><option value="14" >14</option><option value="15" >15</option><option value="16" >16</option><option value="17" >17</option><option value="18" >18</option><option value="19" >19</option><option value="20" >20</option><option value="21" >21</option><option value="22" >22</option><option value="23" >23</option><option value="24" >24</option><option value="25" >25</option><option value="26" >26</option><option value="27" >27</option><option value="28" >28</option><option value="29" >29</option><option value="30" >30</option><option value="31" >31</option><option value="32" >32</option><option value="33" >33</option><option value="34" >34</option><option value="35" >35</option><option value="36" >36</option><option value="37" >37</option><option value="38" >38</option><option value="39" >39</option><option value="40" >40</option><option value="41" >41</option><option value="42" >42</option><option value="43" >43</option><option value="44" >44</option><option value="45" >45</option><option value="46" >46</option><option value="47" >47</option><option value="48" >48</option><option value="49" >49</option><option value="50" >50</option><option value="51" >51</option><option value="52" >52</option><option value="53" >53</option><option value="54" >54</option><option value="55" >55</option><option value="56" >56</option><option value="57" >57</option><option value="58" >58</option><option value="59" >59</option>
-														</select>
-														<span class="period-separator">~</span>
-														<input type="text" name="ntcEndDtYmd" id="ntcEndDtYmd" class="form-control-sm form-datepicker" title="공지 종료일시" value="" readonly placeholder="YYYY.MM.DD" />
-														<select class="form-control-sm" title="시간 선택" name="ntcEndDtHour" id="ntcEndDtHour">
-															<option value="00" >00</option><option value="01" >01</option><option value="02" >02</option><option value="03" >03</option><option value="04" >04</option><option value="05" >05</option><option value="06" >06</option><option value="07" >07</option><option value="08" >08</option><option value="09" >09</option><option value="10" >10</option><option value="11" >11</option><option value="12" >12</option><option value="13" >13</option><option value="14" >14</option><option value="15" >15</option><option value="16" >16</option><option value="17" >17</option><option value="18" >18</option><option value="19" >19</option><option value="20" >20</option><option value="21" >21</option><option value="22" >22</option><option value="23" >23</option>
-														</select>
-														<select class="form-control-sm" title="분 선택" name="ntcEndDtMin" id="ntcEndDtMin">
-															<option value="00" >00</option><option value="01" >01</option><option value="02" >02</option><option value="03" >03</option><option value="04" >04</option><option value="05" >05</option><option value="06" >06</option><option value="07" >07</option><option value="08" >08</option><option value="09" >09</option><option value="10" >10</option><option value="11" >11</option><option value="12" >12</option><option value="13" >13</option><option value="14" >14</option><option value="15" >15</option><option value="16" >16</option><option value="17" >17</option><option value="18" >18</option><option value="19" >19</option><option value="20" >20</option><option value="21" >21</option><option value="22" >22</option><option value="23" >23</option><option value="24" >24</option><option value="25" >25</option><option value="26" >26</option><option value="27" >27</option><option value="28" >28</option><option value="29" >29</option><option value="30" >30</option><option value="31" >31</option><option value="32" >32</option><option value="33" >33</option><option value="34" >34</option><option value="35" >35</option><option value="36" >36</option><option value="37" >37</option><option value="38" >38</option><option value="39" >39</option><option value="40" >40</option><option value="41" >41</option><option value="42" >42</option><option value="43" >43</option><option value="44" >44</option><option value="45" >45</option><option value="46" >46</option><option value="47" >47</option><option value="48" >48</option><option value="49" >49</option><option value="50" >50</option><option value="51" >51</option><option value="52" >52</option><option value="53" >53</option><option value="54" >54</option><option value="55" >55</option><option value="56" >56</option><option value="57" >57</option><option value="58" >58</option><option value="59" >59</option>
-														</select>
-														<div class="btn-group">
-															<button type="button" class="btn btn-sm btn-outline-gray" id="ntcDtResetBtn">
-																<span>초기화</span>
-															</button>
-														</div>
-													</div>
+
+					<form id="updt-form" action="list.do" onsubmit="return false;" method="post">
+						<input type="hidden" id="bbsId" value="qna"/>
+						<input type="hidden" id="pstSn" value="60"/>
+						<div class="card">
+							<div class="table table-row">
+								<div class="table-inner">
+									<table>
+										<caption class="sr-only">의견제시 수정</caption>
+										<tbody>
+											<tr>
+												<th scope="row"><label>게시여부 <i class="req">필수입력</i></label></th>
+												<td>
+													<label class="check-item"><input type="radio" name="dataSttsCd" value="A" checked /><span class="label">게시</span></label>
+													<label class="check-item"><input type="radio" name="dataSttsCd" value="H"  /><span class="label">미게시</span></label>
+												</td>
+												<th scope="row"><label for="categoryCode">분류 <i class="req">필수입력</i></label></th>
+												<td>
+													<select id="categoryCode" name="categoryCode" class="form-control-sm" style="width:100%;max-width:220px">
+														<option value="usage" selected>이용 문의</option><option value="improvement">개선 요청</option><option value="disability">장애 신고</option><option value="inaccuracy">오류 신고</option><option value="other">기타</option>
+													</select>
 												</td>
 											</tr>
-												<!--  등록/수정 기본 항목 -->
-												<tr>
-													<th scope="row">
-													<label for="strRegDt">등록일시<i class="req">필수입력</i></label>
-													</th>
-													<td>
-														<div class="input-group input-group-datepicker">
-															<input
-																type="text"
-																class="form-control form-datepicker"
-																title="등록일"
-																id="strRegDt"
-																placeholder="YYYY.MM.DD"
-																value="2026.07.23"
-															/>
-														</div>
-													</td>
-													<th scope="row">
-														<label for="strMdfcnDt">수정일시<i class="req">필수입력</i></label>
-													</th>
-													<td><div class="input-group input-group-datepicker">
-															<input
-																type="text"
-																class="form-control form-datepicker"
-																title="수정일"
-																id="strMdfcnDt"
-																placeholder="YYYY.MM.DD"
-																value="2026.07.23"
-															/>
-														</div>
-													</td>
-												</tr>
-												<!-- 등록자 부서명 항목 -->
-												<tr>
-													<th scope="row">
-														<span>등록자</span>
-													</th>
-													<td colspan="3" >
-														<input
-																type="text"
-																id="userNm"
-																class="form-control full"
-																placeholder="등록자 입력"
-																value="홍길동"
-															/>
-													</td>
-												</tr>
-												<!-- 제목 항목 -->
-												<tr>
-													<th scope="row">
-														<label for="ttl">제목 <i class="req">필수입력</i></label>
-													</th>
-													<td colspan="3">
-														<input
-															type="text"
-															id="ttl"
-															class="form-control full"
-															placeholder="제목 입력"
-															value="VIEWER-2WORKER-SMOKE-20260723"
-															required
-														/>
-													</td>
-												</tr>
-												<!-- 첨부파일 항목 -->
-												<tr>
-													<th>다중 파일 업로드</th>
-													<td colspan="3">
-														<div class="file-upload file-upload-multiple" data-file-type="A" data-enable-hwpx-body="true" data-site-id="neibis" data-menu-sn="246" data-body-target-id="pstCn" data-body-editor-id="ckeditor_pstCn" data-body-store-name="htmlCentralData">
-															<input type="hidden" name="dataTypeCd" id="dataTypeCd1" value="A" />
-															<input type="hidden" name="atchFileTypeCd" id="atchFileTypeCd1" value="D" />
-															<input type="hidden" id="fileList1" class="fileList"
-																	data-atch-file-nm="blocker-a.pptx"
-																	data-atch-file-size="5587511"
-																	data-atch-file-sn="1"
-																	data-atch-file-extn-nm="pptx"
-																	data-atch-body-import-url="/mariadb/neibis/bbs/246/hwpx-body-source.do?pstSn=22&amp;atchFileSn=1"
-																	data-editor-image-url="/mariadb/neibis/cmmn/bbs-editor-image.do?bbsId=20260416141311&amp;pstSn=22&amp;atchFileSn=1&amp;menuSn=246"
-																	data-atch-download-url="/mariadb/neibis/cmmn/download.do?dn=20260723024739614.pptx&amp;path=/bbs/20260416141311&amp;fn=blocker-a.pptx"
-																	data-atch-viewer-url="/mariadb/neibis/cmmn/viewer/doc-viewer.do?sourceType=bbs&amp;accessMode=admin&amp;menuSn=246&amp;pstSn=22&amp;dataTypeCd=A&amp;atchFileSn=1"
-															/>
-															<input type="hidden" id="fileList2" class="fileList"
-																	data-atch-file-nm="blocker-b.pptx"
-																	data-atch-file-size="5587511"
-																	data-atch-file-sn="2"
-																	data-atch-file-extn-nm="pptx"
-																	data-atch-body-import-url="/mariadb/neibis/bbs/246/hwpx-body-source.do?pstSn=22&amp;atchFileSn=2"
-																	data-editor-image-url="/mariadb/neibis/cmmn/bbs-editor-image.do?bbsId=20260416141311&amp;pstSn=22&amp;atchFileSn=2&amp;menuSn=246"
-																	data-atch-download-url="/mariadb/neibis/cmmn/download.do?dn=20260723024740620.pptx&amp;path=/bbs/20260416141311&amp;fn=blocker-b.pptx"
-																	data-atch-viewer-url="/mariadb/neibis/cmmn/viewer/doc-viewer.do?sourceType=bbs&amp;accessMode=admin&amp;menuSn=246&amp;pstSn=22&amp;dataTypeCd=A&amp;atchFileSn=2"
-															/>
-														</div>
-													</td>
-												</tr>
-											</tbody>
-										</table>
-									</div>
-								</div>
-
-								<!-- 내용 항목 : html + 에디터 영역 -->
-									<div class="html-editor-area">
-										<h4 class="title1 mt-10 mb-3">내용</h4>
-										<div class="html-editor-header">
-											<nav class="tabmenu tabmenu-type2">
-												<ul class="tab-list type2" id="edtrSeCd">
-													<li  data-value="2">
-														<a href="javascript:void(0);"  onclick="codeToggleTabs()"><span>코드로 수정</span></a>
-													</li>
-													<li class="on" data-value="3">
-														<a href="javascript:void(0);" onclick="webeditorToggleTabs()"><span>웹 에디터로 수정</span></a>
-													</li>
-												</ul>
-											</nav>
-										</div>
-
-										<div class="html-editor-body">
-											<div class="codes-area">
-												<h3 class="sr-only">코드로 수정</h3>
-												<div class="code-item code-item-html">
-													<div class="code-item-header">
-														<h4 class="code-item-title">HTML</h4>
-													</div>
-													<div class="code-item-body">
-														<textarea class="form-code html-code" name="pstCn" id="pstCn" >&lt;p&gt;Viewer Linux 2-worker 병렬 변환 검증용 미게시 게시물입니다.&lt;/p&gt;
-</textarea>
-													</div>
-												</div>
-											</div>
-
-											<div class="webeditor-area">
-												<h3 class="sr-only">웹 에디터로 수정</h3>
-												<!-- ckeditor editor -->
-												<div class="webeditor-viewport">
-													<textarea
-														name="ckeditor"
-														id="ckeditor_pstCn"
-														class="inuix-ckeditor"
-														data-site-id=""
-														rows="10"
-														cols="80"
-													></textarea>
-												</div>
-											</div>
-										</div>
-									</div>
-								<!-- 내용 항목 -->
-
-								</form>
-								<!-- 모바일에서 노출되는 버튼 그룹  -->
-								<div class="btn-group-between">
-									<div class="left">
-										<a href="list.do?pageIndex=1&pageItm=10&searchOrderSort=0&searchGbn=0" data-confirm="leave-saver" class="btn btn-lg btn-outline-gray">
-											<i class="ico ico-chevron-left-gray-md"></i>
-											<span>목록</span>
-										</a>
-									</div>
-									<div class="right">
-										<button type="button" class="btn btn-lg btn-primary-soft save-button">
-											<i class="ico ico-pen-primary-md"></i>
-											<span>수정</span>
-										</button>
-									</div>
+											<tr>
+												<th scope="row"><label for="strRegDt">등록일시</label></th>
+												<td>
+													<input type="text" id="strRegDt" class="form-control-sm" style="width:180px" value="2024.06.23" readonly />
+												</td>
+												<th scope="row"><label for="strMdfcnDt">수정일시</label></th>
+												<td>
+													<input type="text" id="strMdfcnDt" class="form-control-sm" style="width:180px" value="2024.06.23" readonly />
+												</td>
+											</tr>
+											<tr>
+												<th scope="row"><span>등록자</span></th>
+												<td colspan="3"><input type="text" id="userNm" class="form-control full" value="spmizuno" /></td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="ttl">제목 <i class="req">필수입력</i></label></th>
+												<td colspan="3"><input type="text" id="ttl" class="form-control full" value="안녕하십니까?" required /></td>
+											</tr>
+										</tbody>
+									</table>
 								</div>
 							</div>
-
-							<!-- 상단 고정 액션 버튼 -->
-							<div class="btn-group-fixed">
-								<button type="button" class="btn btn-lg btn-primary-soft save-button">
-											<i class="ico ico-pen-primary-md"></i>
-									<span>수정</span>
-								</button>
+							<style>
+/* 정적 프로토타입 웹에디터 (실제 neibis 리치에디터 형태 재현) */
+.html-editor-body{ position:static !important; height:auto !important; min-height:0 !important; }
+.html-editor-body .codes-area, .html-editor-body .webeditor-area{ position:static !important; visibility:visible !important; height:auto !important; }
+.html-editor-body .form-code.html-code{ visibility:visible !important; display:block !important; width:100%; min-height:300px; border:1px solid #cbd5e1; border-radius:10px; padding:14px; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; line-height:1.6; }
+.we-wrap{ border:1px solid #cbd5e1; border-radius:10px; overflow:hidden; background:#fff; }
+.we-toolbar{ display:flex; flex-wrap:wrap; align-items:center; gap:2px; padding:8px 10px; background:#f1f5f9; border-bottom:1px solid #e2e8f0; }
+.we-toolbar .we-btn{ min-width:30px; height:30px; padding:0 6px; border:none; background:transparent; border-radius:6px; color:#334155; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:15px; line-height:1; }
+.we-toolbar .we-btn:hover{ background:#e2e8f0; }
+.we-toolbar .we-btn.txt{ font-size:13px; font-weight:700; }
+.we-toolbar .we-sep{ width:1px; height:20px; background:#cbd5e1; margin:0 4px; }
+.we-toolbar .we-right{ margin-left:auto; }
+.we-toolbar .we-preview{ display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border:1px solid #cbd5e1; border-radius:8px; background:#fff; font-size:13px; color:#475569; cursor:pointer; }
+.we-body{ min-height:320px; max-height:600px; overflow:auto; padding:18px 20px; line-height:1.8; color:#111827; outline:none; }
+.we-body p{ margin:0 0 10px; }
+</style>
+<div class="html-editor-area">
+	<h4 class="title1 mt-10 mb-3">내용</h4>
+	<div class="html-editor-header">
+		<nav class="tabmenu tabmenu-type2">
+			<ul class="tab-list type2" id="edtrSeCd">
+				<li data-value="2"><a href="javascript:void(0);" onclick="codeToggleTabs()"><span>코드로 수정</span></a></li>
+				<li class="on" data-value="3"><a href="javascript:void(0);" onclick="webeditorToggleTabs()"><span>웹 에디터로 수정</span></a></li>
+			</ul>
+		</nav>
+	</div>
+	<div class="html-editor-body">
+		<div class="codes-area" style="display:none;">
+			<textarea class="form-code html-code" name="pstCn" id="pstCn"><p>안녕하십니까?<br>한가지 여쭈려고 합니다.<br>지역어 종합 정보 누리집에는 &#x27;내 지도 그리기&#x27;라는 서비스가 있습니다.<br>이것은 자신의 방언 조사 결과를 가지고 자기만의 언저 지도를 그릴 수 있는 서비스인가요?<br>그 사용법(제작법)은 어디에 나와 있나요? 그리고 제작 결과는 일반인에게 다 공개가 됩니까?<br>답변을 부탁 드립니다.</p></textarea>
+		</div>
+		<div class="webeditor-area">
+			<div class="we-wrap">
+				<div class="we-toolbar"><button type="button" class="we-btn" title="실행취소" onclick="weCmd('undo')">↶</button><button type="button" class="we-btn" title="다시실행" onclick="weCmd('redo')">↷</button><span class="we-sep"></span><button type="button" class="we-btn txt" title="제목1" onclick="weBlock('H1')">제목1</button><button type="button" class="we-btn txt" title="제목2" onclick="weBlock('H2')">제목2</button><button type="button" class="we-btn txt" title="제목3" onclick="weBlock('H3')">제목3</button><span class="we-sep"></span><button type="button" class="we-btn" style="font-weight:800" title="굵게" onclick="weCmd('bold')">B</button><button type="button" class="we-btn" style="font-style:italic" title="기울임" onclick="weCmd('italic')">I</button><button type="button" class="we-btn" style="text-decoration:underline" title="밑줄" onclick="weCmd('underline')">U</button><button type="button" class="we-btn" style="text-decoration:line-through" title="취소선" onclick="weCmd('strikeThrough')">S</button><span class="we-sep"></span><button type="button" class="we-btn" title="글머리 기호" onclick="weCmd('insertUnorderedList')">•</button><button type="button" class="we-btn" title="번호 매기기" onclick="weCmd('insertOrderedList')">1.</button><span class="we-sep"></span><button type="button" class="we-btn" title="왼쪽 정렬" onclick="weCmd('justifyLeft')">⯇</button><button type="button" class="we-btn" title="가운데 정렬" onclick="weCmd('justifyCenter')">≡</button><button type="button" class="we-btn" title="오른쪽 정렬" onclick="weCmd('justifyRight')">⯈</button><span class="we-sep"></span><button type="button" class="we-btn" title="링크" onclick="weLink()">🔗</button><button type="button" class="we-btn" title="표" onclick="weStub('표 삽입')">▦</button><button type="button" class="we-btn" title="이미지" onclick="weStub('이미지 삽입')">🖼</button><button type="button" class="we-btn" title="이모지" onclick="weStub('이모지')">🙂</button><span class="we-right"><button type="button" class="we-preview" onclick="weStub('기기별 미리보기')">기기별 미리보기 ▾</button></span></div>
+				<div id="pstCnWysiwyg" class="we-body" contenteditable="true"><p>안녕하십니까?<br>한가지 여쭈려고 합니다.<br>지역어 종합 정보 누리집에는 &#x27;내 지도 그리기&#x27;라는 서비스가 있습니다.<br>이것은 자신의 방언 조사 결과를 가지고 자기만의 언저 지도를 그릴 수 있는 서비스인가요?<br>그 사용법(제작법)은 어디에 나와 있나요? 그리고 제작 결과는 일반인에게 다 공개가 됩니까?<br>답변을 부탁 드립니다.</p></div>
+			</div>
+		</div>
+	</div>
+</div>
+							<div class="btn-group-between">
+								<div class="left">
+									<a href="list.do" class="btn btn-lg btn-outline-gray"><i class="ico ico-chevron-left-gray-md"></i><span>목록</span></a>
+								</div>
+								<div class="right">
+									<button type="button" class="btn btn-lg btn-gray" onclick="if(confirm('삭제하시겠어요?')) location.href='list.do';"><i class="ico ico-trash-white-md"></i><span>삭제</span></button>
+									<button type="button" class="btn btn-lg btn-primary-soft save-button" onclick="saveUpdt()"><i class="ico ico-pen-primary-md"></i><span>수정</span></button>
+								</div>
 							</div>
-						<!-- // 본문 영역 -->
-<form id="list-form" action="list.do" method="post">
+						</div>
+					</form>
+<script>
+
+// 정적 웹에디터: 서식 명령 / 코드<->웹에디터 토글 & 동기화
+function weStub(nm){ if(window.Message){Message.alert({icon:'info',message:'['+nm+'] 정적 프로토타입 기능입니다.'});}else{alert(nm);} }
+function weCmd(c,v){ try{document.execCommand(c,false,v||null);}catch(e){} var w=document.getElementById('pstCnWysiwyg'); if(w) w.focus(); }
+function weBlock(t){ weCmd('formatBlock', t); }
+function weLink(){ var u=prompt('링크 URL을 입력하세요','https://'); if(u) weCmd('createLink', u); }
+window.codeToggleTabs=function(){ var w=document.getElementById('pstCnWysiwyg'); if(w){ $('#pstCn').val(w.innerHTML); } $('.codes-area').show(); $('.webeditor-area').hide(); $('#edtrSeCd li').removeClass('on').filter('[data-value="2"]').addClass('on'); };
+window.webeditorToggleTabs=function(){ var w=document.getElementById('pstCnWysiwyg'); if(w){ w.innerHTML=$('#pstCn').val(); } $('.codes-area').hide(); $('.webeditor-area').show(); $('#edtrSeCd li').removeClass('on').filter('[data-value="3"]').addClass('on'); };
+$(function(){ webeditorToggleTabs(); });
+
+function saveUpdt(){
+	if(!$('#ttl').val().trim()){ alert('제목을 입력해주세요.'); return $('#ttl').focus(); }
+	if(window.Message){
+		Message.confirm({icon:'warning', title:'수정하시겠어요?', message:'정적 프로토타입입니다.'}, function(){ location.href='detail.do'; });
+	} else if(confirm('수정하시겠어요?')){ location.href='detail.do'; }
+}
+</script>
+
+<!-- // 본문 영역 -->
+<form id="list-form" action="list.do" onsubmit="return false;" method="post">
 						<input type="hidden" name="pageIndex" value="1"/>
 						<input type="hidden" name="pageItm" value="10"/>
 						<input type="hidden" name="searchOrderSort" value="0"/>
@@ -821,12 +709,21 @@ var value = new NeibisValidWrapper();
 var htmlEditorOvrvwCn;
 
 $(function () {
-	ActionInit.click(".list-button",listAction);
-	ActionInit.click(".save-button",saveAction);
+	$(".list-button").on("click", function(e){ e.preventDefault(); location.href="list.do"; });
+	$(".save-button").on("click", function(){
+		var ttl=($("#ttl").val()||"").trim();
+		if(!ttl){ Message.alert({icon:"warning",message:"제목을 입력해주세요."}); return $("#ttl").focus(); }
+		Message.confirm({icon:"warning", title:"저장하시겠어요?", message:"정적 프로토타입입니다."}, function(){ location.href="detail.do"; });
+	});
 	ActionInit.click("#search-adres-button",adresPopup);
 	ActionInit.click("input[name=ntcYn]",ntcYnClickProc,this);
 	ActionInit.click("#ntcDtResetBtn",ntcDtReset);
 	value.init();
+	$(".delete-button").on("click", function(){
+		Message.confirm({icon:"warning", title:"게시물을 삭제합니다", message:"그래도 삭제 하시겠어요?"}, function(){
+			Message.alert({icon:"info", message:"정적 프로토타입입니다."}, function(){ location.href="list.do"; });
+		});
+	});
 
 	$('.list-button').attr('onclick', '');
 	setBbsAtchFilePrmsnExtnNm();
@@ -1196,8 +1093,8 @@ var onExtend = function(){
 
 $("#favorit-add-button").on("click", function() {
 	let obj = new Object();
-	obj["menuSn"] =  254
-	let url = "/mariadb/neibis-api/v1/menu/fvrt/254?";
+	obj["menuSn"] =  246
+	let url = "/mariadb/neibis-api/v1/menu/fvrt/246?";
 	if(!$(this).hasClass("on")) url+="action=post"
 	else url+="action=delete"
 	Ajax.post(url,menuFvrtSuccess,menuFvrtFail,{data:JSON.stringify(obj)});

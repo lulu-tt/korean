@@ -5,14 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 		<meta name="format-detection" content="telephone=no" />
-		<title id="neibisTopTitle">사이트별 운영관리
-
-				| 샘플페이지
-
-				| 알림마당
-
-				| 도움말(FAQ)
-				</title>
+		<title id="neibisTopTitle">사이트별 운영관리 | 지역어 종합 정보 | 알림마당 | 도움말(FAQ) | 등록</title>
 		<link rel="shortcut icon" href="/mariadb/assets/neibis/images/favicon.png" />
 		<link rel="stylesheet" href="/mariadb/assets/neibis/css/style.css" />
 		<link rel="stylesheet" href="/mariadb/assets/neibis/css/board-attach-ext.css" />
@@ -178,7 +171,7 @@
 					<div class="sidebar-header">
 						<h1 class="sidebar-title">
 							<a href='/mariadb/neibis/index.do'>
-								<img src="/mariadb/assets/neibis/images/logo.png" alt="neibis" />
+								<img src="/mariadb/assets/neibis/images/logo_dialect.png" alt="지역어 종합 정보" />
 								<span class="logo-text">관리시스템</span>
 							</a>
 						</h1>
@@ -405,9 +398,9 @@
 								</form>
 								<nav class="site-menu">
 									<ul class="site-list">
-										<li data-level="1" >
-													<a href="javascript:void(0)">샘플페이지</a>
-										<ul style="display:none;">
+										<li data-level="1" class="on">
+													<a href="javascript:void(0)">지역어 종합 정보</a>
+										<ul style="display:block;">
 										<li data-level="2" >
 													<a href="javascript:void(0)">조사자료</a>
 										<ul style="display:none;">
@@ -418,7 +411,7 @@
 													<a href="/mariadb/neibis/survey/oral.do" >구술발화조사자료</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/survey/variant.do" >지역어 변이형 비교</a>
+													<a href="/mariadb/neibis/survey/variant.do" >지역별 이형태 관리</a>
 										</li>
 										<li data-level="3">
 													<a href="/mariadb/neibis/survey/search-std-vocab.do" >검색 표준어 어휘 관리</a>
@@ -436,10 +429,13 @@
 										<li data-level="3">
 													<a href="/mariadb/neibis/map/weather.do" >지역어 기상도</a>
 										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/map/symbol.do" >상징 부호 관리</a>
+										</li>
 										</ul></li>
-										<li data-level="2" >
+										<li data-level="2" class="on">
 													<a href="javascript:void(0)">알림마당</a>
-										<ul style="display:none;">
+										<ul style="display:block;">
 										<li data-level="3">
 													<a href="/mariadb/neibis/bbs/246/list.do" >공지사항</a>
 										</li>
@@ -454,22 +450,42 @@
 													<a href="javascript:void(0)">지역어 자료관</a>
 										<ul style="display:none;">
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/252/list.do" >문학 속 지역어</a>
+													<a href="/mariadb/neibis/archive/literature.do" >문학 속 지역어</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/253/list.do" >사진으로 보는 생활어</a>
+													<a href="/mariadb/neibis/archive/region-photo.do" >사진으로 보는 생활어</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/256/list.do" >자료실</a>
+													<a href="/mariadb/neibis/archive/data-room.do" >자료실</a>
 										</li>
 										</ul></li>
-										<li data-level="2" >
-													<a href="javascript:void(0)">참여마당</a>
+																				<li data-level="2" >
+													<a href="javascript:void(0)">Open API관리</a>
 										<ul style="display:none;">
 										<li data-level="3" >
-													<a href="/mariadb/neibis/bbs/255/list.do" >고객의 소리</a>
+													<a href="/mariadb/neibis/stats/api.do" >Open API사용현황</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI.do" >호출 단어 순위</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI2.do" >호출 URL 순위</a>
 										</li>
 									</ul></li></ul></li>
+								
+										<li data-level="1" >
+													<a href="javascript:void(0)">기타 관리</a>
+										<ul style="display:none;">
+										<li data-level="2" >
+													<a href="/mariadb/neibis/system/user.do" >사용자 계정관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/source.do" >제보자 관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/surveyList.do" >설문조사 관리</a>
+										</li>
+									</ul></li>
 								</nav>
 							</div>
 						</div>
@@ -540,9 +556,10 @@
 								</button>
 								<ol class="breadcrumb-list">
 									<li>사이트별 운영관리</li>
-									<li>샘플페이지</li>
+									<li>지역어 종합 정보</li>
 									<li>알림마당</li>
 									<li>도움말(FAQ)</li>
+									<li>등록</li>
 								</ol>
 							</div>
 							<div class="content-title">
@@ -567,7 +584,7 @@
 
 <!-- 본문 영역 -->
 						<form id="save-form" action="list.do" method="post">
-						<input type="hidden" id="bbsId" value="20260416141311"/>
+						<input type="hidden" id="bbsId" value="faq"/>
 							<!-- 입력폼 -->
 							<div class="card">
 								<div class="table table-row">
@@ -577,7 +594,7 @@
 												도움말(FAQ) 등록
 											</caption>
 											<tbody>
-												<!--  게시여부 공지여부 기본 항목 -->
+												<!--  게시여부 상단고정 기본 항목 -->
 												<tr>
 													<th scope="row">
 														<label>게시여부 <i class="req">필수입력</i></label>
@@ -593,12 +610,12 @@
 														</label>
 													</td>
 													<th scope="row">
-														<label>공지여부 <i class="req">필수입력</i></label>
+														<label>상단고정 <i class="req">필수입력</i></label>
 													</th>
 													<td>
 														<label class="check-item">
 															<input type="radio"  name="ntcYn" id="ntcYnY" value="Y"  />
-															<span class="label">공지</span>
+															<span class="label">고정</span>
 														</label>
 														<label class="check-item">
 															<input type="radio"   name="ntcYn" id="ntcYnN" value="N"  checked />
@@ -608,7 +625,7 @@
 												</tr>
 											<tr class="ntc-period-row" style="display:none;">
 												<th scope="row">
-													<label>공지게시기간</label>
+													<label>고정게시기간</label>
 												</th>
 												<td colspan="3">
 													<div class="input-wrap period-wrap">
@@ -702,7 +719,7 @@
 												<tr>
 													<th>다중 파일 업로드</th>
 													<td colspan="3">
-														<div class="file-upload file-upload-multiple" data-file-type="A" data-enable-hwpx-body="true" data-site-id="neibis" data-menu-sn="246" data-body-target-id="pstCn" data-body-editor-id="ckeditor_pstCn" data-body-store-name="htmlCentralData">
+														<div class="file-upload file-upload-multiple" data-file-type="A" data-enable-hwpx-body="true" data-site-id="neibis" data-menu-sn="251" data-body-target-id="pstCn" data-body-editor-id="ckeditor_pstCn" data-body-store-name="htmlCentralData">
 														<input type="hidden" name="dataTypeCd" id="dataTypeCdMultiple" value="A" />
 															<input type="hidden" name="atchFileTypeCd" id="atchFileTypeCdMultiple" value="D" />
 														</div>
@@ -763,7 +780,7 @@
 								<!-- 모바일에서 노출되는 버튼 그룹  -->
 								<div class="btn-group-between">
 									<div class="left">
-										<a href="list.do?pageIndex=1&pageItm=10&searchOrderSort=0&searchGbn=0" data-confirm="leave-saver" class="btn btn-lg btn-outline-gray">
+										<a href="list.do" data-confirm="leave-saver" class="btn btn-lg btn-outline-gray">
 											<i class="ico ico-chevron-left-gray-md"></i>
 											<span>목록</span>
 										</a>
@@ -806,8 +823,19 @@ var value = new NeibisValidWrapper();
 var htmlEditorOvrvwCn;
 $(function () {
 	ActionInit.click(".list-button",listAction);
-	ActionInit.click(".cancel-button",cancelAction);
-	ActionInit.click(".save-button",saveAction);
+	$(".cancel-button").on("click", function(e){
+			e.preventDefault();
+			Message.confirm({icon:"warning", title:"목록으로 이동하시겠어요?", message:"입력한 내용은 저장되지 않습니다."}, function(){
+				location.href = "list.do";
+			});
+		});
+	ActionInit.click(".save-button", function(){
+			var ttl = ($("#ttl").val()||"").trim();
+			if(!ttl){ Message.alert({icon:"warning", message:"제목을 입력해주세요."}); return $("#ttl").focus(); }
+			Message.confirm({icon:"warning", title:"저장하시겠어요?", message:"정적 프로토타입입니다. 실제 저장은 수행되지 않습니다."}, function(){
+				location.href = "list.do";
+			});
+		});
 	ActionInit.click("#search-adres-button",adresPopup);
 	ActionInit.click("input[name=ntcYn]",ntcYnClickProc,this);
 	ActionInit.click("#ntcDtResetBtn",ntcDtReset);
@@ -1179,8 +1207,8 @@ var onExtend = function(){
 
 $("#favorit-add-button").on("click", function() {
 	let obj = new Object();
-	obj["menuSn"] =  251
-	let url = "/mariadb/neibis-api/v1/menu/fvrt/251?";
+	obj["menuSn"] =  246
+	let url = "/mariadb/neibis-api/v1/menu/fvrt/246?";
 	if(!$(this).hasClass("on")) url+="action=post"
 	else url+="action=delete"
 	Ajax.post(url,menuFvrtSuccess,menuFvrtFail,{data:JSON.stringify(obj)});

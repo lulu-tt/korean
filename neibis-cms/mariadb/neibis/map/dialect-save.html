@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title id="neibisTopTitle">사이트별 운영관리 | 지역어 종합 정보 | 지역어 지도 | 지역어 지도 표제어 등록</title>
+		<link rel="shortcut icon" href="/mariadb/assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="/mariadb/assets/neibis/css/style.css" />
+		<link rel="stylesheet" href="/mariadb/assets/neibis/css/board-attach-ext.css" />
+
+		<!-- JavaScript -->
+		<script src="/mariadb/assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="/mariadb/assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+
+		<!-- I.N.UIX NEIBIS -->
+		<script>
+			window.CONTEXT_ROOT = "mariadb"; // 컨텍스트 루트
+	        window.ACCEPTED_FILES = ".gif,.bmp,.jpg,.png,.jpeg,.svg,.mp4,.wmv,.avi,.hwp,.hwpx,.doc,.docx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //전체 허용확장자
+	        window.ACCEPTED_IMAGES = ".gif,.bmp,.jpg,.png,.jpeg,.jfif,.svg";             //이미지 허용확장자
+	        window.ACCEPTED_MOVIES = ".mp4,.wmv,.avi";             //동영상 허용확장자
+	        window.ACCEPTED_DOCUMENT = ".hwp,.hwpx,.doc,.docx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //문서 허용확장자
+	        window.UPLOAD_MAX_FILE_SIZE = "50";             //최대 용량
+		</script>
+
+
+		<!-- neibis develop plugin -->
+		<script src="/mariadb/assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+		<script src='/mariadb/assets/neibis/js/neibis.messageWrapper.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.actionWrapper.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.ajaxWrapper.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.validator.js'></script>
+		<!-- neibis develop plugin -->
+
+		<!-- login.do 빼고사용 -->
+
+		<!-- neibis develop plugin -->
+		<script src='/mariadb/assets/neibis/js/neibis.cmmn.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.moveAction.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.validWrapper.js'></script>
+		<script src='/mariadb/assets/neibis/js/moment-with-locales.js'></script>
+		<script src="/mariadb/assets/neibis/js/dropzone.inuix.neibis.js"></script>
+		<script src='/mariadb/assets/neibis/js/neibis.popupWrapper.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.excelDownload.js'></script>
+		<!-- neibis develop plugin -->
+
+		<script type="text/javascript" src="/mariadb/assets/neibis/lib/jquery-filedown/jquery.fileDownload.js"></script>
+
+		<!-- CodeMirror -->
+		<link rel="stylesheet" href='/mariadb/assets/neibis/plugins/codemirror/codemirror.min.css' />
+		<link rel="stylesheet" href='/mariadb/assets/neibis/plugins/codemirror/idea.min.css' />
+		<script src='/mariadb/assets/neibis/plugins/codemirror/codemirror.min.js'></script>
+		<script src='/mariadb/assets/neibis/plugins/codemirror/xml.min.js'></script>
+		<script src='/mariadb/assets/neibis/plugins/codemirror/css.min.js'></script>
+		<script src='/mariadb/assets/neibis/plugins/codemirror/javascript.min.js'></script>
+
+		<!-- beautify -->
+		<script src='/mariadb/assets/neibis/plugins/beautify/beautify.min.js'></script>
+		<script src='/mariadb/assets/neibis/plugins/beautify/beautify-css.min.js'></script>
+		<script src='/mariadb/assets/neibis/plugins/beautify/beautify-html.min.js'></script>
+
+		<script src='/mariadb/assets/neibis/plugins/ckeditor4/ckeditor.js'></script>
+		<script src='/mariadb/assets/neibis/plugins/ckeditor4/ckeditor.inuix.neibis.js'></script>
+
+
+
+		<!-- dropzone -->
+		<script src='/mariadb/assets/neibis/plugins/dropzone/dropzone.min.js'></script>
+
+		<script src="/mariadb/assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="/mariadb/assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="/mariadb/assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="/mariadb/assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<script>
+				// TODO : [개발] 정적 개발모드 전환
+				window.addEventListener("DOMContentLoaded", function () {
+					window.UIdevMode = false;
+				});
+
+
+			<!-- login.do 빼고사용 -->
+			$(document).ready(function() {
+				if(history.length <= 1) {
+				    $('i.ico-back').parent('a').remove();
+				}
+
+				var tooltipFile="/mariadb/assets/neibis/json/tooltip.json";
+				$.getJSON(tooltipFile, function(data) {
+				    let currentPath = getTooltipPath(window.location.pathname);
+
+				    let originPath = window.location.origin+"/"+window.CONTEXT_ROOT;
+					let neibisContextPath = "/mariadb";
+
+					let pathWithoutContext =""
+					if(neibisContextPath != ""){
+						pathWithoutContext = currentPath.replace(neibisContextPath, '');
+					}else{
+						pathWithoutContext = currentPath;
+					}
+
+					let hlp_cn ="등록된 툴팁이 없어요."
+					let btn_one_nm =""
+					let btn_one_link =""
+					let btn_two_nm =""
+					let btn_two_link ="";
+
+					data.forEach(function(item, index) {
+						let menu_sn = getTooltipPath(item["menu_sn"]);
+
+						if (menu_sn == pathWithoutContext) {
+							   hlp_cn = item?.hlp_cn ?? "등록된 툴팁이 없어요.";
+							   btn_one_nm = item?.btn_one_nm ?? "";
+							   btn_one_link = item?.btn_one_link ? originPath + item.btn_one_link : "javascript:void(0);";
+							   btn_two_nm = item?.btn_two_nm ?? "";
+							   btn_two_link = item?.btn_two_link ? originPath + item.btn_two_link : "javascript:void(0);";
+						}
+					})
+
+					$("#tooltip_p").html(hlp_cn);
+
+
+
+					 if(btn_one_nm != "" ||  btn_two_nm != ""){
+						let html ="";
+						if(btn_one_nm != ""){
+							html +="<a href='"+btn_one_link+"' class='btn btn-sm btn-primary' target='_blank'>"+btn_one_nm+"</a>";
+						}
+						if(btn_two_nm != ""){
+							html +="<a href='"+btn_two_link+"' class='btn btn-sm btn-primary' target='_blank'>"+btn_two_nm+"</a>";
+					 	}
+
+						$("#tooltip_btn").html(html);
+					  }else if(btn_one_nm != "" &&  btn_two_nm != ""){
+						  $("#tooltip_btn").attr("style","display:none");
+					  }
+
+				})
+				.fail(function(jqxhr, textStatus, error) {
+				});
+
+			function getTooltipPath(path){
+				let currentPath = path;
+				 if (currentPath.indexOf(".do") !== -1) {
+			    	   let indexBeforeDo = currentPath.lastIndexOf(".do");
+			    	    let lastSlashIndex = currentPath.lastIndexOf("/");
+			    	    const lastDashIndex = currentPath.lastIndexOf("-");
+
+			    	    let closestIndex;
+
+			    	   if (lastSlashIndex > -1 && (lastDashIndex === -1 || Math.abs(indexBeforeDo - lastSlashIndex) < Math.abs(indexBeforeDo - lastDashIndex))) {
+			    	       closestIndex = lastSlashIndex;
+			    	   } else if (lastDashIndex > -1) {
+			    	       closestIndex = lastDashIndex;
+			    	   }
+
+			    	 if (closestIndex !== undefined) {
+			    	    currentPath = currentPath.substring(0, closestIndex);
+			    	 }
+			    }
+				 return currentPath
+			}
+			});
+			;
+		</script>
+	
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.9.0/ol.css" />
+<script src="https://cdn.jsdelivr.net/npm/ol@v10.9.0/dist/ol.js"></script>
+<script src="/user-map/skorea-provinces.js"></script>
+<script src="/user-map/skorea-municipalities.js"></script>
+<script src="/user-map/korea-map.js"></script>
+<script src="/user-map/my-map-regions.js"></script>
+<script src="/mariadb/assets/neibis/js/admin-dialect-map.js"></script>
+</head>
+	<body class="layout-type-sub">
+	<input type="hidden" id="_setToken" value=""/>
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+	<!-- login.do 빼고사용 -->
+				<aside id="sidebar">
+					<div class="sidebar-header">
+						<h1 class="sidebar-title">
+							<a href='/mariadb/neibis/index.do'>
+								<img src="/mariadb/assets/neibis/images/logo_dialect.png" alt="지역어 종합 정보" />
+								<span class="logo-text">관리시스템</span>
+							</a>
+
+						</h1>
+						<div class="toolbar">
+							<button type="button" class="btn btn-icon btn-upside-down">
+								<i class="ico ico-bararrowsv-gray-sm"></i>
+								<span class="text">메뉴순서 상하반전</span>
+							</button>
+							<button type="button" class="btn btn-icon btn-collapse">
+								<i class="ico ico-chevrondouble-left-gray-sm"></i>
+								<span class="text">메뉴 <span class="close">접기</span><span class="open">펼치기</span></span>
+							</button>
+						</div>
+					</div>
+
+					<!-- 콘텐츠 영역 -->
+					<div class="sidebar-body">
+						<div class="favorit-area variable-area">
+							<h2 class="favorit-title">
+								<button type="button" class="btn-favorit" title="여닫기">
+									<i class="ico ico-favorit-gray-md"></i>
+									<span class="text">즐겨찾기</span>
+								</button>
+							</h2>
+							<div class="favorit-body">
+								<nav class="favorit-menu">
+
+
+
+									<!-- 데이터 있을 때 -->
+									<div class="title-area">
+										<i class="ico ico-favorit-gray-md"></i>
+										<span class="text">즐겨찾기</span>
+									</div>
+									<ul class="favorit-list">
+
+
+
+										<li id="fvrt5">
+											<a href="/mariadb/neibis/conts/5/list.do ">웹콘텐츠 관리</a>
+										</li>
+
+
+
+
+
+
+
+										<li id="fvrt116">
+											<a href="/mariadb/neibis/bbs/__NEIBIS_MENU_REPLACE__/list.do">용정보원-국문 &gt; 테스트 메뉴 &gt; 테스트 게시판3</a>
+										</li>
+
+
+
+
+
+									</ul>
+									<!-- // 데이터 있을 때 -->
+
+								</nav>
+							</div>
+						</div>
+						<div class="separator separator1"></div>
+						<nav id="gnb-area" class="variable-area">
+							<ul class="gnb-list">
+								<!-- [개발] 활성화 최하위 메뉴의 li class="on" -->
+								<li >
+									<a href="/mariadb/neibis/index.do">
+										<i class="ico ico-dashboard-gray-md"></i>
+										<span class="text">대시보드</span>
+									</a>
+								</li>
+								<li>
+									<a href="#;">
+										<i class="ico ico-operation-gray-md"></i>
+										<span class="text">운영</span>
+									</a>
+									<div class="gnb-container">
+											<ul>
+											<li>
+												<a href="/mariadb/neibis/conts/5/list.do ">웹콘텐츠 관리</a>
+											</li>
+											<li>
+												<a href="/mariadb/neibis/directory/7/directory.do">팝업/배너 관리</a>
+												<ul>
+											<li><a href="/mariadb/neibis/site/12/promtn/list.do">프로모션 영역 관리</a></li>
+											<li><a href="/mariadb/neibis/site/18/layer-popup/list.do">레이어 팝업 관리</a></li>
+											<li><a href="/mariadb/neibis/site/14/popup/list.do">팝업 관리</a></li>
+											<li><a href="/mariadb/neibis/site/13/popzn/list.do">팝업존 관리</a></li>
+											<li><a href="/mariadb/neibis/site/15/bann/list.do">배너 관리</a></li>
+											<li><a href="/mariadb/neibis/site/16/mini-popup/list.do">미니팝업존 관리</a></li>
+											<li><a href="/mariadb/neibis/site/17/mini-bann/list.do">미니배너 관리</a></li>
+											<li><a href="/mariadb/neibis/site/19/fmly/list.do">패밀리 관리</a></li>
+											<li><a href="/mariadb/neibis/site/256/image-maker/list.do">팝업·배너 이미지 제작</a></li>
+												</ul></li>
+											<li>
+												<a href="/mariadb/neibis/directory/8/directory.do">설문조사 관리</a>
+												<ul>
+											<li><a href="/mariadb/neibis/extn/20/srvy-mngr/list.do">설문조사 관리</a></li>
+											<li><a href="/mariadb/neibis/extn/21/srvy-prtc/list.do">설문조사 참여</a></li>
+												</ul></li>
+											<li>
+												<a href="/mariadb/neibis/directory/9/directory.do">조직 관리</a>
+												<ul>
+											<li><a href="/mariadb/neibis/extn/22/ognz-dept/list.do">부서 및 직원업무 설정</a></li>
+											<li><a href="/mariadb/neibis/extn/205/ognz-emp/list.do">직원검색</a></li>
+												</ul></li>
+											<li><a href="/mariadb/neibis/extn/41/plan/list.do">일정관리</a></li>
+											<li><a href="/mariadb/neibis/extn/195/bfhd-info/list.do">사전정보공표</a></li>
+											<li>
+												<a href="/mariadb/neibis/directory/207/directory.do">공공데이터포털API</a>
+												<ul>
+											<li><a href="/mariadb/neibis/extn/204/apis-data/bid-pbanc/list.do">입찰공고</a></li>
+											<li><a href="/mariadb/neibis/extn/212/apis-data/cntrct-info/list.do">계약현황 </a></li>
+												</ul></li>
+											<li>
+												<a href="/mariadb/neibis/conts/257/directory.do">실험실</a>
+												<ul>
+											<li>
+												<a href="/mariadb/neibis/conts/258/directory.do">채용관리</a>
+												<ul>
+											<li><a href="/mariadb/neibis/extn/259/rcrt-pbanc/list.do">채용공고관리</a></li>
+											<li><a href="/mariadb/neibis/extn/260/rcrt-aplct/list.do">지원자관리</a></li>
+											<li><a href="/mariadb/neibis/extn/261/rcrt-qstn/list.do">면접자료관리  </a></li>
+											<li><a href="/mariadb/neibis/extn/262/rcrt-intv-schdl/list.do">면접일정관리</a></li>
+											<li><a href="/mariadb/neibis/extn/263/rcrt-intv/list.do">면접평가관리</a></li>
+										</ul></li></ul></li>
+									</div>
+								</li>
+
+								<li>
+									<a href="#;">
+										<i class="ico ico-monitor-gray-md"></i>
+										<span class="text">시스템</span>
+									</a>
+									<div class="gnb-container">
+										<ul>
+									<li >
+									<a href="#">메뉴관리</a>
+										<ul>
+												<li ><a href="/mariadb/system/menu/mngr-list.do">관리자메뉴</a></li>
+												<li ><a href="/mariadb/system/menu/user-list.do">사용자메뉴</a></li>
+										</ul>
+									</li>
+									<li ><a href="/mariadb/system/sitemst-main/list.do">메인설정</a></li>
+									<li >
+									<a href="#">게시판 관리</a>
+										<ul>
+												<li ><a href="/mariadb/system/bbs-mst/list.do">게시판 설정</a></li>
+												<li ><a href="/mariadb/system/bbs-restore/list.do">게시물 복원 관리</a></li>
+										</ul>
+									</li>
+									<li >
+									<a href="#">코드관리</a>
+										<ul>
+												<li ><a href="/mariadb/system/code/list.do">코드설정</a></li>
+												<li ><a href="/mariadb/system/mltipl/list.do">다중항목코드 설정</a></li>
+										</ul>
+									</li>
+									<li >
+									<a href="#">정보관리</a>
+										<ul>
+												<li ><a href="/mariadb/system/mngr-info/list.do">관리자 등록관리</a></li>
+												<li ><a href="/mariadb/system/mngr-ip/list.do">관리자 아이피관리</a></li>
+												<li ><a href="/mariadb/system/mngr-Stng/list.do">로그인 보안설정</a></li>
+										</ul>
+									</li>
+									<li >
+									<a href="#">권한관리</a>
+										<ul>
+												<li ><a href="/mariadb/system/mngr-menu-authrt/list.do">관리자 메뉴권한</a></li>
+												<li ><a href="/mariadb/system/user-cont-authrt/list.do">사용자 콘텐츠 관리권한</a></li>
+												<li ><a href="/mariadb/system/authrt-group/list.do">권한그룹 관리</a></li>
+												<li ><a href="/mariadb/system/authrt-menu/list.do">(구) 관리자 메뉴권한</a></li>
+												<li ><a href="/mariadb/system/authrt-conts/list.do">(구) 웹콘텐츠 권한</a></li>
+										</ul>
+									</li>
+										</ul>
+									</div>
+								</li>
+
+
+								<li>
+									<a href="#;">
+										<i class="ico ico ico-log-gray-md"></i>
+										<span class="text">로그</span>
+									</a>
+									<div class="gnb-container">
+										<ul>
+									<li ><a href="/mariadb/weblog/mngr-log/list.do">관리자 접속 로그</a></li>
+									<li >
+									<a href="#">메뉴별 로그</a>
+										<ul>
+												<li ><a href="/mariadb/weblog/menu-log/mngr-list.do">관리자 메뉴로그</a></li>
+												<li ><a href="/mariadb/weblog/menu-log/user-list.do">사용자 메뉴로그</a></li>
+										</ul>
+									</li>
+									<li ><a href="/mariadb/weblog/privacy-log/list.do">개인정보 열람이력</a></li>
+									<li ><a href="/mariadb/weblog/bbs-log/list.do">게시물 변경 이력</a></li>
+									<li ><a href="/mariadb/weblog/conts-hstry/list.do">웹콘텐츠 이력</a></li>
+									<li ><a href="/mariadb/weblog/mngr-chg-hstry/list.do">관리자 계정 변경 이력</a></li>
+									<li ><a href="/mariadb/weblog/mngr-menu-hstry/list.do">관리자 메뉴 권한 변경 이력</a></li>
+										</ul>
+									</div>
+								</li>
+
+
+								<li>
+									<a href="#;">
+										<i class="ico ico-chartbar-gray-md"></i>
+										<span class="text">통계</span>
+									</a>
+									<div class="gnb-container">
+										<ul>
+									<li ><a href="/mariadb/stats/mngr/login-list.do">관리자 접속자 통계</a></li>
+									<li ><a href="/mariadb/stats/user/cnt-list.do">사용자 방문자 통계</a></li>
+									<li ><a href="/mariadb/stats/menu/list.do">사용자 메뉴별 통계</a></li>
+									<li ><a href="/mariadb/stats/dgstfn/list.do">만족도 통계</a></li>
+									<li ><a href="/mariadb/stats/bbs/inq-list.do">게시판 통계</a></li>
+									<li ><a href="/mariadb/stats/conts/list.do">웹콘텐츠 통계</a></li>
+									<li ><a href="/mariadb/stats/bbs-downnl/list.do">게시물 다운로드 통계</a></li>
+										</ul>
+									</div>
+								</li>
+
+
+								<li >
+									<a href="/mariadb/stats/rptp/stats-view.do">
+										<i class="ico ico-report-gray-md"></i>
+										<span class="text">방문자 통계 요약 보고서</span>
+									</a>
+								</li>
+
+							</ul>
+						</nav>
+						<div class="separator separator2"></div>
+						<div class="site-manage-area variable-area">
+							<h2 class="site-manage-title">
+								<button type="button" class="btn-site-manage">
+									<i class="ico ico-earth-md"></i>
+									<span>사이트 관리</span>
+								</button>
+							</h2>
+							<div class="site-manage-body">
+								<div class="title-area">
+									<i class="ico ico-earth-md"></i>
+									<span>사이트 관리</span>
+								</div>
+								<form action="#;" class="site-search">
+									<fieldset>
+										<legend class="sr-only">사이트 검색</legend>
+										<input
+											type="text" name="siteSearchKeyword" id="siteSearchKeyword"
+											class="form-control"
+											placeholder="사이트를 검색해 주세요"
+											title="사이트를 검색해 주세요"
+										/>
+										<button type="button" class="btn-search" id="siteSearchBtn">
+											<i class="ico ico-search-gray-sm"></i><span class="sr-only">검색</span>
+										</button>
+									</fieldset>
+								</form>
+								<nav class="site-menu">
+									<ul class="site-list">
+										<li data-level="1" class="on">
+													<a href="javascript:void(0)">지역어 종합 정보</a>
+										<ul style="display:block;">
+										<li data-level="2" >
+													<a href="javascript:void(0)">조사자료</a>
+										<ul style="display:none;">
+										<li data-level="3">
+													<a href="/mariadb/neibis/survey/vocab.do" >어휘조사자료</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/survey/oral.do" >구술발화조사자료</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/survey/variant.do" >지역별 이형태 관리</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/survey/search-std-vocab.do" >검색 표준어 어휘 관리</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/survey/search-topic.do" >검색 주제 분류 관리</a>
+										</li>
+										</ul></li>
+										<li data-level="2" class="on">
+													<a href="javascript:void(0)">지역어 지도</a>
+										<ul style="display:block;">
+										<li data-level="3" class="on">
+													<a href="/mariadb/neibis/map/dialect.do" >지역어 지도</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/map/weather.do" >지역어 기상도</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/map/symbol.do" >상징 부호 관리</a>
+										</li>
+										</ul></li>
+										<li data-level="2" >
+													<a href="javascript:void(0)">알림마당</a>
+										<ul style="display:none;">
+										<li data-level="3">
+													<a href="/mariadb/neibis/bbs/246/list.do" >공지사항</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/bbs/251/list.do" >도움말(FAQ)</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/bbs/254/list.do" >의견제시</a>
+										</li>
+										</ul></li>
+										<li data-level="2" >
+													<a href="javascript:void(0)">지역어 자료관</a>
+										<ul style="display:none;">
+										<li data-level="3">
+													<a href="/mariadb/neibis/archive/literature.do" >문학 속 지역어</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/archive/region-photo.do" >사진으로 보는 생활어</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/archive/data-room.do" >자료실</a>
+										</li>
+										</ul></li>
+																				<li data-level="2" >
+													<a href="javascript:void(0)">Open API관리</a>
+										<ul style="display:none;">
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/api.do" >Open API사용현황</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI.do" >호출 단어 순위</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI2.do" >호출 URL 순위</a>
+										</li>
+									</ul></li></ul></li>
+								
+										<li data-level="1" >
+													<a href="javascript:void(0)">기타 관리</a>
+										<ul style="display:none;">
+										<li data-level="2" >
+													<a href="/mariadb/neibis/system/user.do" >사용자 계정관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/source.do" >제보자 관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/surveyList.do" >설문조사 관리</a>
+										</li>
+									</ul></li>
+								</nav>
+							</div>
+						</div>
+					</div>
+
+					<div class="user-info-area">
+						<div class="info">
+							<span class="profile">
+								<button type="button" class="profile-thumb">
+									<img src="/mariadb/assets/neibis/images/img-profile-gold-blue-md@2x.png" alt="프로필 이미지" />
+								</button>
+
+								<strong class="text-normal">시스템관리자</strong>
+							</span>
+							<span class="time-info">
+								<dl class="time">
+									<dt class="time-title"><i class="ico ico-clock-gray-sm"></i><span class="sr-only">남은시간</span></dt>
+									<dd class="login-time">60:00</dd>
+								</dl>
+								<a href="#;" class="btn-ellipsis">
+									<i class="ico ico-ellipsis-gray-md"></i><span class="sr-only">더보기</span>
+								</a>
+							</span>
+						</div>
+						<div class="info-detail">
+							<div class="user-profile">
+								<span class="info-top">
+									<strong class="name">홍길동</strong>
+									<span class="rating"><i class="ico ico-system-gold-md"></i>시스템관리자</span>
+								</span>
+								<span class="info-bottom time">
+									<dl class="time-item">
+										<dt class="time-title"><i class="ico ico-calendar-lightgray-sm"></i>마지막 접속시간</dt>
+										<dd>2026-07-23 15:51</dd>
+									</dl>
+									<dl class="time-item">
+										<dt class="time-title"><i class="ico ico-clock-gray-sm"></i>남은 시간</dt>
+										<dd class="login-time">60:00</dd>
+									</dl>
+								</span>
+							</div>
+
+							<div class="btn-group">
+								<a href="#layer-admin-info-revise" id="extend-button" class="btn btn-sm"><i class="ico ico-plus-gray-md"></i>접속시간 연장하기</button>
+								<a href="#layer-adinfo-revise" data-modal="open" class="btn btn-sm" onclick="mngrCmmnFormReset();"
+									><i class="ico ico-edit-gray-md"></i>정보수정</a
+								>
+								<a href='/mariadb/neibis/logout.do' class="btn btn-sm"><i class="ico ico-logout-gray-md"></i>로그아웃</a>
+							</div>
+						</div>
+					</div>
+					<button type="button" class="btn btn-allmenu-close">
+						<i class="ico ico-allmenu-close"></i>
+						<span class="sr-only">메뉴 닫기</span>
+					</button>
+				</aside>
+
+				<article id="content">
+					<div class="content-header">
+						<a href="#;" class="btn-tile btn-back list-button" onclick="history.back(); return false;">
+							<i class="ico ico-back"></i>
+							<span class="sr-only">뒤로가기</span>
+						</a>
+						<div class="tile">
+							<div class="location">
+								<button type="button" class="btn btn-icon btn-copy">
+									<i class="ico ico-copy-gray-sm"></i>
+									<span class="sr-only">복사</span>
+								</button>
+								<ol class="breadcrumb-list">
+<li>사이트별 운영관리</li>
+<li>지역어 종합 정보</li>
+<li>지역어 지도</li>
+<li>지역어 지도</li>
+<li>등록</li>
+</ol>
+							</div>
+							<div class="content-title">
+								<div class="tooltip" id="tooltip_area"><p id="tooltip_p"></p><div class='btn-group' id="tooltip_btn"></div></div>
+								<h2 class="title">지역어 지도 표제어 등록</h2>
+								<button type="button" id="favorit-add-button" class="btn-favorit">
+									<i class="ico ico-favorit"></i>
+									<span class="sr-only">즐겨찾기</span>
+								</button>
+							</div>
+						</div>
+						<a href="#;" class="btn-tile btn-allmenu-open">
+							<i class="ico ico-allmenu"></i>
+							<span class="sr-only">메뉴</span>
+						</a>
+					</div>
+					<div class="content-body">
+
+<!-- 본문 영역 -->
+
+<style>
+.map-edit-tabs .tab-list.type2 { display:flex; gap:0; border-bottom:1px solid #e5e7eb; margin:0 0 16px; padding:0; list-style:none; }
+.map-edit-tabs .tab-list.type2 > li { margin:0; }
+.map-edit-tabs .tab-list.type2 > li > a {
+  display:block; padding:12px 20px; font-size:14px; font-weight:600; color:#6b7280;
+  border-bottom:3px solid transparent; text-decoration:none;
+}
+.map-edit-tabs .tab-list.type2 > li.on > a { color:#2563eb; border-bottom-color:#2563eb; font-weight:800; }
+.map-tab-panel { display:none; }
+.map-tab-panel.is-open { display:block; }
+.df-group { border:1px solid #e5e7eb; border-radius:10px; margin-bottom:12px; overflow:hidden; background:#fff; }
+.df-group__head { display:flex; align-items:center; gap:8px; padding:10px 12px; background:#f8fafc; border-bottom:1px solid #eef2f7; }
+.df-group__label { font-size:13px; font-weight:800; color:#0f172a; }
+.df-group__count { font-size:11px; font-weight:700; color:#64748b; background:#eef2f7; border-radius:999px; padding:1px 8px; }
+.df-card { display:flex; align-items:center; gap:10px; padding:10px 12px; border-top:1px solid #f1f5f9; }
+.df-card:first-child { border-top:0; }
+.df-card__word { flex:1; min-width:0; font-size:14px; font-weight:700; color:#0f172a; }
+.df-card__meta { font-size:12px; color:#64748b; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.df-card__face { width:14px; height:14px; border-radius:3px; box-shadow:inset 0 0 0 1px rgba(15,23,42,.18); display:inline-block; }
+.df-chip { display:inline-flex; background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; border-radius:999px; padding:2px 8px; font-size:11px; font-weight:700; margin:2px; }
+.df-empty { text-align:center; padding:28px; color:#94a3b8; border:1px dashed #e2e8f0; border-radius:12px; background:#f8fafc; }
+.rv-group { border:1px solid #e5e7eb; border-radius:10px; margin-bottom:12px; overflow:hidden; }
+.rv-group__head { padding:10px 12px; background:#f8fafc; border-bottom:1px solid #eef2f7; font-weight:800; font-size:13px; display:flex; gap:8px; align-items:center; }
+.rv-card { padding:8px 12px; border-top:1px solid #f1f5f9; font-size:13px; display:flex; gap:10px; align-items:center; }
+.rv-card:first-of-type { border-top:0; }
+</style>
+
+
+<div class="map-edit-tabs">
+<ul class="tab-list type2" role="tablist">
+<li class="on" data-tab="1"><a href="#;" role="tab"><span>1. 표제어</span></a></li>
+<li data-tab="2"><a href="#;" role="tab"><span>2. 어휘 · 설정</span></a></li>
+<li data-tab="3"><a href="#;" role="tab"><span>3. 지도 확인</span></a></li>
+</ul>
+</div>
+
+<!-- ===== 탭1 표제어 ===== -->
+<div class="map-tab-panel is-open" id="tab-panel-1" data-tab="1">
+<form id="form-headword" class="form-edit" onsubmit="return false;">
+<input type="hidden" id="mode" name="mode" value="C" />
+<input type="hidden" id="headwordId" name="headwordId" value="" />
+<input type="hidden" id="headwordNo" name="headwordNo" value="" />
+
+<div class="card">
+<div class="list-control" style="margin-bottom:12px">
+<div class="left"><p class="total" id="metaLine" style="margin:0">—</p></div>
+<div class="right">
+<a href="dialect.do" class="btn btn-sm btn-outline-gray"><i class="ico ico-list-darkgray-md"></i><span>목록</span></a>
+<button type="button" class="btn btn-sm btn-primary" id="btn-save"><i class="ico ico-save-white-md"></i><span>저장</span></button>
+</div>
+</div>
+<div class="table table-row"><div class="table-inner">
+<table>
+<caption class="sr-only">표제어 등록</caption>
+<colgroup><col style="width:160px" /><col /></colgroup>
+<tbody>
+<tr>
+<th scope="row"><label for="headword">표제어<i class="req">필수입력</i></label></th>
+<td>
+<input type="text" id="headword" class="form-control" style="max-width:560px;width:100%" maxlength="125" placeholder="표제어를 입력하세요." autocomplete="off" />
+<p class="text-guide mt-1" style="margin:4px 0 0;font-size:12px;color:#6b7280;">포커스를 벗어나면 동일 표제어의 품사·의미를 조회해 채웁니다.</p>
+</td>
+</tr>
+<tr>
+<th scope="row"><label for="wordClass">품사<i class="req">필수입력</i></label></th>
+<td>
+<select id="wordClass" class="form-control" style="max-width:320px">
+<option value="">품사를 선택하세요</option>
+<option value="명사">명사</option>
+<option value="대명사">대명사</option>
+<option value="수사">수사</option>
+<option value="조사">조사</option>
+<option value="동사">동사</option>
+<option value="형용사">형용사</option>
+<option value="관형사">관형사</option>
+<option value="부사">부사</option>
+<option value="감탄사">감탄사</option>
+<option value="구">구</option>
+</select>
+</td>
+</tr>
+<tr>
+<th scope="row"><label for="meaning">의미<i class="req">필수입력</i></label></th>
+<td><textarea id="meaning" class="form-control" rows="4" style="max-width:720px;width:100%" placeholder="의미를 입력하세요."></textarea></td>
+</tr>
+<tr>
+<th scope="row"><label for="commentary">해설<i class="req">필수입력</i></label></th>
+<td><textarea id="commentary" class="form-control" rows="4" style="max-width:720px;width:100%" placeholder="해설을 입력하세요."></textarea></td>
+</tr>
+<tr>
+<th scope="row"><label for="appro">서비스 신청</label></th>
+<td>
+<select id="appro" class="form-control" style="max-width:200px">
+<option value="N">N (미신청)</option>
+<option value="Y">Y (신청)</option>
+</select>
+</td>
+</tr>
+<tr>
+<th scope="row"><label for="useYn">서비스 상태</label></th>
+<td>
+<select id="useYn" class="form-control" style="max-width:200px">
+<option value="N">N (미반영)</option>
+<option value="Y">Y (반영)</option>
+</select>
+</td>
+</tr>
+</tbody>
+</table>
+</div></div>
+</div>
+<div class="btn-group-between">
+<div class="left"><a href="dialect.do" class="btn btn-lg btn-outline-gray"><i class="ico ico-list-darkgray-md"></i><span>목록보기</span></a></div>
+<div class="right">
+<button type="button" class="btn btn-lg btn-outline-gray" id="btn-go-tab2">다음: 어휘 · 설정</button>
+<button type="button" class="btn btn-lg btn-primary" id="btn-save-bottom"><i class="ico ico-save-white-md"></i><span>저장</span></button>
+</div>
+</div>
+</form>
+</div>
+
+<!-- ===== 탭2 어휘·설정 ===== -->
+<div class="map-tab-panel" id="tab-panel-2" data-tab="2">
+<div class="card">
+<div class="list-control" style="margin-bottom:12px">
+<div class="left">
+<p class="total" style="margin:0">어휘 · 설정 · 표제어번호 <strong id="df-hn-label">-</strong>
+ · 지역어 <strong class="text-primary" id="df-total">0</strong>건</p>
+</div>
+<div class="right">
+<button type="button" class="btn btn-sm btn-outline-gray" onclick="loadDialects()"><i class="ico ico-undo-darkgray-md"></i><span>새로고침</span></button>
+</div>
+</div>
+
+<div class="table table-form-basic" style="margin-bottom:16px">
+<div class="table-inner">
+<table>
+<caption class="sr-only">지역어 추가</caption>
+<tbody>
+<tr>
+<th scope="row" style="width:140px"><label for="df-word">지역어 추가<i class="req">필수입력</i></label></th>
+<td>
+<input type="text" id="df-word" class="form-control" style="max-width:280px" maxlength="50" placeholder="예: 가새" autocomplete="off" />
+</td>
+<th scope="row" style="width:120px"><label for="df-group">그룹</label></th>
+<td>
+<select id="df-group" class="form-control" style="max-width:160px" title="그룹">
+<option value="1">1그룹</option>
+<option value="2">2그룹</option>
+<option value="3">3그룹</option>
+<option value="4">4그룹</option>
+<option value="5">5그룹</option>
+<option value="6">6그룹</option>
+<option value="7">7그룹</option>
+<option value="8">8그룹</option>
+<option value="9">9그룹</option>
+<option value="10">10그룹</option>
+</select>
+</td>
+</tr>
+<tr>
+<th scope="row"><label for="df-symbol">상징부호 ID</label></th>
+<td>
+<input type="text" id="df-symbol" class="form-control" style="max-width:160px" placeholder="예: 1" />
+</td>
+<th scope="row"><label for="df-face">면색(RGB)</label></th>
+<td>
+<input type="text" id="df-face" class="form-control" style="max-width:220px" placeholder="예: 255, 0, 0 또는 #ff0000" />
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="btn-group-center" style="margin-bottom:16px">
+<button type="button" class="btn btn-md btn-primary" id="btn-df-add"><i class="ico ico-plus-white-md"></i><span>지역어 추가</span></button>
+<button type="button" class="btn btn-md btn-outline-gray" onclick="stubExcelDf('엑셀 추가')"><i class="ico ico-fileexcel-white-md"></i><span>엑셀 추가</span></button>
+<button type="button" class="btn btn-md btn-outline-gray" onclick="stubExcelDf('양식 다운')"><span>양식</span></button>
+<button type="button" class="btn btn-md" style="background:#217346;border-color:#217346;color:#fff" onclick="stubExcelDf('설정 내려받기')"><i class="ico ico-fileexcel-white-md"></i><span>설정 내려받기</span></button>
+</div>
+
+<div id="df-list" class="df-list">
+<div class="df-empty">표제어를 먼저 저장한 뒤 지역어를 추가하세요.</div>
+</div>
+</div>
+
+<div class="btn-group-between">
+<div class="left">
+<button type="button" class="btn btn-lg btn-outline-gray" data-go-tab="1">이전: 표제어</button>
+</div>
+<div class="right">
+<button type="button" class="btn btn-lg btn-primary" data-go-tab="3">다음: 지도 확인</button>
+</div>
+</div>
+</div>
+
+<!-- ===== 탭3 지도 확인 ===== -->
+<div class="map-tab-panel" id="tab-panel-3" data-tab="3">
+<div class="card">
+<div class="adm-map-tools">
+<strong style="margin-right:auto">3. 지도 확인 · 미리보기</strong>
+<span id="adm-map-meta" style="font-size:12px;color:#64748b">—</span>
+<label class="check-item" style="margin:0"><input type="checkbox" id="adm-hide-area" /><span class="label">면색 숨김</span></label>
+<label class="check-item" style="margin:0"><input type="checkbox" id="adm-hide-symbol" /><span class="label">부호 숨김</span></label>
+<button type="button" class="btn btn-sm btn-outline-gray" id="btn-map-refresh">지도 새로고침</button>
+</div>
+<div id="adm-paint-bar" hidden>
+<span id="adm-paint-label">칠하기 모드</span>
+<button type="button" class="btn btn-xs btn-outline-gray" id="btn-paint-stop">칠하기 종료</button>
+</div>
+<div class="adm-map-layout">
+<div>
+<p class="text-guide" style="margin:0 0 10px;font-size:12px;color:#64748b">그룹별 지역어 목록. 탭2에서 지역어 <b>설정</b> 후 지도에 반영됩니다. 칠하기는 탭2에서 「지도에 칠하기」를 누르세요.</p>
+<div id="review-list"></div>
+</div>
+<div>
+<div id="adm-map-wrap"><div id="adm-map"></div></div>
+</div>
+</div>
+</div>
+<div class="btn-group-between">
+<div class="left">
+<button type="button" class="btn btn-lg btn-outline-gray" data-go-tab="2">이전: 어휘 · 설정</button>
+<a href="dialect.do" class="btn btn-lg btn-outline-gray"><i class="ico ico-list-darkgray-md"></i><span>목록보기</span></a>
+</div>
+<div class="right">
+<button type="button" class="btn btn-lg btn-primary" onclick="finishEdit()"><i class="ico ico-save-white-md"></i><span>완료</span></button>
+</div>
+</div>
+</div>
+
+<!-- 지역어 상세 수정 모달 (간단) -->
+<div class="modal-popup modal-md hide" id="layer-df-edit">
+<div class="dimed" data-modal="close"></div>
+<div class="popup-inner">
+<div class="popup-header"><h2 class="popup-title">지역어 상세 설정</h2>
+<button type="button" class="btn-close" data-modal="close"><span class="sr-only">닫기</span></button>
+</div>
+<div class="popup-body">
+<input type="hidden" id="ed-hdId" value="" />
+<div class="table table-form-basic"><div class="table-inner"><table>
+<tbody>
+<tr><th scope="row"><label for="ed-word">지역어</label></th>
+<td><input type="text" id="ed-word" class="form-control" /></td></tr>
+<tr><th scope="row"><label for="ed-group">그룹</label></th>
+<td><input type="text" id="ed-group" class="form-control" style="max-width:120px" placeholder="1" /></td></tr>
+<tr><th scope="row"><label for="ed-seq">순서</label></th>
+<td><input type="text" id="ed-seq" class="form-control" style="max-width:120px" placeholder="1" /></td></tr>
+<tr><th scope="row"><label for="ed-symbol">상징부호 ID</label></th>
+<td><input type="text" id="ed-symbol" class="form-control" style="max-width:160px" /></td></tr>
+<tr><th scope="row"><label for="ed-face">면색</label></th>
+<td><input type="text" id="ed-face" class="form-control" placeholder="R, G, B 또는 #hex" /></td></tr>
+<tr><th scope="row"><label for="ed-region">지역 추가</label></th>
+<td>
+<div class="input-group" style="display:flex;gap:8px;align-items:center">
+<input type="text" id="ed-region" class="form-control" placeholder="예: 제주특별자치도 제주시" />
+<button type="button" class="btn btn-sm btn-primary" id="btn-ed-region-add">추가</button>
+</div>
+<div id="ed-region-list" style="margin-top:8px"></div>
+</td></tr>
+</tbody>
+</table></div></div>
+</div>
+<div class="popup-footer">
+<div class="btn-group-center">
+<button type="button" class="btn btn-lg btn-outline-gray" data-modal="close">취소</button>
+<button type="button" class="btn btn-lg btn-primary" id="btn-ed-save">저장</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- // 본문 영역 -->
+<script>
+var PAGE_MODE = 'C';
+var dialectCache = [];
+var editingRegions = [];
+
+function escHtml(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function getHeadwordNo(){ return ($('#headwordNo').val()||'').trim(); }
+
+function faceCss(fc){
+  if(!fc) return '';
+  var s = String(fc).trim();
+  if(s.charAt(0)==='#') return s;
+  if(/^\d/.test(s)) return 'rgb(' + s + ')';
+  return s;
+}
+
+function goTab(tab){
+  tab = String(tab);
+  if((tab==='2' || tab==='3') && !getHeadwordNo()){
+    if(window.Message){ Message.alert({icon:'warning', message:'표제어를 먼저 저장한 뒤 2·3단계로 이동해 주세요.'}); }
+    else alert('표제어를 먼저 저장하세요.');
+    return;
+  }
+  $('.map-edit-tabs .tab-list > li').removeClass('on');
+  $('.map-edit-tabs .tab-list > li[data-tab="'+tab+'"]').addClass('on');
+  $('.map-tab-panel').removeClass('is-open');
+  $('.map-tab-panel[data-tab="'+tab+'"]').addClass('is-open');
+  if(tab==='2' || tab==='3') loadDialects();
+  if(tab==='3' && window.AdminDialectMap){ setTimeout(function(){ AdminDialectMap.ensureMap(); AdminDialectMap.setDialects(dialectCache); }, 30); }
+}
+
+function headwordSearchFill(){
+  var hw = ($('#headword').val()||'').trim();
+  if(!hw) return;
+  $.ajax({ url:'/mariadb/neibis-api/headword/search', data:{headword:hw}, dataType:'json' })
+  .done(function(res){
+    if(!res||!res.ok||!res.list||!res.list.length) return;
+    var row = res.list[0];
+    if(row.wordClass && !$('#wordClass').val()) $('#wordClass').val(row.wordClass);
+    if(row.meaning && !($('#meaning').val()||'').trim()) $('#meaning').val(row.meaning);
+  });
+}
+
+function validateForm(){
+  if(!($('#headword').val()||'').trim()){ alertMsg('표제어를 입력하세요.'); $('#headword').focus(); return false; }
+  if(!($('#wordClass').val()||'').trim()){ alertMsg('품사를 선택하세요.'); return false; }
+  if(!($('#meaning').val()||'').trim()){ alertMsg('의미를 입력하세요.'); return false; }
+  if(!($('#commentary').val()||'').trim()){ alertMsg('해설을 입력하세요.'); return false; }
+  if($('#useYn').val()==='Y') $('#appro').val('N');
+  if($('#appro').val()==='Y') $('#useYn').val('N');
+  return true;
+}
+function alertMsg(msg, icon){
+  if(window.Message) Message.alert({icon: icon||'warning', message: msg});
+  else alert(msg);
+}
+
+function saveHeadword(opts){
+  opts = opts || {};
+  if(!validateForm()) return;
+  var payload = {
+    mode: $('#mode').val() || PAGE_MODE,
+    headwordId: $('#headwordId').val()||'',
+    headwordNo: $('#headwordNo').val()||'',
+    headword: ($('#headword').val()||'').trim(),
+    wordClass: $('#wordClass').val()||'',
+    meaning: ($('#meaning').val()||'').trim(),
+    commentary: ($('#commentary').val()||'').trim(),
+    useYn: $('#useYn').val()||'N',
+    appro: $('#appro').val()||'N'
+  };
+  var doSave = function(){
+    $.ajax({
+      url:'/mariadb/neibis-api/headword/save', method:'POST',
+      contentType:'application/json; charset=utf-8',
+      data: JSON.stringify(payload), dataType:'json'
+    }).done(function(res){
+      if(!res||!res.ok){ alertMsg((res&&res.message)||'저장 실패'); return; }
+      if(res.headwordNo){
+        $('#headwordNo').val(res.headwordNo);
+        $('#mode').val('M');
+        PAGE_MODE = 'M';
+        $('#df-hn-label').text(res.headwordNo);
+      }
+      var after = function(){
+        if(opts.goTab2){
+          // 등록 직후 수정 URL로 정규화
+          if(res.mode==='C' && res.headwordNo){
+            location.href = 'dialect-updt.do?headwordNo=' + encodeURIComponent(res.headwordNo) + '&tab=2';
+            return;
+          }
+          goTab(2);
+          return;
+        }
+        if(res.mode==='C' && res.headwordNo){
+          location.href = 'dialect-updt.do?headwordNo=' + encodeURIComponent(res.headwordNo);
+        } else if(opts.stay){
+          // stay
+        } else {
+          // stay on page for continued edit
+          $('#metaLine').text('저장 완료 · 표제어번호 ' + ($('#headwordNo').val()||'-'));
+        }
+      };
+      if(window.Message) Message.alert({icon:'info', message: res.message||'저장되었습니다.'}, after);
+      else { alert(res.message||'저장됨'); after(); }
+    }).fail(function(){ alertMsg('저장 API 호출 실패', 'error'); });
+  };
+  if(opts.skipConfirm) doSave();
+  else if(window.Message) Message.confirm({icon:'warning', title:'저장하시겠어요?', message:'표제어 정보를 저장합니다.'}, doSave);
+  else if(confirm('저장하시겠어요?')) doSave();
+}
+
+function loadDialects(){
+  var hn = getHeadwordNo();
+  $('#df-hn-label').text(hn || '-');
+  if(!hn){
+    $('#df-list').html('<div class="df-empty">표제어를 먼저 저장한 뒤 지역어를 추가하세요.</div>');
+    $('#review-list').html('<div class="df-empty">표제어 저장 후 확인할 수 있습니다.</div>');
+    $('#df-total').text('0');
+    return;
+  }
+  $('#df-list').html('<div class="df-empty">불러오는 중…</div>');
+  $.ajax({
+    url:'/mariadb/neibis-api/dialect/list',
+    data:{ headwordNo: hn, full: 1 },
+    dataType:'json'
+  }).done(function(res){
+    if(!res||!res.ok){
+      $('#df-list').html('<div class="df-empty" style="color:#b91c1c">' + escHtml((res&&res.message)||'목록 실패') + '</div>');
+      return;
+    }
+    dialectCache = res.list || [];
+    $('#df-total').text(String(dialectCache.length));
+    renderDialectList(dialectCache);
+    renderReview(dialectCache);
+    if (window.AdminDialectMap) {
+      AdminDialectMap.setDialects(dialectCache);
+      if ($('.map-tab-panel[data-tab="3"]').hasClass('is-open')) AdminDialectMap.ensureMap();
+    }
+  }).fail(function(){
+    $('#df-list').html('<div class="df-empty" style="color:#b91c1c">지역어 API 호출 실패</div>');
+  });
+}
+
+function renderDialectList(list){
+  var $wrap = $('#df-list').empty();
+  if(!list.length){
+    $wrap.html('<div class="df-empty">등록된 지역어가 없습니다. 위에서 추가하세요.</div>');
+    return;
+  }
+  var groups = {};
+  var order = [];
+  list.forEach(function(d){
+    var g = (d.mutationGroup==null || d.mutationGroup==='') ? '_none' : String(d.mutationGroup);
+    if(!groups[g]){ groups[g]=[]; order.push(g); }
+    groups[g].push(d);
+  });
+  order.sort(function(a,b){
+    if(a==='_none') return 1; if(b==='_none') return -1;
+    return (parseInt(a,10)||0) - (parseInt(b,10)||0);
+  });
+  order.forEach(function(g){
+    var items = groups[g];
+    var label = g==='_none' ? '미지정 그룹' : (g + '그룹');
+    var $g = $('<div class="df-group"></div>');
+    $g.append('<div class="df-group__head"><span class="df-group__label">'+escHtml(label)+'</span><span class="df-group__count">'+items.length+'</span></div>');
+    items.forEach(function(d){
+      var face = faceCss(d.faceColor);
+      var faceHtml = face ? '<span class="df-card__face" style="background:'+face+'"></span>' : '<span style="color:#94a3b8;font-size:11px">면색 미설정</span>';
+      var sym = d.mapSymbolId ? ('부호 '+escHtml(d.mapSymbolId)) : '부호 미설정';
+      var reg = (d.regionCount||0) + '개 지역';
+      var chips = '';
+      (d.regions||[]).forEach(function(r){
+        if(r.regionNm) chips += '<span class="df-chip">'+escHtml(r.regionNm)+'</span>';
+      });
+      if((d.regionCount||0) > (d.regions||[]).length) chips += '<span class="df-chip">+더보기</span>';
+      var $c = $('<div class="df-card"></div>');
+      $c.append('<div class="df-card__word">'+escHtml(d.word||'-')+'</div>');
+      $c.append('<div class="df-card__meta">'+faceHtml+'<span>'+sym+'</span><span>'+reg+'</span></div>');
+      if(chips) $c.append('<div style="flex-basis:100%">'+chips+'</div>');
+      var $acts = $('<div class="btn-group-inline" style="margin-left:auto;flex-shrink:0"></div>');
+      $acts.append($('<button type="button" class="btn btn-xs btn-outline-gray">설정</button>').on('click', function(){ openDialectEdit(d); }));
+      $acts.append($('<button type="button" class="btn btn-xs btn-primary">지도에 칠하기</button>').on('click', function(){ startPaint(d); }));
+      $acts.append($('<button type="button" class="btn btn-xs btn-gray btn-delete">삭제</button>').on('click', function(){ deleteDialect(d.hdId); }));
+      $c.append($acts);
+      $g.append($c);
+    });
+    $wrap.append($g);
+  });
+}
+
+function renderReview(list){
+  var $wrap = $('#review-list').empty();
+  if(!list.length){
+    $wrap.html('<div class="df-empty">설정된 지역어가 없습니다. 2. 어휘·설정에서 추가하세요.</div>');
+    return;
+  }
+  var groups = {};
+  var order = [];
+  list.forEach(function(d){
+    var g = (d.mutationGroup==null || d.mutationGroup==='') ? '_none' : String(d.mutationGroup);
+    if(!groups[g]){ groups[g]=[]; order.push(g); }
+    groups[g].push(d);
+  });
+  order.sort(function(a,b){
+    if(a==='_none') return 1; if(b==='_none') return -1;
+    return (parseInt(a,10)||0) - (parseInt(b,10)||0);
+  });
+  order.forEach(function(g){
+    var items = groups[g];
+    var label = g==='_none' ? '미지정 그룹' : (g + '그룹');
+    var face = '';
+    for(var i=0;i<items.length;i++){ if(items[i].faceColor){ face=faceCss(items[i].faceColor); break; } }
+    var sw = face ? '<span class="df-card__face" style="background:'+face+'"></span>' : '';
+    var $g = $('<div class="rv-group"></div>');
+    $g.append('<div class="rv-group__head">'+sw+'<span>'+escHtml(label)+'</span><span class="df-group__count" style="margin-left:auto">'+items.length+'</span></div>');
+    items.forEach(function(d, idx){
+      $g.append('<div class="rv-card"><span style="color:#94a3b8;font-weight:800;min-width:20px">'+(idx+1)+'</span><span style="flex:1;font-weight:700">'+escHtml(d.word)+'</span><span style="color:#64748b;font-size:12px">'+(d.regionCount||0)+'지역</span></div>');
+    });
+    $wrap.append($g);
+  });
+}
+
+function addDialect(){
+  var hn = getHeadwordNo();
+  if(!hn){ alertMsg('표제어를 먼저 저장하세요.'); return; }
+  var word = ($('#df-word').val()||'').trim();
+  if(!word){ alertMsg('지역어를 입력하세요.'); $('#df-word').focus(); return; }
+  var payload = {
+    mode:'C',
+    headwordNo: hn,
+    word: word,
+    mutationGroup: $('#df-group').val()||'1',
+    mapSymbolId: ($('#df-symbol').val()||'').trim(),
+    faceColor: ($('#df-face').val()||'').trim()
+  };
+  $.ajax({
+    url:'/mariadb/neibis-api/dialect/save', method:'POST',
+    contentType:'application/json; charset=utf-8',
+    data: JSON.stringify(payload), dataType:'json'
+  }).done(function(res){
+    if(!res||!res.ok){ alertMsg((res&&res.message)||'추가 실패'); return; }
+    $('#df-word').val('');
+    loadDialects();
+  }).fail(function(){ alertMsg('지역어 추가 API 실패','error'); });
+}
+
+function deleteDialect(hdId){
+  var run = function(){
+    $.ajax({
+      url:'/mariadb/neibis-api/dialect/save', method:'POST',
+      contentType:'application/json; charset=utf-8',
+      data: JSON.stringify({ mode:'D', hdId: hdId }), dataType:'json'
+    }).done(function(res){
+      if(!res||!res.ok){ alertMsg((res&&res.message)||'삭제 실패'); return; }
+      loadDialects();
+    }).fail(function(){ alertMsg('삭제 API 실패','error'); });
+  };
+  if(window.Message) Message.confirm({icon:'warning', message:'이 지역어와 연결된 지역 정보도 함께 삭제됩니다. 계속할까요?'}, run);
+  else if(confirm('삭제할까요?')) run();
+}
+
+function openDialectEdit(d){
+  $('#ed-hdId').val(d.hdId);
+  $('#ed-word').val(d.word||'');
+  $('#ed-group').val(d.mutationGroup||'');
+  $('#ed-seq').val(d.mutationSeq||'');
+  $('#ed-symbol').val(d.mapSymbolId||'');
+  $('#ed-face').val(d.faceColor||'');
+  editingRegions = (d.regions||[]).slice();
+  // load full regions? use what's on card; refresh via list is partial
+  renderEditRegions();
+  // show modal
+  var $m = $('#layer-df-edit');
+  $m.removeClass('hide').addClass('show');
+  $('body').addClass('modal-open');
+}
+
+function closeDialectEdit(){
+  $('#layer-df-edit').removeClass('show').addClass('hide');
+  $('body').removeClass('modal-open');
+}
+
+function renderEditRegions(){
+  var $w = $('#ed-region-list').empty();
+  if(!editingRegions.length){ $w.html('<span style="color:#94a3b8;font-size:12px">등록된 지역 미리보기(최대 8개) — 전체 추가는 아래에서</span>'); return; }
+  editingRegions.forEach(function(r){
+    $w.append('<span class="df-chip">'+escHtml(r.regionNm||r.regionId||'')+'</span>');
+  });
+}
+
+function saveDialectEdit(){
+  var hdId = $('#ed-hdId').val();
+  var payload = {
+    mode:'M',
+    hdId: hdId,
+    headwordNo: getHeadwordNo(),
+    word: ($('#ed-word').val()||'').trim(),
+    mutationGroup: ($('#ed-group').val()||'').trim(),
+    mutationSeq: ($('#ed-seq').val()||'').trim(),
+    mapSymbolId: ($('#ed-symbol').val()||'').trim(),
+    faceColor: ($('#ed-face').val()||'').trim()
+  };
+  if(!payload.word){ alertMsg('지역어를 입력하세요.'); return; }
+  $.ajax({
+    url:'/mariadb/neibis-api/dialect/save', method:'POST',
+    contentType:'application/json; charset=utf-8',
+    data: JSON.stringify(payload), dataType:'json'
+  }).done(function(res){
+    if(!res||!res.ok){ alertMsg((res&&res.message)||'저장 실패'); return; }
+    closeDialectEdit();
+    loadDialects();
+  }).fail(function(){ alertMsg('저장 API 실패','error'); });
+}
+
+function addRegionToDialect(){
+  var hdId = $('#ed-hdId').val();
+  var nm = ($('#ed-region').val()||'').trim();
+  if(!nm){ alertMsg('지역명을 입력하세요.'); return; }
+  $.ajax({
+    url:'/mariadb/neibis-api/dialect/region/save', method:'POST',
+    contentType:'application/json; charset=utf-8',
+    data: JSON.stringify({ mode:'C', hdId: hdId, headwordNo: getHeadwordNo(), word: ($('#ed-word').val()||'').trim(), regionNm: nm }),
+    dataType:'json'
+  }).done(function(res){
+    if(!res||!res.ok){ alertMsg((res&&res.message)||'지역 추가 실패'); return; }
+    $('#ed-region').val('');
+    editingRegions.push({ regionNm: nm });
+    renderEditRegions();
+    // soft refresh list counts
+    loadDialects();
+  }).fail(function(){ alertMsg('지역 추가 API 실패','error'); });
+}
+
+function stubExcelDf(nm){
+  alertMsg('['+nm+'] 정적 프로토타입 버튼입니다. (다음 단계에서 연결)', 'info');
+}
+
+function startPaint(d){
+  if(!getHeadwordNo()){ alertMsg('표제어를 먼저 저장하세요.'); return; }
+  goTab(3);
+  if(window.AdminDialectMap){
+    AdminDialectMap.ensureMap();
+    AdminDialectMap.setDialects(dialectCache);
+    AdminDialectMap.setPainting(d.hdId);
+  }
+}
+function stopPaint(){
+  if(window.AdminDialectMap) AdminDialectMap.setPainting(null);
+}
+function onMapRegionPick(hdId, ref){
+  // 지역 추가 (동일 이름이면 그냥 추가 — 토글 삭제는 hdr 목록 기반으로 추후)
+  $.ajax({
+    url:'/mariadb/neibis-api/dialect/region/save', method:'POST',
+    contentType:'application/json; charset=utf-8',
+    data: JSON.stringify({
+      mode:'C', hdId: hdId, headwordNo: getHeadwordNo(),
+      regionNm: ref.regionNm || ref.regionId,
+      regionId: ref.regionId || ''
+    }),
+    dataType:'json'
+  }).done(function(res){
+    if(!res||!res.ok){ alertMsg((res&&res.message)||'지역 추가 실패'); return; }
+    loadDialects();
+    if(window.Message){ /* quiet */ }
+  }).fail(function(){ alertMsg('지역 추가 API 실패','error'); });
+}
+
+function finishEdit(){
+  location.href = 'dialect.do';
+}
+
+function loadHeadwordIfEdit(){
+  var params = new URLSearchParams(location.search);
+  var hn = params.get('headwordNo') || params.get('headword_no') || '';
+  var tab = params.get('tab') || '1';
+  if(PAGE_MODE === 'M' || hn){
+    if(!hn){
+      alertMsg('headwordNo 가 없습니다. 목록에서 다시 진입해 주세요.');
+      location.href = 'dialect.do';
+      return;
+    }
+    $('#headwordNo').val(hn);
+    $('#mode').val('M');
+    PAGE_MODE = 'M';
+    $.ajax({
+      url:'/mariadb/neibis-api/headword/detail', data:{ headwordNo: hn }, dataType:'json'
+    }).done(function(res){
+      if(!res||!res.ok||!res.data){ alertMsg((res&&res.message)||'표제어 로드 실패'); return; }
+      var d = res.data;
+      $('#headwordId').val(d.headwordId||'');
+      $('#headwordNo').val(d.headwordNo||hn);
+      $('#headword').val(d.headword||'');
+      $('#wordClass').val(d.wordClass||'');
+      $('#meaning').val(d.meaning||'');
+      $('#commentary').val(d.commentary||'');
+      $('#useYn').val(d.useYn||'N');
+      $('#appro').val(d.appro||'N');
+      $('#metaLine').text('표제어번호 '+(d.headwordNo||'-')+' · 등록일 '+(d.createDt||'-')+' · 등록자 '+(d.usid||'-'));
+      $('#df-hn-label').text(d.headwordNo||hn);
+      if(tab==='2' || tab==='3') goTab(tab);
+      else loadDialects();
+    }).fail(function(){ alertMsg('상세 API 실패','error'); });
+  } else {
+    $('#metaLine').text('신규 등록 — 저장 후 어휘·설정을 진행하세요.');
+  }
+}
+
+$(function(){
+  $('#headword').on('blur', headwordSearchFill);
+  $('#btn-save, #btn-save-bottom').on('click', function(){ saveHeadword({ stay:true }); });
+  $('#btn-go-tab2').on('click', function(){
+    if(!getHeadwordNo()){
+      // 저장 후 탭2
+      saveHeadword({ goTab2:true });
+    } else goTab(2);
+  });
+  $('#btn-df-add').on('click', addDialect);
+  $('#btn-ed-save').on('click', saveDialectEdit);
+  $('#btn-ed-region-add').on('click', addRegionToDialect);
+  $('[data-go-tab]').on('click', function(){ goTab($(this).data('go-tab')); });
+  $('.map-edit-tabs .tab-list > li > a').on('click', function(e){
+    e.preventDefault();
+    goTab($(this).parent().data('tab'));
+  });
+  $('#layer-df-edit .dimed, #layer-df-edit [data-modal="close"]').on('click', function(e){
+    e.preventDefault(); closeDialectEdit();
+  });
+
+  if(window.AdminDialectMap){
+    AdminDialectMap.onRegionPick = onMapRegionPick;
+  }
+  $('#btn-map-refresh').on('click', function(){
+    if(window.AdminDialectMap){ AdminDialectMap.ensureMap(); AdminDialectMap.setDialects(dialectCache); AdminDialectMap.rebuildFill(); }
+  });
+  $('#btn-paint-stop').on('click', stopPaint);
+  $('#adm-hide-area').on('change', function(){
+    if(window.AdminDialectMap) AdminDialectMap.setLayerVisibility({ hideArea: this.checked });
+  });
+  $('#adm-hide-symbol').on('change', function(){
+    if(window.AdminDialectMap) AdminDialectMap.setLayerVisibility({ hideSymbol: this.checked });
+  });
+  loadHeadwordIfEdit();
+});
+</script>
+
+					</div>
+				</article>
+			</div>
+		</div>
+
+		<!-- login.do 빼고사용 -->
+		<!-- Modal Popup : 관리자 계정 정보수정 -->
+		<div class="modal-popup modal-lg hide info-revise-pop" id="layer-adinfo-revise">
+			<div class="dimed"></div>
+			<form class="popup-inner" id="mngrCmmnForm" name="mngrCmmnForm">
+				<div class="popup-header">
+					<h2 class="popup-title">관리자 계정 정보수정</h2>
+				</div>
+				<div class="popup-body">
+					<div class="table table-form-basic">
+						<div class="table-inner">
+							<table>
+								<caption class="sr-only">
+									관리자 계정 정보수정
+								</caption>
+								<tbody>
+									<tr>
+										<th scope="row">아이디</th>
+										<td colspan="3">neibis</td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="mngrPswdVlLayer">현재 비밀번호<i class="req">필수입력</i></label></th>
+										<td colspan="3">
+											<div class="input-group pw-group" style="max-width: 405px">
+												<input
+													type="password"
+													id="mngrPswdVlLayer" name="mngrPswdVl"
+													class="form-control form-pw"
+													placeholder="비밀번호를 입력해주세요."
+													title="비밀번호를 입력해주세요."
+													autocomplete="off"
+													value=""
+													required
+												/>
+												<button type="button" class="btn btn-pw btn-pw-off">비밀번호 확인</button>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="newMngrPswdVlLayer">변경 비밀번호</label></th>
+										<td>
+											<div class="input-group pw-group">
+												<input
+													type="password"
+													id="newMngrPswdVlLayer" name="newMngrPswdVl"
+													class="form-control form-pw"
+													placeholder="비밀번호를 입력해주세요."
+													title="변경 비밀번호"
+													autocomplete="off"
+													value=""
+													required
+												/>
+												<button type="button" class="btn btn-pw btn-pw-off">비밀번호 확인</button>
+											</div>
+											<span class="text-guide">8자 이상, 하나 이상의 숫자 및 대문자를 모두 포함</span>
+										</td>
+										<th scope="row"><label for="newMngrPswdVlConfLayer">변경 비밀번호 확인</label></th>
+										<td>
+											<div class="input-group pw-group">
+												<input
+													type="password"
+													id="newMngrPswdVlConfLayer" name="newMngrPswdVlConf"
+													class="form-control form-pw"
+													placeholder="비밀번호를 한번 더 입력해주세요."
+													title="변경 비밀번호 확인"
+													autocomplete="off"
+													value=""
+													required
+												/>
+												<button type="button" class="btn btn-pw btn-pw-off">비밀번호 확인</button>
+											</div>
+										</td>
+									</tr>
+								</tbody>
+								<tbody>
+									<tr>
+										<th scope="row"><label for="mngrNmLayer">성명<i class="req">필수입력</i></label></th>
+										<td colspan="3">
+											<input
+												type="text"
+												id="mngrNmLayer" name="mngrNm"
+												value="홍길동"
+												class="form-control full"
+												style="max-width: 405px"
+											/>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="mngrDeptNmLayer">담당부서</label></th>
+										<td>
+											<input type="text" id="mngrDeptNmLayer" name="mngrDeptNm" class="form-control full" value="" />
+										</td>
+										<th scope="row"><label for="mngrTelnoLayer">전화번호</label></th>
+										<td>
+											<input type="text" id="mngrTelnoLayer" name="mngrTelno" class="form-control full" placeholder="숫자만 입력 (예: 0314567890)" value="" />
+										</td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="mngrEmlAddrLayer">이메일</label></th>
+										<td>
+											<input type="text" id="mngrEmlAddrLayer" name="mngrEmlAddr" class="form-control full" value="" />
+										</td>
+										<th scope="row"><label for="mngrMblTelnoLayer">휴대폰</label></th>
+										<td>
+											<input type="text" id="mngrMblTelnoLayer" name="mngrMblTelno" class="form-control full" placeholder="숫자만 입력 (예: 01012345678)" value="" />
+										</td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="mngrFxnoLayer">팩스</label></th>
+										<td colspan="3">
+											<input
+												type="text"
+												id="mngrFxnoLayer" name="mngrFxno"
+												class="form-control"  placeholder="숫자만 입력 (예: 0212345678)"
+												value=""
+												style="width: 405px"
+											/>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="popup-footer">
+					<div class="btn-group-center">
+						<button type="button" class="btn btn-lg btn-outline-gray" data-modal="close">닫기</button>
+						<button type="button" class="btn btn-lg btn-primary" data-modal-submit="mngrCmmnSaveBtn">저장</button>
+					</div>
+				</div>
+				<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+			</form>
+		</div>
+
+
+<!-- login.do 빼고사용 -->
+<script>
+const date = moment().format("YYYY-MM-DD HH");
+const time = "00:00";
+var timeClock;
+
+$(function () {
+	timerScript(time);
+	ActionInit.click("#extend-button",onExtend);
+});
+// 타이머 스크립트
+var timerScript = function(setTime){
+	var remainTime = moment(date+":"+setTime);
+	let subtractTime = remainTime.subtract(1, "seconds").format("mm:ss");
+	$(".login-time").text(subtractTime);
+	if (subtractTime == "00:00"){
+		location.href='/mariadb/neibis/logout.do?type=timerlogout';
+		return;
+	}
+	timeClock = window.setTimeout(() => timerScript(subtractTime),1000);
+}
+
+//로그인 연장 버튼을 클릭 할 경우
+var onExtend = function(){
+	window.clearTimeout(timeClock);
+	$(".login-time").text("60:00");
+	window.setTimeout(() => timerScript(time),1000);
+}
+
+$("#favorit-add-button").on("click", function() {
+	let obj = new Object();
+	obj["menuSn"] =  246
+	let url = "/mariadb/neibis-api/v1/menu/fvrt/246?";
+	if(!$(this).hasClass("on")) url+="action=post"
+	else url+="action=delete"
+	Ajax.post(url,menuFvrtSuccess,menuFvrtFail,{data:JSON.stringify(obj)});
+});
+function removeDeletedMenu(menuSn) {
+	let data = new Object();
+	data.message ="현재 메뉴는 시스템관리자에 의해 삭제 및 변경되었거나 이동할 수 없는 메뉴입니다.<br/>해당 즐겨찾기 메뉴를 삭제 하시겠습니까?";
+	data.icon = "warning";
+	let obj = new Object;
+	obj["menuSn"] =  menuSn;
+	Message.confirm(data, function () {
+		let url = "/mariadb/neibis-api/v1/menu/fvrt/"+menuSn+"?action=delete";
+		Ajax.post(url,deleteMenuFvrtSuccess,menuFvrtFail,{data:JSON.stringify(obj)});
+	});
+}
+const deleteMenuFvrtSuccess = function (data) {
+	if(data.icon == "success"){
+		Message.success(data,function(){
+			deleteFvrt(data.data);
+		});
+	}
+}
+
+const menuFvrtSuccess = function (data) {
+	if(data.icon == "success"){
+		Message.success(data,function(){
+			if($("#favorit-add-button").hasClass("on")) {
+				if($(".favorit-list").length == 0) {
+					$(".favorit-menu").find(".nodata").remove();
+					$(".favorit-menu").prepend('<ul class="favorit-list"></ul>')
+				}
+				$(".favorit-list").prepend('<li id="fvrt'+data.data.menuSn+'"><a href="/mariadb'+data.data.menuUrlAddr+'">'+data.data.menuPath+'</a></li>')
+			}else {
+				deleteFvrt(data.data);
+			}
+		});
+	}
+}
+const menuFvrtFail = function (xhr, status, error) {
+	Message.fail(xhr, status, error,function(){
+		window.location.reload();
+	})
+}
+function deleteFvrt(data) {
+	$("#fvrt"+data).remove();
+	if($(".favorit-list").find("li").length == 0) {
+		let html = '';
+		html+='<p class="nodata">'
+		html+='	<strong>저장된 메뉴가 없어요.</strong>'
+		html+='	<span>'
+		html+='		페이지 상단의 ⭐모양을 클릭하면<br />'
+		html+='		즐겨찾기 메뉴에 저장할 수 있어요.'
+		html+='	</span>'
+		html+='</p>'
+		$(".favorit-menu").prepend(html);
+		$(".favorit-list").remove();
+	}
+}
+$(document).on("click","#siteSearchBtn", function() {
+	let url = "/mariadb/neibis-api/v1/site/menu?action=get&siteSearchKeyword="+$("#siteSearchKeyword").val();
+	Ajax.get(url,siteSearchSuccess,siteSearchFail);
+
+}).on("keypress","#siteSearchKeyword", function(e) {
+	if (e.keyCode === 13) {
+		e.preventDefault();
+		$("#siteSearchBtn").trigger("click");
+	}
+});
+
+	const siteSearchSuccess = function (data) {
+	if(data.icon == "success") {
+		$(".site-menu").html(siteList(data.data))
+	}
+}
+
+const siteSearchFail = function (xhr, status, error) {
+	Message.fail(xhr, status, error,function(){
+		window.location.reload();
+	})
+}
+function siteList(data) {
+	let html = ''
+	if(data.length > 0 ) {
+		let preLevel = 0;
+		$.each(data, function(i,v) {
+			if(i == 0) html += '<ul class="site-list">'
+			if(v.dataSttsCd == 'A') {
+				let hasChild = v.hasChild;
+				if(preLevel - v.level > 0) {
+					for(let i=0; i  < preLevel-v.level; i++) {
+						html += '</ul></li>';
+					}
+				}
+				if(preLevel < v.level && i != 0) html += '<ul>'
+				html += '<li data-level="'+v.level+'" '+(v.hasChild ? 'class="collapse"' : '' )+'>'
+
+				let siteUrl = "/mariadb"+v.menuUrlAddr;
+				let hrefUrl;
+
+			    if (siteUrl.includes('directory.do')) {
+			        hrefUrl = '#';
+			    } else {
+			        hrefUrl = siteUrl;
+			    }
+
+				if(siteUrl)
+
+
+				html += '<a href="'+hrefUrl+'"';
+				if(v.npagYn == 'Y') html += 'target="_blank" title="새창으로 열림">'
+				html += '>'+v.menuNm+'</a>'
+				if(!v.hasChild) html+='</li>'
+				preLevel = v.level;
+			}
+		});
+		for(let i=0; i < preLevel; i++){
+			html += '</ul></li>'
+		}
+	}else {
+		html += '<p class="nodata">'
+		html += '	<strong>아직 접속 가능한 사이트가 없어요.</strong>'
+		html += '	<span>'
+		html += '		시스템 관리자에게<br />'
+		html += '		메뉴권한을 요청해보시겠어요?'
+		html += '	</span>'
+		html += '</p>'
+	}
+	return html;
+}
+
+$("button[data-modal-submit='mngrCmmnSaveBtn']").on("click", function() {
+	let value = new NeibisValidator(document.forms["mngrCmmnForm"]);
+	formInputAttPassword("mngrCmmnForm");
+	value.add("newMngrPswdVl",{required:false,option:"password",match:"newMngrPswdVlConf"});
+	value.add("mngrNm",{required:true})
+	value.add("mngrTelno",{required:false,option:"homephone"})
+	value.add("mngrEmlAddr",{required:false,option:"email"})
+	value.add("mngrMblTelno",{required:false,option:"handphone"})
+	value.add("mngrFxno",{required:false,option:"fax"})
+
+	$("#mngrCmmnForm").find(".text-invalid").remove();
+	let result = value.validate();
+	if(!result){
+		let errorElementId =value.getErrorElement().id+"Layer";
+
+		let invalidText = '<span class="text-guide text-invalid">'+value.getErrorMessage()+'</span>'
+
+		$(value.getErrorElement()).closest("td").append(invalidText);
+		let offset = $("#"+errorElementId).offset();
+		return $("#mngrCmmnForm").find("#"+errorElementId).focus();
+	}
+
+	Message.confirm({
+		icon: "warning",
+		title: "저장하시겠어요?",
+		message: "저장하시려면 ‘확인’을 눌러주세요."
+    },function(){
+		let formData = $("#mngrCmmnForm").serializeArray();
+	 	let obj = new Object();
+		$.each(formData,function(i,v) {
+			obj[this.name] = this.value;
+		});
+
+		let url = "/mariadb/neibis-api/v1/mngr/cmmn/neibis?action=put";
+		Ajax.post(url,updtCmmnMngrSuccess,updtCmmnMngrFail,{data:JSON.stringify(obj)});
+    });
+});
+
+const updtCmmnMngrSuccess = function (data) {
+	if(data.icon == "success") {
+		Message.success(data,function(){
+			window.location.reload();
+		});
+	}else if(data.icon == "warning") {
+		$("#mngrCmmnForm").find("#mngrPswdVlLayer").closest("td").append($("<span>").addClass("text-guide text-invalid").text(data.message));
+		$("#mngrCmmnForm").find("#mngrPswdVlLayer").focus();
+	}
+}
+
+const updtCmmnMngrFail = function (xhr, status, error) {
+	Message.fail(xhr, status, error,function(){
+		window.location.reload();
+	})
+}
+function mngrCmmnFormReset() {
+	let url = "/mariadb/neibis-api/v1/mngr/cmmn/neibis?action=get";
+	Ajax.get(url,getMngrSuccess,getMngrFail);
+}
+const getMngrSuccess = function(data) {
+	if(data.icon == 'success') {
+		const {mngrNm, mngrDeptNm, mngrTelno, mngrEmlAddr, mngrMblTelno, mngrFxno} = data.data;
+
+		$("#mngrNmLayer").val(mngrNm);
+		$("#mngrDeptNmLayer").val(mngrDeptNm);
+		$("#mngrTelnoLayer").val(mngrTelno);
+		$("#mngrEmlAddrLayer").val(mngrEmlAddr);
+		$("#mngrMblTelnoLayer").val(mngrMblTelno);
+		$("#mngrFxnoLayer").val(mngrFxno);
+	}
+}
+
+const getMngrFail = function (xhr, status, error) {
+	Message.fail(xhr, status, error,function(){
+		window.location.reload();
+	})
+}
+</script>
+
+	</body>
+</html>

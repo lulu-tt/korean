@@ -1,0 +1,68 @@
+@charset "utf-8";
+
+/**
+ * 국립국어원 지역어 데이터(한양 PUA 옛한글) 표시용
+ * - Spoqa 등 기본 폰트에 없는 PUA 글리프를 NanumBarunGothicYetHangul 로 폴백
+ * - style.css 에서 import 되어 관리자 전체 페이지에 적용
+ */
+
+@font-face {
+  font-family: "NanumBarunGothicYetHangul";
+  src: url("../fonts/yet-hangul/NanumBarunGothic-YetHangul.woff2") format("woff2"),
+    url("../fonts/yet-hangul/NanumBarunGothic-YetHangul.woff") format("woff");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* body 및 주요 UI: Spoqa 우선, 없는 글자(옛한글 PUA)는 YetHangul */
+body,
+#content,
+#sidebar,
+#container {
+  font-family: -apple-system, BlinkMacSystemFont, "Spoqa Han Sans Neo",
+    "NanumBarunGothicYetHangul", "malgun gothic", Arial, sans-serif;
+}
+
+/* 입력·표·링크 등 데이터 표시 영역 (개별 font-family 재지정 대응) */
+#content input,
+#content textarea,
+#content select,
+#content button,
+#content table,
+#content .form-control,
+#content .form-control-sm,
+#content .link,
+#content .table-list,
+#content .table-row,
+#content .table-form-basic,
+#content .dialect-text {
+  font-family: -apple-system, BlinkMacSystemFont, "Spoqa Han Sans Neo",
+    "NanumBarunGothicYetHangul", "malgun gothic", Arial, sans-serif;
+}
+
+/* Spoqa 단독 !important 규칙이 있는 곳까지 폴백 스택 유지 */
+#content .form-control-sm,
+#content .form-control,
+#content .btn,
+#content a {
+  font-family: -apple-system, BlinkMacSystemFont, "Spoqa Han Sans Neo",
+    "NanumBarunGothicYetHangul", "malgun gothic", Arial, sans-serif !important;
+}
+
+/* 목록 관리 컬럼: 수정/삭제가 세로로 쌓이지 않도록 가로 배치 */
+#content .table-list td:last-child {
+  white-space: nowrap !important;
+  overflow: visible !important;
+}
+#content .table-list td:last-child .btn-group-inline {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center;
+  gap: 4px;
+}
+#content .table-list td:last-child .btn {
+  max-width: none !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+}

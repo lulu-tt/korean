@@ -5,14 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 		<meta name="format-detection" content="telephone=no" />
-		<title id="neibisTopTitle">사이트별 운영관리
-
-				| 샘플페이지
-
-				| 알림마당
-
-				| 도움말(FAQ)
-				</title>
+		<title id="neibisTopTitle">사이트별 운영관리 | 지역어 종합 정보 | 알림마당 | 도움말(FAQ)</title>
 		<link rel="shortcut icon" href="/mariadb/assets/neibis/images/favicon.png" />
 		<link rel="stylesheet" href="/mariadb/assets/neibis/css/style.css" />
 		<link rel="stylesheet" href="/mariadb/assets/neibis/css/board-attach-ext.css" />
@@ -187,7 +180,7 @@
 					<div class="sidebar-header">
 						<h1 class="sidebar-title">
 							<a href='/mariadb/neibis/index.do'>
-								<img src="/mariadb/assets/neibis/images/logo.png" alt="neibis" />
+								<img src="/mariadb/assets/neibis/images/logo_dialect.png" alt="지역어 종합 정보" />
 								<span class="logo-text">관리시스템</span>
 							</a>
 
@@ -453,9 +446,9 @@
 								</form>
 								<nav class="site-menu">
 									<ul class="site-list">
-										<li data-level="1" >
-													<a href="javascript:void(0)">샘플페이지</a>
-										<ul style="display:none;">
+										<li data-level="1" class="on">
+													<a href="javascript:void(0)">지역어 종합 정보</a>
+										<ul style="display:block;">
 										<li data-level="2" >
 													<a href="javascript:void(0)">조사자료</a>
 										<ul style="display:none;">
@@ -466,7 +459,7 @@
 													<a href="/mariadb/neibis/survey/oral.do" >구술발화조사자료</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/survey/variant.do" >지역어 변이형 비교</a>
+													<a href="/mariadb/neibis/survey/variant.do" >지역별 이형태 관리</a>
 										</li>
 										<li data-level="3">
 													<a href="/mariadb/neibis/survey/search-std-vocab.do" >검색 표준어 어휘 관리</a>
@@ -484,10 +477,13 @@
 										<li data-level="3">
 													<a href="/mariadb/neibis/map/weather.do" >지역어 기상도</a>
 										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/map/symbol.do" >상징 부호 관리</a>
+										</li>
 										</ul></li>
-										<li data-level="2" >
+										<li data-level="2" class="on">
 													<a href="javascript:void(0)">알림마당</a>
-										<ul style="display:none;">
+										<ul style="display:block;">
 										<li data-level="3">
 													<a href="/mariadb/neibis/bbs/246/list.do" >공지사항</a>
 										</li>
@@ -502,22 +498,42 @@
 													<a href="javascript:void(0)">지역어 자료관</a>
 										<ul style="display:none;">
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/252/list.do" >문학 속 지역어</a>
+													<a href="/mariadb/neibis/archive/literature.do" >문학 속 지역어</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/253/list.do" >사진으로 보는 생활어</a>
+													<a href="/mariadb/neibis/archive/region-photo.do" >사진으로 보는 생활어</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/256/list.do" >자료실</a>
+													<a href="/mariadb/neibis/archive/data-room.do" >자료실</a>
 										</li>
 										</ul></li>
-										<li data-level="2" >
-													<a href="javascript:void(0)">참여마당</a>
+																				<li data-level="2" >
+													<a href="javascript:void(0)">Open API관리</a>
 										<ul style="display:none;">
 										<li data-level="3" >
-													<a href="/mariadb/neibis/bbs/255/list.do" >고객의 소리</a>
+													<a href="/mariadb/neibis/stats/api.do" >Open API사용현황</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI.do" >호출 단어 순위</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI2.do" >호출 URL 순위</a>
 										</li>
 									</ul></li></ul></li>
+								
+										<li data-level="1" >
+													<a href="javascript:void(0)">기타 관리</a>
+										<ul style="display:none;">
+										<li data-level="2" >
+													<a href="/mariadb/neibis/system/user.do" >사용자 계정관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/source.do" >제보자 관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/surveyList.do" >설문조사 관리</a>
+										</li>
+									</ul></li>
 								</nav>
 							</div>
 						</div>
@@ -591,7 +607,7 @@
 								<ol class="breadcrumb-list">
 									<li>사이트별 운영관리</li>
 
-									<li>샘플페이지</li>
+									<li>지역어 종합 정보</li>
 
 									<li>알림마당</li>
 
@@ -621,7 +637,7 @@
 					<div class="content-body">
 
 <!-- 본문 영역 -->
-							<form id="search-form" method="post" action="/mariadb/neibis/bbs/251/list.do" class="search-form">
+							<form id="search-form" method="post" action="/mariadb/neibis/bbs/251/list.do" onsubmit="return false;" class="search-form">
 				<!-- 검색 영역 -->
 						<h3 class="title1 text-primary mt-md-4 ml-md-4">도움말(FAQ) 검색영역</h3>
 						<div class="card">
@@ -738,12 +754,12 @@
 							<div class="list-control">
 								<div class="left">
 
-									<a href="/mariadb/system/bbs-mst/updt.do?bbsId=20260416141311" class="btn btn-icon btn-settings-xs">
+									<a href="/mariadb/system/bbs-mst/updt.do?bbsId=faq" class="btn btn-icon btn-settings-xs">
 										<i class="ico ico-cog-darkgray-sm"></i>
 										<span class="sr-only">게시판 설정</span>
 									</a>
 
-									<p class="total">총 <strong class="text-primary">18</strong>건(1/2 page)</p>
+									<p class="total">총 <strong class="text-primary">7</strong>건(1/1 page)</p>
 
 									<button type="button" class="btn btn-xs btn-outline-gray" data-deselect=".table-list">
 										선택해제
@@ -805,425 +821,300 @@
 										<tbody>
 										<!-- 목록 조회 -->
 
-										<tr >
-													<td>
-														<label class="check-item">
-															<input type="checkbox" name="listCheckBox" value="22" />
-															<span class="label sr-only">선택</span>
-														</label>
-													</td>
-													<td>18</td>
-													<td class="text-left link-ellipsis ">
-														<a href="detail.do?pstSn=22&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" class="link  detail-button" data-sn="22">
-															VIEWER-2WORKER-SMOKE-20260723
-														</a>
-													</td>
-													<td>
-														<a href="zip-down.do?bbsId=20260416141311&amp;pstSn=22" class="btn btn-xs btn-outline-gray" target="_blank">
-															<i class="ico ico-download-darkgray-sm"></i>
-															<span>다운로드</span>
-														</a>
-													</td>
-													<td>0</td>
-													<td>2026.07.23 14:48:40</td>
-												<td>
-													<label class="check-switch check-switch-fix">
-														<input type="checkbox" name="dataSttsCd" data-sn="22" id="dataSttsCd22Notice" value="A"    />
-														<span class="label">
-															<span class="text-checked">게시</span>
-															<span class="text-uncheck">미게시</span>
-														</span>
-													</label>
-												</td>
-												<td>
-													<a href="updt.do?pstSn=22&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" data-sn="22" data-ans-dp="0" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-														<i class="ico ico-pen-darkgary-sm"></i>
-														<span>수정</span>
-													</a>
-													<button type="button" data-sn="22" class="btn btn-xs btn-gray btn-delete del-button">
-														<i class="ico ico-trash-white-sm"></i>
-														<span>삭제</span>
-													</button>
-												</td>
-										</tr>
+										
+													<tr >
+														<td>
+															<label class="check-item">
+																<input type="checkbox" name="listCheckBox" value="67" />
+																<span class="label sr-only">선택</span>
+															</label>
+														</td>
+														<td>7</td>
+														<td class="text-left link-ellipsis ">
+															<a href="detail.do" class="link  detail-button" data-sn="67">
+																회원 정보
+															</a>
+														</td>
+														<td>
+															<a href="javascript:void(0)" class="btn btn-xs btn-outline-gray" onclick="alert('정적 프로토타입: 첨부 다운로드'); return false;">
+																<i class="ico ico-download-darkgray-sm"></i>
+																<span>다운로드</span>
+															</a>
+														</td>
+														<td>19</td>
+														<td>2024.11.04 13:53:58</td>
+														<td>
+															<label class="check-switch check-switch-fix">
+																<input type="checkbox" name="dataSttsCd" data-sn="67" id="dataSttsCd67Faq" value="A"  checked  />
+																<span class="label">
+																	<span class="text-checked">게시</span>
+																	<span class="text-uncheck">미게시</span>
+																</span>
+															</label>
+														</td>
+														<td>
+															<a href="updt.do" data-sn="67" data-ans-dp="0" class="btn btn-xs btn-outline-gray btn-modify updt-button">
+																<i class="ico ico-pen-darkgary-sm"></i>
+																<span>수정</span>
+															</a>
+															<button type="button" data-sn="67" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
+																<i class="ico ico-trash-white-sm"></i>
+																<span>삭제</span>
+															</button>
+														</td>
+													</tr>
 
-										<tr >
-													<td>
-														<label class="check-item">
-															<input type="checkbox" name="listCheckBox" value="21" />
-															<span class="label sr-only">선택</span>
-														</label>
-													</td>
-													<td>17</td>
-													<td class="text-left link-ellipsis ">
-														<a href="detail.do?pstSn=21&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" class="link  detail-button" data-sn="21">
-															PREWARM-TERMINAL-READY-20260722-1125
-														</a>
-													</td>
-													<td>
-														<a href="zip-down.do?bbsId=20260416141311&amp;pstSn=21" class="btn btn-xs btn-outline-gray" target="_blank">
-															<i class="ico ico-download-darkgray-sm"></i>
-															<span>다운로드</span>
-														</a>
-													</td>
-													<td>0</td>
-													<td>2026.07.22 11:30:21</td>
-												<td>
-													<label class="check-switch check-switch-fix">
-														<input type="checkbox" name="dataSttsCd" data-sn="21" id="dataSttsCd21Notice" value="A"    />
-														<span class="label">
-															<span class="text-checked">게시</span>
-															<span class="text-uncheck">미게시</span>
-														</span>
-													</label>
-												</td>
-												<td>
-													<a href="updt.do?pstSn=21&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" data-sn="21" data-ans-dp="0" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-														<i class="ico ico-pen-darkgary-sm"></i>
-														<span>수정</span>
-													</a>
-													<button type="button" data-sn="21" class="btn btn-xs btn-gray btn-delete del-button">
-														<i class="ico ico-trash-white-sm"></i>
-														<span>삭제</span>
-													</button>
-												</td>
-										</tr>
+													<tr >
+														<td>
+															<label class="check-item">
+																<input type="checkbox" name="listCheckBox" value="66" />
+																<span class="label sr-only">선택</span>
+															</label>
+														</td>
+														<td>6</td>
+														<td class="text-left link-ellipsis ">
+															<a href="detail.do" class="link  detail-button" data-sn="66">
+																사진으로 보는 생활어
+															</a>
+														</td>
+														<td>
+															<a href="javascript:void(0)" class="btn btn-xs btn-outline-gray" onclick="alert('정적 프로토타입: 첨부 다운로드'); return false;">
+																<i class="ico ico-download-darkgray-sm"></i>
+																<span>다운로드</span>
+															</a>
+														</td>
+														<td>13</td>
+														<td>2024.11.04 13:53:58</td>
+														<td>
+															<label class="check-switch check-switch-fix">
+																<input type="checkbox" name="dataSttsCd" data-sn="66" id="dataSttsCd66Faq" value="A"  checked  />
+																<span class="label">
+																	<span class="text-checked">게시</span>
+																	<span class="text-uncheck">미게시</span>
+																</span>
+															</label>
+														</td>
+														<td>
+															<a href="updt.do" data-sn="66" data-ans-dp="0" class="btn btn-xs btn-outline-gray btn-modify updt-button">
+																<i class="ico ico-pen-darkgary-sm"></i>
+																<span>수정</span>
+															</a>
+															<button type="button" data-sn="66" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
+																<i class="ico ico-trash-white-sm"></i>
+																<span>삭제</span>
+															</button>
+														</td>
+													</tr>
 
-										<tr >
-													<td>
-														<label class="check-item">
-															<input type="checkbox" name="listCheckBox" value="20" />
-															<span class="label sr-only">선택</span>
-														</label>
-													</td>
-													<td>16</td>
-													<td class="text-left link-ellipsis ">
-														<a href="detail.do?pstSn=20&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" class="link  detail-button" data-sn="20">
-															PREWARM-SKIP-VALID-202607221046
-														</a>
-													</td>
-													<td>
-														<a href="zip-down.do?bbsId=20260416141311&amp;pstSn=20" class="btn btn-xs btn-outline-gray" target="_blank">
-															<i class="ico ico-download-darkgray-sm"></i>
-															<span>다운로드</span>
-														</a>
-													</td>
-													<td>0</td>
-													<td>2026.07.22 10:48:59</td>
-												<td>
-													<label class="check-switch check-switch-fix">
-														<input type="checkbox" name="dataSttsCd" data-sn="20" id="dataSttsCd20Notice" value="A"    />
-														<span class="label">
-															<span class="text-checked">게시</span>
-															<span class="text-uncheck">미게시</span>
-														</span>
-													</label>
-												</td>
-												<td>
-													<a href="updt.do?pstSn=20&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" data-sn="20" data-ans-dp="0" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-														<i class="ico ico-pen-darkgary-sm"></i>
-														<span>수정</span>
-													</a>
-													<button type="button" data-sn="20" class="btn btn-xs btn-gray btn-delete del-button">
-														<i class="ico ico-trash-white-sm"></i>
-														<span>삭제</span>
-													</button>
-												</td>
-										</tr>
+													<tr >
+														<td>
+															<label class="check-item">
+																<input type="checkbox" name="listCheckBox" value="65" />
+																<span class="label sr-only">선택</span>
+															</label>
+														</td>
+														<td>5</td>
+														<td class="text-left link-ellipsis ">
+															<a href="detail.do" class="link  detail-button" data-sn="65">
+																문학 속 지역어
+															</a>
+														</td>
+														<td>
+															<a href="javascript:void(0)" class="btn btn-xs btn-outline-gray" onclick="alert('정적 프로토타입: 첨부 다운로드'); return false;">
+																<i class="ico ico-download-darkgray-sm"></i>
+																<span>다운로드</span>
+															</a>
+														</td>
+														<td>18</td>
+														<td>2024.11.04 13:53:58</td>
+														<td>
+															<label class="check-switch check-switch-fix">
+																<input type="checkbox" name="dataSttsCd" data-sn="65" id="dataSttsCd65Faq" value="A"  checked  />
+																<span class="label">
+																	<span class="text-checked">게시</span>
+																	<span class="text-uncheck">미게시</span>
+																</span>
+															</label>
+														</td>
+														<td>
+															<a href="updt.do" data-sn="65" data-ans-dp="0" class="btn btn-xs btn-outline-gray btn-modify updt-button">
+																<i class="ico ico-pen-darkgary-sm"></i>
+																<span>수정</span>
+															</a>
+															<button type="button" data-sn="65" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
+																<i class="ico ico-trash-white-sm"></i>
+																<span>삭제</span>
+															</button>
+														</td>
+													</tr>
 
-										<tr >
-													<td>
-														<label class="check-item">
-															<input type="checkbox" name="listCheckBox" value="19" />
-															<span class="label sr-only">선택</span>
-														</label>
-													</td>
-													<td>15</td>
-													<td class="text-left link-ellipsis ">
-														<a href="detail.do?pstSn=19&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" class="link  detail-button" data-sn="19">
-															PREWARM-SKIP-PRECISE-202607221043
-														</a>
-													</td>
-													<td>
-														<a href="zip-down.do?bbsId=20260416141311&amp;pstSn=19" class="btn btn-xs btn-outline-gray" target="_blank">
-															<i class="ico ico-download-darkgray-sm"></i>
-															<span>다운로드</span>
-														</a>
-													</td>
-													<td>0</td>
-													<td>2026.07.22 10:44:36</td>
-												<td>
-													<label class="check-switch check-switch-fix">
-														<input type="checkbox" name="dataSttsCd" data-sn="19" id="dataSttsCd19Notice" value="A"    />
-														<span class="label">
-															<span class="text-checked">게시</span>
-															<span class="text-uncheck">미게시</span>
-														</span>
-													</label>
-												</td>
-												<td>
-													<a href="updt.do?pstSn=19&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" data-sn="19" data-ans-dp="0" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-														<i class="ico ico-pen-darkgary-sm"></i>
-														<span>수정</span>
-													</a>
-													<button type="button" data-sn="19" class="btn btn-xs btn-gray btn-delete del-button">
-														<i class="ico ico-trash-white-sm"></i>
-														<span>삭제</span>
-													</button>
-												</td>
-										</tr>
+													<tr >
+														<td>
+															<label class="check-item">
+																<input type="checkbox" name="listCheckBox" value="64" />
+																<span class="label sr-only">선택</span>
+															</label>
+														</td>
+														<td>4</td>
+														<td class="text-left link-ellipsis ">
+															<a href="detail.do" class="link  detail-button" data-sn="64">
+																지역어 이야기 자료
+															</a>
+														</td>
+														<td>
+															<a href="javascript:void(0)" class="btn btn-xs btn-outline-gray" onclick="alert('정적 프로토타입: 첨부 다운로드'); return false;">
+																<i class="ico ico-download-darkgray-sm"></i>
+																<span>다운로드</span>
+															</a>
+														</td>
+														<td>29</td>
+														<td>2024.11.04 13:53:58</td>
+														<td>
+															<label class="check-switch check-switch-fix">
+																<input type="checkbox" name="dataSttsCd" data-sn="64" id="dataSttsCd64Faq" value="A"  checked  />
+																<span class="label">
+																	<span class="text-checked">게시</span>
+																	<span class="text-uncheck">미게시</span>
+																</span>
+															</label>
+														</td>
+														<td>
+															<a href="updt.do" data-sn="64" data-ans-dp="0" class="btn btn-xs btn-outline-gray btn-modify updt-button">
+																<i class="ico ico-pen-darkgary-sm"></i>
+																<span>수정</span>
+															</a>
+															<button type="button" data-sn="64" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
+																<i class="ico ico-trash-white-sm"></i>
+																<span>삭제</span>
+															</button>
+														</td>
+													</tr>
 
-										<tr >
-													<td>
-														<label class="check-item">
-															<input type="checkbox" name="listCheckBox" value="18" />
-															<span class="label sr-only">선택</span>
-														</label>
-													</td>
-													<td>14</td>
-													<td class="text-left link-ellipsis ">
-														<a href="detail.do?pstSn=18&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" class="link  detail-button" data-sn="18">
-															PREWARM-SKIP-202607221041
-														</a>
-													</td>
-													<td>
-														<a href="zip-down.do?bbsId=20260416141311&amp;pstSn=18" class="btn btn-xs btn-outline-gray" target="_blank">
-															<i class="ico ico-download-darkgray-sm"></i>
-															<span>다운로드</span>
-														</a>
-													</td>
-													<td>0</td>
-													<td>2026.07.22 10:42:27</td>
-												<td>
-													<label class="check-switch check-switch-fix">
-														<input type="checkbox" name="dataSttsCd" data-sn="18" id="dataSttsCd18Notice" value="A"    />
-														<span class="label">
-															<span class="text-checked">게시</span>
-															<span class="text-uncheck">미게시</span>
-														</span>
-													</label>
-												</td>
-												<td>
-													<a href="updt.do?pstSn=18&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" data-sn="18" data-ans-dp="0" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-														<i class="ico ico-pen-darkgary-sm"></i>
-														<span>수정</span>
-													</a>
-													<button type="button" data-sn="18" class="btn btn-xs btn-gray btn-delete del-button">
-														<i class="ico ico-trash-white-sm"></i>
-														<span>삭제</span>
-													</button>
-												</td>
-										</tr>
+													<tr >
+														<td>
+															<label class="check-item">
+																<input type="checkbox" name="listCheckBox" value="63" />
+																<span class="label sr-only">선택</span>
+															</label>
+														</td>
+														<td>3</td>
+														<td class="text-left link-ellipsis ">
+															<a href="detail.do" class="link  detail-button" data-sn="63">
+																지역어 지도
+															</a>
+														</td>
+														<td>
+															<a href="javascript:void(0)" class="btn btn-xs btn-outline-gray" onclick="alert('정적 프로토타입: 첨부 다운로드'); return false;">
+																<i class="ico ico-download-darkgray-sm"></i>
+																<span>다운로드</span>
+															</a>
+														</td>
+														<td>39</td>
+														<td>2024.11.04 13:53:58</td>
+														<td>
+															<label class="check-switch check-switch-fix">
+																<input type="checkbox" name="dataSttsCd" data-sn="63" id="dataSttsCd63Faq" value="A"  checked  />
+																<span class="label">
+																	<span class="text-checked">게시</span>
+																	<span class="text-uncheck">미게시</span>
+																</span>
+															</label>
+														</td>
+														<td>
+															<a href="updt.do" data-sn="63" data-ans-dp="0" class="btn btn-xs btn-outline-gray btn-modify updt-button">
+																<i class="ico ico-pen-darkgary-sm"></i>
+																<span>수정</span>
+															</a>
+															<button type="button" data-sn="63" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
+																<i class="ico ico-trash-white-sm"></i>
+																<span>삭제</span>
+															</button>
+														</td>
+													</tr>
 
-										<tr >
-													<td>
-														<label class="check-item">
-															<input type="checkbox" name="listCheckBox" value="17" />
-															<span class="label sr-only">선택</span>
-														</label>
-													</td>
-													<td>13</td>
-													<td class="text-left link-ellipsis ">
-														<a href="detail.do?pstSn=17&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" class="link  detail-button" data-sn="17">
-															PREWARM-BUSY-202607221037
-														</a>
-													</td>
-													<td>
-														<a href="zip-down.do?bbsId=20260416141311&amp;pstSn=17" class="btn btn-xs btn-outline-gray" target="_blank">
-															<i class="ico ico-download-darkgray-sm"></i>
-															<span>다운로드</span>
-														</a>
-													</td>
-													<td>0</td>
-													<td>2026.07.22 10:39:12</td>
-												<td>
-													<label class="check-switch check-switch-fix">
-														<input type="checkbox" name="dataSttsCd" data-sn="17" id="dataSttsCd17Notice" value="A"    />
-														<span class="label">
-															<span class="text-checked">게시</span>
-															<span class="text-uncheck">미게시</span>
-														</span>
-													</label>
-												</td>
-												<td>
-													<a href="updt.do?pstSn=17&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" data-sn="17" data-ans-dp="0" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-														<i class="ico ico-pen-darkgary-sm"></i>
-														<span>수정</span>
-													</a>
-													<button type="button" data-sn="17" class="btn btn-xs btn-gray btn-delete del-button">
-														<i class="ico ico-trash-white-sm"></i>
-														<span>삭제</span>
-													</button>
-												</td>
-										</tr>
+													<tr >
+														<td>
+															<label class="check-item">
+																<input type="checkbox" name="listCheckBox" value="62" />
+																<span class="label sr-only">선택</span>
+															</label>
+														</td>
+														<td>2</td>
+														<td class="text-left link-ellipsis ">
+															<a href="detail.do" class="link  detail-button" data-sn="62">
+																지역어 찾기
+															</a>
+														</td>
+														<td>
+															<a href="javascript:void(0)" class="btn btn-xs btn-outline-gray" onclick="alert('정적 프로토타입: 첨부 다운로드'); return false;">
+																<i class="ico ico-download-darkgray-sm"></i>
+																<span>다운로드</span>
+															</a>
+														</td>
+														<td>57</td>
+														<td>2024.11.04 13:53:58</td>
+														<td>
+															<label class="check-switch check-switch-fix">
+																<input type="checkbox" name="dataSttsCd" data-sn="62" id="dataSttsCd62Faq" value="A"  checked  />
+																<span class="label">
+																	<span class="text-checked">게시</span>
+																	<span class="text-uncheck">미게시</span>
+																</span>
+															</label>
+														</td>
+														<td>
+															<a href="updt.do" data-sn="62" data-ans-dp="0" class="btn btn-xs btn-outline-gray btn-modify updt-button">
+																<i class="ico ico-pen-darkgary-sm"></i>
+																<span>수정</span>
+															</a>
+															<button type="button" data-sn="62" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
+																<i class="ico ico-trash-white-sm"></i>
+																<span>삭제</span>
+															</button>
+														</td>
+													</tr>
 
-										<tr >
-													<td>
-														<label class="check-item">
-															<input type="checkbox" name="listCheckBox" value="16" />
-															<span class="label sr-only">선택</span>
-														</label>
-													</td>
-													<td>12</td>
-													<td class="text-left link-ellipsis ">
-														<a href="detail.do?pstSn=16&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" class="link  detail-button" data-sn="16">
-															PREWARM-IDLE-202607221030
-														</a>
-													</td>
-													<td>
-														<a href="zip-down.do?bbsId=20260416141311&amp;pstSn=16" class="btn btn-xs btn-outline-gray" target="_blank">
-															<i class="ico ico-download-darkgray-sm"></i>
-															<span>다운로드</span>
-														</a>
-													</td>
-													<td>0</td>
-													<td>2026.07.22 10:31:12</td>
-												<td>
-													<label class="check-switch check-switch-fix">
-														<input type="checkbox" name="dataSttsCd" data-sn="16" id="dataSttsCd16Notice" value="A"    />
-														<span class="label">
-															<span class="text-checked">게시</span>
-															<span class="text-uncheck">미게시</span>
-														</span>
-													</label>
-												</td>
-												<td>
-													<a href="updt.do?pstSn=16&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" data-sn="16" data-ans-dp="0" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-														<i class="ico ico-pen-darkgary-sm"></i>
-														<span>수정</span>
-													</a>
-													<button type="button" data-sn="16" class="btn btn-xs btn-gray btn-delete del-button">
-														<i class="ico ico-trash-white-sm"></i>
-														<span>삭제</span>
-													</button>
-												</td>
-										</tr>
-
-										<tr >
-													<td>
-														<label class="check-item">
-															<input type="checkbox" name="listCheckBox" value="15" />
-															<span class="label sr-only">선택</span>
-														</label>
-													</td>
-													<td>11</td>
-													<td class="text-left link-ellipsis ">
-														<a href="detail.do?pstSn=15&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" class="link  detail-button" data-sn="15">
-															PREWARM-IDLE-LOOPBACK-20260721-1832
-														</a>
-													</td>
-													<td>
-														<a href="zip-down.do?bbsId=20260416141311&amp;pstSn=15" class="btn btn-xs btn-outline-gray" target="_blank">
-															<i class="ico ico-download-darkgray-sm"></i>
-															<span>다운로드</span>
-														</a>
-													</td>
-													<td>0</td>
-													<td>2026.07.21 18:32:35</td>
-												<td>
-													<label class="check-switch check-switch-fix">
-														<input type="checkbox" name="dataSttsCd" data-sn="15" id="dataSttsCd15Notice" value="A"    />
-														<span class="label">
-															<span class="text-checked">게시</span>
-															<span class="text-uncheck">미게시</span>
-														</span>
-													</label>
-												</td>
-												<td>
-													<a href="updt.do?pstSn=15&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" data-sn="15" data-ans-dp="0" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-														<i class="ico ico-pen-darkgary-sm"></i>
-														<span>수정</span>
-													</a>
-													<button type="button" data-sn="15" class="btn btn-xs btn-gray btn-delete del-button">
-														<i class="ico ico-trash-white-sm"></i>
-														<span>삭제</span>
-													</button>
-												</td>
-										</tr>
-
-										<tr >
-													<td>
-														<label class="check-item">
-															<input type="checkbox" name="listCheckBox" value="14" />
-															<span class="label sr-only">선택</span>
-														</label>
-													</td>
-													<td>10</td>
-													<td class="text-left link-ellipsis ">
-														<a href="detail.do?pstSn=14&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" class="link  detail-button" data-sn="14">
-															PREWARM-IDLE-20260721-1822
-														</a>
-													</td>
-													<td>
-														<a href="zip-down.do?bbsId=20260416141311&amp;pstSn=14" class="btn btn-xs btn-outline-gray" target="_blank">
-															<i class="ico ico-download-darkgray-sm"></i>
-															<span>다운로드</span>
-														</a>
-													</td>
-													<td>0</td>
-													<td>2026.07.21 18:21:12</td>
-												<td>
-													<label class="check-switch check-switch-fix">
-														<input type="checkbox" name="dataSttsCd" data-sn="14" id="dataSttsCd14Notice" value="A"    />
-														<span class="label">
-															<span class="text-checked">게시</span>
-															<span class="text-uncheck">미게시</span>
-														</span>
-													</label>
-												</td>
-												<td>
-													<a href="updt.do?pstSn=14&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" data-sn="14" data-ans-dp="0" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-														<i class="ico ico-pen-darkgary-sm"></i>
-														<span>수정</span>
-													</a>
-													<button type="button" data-sn="14" class="btn btn-xs btn-gray btn-delete del-button">
-														<i class="ico ico-trash-white-sm"></i>
-														<span>삭제</span>
-													</button>
-												</td>
-										</tr>
-
-										<tr >
-													<td>
-														<label class="check-item">
-															<input type="checkbox" name="listCheckBox" value="13" />
-															<span class="label sr-only">선택</span>
-														</label>
-													</td>
-													<td>9</td>
-													<td class="text-left link-ellipsis ">
-														<a href="detail.do?pstSn=13&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" class="link  detail-button" data-sn="13">
-															PREWARM-OFF-20260721-1806
-														</a>
-													</td>
-													<td>
-														<a href="zip-down.do?bbsId=20260416141311&amp;pstSn=13" class="btn btn-xs btn-outline-gray" target="_blank">
-															<i class="ico ico-download-darkgray-sm"></i>
-															<span>다운로드</span>
-														</a>
-													</td>
-													<td>0</td>
-													<td>2026.07.21 18:07:08</td>
-												<td>
-													<label class="check-switch check-switch-fix">
-														<input type="checkbox" name="dataSttsCd" data-sn="13" id="dataSttsCd13Notice" value="A"    />
-														<span class="label">
-															<span class="text-checked">게시</span>
-															<span class="text-uncheck">미게시</span>
-														</span>
-													</label>
-												</td>
-												<td>
-													<a href="updt.do?pstSn=13&amp;pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" data-sn="13" data-ans-dp="0" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-														<i class="ico ico-pen-darkgary-sm"></i>
-														<span>수정</span>
-													</a>
-													<button type="button" data-sn="13" class="btn btn-xs btn-gray btn-delete del-button">
-														<i class="ico ico-trash-white-sm"></i>
-														<span>삭제</span>
-													</button>
-												</td>
-										</tr>
+													<tr >
+														<td>
+															<label class="check-item">
+																<input type="checkbox" name="listCheckBox" value="61" />
+																<span class="label sr-only">선택</span>
+															</label>
+														</td>
+														<td>1</td>
+														<td class="text-left link-ellipsis ">
+															<a href="detail.do" class="link  detail-button" data-sn="61">
+																지역어 종합 정보 누리집
+															</a>
+														</td>
+														<td>
+															<a href="javascript:void(0)" class="btn btn-xs btn-outline-gray" onclick="alert('정적 프로토타입: 첨부 다운로드'); return false;">
+																<i class="ico ico-download-darkgray-sm"></i>
+																<span>다운로드</span>
+															</a>
+														</td>
+														<td>54</td>
+														<td>2024.11.04 13:53:58</td>
+														<td>
+															<label class="check-switch check-switch-fix">
+																<input type="checkbox" name="dataSttsCd" data-sn="61" id="dataSttsCd61Faq" value="A"  checked  />
+																<span class="label">
+																	<span class="text-checked">게시</span>
+																	<span class="text-uncheck">미게시</span>
+																</span>
+															</label>
+														</td>
+														<td>
+															<a href="updt.do" data-sn="61" data-ans-dp="0" class="btn btn-xs btn-outline-gray btn-modify updt-button">
+																<i class="ico ico-pen-darkgary-sm"></i>
+																<span>수정</span>
+															</a>
+															<button type="button" data-sn="61" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
+																<i class="ico ico-trash-white-sm"></i>
+																<span>삭제</span>
+															</button>
+														</td>
+													</tr>
 
 										<!-- 목록 조회 -->
 										</tbody>
@@ -1232,14 +1123,13 @@
 							</div>
 
 							<div class="pagination">
-								<strong>1</strong> <a href="?pageIndex=2&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0">2</a>
-
-							</div>
+									<strong>1</strong>
+								</div>
 
 </form>
 							<div class="btn-group-between">
 								<div class="right">
-									<a href="save.do?pageIndex=1&amp;pageItm=10&amp;searchOrderSort=0&amp;searchGbn=0" id="save-button" class="btn btn-lg btn-primary">
+									<a href="save.do" id="save-button" class="btn btn-lg btn-primary">
 										<i class="ico ico-plus-white-md"></i>
 										<span>등록</span>
 									</a>
@@ -1252,10 +1142,10 @@
 <script>
 
 $(function () {
-	ActionInit.click(".search-button",searchAction);
- 	ActionInit.click(".del-button",delAction,this);
-	ActionInit.click("#checkbox-del-button",delArrAction);
-	ActionInit.click("input[name=dataSttsCd]",sttsChgAction,this);
+	/* searchAction disabled prototype */ $(".search-button").on("click", function(){ alert("정적 프로토타입: 검색"); });
+ 	
+	$("#checkbox-del-button").on("click", function(){ alert("정적 프로토타입: 선택삭제"); });
+	
 	ActionInit.click("input[name=searchDateRange]",getDateRange,this);
 	ActionInit.click(".reset-button",resetAction);
 
@@ -1572,8 +1462,8 @@ var onExtend = function(){
 
 $("#favorit-add-button").on("click", function() {
 	let obj = new Object();
-	obj["menuSn"] =  251
-	let url = "/mariadb/neibis-api/v1/menu/fvrt/251?";
+	obj["menuSn"] =  246
+	let url = "/mariadb/neibis-api/v1/menu/fvrt/246?";
 	if(!$(this).hasClass("on")) url+="action=post"
 	else url+="action=delete"
 	Ajax.post(url,menuFvrtSuccess,menuFvrtFail,{data:JSON.stringify(obj)});

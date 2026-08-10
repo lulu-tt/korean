@@ -1,0 +1,2036 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title id="neibisTopTitle">사이트별 운영관리 | 지역어 종합 정보 | 지역어 지도 | 지역어 지도</title>
+		<link rel="shortcut icon" href="/mariadb/assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="/mariadb/assets/neibis/css/style.css" />
+		<link rel="stylesheet" href="/mariadb/assets/neibis/css/board-attach-ext.css" />
+
+		<!-- JavaScript -->
+		<script src="/mariadb/assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="/mariadb/assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+
+		<!-- I.N.UIX NEIBIS -->
+		<script>
+			window.CONTEXT_ROOT = "mariadb"; // 컨텍스트 루트
+	        window.ACCEPTED_FILES = ".gif,.bmp,.jpg,.png,.jpeg,.svg,.mp4,.wmv,.avi,.hwp,.hwpx,.doc,.docx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //전체 허용확장자
+	        window.ACCEPTED_IMAGES = ".gif,.bmp,.jpg,.png,.jpeg,.jfif,.svg";             //이미지 허용확장자
+	        window.ACCEPTED_MOVIES = ".mp4,.wmv,.avi";             //동영상 허용확장자
+	        window.ACCEPTED_DOCUMENT = ".hwp,.hwpx,.doc,.docx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //문서 허용확장자
+	        window.UPLOAD_MAX_FILE_SIZE = "50";             //최대 용량
+		</script>
+
+
+		<!-- neibis develop plugin -->
+		<script src="/mariadb/assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+		<script src='/mariadb/assets/neibis/js/neibis.messageWrapper.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.actionWrapper.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.ajaxWrapper.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.validator.js'></script>
+		<!-- neibis develop plugin -->
+
+		<!-- login.do 빼고사용 -->
+
+		<!-- neibis develop plugin -->
+		<script src='/mariadb/assets/neibis/js/neibis.cmmn.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.moveAction.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.validWrapper.js'></script>
+		<script src='/mariadb/assets/neibis/js/moment-with-locales.js'></script>
+		<script src="/mariadb/assets/neibis/js/dropzone.inuix.neibis.js"></script>
+		<script src='/mariadb/assets/neibis/js/neibis.popupWrapper.js'></script>
+		<script src='/mariadb/assets/neibis/js/neibis.excelDownload.js'></script>
+		<!-- neibis develop plugin -->
+
+		<script type="text/javascript" src="/mariadb/assets/neibis/lib/jquery-filedown/jquery.fileDownload.js"></script>
+
+		<!-- CodeMirror -->
+		<link rel="stylesheet" href='/mariadb/assets/neibis/plugins/codemirror/codemirror.min.css' />
+		<link rel="stylesheet" href='/mariadb/assets/neibis/plugins/codemirror/idea.min.css' />
+		<script src='/mariadb/assets/neibis/plugins/codemirror/codemirror.min.js'></script>
+		<script src='/mariadb/assets/neibis/plugins/codemirror/xml.min.js'></script>
+		<script src='/mariadb/assets/neibis/plugins/codemirror/css.min.js'></script>
+		<script src='/mariadb/assets/neibis/plugins/codemirror/javascript.min.js'></script>
+
+		<!-- beautify -->
+		<script src='/mariadb/assets/neibis/plugins/beautify/beautify.min.js'></script>
+		<script src='/mariadb/assets/neibis/plugins/beautify/beautify-css.min.js'></script>
+		<script src='/mariadb/assets/neibis/plugins/beautify/beautify-html.min.js'></script>
+
+		<script src='/mariadb/assets/neibis/plugins/ckeditor4/ckeditor.js'></script>
+		<script src='/mariadb/assets/neibis/plugins/ckeditor4/ckeditor.inuix.neibis.js'></script>
+
+
+
+		<!-- dropzone -->
+		<script src='/mariadb/assets/neibis/plugins/dropzone/dropzone.min.js'></script>
+
+		<script src="/mariadb/assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="/mariadb/assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="/mariadb/assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="/mariadb/assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<script>
+				// TODO : [개발] 정적 개발모드 전환
+				window.addEventListener("DOMContentLoaded", function () {
+					window.UIdevMode = false;
+				});
+
+
+			<!-- login.do 빼고사용 -->
+			$(document).ready(function() {
+				if(history.length <= 1) {
+				    $('i.ico-back').parent('a').remove();
+				}
+
+				var tooltipFile="/mariadb/assets/neibis/json/tooltip.json";
+				$.getJSON(tooltipFile, function(data) {
+				    let currentPath = getTooltipPath(window.location.pathname);
+
+				    let originPath = window.location.origin+"/"+window.CONTEXT_ROOT;
+					let neibisContextPath = "/mariadb";
+
+					let pathWithoutContext =""
+					if(neibisContextPath != ""){
+						pathWithoutContext = currentPath.replace(neibisContextPath, '');
+					}else{
+						pathWithoutContext = currentPath;
+					}
+
+					let hlp_cn ="등록된 툴팁이 없어요."
+					let btn_one_nm =""
+					let btn_one_link =""
+					let btn_two_nm =""
+					let btn_two_link ="";
+
+					data.forEach(function(item, index) {
+						let menu_sn = getTooltipPath(item["menu_sn"]);
+
+						if (menu_sn == pathWithoutContext) {
+							   hlp_cn = item?.hlp_cn ?? "등록된 툴팁이 없어요.";
+							   btn_one_nm = item?.btn_one_nm ?? "";
+							   btn_one_link = item?.btn_one_link ? originPath + item.btn_one_link : "javascript:void(0);";
+							   btn_two_nm = item?.btn_two_nm ?? "";
+							   btn_two_link = item?.btn_two_link ? originPath + item.btn_two_link : "javascript:void(0);";
+						}
+					})
+
+					$("#tooltip_p").html(hlp_cn);
+
+
+
+					 if(btn_one_nm != "" ||  btn_two_nm != ""){
+						let html ="";
+						if(btn_one_nm != ""){
+							html +="<a href='"+btn_one_link+"' class='btn btn-sm btn-primary' target='_blank'>"+btn_one_nm+"</a>";
+						}
+						if(btn_two_nm != ""){
+							html +="<a href='"+btn_two_link+"' class='btn btn-sm btn-primary' target='_blank'>"+btn_two_nm+"</a>";
+					 	}
+
+						$("#tooltip_btn").html(html);
+					  }else if(btn_one_nm != "" &&  btn_two_nm != ""){
+						  $("#tooltip_btn").attr("style","display:none");
+					  }
+
+				})
+				.fail(function(jqxhr, textStatus, error) {
+				});
+
+			function getTooltipPath(path){
+				let currentPath = path;
+				 if (currentPath.indexOf(".do") !== -1) {
+			    	   let indexBeforeDo = currentPath.lastIndexOf(".do");
+			    	    let lastSlashIndex = currentPath.lastIndexOf("/");
+			    	    const lastDashIndex = currentPath.lastIndexOf("-");
+
+			    	    let closestIndex;
+
+			    	   if (lastSlashIndex > -1 && (lastDashIndex === -1 || Math.abs(indexBeforeDo - lastSlashIndex) < Math.abs(indexBeforeDo - lastDashIndex))) {
+			    	       closestIndex = lastSlashIndex;
+			    	   } else if (lastDashIndex > -1) {
+			    	       closestIndex = lastDashIndex;
+			    	   }
+
+			    	 if (closestIndex !== undefined) {
+			    	    currentPath = currentPath.substring(0, closestIndex);
+			    	 }
+			    }
+				 return currentPath
+			}
+			});
+			;
+		</script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.9.0/ol.css">
+<style>
+
+/* 관리자 통합 에디터 상단바 */
+.ae-topbar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:12px;
+  padding:10px 18px;background:#0f172a;color:#fff;font-size:13px;font-weight:700}
+.ae-topbar .ae-badge{background:#1d4ed8;border-radius:999px;padding:3px 10px;font-size:12px}
+.ae-topbar .ae-save{border-radius:999px;padding:3px 12px;font-size:12px;background:#334155}
+.ae-topbar .ae-save.is-saving{background:#b45309}
+.ae-topbar .ae-save.is-saved{background:#047857}
+.ae-topbar .ae-save.is-error{background:#b91c1c}
+.ae-topbar a{margin-left:auto;color:#93c5fd;text-decoration:none;font-weight:700}
+.ae-topbar a:hover{text-decoration:underline}
+/* 수정 모드 표제어 메타(읽기전용) */
+.ae-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin:0 0 14px}
+.ae-meta__k{display:block;font-size:11px;font-weight:800;color:#94a3b8;margin-bottom:2px}
+.ae-meta__v{font-size:14px;font-weight:700;color:#0f172a}
+.ae-stbadge{display:inline-block;font-size:12px;font-weight:800;padding:2px 10px;border-radius:999px}
+.ae-modechip{font-size:12px;font-weight:800;padding:2px 10px;border-radius:999px;margin-left:8px}
+.ae-modechip--new{background:#eef2ff;color:#4338ca}
+.ae-modechip--edit{background:#ecfeff;color:#0e7490}
+
+#main.wrap{margin-top:20px;margin-bottom:48px;max-width:1200px}
+
+.sub-visual {
+  background: linear-gradient(180deg, #edf4ff 0%, #f8fafc 100%);
+  border-bottom: 1px solid #e2e8f0;
+  padding: 48px 0 42px;
+  text-align: center;
+  position: relative;
+}
+.sub-visual::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(37,99,235,.03) 0%, transparent 40%);
+  pointer-events: none;
+}
+.sv-title {
+  font-size: 30px; font-weight: 800; color: #1e3a8a;
+  letter-spacing: -.03em; margin: 0 0 14px; position: relative; z-index: 1;
+}
+.loc-sep { color: #cbd5e1; font-size: 12px; }
+/* 위치(브레드크럼) — 다른 페이지와 동일한 흰색 알약 스타일 */
+.crumbs { display: inline-flex; align-items: center; gap: 8px; background: #ffffff; padding: 8px 20px; border-radius: 99px; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02); border: 1px solid #cbd5e1; position: relative; z-index: 1; }
+.crumbs a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #64748b; text-decoration: none; }
+.crumbs a:hover { color: var(--blue); text-decoration: underline; }
+.crumbs [aria-current="page"] { font-size: 13px; font-weight: 800; color: #1e3a8a; }
+@media (max-width: 720px) {
+  .crumbs { gap: 5px; padding: 6px 14px; }
+  .crumbs a, .crumbs [aria-current="page"] { font-size: 11.5px; }
+  .crumbs i { font-size: 12px; }
+}
+
+#main.wrap { margin-top: 24px; margin-bottom: 72px; }
+
+/* 단계 탭 — dialect_search_prototype.html 의 언더라인 탭(.tab-bar) 스타일과 통일 */
+.mm-steps {
+  display: flex;
+  border-bottom: 1px solid #e2e8f0;
+  gap: 0;
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+.mm-step {
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: #64748b;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s;
+}
+.mm-step:hover { color: #111827; }
+.mm-step:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: -2px;
+  z-index: 1;
+}
+.mm-step.is-active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+  font-weight: 800;
+}
+/* 완료 표시 없음 — 활성/비활성 두 상태만 구분 (완료 탭도 일반 비활성과 동일) */
+.mm-step__n {
+  flex-shrink: 0;
+  min-width: 22px; height: 22px; border-radius: 999px; padding: 0 7px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800;
+  background: #f1f5f9; color: #94a3b8;
+}
+.mm-step__n span { color: inherit; font-weight: 800; line-height: 1; }
+.mm-step.is-active .mm-step__n { background: #eff6ff; color: #2563eb; }
+.mm-step__label {
+  text-align: left;
+  line-height: 1.25;
+}
+.mm-step__sub {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+.mm-step.is-active .mm-step__sub { color: #60a5fa; }
+
+@media (max-width: 900px) {
+  .mm-step { padding: 12px 10px; font-size: 13px; }
+  .mm-step__sub { display: none; }
+}
+
+.mm-shell {
+  display: grid;
+  grid-template-columns: minmax(320px, 400px) minmax(0, 1fr);
+  gap: 18px; align-items: start;
+}
+.mm-side {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(15,23,42,.04);
+  display: flex; flex-direction: column; height: 995px; min-height: 520px; overflow: hidden;
+}
+.mm-side__scroll { overflow: auto; padding: 16px; flex: 1; }
+.mm-panel { display: none; }
+.mm-panel.is-open { display: block; }
+
+.mm-panel__title {
+  margin: 0 0 12px; font-size: 16px; font-weight: 800; color: #0f172a;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.mm-panel__hint { font-size: 12px; color: #64748b; font-weight: 400; margin: -6px 0 12px; line-height: 1.45; }
+
+.mm-field { margin-bottom: 12px; }
+.mm-field__label {
+  display: block; font-size: 12px; font-weight: 800; color: #64748b; margin-bottom: 6px;
+}
+.mm-field__label .req { color: #ef4444; margin-left: 2px; }
+.mm-input, .mm-select, .mm-textarea {
+  width: 100%; box-sizing: border-box;
+  border: 1px solid #cbd5e1; border-radius: 10px;
+  padding: 10px 12px; font-size: 14px; font-weight: 600;
+  font-family: inherit; color: #0f172a; background: #fff;
+}
+.mm-textarea { min-height: 72px; resize: vertical; font-weight: 500; line-height: 1.45; }
+.mm-input:focus, .mm-select:focus, .mm-textarea:focus {
+  outline: 2px solid #93c5fd; border-color: #3b82f6;
+}
+
+.mm-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border-radius: 10px; border: 1px solid transparent;
+  padding: 9px 14px; font-size: 13px; font-weight: 700;
+  font-family: inherit; cursor: pointer; text-decoration: none; white-space: nowrap;
+}
+.mm-btn--primary { background: #2563eb; color: #fff; }
+.mm-btn--primary:hover { background: #1d4ed8; }
+.mm-btn--primary:disabled { background: #94a3b8; cursor: not-allowed; }
+.mm-btn--ghost { background: #fff; border-color: #cbd5e1; color: #334155; }
+.mm-btn--ghost:hover { border-color: #3b82f6; color: #2563eb; }
+.mm-btn--danger:hover { border-color: #fca5a5; color: #dc2626; }
+.mm-btn--sm { padding: 6px 10px; font-size: 12px; }
+.mm-btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+/* 표제어 목록 */
+.hw-list { display: flex; flex-direction: column; gap: 8px; }
+.hw-card {
+  border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px;
+  cursor: pointer; background: #fff; transition: .15s;
+}
+.hw-card:hover { border-color: #93c5fd; }
+.hw-card.is-selected {
+  border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); background: #f8fbff;
+}
+.hw-card__title { font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 4px; }
+.hw-card__meta { font-size: 12px; color: #64748b; font-weight: 600; display: flex; flex-wrap: wrap; gap: 6px; }
+.hw-card__meta span {
+  background: #f1f5f9; border-radius: 999px; padding: 2px 8px;
+}
+.hw-card__actions { margin-top: 8px; display: flex; gap: 6px; }
+
+/* 지역어 카드 — 컴팩트 */
+.df-list { display: flex; flex-direction: column; gap: 7px; }
+.df-card {
+  border: 1px solid #e2e8f0; border-radius: 10px; padding: 7px 10px; background: #fff; cursor: pointer;
+}
+/* 같은 그룹 내 카드 사이 간격 (기존 0 → 일관된 간격) */
+.df-card + .df-card { margin-top: 6px; }
+.df-card.is-selected {
+  border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,.12); background: #f8fbff;
+}
+.df-card__head { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+.df-card__word {
+  flex: 1; min-width: 0; font-weight: 800; font-size: 14px; border: none; background: none;
+  text-align: left; font-family: inherit; cursor: pointer; color: #0f172a; padding: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.df-card__cnt {
+  flex-shrink: 0; font-size: 11px; font-weight: 700; color: #64748b;
+  background: #f1f5f9; border-radius: 999px; padding: 2px 8px;
+}
+.df-card__gear {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 7px;
+  border: 1px solid #e2e8f0; background: #fff; color: #64748b; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 14px;
+}
+.df-card__gear:hover { border-color: #93c5fd; color: #2563eb; }
+.df-card__del:hover { border-color: #fca5a5; color: #dc2626; }
+.df-card__meta { font-size: 11px; color: #64748b; font-weight: 600; display: flex; align-items: center; flex-wrap: wrap; gap: 3px; }
+.df-card__face { display: inline-block; width: 13px; height: 13px; border-radius: 3px; vertical-align: middle; box-shadow: inset 0 0 0 1px rgba(15,23,42,.18); margin-left: 2px; }
+.df-card__sym { display: inline-flex; align-items: center; margin-left: 2px; }
+.df-card__sym svg { display: block; }
+.df-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.df-grid .mm-field { margin-bottom: 0; }
+.df-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.df-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;
+  border-radius: 999px; padding: 3px 6px 3px 10px; font-size: 11px; font-weight: 700;
+}
+.df-chip button {
+  border: none; background: transparent; color: #60a5fa; cursor: pointer; font-size: 14px; line-height: 1;
+}
+
+/* 도움말 박스 */
+.mm-help {
+  background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;
+  padding: 10px 12px; margin: 12px 0 0;
+}
+.mm-help__head { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 6px; }
+.mm-help__head i { color: #94a3b8; font-size: 15px; }
+.mm-help__line { margin: 4px 0 0; font-size: 12px; color: #64748b; font-weight: 400; line-height: 1.45; }
+.mm-help__line:first-of-type { margin-top: 0; }
+
+/* 그룹설정 (다중 선택 → 그룹 일괄 지정) — 박스 없이 타이틀+서브텍스트 */
+.df-groupset { margin-bottom: 12px; }
+.df-groupset__title {
+  font-size: 15px; font-weight: 800; color: #0f172a;
+  display: flex; align-items: center; gap: 7px;
+}
+.df-groupset__title::before {
+  content: ''; flex-shrink: 0;
+  width: 9px; height: 9px; border-radius: 2px; background: #2563eb;
+}
+.df-groupset__sub { font-size: 12px; color: #64748b; font-weight: 400; margin-top: 2px; line-height: 1.45; }
+.df-groupset.is-active .df-groupset__sub { color: #1d4ed8; }
+.df-groupset__row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.df-batch__group { width: auto; min-width: 120px; flex: 0 1 auto; padding: 7px 10px; font-size: 13px; }
+
+/* 그룹 블록 */
+.df-group { margin-bottom: 12px; }
+.df-group__head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 2px 8px;
+}
+.df-group__label { font-size: 13px; font-weight: 800; color: #0f172a; }
+.df-group__count {
+  font-size: 11px; font-weight: 700; color: #64748b;
+  background: #f1f5f9; border-radius: 999px; padding: 1px 8px;
+}
+.df-group__color {
+  margin-left: auto;
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 26px; padding: 0 8px 0 6px; border-radius: 8px;
+  border: 1px solid #e2e8f0; background: #fff; cursor: pointer;
+  font-family: inherit; font-size: 11px; font-weight: 700; color: #334155;
+  box-shadow: inset 0 0 0 1px rgba(15,23,42,.04);
+}
+.df-group__color:hover { border-color: #93c5fd; }
+.df-group__color:not(.is-empty) { color: #fff; text-shadow: 0 1px 2px rgba(15,23,42,.35); }
+.df-group__color.is-empty { border-style: dashed; color: #2563eb; border-color: #bfdbfe; }
+.df-group__colortext { line-height: 1; }
+.df-grouppalette { margin: 0 0 10px; }
+
+/* 3단계 지도 확인 — 읽기 전용 그룹별 목록 */
+.review-list { display: flex; flex-direction: column; gap: 14px; }
+.rv-group { border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #fff; }
+.rv-group__head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px; background: #f8fafc; border-bottom: 1px solid #eef2f7;
+}
+.rv-group__swatch {
+  width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(15,23,42,.18);
+}
+.rv-group__swatch.is-empty {
+  background: repeating-linear-gradient(45deg, #e2e8f0, #e2e8f0 3px, #f8fafc 3px, #f8fafc 6px);
+}
+.rv-group__label { font-size: 13px; font-weight: 800; color: #0f172a; }
+.rv-group__count { margin-left: auto; font-size: 11px; font-weight: 700; color: #64748b; background: #eef2f7; border-radius: 999px; padding: 1px 8px; }
+.rv-card { display: flex; align-items: center; gap: 8px; padding: 8px 12px; }
+.rv-card + .rv-card { border-top: 1px solid #f1f5f9; }
+.rv-card__seq { font-size: 11px; font-weight: 800; color: #94a3b8; min-width: 16px; text-align: center; }
+.rv-card__word { flex: 1; min-width: 0; font-size: 14px; font-weight: 700; color: #0f172a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rv-card__sym { flex-shrink: 0; width: 20px; display: inline-flex; align-items: center; justify-content: center; }
+.rv-card__cnt { flex-shrink: 0; min-width: 46px; box-sizing: border-box; text-align: center; font-size: 11px; font-weight: 700; color: #64748b; background: #f1f5f9; border-radius: 999px; padding: 2px 8px; }
+
+/* 카드 체크박스 · 미설정 배지 */
+.df-card__check { width: 16px; height: 16px; flex-shrink: 0; accent-color: #2563eb; cursor: pointer; margin: 0; }
+.df-card__na {
+  display: inline-block; font-size: 10px; font-weight: 700; color: #94a3b8;
+  background: #f1f5f9; border-radius: 999px; padding: 1px 7px; vertical-align: middle;
+}
+
+/* 면색 팔레트 (~70색) */
+.mm-palette {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 5px;
+  max-height: 168px;
+  overflow: auto;
+  padding: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+.mm-palette--sym { max-height: 92px; margin-bottom: 8px; }
+.mm-palette__swatch {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: inset 0 0 0 1px rgba(15,23,42,0.12);
+  transition: transform 0.1s, border-color 0.1s;
+}
+.mm-palette__swatch:hover { transform: scale(1.08); border-color: #94a3b8; }
+.mm-palette__swatch.is-selected {
+  border-color: #0f172a;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #2563eb;
+  transform: scale(1.06);
+}
+.mm-palette__swatch:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* 상징 부호 그리드 피커 — 테두리 박스 없이 이미지만 정렬, 한 줄 10개 */
+.mm-symgrid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 2px;
+  padding: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  max-height: 220px; overflow-y: auto;
+}
+.mm-symbtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  aspect-ratio: 1; width: 100%;
+  background: none; border: none; border-radius: 6px;
+  cursor: pointer; padding: 3px;
+  transition: background 0.1s, box-shadow 0.1s;
+}
+.mm-symbtn svg { display: block; }
+.symimg { display: inline-block; }
+.mm-symbtn:hover { background: #e8eef6; }
+.mm-symbtn.is-selected {
+  background: #dbeafe;
+  box-shadow: inset 0 0 0 2px #2563eb;
+}
+.mm-symbtn:focus-visible { outline: 2px solid #2563eb; outline-offset: -2px; }
+@media (max-width: 900px) { .mm-symgrid { grid-template-columns: repeat(8, 1fr); } }
+
+/* 범례 SVG 마커 */
+.dfmark-svg { display: inline-flex; width: 18px; height: 18px; flex-shrink: 0; align-items: center; justify-content: center; }
+.dfmark-svg svg { display: block; }
+
+.mm-empty {
+  text-align: center; padding: 20px 12px; color: #94a3b8; font-size: 13px; font-weight: 600;
+  border: 1px dashed #e2e8f0; border-radius: 12px; background: #f8fafc;
+}
+
+.mm-side__foot {
+  border-top: 1px solid #f1f5f9; padding: 12px 16px;
+  display: flex; flex-wrap: wrap; gap: 8px; background: #fafbfc; align-items: center;
+}
+.mm-stepind { flex: 1; text-align: center; font-size: 12px; font-weight: 800; color: #334155; }
+.mm-badge--temp { background: #fffbeb; color: #b45309; }
+
+/* 지도 */
+.mm-main { display: flex; flex-direction: column; gap: 10px; min-width: 0; height: 995px; min-height: 520px; }
+.mapbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 16px;
+  padding: 12px 16px; flex-wrap: wrap;
+  box-shadow: 0 2px 10px rgba(15,23,42,.04);
+}
+.mapbar__title { font-size: 17px; font-weight: 800; color: #0f172a; }
+.mapbar__meta { font-size: 12px; color: #64748b; margin-top: 2px; }
+.mapbar__actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* 지도 도구(설정·공유·다운로드) — 3단계에서만 노출 */
+.mm-map-tools { display: flex; gap: 8px; align-items: center; }
+/* 지도 설정·다운로드 팝오버 */
+.mm-pop-wrap { position: relative; display: inline-block; }
+.mm-pop {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 50;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(15,23,42,.16); padding: 10px; min-width: 230px;
+}
+.mm-pop[hidden] { display: none; }
+.mm-pop__sec { padding: 6px 4px; }
+.mm-pop__sec + .mm-pop__sec { border-top: 1px solid #f1f5f9; margin-top: 4px; }
+.mm-pop__label { font-size: 11px; font-weight: 800; color: #94a3b8; margin: 2px 4px 6px; }
+.mm-chk {
+  display: flex; align-items: center; gap: 7px; padding: 6px 6px; border-radius: 8px;
+  font-size: 13px; font-weight: 600; color: #334155; cursor: pointer;
+}
+.mm-chk:hover { background: #f8fafc; }
+.mm-chk input { width: 15px; height: 15px; accent-color: #2563eb; cursor: pointer; }
+.mm-chk__dot { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
+.mm-pop__item {
+  display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+  border: none; background: none; font-family: inherit; font-size: 13px; font-weight: 700;
+  color: #334155; padding: 9px 10px; border-radius: 8px; cursor: pointer;
+}
+.mm-pop__item:hover { background: #eff6ff; color: #1d4ed8; }
+.mm-pop__note { font-size: 11px; color: #94a3b8; font-weight: 600; line-height: 1.45; padding: 8px 8px 2px; display: flex; gap: 6px; }
+.mm-badge {
+  font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px;
+  background: #f1f5f9; color: #475569;
+}
+.mm-badge--saved { background: #ecfdf5; color: #047857; }
+.mm-mode {
+  font-size: 13px; font-weight: 700; color: #1e40af;
+  background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 10px 14px;
+}
+.coach {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 14px;
+  padding: 12px 16px; font-size: 13px; color: #1e40af; line-height: 1.5;
+}
+.coach > i { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.coach span { flex: 1; }
+.coach__close { background: none; border: none; color: #60a5fa; cursor: pointer; font-size: 16px; }
+
+.mm-mapcard {
+  position: relative; border: 1px solid #e2e8f0; border-radius: 16px;
+  overflow: hidden; background: #e8eef5;
+  flex: 1; min-height: 0;
+}
+#mm-map { width: 100%; height: 100%; outline: none; }
+.mm-mapui {
+  position: absolute; right: 12px; bottom: 12px; z-index: 4;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.mm-mapui button {
+  width: 36px; height: 36px; border-radius: 10px; border: 1px solid #e2e8f0;
+  background: rgba(255,255,255,.96); cursor: pointer; color: #334155; font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+}
+.maplegend {
+  position: absolute; left: 12px; bottom: 12px; z-index: 3;
+  background: rgba(255,255,255,.96); border: 1px solid #e2e8f0; border-radius: 14px;
+  padding: 12px 14px; min-width: 150px; box-shadow: 0 4px 16px rgba(15,23,42,.1);
+}
+.maplegend__head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  width: 100%; background: none; border: none; padding: 0; cursor: pointer;
+  font-family: inherit; font-size: 12px; font-weight: 800; color: #475569; margin-bottom: 8px;
+}
+.maplegend__chev { font-size: 15px; color: #94a3b8; transition: transform .15s; }
+.maplegend.is-collapsed .maplegend__head { margin-bottom: 0; }
+.maplegend.is-collapsed .maplegend__chev { transform: rotate(-90deg); }
+.maplegend.is-collapsed .maplegend__list { display: none; }
+.maplegend__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: min(52vh, 380px); overflow-y: auto; }
+.maplegend__row { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: #334155; }
+.dfmark { width: 12px; height: 12px; border-radius: 999px; border: 1px solid rgba(15,23,42,.12); flex-shrink: 0; }
+.dfmark--square { border-radius: 2px; }
+.dfmark--diamond { border-radius: 2px; transform: rotate(45deg); }
+
+.mm-search-wrap { position: relative; margin-top: 8px; }
+.mm-suggest {
+  position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 20;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(15,23,42,.12); max-height: 200px; overflow: auto; padding: 6px;
+}
+.mm-suggest__item {
+  display: block; width: 100%; text-align: left; border: none; background: none;
+  font: inherit; font-size: 13px; font-weight: 600; color: #334155;
+  padding: 8px 10px; border-radius: 8px; cursor: pointer;
+}
+.mm-suggest__item:hover, .mm-suggest__item.is-active { background: #eff6ff; color: #1d4ed8; }
+
+/* 지역 지정(페인팅) 모드 툴바 — 지도 위 플로팅, 바 자체만 클릭 캡처 */
+.mm-paint {
+  position: absolute; top: 12px; left: 12px; right: 12px; z-index: 5;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: rgba(255,255,255,.97); border: 1px solid #dbe4ef; border-radius: 12px;
+  padding: 8px 12px; box-shadow: 0 6px 20px rgba(15,23,42,.12);
+}
+.mm-paint[hidden] { display: none; }
+.mm-paint__dot { width: 14px; height: 14px; border-radius: 999px; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(15,23,42,.15); }
+.mm-paint__label { font-size: 13px; font-weight: 700; color: #334155; white-space: nowrap; }
+.mm-paint__label b { color: #0f172a; }
+.mm-paint__search { flex: 1 1 160px; min-width: 140px; margin-top: 0; }
+.mm-input--sm { padding: 7px 12px; font-size: 13px; }
+.mm-paint #mm-region-suggest { top: calc(100% + 6px); }
+
+/* modal */
+.mm-modal[hidden] { display: none !important; }
+.mm-modal {
+  position: fixed; inset: 0; z-index: 1200;
+  display: flex; align-items: center; justify-content: center;
+}
+.mm-modal__backdrop { position: absolute; inset: 0; background: rgba(15,23,42,.45); }
+.mm-modal__panel {
+  position: relative; background: #fff; border-radius: 16px;
+  padding: 24px; width: min(94vw, 480px); max-height: 90vh; overflow: auto;
+  box-shadow: 0 20px 50px rgba(15,23,42,.25);
+}
+.mm-modal__title { margin: 0 0 6px; font-size: 18px; font-weight: 800; }
+.mm-modal__desc { margin: 0 0 16px; font-size: 13px; color: #64748b; line-height: 1.5; }
+.mm-modal--wide .mm-modal__panel { width: min(94vw, 560px); }
+.mm-modal__x {
+  position: absolute; top: 14px; right: 14px; width: 32px; height: 32px;
+  border: none; background: #f1f5f9; color: #475569; border-radius: 8px;
+  cursor: pointer; font-size: 18px; display: inline-flex; align-items: center; justify-content: center;
+}
+.mm-modal__x:hover { background: #e2e8f0; color: #0f172a; }
+
+#mm-toast {
+  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
+  z-index: 1300; background: #0f172a; color: #fff;
+  font-size: 14px; font-weight: 700; padding: 12px 18px; border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(15,23,42,.25); max-width: min(90vw, 420px); text-align: center;
+}
+
+@media (max-width: 960px) {
+  .mm-shell { grid-template-columns: 1fr; }
+  .mm-side { height: auto; max-height: none; min-height: 0; }
+  .mm-main { height: auto; min-height: 0; }
+  .mm-mapcard { flex: none; }
+  #mm-map { height: 400px; }
+}
+
+
+/* 네이티브 통합 추가 */
+.mapedit-root{padding:4px 2px}
+.mm-step__sub{display:none!important}
+#mm-status{display:none!important}   /* 사용자 사이트 '임시 저장됨' 배지 — 관리자에선 불필요 */
+/* embed 모드: 보기 모달 등에서 크롬 없이 지도만 노출 */
+.ae-embed #sidebar{display:none!important}
+.ae-embed .content-header{display:none!important}
+.ae-embed #content{margin:0!important;padding:0!important}
+.ae-embed .content-body{padding:0!important}
+.ae-embed .mapedit-root{padding:0}
+.ae-embed .mm-steps{display:none!important}
+.ae-embed .mm-side__foot{display:none!important}
+.ae-embed .mm-shell{height:100vh}
+.ae-embed .mm-side,.ae-embed .mm-main{height:100vh;min-height:0}
+.ae-hdr-actions{margin-left:auto;display:inline-flex;gap:8px;align-items:center}
+.ae-savechip{font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;background:#334155;color:#fff}
+.ae-savechip.is-saving{background:#b45309}
+.ae-savechip.is-saved{background:#047857}
+.ae-savechip.is-error{background:#b91c1c}
+.mapedit-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+</style>
+</head>
+	<body class="layout-type-sub">
+	<input type="hidden" id="_setToken" value=""/>
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+	<!-- login.do 빼고사용 -->
+				<aside id="sidebar">
+					<div class="sidebar-header">
+						<h1 class="sidebar-title">
+							<a href='/mariadb/neibis/index.do'>
+								<img src="/mariadb/assets/neibis/images/logo_dialect.png" alt="지역어 종합 정보" />
+								<span class="logo-text">관리시스템</span>
+							</a>
+
+						</h1>
+						<div class="toolbar">
+							<button type="button" class="btn btn-icon btn-upside-down">
+								<i class="ico ico-bararrowsv-gray-sm"></i>
+								<span class="text">메뉴순서 상하반전</span>
+							</button>
+							<button type="button" class="btn btn-icon btn-collapse">
+								<i class="ico ico-chevrondouble-left-gray-sm"></i>
+								<span class="text">메뉴 <span class="close">접기</span><span class="open">펼치기</span></span>
+							</button>
+						</div>
+					</div>
+
+					<!-- 콘텐츠 영역 -->
+					<div class="sidebar-body">
+						<div class="favorit-area variable-area">
+							<h2 class="favorit-title">
+								<button type="button" class="btn-favorit" title="여닫기">
+									<i class="ico ico-favorit-gray-md"></i>
+									<span class="text">즐겨찾기</span>
+								</button>
+							</h2>
+							<div class="favorit-body">
+								<nav class="favorit-menu">
+
+
+
+									<!-- 데이터 있을 때 -->
+									<div class="title-area">
+										<i class="ico ico-favorit-gray-md"></i>
+										<span class="text">즐겨찾기</span>
+									</div>
+									<ul class="favorit-list">
+
+
+
+										<li id="fvrt5">
+											<a href="/mariadb/neibis/conts/5/list.do ">웹콘텐츠 관리</a>
+										</li>
+
+
+
+
+
+
+
+										<li id="fvrt116">
+											<a href="/mariadb/neibis/bbs/__NEIBIS_MENU_REPLACE__/list.do">용정보원-국문 &gt; 테스트 메뉴 &gt; 테스트 게시판3</a>
+										</li>
+
+
+
+
+
+									</ul>
+									<!-- // 데이터 있을 때 -->
+
+								</nav>
+							</div>
+						</div>
+						<div class="separator separator1"></div>
+						<nav id="gnb-area" class="variable-area">
+							<ul class="gnb-list">
+								<!-- [개발] 활성화 최하위 메뉴의 li class="on" -->
+								<li >
+									<a href="/mariadb/neibis/index.do">
+										<i class="ico ico-dashboard-gray-md"></i>
+										<span class="text">대시보드</span>
+									</a>
+								</li>
+								<li>
+									<a href="#;">
+										<i class="ico ico-operation-gray-md"></i>
+										<span class="text">운영</span>
+									</a>
+									<div class="gnb-container">
+											<ul>
+											<li>
+												<a href="/mariadb/neibis/conts/5/list.do ">웹콘텐츠 관리</a>
+											</li>
+											<li>
+												<a href="/mariadb/neibis/directory/7/directory.do">팝업/배너 관리</a>
+												<ul>
+											<li><a href="/mariadb/neibis/site/12/promtn/list.do">프로모션 영역 관리</a></li>
+											<li><a href="/mariadb/neibis/site/18/layer-popup/list.do">레이어 팝업 관리</a></li>
+											<li><a href="/mariadb/neibis/site/14/popup/list.do">팝업 관리</a></li>
+											<li><a href="/mariadb/neibis/site/13/popzn/list.do">팝업존 관리</a></li>
+											<li><a href="/mariadb/neibis/site/15/bann/list.do">배너 관리</a></li>
+											<li><a href="/mariadb/neibis/site/16/mini-popup/list.do">미니팝업존 관리</a></li>
+											<li><a href="/mariadb/neibis/site/17/mini-bann/list.do">미니배너 관리</a></li>
+											<li><a href="/mariadb/neibis/site/19/fmly/list.do">패밀리 관리</a></li>
+											<li><a href="/mariadb/neibis/site/256/image-maker/list.do">팝업·배너 이미지 제작</a></li>
+												</ul></li>
+											<li>
+												<a href="/mariadb/neibis/directory/8/directory.do">설문조사 관리</a>
+												<ul>
+											<li><a href="/mariadb/neibis/extn/20/srvy-mngr/list.do">설문조사 관리</a></li>
+											<li><a href="/mariadb/neibis/extn/21/srvy-prtc/list.do">설문조사 참여</a></li>
+												</ul></li>
+											<li>
+												<a href="/mariadb/neibis/directory/9/directory.do">조직 관리</a>
+												<ul>
+											<li><a href="/mariadb/neibis/extn/22/ognz-dept/list.do">부서 및 직원업무 설정</a></li>
+											<li><a href="/mariadb/neibis/extn/205/ognz-emp/list.do">직원검색</a></li>
+												</ul></li>
+											<li><a href="/mariadb/neibis/extn/41/plan/list.do">일정관리</a></li>
+											<li><a href="/mariadb/neibis/extn/195/bfhd-info/list.do">사전정보공표</a></li>
+											<li>
+												<a href="/mariadb/neibis/directory/207/directory.do">공공데이터포털API</a>
+												<ul>
+											<li><a href="/mariadb/neibis/extn/204/apis-data/bid-pbanc/list.do">입찰공고</a></li>
+											<li><a href="/mariadb/neibis/extn/212/apis-data/cntrct-info/list.do">계약현황 </a></li>
+												</ul></li>
+											<li>
+												<a href="/mariadb/neibis/conts/257/directory.do">실험실</a>
+												<ul>
+											<li>
+												<a href="/mariadb/neibis/conts/258/directory.do">채용관리</a>
+												<ul>
+											<li><a href="/mariadb/neibis/extn/259/rcrt-pbanc/list.do">채용공고관리</a></li>
+											<li><a href="/mariadb/neibis/extn/260/rcrt-aplct/list.do">지원자관리</a></li>
+											<li><a href="/mariadb/neibis/extn/261/rcrt-qstn/list.do">면접자료관리  </a></li>
+											<li><a href="/mariadb/neibis/extn/262/rcrt-intv-schdl/list.do">면접일정관리</a></li>
+											<li><a href="/mariadb/neibis/extn/263/rcrt-intv/list.do">면접평가관리</a></li>
+										</ul></li></ul></li>
+									</div>
+								</li>
+
+								<li>
+									<a href="#;">
+										<i class="ico ico-monitor-gray-md"></i>
+										<span class="text">시스템</span>
+									</a>
+									<div class="gnb-container">
+										<ul>
+									<li >
+									<a href="#">메뉴관리</a>
+										<ul>
+												<li ><a href="/mariadb/system/menu/mngr-list.do">관리자메뉴</a></li>
+												<li ><a href="/mariadb/system/menu/user-list.do">사용자메뉴</a></li>
+										</ul>
+									</li>
+									<li ><a href="/mariadb/system/sitemst-main/list.do">메인설정</a></li>
+									<li >
+									<a href="#">게시판 관리</a>
+										<ul>
+												<li ><a href="/mariadb/system/bbs-mst/list.do">게시판 설정</a></li>
+												<li ><a href="/mariadb/system/bbs-restore/list.do">게시물 복원 관리</a></li>
+										</ul>
+									</li>
+									<li >
+									<a href="#">코드관리</a>
+										<ul>
+												<li ><a href="/mariadb/system/code/list.do">코드설정</a></li>
+												<li ><a href="/mariadb/system/mltipl/list.do">다중항목코드 설정</a></li>
+										</ul>
+									</li>
+									<li >
+									<a href="#">정보관리</a>
+										<ul>
+												<li ><a href="/mariadb/system/mngr-info/list.do">관리자 등록관리</a></li>
+												<li ><a href="/mariadb/system/mngr-ip/list.do">관리자 아이피관리</a></li>
+												<li ><a href="/mariadb/system/mngr-Stng/list.do">로그인 보안설정</a></li>
+										</ul>
+									</li>
+									<li >
+									<a href="#">권한관리</a>
+										<ul>
+												<li ><a href="/mariadb/system/mngr-menu-authrt/list.do">관리자 메뉴권한</a></li>
+												<li ><a href="/mariadb/system/user-cont-authrt/list.do">사용자 콘텐츠 관리권한</a></li>
+												<li ><a href="/mariadb/system/authrt-group/list.do">권한그룹 관리</a></li>
+												<li ><a href="/mariadb/system/authrt-menu/list.do">(구) 관리자 메뉴권한</a></li>
+												<li ><a href="/mariadb/system/authrt-conts/list.do">(구) 웹콘텐츠 권한</a></li>
+										</ul>
+									</li>
+										</ul>
+									</div>
+								</li>
+
+
+								<li>
+									<a href="#;">
+										<i class="ico ico ico-log-gray-md"></i>
+										<span class="text">로그</span>
+									</a>
+									<div class="gnb-container">
+										<ul>
+									<li ><a href="/mariadb/weblog/mngr-log/list.do">관리자 접속 로그</a></li>
+									<li >
+									<a href="#">메뉴별 로그</a>
+										<ul>
+												<li ><a href="/mariadb/weblog/menu-log/mngr-list.do">관리자 메뉴로그</a></li>
+												<li ><a href="/mariadb/weblog/menu-log/user-list.do">사용자 메뉴로그</a></li>
+										</ul>
+									</li>
+									<li ><a href="/mariadb/weblog/privacy-log/list.do">개인정보 열람이력</a></li>
+									<li ><a href="/mariadb/weblog/bbs-log/list.do">게시물 변경 이력</a></li>
+									<li ><a href="/mariadb/weblog/conts-hstry/list.do">웹콘텐츠 이력</a></li>
+									<li ><a href="/mariadb/weblog/mngr-chg-hstry/list.do">관리자 계정 변경 이력</a></li>
+									<li ><a href="/mariadb/weblog/mngr-menu-hstry/list.do">관리자 메뉴 권한 변경 이력</a></li>
+										</ul>
+									</div>
+								</li>
+
+
+								<li>
+									<a href="#;">
+										<i class="ico ico-chartbar-gray-md"></i>
+										<span class="text">통계</span>
+									</a>
+									<div class="gnb-container">
+										<ul>
+									<li ><a href="/mariadb/stats/mngr/login-list.do">관리자 접속자 통계</a></li>
+									<li ><a href="/mariadb/stats/user/cnt-list.do">사용자 방문자 통계</a></li>
+									<li ><a href="/mariadb/stats/menu/list.do">사용자 메뉴별 통계</a></li>
+									<li ><a href="/mariadb/stats/dgstfn/list.do">만족도 통계</a></li>
+									<li ><a href="/mariadb/stats/bbs/inq-list.do">게시판 통계</a></li>
+									<li ><a href="/mariadb/stats/conts/list.do">웹콘텐츠 통계</a></li>
+									<li ><a href="/mariadb/stats/bbs-downnl/list.do">게시물 다운로드 통계</a></li>
+										</ul>
+									</div>
+								</li>
+
+
+								<li >
+									<a href="/mariadb/stats/rptp/stats-view.do">
+										<i class="ico ico-report-gray-md"></i>
+										<span class="text">방문자 통계 요약 보고서</span>
+									</a>
+								</li>
+
+							</ul>
+						</nav>
+						<div class="separator separator2"></div>
+						<div class="site-manage-area variable-area">
+							<h2 class="site-manage-title">
+								<button type="button" class="btn-site-manage">
+									<i class="ico ico-earth-md"></i>
+									<span>사이트 관리</span>
+								</button>
+							</h2>
+							<div class="site-manage-body">
+								<div class="title-area">
+									<i class="ico ico-earth-md"></i>
+									<span>사이트 관리</span>
+								</div>
+								<form action="#;" class="site-search">
+									<fieldset>
+										<legend class="sr-only">사이트 검색</legend>
+										<input
+											type="text" name="siteSearchKeyword" id="siteSearchKeyword"
+											class="form-control"
+											placeholder="사이트를 검색해 주세요"
+											title="사이트를 검색해 주세요"
+										/>
+										<button type="button" class="btn-search" id="siteSearchBtn">
+											<i class="ico ico-search-gray-sm"></i><span class="sr-only">검색</span>
+										</button>
+									</fieldset>
+								</form>
+								<nav class="site-menu">
+									<ul class="site-list">
+										<li data-level="1" class="on">
+													<a href="javascript:void(0)">지역어 종합 정보</a>
+										<ul style="display:block;">
+										<li data-level="2" >
+													<a href="javascript:void(0)">조사자료</a>
+										<ul style="display:none;">
+										<li data-level="3">
+													<a href="/mariadb/neibis/survey/vocab.do" >어휘조사자료</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/survey/oral.do" >구술발화조사자료</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/survey/variant.do" >지역별 이형태 관리</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/survey/search-std-vocab.do" >검색 표준어 어휘 관리</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/survey/search-topic.do" >검색 주제 분류 관리</a>
+										</li>
+										</ul></li>
+										<li data-level="2" class="on">
+													<a href="javascript:void(0)">지역어 지도</a>
+										<ul style="display:block;">
+										<li data-level="3" class="on">
+													<a href="/mariadb/neibis/map/dialect.do" >지역어 지도</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/map/weather.do" >지역어 기상도</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/map/symbol.do" >상징 부호 관리</a>
+										</li>
+										</ul></li>
+										<li data-level="2" >
+													<a href="javascript:void(0)">알림마당</a>
+										<ul style="display:none;">
+										<li data-level="3">
+													<a href="/mariadb/neibis/bbs/246/list.do" >공지사항</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/bbs/251/list.do" >도움말(FAQ)</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/bbs/254/list.do" >의견제시</a>
+										</li>
+										</ul></li>
+										<li data-level="2" >
+													<a href="javascript:void(0)">지역어 자료관</a>
+										<ul style="display:none;">
+										<li data-level="3">
+													<a href="/mariadb/neibis/archive/literature.do" >문학 속 지역어</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/archive/region-photo.do" >사진으로 보는 생활어</a>
+										</li>
+										<li data-level="3">
+													<a href="/mariadb/neibis/archive/data-room.do" >자료실</a>
+										</li>
+										</ul></li>
+																				<li data-level="2" >
+													<a href="javascript:void(0)">Open API관리</a>
+										<ul style="display:none;">
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/api.do" >Open API사용현황</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI.do" >호출 단어 순위</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI2.do" >호출 URL 순위</a>
+										</li>
+									</ul></li></ul></li>
+								
+										<li data-level="1" >
+													<a href="javascript:void(0)">기타 관리</a>
+										<ul style="display:none;">
+										<li data-level="2" >
+													<a href="/mariadb/neibis/system/user.do" >사용자 계정관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/source.do" >제보자 관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/surveyList.do" >설문조사 관리</a>
+										</li>
+									</ul></li>
+								</nav>
+							</div>
+						</div>
+					</div>
+
+					<div class="user-info-area">
+						<div class="info">
+							<span class="profile">
+								<button type="button" class="profile-thumb">
+									<img src="/mariadb/assets/neibis/images/img-profile-gold-blue-md@2x.png" alt="프로필 이미지" />
+								</button>
+
+								<strong class="text-normal">시스템관리자</strong>
+							</span>
+							<span class="time-info">
+								<dl class="time">
+									<dt class="time-title"><i class="ico ico-clock-gray-sm"></i><span class="sr-only">남은시간</span></dt>
+									<dd class="login-time">60:00</dd>
+								</dl>
+								<a href="#;" class="btn-ellipsis">
+									<i class="ico ico-ellipsis-gray-md"></i><span class="sr-only">더보기</span>
+								</a>
+							</span>
+						</div>
+						<div class="info-detail">
+							<div class="user-profile">
+								<span class="info-top">
+									<strong class="name">홍길동</strong>
+									<span class="rating"><i class="ico ico-system-gold-md"></i>시스템관리자</span>
+								</span>
+								<span class="info-bottom time">
+									<dl class="time-item">
+										<dt class="time-title"><i class="ico ico-calendar-lightgray-sm"></i>마지막 접속시간</dt>
+										<dd>2026-07-23 15:51</dd>
+									</dl>
+									<dl class="time-item">
+										<dt class="time-title"><i class="ico ico-clock-gray-sm"></i>남은 시간</dt>
+										<dd class="login-time">60:00</dd>
+									</dl>
+								</span>
+							</div>
+
+							<div class="btn-group">
+								<a href="#layer-admin-info-revise" id="extend-button" class="btn btn-sm"><i class="ico ico-plus-gray-md"></i>접속시간 연장하기</button>
+								<a href="#layer-adinfo-revise" data-modal="open" class="btn btn-sm" onclick="mngrCmmnFormReset();"
+									><i class="ico ico-edit-gray-md"></i>정보수정</a
+								>
+								<a href='/mariadb/neibis/logout.do' class="btn btn-sm"><i class="ico ico-logout-gray-md"></i>로그아웃</a>
+							</div>
+						</div>
+					</div>
+					<button type="button" class="btn btn-allmenu-close">
+						<i class="ico ico-allmenu-close"></i>
+						<span class="sr-only">메뉴 닫기</span>
+					</button>
+				</aside>
+
+				<article id="content">
+					<div class="content-header">
+						<a href="#;" class="btn-tile btn-back list-button" onclick="history.back(); return false;">
+							<i class="ico ico-back"></i>
+							<span class="sr-only">뒤로가기</span>
+						</a>
+						<div class="tile">
+							<div class="location">
+								<button type="button" class="btn btn-icon btn-copy">
+									<i class="ico ico-copy-gray-sm"></i>
+									<span class="sr-only">복사</span>
+								</button>
+								<ol class="breadcrumb-list">
+<li>사이트별 운영관리</li>
+<li>지역어 종합 정보</li>
+<li>지역어 지도</li>
+<li>지역어 지도</li>
+</ol>
+							</div>
+							<div class="content-title">
+								<div class="tooltip" id="tooltip_area"><p id="tooltip_p"></p><div class='btn-group' id="tooltip_btn"></div></div>
+								<h2 class="title">지역어 지도 편집</h2>
+								<button type="button" id="favorit-add-button" class="btn-favorit">
+									<i class="ico ico-favorit"></i>
+									<span class="sr-only">즐겨찾기</span>
+								</button>
+							</div>
+						</div>
+						<div class="ae-hdr-actions"><button type="button" id="ae-hdr-del" class="btn btn-md btn-gray" style="display:none" onclick="aeDelete()"><i class="ico ico-trash-white-md"></i><span>삭제</span></button><button type="button" class="btn btn-md btn-outline-gray" onclick="location.href='dialect.do'"><i class="ico ico-close-darkgray-md"></i><span>취소</span></button><button type="button" class="btn btn-md btn-primary" onclick="aeSaveAll()"><i class="ico ico-save-white-md"></i><span>저장</span></button></div>
+						<a href="#;" class="btn-tile btn-allmenu-open">
+							<i class="ico ico-allmenu"></i>
+							<span class="sr-only">메뉴</span>
+						</a>
+					</div>
+					<div class="content-body">
+<div class="mapedit-root">
+
+  <!-- 제작 단계 탭 (본문 너비 · 클릭 이동) -->
+  <div class="mm-steps" role="tablist" aria-label="제작 단계">
+    <button type="button" class="mm-step is-active" role="tab" aria-selected="true" data-step="1" id="tab-step-1">
+      <span class="mm-step__n"><span>1</span></span>
+      <span class="mm-step__label">표제어 등록<span class="mm-step__sub">주제 선택·추가</span></span>
+    </button>
+    <button type="button" class="mm-step" role="tab" aria-selected="false" data-step="2" id="tab-step-2">
+      <span class="mm-step__n"><span>2</span></span>
+      <span class="mm-step__label">어휘 · 설정<span class="mm-step__sub">지역어·그룹·부호·면색·지역</span></span>
+    </button>
+    <button type="button" class="mm-step" role="tab" aria-selected="false" data-step="3" id="tab-step-3">
+      <span class="mm-step__n"><span>3</span></span>
+      <span class="mm-step__label">지도 확인<span class="mm-step__sub">미리보기·저장</span></span>
+    </button>
+  </div>
+
+  <div class="mm-shell">
+    <aside class="mm-side" aria-label="편집 패널">
+      <div class="mm-side__scroll">
+
+        <!-- ① 표제어 -->
+        <section class="mm-panel is-open" id="panel-headword" aria-labelledby="p1-title">
+          <h2 class="mm-panel__title" id="p1-title">
+            1. 표제어 등록
+            <button type="button" class="mm-btn mm-btn--primary mm-btn--sm" id="btn-hw-new">+ 추가 등록</button>
+          </h2>
+          <p class="mm-panel__hint">운영과 동일하게 표제어·품사·의미·서비스 신청을 입력합니다. (데이터는 기기 저장 · DB 연동은 최종 단계)</p>
+          <div id="hw-list" class="hw-list" role="listbox" aria-label="내 표제어 목록"></div>
+        </section>
+
+        <!-- ② 어휘 -->
+        <section class="mm-panel" id="panel-dialect" aria-labelledby="p2-title">
+          <h2 class="mm-panel__title" id="p2-title">
+            2. 어휘 · 설정
+          </h2>
+
+          <div class="mm-field">
+            <label class="mm-field__label" for="df-word">지역어 추가 <span class="req">*</span></label>
+            <input id="df-word" class="mm-input" type="text" maxlength="50" placeholder="예: 가새" autocomplete="off">
+          </div>
+          <div class="mm-field">
+            <label class="mm-field__label" for="df-group">그룹 선택 <span class="req">*</span></label>
+            <select id="df-group" class="mm-select" aria-describedby="df-group-hint"></select>
+            <p id="df-group-hint" class="mm-panel__hint" style="margin:6px 0 0">
+              그룹은 1부터 순차로만 만들 수 있습니다. (1그룹 없이 2그룹 생성 불가)
+            </p>
+          </div>
+          <div class="mm-btn-row" style="margin:14px 0 0">
+            <button type="button" class="mm-btn mm-btn--primary mm-btn--sm" id="btn-df-add">지역어 추가</button>
+            <button type="button" class="mm-btn mm-btn--ghost mm-btn--sm" id="btn-df-excel"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> 엑셀 추가</button>
+            <button type="button" class="mm-btn mm-btn--ghost mm-btn--sm" id="btn-df-excel-tpl" title="등록 양식(xlsx) 내려받기"><i class="ti ti-download" aria-hidden="true"></i> 양식</button>
+            <button type="button" class="mm-btn mm-btn--ghost mm-btn--sm" id="btn-df-export" title="현재 설정을 엑셀(xlsx)로 내려받기"><i class="ti ti-file-export" aria-hidden="true"></i> 설정 내려받기</button>
+            <input type="file" id="df-excel-file" accept=".xlsx,.xlsm,.xls" hidden>
+          </div>
+          <div class="mm-help">
+            <div class="mm-help__head"><i class="ti ti-help-circle" aria-hidden="true"></i> 도움말</div>
+            <p class="mm-help__line"><b>엑셀 추가</b>: <b>지역명·지역어</b> 열이 있는 xlsx를 반영합니다. 한 지역에 여러 지역어는 쉼표(,)로 구분하세요.</p>
+            <p class="mm-help__line">그룹 내 순서는 자동으로 맨 뒤에 붙습니다. 순서는 설정버튼을 눌러 변경할 수 있습니다.</p>
+          </div>
+          <div id="df-list" class="df-list" style="margin-top:14px"></div>
+        </section>
+
+        <!-- ③ 지도 확인 (읽기 전용 그룹별 목록) -->
+        <section class="mm-panel" id="panel-review" aria-labelledby="p3-title">
+          <h2 class="mm-panel__title" id="p3-title">3. 지도 확인</h2>
+          <div id="review-list" class="review-list"></div>
+        </section>
+
+      </div>
+
+      <div class="mm-side__foot">
+        <button type="button" class="mm-btn mm-btn--ghost mm-btn--sm" id="btn-step-prev" disabled>
+          <i class="ti ti-arrow-left" aria-hidden="true"></i> 이전
+        </button>
+        <span id="mm-step-indicator" class="mm-stepind">1 / 3 · 표제어 등록</span>
+        <button type="button" class="mm-btn mm-btn--primary mm-btn--sm" id="btn-step-next">
+          다음 <i class="ti ti-arrow-right" aria-hidden="true"></i>
+        </button>
+      </div>
+    </aside>
+
+    <section class="mm-main" aria-label="지도 미리보기">
+      <header class="mapbar">
+        <div>
+          <div class="mapbar__title" id="map-title">표제어를 선택하세요</div>
+          <div class="mapbar__meta">설정 즉시 반영 · 3. 지도 확인 (별도 조회 팝업 없음)</div>
+        </div>
+        <div class="mapbar__actions">
+          <span id="mm-status" class="mm-badge">프로토</span>
+
+          <div id="mm-map-tools" class="mm-map-tools">
+          <div class="mm-pop-wrap">
+            <button type="button" class="mm-btn mm-btn--ghost mm-btn--sm" id="mm-btn-settings" aria-haspopup="true" aria-expanded="false"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> 지도 설정</button>
+            <div class="mm-pop" id="mm-pop-settings" hidden>
+              <div class="mm-pop__sec">
+                <div class="mm-pop__label">지도 레이어</div>
+                <label class="mm-chk"><input type="checkbox" id="ov-rivers"><span class="mm-chk__dot" style="background:#3b5bdb"></span> 하천</label>
+                <label class="mm-chk"><input type="checkbox" id="ov-rail"><span class="mm-chk__dot" style="background:#2f9e44"></span> 철도</label>
+                <label class="mm-chk"><input type="checkbox" id="ov-roads"><span class="mm-chk__dot" style="background:#e8590c"></span> 도로</label>
+                <label class="mm-chk"><input type="checkbox" id="ov-mountains"><span class="mm-chk__dot" style="background:#5f6f6a"></span> 산맥</label>
+              </div>
+              <div class="mm-pop__sec">
+                <div class="mm-pop__label">지역명 표시</div>
+                <label class="mm-chk"><input type="checkbox" id="lbl-sido" checked> 시·도 이름</label>
+                <label class="mm-chk"><input type="checkbox" id="lbl-sigungu"> 시·군·구 이름 <span style="color:#94a3b8;font-weight:600">(확대 시)</span></label>
+              </div>
+              <div class="mm-pop__sec">
+                <div class="mm-pop__label">표시 요소</div>
+                <label class="mm-chk"><input type="checkbox" id="hide-area"> 면색(분포권) 숨기기</label>
+                <label class="mm-chk"><input type="checkbox" id="hide-symbol"> 상징 부호 숨기기</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="mm-pop-wrap">
+            <button type="button" class="mm-btn mm-btn--ghost mm-btn--sm" id="mm-btn-download" aria-haspopup="true" aria-expanded="false"><i class="ti ti-download" aria-hidden="true"></i> 다운로드</button>
+            <div class="mm-pop" id="mm-pop-download" hidden>
+              <button type="button" class="mm-pop__item" id="mm-dl-png"><i class="ti ti-photo" aria-hidden="true"></i> 지도 이미지 (PNG)</button>
+              <button type="button" class="mm-pop__item" id="mm-dl-pdf"><i class="ti ti-file-text" aria-hidden="true"></i> 인쇄용 지도 (PDF)</button>
+              <button type="button" class="mm-pop__item" id="mm-dl-csv"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> 방언형 자료 (CSV)</button>
+              <div class="mm-pop__note"><i class="ti ti-info-circle" aria-hidden="true"></i> 이미지·PDF에는 표제어·범례·출처가 함께 담깁니다.</div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="mm-mapcard">
+        <div id="mm-map" tabindex="0" aria-label="나만의 지역어 지도"></div>
+
+        <!-- 지역 지정(지도 페인팅) 모드 툴바 — 지도 클릭을 막지 않는 플로팅 바 -->
+        <div id="mm-paint" class="mm-paint" hidden>
+          <span class="mm-paint__dot" id="mm-paint-dot"></span>
+          <span class="mm-paint__label"><b id="mm-paint-word">지역어</b> 지정 중 · <span id="mm-paint-count">0</span>곳</span>
+          <div class="mm-search-wrap mm-paint__search">
+            <input id="mm-region-search" class="mm-input mm-input--sm" type="search" placeholder="시·군·구 검색" autocomplete="off"
+                   aria-autocomplete="list" aria-controls="mm-region-suggest" aria-expanded="false">
+            <div id="mm-region-suggest" class="mm-suggest" role="listbox" hidden></div>
+          </div>
+          <button type="button" class="mm-btn mm-btn--ghost mm-btn--sm" id="mm-paint-settings" title="상세 설정"><i class="ti ti-settings" aria-hidden="true"></i></button>
+          <button type="button" class="mm-btn mm-btn--primary mm-btn--sm" id="mm-paint-done">완료</button>
+        </div>
+
+        <div class="mm-mapui">
+          <button type="button" id="mm-zoom-in" aria-label="확대"><i class="ti ti-plus"></i></button>
+          <button type="button" id="mm-zoom-out" aria-label="축소"><i class="ti ti-minus"></i></button>
+          <button type="button" id="mm-zoom-reset" aria-label="초기 위치"><i class="ti ti-focus-2"></i></button>
+        </div>
+        <div class="maplegend">
+          <button type="button" class="maplegend__head" id="mm-legend-toggle" aria-expanded="true" aria-controls="mm-legend-list">
+            <span>범례</span>
+            <i class="ti ti-chevron-down maplegend__chev" aria-hidden="true"></i>
+          </button>
+          <ul id="mm-legend-list" class="maplegend__list"></ul>
+        </div>
+      </div>
+    </section>
+  </div>
+
+
+<!-- 표제어 등록/수정 모달 -->
+<div id="hw-modal" class="mm-modal" hidden role="dialog" aria-modal="true" aria-labelledby="hw-modal-title">
+  <div class="mm-modal__backdrop" data-close-hw></div>
+  <div class="mm-modal__panel">
+    <h2 class="mm-modal__title" id="hw-modal-title">표제어 추가</h2>
+    <p class="mm-modal__desc">운영 「표제어 추가」 항목과 동일합니다. (mode=C/M)</p>
+    <input type="hidden" id="hw-edit-no" value="">
+    <div class="mm-field">
+      <label class="mm-field__label" for="hw-headword">표제어 <span class="req">*</span></label>
+      <input id="hw-headword" class="mm-input" type="text" maxlength="125" placeholder="표제어를 입력하세요.">
+    </div>
+    <div class="mm-field">
+      <label class="mm-field__label" for="hw-class">품사 <span class="req">*</span></label>
+      <select id="hw-class" class="mm-select">
+        <option value="">품사를 선택하세요</option>
+      </select>
+    </div>
+    <div class="mm-field">
+      <label class="mm-field__label" for="hw-meaning">의미</label>
+      <textarea id="hw-meaning" class="mm-textarea" placeholder="의미를 입력하세요."></textarea>
+    </div>
+    <div class="mm-field">
+      <label class="mm-field__label" for="hw-appro">서비스 신청 <span class="req">*</span></label>
+      <select id="hw-appro" class="mm-select">
+        <option value="">서비스 신청 여부를 선택하세요</option>
+        <option value="Y">신청</option>
+        <option value="N">미신청</option>
+      </select>
+    </div>
+    <div class="mm-field">
+      <label class="mm-field__label">서비스 상태</label>
+      <input class="mm-input" type="text" id="hw-use-yn" value="미처리 (N)" readonly>
+    </div>
+    <div class="mm-btn-row">
+      <button type="button" class="mm-btn mm-btn--primary" id="btn-hw-save">저장</button>
+      <button type="button" class="mm-btn mm-btn--ghost" data-close-hw>취소</button>
+    </div>
+  </div>
+</div>
+
+<!-- 지역어 상세 설정 레이어 팝업 -->
+<div id="style-modal" class="mm-modal mm-modal--wide" hidden role="dialog" aria-modal="true" aria-labelledby="style-modal-title">
+  <div class="mm-modal__backdrop" data-close-style></div>
+  <div class="mm-modal__panel">
+    <button type="button" class="mm-modal__x" data-close-style aria-label="닫기"><i class="ti ti-x" aria-hidden="true"></i></button>
+    <h2 class="mm-modal__title" id="style-modal-title">지역어 상세 설정</h2>
+    <p class="mm-modal__desc">그룹·순서·상징·면색·지역을 설정합니다. 변경 시 <strong>자동 저장</strong>됩니다.</p>
+    <div id="style-form">
+      <div class="mm-field">
+        <label class="mm-field__label" for="st-word">지역어</label>
+        <input id="st-word" class="mm-input" type="text" maxlength="50">
+      </div>
+      <div class="df-grid">
+        <div class="mm-field">
+          <label class="mm-field__label" for="st-group">그룹 선택 (mutation_group)</label>
+          <select id="st-group" class="mm-select"></select>
+        </div>
+        <div class="mm-field">
+          <label class="mm-field__label" for="st-seq">그룹 내 순서 (mutation_seq)</label>
+          <select id="st-seq" class="mm-select"></select>
+          <p class="mm-panel__hint" style="margin:6px 0 0">같은 순서는 불가 · 변경 시 나머지가 자동 재정렬됩니다.</p>
+        </div>
+      </div>
+      <div class="mm-field" style="margin-top:10px;">
+        <label class="mm-field__label">상징 부호 · 색상
+          <span style="font-weight:600;color:#94a3b8;margin-left:6px;">색상을 고른 뒤 부호를 클릭하세요 (면색과 별개)</span>
+        </label>
+        <input type="hidden" id="st-symbol" value="1">
+        <input type="hidden" id="st-symcolor" value="">
+        <div id="st-symcolor-palette" class="mm-palette mm-palette--sym" role="listbox" aria-label="부호 색상"></div>
+        <div id="st-symbol-grid" class="mm-symgrid" role="listbox" aria-label="상징 부호"></div>
+      </div>
+      <div class="mm-field" style="margin-top:14px;">
+        <label class="mm-field__label">매핑된 지역 <span id="st-region-count" style="font-weight:600;color:#94a3b8;margin-left:4px;"></span></label>
+        <div id="st-regions" class="df-chips"></div>
+        <div class="mm-btn-row" style="margin-top:10px;">
+          <button type="button" class="mm-btn mm-btn--primary mm-btn--sm" id="btn-paint-from-modal"><i class="ti ti-map-pin" aria-hidden="true"></i> 지도에서 지역 지정</button>
+        </div>
+        <p class="mm-panel__hint" style="margin:8px 0 0">「지도에서 지역 지정」을 누르면 팝업이 닫히고 <b>지도 클릭</b>으로 지역을 추가/제거합니다.</p>
+      </div>
+      <div class="mm-btn-row" style="margin-top:16px;">
+        <button type="button" class="mm-btn mm-btn--ghost mm-btn--sm" data-close-style>확인</button>
+        <button type="button" class="mm-btn mm-btn--ghost mm-btn--sm mm-btn--danger" id="btn-df-del">지역어 삭제</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="mm-toast" role="status" aria-live="polite" hidden></div>
+</div>
+
+</div>
+</article>
+			</div>
+		</div>
+
+		<!-- login.do 빼고사용 -->
+		<!-- Modal Popup : 관리자 계정 정보수정 -->
+		<div class="modal-popup modal-lg hide info-revise-pop" id="layer-adinfo-revise">
+			<div class="dimed"></div>
+			<form class="popup-inner" id="mngrCmmnForm" name="mngrCmmnForm">
+				<div class="popup-header">
+					<h2 class="popup-title">관리자 계정 정보수정</h2>
+				</div>
+				<div class="popup-body">
+					<div class="table table-form-basic">
+						<div class="table-inner">
+							<table>
+								<caption class="sr-only">
+									관리자 계정 정보수정
+								</caption>
+								<tbody>
+									<tr>
+										<th scope="row">아이디</th>
+										<td colspan="3">neibis</td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="mngrPswdVlLayer">현재 비밀번호<i class="req">필수입력</i></label></th>
+										<td colspan="3">
+											<div class="input-group pw-group" style="max-width: 405px">
+												<input
+													type="password"
+													id="mngrPswdVlLayer" name="mngrPswdVl"
+													class="form-control form-pw"
+													placeholder="비밀번호를 입력해주세요."
+													title="비밀번호를 입력해주세요."
+													autocomplete="off"
+													value=""
+													required
+												/>
+												<button type="button" class="btn btn-pw btn-pw-off">비밀번호 확인</button>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="newMngrPswdVlLayer">변경 비밀번호</label></th>
+										<td>
+											<div class="input-group pw-group">
+												<input
+													type="password"
+													id="newMngrPswdVlLayer" name="newMngrPswdVl"
+													class="form-control form-pw"
+													placeholder="비밀번호를 입력해주세요."
+													title="변경 비밀번호"
+													autocomplete="off"
+													value=""
+													required
+												/>
+												<button type="button" class="btn btn-pw btn-pw-off">비밀번호 확인</button>
+											</div>
+											<span class="text-guide">8자 이상, 하나 이상의 숫자 및 대문자를 모두 포함</span>
+										</td>
+										<th scope="row"><label for="newMngrPswdVlConfLayer">변경 비밀번호 확인</label></th>
+										<td>
+											<div class="input-group pw-group">
+												<input
+													type="password"
+													id="newMngrPswdVlConfLayer" name="newMngrPswdVlConf"
+													class="form-control form-pw"
+													placeholder="비밀번호를 한번 더 입력해주세요."
+													title="변경 비밀번호 확인"
+													autocomplete="off"
+													value=""
+													required
+												/>
+												<button type="button" class="btn btn-pw btn-pw-off">비밀번호 확인</button>
+											</div>
+										</td>
+									</tr>
+								</tbody>
+								<tbody>
+									<tr>
+										<th scope="row"><label for="mngrNmLayer">성명<i class="req">필수입력</i></label></th>
+										<td colspan="3">
+											<input
+												type="text"
+												id="mngrNmLayer" name="mngrNm"
+												value="홍길동"
+												class="form-control full"
+												style="max-width: 405px"
+											/>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="mngrDeptNmLayer">담당부서</label></th>
+										<td>
+											<input type="text" id="mngrDeptNmLayer" name="mngrDeptNm" class="form-control full" value="" />
+										</td>
+										<th scope="row"><label for="mngrTelnoLayer">전화번호</label></th>
+										<td>
+											<input type="text" id="mngrTelnoLayer" name="mngrTelno" class="form-control full" placeholder="숫자만 입력 (예: 0314567890)" value="" />
+										</td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="mngrEmlAddrLayer">이메일</label></th>
+										<td>
+											<input type="text" id="mngrEmlAddrLayer" name="mngrEmlAddr" class="form-control full" value="" />
+										</td>
+										<th scope="row"><label for="mngrMblTelnoLayer">휴대폰</label></th>
+										<td>
+											<input type="text" id="mngrMblTelnoLayer" name="mngrMblTelno" class="form-control full" placeholder="숫자만 입력 (예: 01012345678)" value="" />
+										</td>
+									</tr>
+									<tr>
+										<th scope="row"><label for="mngrFxnoLayer">팩스</label></th>
+										<td colspan="3">
+											<input
+												type="text"
+												id="mngrFxnoLayer" name="mngrFxno"
+												class="form-control"  placeholder="숫자만 입력 (예: 0212345678)"
+												value=""
+												style="width: 405px"
+											/>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<div class="popup-footer">
+					<div class="btn-group-center">
+						<button type="button" class="btn btn-lg btn-outline-gray" data-modal="close">닫기</button>
+						<button type="button" class="btn btn-lg btn-primary" data-modal-submit="mngrCmmnSaveBtn">저장</button>
+					</div>
+				</div>
+				<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+			</form>
+		</div>
+
+
+<!-- login.do 빼고사용 -->
+<script>
+const date = moment().format("YYYY-MM-DD HH");
+const time = "00:00";
+var timeClock;
+
+$(function () {
+	timerScript(time);
+	ActionInit.click("#extend-button",onExtend);
+});
+// 타이머 스크립트
+var timerScript = function(setTime){
+	var remainTime = moment(date+":"+setTime);
+	let subtractTime = remainTime.subtract(1, "seconds").format("mm:ss");
+	$(".login-time").text(subtractTime);
+	if (subtractTime == "00:00"){
+		location.href='/mariadb/neibis/logout.do?type=timerlogout';
+		return;
+	}
+	timeClock = window.setTimeout(() => timerScript(subtractTime),1000);
+}
+
+//로그인 연장 버튼을 클릭 할 경우
+var onExtend = function(){
+	window.clearTimeout(timeClock);
+	$(".login-time").text("60:00");
+	window.setTimeout(() => timerScript(time),1000);
+}
+
+$("#favorit-add-button").on("click", function() {
+	let obj = new Object();
+	obj["menuSn"] =  246
+	let url = "/mariadb/neibis-api/v1/menu/fvrt/246?";
+	if(!$(this).hasClass("on")) url+="action=post"
+	else url+="action=delete"
+	Ajax.post(url,menuFvrtSuccess,menuFvrtFail,{data:JSON.stringify(obj)});
+});
+function removeDeletedMenu(menuSn) {
+	let data = new Object();
+	data.message ="현재 메뉴는 시스템관리자에 의해 삭제 및 변경되었거나 이동할 수 없는 메뉴입니다.<br/>해당 즐겨찾기 메뉴를 삭제 하시겠습니까?";
+	data.icon = "warning";
+	let obj = new Object;
+	obj["menuSn"] =  menuSn;
+	Message.confirm(data, function () {
+		let url = "/mariadb/neibis-api/v1/menu/fvrt/"+menuSn+"?action=delete";
+		Ajax.post(url,deleteMenuFvrtSuccess,menuFvrtFail,{data:JSON.stringify(obj)});
+	});
+}
+const deleteMenuFvrtSuccess = function (data) {
+	if(data.icon == "success"){
+		Message.success(data,function(){
+			deleteFvrt(data.data);
+		});
+	}
+}
+
+const menuFvrtSuccess = function (data) {
+	if(data.icon == "success"){
+		Message.success(data,function(){
+			if($("#favorit-add-button").hasClass("on")) {
+				if($(".favorit-list").length == 0) {
+					$(".favorit-menu").find(".nodata").remove();
+					$(".favorit-menu").prepend('<ul class="favorit-list"></ul>')
+				}
+				$(".favorit-list").prepend('<li id="fvrt'+data.data.menuSn+'"><a href="/mariadb'+data.data.menuUrlAddr+'">'+data.data.menuPath+'</a></li>')
+			}else {
+				deleteFvrt(data.data);
+			}
+		});
+	}
+}
+const menuFvrtFail = function (xhr, status, error) {
+	Message.fail(xhr, status, error,function(){
+		window.location.reload();
+	})
+}
+function deleteFvrt(data) {
+	$("#fvrt"+data).remove();
+	if($(".favorit-list").find("li").length == 0) {
+		let html = '';
+		html+='<p class="nodata">'
+		html+='	<strong>저장된 메뉴가 없어요.</strong>'
+		html+='	<span>'
+		html+='		페이지 상단의 ⭐모양을 클릭하면<br />'
+		html+='		즐겨찾기 메뉴에 저장할 수 있어요.'
+		html+='	</span>'
+		html+='</p>'
+		$(".favorit-menu").prepend(html);
+		$(".favorit-list").remove();
+	}
+}
+$(document).on("click","#siteSearchBtn", function() {
+	let url = "/mariadb/neibis-api/v1/site/menu?action=get&siteSearchKeyword="+$("#siteSearchKeyword").val();
+	Ajax.get(url,siteSearchSuccess,siteSearchFail);
+
+}).on("keypress","#siteSearchKeyword", function(e) {
+	if (e.keyCode === 13) {
+		e.preventDefault();
+		$("#siteSearchBtn").trigger("click");
+	}
+});
+
+	const siteSearchSuccess = function (data) {
+	if(data.icon == "success") {
+		$(".site-menu").html(siteList(data.data))
+	}
+}
+
+const siteSearchFail = function (xhr, status, error) {
+	Message.fail(xhr, status, error,function(){
+		window.location.reload();
+	})
+}
+function siteList(data) {
+	let html = ''
+	if(data.length > 0 ) {
+		let preLevel = 0;
+		$.each(data, function(i,v) {
+			if(i == 0) html += '<ul class="site-list">'
+			if(v.dataSttsCd == 'A') {
+				let hasChild = v.hasChild;
+				if(preLevel - v.level > 0) {
+					for(let i=0; i  < preLevel-v.level; i++) {
+						html += '</ul></li>';
+					}
+				}
+				if(preLevel < v.level && i != 0) html += '<ul>'
+				html += '<li data-level="'+v.level+'" '+(v.hasChild ? 'class="collapse"' : '' )+'>'
+
+				let siteUrl = "/mariadb"+v.menuUrlAddr;
+				let hrefUrl;
+
+			    if (siteUrl.includes('directory.do')) {
+			        hrefUrl = '#';
+			    } else {
+			        hrefUrl = siteUrl;
+			    }
+
+				if(siteUrl)
+
+
+				html += '<a href="'+hrefUrl+'"';
+				if(v.npagYn == 'Y') html += 'target="_blank" title="새창으로 열림">'
+				html += '>'+v.menuNm+'</a>'
+				if(!v.hasChild) html+='</li>'
+				preLevel = v.level;
+			}
+		});
+		for(let i=0; i < preLevel; i++){
+			html += '</ul></li>'
+		}
+	}else {
+		html += '<p class="nodata">'
+		html += '	<strong>아직 접속 가능한 사이트가 없어요.</strong>'
+		html += '	<span>'
+		html += '		시스템 관리자에게<br />'
+		html += '		메뉴권한을 요청해보시겠어요?'
+		html += '	</span>'
+		html += '</p>'
+	}
+	return html;
+}
+
+$("button[data-modal-submit='mngrCmmnSaveBtn']").on("click", function() {
+	let value = new NeibisValidator(document.forms["mngrCmmnForm"]);
+	formInputAttPassword("mngrCmmnForm");
+	value.add("newMngrPswdVl",{required:false,option:"password",match:"newMngrPswdVlConf"});
+	value.add("mngrNm",{required:true})
+	value.add("mngrTelno",{required:false,option:"homephone"})
+	value.add("mngrEmlAddr",{required:false,option:"email"})
+	value.add("mngrMblTelno",{required:false,option:"handphone"})
+	value.add("mngrFxno",{required:false,option:"fax"})
+
+	$("#mngrCmmnForm").find(".text-invalid").remove();
+	let result = value.validate();
+	if(!result){
+		let errorElementId =value.getErrorElement().id+"Layer";
+
+		let invalidText = '<span class="text-guide text-invalid">'+value.getErrorMessage()+'</span>'
+
+		$(value.getErrorElement()).closest("td").append(invalidText);
+		let offset = $("#"+errorElementId).offset();
+		return $("#mngrCmmnForm").find("#"+errorElementId).focus();
+	}
+
+	Message.confirm({
+		icon: "warning",
+		title: "저장하시겠어요?",
+		message: "저장하시려면 ‘확인’을 눌러주세요."
+    },function(){
+		let formData = $("#mngrCmmnForm").serializeArray();
+	 	let obj = new Object();
+		$.each(formData,function(i,v) {
+			obj[this.name] = this.value;
+		});
+
+		let url = "/mariadb/neibis-api/v1/mngr/cmmn/neibis?action=put";
+		Ajax.post(url,updtCmmnMngrSuccess,updtCmmnMngrFail,{data:JSON.stringify(obj)});
+    });
+});
+
+const updtCmmnMngrSuccess = function (data) {
+	if(data.icon == "success") {
+		Message.success(data,function(){
+			window.location.reload();
+		});
+	}else if(data.icon == "warning") {
+		$("#mngrCmmnForm").find("#mngrPswdVlLayer").closest("td").append($("<span>").addClass("text-guide text-invalid").text(data.message));
+		$("#mngrCmmnForm").find("#mngrPswdVlLayer").focus();
+	}
+}
+
+const updtCmmnMngrFail = function (xhr, status, error) {
+	Message.fail(xhr, status, error,function(){
+		window.location.reload();
+	})
+}
+function mngrCmmnFormReset() {
+	let url = "/mariadb/neibis-api/v1/mngr/cmmn/neibis?action=get";
+	Ajax.get(url,getMngrSuccess,getMngrFail);
+}
+const getMngrSuccess = function(data) {
+	if(data.icon == 'success') {
+		const {mngrNm, mngrDeptNm, mngrTelno, mngrEmlAddr, mngrMblTelno, mngrFxno} = data.data;
+
+		$("#mngrNmLayer").val(mngrNm);
+		$("#mngrDeptNmLayer").val(mngrDeptNm);
+		$("#mngrTelnoLayer").val(mngrTelno);
+		$("#mngrEmlAddrLayer").val(mngrEmlAddr);
+		$("#mngrMblTelnoLayer").val(mngrMblTelno);
+		$("#mngrFxnoLayer").val(mngrFxno);
+	}
+}
+
+const getMngrFail = function (xhr, status, error) {
+	Message.fail(xhr, status, error,function(){
+		window.location.reload();
+	})
+}
+</script>
+
+	<script src="https://cdn.jsdelivr.net/npm/ol@v10.9.0/dist/ol.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="/user-map/skorea-provinces.js"></script>
+<script src="/user-map/skorea-labels.js"></script>
+<script src="/user-map/skorea-municipalities.js"></script>
+<script src="/user-map/korea-map.js"></script>
+<script src="/user-map/my-map-regions.js"></script>
+<script src="/user-map/my-map-store.js"></script>
+<script src="/mariadb/assets/neibis/js/admin-map-backend.js"></script>
+<script>
+(function(){
+  window.MY_MAP_ASSET_BASE = '/user-map';
+  window.MY_MAP_TOOLS_STEPS = [2, 3];   // 지도 설정/다운로드 버튼을 어휘·설정(2)·지도 확인(3) 둘 다 노출
+  var params = new URLSearchParams(location.search);
+  var hn = (params.get('headwordNo') || '').trim();
+  var embed = params.get('embed') === '1';           // 보기 모달 등 크롬 없이 지도만
+  var startStep = params.get('step') || '';          // 진입 시 이동할 단계
+  if(embed) document.documentElement.classList.add('ae-embed');
+  var aeHnEl = document.getElementById('ae-hn'); if(aeHnEl) aeHnEl.textContent = hn || '(신규)';
+
+  function injectEditor(){
+    var s = document.createElement('script');
+    s.src = '/user-map/my-map.js';
+    s.onload = function(){
+      setupHeadwordForm();                            // 부팅 직후 1단계 패널을 표제어 폼으로 교체
+      if(startStep){                                  // 지정 단계로 이동 (보기=3)
+        var t = document.querySelector('.mm-step[data-step="'+startStep+'"]');
+        if(t) t.click();
+        setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 200);
+      }
+    };
+    document.body.appendChild(s);
+  }
+
+  /* ── 관리자 1단계: 표제어 목록/추가 → 표제어 정보 등록·수정 폼으로 교체 ── */
+  var WORD_CLASSES = ['명사','대명사','수사','조사','동사','형용사','관형사','부사','감탄사','구'];
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function currentHeadword(){
+    var d = window.AdminMapBackend && AdminMapBackend._data;
+    return (d && d.headwords && d.headwords[0]) || null;
+  }
+  function aeToast(msg){
+    var t = document.getElementById('mm-toast'); if(!t) return;
+    t.textContent = msg; t.hidden = false;
+    setTimeout(function(){ t.hidden = true; }, 1800);
+  }
+  function statusInfo(h){
+    if((h.use_yn||'') === 'Y') return { label:'게시중', bg:'#ecfdf5', c:'#047857' };
+    if((h.appro||'') === 'Y')  return { label:'승인대기', bg:'#fffbeb', c:'#b45309' };
+    return { label:'미게시', bg:'#f1f5f9', c:'#64748b' };
+  }
+  function metaHtml(h){
+    var st = statusInfo(h);
+    return '<div class="ae-meta">'
+      + '<div><span class="ae-meta__k">표제어 번호</span><span class="ae-meta__v">'+esc(h.headword_no||hn)+'</span></div>'
+      + '<div><span class="ae-meta__k">상태</span><span class="ae-meta__v"><span class="ae-stbadge" id="ae-status-badge" style="background:'+st.bg+';color:'+st.c+'">'+st.label+'</span></span></div>'
+      + '<div><span class="ae-meta__k">등록자</span><span class="ae-meta__v">'+esc(h.usid||'-')+'</span></div>'
+      + '<div><span class="ae-meta__k">등록일</span><span class="ae-meta__v">'+esc(h.create_dt||'-')+'</span></div>'
+      + '</div>';
+  }
+  function refreshStatusBadge(){
+    var b = document.getElementById('ae-status-badge'); if(!b) return;
+    var st = statusInfo(currentHeadword() || {});
+    b.textContent = st.label; b.style.background = st.bg; b.style.color = st.c;
+  }
+  function setupHeadwordForm(){
+    var panel = document.getElementById('panel-headword');
+    if(!panel) return;
+    var h = currentHeadword() || {};
+    var opts = WORD_CLASSES.map(function(w){
+      return '<option value="'+w+'"'+(h.word_class===w?' selected':'')+'>'+w+'</option>';
+    }).join('');
+    panel.innerHTML =
+      '<h2 class="mm-panel__title" style="align-items:flex-start">1. 표제어 정보'
+      + (hn ? '<span class="ae-modechip ae-modechip--edit">수정</span>' : '<span class="ae-modechip ae-modechip--new">신규 등록</span>')
+      + '</h2>'
+      + '<p class="mm-panel__hint">'+(hn ? '표제어 정보를 수정합니다.' : '신규 표제어를 등록합니다. 저장하면 지역어·지도 편집으로 이어집니다.')+'</p>'
+      + (hn ? metaHtml(h) : '')
+      + '<div class="mm-field"><label class="mm-field__label">표제어 <span class="req">*</span></label>'
+      +   '<input id="ae-headword" class="mm-input" type="text" maxlength="125" value="'+esc(h.headword)+'" placeholder="표제어를 입력하세요."></div>'
+      + '<div class="mm-field"><label class="mm-field__label">품사 <span class="req">*</span></label>'
+      +   '<select id="ae-wordClass" class="mm-select"><option value="">품사를 선택하세요</option>'+opts+'</select></div>'
+      + '<div class="mm-field"><label class="mm-field__label">의미 <span class="req">*</span></label>'
+      +   '<textarea id="ae-meaning" class="mm-textarea" style="min-height:90px" placeholder="의미를 입력하세요.">'+esc(h.meaning)+'</textarea></div>'
+      + '<div class="mm-field"><label class="mm-field__label">해설</label>'
+      +   '<textarea id="ae-commentary" class="mm-textarea" style="min-height:150px" placeholder="해설을 입력하세요.">'+esc(h.commentary)+'</textarea></div>'
+      + '<div class="df-grid">'
+      +   '<div class="mm-field"><label class="mm-field__label">승인 요청(서비스 신청)</label>'
+      +     '<select id="ae-appro" class="mm-select"><option value="N"'+(h.appro!=='Y'?' selected':'')+'>N (미신청)</option><option value="Y"'+(h.appro==='Y'?' selected':'')+'>Y (신청)</option></select></div>'
+      +   '<div class="mm-field"><label class="mm-field__label">서비스 상태(게시)</label>'
+      +     '<select id="ae-useYn" class="mm-select"><option value="N"'+(h.use_yn!=='Y'?' selected':'')+'>N (미반영)</option><option value="Y"'+(h.use_yn==='Y'?' selected':'')+'>Y (반영)</option></select></div>'
+      + '</div>';
+  }
+  function saveHeadwordForm(){
+    var headword = document.getElementById('ae-headword').value.trim();
+    var wordClass = document.getElementById('ae-wordClass').value;
+    var meaning = document.getElementById('ae-meaning').value.trim();
+    var commentary = document.getElementById('ae-commentary').value;
+    var appro = document.getElementById('ae-appro').value;
+    var useYn = document.getElementById('ae-useYn').value;
+    if(!headword){ alert('표제어를 입력하세요.'); return; }
+    if(!wordClass){ alert('품사를 선택하세요.'); return; }
+    if(!meaning){ alert('의미를 입력하세요.'); return; }
+    var mode = hn ? 'M' : 'C';
+    var payload = { mode: mode, headword: headword, wordClass: wordClass, meaning: meaning, commentary: commentary, appro: appro, useYn: useYn };
+    if(hn) payload.headwordNo = hn;
+    fetch('/mariadb/neibis-api/headword/save', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)})
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        if(!res || !res.ok){ alert((res&&res.message)||'저장 실패'); return; }
+        if(mode === 'C' && res.headwordNo){
+          location.replace('dialect-editor.do?headwordNo=' + encodeURIComponent(res.headwordNo));
+          return;
+        }
+        // 서버 상호배타 규칙(useYn=Y→appro=N, appro=Y→useYn=N) 클라 반영
+        if(useYn === 'Y') appro = 'N';
+        if(appro === 'Y') useYn = 'N';
+        var h = currentHeadword();
+        if(h){
+          h.headword=headword; h.word_class=wordClass; h.meaning=meaning; h.commentary=commentary; h.appro=appro; h.use_yn=useYn;
+          try{ AdminMapBackend._snapshot.headwords[0] = JSON.parse(JSON.stringify(h)); }catch(e){}
+        }
+        var mt = document.getElementById('map-title'); if(mt) mt.textContent = headword;
+        document.getElementById('ae-appro').value = appro;
+        document.getElementById('ae-useYn').value = useYn;
+        refreshStatusBadge();
+        aeToast('저장되었습니다.');
+      })
+      .catch(function(){ alert('저장 API 호출 실패'); });
+  }
+  function deleteHeadwordForm(){
+    if(!hn) return;
+    if(!confirm('이 표제어와 하위 지역어·지역을 모두 삭제하시겠습니까?')) return;
+    fetch('/mariadb/neibis-api/headword/save', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({mode:'D', headwordNo:hn})})
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        if(res && res.ok){ alert('삭제되었습니다.'); location.href = 'dialect.do'; }
+        else alert((res&&res.message)||'삭제 실패');
+      })
+      .catch(function(){ alert('삭제 API 호출 실패'); });
+  }
+
+  if (!window.MyMapStore || !window.AdminMapBackend){
+    alert('의존 스크립트 로드 실패');
+    return;
+  }
+  MyMapStore.setBackend(AdminMapBackend);
+
+  // 저장 상태 표시
+  var saveEl = document.getElementById('ae-save');
+  var saveTimer = null;
+  AdminMapBackend.onStatus = function(state){
+    if(!saveEl) return;
+    saveEl.className = 'ae-savechip';
+    if(state === 'saving'){ saveEl.classList.add('is-saving'); saveEl.textContent = '저장 중…'; }
+    else if(state === 'saved'){ saveEl.classList.add('is-saved'); saveEl.textContent = '저장됨';
+      if(saveTimer) clearTimeout(saveTimer);
+      saveTimer = setTimeout(function(){ saveEl.className='ae-save'; saveEl.textContent='대기'; }, 2000);
+    }
+    else if(state === 'error'){ saveEl.classList.add('is-error'); saveEl.textContent = '저장 실패'; }
+  };
+
+  // 부호 카탈로그를 DB(symbol.do 와 동일 소스)에서 로드 → 편집기 부팅 전에 교체
+  function loadSymbolCatalog(){
+    return fetch('/mariadb/neibis-api/symbol/catalog', { headers:{ 'Accept':'application/json' } })
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        if(res && res.ok && res.list && res.list.length && MyMapStore.setSymbolCatalog){
+          MyMapStore.setSymbolCatalog(res.list.map(function(s){
+            // 흰색 실루엣(icon 기반) 우선, 없으면 기존 마스크 파일
+            return { map_symbol_id: String(s.mapSymbolId), file_nm: s.iconSrc || s.fileNm, label: s.label };
+          }));
+        }
+      })
+      .catch(function(){ /* 실패 시 기본 상수 사용 */ });
+  }
+
+  loadSymbolCatalog().then(function(){
+    if (hn){
+      var hdrDel = document.getElementById('ae-hdr-del'); if(hdrDel) hdrDel.style.display = '';
+      AdminMapBackend.hydrate(hn).then(function(){
+        MyMapStore.setSelectedHeadwordNo(hn);
+        injectEditor();
+      }).catch(function(e){
+        console.error('[통합에디터] 하이드레이션 실패', e);
+        alert('데이터 로드 실패: ' + (e && e.message));
+      });
+    } else {
+      // 신규 등록: 빈 작업세트
+      injectEditor();
+    }
+  });
+
+  window.aeSaveAll = function(){
+    try{ if(document.getElementById('ae-headword')) saveHeadwordForm(); }catch(e){}
+    if(window.AdminMapBackend && AdminMapBackend.flushNow) AdminMapBackend.flushNow();
+    aeToast('저장되었습니다.');
+  };
+  window.aeDelete = function(){ try{ deleteHeadwordForm(); }catch(e){} };
+})();
+</script>
+</body>
+</html>
