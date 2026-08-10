@@ -699,26 +699,56 @@ def api_oral_save_meta(body: dict) -> dict:
 
 
 def api_oral_raw(qs: dict) -> dict:
-    """trs 보기 — 원본 .trs 소스 재구성 (구조 라인 포함 모든 wb_trs_line_talk 행)."""
+    """trs 보기 — 레거시와 동일하게 원본 .eaf/.trs 파일 소스를 그대로 반환.
+
+    원본 파일이 로컬(ORAL_DATA_ROOT)에 있으면 파일 내용을 그대로(source=file),
+    없으면 wb_trs_line_talk 행을 이어붙인 DB 재구성본(source=db)을 반환한다.
+    """
     trs_id = (qs.get("id") or qs.get("trsId") or qs.get("oralId") or [""])[0].strip()
     if not trs_id:
         return {"ok": False, "message": "id 파라미터가 필요합니다."}
     with db_connect() as con:
         f = con.execute(
-            "SELECT trs_file_nm FROM wb_trs_file_talk WHERE trs_id = ?", (trs_id,)
+            "SELECT trs_file_nm, audio_filename FROM wb_trs_file_talk WHERE trs_id = ?",
+            (trs_id,),
         ).fetchone()
         if not f:
             return {"ok": False, "message": f"해당 자료를 찾을 수 없습니다: {trs_id}"}
+        file_name = f["trs_file_nm"] or ("trs " + trs_id)
+        audio_id = _oral_media_id(f["audio_filename"], f["trs_file_nm"])
+
+        # 1) 원본 파일 우선 (.eaf → .trs)
+        for ext in ("eaf", "trs"):
+            p = _find_oral_media(audio_id, ext)
+            if p:
+                try:
+                    raw = p.read_text(encoding="utf-8", errors="replace")
+                except OSError:
+                    continue
+                return {
+                    "ok": True,
+                    "trsId": trs_id,
+                    "fileName": p.name,
+                    "source": "file",
+                    "format": ext,
+                    "lineCount": raw.count("\n") + 1,
+                    "raw": raw,
+                }
+
+        # 2) 폴백: DB 라인 재구성
         rows = con.execute(
             """SELECT trs_line FROM wb_trs_line_talk
                WHERE trs_id = ? ORDER BY CAST(trs_line_id AS INTEGER)""",
             (trs_id,),
         ).fetchall()
     raw = "\n".join((r["trs_line"] or "") for r in rows)
+    fmt = "xml" if raw.lstrip().startswith("<?xml") else "text"
     return {
         "ok": True,
         "trsId": trs_id,
-        "fileName": f["trs_file_nm"] or ("trs " + trs_id),
+        "fileName": file_name,
+        "source": "db",
+        "format": fmt,
         "lineCount": len(rows),
         "raw": raw,
     }

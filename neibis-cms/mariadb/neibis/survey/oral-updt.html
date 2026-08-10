@@ -1743,27 +1743,42 @@ const getMngrFail = function (xhr, status, error) {
     if(!id){ if(window.Message){Message.alert({icon:'warning',message:'대상 자료가 없습니다.'});}else{alert('대상 자료 없음');} return; }
     fetch(API+'/raw?id='+encodeURIComponent(id)).then(function(r){return r.json();}).then(function(d){
       if(!d||!d.ok){ if(window.Message){Message.alert({icon:'error',message:'원문 로드 실패'});}else{alert('로드 실패');} return; }
-      showRawOverlay((d.fileName||('trs '+id)), d.raw||'');
+      showRawOverlay((d.fileName||('trs '+id)), d.raw||'', d.source, d.format);
     }).catch(function(e){ alert('로드 실패: '+e.message); });
   };
-  function showRawOverlay(title, raw){
+  function hlXml(s){
+    s=esc(s);
+    s=s.replace(/(&lt;[!?\/]?)([\w:.\-]+)/g,'$1<span style="color:#f2777a">$2</span>');
+    s=s.replace(/([\w:.\-]+)=(&quot;[^]*?&quot;)/g,'<span style="color:#ffcc66">$1</span>=<span style="color:#99cc99">$2</span>');
+    s=s.replace(/(&gt;)/g,'<span style="color:#f2777a">$1</span>');
+    return s;
+  }
+  function showRawOverlay(title, raw, source, format){
+    var isXml=(format==='eaf'||format==='xml'||String(raw||'').lastIndexOf('<?xml',0)===0);
     var lines=String(raw||'').split('\n');
-    var text=lines.map(function(l,i){ return ('     '+(i+1)).slice(-5)+'  '+l; }).join('\n');
+    var rowsHtml=lines.map(function(l,i){
+      var num='<span style="display:inline-block;min-width:46px;text-align:right;color:#6b7280;user-select:none;margin-right:14px">'+(i+1)+'</span>';
+      return '<div style="white-space:pre-wrap;word-break:break-all">'+num+(isXml?hlXml(l):esc(l))+'</div>';
+    }).join('');
+    var badge=(source==='file')
+      ?'<span style="font-size:11px;color:#a7f3d0;background:#064e3b;border:1px solid #065f46;border-radius:5px;padding:1px 7px;margin-left:8px">원본 파일</span>'
+      :'<span style="font-size:11px;color:#fde68a;background:#78350f;border:1px solid #92400e;border-radius:5px;padding:1px 7px;margin-left:8px">DB 재구성</span>';
     var ov=document.getElementById('oralRawOverlay');
     if(!ov){
       ov=document.createElement('div'); ov.id='oralRawOverlay';
-      ov.style.cssText='position:fixed;inset:0;z-index:2000;background:rgba(15,23,42,.6);display:flex;align-items:center;justify-content:center;padding:30px;';
-      ov.innerHTML='<div style="background:#0f172a;color:#e2e8f0;width:100%;max-width:960px;max-height:85vh;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 40px rgba(0,0,0,.4)">'+
-        '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#1e293b;border-bottom:1px solid #334155">'+
-        '<strong id="oralRawTitle" style="font-size:14px;color:#f1f5f9"></strong>'+
-        '<button type="button" id="oralRawClose" style="background:#334155;color:#e2e8f0;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:16px">×</button></div>'+
-        '<pre id="oralRawBody" style="margin:0;padding:16px;overflow:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.6;white-space:pre-wrap;word-break:break-all"></pre></div>';
+      ov.style.cssText='position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:24px;';
+      ov.innerHTML='<div style="background:#2d2d2d;color:#cccccc;width:100%;max-width:1200px;height:88vh;border-radius:10px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.5)">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#1f1f1f;border-bottom:1px solid #3a3a3a">'+
+        '<strong id="oralRawTitle" style="font-size:13px;color:#eaeaea;font-weight:600"></strong>'+
+        '<button type="button" id="oralRawClose" style="background:#3a3a3a;color:#eaeaea;border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:16px">×</button></div>'+
+        '<div id="oralRawBody" style="margin:0;padding:14px 16px;overflow:auto;flex:1;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.65"></div></div>';
       document.body.appendChild(ov);
       ov.addEventListener('click',function(e){ if(e.target===ov) ov.style.display='none'; });
       document.getElementById('oralRawClose').addEventListener('click',function(){ ov.style.display='none'; });
+      document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ var o=document.getElementById('oralRawOverlay'); if(o&&o.style.display!=='none') o.style.display='none'; } });
     }
-    document.getElementById('oralRawTitle').textContent='원문(.trs) 보기 — '+title;
-    document.getElementById('oralRawBody').textContent=text||'(내용 없음)';
+    document.getElementById('oralRawTitle').innerHTML='원문 보기 — '+esc(title)+badge+' <span style="color:#8a8a8a;font-weight:400">(Ctrl+F 검색)</span>';
+    document.getElementById('oralRawBody').innerHTML=rowsHtml||'<span style="color:#888">(원본 내용 없음)</span>';
     ov.style.display='flex';
   }
 
