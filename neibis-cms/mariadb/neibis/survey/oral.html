@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 		<meta name="format-detection" content="telephone=no" />
-		<title id="neibisTopTitle">사이트별 운영관리 | 샘플페이지 | 조사자료 | 구술발화조사자료</title>
+		<title id="neibisTopTitle">사이트별 운영관리 | 지역어 종합 정보 | 조사자료 | 구술발화조사자료</title>
 		<link rel="shortcut icon" href="/mariadb/assets/neibis/images/favicon.png" />
 		<link rel="stylesheet" href="/mariadb/assets/neibis/css/style.css" />
 		<link rel="stylesheet" href="/mariadb/assets/neibis/css/board-attach-ext.css" />
@@ -180,7 +180,7 @@
 					<div class="sidebar-header">
 						<h1 class="sidebar-title">
 							<a href='/mariadb/neibis/index.do'>
-								<img src="/mariadb/assets/neibis/images/logo.png" alt="neibis" />
+								<img src="/mariadb/assets/neibis/images/logo_dialect.png" alt="지역어 종합 정보" />
 								<span class="logo-text">관리시스템</span>
 							</a>
 
@@ -447,7 +447,7 @@
 								<nav class="site-menu">
 									<ul class="site-list">
 										<li data-level="1" >
-													<a href="javascript:void(0)">샘플페이지</a>
+													<a href="javascript:void(0)">지역어 종합 정보</a>
 										<ul style="display:none;">
 										<li data-level="2" >
 													<a href="javascript:void(0)">조사자료</a>
@@ -459,7 +459,7 @@
 													<a href="/mariadb/neibis/survey/oral.do" >구술발화조사자료</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/survey/variant.do" >지역어 변이형 비교</a>
+													<a href="/mariadb/neibis/survey/variant.do" >지역별 이형태 관리</a>
 										</li>
 										<li data-level="3">
 													<a href="/mariadb/neibis/survey/search-std-vocab.do" >검색 표준어 어휘 관리</a>
@@ -476,6 +476,9 @@
 										</li>
 										<li data-level="3">
 													<a href="/mariadb/neibis/map/weather.do" >지역어 기상도</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/map/symbol.do" >상징 부호 관리</a>
 										</li>
 										</ul></li>
 										<li data-level="2" >
@@ -495,22 +498,42 @@
 													<a href="javascript:void(0)">지역어 자료관</a>
 										<ul style="display:none;">
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/252/list.do" >문학 속 지역어</a>
+													<a href="/mariadb/neibis/archive/literature.do" >문학 속 지역어</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/253/list.do" >사진으로 보는 생활어</a>
+													<a href="/mariadb/neibis/archive/region-photo.do" >사진으로 보는 생활어</a>
 										</li>
 										<li data-level="3">
-													<a href="/mariadb/neibis/bbs/256/list.do" >자료실</a>
+													<a href="/mariadb/neibis/archive/data-room.do" >자료실</a>
 										</li>
 										</ul></li>
-										<li data-level="2" >
-													<a href="javascript:void(0)">참여마당</a>
+																				<li data-level="2" >
+													<a href="javascript:void(0)">Open API관리</a>
 										<ul style="display:none;">
 										<li data-level="3" >
-													<a href="/mariadb/neibis/bbs/255/list.do" >고객의 소리</a>
+													<a href="/mariadb/neibis/stats/api.do" >Open API사용현황</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI.do" >호출 단어 순위</a>
+										</li>
+										<li data-level="3" >
+													<a href="/mariadb/neibis/stats/searchAPI2.do" >호출 URL 순위</a>
 										</li>
 									</ul></li></ul></li>
+								
+										<li data-level="1" >
+													<a href="javascript:void(0)">기타 관리</a>
+										<ul style="display:none;">
+										<li data-level="2" >
+													<a href="/mariadb/neibis/system/user.do" >사용자 계정관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/source.do" >제보자 관리</a>
+										</li>
+										<li data-level="2" >
+													<a href="/mariadb/neibis/survey/surveyList.do" >설문조사 관리</a>
+										</li>
+									</ul></li>
 								</nav>
 							</div>
 						</div>
@@ -580,7 +603,7 @@
 									<i class="ico ico-copy-gray-sm"></i>
 									<span class="sr-only">복사</span>
 								</button>
-								<ol class="breadcrumb-list"><li>사이트별 운영관리</li><li>샘플페이지</li><li>조사자료</li><li>구술발화조사자료</li></ol>
+								<ol class="breadcrumb-list"><li>사이트별 운영관리</li><li>지역어 종합 정보</li><li>조사자료</li><li>구술발화조사자료</li></ol>
 							</div>
 							<div class="content-title">
 								<div class="tooltip" id="tooltip_area"><p id="tooltip_p"></p><div class='btn-group' id="tooltip_btn"></div></div>
@@ -712,7 +735,7 @@
 											<tr>
 												<th scope="row">검색어</th>
 												<td colspan="3">
-													<input type="text" class="form-control" style="width:100%; max-width:600px" placeholder="구술발화 검색어를 입력해주세요." />
+													<input type="text" id="oralSearchKw" class="form-control" style="width:100%; max-width:600px" placeholder="구술발화 검색어를 입력해주세요." onkeydown="if(event.keyCode===13){event.preventDefault();searchList();}" />
 												</td>
 											</tr>
 										</tbody>
@@ -752,14 +775,14 @@
 									<table style="min-width:1200px">
 										<caption class="sr-only">구술발화조사자료 목록</caption>
 										<colgroup>
-											<col style="width:52px" /><col style="width:64px" /><col style="width:80px" /><col style="width:170px" /><col style="width:220px" /><col /><col style="width:100px" /><col style="width:90px" /><col style="width:150px" />
+											<col style="width:52px" /><col style="width:64px" /><col style="width:80px" /><col style="width:170px" /><col style="width:220px" /><col /><col style="width:100px" /><col style="width:130px" /><col style="width:150px" />
 										</colgroup>
 										<thead>
 											<tr>
 												<th scope="col"><label class="check-item"><input type="checkbox" id="chkAll" /><span class="label sr-only">전체선택</span></label></th>
 												<th scope="col">번호</th>
 												<th scope="col">연도</th>
-												<th scope="col">조사지역</th>
+												<th scope="col">지역명</th>
 												<th scope="col">발화 주제</th>
 												<th scope="col">조사파일명</th>
 												<th scope="col">시간</th>
@@ -767,147 +790,8 @@
 												<th scope="col">관리</th>
 											</tr>
 										</thead>
-										<tbody>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="1" /><span class="label sr-only">선택</span></label></td>
-											<td>1</td>
-											<td>2004</td>
-											<td><a href="oral-updt.do" class="link">강원도 삼척시</a></td>
-											<td class="text-left">제보자의 출생과 성장</td>
-											<td class="text-left"><a href="#layer-trs-view" data-modal="open" class="link">GW04_삼척_001.wav</a></td>
-											<td>00:14:22</td>
-											<td>Y</td>
-											<td>
-												<a href="oral-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a>
-												<button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button>
-											</td>
-										</tr>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="2" /><span class="label sr-only">선택</span></label></td>
-											<td>2</td>
-											<td>2004</td>
-											<td><a href="oral-updt.do" class="link">강원도 삼척시</a></td>
-											<td class="text-left">논농사</td>
-											<td class="text-left"><a href="#layer-trs-view" data-modal="open" class="link">GW04_삼척_002.wav</a></td>
-											<td>00:21:05</td>
-											<td>Y</td>
-											<td>
-												<a href="oral-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a>
-												<button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button>
-											</td>
-										</tr>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="3" /><span class="label sr-only">선택</span></label></td>
-											<td>3</td>
-											<td>2005</td>
-											<td><a href="oral-updt.do" class="link">경상북도 안동시</a></td>
-											<td class="text-left">세시 풍속</td>
-											<td class="text-left"><a href="#layer-trs-view" data-modal="open" class="link">GB05_안동_001.wav</a></td>
-											<td>00:18:47</td>
-											<td>Y</td>
-											<td>
-												<a href="oral-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a>
-												<button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button>
-											</td>
-										</tr>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="4" /><span class="label sr-only">선택</span></label></td>
-											<td>4</td>
-											<td>2006</td>
-											<td><a href="oral-updt.do" class="link">전라남도 목포시</a></td>
-											<td class="text-left">고기잡이</td>
-											<td class="text-left"><a href="#layer-trs-view" data-modal="open" class="link">JN06_목포_001.wav</a></td>
-											<td>00:25:13</td>
-											<td>Y</td>
-											<td>
-												<a href="oral-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a>
-												<button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button>
-											</td>
-										</tr>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="5" /><span class="label sr-only">선택</span></label></td>
-											<td>5</td>
-											<td>2007</td>
-											<td><a href="oral-updt.do" class="link">충청남도 공주시</a></td>
-											<td class="text-left">밭농사</td>
-											<td class="text-left"><a href="#layer-trs-view" data-modal="open" class="link">CN07_공주_001.wav</a></td>
-											<td>00:16:39</td>
-											<td>N</td>
-											<td>
-												<a href="oral-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a>
-												<button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button>
-											</td>
-										</tr>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="6" /><span class="label sr-only">선택</span></label></td>
-											<td>6</td>
-											<td>2008</td>
-											<td><a href="oral-updt.do" class="link">경상남도 남해군</a></td>
-											<td class="text-left">전통 놀이</td>
-											<td class="text-left"><a href="#layer-trs-view" data-modal="open" class="link">GN08_남해_001.wav</a></td>
-											<td>00:12:58</td>
-											<td>Y</td>
-											<td>
-												<a href="oral-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a>
-												<button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button>
-											</td>
-										</tr>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="7" /><span class="label sr-only">선택</span></label></td>
-											<td>7</td>
-											<td>2009</td>
-											<td><a href="oral-updt.do" class="link">전라북도 전주시</a></td>
-											<td class="text-left">시집살이에 대한 경험담</td>
-											<td class="text-left"><a href="#layer-trs-view" data-modal="open" class="link">JB09_전주_001.wav</a></td>
-											<td>00:30:41</td>
-											<td>Y</td>
-											<td>
-												<a href="oral-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a>
-												<button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button>
-											</td>
-										</tr>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="8" /><span class="label sr-only">선택</span></label></td>
-											<td>8</td>
-											<td>2010</td>
-											<td><a href="oral-updt.do" class="link">제주특별자치도 제주시</a></td>
-											<td class="text-left">전설과 설화</td>
-											<td class="text-left"><a href="#layer-trs-view" data-modal="open" class="link">JJ10_제주_001.wav</a></td>
-											<td>00:22:16</td>
-											<td>Y</td>
-											<td>
-												<a href="oral-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a>
-												<button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button>
-											</td>
-										</tr>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="9" /><span class="label sr-only">선택</span></label></td>
-											<td>9</td>
-											<td>2011</td>
-											<td><a href="oral-updt.do" class="link">충청북도 청주시</a></td>
-											<td class="text-left">장례 절차에 대한 이야기</td>
-											<td class="text-left"><a href="#layer-trs-view" data-modal="open" class="link">CB11_청주_001.wav</a></td>
-											<td>00:19:52</td>
-											<td>N</td>
-											<td>
-												<a href="oral-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a>
-												<button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button>
-											</td>
-										</tr>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="10" /><span class="label sr-only">선택</span></label></td>
-											<td>10</td>
-											<td>2012</td>
-											<td><a href="oral-updt.do" class="link">경기도 수원시</a></td>
-											<td class="text-left">결혼하기까지의 과정</td>
-											<td class="text-left"><a href="#layer-trs-view" data-modal="open" class="link">GG12_수원_001.wav</a></td>
-											<td>00:27:34</td>
-											<td>Y</td>
-											<td>
-												<a href="oral-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a>
-												<button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button>
-											</td>
-										</tr>
+										<tbody id="talkList">
+											<tr><td colspan="9" style="padding:40px;text-align:center;color:#94a3b8">목록을 불러오는 중…</td></tr>
 										</tbody>
 									</table>
 								</div>
@@ -943,7 +827,7 @@ function delRegion(){
 	if($('.region-line[data-idx="3"]').css('display')!=='none'){ $('.region-line[data-idx="3"]').hide(); }
 	else { $('.region-line[data-idx="2"]').hide(); }
 }
-// 조사 차수 -> 연도 필터
+// 조사 차수 -> 연도 필터 + 목록(차수별) 필터
 function updateYear(){
 	var d = $('#degree').val();
 	$('.basisYear').val('');
@@ -952,6 +836,19 @@ function updateYear(){
 		if(d===''){ $opts.show(); }
 		else { $opts.filter('.degree-'+d).show(); $opts.not('.degree-'+d).not('[value=""]').hide(); }
 	});
+	filterByDegree();
+}
+// 조사 차수 선택값에 맞는 목록만 노출 (전체=모두, 1=1차, 2=2차) + 번호 재부여 + 총건수 갱신
+function filterByDegree(){
+	var d = $('#degree').val();
+	var n = 0;
+	$('#talkList > tr').each(function(){
+		var rd = String($(this).data('degree'));
+		var show = (d==='' || rd===d);
+		$(this).toggle(show);
+		if(show){ n++; $(this).children('td').eq(1).text(n); }
+	});
+	$('.list-control .total').html('총 <strong class="text-primary">'+n.toLocaleString()+'</strong>건(1/1 page)');
 }
 // 초기화
 function btnInit(){
@@ -961,7 +858,7 @@ function btnInit(){
 	$('.basisYear').children().show();
 }
 // 정적 스텁
-function searchList(){ if(window.Message){Message.alert({icon:'info',message:'정적 프로토타입입니다. 검색 결과는 예시 데이터로 표시됩니다.'});}else{alert('정적 프로토타입: 예시 데이터');} }
+function searchList(){ filterByDegree(); }
 function stub(nm){ if(window.Message){Message.alert({icon:'info',message:'['+nm+'] 정적 프로토타입 버튼입니다.'});}else{alert(nm);} }
 
 $(function(){
@@ -971,8 +868,160 @@ $(function(){
 	$('input[name=age]').on('change', function(){ if(this.checked){ $('#ageAll').prop('checked',false); } });
 	// 전체선택
 	$('#chkAll').on('change', function(){ $('input[name=chk]').prop('checked', this.checked); });
+	// 초기 목록/번호/건수 세팅 (기본: 전체 표시)
+	filterByDegree();
 });
 </script>
+<script>
+/* ── 구술발화 목록/상세 실데이터 연동 (api_oral_*) ───────────────── */
+(function(){
+  var API='/mariadb/neibis-api/oral';
+  var state={page:1,pageSize:300};
+
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);});}
+
+  function gatherFilters(){
+    var sido=(document.querySelector('.region-line[data-idx="1"] .sido')||{}).value||'';
+    var year=(document.getElementById('startYear')||{}).value||'';
+    var sexEl=document.querySelector('input[name="sex"]:checked');
+    var sex=sexEl?sexEl.value:'';
+    var kw=(document.getElementById('oralSearchKw')||{}).value||'';
+    var qs='page='+state.page+'&pageSize='+state.pageSize;
+    if(sido) qs+='&sido='+encodeURIComponent(sido);
+    if(year) qs+='&year='+encodeURIComponent(year);
+    if(sex) qs+='&sex='+encodeURIComponent(sex);
+    if(kw.trim()) qs+='&q='+encodeURIComponent(kw.trim());
+    return qs;
+  }
+
+  function rowHtml(it){
+    var openTxt=(it.openYn==='Y'?'사용':'미사용')+' , '+(it.audioState||'-');
+    var media=it.hasMedia?'':' <span style="color:#dc2626;font-size:12px">(음성없음)</span>';
+    var degree=(parseInt(it.year,10)>=2022)?'2':'1';  // 2004~2012=1차, 2022~2023=2차
+    return ''+
+      '<tr data-degree="'+degree+'">'+
+      '<td><label class="check-item"><input type="checkbox" name="chk" value="'+esc(it.oralId)+'" /><span class="label sr-only">선택</span></label></td>'+
+      '<td>'+esc(it.no)+'</td>'+
+      '<td>'+esc(it.year)+'</td>'+
+      '<td><a href="oral-updt.do?id='+encodeURIComponent(it.oralId)+'" class="link">'+esc(it.region||'-')+'</a></td>'+
+      '<td class="text-left">'+esc(it.topic||'-')+'</td>'+
+      '<td class="text-left"><a href="#layer-trs-view" data-modal="open" class="link js-oral-open" data-oral-id="'+esc(it.oralId)+'">'+esc(it.fileName)+'</a>'+media+'</td>'+
+      '<td>'+esc(it.duration)+'</td>'+
+      '<td>'+esc(openTxt)+'</td>'+
+      '<td>'+
+        '<a href="oral-updt.do?id='+encodeURIComponent(it.oralId)+'" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a> '+
+        '<button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub(\'삭제\')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button>'+
+      '</td>'+
+      '</tr>';
+  }
+
+  window.loadOralList=function(){
+    var tb=document.getElementById('talkList');
+    if(tb) tb.innerHTML='<tr><td colspan="9" style="padding:40px;text-align:center;color:#94a3b8">목록을 불러오는 중…</td></tr>';
+    fetch(API+'/list?'+gatherFilters(),{headers:{'Accept':'application/json'}})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(!d||!d.ok){throw new Error((d&&d.message)||'로드 실패');}
+        if(!d.list.length){ tb.innerHTML='<tr><td colspan="9" style="padding:40px;text-align:center;color:#94a3b8">검색 결과가 없습니다.</td></tr>'; }
+        else { tb.innerHTML=d.list.map(rowHtml).join(''); }
+        var tot=document.querySelector('.list-control .total');
+        if(tot) tot.innerHTML='총 <strong class="text-primary">'+Number(d.total).toLocaleString()+'</strong>건(1/1 page)';
+        var chkAll=document.getElementById('chkAll'); if(chkAll) chkAll.checked=false;
+      })
+      .catch(function(e){
+        tb.innerHTML='<tr><td colspan="9" style="padding:40px;text-align:center;color:#dc2626">목록 로드 실패: '+esc(e.message)+'</td></tr>';
+      });
+  };
+
+  /* 검색/초기화 버튼을 실데이터 재조회로 재정의 */
+  window.searchList=function(){ state.page=1; window.loadOralList(); };
+  var _origBtnInit=window.btnInit;
+  window.btnInit=function(){ if(typeof _origBtnInit==='function'){try{_origBtnInit();}catch(e){}} state.page=1; window.loadOralList(); };
+
+  /* ── 상세(구술자료 보기) ── */
+  function ensureAudio(){
+    var a=document.getElementById('oralAudio');
+    if(!a){ a=document.createElement('audio'); a.id='oralAudio'; a.preload='none'; document.body.appendChild(a); }
+    return a;
+  }
+  var _stopAt=null;
+  window.oralPlaySeg=function(startMs,endMs,btn){
+    var a=ensureAudio();
+    if(!a.src){ if(window.Message){Message.alert({icon:'warning',message:'이 자료는 음성 파일이 없습니다.'});}else{alert('음성 파일이 없습니다.');} return; }
+    _stopAt=endMs/1000;
+    a.currentTime=startMs/1000;
+    a.play().catch(function(){});
+  };
+
+  function segLineHtml(sg){
+    var spk=sg.speaker||'';
+    var badgeColor=(spk==='조사자')?'#0ea5e9':'#7c3aed';
+    var t1=(sg.startMs/1000).toFixed(2), t2=(sg.endMs/1000).toFixed(2);
+    var stdDiff=(sg.std && sg.std!==sg.form);
+    return ''+
+      '<div class="trs-line">'+
+        '<div class="trs-header" style="display:none"><dl>'+
+          '<dt>순번</dt><dd>'+sg.seq+'</dd>'+
+          '<dt>화자</dt><dd>'+esc(spk)+'</dd>'+
+          '<dt>주제</dt><dd>'+esc(window._oralTopic||'-')+'</dd>'+
+          '<dt>항목번호</dt><dd>'+esc(sg.item||'-')+'</dd>'+
+        '</dl></div>'+
+        '<div class="trs-text">'+
+          '<span class="ui-line-no">'+sg.seq+'</span>'+
+          '<button type="button" class="btn-play" onclick="oralPlaySeg('+sg.startMs+','+sg.endMs+',this)" title="구간 재생">▶</button>'+
+          '<span class="chk-col"><label class="check-item"><input type="checkbox" name="trsChk" /><span class="label sr-only">선택</span></label></span>'+
+          '<span class="ui-play-time">'+t1+' 초 ~ '+t2+' 초</span>'+
+          '<div style="flex:1 1 auto">'+
+            '<span style="display:inline-block;min-width:44px;font-size:11px;font-weight:700;color:'+badgeColor+'">'+esc(spk)+'</span>'+
+            '<pre style="display:inline">'+esc(sg.form)+'</pre>'+
+            (stdDiff?'<div style="margin-top:2px;font-size:13px;color:#64748b"><span style="font-size:11px;color:#94a3b8">표준어대역</span> '+esc(sg.std)+'</div>':'')+
+          '</div>'+
+        '</div>'+
+      '</div>';
+  }
+
+  window.openOralDetail=function(oralId){
+    var lines=document.getElementById('trsLines');
+    var sub=document.querySelector('#layer-trs-view .trs-subtitle');
+    if(lines) lines.innerHTML='<div style="padding:40px;text-align:center;color:#94a3b8">전사 자료를 불러오는 중…</div>';
+    if(sub) sub.innerHTML='불러오는 중…';
+    fetch(API+'/detail?id='+encodeURIComponent(oralId),{headers:{'Accept':'application/json'}})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(!d||!d.ok){throw new Error((d&&d.message)||'상세 로드 실패');}
+        window._oralTopic=d.topic;
+        if(sub){
+          var age=(d.birth&&d.year)?(' · 제보자 '+esc(d.informant)+'('+esc(d.sex)+', '+(Number(d.year)-Number(d.birth)+1)+'세)'):'';
+          sub.innerHTML=esc(d.region)+' ('+esc(d.year)+'년) '+esc(d.topic)+' 조사 &ndash; <span class="fname">'+esc(d.fileName)+'</span>'+
+            (d.hasMedia?' ( <span class="fname">'+esc(d.oralId)+'.wav</span> )':' <span style="color:#dc2626">(음성없음)</span>')+age+' · 전사 '+d.segmentCount+'행 · '+esc(d.duration);
+        }
+        var a=ensureAudio(); a.pause(); a.removeAttribute('src'); a.load();
+        if(d.hasMedia && d.mediaUrl){ a.src=d.mediaUrl; a.ontimeupdate=function(){ if(_stopAt!=null && a.currentTime>=_stopAt){ a.pause(); _stopAt=null; } }; }
+        if(lines){ lines.innerHTML=(d.segments||[]).map(segLineHtml).join('')||'<div style="padding:40px;text-align:center;color:#94a3b8">전사 데이터가 없습니다.</div>'; }
+        if(typeof trsResetMarks==='function') trsResetMarks();
+        var tg=document.getElementById('trsToggleHeader'); if(tg) tg.checked=false;
+      })
+      .catch(function(e){
+        if(lines) lines.innerHTML='<div style="padding:40px;text-align:center;color:#dc2626">상세 로드 실패: '+esc(e.message)+'</div>';
+      });
+  };
+
+  /* 파일명 클릭(위임): 모달은 프레임워크(data-modal)에서 열고, 데이터는 여기서 채움 */
+  document.addEventListener('click',function(e){
+    var a=e.target.closest?e.target.closest('.js-oral-open'):null;
+    if(a){ window.openOralDetail(a.getAttribute('data-oral-id')); }
+  });
+  /* 모달 닫을 때 오디오 정지 */
+  document.addEventListener('click',function(e){
+    var c=e.target.closest?e.target.closest('#layer-trs-view [data-modal="close"], #layer-trs-view .dimed'):null;
+    if(c){ var a=document.getElementById('oralAudio'); if(a){a.pause();} _stopAt=null; }
+  });
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',window.loadOralList);
+  else window.loadOralList();
+})();
+</script>
+
 					</div>
 				</article>
 			</div>
@@ -1146,7 +1195,7 @@ $(function(){
 					<h2 class="popup-title">구술자료 보기</h2>
 				</div>
 				<div class="popup-body">
-					<p class="trs-subtitle">충청북도 청주시 흥덕구 복대동 (2022년) 지역어 조사 &ndash; <span class="fname">CB2220MUT10400.eaf</span> ( <span class="fname">CB2220MUT10400.wav</span> )</p>
+					<p class="trs-subtitle">충청북도 청주시 흥덕구 복대동 (2022년) 지역어 조사 &ndash; <span class="fname">SCB_CJ_28_충북청주_형태_08_장례절차에대한이야기.trs</span> ( <span class="fname">SCB_CJ_28_충북청주_형태_08_장례절차에대한이야기.wav</span> )</p>
 					<div class="trs-search">
 						<label for="trsSearchKw">검색어</label>
 						<input type="text" id="trsSearchKw" class="form-control-sm" autocomplete="off" placeholder="검색어를 입력하세요." oninput="trsResetMarks()" onkeydown="if(event.keyCode===13){event.preventDefault();trsFind(1);}" />
