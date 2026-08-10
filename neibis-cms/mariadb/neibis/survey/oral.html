@@ -1007,7 +1007,7 @@ $(function(){
       .then(function(r){return r.json();})
       .then(function(d){
         if(!d||!d.ok){throw new Error((d&&d.message)||'상세 로드 실패');}
-        window._oralTopic=d.topic;
+        window._oralTopic=d.topic; window._oralCurId=d.oralId;
         if(sub){
           var who=d.informant?(' · 제보자 '+esc(d.informant)+'('+esc(d.sex)+(d.age?', '+esc(d.age)+'세':'')+')'):'';
           sub.innerHTML=esc(d.region)+' ('+esc(d.year)+'년) '+esc(d.topic)+' 조사 &ndash; <span class="fname">'+esc(d.fileName)+'</span>'+
@@ -1023,6 +1023,36 @@ $(function(){
         if(lines) lines.innerHTML='<div style="padding:40px;text-align:center;color:#dc2626">상세 로드 실패: '+esc(e.message)+'</div>';
       });
   };
+
+  /* trs 보기: 원문(.trs) 라인 그대로 보기 */
+  window.oralShowRaw=function(id){
+    id = id || window._oralCurId;
+    if(!id){ if(window.Message){Message.alert({icon:'warning',message:'먼저 구술자료 보기로 파일을 여세요.'});}else{alert('대상 자료 없음');} return; }
+    fetch(API+'/raw?id='+encodeURIComponent(id)).then(function(r){return r.json();}).then(function(d){
+      if(!d||!d.ok){ alert('원문 로드 실패'); return; }
+      showRawOverlay((d.fileName||('trs '+id)), d.raw||'');
+    }).catch(function(e){ alert('로드 실패: '+e.message); });
+  };
+  function showRawOverlay(title, raw){
+    var lines=String(raw||'').split('\n');
+    var text=lines.map(function(l,i){ return ('     '+(i+1)).slice(-5)+'  '+l; }).join('\n');
+    var ov=document.getElementById('oralRawOverlay');
+    if(!ov){
+      ov=document.createElement('div'); ov.id='oralRawOverlay';
+      ov.style.cssText='position:fixed;inset:0;z-index:2000;background:rgba(15,23,42,.6);display:flex;align-items:center;justify-content:center;padding:30px;';
+      ov.innerHTML='<div style="background:#0f172a;color:#e2e8f0;width:100%;max-width:960px;max-height:85vh;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 40px rgba(0,0,0,.4)">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#1e293b;border-bottom:1px solid #334155">'+
+        '<strong id="oralRawTitle" style="font-size:14px;color:#f1f5f9"></strong>'+
+        '<button type="button" id="oralRawClose" style="background:#334155;color:#e2e8f0;border:none;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:16px">×</button></div>'+
+        '<pre id="oralRawBody" style="margin:0;padding:16px;overflow:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.6;white-space:pre-wrap;word-break:break-all"></pre></div>';
+      document.body.appendChild(ov);
+      ov.addEventListener('click',function(e){ if(e.target===ov) ov.style.display='none'; });
+      document.getElementById('oralRawClose').addEventListener('click',function(){ ov.style.display='none'; });
+    }
+    document.getElementById('oralRawTitle').textContent='원문(.trs) 보기 — '+title;
+    document.getElementById('oralRawBody').textContent=text||'(내용 없음)';
+    ov.style.display='flex';
+  }
 
   /* 파일명 클릭(위임): 모달은 프레임워크(data-modal)에서 열고, 데이터는 여기서 채움 */
   document.addEventListener('click',function(e){
@@ -1258,7 +1288,7 @@ $(function(){
 					</div>
 					<div class="trs-funcs">
 						<button type="button" class="btn btn-sm btn-outline-gray" onclick="stub('조사지역 보기')"><i class="ico ico-search-darkgray-sm"></i><span>조사지역 보기</span></button>
-						<button type="button" class="btn btn-sm btn-outline-gray" onclick="stub('trs 보기')"><i class="ico ico-file-darkgray-md"></i><span>trs 보기</span></button>
+						<button type="button" class="btn btn-sm btn-outline-gray" onclick="oralShowRaw()"><i class="ico ico-file-darkgray-md"></i><span>trs 보기</span></button>
 						<button type="button" class="btn btn-sm btn-outline-gray" onclick="trsDownload('개별')"><i class="ico ico-download-gray-md"></i><span>구술자료받기[개별]</span></button>
 						<button type="button" class="btn btn-sm btn-outline-gray" onclick="trsDownload('병합')"><i class="ico ico-download-gray-md"></i><span>구술자료받기[병합]</span></button>
 						<button type="button" class="btn btn-sm btn-primary" onclick="trsListen()"><i class="ico ico-play-white-sm"></i><span>선택한 자료 듣기</span></button>

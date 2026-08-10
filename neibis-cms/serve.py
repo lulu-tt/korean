@@ -507,6 +507,7 @@ def api_oral_detail(qs: dict) -> dict:
             "form": p["form"],
             "std": p["std"],
             "singleTurn": p["singleTurn"],
+            "raw": ln["trs_line"] or "",
             "item": ln["trs_line_no"] or "",
         })
     dur_ms = max((s["endMs"] for s in segments), default=0)
@@ -695,6 +696,32 @@ def api_oral_save_meta(body: dict) -> dict:
             )
         con.commit()
     return {"ok": True, "trsId": trs_id, "message": "저장되었습니다."}
+
+
+def api_oral_raw(qs: dict) -> dict:
+    """trs 보기 — 원본 .trs 소스 재구성 (구조 라인 포함 모든 wb_trs_line_talk 행)."""
+    trs_id = (qs.get("id") or qs.get("trsId") or qs.get("oralId") or [""])[0].strip()
+    if not trs_id:
+        return {"ok": False, "message": "id 파라미터가 필요합니다."}
+    with db_connect() as con:
+        f = con.execute(
+            "SELECT trs_file_nm FROM wb_trs_file_talk WHERE trs_id = ?", (trs_id,)
+        ).fetchone()
+        if not f:
+            return {"ok": False, "message": f"해당 자료를 찾을 수 없습니다: {trs_id}"}
+        rows = con.execute(
+            """SELECT trs_line FROM wb_trs_line_talk
+               WHERE trs_id = ? ORDER BY CAST(trs_line_id AS INTEGER)""",
+            (trs_id,),
+        ).fetchall()
+    raw = "\n".join((r["trs_line"] or "") for r in rows)
+    return {
+        "ok": True,
+        "trsId": trs_id,
+        "fileName": f["trs_file_nm"] or ("trs " + trs_id),
+        "lineCount": len(rows),
+        "raw": raw,
+    }
 
 
 def _speaker_to_marker(speaker: str) -> str:
@@ -2259,6 +2286,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 self._send_json(api_oral_meta(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/oral/raw",
+            "/mariadb/neibis-api/v1/oral/raw",
+            "/mariadb/neibis-api/survey/oral/raw",
+        ):
+            try:
+                self._send_json(api_oral_raw(qs))
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return
