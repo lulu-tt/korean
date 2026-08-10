@@ -640,15 +640,18 @@
 							#save-form .trs-drop__desc{ font-size:12.5px; color:#64748b; margin:0; }
 							#save-form .trs-drop .file-name{ margin:10px 0 0; font-size:12.5px; color:#94a3b8; }
 							#save-form .trs-drop .file-name.has-file{ color:#1d4ed8; font-weight:600; }
-							/* 등록할 전사자료 목록: 파일명이 줄바꿈 없이 한 줄로 길게 */
+							/* 등록할 전사자료 목록: 프레임워크 반응형(flex) 테이블을 일반 테이블로 강제 + 한 줄 표시 */
 							#save-form .table-list .table-inner{ overflow-x:auto; }
-							#save-form .table-list table{ width:100%; table-layout:auto; border-collapse:collapse; }
-							#save-form .table-list table th, #save-form .table-list table td{ white-space:nowrap; word-break:keep-all; overflow-wrap:normal; padding:8px 14px; }
-							#save-form .table-list table td.text-left{ text-align:left; }
-							#save-form .table-list table thead th{ background:#f1f5f9; font-size:12.5px; color:#475569; text-align:center; }
-							#save-form .table-list table thead th:first-child, #save-form .table-list table thead th:nth-child(3){ text-align:left; }
-							#save-form .table-list table td{ font-size:13px; text-align:center; }
-					</style>
+							#save-form .table-list table{ display:table !important; width:100%; table-layout:auto; border-collapse:collapse; }
+							#save-form .table-list thead{ display:table-header-group !important; }
+							#save-form .table-list tbody{ display:table-row-group !important; }
+							#save-form .table-list tr{ display:table-row !important; }
+							#save-form .table-list th, #save-form .table-list td{ display:table-cell !important; white-space:nowrap; word-break:keep-all; overflow-wrap:normal; padding:8px 16px; vertical-align:middle; border-bottom:1px solid #eef2f7; text-align:center; }
+							#save-form .table-list td::before{ content:none !important; }
+							#save-form .table-list thead th{ background:#f1f5f9; font-size:12.5px; color:#475569; }
+							#save-form .table-list td{ font-size:13px; }
+							#save-form .table-list th:first-child, #save-form .table-list td:first-child, #save-form .table-list th:nth-child(3), #save-form .table-list td:nth-child(3){ text-align:left; }
+							</style>
 					<form id="save-form" onsubmit="return false;">
 						<div class="card">
 							<div class="table table-row">
