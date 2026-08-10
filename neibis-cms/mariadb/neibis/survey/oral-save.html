@@ -640,6 +640,14 @@
 							#save-form .trs-drop__desc{ font-size:12.5px; color:#64748b; margin:0; }
 							#save-form .trs-drop .file-name{ margin:10px 0 0; font-size:12.5px; color:#94a3b8; }
 							#save-form .trs-drop .file-name.has-file{ color:#1d4ed8; font-weight:600; }
+							/* 등록할 전사자료 목록: 파일명이 줄바꿈 없이 한 줄로 길게 */
+							#save-form .table-list .table-inner{ overflow-x:auto; }
+							#save-form .table-list table{ width:100%; table-layout:auto; border-collapse:collapse; }
+							#save-form .table-list table th, #save-form .table-list table td{ white-space:nowrap; word-break:keep-all; overflow-wrap:normal; padding:8px 14px; }
+							#save-form .table-list table td.text-left{ text-align:left; }
+							#save-form .table-list table thead th{ background:#f1f5f9; font-size:12.5px; color:#475569; text-align:center; }
+							#save-form .table-list table thead th:first-child, #save-form .table-list table thead th:nth-child(3){ text-align:left; }
+							#save-form .table-list table td{ font-size:13px; text-align:center; }
 					</style>
 					<form id="save-form" onsubmit="return false;">
 						<div class="card">
@@ -894,16 +902,9 @@ function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){retur
 
 function uploadTrsFiles(input){ uploadFileList(input.files); }
 function uploadFileList(files){
-	var body = document.getElementById('trsListBody');
 	var nameSpan = document.getElementById('trsFilesName');
-	if(!files || files.length === 0){
-		nameSpan.textContent = '선택된 파일 없음'; nameSpan.classList.remove('has-file');
-		body.innerHTML = '<tr class="nodata-row"><td colspan="5" class="text-center" style="color:#94a3b8">등록된 전사자료가 없습니다.</td></tr>';
-		return;
-	}
-	nameSpan.textContent = files.length > 1 ? (files[0].name + ' 외 ' + (files.length-1) + '건') : files[0].name;
-	nameSpan.classList.add('has-file');
-	body.innerHTML = '<tr class="nodata-row"><td colspan="5" class="text-center" style="color:#94a3b8">업로드 중…</td></tr>';
+	if(!files || files.length === 0) return;
+	nameSpan.textContent = '업로드 중…';
 	var fd = new FormData();
 	for(var i=0;i<files.length;i++) fd.append('files', files[i]);
 	fetch('/mariadb/neibis-api/oral/upload', {method:'POST', body:fd})
@@ -916,20 +917,116 @@ function uploadFileList(files){
 				if(order.indexOf(r.baseId)<0) order.push(r.baseId);
 				if(r.kind==='eaf') eafs[r.baseId]=r; else if(r.kind==='wav') wavs[r.baseId]=r;
 			});
-			window._uploadedEafs = order.filter(function(b){return eafs[b];}).map(function(b){return eafs[b].fileName;});
-			window._uploadMeta = order.length && eafs[order[0]] ? eafs[order[0]].meta : null;
-			var html='';
-			order.forEach(function(b){
-				var e=eafs[b], w=wavs[b];
-				html += '<tr><td class="text-left">'+esc(e?e.fileName:'-')+'</td><td>'+esc(e?e.durationHms:'-')+'</td>'+
-					'<td class="text-left">'+esc(w?w.fileName:'-')+'</td><td>'+esc(w?w.waveTimeHms:'-')+'</td><td>'+esc(e?('1 (신규)'):'-')+'</td></tr>';
-			});
-			body.innerHTML = html || '<tr class="nodata-row"><td colspan="5" class="text-center" style="color:#dc2626">유효한 .eaf 파일이 없습니다.</td></tr>';
-			autofillFromMeta(window._uploadMeta, order.length && eafs[order[0]] ? eafs[order[0]].fileName : '');
+			nameSpan.textContent = '선택된 파일 없음'; nameSpan.classList.remove('has-file');
+			if(!order.some(function(b){return eafs[b];})){ msgWarn('유효한 전사자료(.eaf)가 없습니다.'); return; }
+			openUploadConfirm(order, eafs, wavs);
 		})
-		.catch(function(e){
-			body.innerHTML = '<tr class="nodata-row"><td colspan="5" class="text-center" style="color:#dc2626">업로드 실패: '+esc(e.message)+'</td></tr>';
+		.catch(function(e){ nameSpan.textContent='선택된 파일 없음'; msgWarn('업로드 실패: '+e.message); });
+}
+
+// ── 업로드 확인 레이어 팝업 ───────────────────────────────
+function ensureUploadModal(){
+	var m=document.getElementById('uploadConfirmModal');
+	if(m) return m;
+	m=document.createElement('div'); m.id='uploadConfirmModal';
+	m.style.cssText='position:fixed;inset:0;z-index:1500;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;padding:24px;';
+	m.innerHTML='<div style="background:#fff;width:100%;max-width:680px;max-height:88vh;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(15,23,42,.25)">'
+		+'<div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #e5e7eb;background:#f8fafc"><h2 style="margin:0;font-size:17px;font-weight:800;color:#1e3a8a">업로드 확인</h2><button type="button" id="ucClose" style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;width:34px;height:34px;font-size:18px;cursor:pointer;color:#64748b">×</button></div>'
+		+'<div id="ucBody" style="padding:18px 20px;overflow:auto;flex:1;font-size:13px;color:#334155"></div>'
+		+'<div style="display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid #e5e7eb;background:#f8fafc"><button type="button" id="ucCancel" class="btn btn-md btn-outline-gray">취소</button><button type="button" id="ucApply" class="btn btn-md btn-primary">목록에 추가</button></div>'
+		+'</div>';
+	document.body.appendChild(m);
+	m.addEventListener('click',function(e){ if(e.target===m) cancelUploadConfirm(); });
+	document.getElementById('ucClose').addEventListener('click', cancelUploadConfirm);
+	document.getElementById('ucCancel').addEventListener('click', cancelUploadConfirm);
+	document.getElementById('ucApply').addEventListener('click', applyUploadConfirm);
+	return m;
+}
+
+function openUploadConfirm(order, eafs, wavs){
+	var m=ensureUploadModal();
+	var firstEaf = null; for(var i=0;i<order.length;i++){ if(eafs[order[i]]){ firstEaf=eafs[order[i]]; break; } }
+	window._pendingUpload = {order:order, eafs:eafs, wavs:wavs, meta:firstEaf?firstEaf.meta:null, firstEafName:firstEaf?firstEaf.fileName:'', candidates:[], pick:'new'};
+	var meta = window._pendingUpload.meta || {};
+	var age = (meta.year && meta.birth) ? (Number(meta.year)-Number(meta.birth)+1) : '';
+	// 파일 표
+	var rows='';
+	order.forEach(function(b){ var e=eafs[b], w=wavs[b];
+		rows += '<tr><td class="text-left" style="padding:6px 8px">'+esc(e?e.fileName:'-')+'</td><td style="text-align:center">'+esc(e?e.durationHms:'-')+'</td><td class="text-left" style="padding:6px 8px">'+esc(w?w.fileName:'-')+'</td><td style="text-align:center">'+esc(w?w.waveTimeHms:'-')+'</td><td style="text-align:center">'+esc(e?e.segmentCount+'행':'-')+'</td></tr>';
+	});
+	var html='<div style="font-weight:700;margin-bottom:6px">등록할 전사자료</div>'
+		+'<table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:16px">'
+		+'<thead><tr style="background:#f1f5f9;font-size:12px;color:#475569"><th style="padding:6px 8px;text-align:left">전사자료</th><th>전사시간</th><th style="text-align:left">음성자료</th><th>음성시간</th><th>세그먼트</th></tr></thead><tbody>'+rows+'</tbody></table>'
+		+'<div style="font-weight:700;margin-bottom:6px">자동 추출 정보 <span style="font-weight:400;color:#94a3b8;font-size:12px">(EAF 메타데이터)</span></div>'
+		+'<div style="display:grid;grid-template-columns:90px 1fr;gap:4px 10px;margin-bottom:16px;background:#f8fafc;border:1px solid #eef2f7;border-radius:8px;padding:10px 12px">'
+		+'<div style="color:#94a3b8">조사지역</div><div>'+esc(meta.region||'-')+'</div>'
+		+'<div style="color:#94a3b8">조사연도</div><div>'+esc(meta.year||'-')+'</div>'
+		+'<div style="color:#94a3b8">발화주제</div><div>'+esc(meta.topic||'-')+'</div>'
+		+'<div style="color:#94a3b8">제보자</div><div>'+esc(meta.informant||'-')+' ('+esc(meta.sex||'')+(age?(' '+age+'세'):'')+', '+esc(meta.birth||'')+'생)</div>'
+		+'</div>'
+		+'<div style="font-weight:700;margin-bottom:6px">제보자 확인 · 제보자 관리 연결</div>'
+		+'<div id="ucSrc" style="border:1px solid #eef2f7;border-radius:8px;padding:10px 12px;color:#64748b">제보자 관리에서 검색 중…</div>';
+	document.getElementById('ucBody').innerHTML=html;
+	m.style.display='flex';
+	// 제보자 매칭 검색
+	if(meta.informant){
+		var qs='name='+encodeURIComponent(meta.informant)+(meta.sex?('&sex='+encodeURIComponent(meta.sex)):'');
+		fetch('/mariadb/neibis-api/oral/source/search?'+qs).then(function(r){return r.json();}).then(function(d){
+			window._pendingUpload.candidates = (d&&d.list)||[];
+			renderUcSources(meta);
+		}).catch(function(){ document.getElementById('ucSrc').innerHTML='<span style="color:#dc2626">제보자 검색 실패 — 신규로 등록됩니다.</span>'; });
+	} else {
+		document.getElementById('ucSrc').innerHTML='<span>EAF에 제보자 정보가 없습니다.</span>';
+	}
+}
+
+function renderUcSources(meta){
+	var box=document.getElementById('ucSrc'); if(!box) return;
+	var cs=window._pendingUpload.candidates||[];
+	var defIdx = -1;
+	for(var i=0;i<cs.length;i++){ if(String(cs[i].birth)===String(meta.birth)){ defIdx=i; break; } }
+	var html='';
+	if(cs.length){
+		html+='<div style="color:#475569;margin-bottom:6px">일치 후보 '+cs.length+'건 — 연결할 제보자를 선택하세요:</div>';
+		cs.forEach(function(c,i){
+			var mark=(String(c.birth)===String(meta.birth))?' <span style="color:#16a34a;font-weight:700">·생년일치</span>':'';
+			html+='<label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer"><input type="radio" name="ucSrcPick" value="'+i+'"'+((i===defIdx)?' checked':'')+'>'
+				+'<span>'+esc(c.name)+' ('+esc(c.sex)+', '+esc(c.birth)+'생) · '+esc(c.residence||c.regionNm||'')+' · 참여 '+c.surveyCount+'건'+(c.job?(' · '+esc(c.job)):'')+mark+'</span></label>';
 		});
+	} else {
+		html+='<div style="color:#94a3b8;margin-bottom:6px">제보자 관리에 일치하는 제보자가 없습니다.</div>';
+	}
+	html+='<label style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid #eef2f7;margin-top:4px;cursor:pointer"><input type="radio" name="ucSrcPick" value="new"'+((defIdx<0)?' checked':'')+'><span>신규 제보자로 등록 (EAF 정보 사용)</span></label>';
+	box.innerHTML=html;
+}
+
+function applyUploadConfirm(){
+	var pu=window._pendingUpload; if(!pu) return;
+	// 목록 채우기
+	var body=document.getElementById('trsListBody'); var html='';
+	pu.order.forEach(function(b){ var e=pu.eafs[b], w=pu.wavs[b];
+		html+='<tr><td class="text-left">'+esc(e?e.fileName:'-')+'</td><td>'+esc(e?e.durationHms:'-')+'</td><td class="text-left">'+esc(w?w.fileName:'-')+'</td><td>'+esc(w?w.waveTimeHms:'-')+'</td><td>'+esc(e?'1 (신규)':'-')+'</td></tr>';
+	});
+	body.innerHTML=html;
+	window._uploadedEafs = pu.order.filter(function(b){return pu.eafs[b];}).map(function(b){return pu.eafs[b].fileName;});
+	var ns=document.getElementById('trsFilesName'); ns.textContent=window._uploadedEafs.length>1?(window._uploadedEafs[0]+' 외 '+(window._uploadedEafs.length-1)+'건'):(window._uploadedEafs[0]||'선택된 파일 없음'); ns.classList.add('has-file');
+	// 자동 채움
+	autofillFromMeta(pu.meta, pu.firstEafName);
+	// 제보자 연결 선택 반영
+	var picked=document.querySelector('input[name="ucSrcPick"]:checked');
+	if(picked && picked.value!=='new'){
+		var c=pu.candidates[Number(picked.value)];
+		if(c){ document.getElementById('mainsource1').value=c.name+' ( '+c.sex+(c.age?(' '+c.age):'')+' )';
+			window._autoSource={name:c.name,sex:c.sex,age:c.age||'',birth:c.birth,sourceId:c.sourceId,residence:c.residence,birthPlace:c.birthPlace,job:c.job,education:c.education}; }
+	}
+	document.getElementById('uploadConfirmModal').style.display='none';
+	window._pendingUpload=null;
+}
+
+function cancelUploadConfirm(){
+	var m=document.getElementById('uploadConfirmModal'); if(m) m.style.display='none';
+	window._pendingUpload=null; window._uploadedEafs=[]; window._uploadMeta=null;
+	var inp=document.getElementById('trsFiles'); if(inp) inp.value='';
 }
 
 // 첫 eaf 메타로 폼 자동 채움 (빈 값만 채우고 사용자가 덮어쓸 수 있게)
@@ -940,71 +1037,14 @@ function autofillFromMeta(meta, eafName){
 	setIfEmpty('headword', meta.topic);
 	setIfEmpty('researchYear', meta.year);
 	setIfEmpty('regionNm', meta.region);
-	// 주제보자1: "이름 ( 성별 나이 )"
 	if(meta.informant){
 		var age = (meta.year && meta.birth) ? (Number(meta.year)-Number(meta.birth)+1) : '';
 		var label = meta.informant + ' ( ' + (meta.sex||'') + (age?(' '+age):'') + ' )';
 		setIfEmpty('mainsource1', label);
 		window._autoSource = {name:meta.informant, sex:meta.sex, age:String(age||''), birth:meta.birth};
-		matchInformant(meta, age);
 	}
 }
 
-// EAF 제보자를 제보자 관리(wb_source)와 매칭 → 확인·연결 패널
-function matchInformant(meta, age){
-	var el = document.getElementById('mainsource1');
-	var td = el && el.closest ? el.closest('td') : null;
-	if(!td) return;
-	var panel = document.getElementById('srcMatchPanel');
-	if(!panel){ panel=document.createElement('div'); panel.id='srcMatchPanel';
-		panel.style.cssText='margin-top:10px;padding:10px 12px;border:1px solid #bfdbfe;background:#f8fafc;border-radius:8px;font-size:13px;'; td.appendChild(panel); }
-	panel.innerHTML = '<span style="color:#64748b">제보자 관리에서 "'+esc(meta.informant)+'" 검색 중…</span>';
-	var qs = 'name='+encodeURIComponent(meta.informant)+(meta.sex?('&sex='+encodeURIComponent(meta.sex)):'');
-	fetch('/mariadb/neibis-api/oral/source/search?'+qs).then(function(r){return r.json();}).then(function(d){
-		var head = '<div style="margin-bottom:6px"><b>EAF 제보자</b> · '+esc(meta.informant)+' ('+esc(meta.sex||'')+(age?(' '+age+'세'):'')+', '+esc(meta.birth||'')+'생) '
-			+'<span id="srcMatchStatus" style="margin-left:8px;font-weight:700;color:#b45309">미확인</span></div>';
-		var body='';
-		if(d.ok && d.list && d.list.length){
-			window._srcCandidates = d.list;
-			body += '<div style="color:#475569;margin-bottom:4px">제보자 관리 일치 후보 <b>'+d.list.length+'</b>건 — 확인 후 연결하세요:</div>';
-			d.list.forEach(function(c,i){
-				var mark = (String(c.birth)===String(meta.birth)) ? ' <span style="color:#16a34a;font-weight:700">·생년일치</span>' : '';
-				body += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid #eef2f7">'
-					+'<span style="flex:1">'+esc(c.name)+' ('+esc(c.sex)+', '+esc(c.birth)+'생) · '+esc(c.residence||c.regionNm||'')+' · 참여 '+c.surveyCount+'건'+(c.job?(' · '+esc(c.job)):'')+mark+'</span>'
-					+'<button type="button" class="btn btn-xs btn-primary" onclick="linkInformant('+i+')">연결</button></div>';
-			});
-		} else {
-			window._srcCandidates = [];
-			body += '<div style="color:#94a3b8">제보자 관리에 일치하는 제보자가 없습니다.</div>';
-		}
-		body += '<div style="margin-top:8px"><button type="button" class="btn btn-xs btn-outline-gray" onclick="linkInformantNew()">신규 제보자로 등록 (EAF 정보 사용)</button></div>';
-		panel.innerHTML = head + body;
-	}).catch(function(){ panel.innerHTML='<span style="color:#dc2626">제보자 검색 실패</span>'; });
-}
-
-function linkInformant(i){
-	var c=(window._srcCandidates||[])[i]; if(!c) return;
-	document.getElementById('mainsource1').value = c.name+' ( '+c.sex+(c.age?(' '+c.age):'')+' )';
-	window._autoSource = {name:c.name, sex:c.sex, age:c.age||'', birth:c.birth, sourceId:c.sourceId,
-		residence:c.residence, birthPlace:c.birthPlace, job:c.job, education:c.education};
-	var st=document.getElementById('srcMatchStatus'); if(st){ st.textContent='✓ 연결됨 (기존 제보자)'; st.style.color='#16a34a'; }
-}
-function linkInformantNew(){
-	var st=document.getElementById('srcMatchStatus'); if(st){ st.textContent='신규 등록 (EAF 정보)'; st.style.color='#2563eb'; }
-	// window._autoSource 는 autofillFromMeta 에서 EAF 기본정보로 이미 설정됨
-}
-
-// 드래그&드롭 업로드 바인딩
-(function(){
-	var dz=document.getElementById('trsDrop'); if(!dz) return;
-	['dragenter','dragover'].forEach(function(ev){ dz.addEventListener(ev,function(e){ e.preventDefault(); e.stopPropagation(); dz.classList.add('is-dragover'); }); });
-	['dragleave','dragend'].forEach(function(ev){ dz.addEventListener(ev,function(e){ e.preventDefault(); e.stopPropagation(); dz.classList.remove('is-dragover'); }); });
-	dz.addEventListener('drop',function(e){ e.preventDefault(); e.stopPropagation(); dz.classList.remove('is-dragover'); var f=e.dataTransfer&&e.dataTransfer.files; if(f&&f.length) uploadFileList(f); });
-	// 문서 전체에서 드롭 시 브라우저가 파일을 여는 기본동작 방지
-	window.addEventListener('dragover',function(e){ e.preventDefault(); });
-	window.addEventListener('drop',function(e){ if(!dz.contains(e.target)) e.preventDefault(); });
-})();
-// 저장 (정적 프로토타입: 필수값 검증 후 안내)
 function oralSave(){
 	var tf = document.getElementById('trsFiles');
 	if(!tf.files || tf.files.length === 0){ msgWarn('전사자료를 등록해 주세요.'); return tf.focus(); }
