@@ -1030,7 +1030,7 @@ $(function(){
     if(!id){ if(window.Message){Message.alert({icon:'warning',message:'먼저 구술자료 보기로 파일을 여세요.'});}else{alert('대상 자료 없음');} return; }
     fetch(API+'/raw?id='+encodeURIComponent(id)).then(function(r){return r.json();}).then(function(d){
       if(!d||!d.ok){ alert('원문 로드 실패'); return; }
-      showRawOverlay((d.fileName||('trs '+id)), d.raw||'', d.source, d.format);
+      showRawOverlay(id, (d.fileName||('trs '+id)), d.raw||'', d.source, d.format);
     }).catch(function(e){ alert('로드 실패: '+e.message); });
   };
   function hlXml(s){
@@ -1040,13 +1040,51 @@ $(function(){
     s=s.replace(/(&gt;)/g,'<span style="color:#f2777a">$1</span>');
     return s;
   }
-  function showRawOverlay(title, raw, source, format){
+  var _rawState={id:'',raw:'',source:'',format:'',editing:false};
+  function renderRawView(){
+    var raw=_rawState.raw, format=_rawState.format;
     var isXml=(format==='eaf'||format==='xml'||String(raw||'').lastIndexOf('<?xml',0)===0);
-    var lines=String(raw||'').split('\n');
-    var rowsHtml=lines.map(function(l,i){
+    var rowsHtml=String(raw||'').split('\n').map(function(l,i){
       var num='<span style="display:inline-block;min-width:46px;text-align:right;color:#6b7280;user-select:none;margin-right:14px">'+(i+1)+'</span>';
       return '<div style="white-space:pre-wrap;word-break:break-all">'+num+(isXml?hlXml(l):esc(l))+'</div>';
     }).join('');
+    document.getElementById('oralRawBody').innerHTML=rowsHtml||'<span style="color:#888">(원본 내용 없음)</span>';
+    renderRawTools();
+  }
+  function renderRawEdit(){
+    document.getElementById('oralRawBody').innerHTML='<textarea id="oralRawEdit" spellcheck="false" style="width:100%;height:100%;box-sizing:border-box;background:#1b1b1b;color:#e6e6e6;border:1px solid #3a3a3a;border-radius:6px;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.6;resize:none;outline:none;white-space:pre;overflow:auto"></textarea>';
+    document.getElementById('oralRawEdit').value=_rawState.raw;
+    renderRawTools();
+  }
+  function renderRawTools(){
+    var tools=document.getElementById('oralRawTools'); if(!tools) return;
+    if(_rawState.editing){
+      tools.innerHTML='<span id="oralRawMsg" style="font-size:12px;margin-right:4px"></span>'+
+        '<button type="button" id="oralRawSave" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px">저장</button>'+
+        '<button type="button" id="oralRawCancel" style="background:#3a3a3a;color:#eaeaea;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px">취소</button>';
+      document.getElementById('oralRawSave').addEventListener('click', oralSaveRaw);
+      document.getElementById('oralRawCancel').addEventListener('click', function(){ _rawState.editing=false; renderRawView(); });
+    } else {
+      tools.innerHTML=(_rawState.source==='file')
+        ? '<button type="button" id="oralRawEditBtn" style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px">편집</button>'
+        : '<span style="font-size:11px;color:#9ca3af">원본 파일 없음 — 편집 불가</span>';
+      var eb=document.getElementById('oralRawEditBtn');
+      if(eb) eb.addEventListener('click', function(){ _rawState.editing=true; renderRawEdit(); });
+    }
+  }
+  function oralSaveRaw(){
+    var ta=document.getElementById('oralRawEdit'); if(!ta) return;
+    var msg=document.getElementById('oralRawMsg'); if(msg){ msg.style.color='#9ca3af'; msg.textContent='저장 중…'; }
+    fetch('/mariadb/neibis-api/oral/save-raw',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({trsId:_rawState.id, raw:ta.value})})
+      .then(function(r){return r.json();}).then(function(d){
+        if(d&&d.ok){ _rawState.raw=ta.value; _rawState.editing=false; renderRawView();
+          if(window.Message){Message.alert({icon:'success',message:'원본 파일에 저장되었습니다.'});}
+        } else if(msg){ msg.style.color='#f87171'; msg.textContent='저장 실패: '+((d&&d.message)||''); }
+      }).catch(function(e){ if(msg){ msg.style.color='#f87171'; msg.textContent='저장 실패: '+e.message; } });
+  }
+  function showRawOverlay(id, title, raw, source, format){
+    _rawState={id:id, raw:String(raw||''), source:source||'', format:format||'', editing:false};
     var badge=(source==='file')
       ?'<span style="font-size:11px;color:#a7f3d0;background:#064e3b;border:1px solid #065f46;border-radius:5px;padding:1px 7px;margin-left:8px">원본 파일</span>'
       :'<span style="font-size:11px;color:#fde68a;background:#78350f;border:1px solid #92400e;border-radius:5px;padding:1px 7px;margin-left:8px">DB 재구성</span>';
@@ -1055,18 +1093,19 @@ $(function(){
       ov=document.createElement('div'); ov.id='oralRawOverlay';
       ov.style.cssText='position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:24px;';
       ov.innerHTML='<div style="background:#2d2d2d;color:#cccccc;width:100%;max-width:1200px;height:88vh;border-radius:10px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(0,0,0,.5)">'+
-        '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#1f1f1f;border-bottom:1px solid #3a3a3a">'+
-        '<strong id="oralRawTitle" style="font-size:13px;color:#eaeaea;font-weight:600"></strong>'+
-        '<button type="button" id="oralRawClose" style="background:#3a3a3a;color:#eaeaea;border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:16px">×</button></div>'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;background:#1f1f1f;border-bottom:1px solid #3a3a3a">'+
+        '<strong id="oralRawTitle" style="font-size:13px;color:#eaeaea;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></strong>'+
+        '<span id="oralRawTools" style="display:flex;align-items:center;gap:8px;flex:0 0 auto"></span>'+
+        '<button type="button" id="oralRawClose" style="background:#3a3a3a;color:#eaeaea;border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:16px;flex:0 0 auto">×</button></div>'+
         '<div id="oralRawBody" style="margin:0;padding:14px 16px;overflow:auto;flex:1;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.65"></div></div>';
       document.body.appendChild(ov);
-      ov.addEventListener('click',function(e){ if(e.target===ov) ov.style.display='none'; });
+      ov.addEventListener('click',function(e){ if(e.target===ov && !_rawState.editing) ov.style.display='none'; });
       document.getElementById('oralRawClose').addEventListener('click',function(){ ov.style.display='none'; });
-      document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ var o=document.getElementById('oralRawOverlay'); if(o&&o.style.display!=='none') o.style.display='none'; } });
+      document.addEventListener('keydown',function(e){ if(e.key==='Escape' && !_rawState.editing){ var o=document.getElementById('oralRawOverlay'); if(o&&o.style.display!=='none') o.style.display='none'; } });
     }
     document.getElementById('oralRawTitle').innerHTML='원문 보기 — '+esc(title)+badge+' <span style="color:#8a8a8a;font-weight:400">(Ctrl+F 검색)</span>';
-    document.getElementById('oralRawBody').innerHTML=rowsHtml||'<span style="color:#888">(원본 내용 없음)</span>';
     ov.style.display='flex';
+    renderRawView();
   }
 
   /* 파일명 클릭(위임): 모달은 프레임워크(data-modal)에서 열고, 데이터는 여기서 채움 */

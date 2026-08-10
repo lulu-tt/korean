@@ -754,6 +754,53 @@ def api_oral_raw(qs: dict) -> dict:
     }
 
 
+def api_oral_save_raw(body: dict) -> dict:
+    """trs 편집 저장 — 원본 .eaf/.trs 파일을 그대로 덮어쓴다(백업 후).
+
+    안전장치: 최초 1회 <파일>.orig(원본 보존) + 매 저장 <파일>.bak(직전본) 생성.
+    로컬에 원본 파일이 없는 레코드(source=db)는 저장 불가.
+    """
+    trs_id = str(body.get("trsId") or "").strip()
+    raw = body.get("raw")
+    if not trs_id:
+        return {"ok": False, "message": "trsId가 필요합니다."}
+    if raw is None:
+        return {"ok": False, "message": "저장할 내용이 없습니다."}
+
+    with db_connect() as con:
+        f = con.execute(
+            "SELECT trs_file_nm, audio_filename FROM wb_trs_file_talk WHERE trs_id = ?",
+            (trs_id,),
+        ).fetchone()
+        if not f:
+            return {"ok": False, "message": f"해당 자료를 찾을 수 없습니다: {trs_id}"}
+    audio_id = _oral_media_id(f["audio_filename"], f["trs_file_nm"])
+
+    target = None
+    for ext in ("eaf", "trs"):
+        p = _find_oral_media(audio_id, ext)
+        if p:
+            target = p
+            break
+    if target is None:
+        return {"ok": False, "message": "원본 파일이 로컬에 없어 저장할 수 없습니다(DB 재구성본은 편집 불가)."}
+
+    data = str(raw)
+    # 백업: 원본 보존(최초 1회) + 직전본(매 저장)
+    orig = Path(str(target) + ".orig")
+    if not orig.exists():
+        orig.write_bytes(target.read_bytes())
+    Path(str(target) + ".bak").write_bytes(target.read_bytes())
+    target.write_text(data, encoding="utf-8")
+    return {
+        "ok": True,
+        "trsId": trs_id,
+        "fileName": target.name,
+        "bytes": len(data.encode("utf-8")),
+        "message": "원본 파일에 저장되었습니다.",
+    }
+
+
 def _speaker_to_marker(speaker: str) -> str:
     s = (speaker or "").strip()
     if s == "조사자":
@@ -2178,6 +2225,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 self._send_json(api_oral_save_lines(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/oral/save-raw",
+            "/mariadb/neibis-api/v1/oral/save-raw",
+            "/mariadb/neibis-api/survey/oral/save-raw",
+        ):
+            try:
+                self._send_json(api_oral_save_raw(body))
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return
