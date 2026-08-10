@@ -43,24 +43,30 @@
   }
 
   // 흰색 실루엣 마스터 폴더 (그룹 면색으로 틴트해서 사용)
-  var MASK_BASE = './symbol_mask/';
+  // 자산 베이스는 window.MY_MAP_ASSET_BASE 로 재정의 가능 (관리자 DB 연동 시 '/user-map').
+  var MASK_BASE = (window.MY_MAP_ASSET_BASE || '.').replace(/\/$/, '') + '/symbol_mask/';
 
-  /** OL 마커 스타일 — 실제 심볼 PNG(흰색 마스터)를 그룹 면색으로 틴트 */
+  /** file 이 이미 완전한 URL/data-URI 면 그대로, 아니면 마스크 폴더 기준 상대경로 */
+  function symUrl(file) {
+    file = file || '001.png';
+    return /^(data:|https?:|\/)/.test(file) ? file : (MASK_BASE + file);
+  }
+
+  /** OL 마커 스타일 — 흰색 실루엣(마스크/아이콘)을 그룹 면색으로 틴트 */
   function markerStyle(color, file, big) {
     if (!window.ol) return null;
-    if (!file) file = '001.png';
     var icon = new ol.style.Icon({
-      src: MASK_BASE + file,
+      src: symUrl(file),
       color: color,
       scale: (big ? 17 : 13) / 23
     });
     return new ol.style.Style({ image: icon });
   }
 
-  /** 실제 심볼 PNG(마스터)를 색으로 틴트한 인라인 요소 (피커·카드 공용) */
+  /** 흰색 실루엣을 색으로 틴트한 인라인 요소 (피커·카드 공용) */
   function symbolImg(file, color, size) {
     size = size || 20;
-    var url = MASK_BASE + (file || '001.png');
+    var url = symUrl(file);
     return '<span class="symimg" style="width:' + size + 'px;height:' + size + 'px;' +
       'background-color:' + color + ';' +
       '-webkit-mask:url(' + url + ') center/contain no-repeat;' +
@@ -137,9 +143,10 @@
       rebuildFill();
     }
 
-    // 지도 도구(설정·공유·다운로드)는 3단계(지도 확인)에서만 노출
+    // 지도 도구(설정·공유·다운로드) 노출 단계 — 기본 2·3단계(사용자·관리자 공통), window.MY_MAP_TOOLS_STEPS 로 재정의 가능
+    var toolSteps = (window.MY_MAP_TOOLS_STEPS && window.MY_MAP_TOOLS_STEPS.length) ? window.MY_MAP_TOOLS_STEPS : [2, 3];
     var tools = $('mm-map-tools');
-    if (tools) tools.style.display = (n === 3) ? 'flex' : 'none';
+    if (tools) tools.style.display = (toolSteps.indexOf(n) >= 0) ? 'flex' : 'none';
 
     if (n === 3) {
       updateModeBar();
@@ -667,14 +674,51 @@
     return wrap;
   }
 
+  /** '미설정' 표시 — 투명 체커보드 패턴 (색 없음 아이콘) */
+  function applyNoneSwatch(el) {
+    el.style.backgroundColor = '#fff';
+    el.style.backgroundImage =
+      'linear-gradient(45deg,#dfe3e8 25%,transparent 25%),' +
+      'linear-gradient(-45deg,#dfe3e8 25%,transparent 25%),' +
+      'linear-gradient(45deg,transparent 75%,#dfe3e8 75%),' +
+      'linear-gradient(-45deg,transparent 75%,#dfe3e8 75%)';
+    el.style.backgroundSize = '8px 8px';
+    el.style.backgroundPosition = '0 0,0 4px,4px -4px,-4px 0';
+  }
+
   /** 그룹 면색 선택 팔레트 (인라인 펼침) */
   function buildGroupPalette(g) {
     var box = document.createElement('div');
     box.className = 'mm-palette df-grouppalette';
     box.setAttribute('role', 'listbox');
     box.setAttribute('aria-label', g + '그룹 면색');
-    var cur = MyMapStore.rgbToHex(MyMapStore.getGroupColor(state.headwordNo, g) || '').toLowerCase();
+    var gc = MyMapStore.getGroupColor(state.headwordNo, g);
+    var isUnset = !gc;
+    var cur = isUnset ? '' : MyMapStore.rgbToHex(gc).toLowerCase();
     var palette = MyMapStore.FACE_PALETTE || [];
+
+    function applyColor(hex) {
+      var res = MyMapStore.setGroupColor(state.headwordNo, g, hex);
+      if (!res.ok) { toast('면색 적용에 실패했습니다.'); return; }
+      state.openColorGroup = null;
+      toast(g + '그룹 면색' + (hex ? '을 적용했습니다.' : '을 미설정으로 변경했습니다.'));
+      renderDialects();
+      rebuildFill();
+      renderLegend();
+      flashSaved();
+    }
+
+    // 미설정(빈값) 스와치 — 항상 첫 번째
+    var none = document.createElement('button');
+    none.type = 'button';
+    none.className = 'mm-palette__swatch' + (isUnset ? ' is-selected' : '');
+    none.title = '미설정';
+    none.setAttribute('role', 'option');
+    none.setAttribute('aria-label', '면색 미설정');
+    applyNoneSwatch(none);
+    none.addEventListener('click', function (e) { e.stopPropagation(); applyColor(''); });
+    box.appendChild(none);
+
     palette.forEach(function (hex) {
       var sw = document.createElement('button');
       sw.type = 'button';
@@ -683,17 +727,7 @@
       sw.title = hex;
       sw.setAttribute('role', 'option');
       sw.setAttribute('aria-label', '면색 ' + hex);
-      sw.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var res = MyMapStore.setGroupColor(state.headwordNo, g, hex);
-        if (!res.ok) { toast('면색 적용에 실패했습니다.'); return; }
-        state.openColorGroup = null;
-        toast(g + '그룹 면색을 적용했습니다.');
-        renderDialects();
-        rebuildFill();
-        renderLegend();
-        flashSaved();
-      });
+      sw.addEventListener('click', function (e) { e.stopPropagation(); applyColor(hex); });
       box.appendChild(sw);
     });
     return box;
@@ -930,7 +964,7 @@
       headword_no: state.headwordNo,
       word: word,
       mutation_group: groupVal,
-      map_symbol_id: '1'
+      map_symbol_id: ''
     });
     if (!res.ok) {
       var msgs = {
@@ -1031,7 +1065,7 @@
       if (!hdId) {
         var res = MyMapStore.saveDialect({
           headword_no: hn, word: w,
-          mutation_group: importGroup, map_symbol_id: '1'
+          mutation_group: importGroup, map_symbol_id: ''
         });
         if (res && res.ok) { hdId = res.dialect.hd_id; existing[w] = hdId; newWords++; state.selectedHdId = hdId; }
       }
@@ -1155,7 +1189,24 @@
     var box = $('st-symbol-grid');
     if (!box || box.dataset.ready) return;
     box.dataset.ready = '1';
-    MyMapStore.SYMBOL_CATALOG.forEach(function (s) {
+    // 미설정(빈값) 부호 — 항상 첫 번째, 체커보드
+    var none = document.createElement('button');
+    none.type = 'button';
+    none.className = 'mm-symbtn';
+    none.dataset.id = '';
+    none.setAttribute('role', 'option');
+    none.setAttribute('aria-label', '부호 미설정');
+    none.title = '미설정';
+    applyNoneSwatch(none);
+    none.addEventListener('click', function () {
+      if (state._styleSaving) return;
+      var hid = $('st-symbol'); if (hid) hid.value = '';
+      syncSymbolGrid('', ($('st-symcolor') && $('st-symcolor').value) || '#64748b');
+      saveStyle({ from: 'symbol' });
+    });
+    box.appendChild(none);
+    var catalog = MyMapStore.getSymbolCatalog ? MyMapStore.getSymbolCatalog() : MyMapStore.SYMBOL_CATALOG;
+    catalog.forEach(function (s) {
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'mm-symbtn';
@@ -1223,11 +1274,13 @@
       : MyMapStore.rgbToHex(gColor);
     // 그룹 면색은 상세 팝업에서 설정하지 않음(그룹별 자동 배정). hex 는 부호 기본색 계산용.
     // 부호 색상 — 면색과 별개. 값 없으면 그룹 면색을 기본값으로.
-    var symHex = (d.symbol_color && String(d.symbol_color)) || hex;
+    // 부호 색상 — 값 없으면 '미설정'(빈값). 그리드 미리보기 틴트는 표시용으로 그룹 면색 사용.
+    var symHex = (d.symbol_color && String(d.symbol_color)) || '';
+    var tintHex = symHex || hex || '#64748b';
     $('st-symcolor').value = symHex;
     renderSymColorPalette(symHex);
-    $('st-symbol').value = d.map_symbol_id || '1';
-    syncSymbolGrid(d.map_symbol_id || '1', symHex);
+    $('st-symbol').value = d.map_symbol_id || '';
+    syncSymbolGrid(d.map_symbol_id || '', tintHex);
 
     var chips = $('st-regions');
     while (chips.firstChild) chips.removeChild(chips.firstChild);
@@ -1391,9 +1444,30 @@
     var box = $('st-symcolor-palette');
     if (!box) return;
     var palette = MyMapStore.FACE_PALETTE || [];
-    var sel = (selectedHex || ($('st-symcolor') && $('st-symcolor').value) || palette[0] || '#111111').toLowerCase();
+    // '' 은 미설정(빈값) — 유효값으로 취급
+    var raw = (selectedHex != null ? selectedHex : (($('st-symcolor') && $('st-symcolor').value) || ''));
+    var sel = String(raw).toLowerCase();
     if (!box.dataset.ready) {
       box.dataset.ready = '1';
+      // 미설정(빈값) 스와치 — 항상 첫 번째, 그룹 면색을 따름
+      var none = document.createElement('button');
+      none.type = 'button';
+      none.className = 'mm-palette__swatch';
+      none.dataset.hex = '';
+      none.title = '미설정 (그룹 면색 따름)';
+      none.setAttribute('role', 'option');
+      none.setAttribute('aria-label', '미설정');
+      applyNoneSwatch(none);
+      none.addEventListener('click', function () {
+        if (state._styleSaving) return;
+        $('st-symcolor').value = '';
+        renderSymColorPalette('');
+        var g = $('st-group') ? $('st-group').value : null;
+        var gc = (g != null && g !== '') ? MyMapStore.getGroupColor(state.headwordNo, g) : null;
+        syncSymbolGrid($('st-symbol') ? $('st-symbol').value : '', gc ? MyMapStore.rgbToHex(gc) : '#64748b');
+        saveStyle({ from: 'symbol' });
+      });
+      box.appendChild(none);
       palette.forEach(function (hex, idx) {
         var btn = document.createElement('button');
         btn.type = 'button';
@@ -1407,7 +1481,7 @@
           if (state._styleSaving) return;
           $('st-symcolor').value = hex;
           renderSymColorPalette(hex);
-          syncSymbolGrid($('st-symbol') ? $('st-symbol').value : '1', hex);
+          syncSymbolGrid($('st-symbol') ? $('st-symbol').value : '', hex);
           saveStyle({ from: 'symbol' });
         });
         box.appendChild(btn);

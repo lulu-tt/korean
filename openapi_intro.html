@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지역어종합정보 — Open API 소개</title>
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="./styles.css">
+<script src="./gnb.js" defer></script>
+<script src="./share.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+  body {
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  /* ===== sub-visual ===== */
+  .sub-visual {
+    background: linear-gradient(180deg, #edf4ff 0%, #f8fafc 100%);
+    border-bottom: 1px solid #e2e8f0;
+    padding: 55px 0 50px;
+    text-align: center;
+    position: relative;
+    min-height: 180px;
+  }
+  .sub-visual::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 80% 20%, rgba(37,99,235,.03) 0%, transparent 40%);
+    pointer-events: none;
+  }
+  .sv-title {
+    font-size: 30px; font-weight: 800; color: #1e3a8a;
+    letter-spacing: -.03em; margin: 0 0 16px; position: relative; z-index: 1;
+  }
+  .location-bar {
+    display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center;
+    background: #fff; padding: 6px 20px; border-radius: 99px;
+    box-shadow: 0 2px 8px rgba(15,23,42,.02); border: 1px solid #cbd5e1;
+    position: relative; z-index: 1; max-width: calc(100% - 32px);
+  }
+  .loc-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 600; color: #475569;
+  }
+  .loc-item.home { color: #3b82f6; font-size: 14px; cursor: pointer; }
+  .loc-item select {
+    border: none; background: transparent;
+    font-size: 13px; font-weight: 600; color: #334155;
+    padding: 0 16px 0 0; cursor: pointer; appearance: none; font-family: inherit;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right center;
+  }
+  .loc-item select:focus { outline: none; }
+  .loc-sep { color: #cbd5e1; font-size: 12px; }
+
+  /* ===== layout ===== */
+  .oa-wrap {
+    width: 100%; max-width: 960px; margin: 0 auto;
+    padding: 40px 20px 100px; flex: 1; box-sizing: border-box;
+  }
+
+  /* sub tabs */
+  .oa-tabs {
+    display: flex; gap: 0; margin: 0 0 36px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .oa-tabs a {
+    flex: 1; text-align: center; text-decoration: none;
+    padding: 15px 12px; font-size: 15px; font-weight: 600; color: #64748b;
+    border-bottom: 3px solid transparent; margin-bottom: -1px;
+    transition: color .15s, border-color .15s, background .15s;
+  }
+  .oa-tabs a:hover { color: #1e3a8a; background: #f8fafc; }
+  .oa-tabs a.is-active {
+    color: #1e3a8a; border-bottom-color: #1e3a8a; font-weight: 800;
+  }
+
+  /* hero card */
+  .oa-hero {
+    background: linear-gradient(135deg, #eff4ff 0%, #f8fafc 55%, #f0fdf4 100%);
+    border: 1px solid #dbe6ff; border-radius: 20px;
+    padding: 36px 36px 32px; margin-bottom: 40px;
+  }
+  .oa-hero__badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 700; letter-spacing: .06em;
+    color: #1e3a8a; background: #fff; border: 1px solid #c7d7fe;
+    border-radius: 99px; padding: 5px 12px; margin-bottom: 16px;
+  }
+  .oa-hero__title {
+    font-size: clamp(22px, 3vw, 28px); font-weight: 800; color: #0f172a;
+    letter-spacing: -.03em; line-height: 1.35; margin: 0 0 14px;
+  }
+  .oa-hero__desc {
+    font-size: 15.5px; line-height: 1.75; color: #475569; margin: 0 0 24px;
+    max-width: 56ch; word-break: keep-all;
+  }
+  .oa-hero__actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .oa-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 44px; padding: 0 20px; border-radius: 10px;
+    font-size: 14px; font-weight: 700; text-decoration: none;
+    transition: background .15s, color .15s, border-color .15s, box-shadow .15s;
+  }
+  .oa-btn--primary {
+    background: #1e3a8a; color: #fff; border: 1px solid #1e3a8a;
+  }
+  .oa-btn--primary:hover { background: #172554; box-shadow: 0 8px 20px -10px rgba(30,58,138,.6); }
+  .oa-btn--ghost {
+    background: #fff; color: #1e3a8a; border: 1px solid #c7d7fe;
+  }
+  .oa-btn--ghost:hover { background: #eff4ff; }
+
+  /* section */
+  .oa-sec { margin-bottom: 44px; }
+  .oa-sec__head {
+    display: flex; align-items: center; gap: 10px;
+    padding-bottom: 14px; border-bottom: 2px solid #1e293b; margin-bottom: 20px;
+  }
+  .oa-sec__no {
+    font-size: 12px; font-weight: 800; color: #fff; background: #1e3a8a;
+    border-radius: 6px; padding: 4px 10px; letter-spacing: .02em;
+  }
+  .oa-sec__title {
+    font-size: 19px; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -.02em;
+  }
+  .oa-sec p {
+    font-size: 15px; line-height: 1.78; color: #3f4c5f; margin: 0 0 12px;
+    word-break: keep-all;
+  }
+  .oa-sec p:last-child { margin-bottom: 0; }
+  .oa-note {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;
+    padding: 16px 18px; margin-top: 16px;
+  }
+  .oa-note i { color: #2563eb; font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .oa-note__body { font-size: 14px; line-height: 1.7; color: #475569; }
+  .oa-note__body strong { color: #1e3a8a; }
+
+  /* feature cards */
+  .oa-features {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 8px;
+  }
+  .oa-feat {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
+    padding: 22px 18px 20px; transition: border-color .15s, box-shadow .15s;
+  }
+  .oa-feat:hover { border-color: #c7d7fe; box-shadow: 0 10px 28px -18px rgba(30,58,138,.35); }
+  .oa-feat__ic {
+    width: 42px; height: 42px; border-radius: 10px;
+    display: grid; place-items: center; font-size: 22px;
+    background: #eff4ff; color: #2563eb; margin-bottom: 14px;
+  }
+  .oa-feat h3 {
+    font-size: 15.5px; font-weight: 800; color: #1e293b; margin: 0 0 8px; letter-spacing: -.01em;
+  }
+  .oa-feat p { font-size: 13.5px; line-height: 1.65; color: #64748b; margin: 0; }
+
+  /* steps */
+  .oa-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 8px; position: relative; }
+  .oa-step {
+    position: relative; padding: 8px 18px 8px 0;
+  }
+  .oa-step:not(:last-child)::after {
+    content: '';
+    position: absolute; top: 28px; right: 8px; width: calc(100% - 56px); height: 2px;
+    background: #e2e8f0; z-index: 0;
+  }
+  .oa-step__num {
+    position: relative; z-index: 1;
+    width: 40px; height: 40px; border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 15px; font-weight: 800; color: #fff; background: #1e3a8a;
+    margin-bottom: 14px; box-shadow: 0 0 0 6px #eff4ff;
+  }
+  .oa-step h3 {
+    font-size: 15.5px; font-weight: 800; color: #1e293b; margin: 0 0 8px;
+  }
+  .oa-step p { font-size: 13.5px; line-height: 1.65; color: #64748b; margin: 0; padding-right: 12px; }
+  .oa-step a { color: #2563eb; font-weight: 700; text-decoration: none; }
+  .oa-step a:hover { text-decoration: underline; }
+
+  /* data teaser */
+  .oa-data {
+    display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px; margin-top: 8px;
+  }
+  .oa-data__card {
+    background: #0f172a; color: #e2e8f0; border-radius: 14px; padding: 22px 22px 18px;
+  }
+  .oa-data__card h3 {
+    font-size: 14px; font-weight: 700; color: #93c5fd; margin: 0 0 10px;
+    letter-spacing: .04em; text-transform: none;
+  }
+  .oa-data__url {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px; line-height: 1.55; color: #f8fafc; word-break: break-all;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08);
+    border-radius: 8px; padding: 12px 14px;
+  }
+  .oa-data__side {
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px;
+  }
+  .oa-data__side h3 {
+    font-size: 15px; font-weight: 800; color: #1e293b; margin: 0 0 12px;
+  }
+  .oa-data__side ul { list-style: none; margin: 0; padding: 0; }
+  .oa-data__side li {
+    position: relative; padding: 0 0 0 18px; margin-bottom: 8px;
+    font-size: 13.5px; line-height: 1.55; color: #475569;
+  }
+  .oa-data__side li::before {
+    content: ''; position: absolute; left: 2px; top: 8px;
+    width: 6px; height: 6px; border-radius: 50%; background: #2563eb;
+  }
+  .oa-data__side a {
+    display: inline-flex; align-items: center; gap: 4px;
+    margin-top: 12px; font-size: 13.5px; font-weight: 700; color: #1e3a8a; text-decoration: none;
+  }
+  .oa-data__side a:hover { text-decoration: underline; }
+
+  /* notice list */
+  .oa-list { list-style: none; margin: 0; padding: 0; }
+  .oa-list li {
+    position: relative; padding: 0 0 0 22px; margin-bottom: 12px;
+    font-size: 14.5px; line-height: 1.72; color: #3f4c5f;
+  }
+  .oa-list li::before {
+    content: ''; position: absolute; left: 4px; top: 10px;
+    width: 6px; height: 6px; border-radius: 50%; background: #2563eb;
+  }
+
+  /* CTA bottom */
+  .oa-cta {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px;
+  }
+  .oa-cta a {
+    display: flex; flex-direction: column; gap: 8px;
+    text-decoration: none; color: inherit;
+    border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px 22px 20px;
+    background: #fff; transition: transform .2s, box-shadow .2s, border-color .2s;
+  }
+  .oa-cta a:hover {
+    transform: translateY(-3px);
+    border-color: #c7d7fe;
+    box-shadow: 0 16px 36px -22px rgba(30,58,138,.45);
+  }
+  .oa-cta__k { font-size: 12px; font-weight: 700; letter-spacing: .08em; color: #2563eb; }
+  .oa-cta h3 { font-size: 17px; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -.02em; }
+  .oa-cta p { font-size: 13.5px; line-height: 1.6; color: #64748b; margin: 0; }
+  .oa-cta__go {
+    margin-top: 6px; font-size: 13.5px; font-weight: 700; color: #1e3a8a;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+
+  @media (max-width: 800px) {
+    .oa-features, .oa-steps, .oa-data, .oa-cta { grid-template-columns: 1fr; }
+    .oa-step:not(:last-child)::after { display: none; }
+    .oa-hero { padding: 28px 22px; }
+    .oa-tabs a { font-size: 14px; padding: 13px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="gnb-common"></div>
+
+<div class="sub-visual">
+  <div class="wrap">
+    <h1 class="sv-title">Open API</h1>
+    <div class="location-bar">
+      <div class="loc-item home" onclick="location.href='./index.html'" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select onchange="if(this.value) location.href=this.value;" aria-label="1depth 메뉴">
+          <option value="./literature_dialect.html" selected>지역어 자료관</option>
+          <option value="./dialect_search_prototype.html">지역어 검색</option>
+          <option value="./dialect_map.html">지역어 지도</option>
+          <option value="./notice.html">알림마당</option>
+          <option value="./about_intro.html">누리집 소개</option>
+        </select>
+      </div>
+      <i class="ti ti-chevron-right loc-sep"></i>
+      <div class="loc-item">
+        <select onchange="if(this.value) location.href=this.value;" aria-label="2depth 메뉴">
+          <option value="./literature_dialect.html">문학 속 지역어</option>
+          <option value="./region_culture.html">사진으로 보는 생활어</option>
+          <option value="./data_room.html">자료실</option>
+          <option value="./openapi_intro.html" selected>Open API</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="oa-wrap">
+
+  <nav class="oa-tabs" aria-label="Open API 하위 메뉴">
+    <a href="./openapi_intro.html" class="is-active" aria-current="page">소개</a>
+    <a href="./openapi_key.html">키 발급</a>
+    <a href="./openapi_guide.html">활용안내</a>
+  </nav>
+
+  <!-- 히어로 -->
+  <section class="oa-hero" aria-labelledby="oa-hero-title">
+    <span class="oa-hero__badge"><i class="ti ti-code" aria-hidden="true"></i> DEVELOPER · OPEN API</span>
+    <h2 class="oa-hero__title" id="oa-hero-title">지역어 어휘 정보를<br>서비스와 연구에 바로 연결하세요</h2>
+    <p class="oa-hero__desc">
+      국립국어원 지역어 종합 정보에 구축된 어휘 조사 자료를 Open API로 제공합니다.
+      인증키만 있으면 검색·연구·교육·서비스 개발에 지역어 데이터를 자유롭게 활용할 수 있습니다.
+    </p>
+    <div class="oa-hero__actions">
+      <a href="./openapi_key.html" class="oa-btn oa-btn--primary"><i class="ti ti-key" aria-hidden="true"></i> 인증키 발급하기</a>
+      <a href="./openapi_guide.html" class="oa-btn oa-btn--ghost"><i class="ti ti-book-2" aria-hidden="true"></i> 활용안내 보기</a>
+    </div>
+  </section>
+
+  <!-- 1. 서비스 소개 -->
+  <section class="oa-sec" id="sec-intro">
+    <div class="oa-sec__head">
+      <span class="oa-sec__no">01</span>
+      <h2 class="oa-sec__title">지역어 어휘 정보 Open API란?</h2>
+    </div>
+    <p>
+      지역어 Open API는 지역어 종합 정보 플랫폼의 어휘 데이터를 외부에 공개하여,
+      개발자와 연구자가 다양하고 유용한 서비스·애플리케이션을 만들 수 있도록 돕는 프로그램 인터페이스입니다.
+    </p>
+    <p>
+      조사 현장에서 채록한 지역어 표기, 대응 표준어, 조사 지역·연도·제보자 정보 등
+      양질의 사전·조사 정보를 개인 또는 기관에서 프로그램으로 불러와 활용할 수 있습니다.
+    </p>
+    <div class="oa-note">
+      <i class="ti ti-info-circle" aria-hidden="true"></i>
+      <div class="oa-note__body">
+        <strong>오픈 API란?</strong>
+        웹 사이트나 서비스가 가진 기능을 외부에서도 호출할 수 있도록 공개한 프로그래밍 인터페이스입니다.
+        정해진 주소(URL)와 파라미터로 요청하면 JSON 형식의 결과를 받을 수 있습니다.
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. 제공 가치 -->
+  <section class="oa-sec" id="sec-value">
+    <div class="oa-sec__head">
+      <span class="oa-sec__no">02</span>
+      <h2 class="oa-sec__title">무엇을 할 수 있나요?</h2>
+    </div>
+    <div class="oa-features">
+      <article class="oa-feat">
+        <div class="oa-feat__ic"><i class="ti ti-search" aria-hidden="true"></i></div>
+        <h3>어휘 검색 연동</h3>
+        <p>검색어·지역·연도·연령·성별 조건으로 지역어 어휘를 조회하고 서비스에 바로 붙일 수 있습니다.</p>
+      </article>
+      <article class="oa-feat">
+        <div class="oa-feat__ic"><i class="ti ti-chart-dots-3" aria-hidden="true"></i></div>
+        <h3>연구·교육 활용</h3>
+        <p>지역·세대별 언어 변이 연구, 교육 콘텐츠·사전 보조 자료 등 학술·교육 목적에 활용할 수 있습니다.</p>
+      </article>
+      <article class="oa-feat">
+        <div class="oa-feat__ic"><i class="ti ti-apps" aria-hidden="true"></i></div>
+        <h3>앱·웹 서비스 개발</h3>
+        <p>지도, 퀴즈, 사전 확장 등 지역어를 주제로 한 애플리케이션과 웹 서비스를 구현할 수 있습니다.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- 3. 이용 절차 -->
+  <section class="oa-sec" id="sec-flow">
+    <div class="oa-sec__head">
+      <span class="oa-sec__no">03</span>
+      <h2 class="oa-sec__title">이용 절차</h2>
+    </div>
+    <div class="oa-steps">
+      <div class="oa-step">
+        <div class="oa-step__num">1</div>
+        <h3>회원 로그인</h3>
+        <p>Open API는 회원 인증 후 이용할 수 있습니다. 비회원이라면 먼저 가입해 주세요.</p>
+      </div>
+      <div class="oa-step">
+        <div class="oa-step__num">2</div>
+        <h3>인증키 발급</h3>
+        <p><a href="./openapi_key.html">키 발급</a> 메뉴에서 API 키를 신청·확인합니다. 유효하지 않은 키로는 호출할 수 없습니다.</p>
+      </div>
+      <div class="oa-step">
+        <div class="oa-step__num">3</div>
+        <h3>API 호출</h3>
+        <p><a href="./openapi_guide.html">활용안내</a>의 요청 URL·파라미터·응답 필드를 참고해 데이터를 조회합니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. 데이터 개요 -->
+  <section class="oa-sec" id="sec-data">
+    <div class="oa-sec__head">
+      <span class="oa-sec__no">04</span>
+      <h2 class="oa-sec__title">제공 데이터 개요</h2>
+    </div>
+    <p>
+      검색 요청 시 JSON 형식으로 결과 목록을 반환합니다.
+      요청 변수·응답 필드·상태 코드의 상세 명세는 활용안내 페이지에서 확인할 수 있습니다.
+    </p>
+    <div class="oa-data">
+      <div class="oa-data__card">
+        <h3>요청 URL (예시)</h3>
+        <div class="oa-data__url">https://dialect.korean.go.kr/dialect/openAPI/data</div>
+      </div>
+      <div class="oa-data__side">
+        <h3>주요 응답 항목</h3>
+        <ul>
+          <li>지역어 · 대응 표준어</li>
+          <li>조사 지역(시·도 / 시·군·구)</li>
+          <li>조사 연도 · 출처</li>
+          <li>제보자 연령 · 성별</li>
+        </ul>
+        <a href="./openapi_guide.html">파라미터·응답 명세 자세히 보기 <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. 유의사항 -->
+  <section class="oa-sec" id="sec-notice">
+    <div class="oa-sec__head">
+      <span class="oa-sec__no">05</span>
+      <h2 class="oa-sec__title">이용 시 유의사항</h2>
+    </div>
+    <ul class="oa-list">
+      <li>Open API 이용에는 <strong>유효한 인증키(apiKey)</strong>가 필수입니다. 키가 없거나 잘못되면 서비스가 제한됩니다.</li>
+      <li>인증키가 만료·분실되었거나 유효하지 않은 경우 <a href="./openapi_key.html" style="color:#2563eb;font-weight:700;text-decoration:none;">키 발급</a> 메뉴에서 재발급·재확인해 주세요.</li>
+      <li>제공 데이터는 국립국어원 지역어 조사 자료에 기반하며, 서비스 정책에 따라 항목·제공 범위가 변경될 수 있습니다.</li>
+      <li>과도한 호출은 서비스 안정성을 해칠 수 있으니, 필요 범위 내에서 이용해 주시기 바랍니다.</li>
+      <li>이용 약관 및 저작권 정책을 준수해 주세요. 문의는 의견 제시 게시판을 이용해 주세요.</li>
+    </ul>
+  </section>
+
+  <!-- 다음 단계 CTA -->
+  <section class="oa-sec" id="sec-next" style="margin-bottom:0;">
+    <div class="oa-sec__head">
+      <span class="oa-sec__no">06</span>
+      <h2 class="oa-sec__title">다음 단계</h2>
+    </div>
+    <div class="oa-cta">
+      <a href="./openapi_key.html">
+        <span class="oa-cta__k">STEP 1</span>
+        <h3>Open API 키 발급</h3>
+        <p>서비스 이용을 위한 인증키를 발급·관리합니다.</p>
+        <span class="oa-cta__go">키 발급으로 이동 <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+      </a>
+      <a href="./openapi_guide.html">
+        <span class="oa-cta__k">STEP 2</span>
+        <h3>Open API 활용안내</h3>
+        <p>요청 변수, 응답 필드, 상태 코드 등 연동 명세를 안내합니다.</p>
+        <span class="oa-cta__go">활용안내로 이동 <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<div id="footer-common"></div>
+
+</body>
+</html>

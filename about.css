@@ -1,5 +1,5 @@
 /* ============================================================
-   누리집소개 본문 전용 디자인 시스템 (지역어 조사 사업 소개)
+   누리집 소개 본문 전용 디자인 시스템 (지역어 조사 사업 소개)
    - 공통 영역(gnb / footer / sub-visual 타이틀)은 styles.css를 따르고,
      이 파일은 .lore 로 감싼 "본문 영역"에만 적용됩니다.
    - 공통 스타일(.wrap, .card 등)과 충돌하지 않도록 전부 .lore 하위로 스코프.
@@ -7,7 +7,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Song+Myung&family=Noto+Sans+KR:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
-/* 누리집소개 페이지에서는 페이지 배경을 흰색으로 통일.
+/* 누리집 소개 페이지에서는 페이지 배경을 흰색으로 통일.
    (전역 body 배경 #f8fafc이 footer margin-top 여백에 회색 띠로 비쳐 보이는 문제 제거) */
 body{background:#ffffff;}
 

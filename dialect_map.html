@@ -394,6 +394,38 @@ body { background: #ffffff; }
 .exvar { flex: none; font-size: 11px; font-weight: 800; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
 .exnote { border-radius: 12px; border: 1px dashed var(--line); padding: 18px 14px; text-align: center; font-size: 13px; font-weight: 600; color: #94a3b8; line-height: 1.6; }
 
+/* ── 예문 탭: 구술발화조사자료(osent)와 동일한 출처그룹 목록 (좁은 사이드바용) ── */
+.exg { background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow2); }
+.exg__head { padding: 12px 14px; background: #f8fafc; border-bottom: 1px solid var(--line); }
+.exg__cat { font-size: 13px; font-weight: 800; color: var(--text); letter-spacing: -0.01em; line-height: 1.35; }
+.exg__cat i.sep { color: #cbd5e1; font-style: normal; margin: 0 4px; }
+.exg__meta { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 7px; }
+.exg__meta span { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 600; color: #475569; }
+.exg__meta i { font-size: 13px; color: #94a3b8; }
+.exg__body { padding: 2px 14px 6px; display: flex; flex-direction: column; }
+.exg__sent { position: relative; padding: 12px 0; display: flex; flex-direction: column; gap: 8px; }
+.exg__sent + .exg__sent { border-top: 1px dashed var(--line); }   /* 문장은 박스 대신 얇은 구분선으로 */
+.exg__row { display: flex; flex-direction: column; gap: 5px; }
+.exg__tag { align-self: flex-start; padding: 3px 9px; border-radius: 6px; font-size: 10.5px; font-weight: 800; line-height: 1.1; }
+.exg__tag.morph { background: #eff6ff; color: var(--blue); border: 1px solid #bfdbfe; }
+.exg__tag.std { background: #eef2f7; color: #475569; border: 1px solid #dfe6ee; }
+.exg__text { margin: 0; font-size: 13.5px; line-height: 1.7; color: var(--text); font-weight: 500; }
+.exg__text.std { color: #64748b; }
+/* 태그 + 듣기 버튼을 한 줄(우상단)에, 본문은 그 아래 전체 폭 */
+.exg__rowhead { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.exg__rowhead .listenbtn { width: 26px; height: 26px; }
+/* 표준어 대역: 기본 접힘, 토글로 펼침 */
+.exg__toggle { align-self: flex-start; display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: #64748b; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit; transition: 0.15s; }
+.exg__toggle:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+.exg__toggle .exg__chev { font-size: 14px; transition: transform 0.15s ease; }
+.exg__sent.is-open .exg__toggle { color: var(--blue); border-color: #bfdbfe; background: var(--blue-light); }
+.exg__sent.is-open .exg__toggle .exg__chev { transform: rotate(180deg); }
+.exg__std { display: none; margin-top: 2px; }
+.exg__sent.is-open .exg__std { display: block; }
+.exg__more { margin-top: 2px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 13px 14px; border-radius: 10px; border: 1px solid var(--blue); background: var(--blue-light); color: var(--blue); font-size: 13px; font-weight: 800; text-decoration: none; font-family: inherit; cursor: pointer; transition: 0.15s ease; }
+.exg__more:hover { background: var(--blue); color: #fff; }
+.exg__more i { font-size: 15px; }
+
 /* ══════════ 모바일 반응형 ══════════
    출력 순서(DOM 순서 그대로 1열로 쌓임): 검색·단어목록 → 지도 → 관련정보 */
 @media (max-width: 1100px) {
@@ -1367,66 +1399,94 @@ body { background: #ffffff; }
     return out.replace(re, '<mark class="exmark">$1</mark>');
   }
 
-  function exMeta(e) {
-    var bits = [];
-    if (e.region) bits.push(e.region);
-    if (e.year) bits.push(e.year + '년');
-    var inf = e.informant || {};
-    if (inf.sex || inf.age) bits.push([inf.sex, inf.age ? inf.age + '세' : ''].filter(Boolean).join(', '));
-    return bits.join(' · ');
+  // 시도 축약 (좁은 사이드바에서 지역을 짧게)
+  var SIDO_ABBR = {
+    '서울특별시': '서울', '부산광역시': '부산', '대구광역시': '대구', '인천광역시': '인천',
+    '광주광역시': '광주', '대전광역시': '대전', '울산광역시': '울산', '세종특별자치시': '세종',
+    '경기도': '경기', '강원도': '강원', '강원특별자치도': '강원',
+    '충청북도': '충북', '충청남도': '충남', '전라북도': '전북', '전북특별자치도': '전북',
+    '전라남도': '전남', '경상북도': '경북', '경상남도': '경남',
+    '제주특별자치도': '제주', '제주도': '제주'
+  };
+
+  function exRegionText(e) {
+    var sido = SIDO_ABBR[e.sido] || e.sido || '';
+    var t = [sido, e.sigungu].filter(Boolean).join(' ');
+    return t || e.region || '';
   }
 
-  function exCard(e, word) {
-    var topic = e.subtopic || e.topic || '구술발화';
-    var no = String(e.no).padStart(2, '0');
+  function exInformantText(e) {
+    var inf = e.informant || {};
+    var sex = inf.sex ? String(inf.sex).replace('성', '') : '';   // 남성→남, 여성→여
+    return [sex, inf.age ? inf.age + '세' : ''].filter(Boolean).join(' ');
+  }
+
+  // 출처(주제·소분류·지역·연도·제보자) 단위로 묶는다.
+  // 같은 인터뷰에서 이 단어가 여러 번 나오면 한 그룹 안에 여러 문장이 담긴다.
+  function exGroupKey(e) {
+    var inf = e.informant || {};
+    return [e.topic, e.subtopic, e.region, e.year, inf.sex, inf.age].join('│');
+  }
+
+  // 그룹 순서를 유지하며 담다가, 총 문장 수가 cap을 넘으면 그 그룹을 잘라 채운다.
+  function exGroupExamples(items, cap) {
+    var order = [], map = {};
+    items.forEach(function (e) {
+      var k = exGroupKey(e);
+      if (!map[k]) { map[k] = { head: e, sents: [] }; order.push(k); }
+      map[k].sents.push(e);
+    });
+    var out = [], used = 0;
+    for (var i = 0; i < order.length && used < cap; i++) {
+      var g = map[order[i]];
+      var take = g.sents.slice(0, cap - used);
+      out.push({ head: g.head, sents: take });
+      used += take.length;
+    }
+    return { groups: out, shown: used, total: items.length };
+  }
+
+  function exSentHtml(e, word, idx) {
     var keys = [e.matched_key, e.variant].filter(Boolean);
     return '' +
-      '<article class="excard" style="border-radius: 12px; border: 1px solid #e2e8f0; padding: 14px; background: #ffffff; box-shadow: var(--shadow2);">' +
-        '<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">' +
-          '<div>' +
-            '<div style="font-size: 12px; font-weight: 800; color: #1e3a8a;">' +
-              '<span style="color: #94a3b8; margin-right: 4px;">' + no + '</span> ' + esc(topic) +
-            '</div>' +
-            '<div style="font-size: 11px; color: #64748b; margin-top: 2px; line-height: 1.3;">' + esc(exMeta(e)) + '</div>' +
+      '<div class="exg__sent">' +
+        '<div class="exg__row morph">' +
+          '<div class="exg__rowhead">' +
+            '<span class="exg__tag morph">형태음소전사</span>' +
+            '<button type="button" class="listenbtn" data-freq="' + (320 + idx * 45) + '" aria-label="예문 발화 듣기"><i class="ti ti-volume" aria-hidden="true"></i></button>' +
           '</div>' +
-          (e.variant ? '<span class="exvar" title="이 예문에서 확인된 방언형">' + esc(e.variant) + '</span>' : '') +
+          '<p class="exg__text">' + exHighlight(e.dialect, keys) + '</p>' +
         '</div>' +
-        '<div style="display: flex; flex-direction: column; gap: 10px;">' +
-          '<div>' +
-            '<div style="font-size: 10px; font-weight: 800; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">형태음소전사</div>' +
-            '<div style="font-size: 13px; font-weight: 600; color: #1e293b; line-height: 1.5;">' + exHighlight(e.dialect, keys) + '</div>' +
-          '</div>' +
-          '<div class="excard__std">' +
-            '<div style="font-size: 10px; font-weight: 800; background: #eff6ff; color: #2563eb; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">표준어 대역</div>' +
-            '<div style="font-size: 13px; color: #64748b; line-height: 1.5;">(' + exHighlight(e.standard, [word]) + ')</div>' +
-          '</div>' +
-        '</div>' +
-      '</article>';
+        '<button type="button" class="exg__toggle" aria-expanded="false">' +
+          '<span>표준어 대역</span><i class="ti ti-chevron-down exg__chev" aria-hidden="true"></i>' +
+        '</button>' +
+        '<p class="exg__text std exg__std">(' + exHighlight(e.standard, [word]) + ')</p>' +
+      '</div>';
   }
 
-  // 카드마다 발화 듣기 버튼 주입 (카드가 동적으로 다시 그려질 때마다 호출)
-  function injectExListenButtons() {
-    var list = $('exList');
-    if (!list) return;
-    list.querySelectorAll('.excard').forEach(function (card, i) {
-      if (card.querySelector('.listenbtn')) return;
-      var head = card.querySelector('div');
-      if (!head) return;
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'listenbtn';
-      b.dataset.freq = String(320 + i * 45);
-      b.setAttribute('aria-label', '예문 발화 듣기');
-      b.innerHTML = '<i class="ti ti-volume" aria-hidden="true"></i>';
-      head.appendChild(b);
-    });
+  function exGroupHtml(g, word, baseIdx) {
+    var e = g.head;
+    var cat = [e.topic, e.subtopic].filter(Boolean).map(esc).join('<i class="sep">〉</i>');
+    var meta = '' +
+      (exRegionText(e) ? '<span><i class="ti ti-map-pin" aria-hidden="true"></i>' + esc(exRegionText(e)) + '</span>' : '') +
+      (e.year ? '<span><i class="ti ti-calendar" aria-hidden="true"></i>' + esc(e.year) + '년</span>' : '') +
+      (exInformantText(e) ? '<span><i class="ti ti-user" aria-hidden="true"></i>' + esc(exInformantText(e)) + '</span>' : '');
+    var sents = g.sents.map(function (s, i) { return exSentHtml(s, word, baseIdx + i); }).join('');
+    return '' +
+      '<article class="exg">' +
+        '<div class="exg__head">' +
+          '<div class="exg__topic"><span class="exg__cat">' + (cat || '구술발화') + '</span></div>' +
+          '<div class="exg__meta">' + meta + '</div>' +
+        '</div>' +
+        '<div class="exg__body">' + sents + '</div>' +
+      '</article>';
   }
 
   function exSetHead(word, desc) {
     var t = $('exTitle');
     if (t) t.innerHTML = '<span class="exhead__word" style="color: var(--blue);">' + esc(word) + '</span> — 구술발화자료 예문';
     var d = $('exDesc');
-    if (d) d.textContent = desc;
+    if (d) { d.textContent = desc || ''; d.style.display = desc ? '' : 'none'; }
   }
 
   function renderExamples(payload, word) {
@@ -1440,12 +1500,17 @@ body { background: #ffffff; }
       relayout();
       return;
     }
-    var regions = {};
-    items.forEach(function (e) { if (e.region) regions[e.region] = 1; });
-    exSetHead(word, '지역어 조사 구술발화 전사에서 채록된 실제 예문 ' + items.length + '건 · ' +
-      Object.keys(regions).length + '개 지점 (출처: dialect_local.db)');
-    list.innerHTML = items.map(function (e) { return exCard(e, word); }).join('');
-    injectExListenButtons();
+    var g = exGroupExamples(items, 10);
+    exSetHead(word, '');
+    var idx = 0;
+    var html = g.groups.map(function (gr) {
+      var h = exGroupHtml(gr, word, idx);
+      idx += gr.sents.length;
+      return h;
+    }).join('');
+    html += '<a class="exg__more" href="./oral_dialect.html?q=' + encodeURIComponent(word) + '">' +
+      '예문 더보기 <i class="ti ti-arrow-right" aria-hidden="true"></i></a>';
+    list.innerHTML = html;
     relayout();
   }
 
@@ -1891,6 +1956,16 @@ body { background: #ffffff; }
     e.stopPropagation();
     beep(Number(btn.dataset.freq) || 440, btn);
   }, true);
+
+  /* ─ 예문 표준어 대역 펼치기/접기 (위임) ─ */
+  document.addEventListener('click', function (e) {
+    var tg = e.target.closest('.exg__toggle');
+    if (!tg) return;
+    var sent = tg.closest('.exg__sent');
+    if (!sent) return;
+    var open = sent.classList.toggle('is-open');
+    tg.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
 
   /* ─ 단어 개수 라벨 명확화: "4개" → "방언형 4종" ─ */
   document.querySelectorAll('.witem__count').forEach(function (el) {

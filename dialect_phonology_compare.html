@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>변이형 비교 (프로토타입) — 국립국어원</title>
+<title>지역별 이형태 (프로토타입) — 국립국어원</title>
 <link rel="shortcut icon" href="./favicon.ico">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <link rel="stylesheet" href="./styles.css">
@@ -197,7 +197,7 @@
 
   <div class="sub-visual">
     <div class="wrap">
-      <h1 class="sv-title">변이형 비교</h1>
+      <h1 class="sv-title">지역별 이형태</h1>
       <div class="location-bar">
         <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
         <i class="ti ti-chevron-right loc-sep" aria-hidden="true"></i>
@@ -216,7 +216,7 @@
             <option value="./dialect_search_prototype.html">통합자료검색</option>
             <option value="./vocab_dialect.html">어휘조사자료</option>
             <option value="./oral_dialect.html">구술발화조사자료</option>
-            <option value="./dialect_phonology_compare.html" selected>변이형 비교</option>
+            <option value="./dialect_phonology_compare.html" selected>지역별 이형태</option>
           </select>
         </div>
       </div>
@@ -298,8 +298,6 @@
         </div>
           <div class="detail-block"><div class="k">항목 · 환경</div><div class="v" id="detailItem"></div></div>
         <div class="detail-block"><div class="k">조사 지점</div><div class="v" id="detailPlace"></div></div>
-        <div class="detail-block"><div class="k">지점 헤더 (정본)</div><div class="v" id="detailHeader" style="font-size:13px;word-break:break-all"></div></div>
-        <div class="detail-block"><div class="k">출처 파일</div><div class="v" id="detailFile" style="font-size:12px;word-break:break-all;color:#64748b"></div></div>
       </div>
     </div>
   </div>
@@ -587,8 +585,6 @@
       : (raw || '(빈 문자열)');
     $('detailItem').textContent = `${td.dataset.std || ''} · ${td.dataset.envlabel || ''}`.replace(/ · $/, '');
     $('detailPlace').textContent = `${td.dataset.prov || ''} ${td.dataset.place || ''}${td.dataset.year ? ' · ' + td.dataset.year : ''}`;
-    $('detailHeader').textContent = td.dataset.header || '—';
-    $('detailFile').textContent = '2010 지역어 조사 통합자료 · 음운';
     $('overlay').classList.add('show');
   }
 

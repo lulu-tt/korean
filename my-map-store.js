@@ -619,6 +619,13 @@
     return SYMBOL_CATALOG[0].file_nm;
   }
 
+  /** 부호 카탈로그를 외부(DB 등) 소스로 교체 — 관리자에서 symbol.do 와 동일 소스로 맞출 때 사용.
+   *  list: [{ map_symbol_id, file_nm, label }]. 기본값(상수)은 사용자 사이트 그대로. */
+  function setSymbolCatalog(list) {
+    if (Array.isArray(list) && list.length) SYMBOL_CATALOG = list;
+  }
+  function getSymbolCatalog() { return SYMBOL_CATALOG; }
+
   function nowIso() {
     return new Date().toISOString();
   }
@@ -661,8 +668,15 @@
     };
   }
 
-  function load() {
-    var d = readJson(KEYS.data, null);
+  /**
+   * 영속화 백엔드 주입 훅.
+   *   null(기본) → localStorage. 관리자(DB 연동)에서는 setBackend 로 교체.
+   *   백엔드는 { load(): data, save(data): boolean } 를 제공한다.
+   *   data 스키마는 emptyData() 와 동일 (schemaVersion/seq/headwords/dialects/regions).
+   */
+  var _backend = null;
+
+  function normalizeData(d) {
     if (!d || !d.schemaVersion) return emptyData();
     if (!d.seq) d.seq = emptyData().seq;
     if (!Array.isArray(d.headwords)) d.headwords = [];
@@ -671,7 +685,13 @@
     return d;
   }
 
+  function load() {
+    if (_backend) return normalizeData(_backend.load());
+    return normalizeData(readJson(KEYS.data, null));
+  }
+
   function save(data) {
+    if (_backend) return _backend.save(data) !== false;
     return writeJson(KEYS.data, data);
   }
 
@@ -977,7 +997,8 @@
   /** 그룹 전체 면색 일괄 적용 (한 그룹 = 한 색) */
   function setGroupColor(headwordNo, group, color) {
     var data = load();
-    var rgb = hexToRgb(color);
+    // 빈값('') → 면색 미설정(초기화)
+    var rgb = (color == null || color === '') ? '' : hexToRgb(color);
     var g = String(group);
     var n = 0;
     _dialectsOf(data, headwordNo).forEach(function (d) {
@@ -1479,11 +1500,15 @@
   }
 
   global.MyMapStore = {
+    /** 영속화 백엔드 교체 (DB 연동용). be=null 이면 localStorage 기본 동작. */
+    setBackend: function (be) { _backend = be || null; },
     KEYS: KEYS,
     WORD_CLASS_OPTIONS: WORD_CLASS_OPTIONS,
     FACE_PALETTE: FACE_PALETTE,
     AUTO_RGB: AUTO_RGB,
     SYMBOL_CATALOG: SYMBOL_CATALOG,
+    setSymbolCatalog: setSymbolCatalog,
+    getSymbolCatalog: getSymbolCatalog,
     rgbToHex: rgbToHex,
     hexToRgb: hexToRgb,
     nearestPaletteHex: nearestPaletteHex,

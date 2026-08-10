@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="mega-menu__item"><a href="./dialect_search_prototype.html" class="mega-menu__link">통합자료검색</a></div>
                 <div class="mega-menu__item"><a href="./vocab_dialect.html" class="mega-menu__link">어휘조사자료</a></div>
                 <div class="mega-menu__item"><a href="./oral_dialect.html" class="mega-menu__link">구술발화조사자료</a></div>
-                <div class="mega-menu__item"><a href="./dialect_phonology_compare.html" class="mega-menu__link">변이형 비교</a></div>
+                <div class="mega-menu__item"><a href="./dialect_phonology_compare.html" class="mega-menu__link">지역별 이형태</a></div>
               </div>
             </div>
           </div>
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="mega-menu__item"><a href="./literature_dialect.html" class="mega-menu__link">문학 속 지역어</a></div>
                 <div class="mega-menu__item"><a href="./region_culture.html" class="mega-menu__link">사진으로 보는 생활어</a></div>
                 <div class="mega-menu__item"><a href="./data_room.html" class="mega-menu__link">자료실</a></div>
-                <div class="mega-menu__item"><a href="#" class="mega-menu__link">Open API</a></div>
+                <div class="mega-menu__item"><a href="./openapi_intro.html" class="mega-menu__link">Open API</a></div>
               </div>
             </div>
           </div>
@@ -92,12 +92,12 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="nav__item">
           <button type="button" class="nav__link-btn" onclick="toggleMegaMenu(this, 'menu-about')">
-            누리집소개 <i class="ti ti-chevron-down nav__arrow"></i>
+            누리집 소개 <i class="ti ti-chevron-down nav__arrow"></i>
           </button>
-          <!-- 메가메뉴 패널 5: 누리집소개 -->
+          <!-- 메가메뉴 패널 5: 누리집 소개 -->
           <div id="menu-about" class="mega-menu">
             <div class="mega-menu__inner">
-              <div class="mega-menu__title">누리집소개</div>
+              <div class="mega-menu__title">누리집 소개</div>
               <div class="mega-menu__grid">
                 <div class="mega-menu__item"><a href="./about_intro.html" class="mega-menu__link">사업 소개</a></div>
                 <div class="mega-menu__item"><a href="./about_history.html" class="mega-menu__link">사업 연혁</a></div>
@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
     activeMenuId = "menu-search";
   } else if (currentPath.includes('dialect_map.html') || currentPath.includes('dialect_awareness.html') || currentPath.includes('dialect_our_town.html') || currentPath.includes('dialect_gisangdo.html') || currentPath.includes('dialect_my_map.html')) {
     activeMenuId = "menu-map";
-  } else if (currentPath.includes('region_culture.html') || currentPath.includes('literature_dialect.html') || currentPath.includes('data_room.html') || currentPath.includes('data_room_detail.html')) {
+  } else if (currentPath.includes('region_culture.html') || currentPath.includes('literature_dialect.html') || currentPath.includes('data_room.html') || currentPath.includes('data_room_detail.html') || currentPath.includes('openapi_')) {
     activeMenuId = "menu-archive";
   } else if (currentPath.includes('notice.html') || currentPath.includes('faq.html')) {
     activeMenuId = "menu-board";
@@ -196,6 +196,22 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.classList.add('is-active');
     }
   }
+
+  // 현재 페이지 링크 강조 (Open API 하위 페이지는 Open API 메뉴 강조)
+  try {
+    const file = (currentPath.split('/').pop() || '').split('?')[0];
+    if (file) {
+      const openApiPages = ['openapi_intro.html', 'openapi_key.html', 'openapi_guide.html'];
+      document.querySelectorAll('.mega-menu__link').forEach((a) => {
+        const href = (a.getAttribute('href') || '').split('/').pop().split('?')[0];
+        const match = href === file || (openApiPages.includes(file) && href === 'openapi_intro.html');
+        if (match) {
+          a.classList.add('is-current');
+          a.setAttribute('aria-current', 'page');
+        }
+      });
+    }
+  } catch (e) { /* ignore */ }
 
   // 3. 모바일 햄버거 메뉴 토글 (전역 메뉴를 화면 하단 드로어로 여닫기)
   const navToggle = document.getElementById('navToggle');

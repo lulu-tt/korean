@@ -695,7 +695,6 @@
 												<col style="width:70px" />
 												<col style="width:90px" />
 												<col />
-												<col style="width:90px" />
 												<col style="width:100px" />
 												<col style="width:120px" />
 												<col style="width:120px" />
@@ -707,7 +706,6 @@
 													<th scope="col">번호</th>
 													<th scope="col">초성</th>
 													<th scope="col">표준어</th>
-													<th scope="col">정렬</th>
 													<th scope="col">사용여부</th>
 													<th scope="col">등록일</th>
 													<th scope="col">수정일</th>
@@ -715,7 +713,7 @@
 												</tr>
 											</thead>
 											<tbody id="listBody">
-												<tr><td colspan="9" class="text-center" style="padding:40px;color:#94a3b8">불러오는 중…</td></tr>
+												<tr><td colspan="8" class="text-center" style="padding:40px;color:#94a3b8">불러오는 중…</td></tr>
 											</tbody>
 										</table>
 									</div>
@@ -1153,10 +1151,6 @@ const getMngrFail = function (xhr, status, error) {
 										<td><input type="text" id="fWord" class="form-control" maxlength="50" placeholder="예: 가위" /></td>
 									</tr>
 									<tr>
-										<th scope="row"><label for="fSort">정렬순서</label></th>
-										<td><input type="number" id="fSort" class="form-control" style="max-width:140px" min="1" step="1" /></td>
-									</tr>
-									<tr>
 										<th scope="row"><span>사용여부</span></th>
 										<td>
 											<label class="check-item"><input type="radio" name="fUseYn" value="Y" checked /><span class="label">사용(Y)</span></label>
@@ -1418,7 +1412,7 @@ const getMngrFail = function (xhr, status, error) {
     $('#pageInfo').text(state.filtered.length ? '(' + state.page + '/' + slice.pages + ' page)' : '');
     var html = '';
     if (!rows.length) {
-      html = '<tr><td colspan="9" class="text-center" style="padding:40px;color:#94a3b8">검색 결과가 없습니다.</td></tr>';
+      html = '<tr><td colspan="8" class="text-center" style="padding:40px;color:#94a3b8">검색 결과가 없습니다.</td></tr>';
     } else {
       rows.forEach(function (it, i) {
         var no = start + i + 1;
@@ -1427,7 +1421,6 @@ const getMngrFail = function (xhr, status, error) {
           '<td>' + no + '</td>' +
           '<td>' + getInitial(it.word) + '</td>' +
           '<td class="text-left"><strong>' + esc(it.word) + '</strong>' + (it.rmrk ? ' <span style="color:#94a3b8;font-size:12px">(' + esc(it.rmrk) + ')</span>' : '') + '</td>' +
-          '<td>' + it.sortOrdr + '</td>' +
           '<td>' + (it.useYn === 'Y' ? '<span class="text-primary">Y</span>' : '<span style="color:#94a3b8">N</span>') + '</td>' +
           '<td>' + esc(it.regDt || '-') + '</td>' +
           '<td>' + esc(it.updDt || '-') + '</td>' +
@@ -1497,7 +1490,6 @@ const getMngrFail = function (xhr, status, error) {
     state.editId = item ? item.id : null;
     $('#vocabFormTitle').text(item ? '표준어 수정' : '표준어 등록');
     $('#fWord').val(item ? item.word : '');
-    $('#fSort').val(item ? item.sortOrdr : (nextId()));
     $('#fRmrk').val(item ? (item.rmrk || '') : '');
     $('input[name=fUseYn][value="' + (item && item.useYn === 'N' ? 'N' : 'Y') + '"]').prop('checked', true);
     $('#layer-vocab-form').removeClass('hide');
@@ -1517,7 +1509,6 @@ const getMngrFail = function (xhr, status, error) {
     var word = ($('#fWord').val() || '').trim();
     if (!word) { alert('표준어를 입력해 주세요.'); $('#fWord').focus(); return; }
     var useYn = $('input[name=fUseYn]:checked').val() || 'Y';
-    var sortOrdr = parseInt($('#fSort').val(), 10) || nextId();
     var rmrk = ($('#fRmrk').val() || '').trim();
     var dup = state.items.find(function (it) {
       return it.word === word && it.id !== state.editId;
@@ -1527,11 +1518,11 @@ const getMngrFail = function (xhr, status, error) {
     if (state.editId) {
       state.items = state.items.map(function (it) {
         if (it.id !== state.editId) return it;
-        return Object.assign({}, it, { word: word, useYn: useYn, sortOrdr: sortOrdr, rmrk: rmrk, updDt: today() });
+        return Object.assign({}, it, { word: word, useYn: useYn, rmrk: rmrk, updDt: today() });
       });
     } else {
       state.items.push({
-        id: nextId(), word: word, useYn: useYn, sortOrdr: sortOrdr, rmrk: rmrk,
+        id: nextId(), word: word, useYn: useYn, sortOrdr: nextId(), rmrk: rmrk,
         regDt: today(), updDt: today()
       });
     }

@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>지역어 종합 정보 - 공지사항</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-gov.min.css" />
+  <style>
+    /* Figma 20-1275 (KRDS 공공기관 스펙 1:1 대응) */
+    :root {
+      --blue: #256ef4;
+      --blue-dark: #0b50d0;
+      --ink: #1e2124;
+      --text: #33363d;
+      --muted: #464c53;
+      --sub-muted: #8a949e;
+      --line: #cdd1d5;
+      --soft-line: #e4e7eb;
+      --bg-soft: #f4f5f6;
+      --bg-head: #eef2f7;
+      --white: #fff;
+      --container: 1280px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; scrollbar-gutter: stable; }
+    body {
+      font-family: "Pretendard GOV", "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+      color: var(--text);
+      background: var(--white);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input, select { font: inherit; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+    .container { width: min(var(--container), calc(100% - 32px)); margin: 0 auto; }
+
+    /* GNB(마스트헤드·헤더)와 Footer는 본문(1280) 과 달리 브라우저 폭에 맞춰 넓게 채운다.
+       본문(main.container·breadcrumb)은 1280 유지, 헤더/푸터 콘텐츠만 유동적으로 확장. */
+    .masthead > .container,
+    .header .header-inner,
+    .header .mega-inner,
+    footer > .container {
+      width: auto;
+      max-width: 1920px;
+      padding-left: 40px;
+      padding-right: 40px;
+    }
+
+    /* 상단 정부 공식 안내 바는 Figma에서 32px 높이로 잡힌 얇은 신뢰 배지 영역이라 과하게 키우지 않았습니다. */
+    .masthead { height: 32px; background: #f7f8fa; border-bottom: 1px solid #eef0f2; font-size: 15px; position: relative; z-index: 120; }
+    .masthead .container { height: 100%; display: flex; align-items: center; gap: 8px; }
+    .flag { width: 24px; height: 24px; border-radius: 3px; display: inline-grid; place-items: center; border: 1px solid #d6e0eb; background: #fff; color: #d0303c; font-size: 13px; }
+
+    /* 브랜드 로고 엄격한 크기 고정 (이미지 폭발 방지!) */
+    .brand { display: flex; align-items: center; width: 280px; height: 46px; overflow: hidden; flex-shrink: 0; }
+    .brand picture { display: block; width: 280px; height: 46px; }
+    .brand-logo { width: 280px !important; max-width: 280px !important; height: 46px !important; max-height: 46px !important; object-fit: contain !important; object-position: left center; display: block !important; }
+
+    /* GNB & Mega Menu (글자 꺾임 방지 & PC 깔끔 레이아웃) */
+    .header { height: 84px; border-bottom: 1px solid var(--soft-line); background: #fff; position: relative; z-index: 120; }
+
+    /* GNB 펼침 시 뒤 페이지를 덮는 딤 레이어 (클릭 차단) */
+    .gnb-scrim { position: fixed; inset: 0; background: rgba(30, 33, 36, 0.2); z-index: 90; opacity: 0; visibility: hidden; transition: opacity 0.2s ease, visibility 0.2s ease; }
+    .header.gnb-open ~ .gnb-scrim { opacity: 1; visibility: visible; }
+    .header-inner { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    
+    .gnb { display: flex; align-items: center; height: 84px; }
+    .gnb a {
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      height: 84px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
+      white-space: nowrap; /* 글자 꺾임 방지 필수! */
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+    }
+    .gnb a:hover, .gnb a.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .gnb a::after {
+      content: "";
+      width: 16px; height: 16px; margin-left: 6px; flex: none;
+      background-color: var(--muted);
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center / 16px no-repeat;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center / 16px no-repeat;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+    .gnb a:hover::after, .gnb a.active::after {
+      transform: rotate(180deg);
+      background-color: var(--blue);
+    }
+    
+    .mobile-menu { display: none; border: 0; background: transparent; color: var(--ink); cursor: pointer; } /* PC에서는 숨김, 모바일 미디어쿼리에서 노출 */
+    .m-nav { display: none; } /* 모바일 전용 오버레이 — PC에서는 항상 숨김 */
+
+    .mega-menu {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%; /* Header 바로 밑에 딱 붙도록 배치 */
+      display: none;
+      opacity: 0;
+      visibility: hidden;
+      background: linear-gradient(90deg, #edf3fd 0%, #fdf0f4 100%);
+      border-top: 1px solid var(--soft-line);
+      border-bottom: 1px solid #cdd1d5;
+      box-shadow: 0 12px 28px rgba(0,0,0,.12);
+      z-index: 100;
+      transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+      transform: translateY(-4px);
+    }
+    
+    /* 클릭으로 메뉴를 펼침 (gnb-open 클래스 토글) */
+    .header.gnb-open .mega-menu {
+      display: block !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: translateY(0) !important;
+    }
+    
+    .mega-inner { min-height: 180px; padding: 36px 0; display: grid; grid-template-columns: 240px 1fr; gap: 24px; align-items: center; }
+    .mega-title strong { display: block; font-size: 30px; line-height: 1.3; color: var(--ink); font-weight: 800; letter-spacing: -0.04em; }
+    .mega-col ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .mega-col a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 52px;
+      padding: 0 20px;
+      border-radius: 10px;
+      border: 1px solid #e2e7ee;
+      color: #33363d;
+      font-size: 15px;
+      font-weight: 600;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      transition: all 0.15s ease;
+    }
+    .mega-col a::after { content: "›"; color: #8a949e; font-size: 18px; font-weight: 400; }
+    .mega-col a:hover, .mega-col a.active { background: #ffffff; color: var(--blue-dark); border-color: var(--blue); box-shadow: 0 4px 12px rgba(37,110,244,0.15); }
+    .mega-col a.active { color: var(--blue); font-weight: 700; }
+
+    .utility { display: flex; align-items: center; gap: 12px; font-size: 15px; color: #464c53; white-space: nowrap; }
+    .utility a { display: inline-flex; align-items: center; gap: 6px; }
+    .utility a + a { border-left: 1px solid var(--line); padding-left: 12px; }
+    .utility svg { flex: none; }
+
+    .breadcrumb { height: 72px; display: flex; align-items: center; color: var(--muted); font-size: 15px; }
+    .breadcrumb ol { list-style: none; display: flex; align-items: center; gap: 8px; padding: 0; margin: 0; }
+    .breadcrumb li { display: inline-flex; align-items: center; }
+    .breadcrumb li:not(:last-child)::after { content: "›"; margin-left: 8px; color: #8a949e; }
+    .breadcrumb a { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+    .breadcrumb a .bc-txt { text-decoration: underline; text-underline-offset: 3px; }
+    .breadcrumb .bc-home { flex: none; }
+
+    main.container { min-height: 800px; padding-bottom: 64px; }
+    .title-row { height: 60px; position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 28px; }
+    h1 { margin: 0; font-size: 40px; line-height: 1.5; letter-spacing: -0.045em; color: var(--ink); font-weight: 800; }
+    .share-actions { position: absolute; right: 0; top: 50%; transform: translateY(-50%); display: flex; gap: 8px; }
+    .icon-btn { width: 40px; height: 40px; border: 1px solid var(--soft-line); border-radius: 8px; background: #fff; color: #33363d; display: grid; place-items: center; cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease; }
+    .icon-btn img { width: 18px; height: 18px; object-fit: contain; display: block; }
+    .icon-btn svg { width: 18px; height: 18px; display: block; }
+    .icon-btn:hover { background: var(--bg-soft); border-color: var(--line); }
+
+    .board-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 16px; }
+    .total { font-size: 15px; color: var(--muted); }
+    .total strong { font-size: 17px; color: var(--ink); font-weight: 700; }
+    .total-sub { color: var(--muted); font-weight: 400; margin-left: 4px; }
+    /* 피그마: 셀렉트·입력·버튼이 각각 분리된 둥근 박스 + 사이 간격, 버튼은 아웃라인(연파랑) 스타일 */
+    .search { display: flex; align-items: center; gap: 8px; height: 48px; width: 440px; }
+    .select-wrap { position: relative; width: 100px; }
+    .search select, .search input { height: 48px; border: 1px solid var(--line); background: #fff; color: var(--text); border-radius: 8px; }
+    .search select { width: 100%; padding: 0 36px 0 16px; appearance: none; cursor: pointer; }
+    .select-wrap::after {
+      content: ""; position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; pointer-events: none; background-color: var(--muted);
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center / 16px no-repeat;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center / 16px no-repeat;
+    }
+    .search input { flex: 1; padding: 0 16px; min-width: 0; }
+    .search button {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      height: 48px; padding: 0 18px; border: 1px solid var(--blue); background: #eef4ff;
+      color: var(--blue); border-radius: 8px; cursor: pointer; font-weight: 700; white-space: nowrap;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .search button svg { width: 18px; height: 18px; flex: none; }
+    .search button:hover { background: var(--blue); color: #fff; }
+
+    .board-table { width: 100%; border-collapse: collapse; table-layout: fixed; border-top: 1px solid #33363d; }
+    .board-table th { height: 48px; background: var(--bg-head); color: var(--ink); font-size: 15px; font-weight: 700; border-bottom: 1px solid var(--line); }
+    .board-table td { height: 64px; padding: 0 16px; border-bottom: 1px solid var(--line); font-size: 16px; color: var(--text); text-align: center; }
+    .board-table .num { width: 80px; }
+    .board-table .date { width: 160px; }
+    .board-table .views { width: 128px; }
+    .board-table .subject { text-align: left; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .board-table .subject a { display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }
+    .board-table .subject a:hover { color: var(--blue-dark); text-decoration: underline; text-underline-offset: 4px; }
+    
+    /* 피그마 1-5741 공지 행 파스텔 블루 배경 & 공지 뱃지 exact match */
+    .board-table tr.notice-row { background-color: #e9f1fb !important; }
+    .notice-badge { display: inline-block; flex: none; white-space: nowrap; padding: 4px 10px; background: #256ef4; color: #ffffff; border-radius: 4px; font-size: 13px; font-weight: 700; }
+    .notice-row .subject { font-weight: 700; color: var(--ink); }
+
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 40px; }
+    .page-btn { min-width: 40px; height: 40px; padding: 0 12px; border: 1px solid transparent; background: #fff; border-radius: 8px; color: var(--text); display: inline-grid; place-items: center; }
+    .page-btn:hover { border-color: var(--line); background: var(--bg-soft); }
+    .page-btn.active { background: #e8effd; color: var(--blue); font-weight: 700; }
+    .page-btn.page-edge { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); }
+    .page-btn.page-edge svg { width: 16px; height: 16px; flex: none; }
+    .page-ellipsis { min-width: 32px; height: 40px; display: inline-grid; place-items: center; color: var(--sub-muted); }
+    .page-jump { display: flex; justify-content: center; gap: 8px; margin-top: 24px; }
+    .page-jump input { width: 96px; height: 40px; border: 1px solid var(--line); border-radius: 4px; padding: 0 12px; }
+    .page-jump button { height: 40px; padding: 0 18px; border: 0; background: #33363d; color: #fff; border-radius: 4px; }
+
+    footer { background: var(--bg-soft); border-top: 1px solid var(--line); padding: 40px 0 24px; }
+    .footer-top { display: flex; justify-content: space-between; gap: 40px; align-items: flex-start; }
+    .footer-brand { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+    .footer-logo { width: 232px; height: 40px; object-fit: contain; object-position: left center; display: block; }
+    .address { font-size: 15px; color: #464c53; margin: 0 0 8px; }
+    .contact { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 15px; color: #464c53; }
+    .contact strong { color: var(--ink); margin-right: 8px; }
+    /* 피그마: 셀렉트·이동 버튼이 간격을 두고 분리, 이동 버튼은 흰 배경 아웃라인 */
+    .family-site { display: flex; align-items: center; gap: 8px; height: 44px; min-width: 236px; }
+    .fs-select { position: relative; flex: 1; }
+    .family-site select { width: 100%; height: 44px; border: 1px solid var(--line); padding: 0 38px 0 14px; background: #fff; color: var(--text); border-radius: 8px; appearance: none; cursor: pointer; }
+    .fs-select::after {
+      content: ""; position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; pointer-events: none; background-color: var(--muted);
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center / 16px no-repeat;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center / 16px no-repeat;
+    }
+    .family-site button { height: 44px; padding: 0 16px; border: 1px solid var(--line); color: var(--ink); background: #fff; border-radius: 8px; cursor: pointer; white-space: nowrap; transition: background 0.15s ease; }
+    .family-site button:hover { background: var(--bg-soft); }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 8px 22px; padding-top: 24px; margin-top: 24px; border-top: 1px solid var(--line); font-size: 15px; }
+    .footer-links strong { color: var(--ink); }
+    .footer-links .fl-privacy { color: var(--blue); font-weight: 700; }
+    .copyright { margin-left: auto; color: #464c53; }
+    .identifier { margin-top: 18px; display: flex; align-items: center; gap: 12px; color: #464c53; font-size: 15px; }
+    .krds { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; color: #1e2124; }
+    .krds::before { content: "◆"; color: #d0303c; font-size: 18px; }
+
+    .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px); opacity: 0; transition: 0.2s ease; background: #1e2124; color: #fff; padding: 12px 18px; border-radius: 999px; box-shadow: 0 12px 28px rgba(0,0,0,.18); pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 767px) {
+      .container { width: calc(100% - 32px); }
+      /* 모바일에서는 좌우 여백을 본문과 동일하게(16px) 맞춤 */
+      .masthead > .container,
+      .header .header-inner,
+      .header .mega-inner,
+      footer > .container { padding-left: 16px; padding-right: 16px; }
+      .masthead { height: 32px; overflow: hidden; }
+      .masthead .container { font-size: 15px; white-space: nowrap; }
+      .header { height: 72px; }
+      .header-inner { gap: 10px; }
+      .brand { min-width: 0; gap: 10px; }
+      .brand-logo { width: 195px; height: 32px; }
+      .ministry { font-size: 14px; }
+      .service { font-size: 14px; }
+      .service small { font-size: 9px; }
+      .divider-v { height: 24px; }
+      .gnb, .utility { display: none; }
+      .mobile-menu { display: grid; place-items: center; width: 44px; height: 44px; font-size: 0; }
+      .mobile-menu::before { content: "☰"; display: block; font-size: 26px; line-height: 1; color: var(--ink); }
+      /* PC 메가메뉴·스크림은 모바일에서 숨기고, 모바일 전용 오버레이(.m-nav) 사용 */
+      .mega-menu, .header.gnb-open .mega-menu, .header.gnb-open:hover .mega-menu { display: none !important; }
+      .gnb-scrim { display: none !important; }
+
+      .m-nav { position: fixed; inset: 0; z-index: 200; background: #fff; flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+      .m-nav.open { display: flex; }
+      .m-nav__head { display: flex; align-items: center; justify-content: space-between; height: 72px; padding: 0 16px; border-bottom: 1px solid var(--soft-line); flex: none; }
+      .m-nav__logo { width: 195px; height: 32px; object-fit: contain; object-position: left center; }
+      .m-nav__close { width: 44px; height: 44px; border: 0; background: transparent; color: var(--ink); cursor: pointer; display: grid; place-items: center; padding: 0; }
+      .m-nav__close svg { width: 24px; height: 24px; }
+      .m-nav__util { display: flex; align-items: center; justify-content: center; height: 60px; border-bottom: 1px solid var(--soft-line); flex: none; }
+      .m-nav__util a { display: inline-flex; align-items: center; gap: 6px; padding: 0 24px; font-size: 16px; font-weight: 600; color: var(--muted); }
+      .m-nav__util a + a { border-left: 1px solid var(--line); }
+      .m-acc__item { border-bottom: 1px solid var(--soft-line); }
+      .m-acc__head { width: 100%; display: flex; align-items: center; justify-content: space-between; height: 66px; padding: 0 16px; background: transparent; border: 0; font-family: inherit; font-size: 18px; font-weight: 700; color: var(--ink); cursor: pointer; }
+      .m-acc__head svg { width: 20px; height: 20px; flex: none; color: var(--muted); transition: transform 0.2s ease; }
+      .m-acc__item.is-open > .m-acc__head { color: var(--blue); }
+      .m-acc__item.is-open > .m-acc__head svg { transform: rotate(180deg); color: var(--blue); }
+      .m-acc__panel { display: none; padding: 0 16px 16px; }
+      .m-acc__item.is-open > .m-acc__panel { display: block; }
+      .m-acc__sub { list-style: none; margin: 0; padding: 18px 20px; background: var(--bg-soft); border-radius: 12px; display: flex; flex-direction: column; gap: 16px; }
+      .m-acc__sub a { display: inline-flex; align-items: baseline; gap: 8px; font-size: 16px; font-weight: 500; color: var(--text); }
+      .m-acc__sub a::before { content: "•"; color: var(--sub-muted); }
+      .m-acc__sub a.active { color: var(--blue); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+      .m-acc__sub a.active::before { color: var(--blue); }
+      body.m-nav-open { overflow: hidden; }
+
+      .breadcrumb { height: 56px; overflow-x: auto; white-space: nowrap; }
+      main.container { min-height: auto; padding-bottom: 40px; }
+      .title-row { height: 114px; align-items: flex-start; justify-content: flex-start; padding-top: 12px; margin-bottom: 16px; }
+      h1 { font-size: 28px; line-height: 1.5; }
+      .share-actions { left: 102px; right: auto; top: 66px; transform: none; }
+
+      .board-toolbar { display: block; margin-bottom: 16px; }
+      .total { margin-bottom: 14px; }
+      .search { width: 100%; height: auto; display: grid; grid-template-columns: 1fr; gap: 8px; }
+      .select-wrap { width: 100%; }
+      .search select, .search input, .search button { width: 100%; }
+
+      .board-table, .board-table thead, .board-table tbody, .board-table tr, .board-table td { display: block; width: 100%; }
+      .board-table { border-top: 1px solid #33363d; }
+      .board-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+      /* 피그마 모바일: 카드마다 번호/제목/등록일시/조회수 라벨-값 2열 구조 */
+      .board-table tr { padding: 16px; border-bottom: 1px solid var(--line); }
+      .board-table td { display: flex; align-items: flex-start; gap: 12px; width: auto; height: auto; border-bottom: 0; padding: 4px 0; text-align: left; font-size: 15px; color: var(--text); }
+      .board-table td::before { flex: none; width: 64px; color: var(--sub-muted); font-weight: 500; }
+      .board-table .num::before { content: "번호"; }
+      .board-table .subject::before { content: "제목"; }
+      .board-table .date::before { content: "등록일시"; }
+      .board-table .views::before { content: "조회수"; }
+      .board-table .num { align-items: center; font-weight: 400; color: var(--text); }
+      .board-table .subject { white-space: normal; font-weight: 700; color: var(--ink); line-height: 1.45; }
+      .board-table .subject a { white-space: normal; overflow: visible; text-overflow: clip; }
+
+      /* 피그마 모바일: 이전·다음만 윗줄, 번호(1~5 ··· 99)는 아랫줄에 */
+      .pagination { flex-wrap: wrap; margin-top: 32px; gap: 8px; }
+      .pagination .page-edge { order: -2; }
+      .pagination::after { content: ""; flex-basis: 100%; height: 0; order: -1; }
+      .pagination > *:nth-child(7), .pagination > *:nth-child(8), .pagination > *:nth-child(9) { display: none; }
+      footer { padding: 24px 0; }
+      .footer-top { display: block; }
+      .footer-brand { margin-bottom: 24px; }
+      .footer-logo { width: 232px; height: 40px; }
+      .address { line-height: 1.55; }
+      .contact { display: block; line-height: 1.8; }
+      .contact span { display: block; }
+      .contact strong { margin-right: 8px; }
+      .family-site { margin-top: 24px; width: 100%; }
+      .footer-links { gap: 8px 14px; }
+      .copyright { width: 100%; margin-left: 0; margin-top: 8px; line-height: 1.5; }
+      .identifier { align-items: flex-start; line-height: 1.4; }
+    }
+  </style>
+</head>
+<body>
+  <div class="masthead">
+    <div class="container"><img class="flag" src="assets/flag.png" onerror="this.onerror=null; this.src='flag.svg';" alt="" /> 이 누리집은 대한민국 공식 전자정부 누리집입니다.</div>
+  </div>
+
+  <header class="header" id="mainHeader">
+    <div class="container header-inner">
+      <a class="brand" href="#" aria-label="지역어 종합 정보 홈">
+        <picture>
+          <source media="(max-width: 767px)" srcset="assets/logo-header-mobile.png">
+          <img class="brand-logo" src="assets/logo-header-pc.png" onerror="this.onerror=null; this.src='logo_dialect.png';" alt="문화체육관광부 국립국어원 지역어 종합 정보 Center for Korean Dialects">
+        </picture>
+      </a>
+      <nav class="gnb" id="gnbNav" aria-label="주 메뉴">
+        <a href="#" data-target="mega-search">지역어 검색</a>
+        <a href="#" data-target="mega-map">지역어 지도</a>
+        <a href="#" data-target="mega-archive">지역어 자료관</a>
+        <a href="#" data-target="mega-notice">알림마당</a>
+        <a href="#" data-target="mega-about">누리집 소개</a>
+      </nav>
+      <div class="utility" aria-label="사용자 메뉴">
+        <a href="#"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 19.5c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/></svg>들어가기</a><a href="#"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>회원가입</a><a href="#">내 정보<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></a>
+      </div>
+      <button class="mobile-menu" type="button" aria-label="전체메뉴">전체메뉴</button>
+    </div>
+    <div class="mega-menu" id="megaMenu" aria-label="전체 메뉴">
+      <div class="container mega-inner">
+        <div class="mega-title"><strong id="megaTitleText">지역어 자료관</strong></div>
+        <section class="mega-col active" aria-labelledby="mega-archive">
+          <h2 id="mega-archive" class="sr-only">지역어 자료관</h2>
+          <ul>
+            <li><a href="#">문학 속 지역어</a></li>
+            <li><a class="active" href="#">사진으로 보는 생활어</a></li>
+            <li><a href="#">자료실</a></li>
+            <li><a href="#">Open API</a></li>
+            <li><a href="#">1920 기준 4열로 메뉴 노출</a></li>
+            <li><a href="#">메뉴가 많아질 경우 열드롭</a></li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </header>
+  <div class="gnb-scrim" id="gnbScrim" aria-hidden="true"></div>
+
+  <!-- 모바일 전용 전체메뉴 오버레이 (PC 메가메뉴와 분리) -->
+  <div class="m-nav" id="mobileNav" aria-hidden="true" aria-label="전체 메뉴">
+    <div class="m-nav__head">
+      <img class="m-nav__logo" src="assets/logo-header-mobile.png" onerror="this.onerror=null; this.src='assets/logo-header-pc.png';" alt="문화체육관광부 국립국어원 지역어 종합 정보">
+      <button class="m-nav__close" id="mNavClose" type="button" aria-label="메뉴 닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="m-nav__util">
+      <a href="#"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 19.5c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/></svg>들어가기</a><a href="#"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>회원가입</a>
+    </div>
+    <nav class="m-acc" aria-label="메뉴 목록">
+      <div class="m-acc__item"><button class="m-acc__head" type="button" aria-expanded="false">지역어 검색<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="m-acc__panel"></div></div>
+      <div class="m-acc__item"><button class="m-acc__head" type="button" aria-expanded="false">지역어 지도<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="m-acc__panel"></div></div>
+      <div class="m-acc__item is-open"><button class="m-acc__head" type="button" aria-expanded="true">지역어 자료관<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="m-acc__panel">
+          <ul class="m-acc__sub">
+            <li><a href="#">문학 속 지역어</a></li>
+            <li><a class="active" href="#">사진으로 보는 생활어</a></li>
+            <li><a href="#">자료실</a></li>
+            <li><a href="#">Open API</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="m-acc__item"><button class="m-acc__head" type="button" aria-expanded="false">알림마당<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="m-acc__panel"></div></div>
+      <div class="m-acc__item"><button class="m-acc__head" type="button" aria-expanded="false">누리집 소개<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="m-acc__panel"></div></div>
+      <div class="m-acc__item"><button class="m-acc__head" type="button" aria-expanded="false">내 정보<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div class="m-acc__panel"></div></div>
+    </nav>
+  </div>
+
+  <nav class="breadcrumb container" aria-label="현재 위치">
+    <ol>
+      <li><a href="#"><svg class="bc-home" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 3.2 3.5 10.4v.9H6v9h4.2v-5.6h3.6V21H18v-9h2.5v-.9z"/></svg><span class="bc-txt">홈</span></a></li><li><a href="#"><span class="bc-txt">알림마당</span></a></li><li><a href="#" aria-current="page"><span class="bc-txt">공지사항</span></a></li>
+    </ol>
+  </nav>
+
+  <main class="container">
+    <section class="title-row">
+      <h1>공지사항</h1>
+      <div class="share-actions" aria-label="페이지 도구">
+        <button class="icon-btn" type="button" data-toast="SNS 공유 링크를 준비했습니다." aria-label="SNS 공유"><img src="assets/share.png" alt=""></button>
+        <button class="icon-btn" type="button" data-toast="현재 페이지 링크가 복사되었습니다." aria-label="링크 복사"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 14.5l5-5"/><path d="M13 6.8l1.3-1.3a3.8 3.8 0 0 1 5.4 5.4L18.2 12.4"/><path d="M11 17.2l-1.3 1.3a3.8 3.8 0 0 1-5.4-5.4L5.8 11.6"/></svg></button>
+        <button class="icon-btn" type="button" onclick="window.print()" aria-label="인쇄"><img src="assets/printer.png" alt=""></button>
+      </div>
+    </section>
+
+    <section class="board-toolbar" aria-label="게시판 검색">
+      <div class="total"><strong>16건</strong> <span class="total-sub">현재페이지 1/2</span></div>
+      <form class="search" onsubmit="event.preventDefault(); showToast('검색 조건이 적용되었습니다.');">
+        <label class="select-wrap"><span class="sr-only">검색 범위</span><select><option>전체</option><option>제목</option><option>내용</option></select></label>
+        <input type="search" placeholder="검색어를 입력해주세요." aria-label="검색어" />
+        <button type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>검색</button>
+      </form>
+    </section>
+
+    <table class="board-table" aria-label="공지사항 목록">
+      <colgroup><col class="num"><col><col class="date"><col class="views"></colgroup>
+      <thead><tr><th scope="col">번호</th><th scope="col">제목</th><th scope="col">등록일시</th><th scope="col">조회수</th></tr></thead>
+      <tbody>
+        <tr class="notice-row"><td class="num"><span class="notice-badge">공지</span></td><td class="subject"><a href="#">지역어 종합 정보 누리집 서비스 일시 중단 안내(2026. 7. 9.)</a></td><td class="date">2026.06.29</td><td class="views">16</td></tr>
+        <tr class="notice-row"><td class="num"><span class="notice-badge">공지</span></td><td class="subject"><a href="#">지역어 종합 정보 누리집 점검 안내(2025. 02. 11.)</a></td><td class="date">2026.06.29</td><td class="views">16</td></tr>
+        <tr class="notice-row"><td class="num"><span class="notice-badge">공지</span></td><td class="subject"><a href="#">지역어 종합 정보 누리집 점검 안내(2025. 02. 11.) hover시 텍스트 밑줄 노출</a></td><td class="date">2026.06.29</td><td class="views">16</td></tr>
+        <tr><td class="num">13</td><td class="subject"><a href="#">지역어 종합 정보 누리집 점검 안내(2025. 02. 11.)</a></td><td class="date">2026.06.29</td><td class="views">16</td></tr>
+        <tr><td class="num">12</td><td class="subject"><a href="#">지역어 종합 정보 누리집 점검 안내(2025. 02. 11.) hover시 텍스트 밑줄 노출</a></td><td class="date">2026.06.29</td><td class="views">16</td></tr>
+        <tr><td class="num">11</td><td class="subject"><a href="#">지역어 종합 정보 누리집 점검 안내(2025. 02. 11.)</a></td><td class="date">2026.06.29</td><td class="views">16</td></tr>
+        <tr><td class="num">10</td><td class="subject"><a href="#">지역어 종합 정보 누리집 점검 안내(2025. 02. 11.)</a></td><td class="date">2026.06.29</td><td class="views">16</td></tr>
+        <tr><td class="num">9</td><td class="subject"><a href="#">지역어 종합 정보 누리집 점검 안내(2025. 02. 11.)</a></td><td class="date">2026.06.29</td><td class="views">16</td></tr>
+        <tr><td class="num">8</td><td class="subject"><a href="#">지역어 종합 정보 누리집 점검 안내(2025. 02. 11.)</a></td><td class="date">2026.06.29</td><td class="views">16</td></tr>
+        <tr><td class="num">7</td><td class="subject"><a href="#">지역어 종합 정보 누리집 점검 안내(2025. 02. 11.)</a></td><td class="date">2026.06.29</td><td class="views">16</td></tr>
+      </tbody>
+    </table>
+
+    <nav class="pagination" aria-label="페이지 이동">
+      <a class="page-btn page-edge" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>이전</a><a class="page-btn active" href="#" aria-current="page">1</a><a class="page-btn" href="#">2</a><a class="page-btn" href="#">3</a><a class="page-btn" href="#">4</a><a class="page-btn" href="#">5</a><a class="page-btn" href="#">6</a><a class="page-btn" href="#">7</a><a class="page-btn" href="#">8</a><span class="page-ellipsis" aria-hidden="true">···</span><a class="page-btn" href="#">99</a><a class="page-btn page-edge" href="#">다음<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
+    </nav>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-top">
+        <div>
+          <div class="footer-brand"><img class="footer-logo" src="assets/logo-footer-pc.png" alt="문화체육관광부 국립국어원 지역어 종합 정보 Center for Korean Dialects"></div>
+          <p class="address">(07511) 서울특별시 강서구 금낭화로 154(방화동 827) 국립국어원</p>
+          <div class="contact"><span><strong>대표전화</strong>02-2669-977</span><span><strong>일반문의</strong>홈페이지 &gt; 기관소개 &gt; 찾아오시는 길 참조</span></div>
+        </div>
+        <form class="family-site" onsubmit="event.preventDefault(); showToast('Family site로 이동합니다.');"><label class="fs-select"><span class="sr-only">Family site</span><select aria-label="Family site"><option>Family site</option></select></label><button>이동</button></form>
+      </div>
+      <div class="footer-links"><a class="fl-privacy" href="#">개인정보처리방침</a><a href="#">저작권정책</a><a href="#">오시는길</a><span class="copyright">COPYRIGHT © National Institute of Korean Language ALL RIGHTS RESERVED.</span></div>
+    </div>
+  </footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script>
+    // GNB 인터랙션: 마우스 호버 시 부드럽게 펼쳐지고, 마우스가 헤더 밖으로 나가면 즉시 접힘!
+    const header = document.getElementById('mainHeader');
+    const megaMenu = document.getElementById('megaMenu');
+    const gnbNav = document.getElementById('gnbNav');
+    const gnbLinks = gnbNav ? gnbNav.querySelectorAll('a') : [];
+    const megaTitleText = document.getElementById('megaTitleText');
+
+    const gnbScrim = document.getElementById('gnbScrim');
+    function closeGnb() {
+      header.classList.remove('gnb-open');
+      gnbLinks.forEach(l => l.classList.remove('active'));
+    }
+    // 클릭으로 메뉴 펼침/접힘 (마우스 호버 아님)
+    gnbLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const alreadyOpen = header.classList.contains('gnb-open') && link.classList.contains('active');
+        if (alreadyOpen) { closeGnb(); return; }
+        header.classList.add('gnb-open');
+        gnbLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+        if (megaTitleText) megaTitleText.textContent = link.textContent.replace('▾', '').trim();
+      });
+    });
+    // 딤 레이어 클릭 / ESC 로 닫기
+    if (gnbScrim) gnbScrim.addEventListener('click', closeGnb);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeGnb(); });
+
+    // 모바일 전용 전체메뉴 오버레이 (PC 메가메뉴와 독립)
+    const mobileMenuBtn = document.querySelector('.mobile-menu');
+    const mobileNav = document.getElementById('mobileNav');
+    const mNavClose = document.getElementById('mNavClose');
+    function openMobileNav() {
+      if (!mobileNav) return;
+      mobileNav.classList.add('open');
+      mobileNav.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('m-nav-open');
+    }
+    function closeMobileNav() {
+      if (!mobileNav) return;
+      mobileNav.classList.remove('open');
+      mobileNav.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('m-nav-open');
+    }
+    if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', openMobileNav);
+    if (mNavClose) mNavClose.addEventListener('click', closeMobileNav);
+    if (mobileNav) {
+      mobileNav.querySelectorAll('.m-acc__head').forEach(head => {
+        head.addEventListener('click', () => {
+          const item = head.closest('.m-acc__item');
+          const isOpen = item.classList.toggle('is-open');
+          head.setAttribute('aria-expanded', String(isOpen));
+        });
+      });
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeMobileNav();
+    });
+
+    // Toast 피드백
+    const toast = document.getElementById('toast');
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+    // URL ?debug=gnb-open 시 메가메뉴 강제 표시 (스크린샷 검수용)
+    if (new URLSearchParams(location.search).get('debug') === 'gnb-open') {
+      header.classList.add('gnb-open');
+    }
+  </script>
+</body>
+</html>
