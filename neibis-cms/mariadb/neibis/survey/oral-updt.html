@@ -900,7 +900,37 @@ function oralUpdate(){
 		msgWarn('조사기간(시작일~종료일)을 입력해 주세요.'); return document.getElementById('startDate').focus();
 	}
 	var done = function(){
-		if(window.Message){Message.alert({icon:'info',message:'정적 프로토타입입니다. 실제 수정은 수행되지 않습니다.'});}else{alert('정적 프로토타입: 수정 미수행');}
+		var g = function(id){ var e=document.getElementById(id); return e?e.value:''; };
+		var uyEl = document.querySelector('input[name="trsfileUseYn"]:checked');
+		var payload = {
+			trsId: (new URLSearchParams(location.search).get('id')||'').trim(),
+			headword: g('headword'),
+			useYn: uyEl ? uyEl.value : 'Y',
+			region: {
+				researchRegionId: g('researchRegionId'),
+				researchYear: g('researchYear'),
+				regionRemark: g('regionRemark'),
+				researchPlace: g('researchPlace'),
+				firstPlace: g('firstPlace'),
+				researcher: g('researcher'),
+				transcriber: g('transcriber'),
+				mic: g('mic'),
+				recorder: g('recorder'),
+				fileUniqueness: g('fileUniqueness'),
+				startDate: g('startDate'),
+				endDate: g('endDate')
+			}
+		};
+		if(!payload.trsId){ msgWarn('저장 대상(trsId)이 없습니다.'); return; }
+		fetch('/mariadb/neibis-api/oral/save-meta', {
+			method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
+		}).then(function(r){return r.json();}).then(function(d){
+			if(d && d.ok){
+				if(window.Message){Message.alert({icon:'success',message:'저장되었습니다.'});}else{alert('저장되었습니다.');}
+			}else{
+				msgWarn('저장 실패: ' + ((d&&d.message)||'알 수 없는 오류'));
+			}
+		}).catch(function(e){ msgWarn('저장 실패: ' + e.message); });
 	};
 	if(window.Message){
 		Message.confirm({icon:'warning', title:'수정하시겠어요?', message:'수정하시려면 ‘확인’을 눌러주세요.'}, done);
@@ -1611,8 +1641,9 @@ const getMngrFail = function (xhr, status, error) {
   function segLineHtml(sg){
     var spk=sg.speaker||'', color=(spk==='조사자')?'#0ea5e9':'#7c3aed';
     var t1=(sg.startMs/1000).toFixed(2), t2=(sg.endMs/1000).toFixed(2);
-    var stdDiff=(sg.std && sg.std!==sg.form);
-    return '<div class="trs-line"><div class="trs-header" style="display:none"><dl>'+
+    var lid=esc(sg.trsLineId||'');
+    var edCss='outline:none; border-bottom:1px dashed transparent; border-radius:3px; padding:0 2px;';
+    return '<div class="trs-line" data-line-id="'+lid+'" data-speaker="'+esc(spk)+'"><div class="trs-header" style="display:none"><dl>'+
       '<dt>순번</dt><dd>'+sg.seq+'</dd><dt>화자</dt><dd>'+esc(spk)+'</dd>'+
       '<dt>주제</dt><dd>'+esc(window._oralTopic||'-')+'</dd><dt>항목번호</dt><dd>'+esc(sg.item||'-')+'</dd></dl></div>'+
       '<div class="trs-text"><span class="ui-line-no">'+sg.seq+'</span>'+
@@ -1620,9 +1651,58 @@ const getMngrFail = function (xhr, status, error) {
       '<span class="chk-col"><label class="check-item"><input type="checkbox" name="trsChk" /><span class="label sr-only">선택</span></label></span>'+
       '<span class="ui-play-time">'+t1+' 초 ~ '+t2+' 초</span>'+
       '<div style="flex:1 1 auto"><span style="display:inline-block;min-width:44px;font-size:11px;font-weight:700;color:'+color+'">'+esc(spk)+'</span>'+
-      '<pre style="display:inline">'+esc(sg.form)+'</pre>'+
-      (stdDiff?'<div style="margin-top:2px;font-size:13px;color:#64748b"><span style="font-size:11px;color:#94a3b8">표준어대역</span> '+esc(sg.std)+'</div>':'')+
+      body(sg,edCss)+
       '</div></div></div>';
+  }
+  function body(sg,edCss){
+    if(sg.singleTurn){
+      return '<pre class="ed-form" contenteditable="false" data-orig="'+esc(sg.form)+'" style="display:inline; '+edCss+'">'+esc(sg.form)+'</pre>'+
+        '<div style="margin-top:2px;font-size:13px;color:#64748b"><span style="font-size:11px;color:#94a3b8">표준어대역</span> '+
+        '<span class="ed-std" contenteditable="false" data-orig="'+esc(sg.std)+'" style="'+edCss+'">'+esc(sg.std)+'</span></div>';
+    }
+    return '<pre style="display:inline">'+esc(sg.form)+'</pre>'+
+      '<span title="한 행에 여러 발화 턴이 있어 구조 편집에서 제외됩니다" style="font-size:10px;font-weight:700;color:#b45309;background:#fef3c7;border:1px solid #fcd34d;border-radius:5px;padding:0 5px;margin-left:6px">복합 라인</span>'+
+      (sg.std?('<div style="margin-top:2px;font-size:13px;color:#64748b"><span style="font-size:11px;color:#94a3b8">표준어대역</span> '+esc(sg.std)+'</div>'):'');
+  }
+  function setEditMode(on){
+    document.querySelectorAll('#trsLines .ed-form, #trsLines .ed-std').forEach(function(el){
+      el.contentEditable = on ? 'true' : 'false';
+      el.style.borderBottomColor = on ? '#93c5fd' : 'transparent';
+      el.style.background = on ? '#f1f5f9' : 'transparent';
+    });
+    var sb=document.getElementById('oralSaveLinesBtn'); if(sb) sb.style.display = on ? '' : 'none';
+  }
+  function ensureEditToolbar(){
+    if(document.getElementById('oralEditBar')) return;
+    var search=document.querySelector('#layer-trs-view .trs-search'); if(!search) return;
+    var wrap=document.createElement('span');
+    wrap.id='oralEditBar'; wrap.style.cssText='display:inline-flex;align-items:center;gap:8px;margin-left:12px;';
+    wrap.innerHTML='<label style="font-size:13px;cursor:pointer;color:#374151"><input type="checkbox" id="oralEditToggle"> 전사 편집</label>'+
+      '<button type="button" id="oralSaveLinesBtn" class="btn btn-sm btn-primary" style="display:none">전사 저장</button>'+
+      '<span id="oralSaveStatus" style="font-size:12px;"></span>';
+    search.appendChild(wrap);
+    document.getElementById('oralEditToggle').addEventListener('change',function(){ setEditMode(this.checked); });
+    document.getElementById('oralSaveLinesBtn').addEventListener('click', oralSaveLines);
+  }
+  function oralSaveLines(){
+    var st=document.getElementById('oralSaveStatus'); var changed=[];
+    document.querySelectorAll('#trsLines .trs-line').forEach(function(row){
+      var lid=row.getAttribute('data-line-id'); if(!lid) return;
+      var fe=row.querySelector('.ed-form'), se=row.querySelector('.ed-std');
+      var form=fe?fe.textContent:'', std=se?se.textContent:'';
+      if((fe&&form!==fe.getAttribute('data-orig')) || (se&&std!==se.getAttribute('data-orig'))){
+        changed.push({trsLineId:lid, speaker:row.getAttribute('data-speaker'), form:form, std:std, _fe:fe, _se:se});
+      }
+    });
+    if(!changed.length){ if(st){st.style.color='#6b7280';st.textContent='변경된 라인이 없습니다.';} return; }
+    if(st){ st.style.color='#6b7280'; st.textContent='저장 중…'; }
+    fetch('/mariadb/neibis-api/oral/save-lines',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({trsId:window._oralCurId, lines:changed.map(function(c){return {trsLineId:c.trsLineId,speaker:c.speaker,form:c.form,std:c.std};})})})
+      .then(function(r){return r.json();}).then(function(d){
+        if(d&&d.ok){ changed.forEach(function(c){ if(c._fe)c._fe.setAttribute('data-orig',c.form); if(c._se)c._se.setAttribute('data-orig',c.std); });
+          if(st){st.style.color='#16a34a';st.textContent=d.message||'저장됨';}
+        } else { if(st){st.style.color='#dc2626';st.textContent='저장 실패: '+((d&&d.message)||'');} }
+      }).catch(function(e){ if(st){st.style.color='#dc2626';st.textContent='저장 실패: '+e.message;} });
   }
   window.openOralDetail=function(oralId){
     var lines=document.getElementById('trsLines');
@@ -1631,7 +1711,7 @@ const getMngrFail = function (xhr, status, error) {
     if(sub) sub.innerHTML='불러오는 중…';
     fetch(API+'/detail?id='+encodeURIComponent(oralId)).then(function(r){return r.json();}).then(function(d){
       if(!d||!d.ok) throw new Error((d&&d.message)||'상세 로드 실패');
-      window._oralTopic=d.topic;
+      window._oralTopic=d.topic; window._oralCurId=d.oralId;
       if(sub){ var who=d.informant?(' · 제보자 '+esc(d.informant)+'('+esc(d.sex)+(d.age?', '+esc(d.age)+'세':'')+')'):'';
         sub.innerHTML=esc(d.region)+' ('+esc(d.year)+'년) '+esc(d.topic)+' 조사 &ndash; <span class="fname">'+esc(d.fileName)+'</span>'+
           (d.hasMedia?' ( <span class="fname">'+esc(d.wavFileName||'')+'</span> )':' <span style="color:#dc2626">(음성없음)</span>')+who+' · 전사 '+d.segmentCount+'행 · '+esc(d.duration); }
@@ -1640,6 +1720,10 @@ const getMngrFail = function (xhr, status, error) {
       if(lines) lines.innerHTML=(d.segments||[]).map(segLineHtml).join('')||'<div style="padding:40px;text-align:center;color:#94a3b8">전사 데이터가 없습니다.</div>';
       if(typeof trsResetMarks==='function') trsResetMarks();
       var tg=document.getElementById('trsToggleHeader'); if(tg) tg.checked=false;
+      ensureEditToolbar();
+      var et=document.getElementById('oralEditToggle'); if(et) et.checked=false;
+      var ss=document.getElementById('oralSaveStatus'); if(ss) ss.textContent='';
+      setEditMode(false);
     }).catch(function(e){ if(lines) lines.innerHTML='<div style="padding:40px;text-align:center;color:#dc2626">상세 로드 실패: '+esc(e.message)+'</div>'; });
   };
 

@@ -302,31 +302,32 @@ def _sec_to_hms(sec) -> str:
 
 
 def _parse_trs_line(txt: str) -> dict:
-    """.trs 라인 마커 파싱.
+    """.trs 라인 마커 파싱 (첫 발화 턴 기준).
     @=조사자, #n=제보자n / %1=형태음소전사, %2 {..}=표준어대역.
+    한 행에 여러 턴이 들어간 복합 라인(2009 .trs 등)은 singleTurn=False로 표시하고
+    첫 턴만 파싱해 표시한다(저장 시 손실 방지를 위해 편집 대상에서 제외).
     """
-    t = (txt or "").strip()
+    raw = txt or ""
+    t = raw.strip()
     speaker = "조사자"
     m = re.match(r"^\s*(@|#\d*)", t)
     if m:
         tok = m.group(1)
         speaker = "조사자" if tok == "@" else ("제보자" + (tok[1:] or "1"))
         t = t[m.end():].strip()
-    std = ""
-    m2 = re.search(r"%2\s*\{(.*)\}\s*$", t, re.S)
-    if m2:
-        std = m2.group(1).strip()
-        t = t[:m2.start()].strip()
+    # 표준어대역: 첫 번째 %2 {...} (non-greedy → 첫 턴만)
+    m2 = re.search(r"%2\s*\{(.*?)\}", t, re.S)
+    std = m2.group(1).strip() if m2 else ""
+    # 형태음소전사: 첫 %1 부터 첫 %2 직전까지
+    m1 = re.search(r"%1\s*(.*?)(?=\s*%2|$)", t, re.S)
+    if m1:
+        form = m1.group(1).strip()
     else:
-        m2b = re.search(r"%2\s*(.*)$", t, re.S)
-        if m2b:
-            std = m2b.group(1).strip().strip("{}").strip()
-            t = t[:m2b.start()].strip()
-    m1 = re.search(r"%1\s*(.*)$", t, re.S)
-    form = (m1.group(1) if m1 else t).strip()
+        form = (t[: m2.start()].strip() if m2 else t).strip()
     if not form and not std:
-        form = (txt or "").strip()
-    return {"speaker": speaker, "form": form, "std": std}
+        form = raw.strip()
+    single_turn = raw.count("%1") == 1
+    return {"speaker": speaker, "form": form, "std": std, "singleTurn": single_turn}
 
 
 def _oral_media_id(audio_filename, trs_file_nm) -> str:
@@ -481,7 +482,7 @@ def api_oral_detail(qs: dict) -> dict:
             (f["research_region_id"],),
         ).fetchone()
         lines = con.execute(
-            """SELECT trs_line_no, trs_line, start_time, end_time
+            """SELECT trs_line_id, trs_line_no, trs_line, start_time, end_time
                FROM wb_trs_line_talk
                WHERE trs_id = ? AND trs_line_se = 'text'
                ORDER BY CAST(trs_line_no AS INTEGER)""",
@@ -499,11 +500,13 @@ def api_oral_detail(qs: dict) -> dict:
         p = _parse_trs_line(ln["trs_line"])
         segments.append({
             "seq": i,
+            "trsLineId": str(ln["trs_line_id"]) if ln["trs_line_id"] is not None else "",
             "speaker": p["speaker"],
             "startMs": to_ms(ln["start_time"]),
             "endMs": to_ms(ln["end_time"]),
             "form": p["form"],
             "std": p["std"],
+            "singleTurn": p["singleTurn"],
             "item": ln["trs_line_no"] or "",
         })
     dur_ms = max((s["endMs"] for s in segments), default=0)
@@ -627,6 +630,139 @@ def api_oral_meta(qs: dict) -> dict:
         "subSources": subs,
         "files": file_list,
     }
+
+
+def _date_to_epoch_ms(v) -> str:
+    """'YYYY-MM-DD' → epoch ms 문자열. 이미 epoch ms거나 비면 그대로/빈값."""
+    s = str(v or "").strip()
+    if not s:
+        return ""
+    if s.isdigit():
+        return s
+    m = re.match(r"^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})", s)
+    if not m:
+        return s
+    try:
+        dt = datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+        return str(int(dt.timestamp() * 1000))
+    except ValueError:
+        return s
+
+
+def api_oral_save_meta(body: dict) -> dict:
+    """구술발화 수정폼 메타 저장 — wb_trs_file_talk + wb_research_region UPDATE."""
+    trs_id = str(body.get("trsId") or "").strip()
+    if not trs_id:
+        return {"ok": False, "message": "trsId가 필요합니다."}
+    region = body.get("region") or {}
+    headword = (body.get("headword") or "").strip()
+    use_yn = "N" if str(body.get("useYn") or "Y").upper() == "N" else "Y"
+
+    with db_connect() as con:
+        f = con.execute(
+            "SELECT research_region_id FROM wb_trs_file_talk WHERE trs_id = ?", (trs_id,)
+        ).fetchone()
+        if not f:
+            return {"ok": False, "message": f"해당 자료를 찾을 수 없습니다: {trs_id}"}
+        rrid = f["research_region_id"]
+
+        con.execute(
+            "UPDATE wb_trs_file_talk SET upper_headword = ?, use_yn = ? WHERE trs_id = ?",
+            (headword, use_yn, trs_id),
+        )
+        if rrid is not None:
+            con.execute(
+                """UPDATE wb_research_region SET
+                       research_year = ?, region_remark = ?, research_place = ?,
+                       first_place = ?, researcher = ?, transcriber = ?,
+                       mic = ?, recorder = ?, file_uniqueness = ?,
+                       start_date = ?, end_date = ?
+                   WHERE research_region_id = ?""",
+                (
+                    (region.get("researchYear") or "").strip(),
+                    (region.get("regionRemark") or "").strip(),
+                    (region.get("researchPlace") or "").strip(),
+                    (region.get("firstPlace") or "").strip(),
+                    (region.get("researcher") or "").strip(),
+                    (region.get("transcriber") or "").strip(),
+                    (region.get("mic") or "").strip(),
+                    (region.get("recorder") or "").strip(),
+                    (region.get("fileUniqueness") or "").strip(),
+                    _date_to_epoch_ms(region.get("startDate")),
+                    _date_to_epoch_ms(region.get("endDate")),
+                    rrid,
+                ),
+            )
+        con.commit()
+    return {"ok": True, "trsId": trs_id, "message": "저장되었습니다."}
+
+
+def _speaker_to_marker(speaker: str) -> str:
+    s = (speaker or "").strip()
+    if s == "조사자":
+        return "@"
+    m = re.match(r"제보자(\d*)", s)
+    if m:
+        return "#" + (m.group(1) or "1")
+    return "@"
+
+
+def _compose_trs_line(speaker: str, form: str, std: str) -> str:
+    """화자+형태음소전사+표준어대역 → .trs 라인 재구성."""
+    mark = _speaker_to_marker(speaker)
+    form = (form or "").strip()
+    std = (std or "").strip()
+    line = mark + " %1" + form
+    if std:
+        line += " %2 {" + std + "}"
+    return line
+
+
+def api_oral_save_lines(body: dict) -> dict:
+    """전사 라인 저장 — wb_trs_line_talk.trs_line UPDATE (화자+형태음소+표준어대역 재구성)."""
+    trs_id = str(body.get("trsId") or "").strip()
+    lines = body.get("lines") or []
+    if not trs_id:
+        return {"ok": False, "message": "trsId가 필요합니다."}
+    if not isinstance(lines, list) or not lines:
+        return {"ok": False, "message": "저장할 라인이 없습니다."}
+
+    updated = 0
+    skipped = 0
+    with db_connect() as con:
+        exists = con.execute(
+            "SELECT 1 FROM wb_trs_file_talk WHERE trs_id = ?", (trs_id,)
+        ).fetchone()
+        if not exists:
+            return {"ok": False, "message": f"해당 자료를 찾을 수 없습니다: {trs_id}"}
+        for ln in lines:
+            line_id = str((ln or {}).get("trsLineId") or "").strip()
+            if not line_id:
+                continue
+            cur_row = con.execute(
+                "SELECT trs_line FROM wb_trs_line_talk WHERE trs_line_id = ? AND trs_id = ?",
+                (line_id, trs_id),
+            ).fetchone()
+            if not cur_row:
+                continue
+            # 안전장치: 단일 턴(%1 정확히 1개)만 구조화 저장 허용.
+            # 헤더(0개)·복합 멀티턴(2개 이상)은 재구성 시 손실되므로 제외.
+            if (cur_row["trs_line"] or "").count("%1") != 1:
+                skipped += 1
+                continue
+            new_text = _compose_trs_line(
+                ln.get("speaker", ""), ln.get("form", ""), ln.get("std", "")
+            )
+            cur = con.execute(
+                "UPDATE wb_trs_line_talk SET trs_line = ? WHERE trs_line_id = ? AND trs_id = ?",
+                (new_text, line_id, trs_id),
+            )
+            updated += cur.rowcount
+        con.commit()
+    msg = f"{updated}개 라인 저장됨"
+    if skipped:
+        msg += f" (복합 라인 {skipped}개 제외)"
+    return {"ok": True, "trsId": trs_id, "updated": updated, "skipped": skipped, "message": msg}
 
 
 def _find_oral_media(oral_id: str, ext: str) -> Path | None:
@@ -1963,6 +2099,28 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 self._send_json(api_dialect_region_save(body))
             except FileNotFoundError as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/oral/save-meta",
+            "/mariadb/neibis-api/v1/oral/save-meta",
+            "/mariadb/neibis-api/survey/oral/save-meta",
+        ):
+            try:
+                self._send_json(api_oral_save_meta(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/oral/save-lines",
+            "/mariadb/neibis-api/v1/oral/save-lines",
+            "/mariadb/neibis-api/survey/oral/save-lines",
+        ):
+            try:
+                self._send_json(api_oral_save_lines(body))
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return
