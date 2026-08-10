@@ -1045,6 +1045,17 @@ function autofillFromMeta(meta, eafName){
 	}
 }
 
+// 드래그&드롭 업로드 바인딩
+(function(){
+	var dz=document.getElementById('trsDrop'); if(!dz) return;
+	['dragenter','dragover'].forEach(function(ev){ dz.addEventListener(ev,function(e){ e.preventDefault(); e.stopPropagation(); dz.classList.add('is-dragover'); }); });
+	['dragleave','dragend'].forEach(function(ev){ dz.addEventListener(ev,function(e){ e.preventDefault(); e.stopPropagation(); dz.classList.remove('is-dragover'); }); });
+	dz.addEventListener('drop',function(e){ e.preventDefault(); e.stopPropagation(); dz.classList.remove('is-dragover'); var f=e.dataTransfer&&e.dataTransfer.files; if(f&&f.length) uploadFileList(f); });
+	// 문서 다른 곳에 드롭 시 브라우저가 파일 여는 기본동작 방지
+	window.addEventListener('dragover',function(e){ e.preventDefault(); });
+	window.addEventListener('drop',function(e){ if(!dz.contains(e.target)) e.preventDefault(); });
+})();
+
 function oralSave(){
 	var tf = document.getElementById('trsFiles');
 	if(!tf.files || tf.files.length === 0){ msgWarn('전사자료를 등록해 주세요.'); return tf.focus(); }
