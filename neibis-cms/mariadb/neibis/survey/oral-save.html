@@ -946,7 +946,52 @@ function autofillFromMeta(meta, eafName){
 		var label = meta.informant + ' ( ' + (meta.sex||'') + (age?(' '+age):'') + ' )';
 		setIfEmpty('mainsource1', label);
 		window._autoSource = {name:meta.informant, sex:meta.sex, age:String(age||''), birth:meta.birth};
+		matchInformant(meta, age);
 	}
+}
+
+// EAF 제보자를 제보자 관리(wb_source)와 매칭 → 확인·연결 패널
+function matchInformant(meta, age){
+	var el = document.getElementById('mainsource1');
+	var td = el && el.closest ? el.closest('td') : null;
+	if(!td) return;
+	var panel = document.getElementById('srcMatchPanel');
+	if(!panel){ panel=document.createElement('div'); panel.id='srcMatchPanel';
+		panel.style.cssText='margin-top:10px;padding:10px 12px;border:1px solid #bfdbfe;background:#f8fafc;border-radius:8px;font-size:13px;'; td.appendChild(panel); }
+	panel.innerHTML = '<span style="color:#64748b">제보자 관리에서 "'+esc(meta.informant)+'" 검색 중…</span>';
+	var qs = 'name='+encodeURIComponent(meta.informant)+(meta.sex?('&sex='+encodeURIComponent(meta.sex)):'');
+	fetch('/mariadb/neibis-api/oral/source/search?'+qs).then(function(r){return r.json();}).then(function(d){
+		var head = '<div style="margin-bottom:6px"><b>EAF 제보자</b> · '+esc(meta.informant)+' ('+esc(meta.sex||'')+(age?(' '+age+'세'):'')+', '+esc(meta.birth||'')+'생) '
+			+'<span id="srcMatchStatus" style="margin-left:8px;font-weight:700;color:#b45309">미확인</span></div>';
+		var body='';
+		if(d.ok && d.list && d.list.length){
+			window._srcCandidates = d.list;
+			body += '<div style="color:#475569;margin-bottom:4px">제보자 관리 일치 후보 <b>'+d.list.length+'</b>건 — 확인 후 연결하세요:</div>';
+			d.list.forEach(function(c,i){
+				var mark = (String(c.birth)===String(meta.birth)) ? ' <span style="color:#16a34a;font-weight:700">·생년일치</span>' : '';
+				body += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid #eef2f7">'
+					+'<span style="flex:1">'+esc(c.name)+' ('+esc(c.sex)+', '+esc(c.birth)+'생) · '+esc(c.residence||c.regionNm||'')+' · 참여 '+c.surveyCount+'건'+(c.job?(' · '+esc(c.job)):'')+mark+'</span>'
+					+'<button type="button" class="btn btn-xs btn-primary" onclick="linkInformant('+i+')">연결</button></div>';
+			});
+		} else {
+			window._srcCandidates = [];
+			body += '<div style="color:#94a3b8">제보자 관리에 일치하는 제보자가 없습니다.</div>';
+		}
+		body += '<div style="margin-top:8px"><button type="button" class="btn btn-xs btn-outline-gray" onclick="linkInformantNew()">신규 제보자로 등록 (EAF 정보 사용)</button></div>';
+		panel.innerHTML = head + body;
+	}).catch(function(){ panel.innerHTML='<span style="color:#dc2626">제보자 검색 실패</span>'; });
+}
+
+function linkInformant(i){
+	var c=(window._srcCandidates||[])[i]; if(!c) return;
+	document.getElementById('mainsource1').value = c.name+' ( '+c.sex+(c.age?(' '+c.age):'')+' )';
+	window._autoSource = {name:c.name, sex:c.sex, age:c.age||'', birth:c.birth, sourceId:c.sourceId,
+		residence:c.residence, birthPlace:c.birthPlace, job:c.job, education:c.education};
+	var st=document.getElementById('srcMatchStatus'); if(st){ st.textContent='✓ 연결됨 (기존 제보자)'; st.style.color='#16a34a'; }
+}
+function linkInformantNew(){
+	var st=document.getElementById('srcMatchStatus'); if(st){ st.textContent='신규 등록 (EAF 정보)'; st.style.color='#2563eb'; }
+	// window._autoSource 는 autofillFromMeta 에서 EAF 기본정보로 이미 설정됨
 }
 
 // 드래그&드롭 업로드 바인딩

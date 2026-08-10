@@ -377,7 +377,7 @@ def api_oral_list(qs: dict) -> dict:
             "OR IFNULL(f.headword,'') LIKE ? OR IFNULL(rr.region_nm,'') LIKE ?)"
         )
         params += [like, like, like, like]
-    sex_code = "0" if sex in ("man", "남") else ("1" if sex in ("woman", "wom", "여") else "")
+    sex_code = "1" if sex in ("man", "남") else ("0" if sex in ("woman", "wom", "여") else "")  # wb_source: 0=여,1=남
     if sex_code:
         where.append(
             "EXISTS (SELECT 1 FROM wb_source s WHERE s.research_region_id = f.research_region_id AND s.sex = ?)"
@@ -513,7 +513,7 @@ def api_oral_detail(qs: dict) -> dict:
         })
     dur_ms = max((s["endMs"] for s in segments), default=0)
 
-    sex_map = {"0": "남", "1": "여"}
+    sex_map = {"0": "여", "1": "남"}  # wb_source: 0=여,1=남
     sex_raw = (src["sex"] if src else "") or ""
     audio_id = _oral_media_id(f["audio_filename"], f["trs_file_nm"])
     has_media = _find_oral_media(audio_id, "wav") is not None
@@ -572,7 +572,7 @@ def api_oral_meta(qs: dict) -> dict:
             (rrid,),
         ).fetchall()
 
-    sex_map = {"0": "남", "1": "여"}
+    sex_map = {"0": "여", "1": "남"}  # wb_source: 0=여,1=남
 
     def src_dict(s):
         return {
@@ -905,7 +905,7 @@ def api_oral_create(body: dict) -> dict:
     use_yn = "N" if str(body.get("useYn") or "Y").upper() == "N" else "Y"
     year = (region.get("researchYear") or "").strip()
     degree = "2" if (year.isdigit() and int(year) >= 2022) else "1"
-    sex_code = {"남": "0", "여": "1", "man": "0", "woman": "1", "wom": "1"}
+    sex_code = {"남": "1", "여": "0", "man": "1", "woman": "0", "wom": "0"}  # wb_source: 0=여,1=남
 
     def src_rows(lst, base_se):
         out = []
@@ -919,6 +919,10 @@ def api_oral_create(body: dict) -> dict:
                 "sex": sex_code.get((s.get("sex") or "").strip(), (s.get("sex") or "").strip()),
                 "age": (s.get("age") or "").strip(),
                 "birth": (s.get("birth") or "").strip(),
+                "residence": (s.get("residence") or "").strip(),
+                "birth_place": (s.get("birthPlace") or "").strip(),
+                "job": (s.get("job") or "").strip(),
+                "education": (s.get("education") or "").strip(),
             })
         return out
 
@@ -954,9 +958,12 @@ def api_oral_create(body: dict) -> dict:
         sid = _next_id(con, "wb_source", "source_id")
         for s in src_rows(body.get("mainSources"), 0) + src_rows(body.get("subSources"), 1):
             con.execute(
-                """INSERT INTO wb_source (source_id, research_region_id, se, name, sex, age, birth)
-                   VALUES (?,?,?,?,?,?,?)""",
-                (str(sid), str(rrid), s["se"], s["name"], s["sex"], s["age"], s["birth"]),
+                """INSERT INTO wb_source
+                   (source_id, research_region_id, se, name, sex, age, birth,
+                    residence, birth_place, job, education)
+                   VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+                (str(sid), str(rrid), s["se"], s["name"], s["sex"], s["age"], s["birth"],
+                 s["residence"], s["birth_place"], s["job"], s["education"]),
             )
             sid += 1
 
@@ -1071,6 +1078,58 @@ def api_oral_save_lines(body: dict) -> dict:
     if skipped:
         msg += f" (복합 라인 {skipped}개 제외)"
     return {"ok": True, "trsId": trs_id, "updated": updated, "skipped": skipped, "message": msg}
+
+
+def api_oral_source_search(qs: dict) -> dict:
+    """제보자 검색 — 제보자 관리(wb_source)에서 후보를 중복 제거해 반환.
+    EAF 자동입력된 이름/성별/생년으로 기존 제보자와 매칭·연결하는 데 사용."""
+    def q1(k, d=""):
+        return (qs.get(k) or [d])[0].strip()
+    name = q1("name") or q1("q")
+    sex = q1("sex")   # '여'/'남' 또는 코드
+    birth = q1("birth")
+    where, params = [], []
+    if name:
+        where.append("name LIKE ?"); params.append("%" + name + "%")
+    if birth:
+        where.append("IFNULL(birth,'') = ?"); params.append(birth)
+    if sex in ("여", "0"):
+        where.append("sex = '0'")
+    elif sex in ("남", "1"):
+        where.append("sex = '1'")
+    wh = ("WHERE " + " AND ".join(where)) if where else ""
+
+    sex_lbl = {"0": "여", "1": "남"}
+    items = []
+    with db_connect() as con:
+        rows = con.execute(
+            f"""SELECT name, sex, IFNULL(birth,'') birth, IFNULL(residence,'') residence,
+                       IFNULL(birth_place,'') birth_place, IFNULL(job,'') job,
+                       IFNULL(education,'') education,
+                       MIN(CAST(source_id AS INTEGER)) source_id,
+                       MAX(IFNULL(age,'')) age, MAX(IFNULL(region_nm,'')) region_nm,
+                       COUNT(*) cnt
+                FROM wb_source {wh}
+                GROUP BY name, sex, IFNULL(birth,''), IFNULL(residence,'')
+                ORDER BY cnt DESC, name
+                LIMIT 40""",
+            params,
+        ).fetchall()
+        for r in rows:
+            items.append({
+                "sourceId": str(r["source_id"]),
+                "name": r["name"] or "",
+                "sex": sex_lbl.get(r["sex"] or "", r["sex"] or ""),
+                "age": r["age"] or "",
+                "birth": r["birth"] or "",
+                "residence": r["residence"] or "",
+                "birthPlace": r["birth_place"] or "",
+                "job": r["job"] or "",
+                "education": r["education"] or "",
+                "regionNm": r["region_nm"] or "",
+                "surveyCount": r["cnt"],
+            })
+    return {"ok": True, "total": len(items), "list": items}
 
 
 def _find_oral_media(oral_id: str, ext: str) -> Path | None:
@@ -2614,6 +2673,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 self._send_json(api_oral_raw(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/oral/source/search",
+            "/mariadb/neibis-api/v1/oral/source/search",
+            "/mariadb/neibis-api/survey/oral/source/search",
+        ):
+            try:
+                self._send_json(api_oral_source_search(qs))
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return
