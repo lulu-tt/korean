@@ -550,7 +550,7 @@ def api_oral_meta(qs: dict) -> dict:
     with db_connect() as con:
         f = con.execute(
             """SELECT trs_id, research_region_id, upper_headword, headword,
-                      use_yn, trs_file_nm, audio_filename
+                      use_yn, trs_file_nm, audio_filename, start_dialect_no, end_dialect_no
                FROM wb_trs_file_talk WHERE trs_id = ?""",
             (trs_id,),
         ).fetchone()
@@ -561,7 +561,10 @@ def api_oral_meta(qs: dict) -> dict:
             "SELECT * FROM wb_research_region WHERE research_region_id = ?", (rrid,)
         ).fetchone()
         sources = con.execute(
-            """SELECT se, name, sex, age, birth FROM wb_source
+            """SELECT source_id, se, name, sex, age, birth,
+                      IFNULL(residence,'') residence, IFNULL(birth_place,'') birth_place,
+                      IFNULL(job,'') job, IFNULL(education,'') education
+               FROM wb_source
                WHERE research_region_id = ? ORDER BY se, CAST(source_id AS INTEGER)""",
             (rrid,),
         ).fetchall()
@@ -571,15 +574,27 @@ def api_oral_meta(qs: dict) -> dict:
                ORDER BY CAST(trs_id AS INTEGER)""",
             (rrid,),
         ).fetchall()
+        # 항목번호: 이 파일 전사 라인의 headword_no (distinct), 없으면 파일 범위(start~end)
+        item_nos = [str(r[0]) for r in con.execute(
+            """SELECT DISTINCT headword_no FROM wb_trs_line_talk
+               WHERE trs_id = ? AND IFNULL(headword_no,'')<>''
+               ORDER BY CAST(headword_no AS INTEGER)""", (trs_id,)).fetchall()]
+        if not item_nos and (f["start_dialect_no"] or f["end_dialect_no"]):
+            item_nos = [x for x in [f["start_dialect_no"], f["end_dialect_no"]] if x]
 
     sex_map = {"0": "여", "1": "남"}  # wb_source: 0=여,1=남
 
     def src_dict(s):
         return {
+            "sourceId": str(s["source_id"]) if s["source_id"] is not None else "",
             "name": s["name"] or "",
             "sex": sex_map.get(s["sex"] or "", s["sex"] or ""),
             "age": s["age"] or "",
             "birth": s["birth"] or "",
+            "residence": s["residence"] or "",
+            "birthPlace": s["birth_place"] or "",
+            "job": s["job"] or "",
+            "education": s["education"] or "",
             "label": f"{s['name'] or ''} ( {sex_map.get(s['sex'] or '', '')} {s['age'] or ''} )".strip(),
         }
 
@@ -631,6 +646,7 @@ def api_oral_meta(qs: dict) -> dict:
         "mainSources": mains,
         "subSources": subs,
         "files": file_list,
+        "itemNos": item_nos,
     }
 
 
@@ -695,6 +711,35 @@ def api_oral_save_meta(body: dict) -> dict:
                     rrid,
                 ),
             )
+        # 제보자(주/부) 저장 — 요청에 sources가 있으면 해당 조사지역 제보자를 교체
+        if rrid is not None and ("mainSources" in body or "subSources" in body):
+            sex_code = {"남": "1", "여": "0", "man": "1", "woman": "0", "wom": "0"}
+            con.execute("DELETE FROM wb_source WHERE research_region_id = ?", (rrid,))
+            sid = _next_id(con, "wb_source", "source_id")
+
+            def ins(lst, base_se):
+                nonlocal sid
+                for i, s in enumerate(lst or []):
+                    nm = (s.get("name") or "").strip()
+                    if not nm:
+                        continue
+                    con.execute(
+                        """INSERT INTO wb_source
+                           (source_id, research_region_id, se, name, sex, age, birth,
+                            residence, birth_place, job, education)
+                           VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+                        (
+                            str(sid), str(rrid), str(base_se + i), nm,
+                            sex_code.get((s.get("sex") or "").strip(), (s.get("sex") or "").strip()),
+                            (s.get("age") or "").strip(), (s.get("birth") or "").strip(),
+                            (s.get("residence") or "").strip(), (s.get("birthPlace") or "").strip(),
+                            (s.get("job") or "").strip(), (s.get("education") or "").strip(),
+                        ),
+                    )
+                    sid += 1
+
+            ins(body.get("mainSources"), 0)
+            ins(body.get("subSources"), 1)
         con.commit()
     return {"ok": True, "trsId": trs_id, "message": "저장되었습니다."}
 

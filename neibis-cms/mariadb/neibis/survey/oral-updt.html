@@ -851,38 +851,75 @@ function msgWarn(m){ if(window.Message){Message.alert({icon:'warning',message:m}
 
 // 제보자 선택/취소 — 라이브 sourefind 팝업과 동일 흐름
 var _srcFindTarget = null;
-function srcFind(id){
-	_srcFindTarget = id;
-	var regionEl = document.getElementById('researchRegionId');
-	var regionId = regionEl && regionEl.value ? regionEl.value : '3276';
-	var url = '/mariadb/neibis/survey/source-find.do'
-		+ '?target=' + encodeURIComponent(id)
-		+ '&researchRegionId=' + encodeURIComponent(regionId);
-	window.open(url, 'sourceFind', 'width=920,height=600,scrollbars=yes,resizable=yes');
+function esc2(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);});}
+// 제보자 관리(wb_source) 검색 팝업으로 선택 → 연동
+function srcFind(id){ _srcFindTarget=id; openSrcPicker(id); }
+function srcCancel(id){ var el=document.getElementById(id); if(!el)return; el.value=''; el.removeAttribute('data-source-id'); if(window._srcMap) delete window._srcMap[id]; }
+function ensureSrcPicker(){
+	var m=document.getElementById('srcPickerModal'); if(m) return m;
+	m=document.createElement('div'); m.id='srcPickerModal';
+	m.style.cssText='position:fixed;inset:0;z-index:1600;background:rgba(15,23,42,.5);display:none;align-items:center;justify-content:center;padding:24px;';
+	m.innerHTML='<div style="background:#fff;width:100%;max-width:640px;max-height:80vh;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(15,23,42,.25)">'
+		+'<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #e5e7eb;background:#f8fafc"><h2 id="srcPickTitle" style="margin:0;font-size:16px;font-weight:800;color:#1e3a8a">제보자 선택</h2><button type="button" id="srcPickClose" style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;width:30px;height:30px;font-size:16px;cursor:pointer;color:#64748b">×</button></div>'
+		+'<div style="padding:14px 18px;border-bottom:1px solid #eef2f7;display:flex;gap:8px"><input type="text" id="srcPickInput" class="form-control-sm" style="flex:1" placeholder="제보자 이름으로 검색" /><button type="button" class="btn btn-sm btn-primary" id="srcPickBtn">검색</button></div>'
+		+'<div id="srcPickResults" style="padding:8px 18px;overflow:auto;flex:1;font-size:13px"></div></div>';
+	document.body.appendChild(m);
+	m.addEventListener('click',function(e){ if(e.target===m) m.style.display='none'; });
+	document.getElementById('srcPickClose').addEventListener('click',function(){ m.style.display='none'; });
+	document.getElementById('srcPickBtn').addEventListener('click', srcPickSearch);
+	document.getElementById('srcPickInput').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); srcPickSearch(); } });
+	return m;
 }
-/** 팝업(sourefind)에서 호출 — live 호환 시그니처 */
-function setChildValue(name, sourceId, researchRegionId){
-	applySourceFind(_srcFindTarget, name, sourceId, researchRegionId);
-	_srcFindTarget = null;
+function openSrcPicker(slotId){
+	var m=ensureSrcPicker();
+	document.getElementById('srcPickTitle').textContent=(slotId.indexOf('main')>=0?'주제보자':'부제보자')+' 선택';
+	var el=document.getElementById(slotId);
+	var pre=(el&&el.value)?el.value.replace(/\s*\(.*$/,'').trim():'';
+	document.getElementById('srcPickInput').value=pre;
+	document.getElementById('srcPickResults').innerHTML='<div style="color:#94a3b8;padding:12px">이름으로 검색하세요.</div>';
+	m.style.display='flex';
+	document.getElementById('srcPickInput').focus();
+	if(pre) srcPickSearch();
 }
-function applySourceFind(targetId, name, sourceId, researchRegionId){
-	var tid = targetId || _srcFindTarget;
-	if(!tid) return;
-	var el = document.getElementById(tid);
-	if(!el) return;
-	el.value = name || '';
-	if(sourceId) el.setAttribute('data-source-id', sourceId);
-	else el.removeAttribute('data-source-id');
-	if(researchRegionId){
-		var r = document.getElementById('researchRegionId');
-		if(r && !r.value) r.value = researchRegionId;
+function srcPickSearch(){
+	var q=document.getElementById('srcPickInput').value.trim();
+	var box=document.getElementById('srcPickResults');
+	if(!q){ box.innerHTML='<div style="color:#94a3b8;padding:12px">이름을 입력하세요.</div>'; return; }
+	box.innerHTML='<div style="color:#64748b;padding:12px">검색 중…</div>';
+	fetch('/mariadb/neibis-api/oral/source/search?name='+encodeURIComponent(q)).then(function(r){return r.json();}).then(function(d){
+		if(!d.ok||!d.list||!d.list.length){ box.innerHTML='<div style="color:#94a3b8;padding:12px">검색 결과가 없습니다.</div>'; window._srcPickList=[]; return; }
+		window._srcPickList=d.list;
+		box.innerHTML=d.list.map(function(c,i){
+			return '<div style="display:flex;align-items:center;gap:8px;padding:7px 4px;border-top:1px solid #eef2f7"><span style="flex:1">'+esc2(c.name)+' ('+esc2(c.sex)+', '+esc2(c.birth)+'생) · '+esc2(c.residence||c.regionNm||'')+' · 참여 '+c.surveyCount+'건'+(c.job?(' · '+esc2(c.job)):'')+'</span><button type="button" class="btn btn-xs btn-primary" onclick="srcPickChoose('+i+')">선택</button></div>';
+		}).join('');
+	}).catch(function(){ box.innerHTML='<div style="color:#dc2626;padding:12px">검색 실패</div>'; });
+}
+function srcPickChoose(i){
+	var c=(window._srcPickList||[])[i]; if(!c||!_srcFindTarget) return;
+	var el=document.getElementById(_srcFindTarget); if(el) el.value=c.name+' ( '+c.sex+(c.age?(' '+c.age):'')+' )';
+	window._srcMap=window._srcMap||{};
+	window._srcMap[_srcFindTarget]={name:c.name,sex:c.sex,age:c.age||'',birth:c.birth||'',residence:c.residence||'',birthPlace:c.birthPlace||'',job:c.job||'',education:c.education||'',sourceId:c.sourceId||''};
+	document.getElementById('srcPickerModal').style.display='none';
+	_srcFindTarget=null;
+}
+// 항목번호(읽기전용) 렌더
+function renderItemNos(nos){
+	var box=document.querySelector('.item-no-list'); if(!box) return;
+	if(nos&&nos.length){
+		box.innerHTML=nos.map(function(n){ return '<span style="display:inline-block;padding:3px 10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;color:#1d4ed8;font-size:13px;font-weight:600">'+esc2(n)+'</span>'; }).join('');
+	} else {
+		box.innerHTML='<span style="color:#94a3b8;font-size:13px">연결된 항목번호가 없습니다.</span>';
 	}
 }
-function srcCancel(id){
-	var el = document.getElementById(id);
-	if(!el) return;
-	el.value = '';
-	el.removeAttribute('data-source-id');
+// 저장용 제보자 수집
+function collectSources(){
+	function grab(id){ var el=document.getElementById(id); if(!el||!el.value.trim())return null;
+		var d=(window._srcMap&&window._srcMap[id])||null; if(d) return d;
+		var m=el.value.match(/^(.*?)\s*\(\s*([남여])?\s*(\d+)?/); return m?{name:m[1].trim(),sex:m[2]||'',age:m[3]||'',birth:''}:{name:el.value.trim()}; }
+	var main=[],sub=[];
+	['mainsource1','mainsource2','mainsource3'].forEach(function(id){var x=grab(id); if(x)main.push(x);});
+	['subsource1','subsource2','subsource3','subsource4','subsource5'].forEach(function(id){var x=grab(id); if(x)sub.push(x);});
+	return {main:main,sub:sub};
 }
 
 // 수정 (정적 프로토타입: 필수값 검증 후 안내)
@@ -921,6 +958,7 @@ function oralUpdate(){
 				endDate: g('endDate')
 			}
 		};
+		var _srcs=collectSources(); payload.mainSources=_srcs.main; payload.subSources=_srcs.sub;
 		if(!payload.trsId){ msgWarn('저장 대상(trsId)이 없습니다.'); return; }
 		fetch('/mariadb/neibis-api/oral/save-meta', {
 			method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
@@ -1629,8 +1667,10 @@ const getMngrFail = function (xhr, status, error) {
     var uy=(d.useYn==='N')?'N':'Y';
     document.querySelectorAll('input[name="trsfileUseYn"]').forEach(function(r){ r.checked=(r.value===uy); });
     var mains=d.mainSources||[], subs=d.subSources||[];
-    for(var i=1;i<=3;i++) setVal('mainsource'+i, mains[i-1]?mains[i-1].label:'');
-    for(var j=1;j<=5;j++) setVal('subsource'+j, subs[j-1]?subs[j-1].label:'');
+    window._srcMap={};
+    for(var i=1;i<=3;i++){ var _m=mains[i-1]; setVal('mainsource'+i, _m?_m.label:''); if(_m) window._srcMap['mainsource'+i]=_m; }
+    for(var j=1;j<=5;j++){ var _s=subs[j-1]; setVal('subsource'+j, _s?_s.label:''); if(_s) window._srcMap['subsource'+j]=_s; }
+    renderItemNos(d.itemNos||[]);
     renderFiles(d.files||[]);
   }
 
