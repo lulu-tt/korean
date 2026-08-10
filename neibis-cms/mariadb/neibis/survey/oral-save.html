@@ -630,6 +630,16 @@
 						#save-form .file-name{ color:#6b7280; font-size:13px; }
 						#save-form .file-name.has-file{ color:#374151; }
 						#save-form .src-slot{ display:inline-flex; align-items:center; gap:4px; margin:0 10px 6px 0; }
+							#save-form .trs-drop{ border:2px dashed #cbd5e1; border-radius:12px; padding:28px 16px; text-align:center; cursor:pointer; background:#f8fafc; transition:border-color .15s, background .15s; outline:none; }
+							#save-form .trs-drop:hover{ border-color:#93c5fd; background:#eff6ff; }
+							#save-form .trs-drop:focus-visible{ border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.15); }
+							#save-form .trs-drop.is-dragover{ border-color:#2563eb; background:#dbeafe; }
+							#save-form .trs-drop__icon{ font-size:30px; color:#93c5fd; line-height:1; margin-bottom:8px; }
+							#save-form .trs-drop.is-dragover .trs-drop__icon{ color:#2563eb; }
+							#save-form .trs-drop__title{ font-size:14px; font-weight:700; color:#334155; margin:0 0 4px; }
+							#save-form .trs-drop__desc{ font-size:12.5px; color:#64748b; margin:0; }
+							#save-form .trs-drop .file-name{ margin:10px 0 0; font-size:12.5px; color:#94a3b8; }
+							#save-form .trs-drop .file-name.has-file{ color:#1d4ed8; font-weight:600; }
 					</style>
 					<form id="save-form" onsubmit="return false;">
 						<div class="card">
@@ -642,12 +652,14 @@
 											<tr>
 												<th scope="row"><span>전사자료 등록<i class="req">필수입력</i></span></th>
 												<td>
-													<label class="file-picker">
-														<input type="file" id="trsFiles" accept=".eaf,.trs,.wav" multiple onchange="uploadTrsFiles(this)" />
-														<span class="file-btn">파일 선택</span>
-														<span class="file-name" id="trsFilesName">선택된 파일 없음</span>
-													</label>
-													<p class="text-guide">전사자료(.eaf/.trs)와 음성자료(.wav)를 등록하세요. 업로드 시 조사연도·지역·제보자·발화주제가 자동 채워집니다. (여러 파일 선택 가능)</p>
+													<input type="file" id="trsFiles" accept=".eaf,.trs,.wav" multiple onchange="uploadTrsFiles(this)" style="display:none" />
+														<div id="trsDrop" class="trs-drop" role="button" tabindex="0" onclick="document.getElementById('trsFiles').click()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('trsFiles').click();}">
+															<div class="trs-drop__icon"><i class="ti ti-cloud-upload"></i></div>
+															<p class="trs-drop__title">전사자료를 이 영역에 끌어 놓으면 업로드가 시작됩니다.</p>
+															<p class="trs-drop__desc">클릭해서 파일을 선택할 수도 있습니다. (.eaf/.trs + .wav · 여러 파일 가능)</p>
+															<p class="file-name" id="trsFilesName">선택된 파일 없음</p>
+														</div>
+														<p class="text-guide">업로드 시 조사연도·지역·제보자·발화주제가 자동 채워집니다.</p>
 												</td>
 											</tr>
 											<tr>
@@ -880,10 +892,10 @@ window._uploadMeta = null;
 
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);});}
 
-function uploadTrsFiles(input){
+function uploadTrsFiles(input){ uploadFileList(input.files); }
+function uploadFileList(files){
 	var body = document.getElementById('trsListBody');
 	var nameSpan = document.getElementById('trsFilesName');
-	var files = input.files;
 	if(!files || files.length === 0){
 		nameSpan.textContent = '선택된 파일 없음'; nameSpan.classList.remove('has-file');
 		body.innerHTML = '<tr class="nodata-row"><td colspan="5" class="text-center" style="color:#94a3b8">등록된 전사자료가 없습니다.</td></tr>';
@@ -937,6 +949,16 @@ function autofillFromMeta(meta, eafName){
 	}
 }
 
+// 드래그&드롭 업로드 바인딩
+(function(){
+	var dz=document.getElementById('trsDrop'); if(!dz) return;
+	['dragenter','dragover'].forEach(function(ev){ dz.addEventListener(ev,function(e){ e.preventDefault(); e.stopPropagation(); dz.classList.add('is-dragover'); }); });
+	['dragleave','dragend'].forEach(function(ev){ dz.addEventListener(ev,function(e){ e.preventDefault(); e.stopPropagation(); dz.classList.remove('is-dragover'); }); });
+	dz.addEventListener('drop',function(e){ e.preventDefault(); e.stopPropagation(); dz.classList.remove('is-dragover'); var f=e.dataTransfer&&e.dataTransfer.files; if(f&&f.length) uploadFileList(f); });
+	// 문서 전체에서 드롭 시 브라우저가 파일을 여는 기본동작 방지
+	window.addEventListener('dragover',function(e){ e.preventDefault(); });
+	window.addEventListener('drop',function(e){ if(!dz.contains(e.target)) e.preventDefault(); });
+})();
 // 저장 (정적 프로토타입: 필수값 검증 후 안내)
 function oralSave(){
 	var tf = document.getElementById('trsFiles');
