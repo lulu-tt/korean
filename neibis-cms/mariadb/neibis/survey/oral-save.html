@@ -699,8 +699,8 @@
 												</td>
 											</tr>
 											<tr>
-												<th scope="row"><label for="oriTrsfilenm">원본 Trs 파일명<i class="req">필수입력</i></label></th>
-												<td><input type="text" id="oriTrsfilenm" class="form-control-sm" style="width:320px" placeholder="원본 Trs 파일명을 입력해주세요." required /></td>
+												<th scope="row"><label for="oriTrsfilenm">전사 파일명</label></th>
+												<td><input type="text" id="oriTrsfilenm" class="form-control-sm" style="width:420px;background:#f1f5f9;color:#475569" placeholder="파일 업로드 시 자동 입력됩니다." readonly /></td>
 											</tr>
 											<tr>
 												<th scope="row"><label for="headword">발화 주제<i class="req">필수입력</i></label></th>
@@ -1063,7 +1063,7 @@ function oralSave(){
 	var tf = document.getElementById('trsFiles');
 	if(!tf.files || tf.files.length === 0){ msgWarn('전사자료를 등록해 주세요.'); return tf.focus(); }
 	var reqs = [
-		['oriTrsfilenm','원본 Trs 파일명'], ['headword','발화 주제'], ['researchYear','조사 연도'],
+		['headword','발화 주제'], ['researchYear','조사 연도'],
 		['regionNm','조사지역'], ['researchPlace','조사 장소'], ['researcher','조사자'],
 		['transcriber','전사자'], ['mainsource1','주제보자']
 	];
