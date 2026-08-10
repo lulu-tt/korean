@@ -1682,7 +1682,7 @@ const getMngrFail = function (xhr, status, error) {
     var spk=sg.speaker||'', color=(spk==='조사자')?'#0ea5e9':'#7c3aed';
     var t1=(sg.startMs/1000).toFixed(2), t2=(sg.endMs/1000).toFixed(2);
     var multi = sg.singleTurn ? '' : '<span title="한 행에 여러 발화 턴이 있는 복합 라인" style="font-size:10px;font-weight:700;color:#b45309;background:#fef3c7;border:1px solid #fcd34d;border-radius:5px;padding:0 5px;margin-left:6px">복합 라인</span>';
-    var stdHtml = sg.std ? ('<div style="margin-top:2px;font-size:13px;color:#64748b"><span style="font-size:11px;color:#94a3b8">표준어대역</span> '+esc(sg.std)+'</div>') : '';
+    var stdHtml = (sg.std && sg.std!==sg.form) ? ('<div style="margin-top:6px;padding:6px 10px 6px 11px;background:#f1f5f9;border-left:3px solid #93c5fd;border-radius:0 6px 6px 0"><span style="display:inline-block;font-size:10px;font-weight:800;color:#1d4ed8;background:#dbeafe;border-radius:4px;padding:1px 7px;margin-right:8px;vertical-align:1px">표준어</span><span style="font-size:13.5px;color:#1f2937;line-height:1.7">'+esc(sg.std)+'</span></div>') : '';
     return '<div class="trs-line"><div class="trs-header" style="display:none"><dl>'+
       '<dt>순번</dt><dd>'+sg.seq+'</dd><dt>화자</dt><dd>'+esc(spk)+'</dd>'+
       '<dt>주제</dt><dd>'+esc(window._oralTopic||'-')+'</dd><dt>항목번호</dt><dd>'+esc(sg.item||'-')+'</dd></dl></div>'+
