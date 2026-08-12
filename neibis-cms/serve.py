@@ -177,15 +177,25 @@ def parse_eaf(eaf_path: Path) -> dict:
     tier_counts: dict[str, int] = {}
     meta_raw = ""
     item_anns: list[dict] = []
+    voice_anns: list[dict] = []   # 음성상태 (시간정렬)
+    remark_anns: list[dict] = []  # 비고 (시간정렬)
+    annotators: list[str] = []   # 전사자(ANNOTATOR) 수집
     for tier in root.findall("TIER"):
         tid = tier.get("TIER_ID") or ""
         anns = tier_annotations(tier)
         tiers_by_id[tid] = anns
         tier_counts[tid] = len(anns)
+        ann_name = (tier.get("ANNOTATOR") or "").strip()
+        if ann_name and ann_name not in annotators:
+            annotators.append(ann_name)
         if tid == "메타데이터" and anns:
             meta_raw = anns[0]["text"]
         if tid == "항목번호":
             item_anns = anns
+        if tid == "음성상태":
+            voice_anns = [a for a in anns if a["text"]]
+        if tid == "비고":
+            remark_anns = [a for a in anns if a["text"]]
 
     # 2) 메타데이터 파싱 (key:value / 구분)
     meta: dict[str, str] = {}
@@ -237,6 +247,14 @@ def parse_eaf(eaf_path: Path) -> dict:
 
     duration_ms = max((tsmap.values() or [0]))
 
+    # 전사자(ANNOTATOR) / 조사자 — 있을 때만 채움
+    #  · 전사자: 메타데이터 '전사자' 키 우선, 없으면 ANNOTATOR 속성(단일이면 그 값)
+    #  · 조사자: 메타데이터 '조사자' 키가 있을 때만 (EAF에 이름 없으면 빈 값)
+    transcriber = (meta.get("전사자") or meta.get("전사자명") or "").strip()
+    if not transcriber and len(annotators) == 1:
+        transcriber = annotators[0]
+    investigator = (meta.get("조사자") or meta.get("조사자명") or "").strip()
+
     return {
         "oralId": oral_id,
         "region": region,
@@ -247,10 +265,16 @@ def parse_eaf(eaf_path: Path) -> dict:
         "informant": meta.get("제보자이름", ""),
         "sex": meta.get("성별", ""),
         "birth": meta.get("출생연도", ""),
+        "investigator": investigator,
+        "transcriber": transcriber,
         "durationMs": duration_ms,
         "segmentCount": len(segments),
         "segments": segments,
         "tiers": tier_counts,
+        # 시간정렬 계층(항목번호/음성상태/비고) — 세그먼트 매핑용 스팬
+        "itemSpans": [{"start": a["start"], "end": a["end"], "text": a["text"].strip()} for a in item_anns],
+        "voiceSpans": [{"start": a["start"], "end": a["end"], "text": a["text"].strip()} for a in voice_anns],
+        "remarkSpans": [{"start": a["start"], "end": a["end"], "text": a["text"].strip()} for a in remark_anns],
     }
 
 
@@ -455,6 +479,65 @@ def api_oral_list(qs: dict) -> dict:
     }
 
 
+def _find_source_eaf(trs_file_nm: str) -> Path | None:
+    """trs_file_nm(예: 'CB2370MUT10200.eaf') → 디스크의 원천 EAF ('_업로드용' 포함/미포함)."""
+    base = re.sub(r"\.eaf$", "", str(trs_file_nm or ""), flags=re.I).strip()
+    if not base:
+        return None
+    for d in (ORAL_DATA_ROOT, ORAL_UPLOAD_DIR):
+        if not d or not d.exists():
+            continue
+        for name in (base, base + "_업로드용"):
+            p = d / (name + ".eaf")
+            if p.is_file():
+                return p
+    for p in _scan_oral_files():
+        if re.sub(r"_업로드용$", "", p.stem) == base:
+            return p
+    return None
+
+
+def _headword_topic(con, headword_no) -> dict:
+    """표제어번호 → {topic(주제), subTopic(소주제), headword(표제어/질문)}. 없으면 빈 dict."""
+    hn = str(headword_no or "").strip()
+    if not hn.isdigit():
+        return {}
+    row = con.execute(
+        """SELECT topic, sub_topic FROM kd_topic
+           WHERE CAST(? AS INTEGER) BETWEEN CAST(headword_start_no AS INTEGER) AND CAST(headword_end_no AS INTEGER)
+           ORDER BY (CASE WHEN IFNULL(sub_topic,'')<>'' THEN 0 ELSE 1 END),
+                    (CAST(headword_end_no AS INTEGER) - CAST(headword_start_no AS INTEGER))
+           LIMIT 1""",
+        (hn,)).fetchone()
+    hw = con.execute("SELECT meaning FROM kd_headword_no WHERE headword_no=?", (hn,)).fetchone()
+    out = {}
+    if row and (row["topic"] or row["sub_topic"]):
+        out["topic"] = row["topic"] or ""
+        out["subTopic"] = row["sub_topic"] or ""
+    if hw and hw["meaning"]:
+        out["headword"] = hw["meaning"]
+    return out
+
+
+def _overlay_at(spans: list, start_ms: int) -> str:
+    """항목번호처럼 '시작 이하의 마지막 값' 매칭 (구간 라벨)."""
+    cur = ""
+    for s in spans:
+        if s["start"] <= start_ms:
+            cur = s["text"]
+    return cur
+
+
+def _overlays_over(spans: list, start_ms: int, end_ms: int) -> list:
+    """세그먼트 [start,end] 와 시간이 겹치는 스팬들의 텍스트."""
+    out = []
+    for s in spans:
+        if s["start"] < end_ms and s["end"] > start_ms:
+            if s["text"] and s["text"] not in out:
+                out.append(s["text"])
+    return out
+
+
 def api_oral_detail(qs: dict) -> dict:
     """구술발화 상세 — wb_trs_line_talk 라인을 세그먼트로 반환."""
     trs_id = (qs.get("id") or qs.get("trsId") or qs.get("oralId") or [""])[0].strip()
@@ -483,7 +566,7 @@ def api_oral_detail(qs: dict) -> dict:
             (f["research_region_id"],),
         ).fetchone()
         lines = con.execute(
-            """SELECT trs_line_id, trs_line_no, trs_line, start_time, end_time
+            """SELECT trs_line_id, trs_line_no, headword_no, trs_line, start_time, end_time
                FROM wb_trs_line_talk
                WHERE trs_id = ? AND trs_line_se = 'text'
                ORDER BY CAST(trs_line_no AS INTEGER)""",
@@ -510,8 +593,37 @@ def api_oral_detail(qs: dict) -> dict:
             "singleTurn": p["singleTurn"],
             "raw": ln["trs_line"] or "",
             "item": ln["trs_line_no"] or "",
+            "headwordNo": str(ln["headword_no"]).strip() if ln["headword_no"] not in (None, "") else "",
         })
     dur_ms = max((s["endMs"] for s in segments), default=0)
+
+    # ── 부가정보 보강: 표제어번호(항목번호)·표제어·주제·소주제 + 음성상태·비고 ──
+    #  · 표제어번호: DB headword_no(구형 .trs) 우선, 없으면 원천 EAF의 '항목번호' 계층(시간정렬)
+    #  · 음성상태/비고: 원천 EAF의 해당 계층(시간정렬)을 세그먼트 시간과 겹쳐 매핑
+    eaf_path = _find_source_eaf(f["trs_file_nm"] or "")
+    item_spans, voice_spans, remark_spans = [], [], []
+    if eaf_path:
+        try:
+            rec = _load_oral(eaf_path)
+            item_spans = rec.get("itemSpans", [])
+            voice_spans = rec.get("voiceSpans", [])
+            remark_spans = rec.get("remarkSpans", [])
+        except Exception:
+            pass
+    with db_connect() as con2:
+        for s in segments:
+            hw = s["headwordNo"] or _overlay_at(item_spans, s["startMs"])
+            hw = re.sub(r"[^0-9]", "", str(hw))   # '10201 ' 같은 공백 제거
+            s["headwordNo"] = hw
+            if hw:
+                info = _headword_topic(con2, hw)
+                s["headword"] = info.get("headword", "")
+                s["subject"] = info.get("topic", "")
+                s["subTopic"] = info.get("subTopic", "")
+            else:
+                s["headword"] = s["subject"] = s["subTopic"] = ""
+            s["voiceStatus"] = "; ".join(_overlays_over(voice_spans, s["startMs"], s["endMs"]))
+            s["remark"] = "; ".join(_overlays_over(remark_spans, s["startMs"], s["endMs"]))
 
     sex_map = {"0": "여", "1": "남"}  # wb_source: 0=여,1=남
     sex_raw = (src["sex"] if src else "") or ""
@@ -921,6 +1033,8 @@ def api_oral_upload(raw: bytes, ctype: str) -> dict:
                     "year": rec["year"], "contentCode": rec["contentCode"],
                     "topic": rec["topic"], "informant": rec["informant"],
                     "sex": rec["sex"], "birth": rec["birth"],
+                    "investigator": rec.get("investigator", ""),
+                    "transcriber": rec.get("transcriber", ""),
                 },
             })
         elif ext == "wav":
@@ -960,6 +1074,7 @@ def api_oral_create(body: dict) -> dict:
                 continue
             out.append({
                 "se": str(base_se + i),
+                "sourceId": str(s.get("sourceId") or "").strip(),
                 "name": nm,
                 "sex": sex_code.get((s.get("sex") or "").strip(), (s.get("sex") or "").strip()),
                 "age": (s.get("age") or "").strip(),
@@ -999,9 +1114,15 @@ def api_oral_create(body: dict) -> dict:
                 _date_to_epoch_ms(region.get("endDate")),
             ),
         )
-        # 제보자 (주=se 0.., 부=se 1..) — 목록 표시는 se 문자열로 구분
+        # 제보자 (주=se 0.., 부=se 1..). sourceId 있으면(제보자 관리에서 등록된 것) 링크, 없으면 신규 INSERT.
         sid = _next_id(con, "wb_source", "source_id")
         for s in src_rows(body.get("mainSources"), 0) + src_rows(body.get("subSources"), 1):
+            if s["sourceId"]:
+                con.execute(
+                    "UPDATE wb_source SET research_region_id=?, se=? WHERE source_id=?",
+                    (str(rrid), s["se"], s["sourceId"]),
+                )
+                continue
             con.execute(
                 """INSERT INTO wb_source
                    (source_id, research_region_id, se, name, sex, age, birth,
@@ -1123,6 +1244,829 @@ def api_oral_save_lines(body: dict) -> dict:
     if skipped:
         msg += f" (복합 라인 {skipped}개 제외)"
     return {"ok": True, "trsId": trs_id, "updated": updated, "skipped": skipped, "message": msg}
+
+
+def api_source_list(qs: dict) -> dict:
+    """제보자 관리 목록 — wb_source."""
+    def q1(k, d=""):
+        return (qs.get(k) or [d])[0].strip()
+    search = q1("searchText") or q1("q")
+    try:
+        page = max(1, int(q1("page", "1")))
+    except ValueError:
+        page = 1
+    try:
+        page_size = int(q1("pageSize", "10"))
+    except ValueError:
+        page_size = 10
+    if page_size not in (10, 50, 100, 200, 300):
+        page_size = 10
+    region = q1("region")      # 조사 지역 접두 매칭 (예: "충청북도" 또는 "충청북도 청주시")
+    age_group = q1("ageGroup")  # 연령대(10년 단위) 숫자 (예: "2" → 20대)
+    where, params = [], []
+    if search:
+        where.append("(name LIKE ? OR IFNULL(region_nm,'') LIKE ?)")
+        params += ["%" + search + "%", "%" + search + "%"]
+    if region and region != "*":
+        where.append("IFNULL(region_nm,'') LIKE ?")
+        params.append(region + "%")
+    if age_group and age_group not in ("*", "0"):
+        try:
+            d = int(age_group)
+            where.append("CAST(NULLIF(TRIM(age),'') AS INTEGER) BETWEEN ? AND ?")
+            params += [d * 10, d * 10 + 9]
+        except ValueError:
+            pass
+    wh = ("WHERE " + " AND ".join(where)) if where else ""
+    sex_lbl = {"0": "여", "1": "남"}
+    with db_connect() as con:
+        total = con.execute(f"SELECT COUNT(*) FROM wb_source {wh}", params).fetchone()[0]
+        offset = (page - 1) * page_size
+        rows = con.execute(
+            f"""SELECT source_id, IFNULL(region_nm,'') region_nm, name, IFNULL(sex,'') sex,
+                       IFNULL(birth,'') birth, IFNULL(age,'') age
+                FROM wb_source {wh}
+                ORDER BY CAST(source_id AS INTEGER) DESC
+                LIMIT ? OFFSET ?""",
+            params + [page_size, offset],
+        ).fetchall()
+    items = [
+        {
+            "sourceId": str(r["source_id"]),
+            "regionNm": r["region_nm"],
+            "name": r["name"] or "",
+            "sex": sex_lbl.get(r["sex"], r["sex"]),
+            "birth": r["birth"],
+            "age": r["age"],
+        }
+        for r in rows
+    ]
+    total_pages = max(1, (total + page_size - 1) // page_size)
+    return {"ok": True, "total": total, "page": page, "pageSize": page_size,
+            "totalPages": total_pages, "list": items}
+
+
+def api_source_regions(qs: dict) -> dict:
+    """제보자 검색용 조사 지역 캐스케이드(시/도 → 시군구).
+    wb_source.region_nm 에 실제 존재하는 값을 토큰 분해해 계층 구성."""
+    with db_connect() as con:
+        rows = con.execute(
+            "SELECT DISTINCT region_nm FROM wb_source WHERE IFNULL(region_nm,'') != ''"
+        ).fetchall()
+    sido_set = {}          # sido -> True (순서 보존용 dict)
+    sigungu = {}           # sido -> { "sido sigungu": sigungu_label }
+    for r in rows:
+        toks = str(r["region_nm"]).split()
+        if not toks:
+            continue
+        sido = toks[0]
+        sido_set.setdefault(sido, True)
+        if len(toks) >= 2:
+            val = sido + " " + toks[1]
+            sigungu.setdefault(sido, {})[val] = toks[1]
+    sido_list = sorted(sido_set.keys())
+    sigungu_out = {
+        sido: [{"value": v, "label": lbl} for v, lbl in sorted(pairs.items())]
+        for sido, pairs in sigungu.items()
+    }
+    return {"ok": True, "sido": sido_list, "sigungu": sigungu_out}
+
+
+def api_source_detail(qs: dict) -> dict:
+    sid = (qs.get("id") or qs.get("sourceId") or [""])[0].strip()
+    if not sid:
+        return {"ok": False, "message": "source_id 가 필요합니다."}
+    with db_connect() as con:
+        row = con.execute("SELECT * FROM wb_source WHERE source_id=? LIMIT 1", (sid,)).fetchone()
+    if not row:
+        return {"ok": False, "message": "제보자를 찾을 수 없습니다."}
+    d = dict(row)
+    # 연동된 전사(.eaf) 파일 목록 — 제보자가 속한 조사지역(research_region)의 전사파일.
+    # 로컬 DB는 같은 지역(동일 region_nm/법정동코드)에 대해 조사지역(research_region) 레코드가
+    # 여러 개로 중복되어 있고, 제보자가 연결된 research_region_id 와 전사파일이 등록된
+    # research_region_id 가 서로 다른 중복 레코드인 경우가 많다. 그래서 단일 id 로만 조인하면
+    # 실제로는 그 지역에 전사파일이 있어도 0건이 된다.
+    # → 제보자의 지역 정체성(region_nm / 법정동코드)을 먼저 확정한 뒤, 그 지역명·코드를
+    #   공유하는 '모든' 중복 조사지역의 전사파일을 합쳐서 보여준다.
+    trs_files = []
+    with db_connect() as con:
+        rrid_direct = str(d.get("research_region_id") or "").strip()
+        region_nm = (d.get("region_nm") or "").strip()
+        legal_code = (d.get("legal_region_code") or "").strip()
+        # 제보자가 조사지역에 직접 연결돼 있으면 그 지역의 지역명/코드를 채운다.
+        if rrid_direct:
+            rr = con.execute(
+                "SELECT region_nm, legal_region_code FROM wb_research_region WHERE research_region_id=?",
+                (rrid_direct,),
+            ).fetchone()
+            if rr:
+                region_nm = region_nm or (rr["region_nm"] or "")
+                legal_code = legal_code or (rr["legal_region_code"] or "")
+        # 지역명이 없으면 거주지 문자열로 최후 매칭 시도.
+        if not region_nm:
+            region_nm = (d.get("residence") or "").strip()
+        # 지역명/코드를 공유하는 모든 조사지역 + 제보자가 직접 연결된 조사지역을 대상으로 합집합.
+        rrids = set()
+        if rrid_direct:
+            rrids.add(rrid_direct)
+        if region_nm or legal_code:
+            for r in con.execute(
+                """SELECT research_region_id FROM wb_research_region
+                   WHERE (? != '' AND region_nm = ?) OR (? != '' AND legal_region_code = ?)""",
+                (region_nm, region_nm, legal_code, legal_code),
+            ).fetchall():
+                rrids.add(str(r["research_region_id"]))
+        if rrids:
+            ph = ",".join("?" * len(rrids))
+            for r in con.execute(
+                f"""SELECT DISTINCT trs_file_nm FROM wb_trs_file_talk
+                    WHERE research_region_id IN ({ph}) AND IFNULL(trs_file_nm,'') != ''
+                    ORDER BY trs_file_nm""",
+                tuple(rrids),
+            ).fetchall():
+                trs_files.append(r["trs_file_nm"])
+    return {"ok": True, "data": {
+        "sourceId": d.get("source_id") or "", "name": d.get("name") or "",
+        "sex": d.get("sex") or "1", "age": d.get("age") or "", "birth": d.get("birth") or "",
+        "birthPlace": d.get("birth_place") or "", "residence": d.get("residence") or "",
+        "parentResidence": d.get("parent_residence") or "", "job": d.get("job") or "",
+        "education": d.get("education") or "", "introductionDetail": d.get("introduction_detail") or "",
+        "consentForm": d.get("consent_form") or "0", "voiceRemark": d.get("voice_remark") or "",
+        "remark": d.get("remark") or "", "sourcePlace": d.get("source_place") or "",
+        "regionNm": d.get("region_nm") or "",
+        "legalRegionCode": d.get("legal_region_code") or "",
+        "researchRegionId": str(d.get("research_region_id") or ""),
+        "trsFiles": trs_files,
+    }}
+
+
+_SOURCE_FIELDS = [
+    ("name", "name"), ("sex", "sex"), ("age", "age"), ("birth", "birth"),
+    ("birth_place", "birthPlace"), ("residence", "residence"),
+    ("parent_residence", "parentResidence"), ("job", "job"), ("education", "education"),
+    ("introduction_detail", "introductionDetail"), ("consent_form", "consentForm"),
+    ("voice_remark", "voiceRemark"), ("remark", "remark"), ("source_place", "sourcePlace"),
+    ("region_nm", "regionNm"),
+    # 거주지 지역찾기로 선택한 법정동 코드 (대표 지역코드로 저장)
+    ("legal_region_code", "residenceCode"),
+]
+
+
+def api_source_save(body: dict) -> dict:
+    """제보자 등록(C)/수정(M) — wb_source."""
+    mode = (body.get("mode") or "C").strip().upper()
+    name = (body.get("name") or "").strip()
+    if not name:
+        return {"ok": False, "message": "제보자 이름을 입력하세요."}
+    vals = {col: str(body.get(key) or "").strip() for col, key in _SOURCE_FIELDS}
+    with db_connect() as con:
+        if mode == "M":
+            sid = str(body.get("sourceId") or body.get("id") or "").strip()
+            if not sid:
+                return {"ok": False, "message": "수정 대상 source_id 가 없습니다."}
+            sets = ", ".join(c + "=?" for c, _ in _SOURCE_FIELDS)
+            cur = con.execute(
+                f"UPDATE wb_source SET {sets} WHERE source_id=?",
+                [vals[c] for c, _ in _SOURCE_FIELDS] + [sid],
+            )
+            con.commit()
+            if cur.rowcount == 0:
+                return {"ok": False, "message": "수정할 제보자를 찾지 못했습니다."}
+            return {"ok": True, "message": "저장되었습니다.", "mode": "M", "sourceId": sid}
+        sid = _next_id(con, "wb_source", "source_id")
+        cols = ["source_id", "research_region_id", "se"] + [c for c, _ in _SOURCE_FIELDS]
+        ph = ",".join(["?"] * len(cols))
+        con.execute(
+            f"INSERT INTO wb_source ({','.join(cols)}) VALUES ({ph})",
+            [str(sid), str(body.get("researchRegionId") or "").strip(), "0"]
+            + [vals[c] for c, _ in _SOURCE_FIELDS],
+        )
+        con.commit()
+        return {"ok": True, "message": "제보자가 등록되었습니다.", "mode": "C", "sourceId": str(sid)}
+
+
+def api_source_delete(body: dict) -> dict:
+    """제보자 삭제 — wb_source."""
+    sid = str(body.get("sourceId") or body.get("id") or "").strip()
+    if not sid:
+        return {"ok": False, "message": "삭제 대상 source_id 가 없습니다."}
+    with db_connect() as con:
+        cur = con.execute("DELETE FROM wb_source WHERE source_id=?", (sid,))
+        con.commit()
+        if cur.rowcount == 0:
+            return {"ok": False, "message": "삭제할 제보자를 찾지 못했습니다."}
+    return {"ok": True, "message": "삭제되었습니다.", "sourceId": sid}
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# 설문조사 관리 — tb_survey_new(+ tb_survey_question_new / tb_survey_example_new /
+# tb_survey_answer_new). 기존 DB 구조 유지. 날짜는 epoch millisecond(문자열) 저장.
+# ─────────────────────────────────────────────────────────────────────────
+def _epoch_ms_to_date(ms) -> str:
+    """epoch millisecond → 'YYYY-MM-DD' (로컬 시간)."""
+    s = str(ms or "").strip()
+    if not s:
+        return ""
+    try:
+        return datetime.fromtimestamp(int(s) / 1000).strftime("%Y-%m-%d")
+    except (ValueError, OverflowError, OSError):
+        return ""
+
+
+def _date_to_epoch_ms(s, end=False) -> str:
+    """'YYYY-MM-DD' → epoch millisecond 문자열. end=True 면 그날 23:59:59."""
+    s = (s or "").strip()
+    if not s:
+        return ""
+    try:
+        dt = datetime.strptime(s[:10], "%Y-%m-%d")
+        if end:
+            dt = dt.replace(hour=23, minute=59, second=59)
+        return str(int(dt.timestamp() * 1000))
+    except ValueError:
+        return ""
+
+
+def _survey_status(start_ms, end_ms) -> str:
+    """설문 상태 — 예정 / 진행중 / 종료 (현재 시각 기준)."""
+    now = datetime.now().timestamp() * 1000
+    try:
+        s = int(str(start_ms).strip()) if str(start_ms).strip() else None
+        e = int(str(end_ms).strip()) if str(end_ms).strip() else None
+    except ValueError:
+        return ""
+    if s is not None and now < s:
+        return "예정"
+    if e is not None and now > e:
+        return "종료"
+    return "진행중"
+
+
+def _survey_response_count(con, survey_no) -> int:
+    """설문 응답자 수 — 문항에 달린 응답의 distinct answer_serial."""
+    row = con.execute(
+        """SELECT COUNT(DISTINCT a.answer_serial)
+           FROM tb_survey_answer_new a
+           JOIN tb_survey_question_new q ON a.question_no = q.question_no
+           WHERE q.survey_no = ?""",
+        (str(survey_no),),
+    ).fetchone()
+    return row[0] or 0
+
+
+def api_survey_list(qs: dict) -> dict:
+    """설문조사 목록 — tb_survey_new."""
+    def q1(k, d=""):
+        return (qs.get(k) or [d])[0].strip()
+    search = q1("searchText") or q1("q")
+    try:
+        page = max(1, int(q1("page", "1")))
+    except ValueError:
+        page = 1
+    try:
+        page_size = int(q1("pageSize", "10"))
+    except ValueError:
+        page_size = 10
+    if page_size not in (10, 20, 50, 100):
+        page_size = 10
+    status_filter = q1("status")  # 예정 / 진행중 / 종료 (빈값=전체)
+    where, params = [], []
+    if search:
+        where.append("IFNULL(survey_title,'') LIKE ?")
+        params.append("%" + search + "%")
+    wh = ("WHERE " + " AND ".join(where)) if where else ""
+    # 상태는 기간으로 계산되므로 제목 필터로 전량 조회 후 상태 필터 + 파이썬 페이징.
+    all_items = []
+    with db_connect() as con:
+        rows = con.execute(
+            f"""SELECT survey_no, survey_title, start_date, end_date, question_cnt
+                FROM tb_survey_new {wh}
+                ORDER BY CAST(survey_no AS INTEGER) DESC""",
+            params,
+        ).fetchall()
+        for r in rows:
+            st = _survey_status(r["start_date"], r["end_date"])
+            if status_filter and st != status_filter:
+                continue
+            all_items.append({
+                "surveyNo": str(r["survey_no"]),
+                "surveyTitle": r["survey_title"] or "",
+                "startDate": _epoch_ms_to_date(r["start_date"]),
+                "endDate": _epoch_ms_to_date(r["end_date"]),
+                "questionCnt": r["question_cnt"] or "0",
+                "responseCount": _survey_response_count(con, r["survey_no"]),
+                "status": st,
+            })
+    total = len(all_items)
+    total_pages = max(1, (total + page_size - 1) // page_size)
+    if page > total_pages:
+        page = total_pages
+    offset = (page - 1) * page_size
+    items = all_items[offset:offset + page_size]
+    return {"ok": True, "total": total, "page": page, "pageSize": page_size,
+            "totalPages": total_pages, "list": items}
+
+
+def api_survey_detail(qs: dict) -> dict:
+    """설문조사 상세 — tb_survey_new + 문항/보기(읽기)."""
+    sid = (qs.get("id") or qs.get("surveyNo") or [""])[0].strip()
+    if not sid:
+        return {"ok": False, "message": "survey_no 가 필요합니다."}
+    with db_connect() as con:
+        row = con.execute("SELECT * FROM tb_survey_new WHERE survey_no=? LIMIT 1", (sid,)).fetchone()
+        if not row:
+            return {"ok": False, "message": "설문을 찾을 수 없습니다."}
+        d = dict(row)
+        questions = []
+        for q in con.execute(
+            """SELECT question_no, question_title, question_order
+               FROM tb_survey_question_new WHERE survey_no=?
+               ORDER BY CAST(question_order AS INTEGER), CAST(question_no AS INTEGER)""",
+            (sid,),
+        ).fetchall():
+            examples = []
+            for e in con.execute(
+                """SELECT example_no, example_title FROM tb_survey_example_new
+                   WHERE question_no=? ORDER BY CAST(example_no AS INTEGER)""",
+                (q["question_no"],),
+            ).fetchall():
+                cnt = con.execute(
+                    "SELECT COUNT(*) FROM tb_survey_answer_new WHERE example_no=? AND question_no=?",
+                    (e["example_no"], q["question_no"]),
+                ).fetchone()[0]
+                examples.append({
+                    "exampleNo": str(e["example_no"]),
+                    "exampleTitle": e["example_title"] or "",
+                    "count": cnt,
+                })
+            questions.append({
+                "questionNo": str(q["question_no"]),
+                "questionTitle": q["question_title"] or "",
+                "examples": examples,
+            })
+        resp = _survey_response_count(con, sid)
+    return {"ok": True, "data": {
+        "surveyNo": str(d.get("survey_no") or ""),
+        "surveyTitle": d.get("survey_title") or "",
+        "surveyCntnts": d.get("survey_cntnts") or "",
+        "startDate": _epoch_ms_to_date(d.get("start_date")),
+        "endDate": _epoch_ms_to_date(d.get("end_date")),
+        "prsnlInputYn": d.get("prsnl_input_yn") or "N",
+        "prsnlInfoCntnts": d.get("prsnl_info_cntnts") or "",
+        "questionCnt": d.get("question_cnt") or "0",
+        "status": _survey_status(d.get("start_date"), d.get("end_date")),
+        "responseCount": resp,
+        "questions": questions,
+    }}
+
+
+def _epoch_ms_to_datetime(ms) -> str:
+    """epoch millisecond → 'YYYY.MM.DD HH:MM:SS'."""
+    s = str(ms or "").strip()
+    if not s:
+        return ""
+    try:
+        return datetime.fromtimestamp(int(s) / 1000).strftime("%Y.%m.%d %H:%M:%S")
+    except (ValueError, OverflowError, OSError):
+        return ""
+
+
+def api_survey_respondents(qs: dict) -> dict:
+    """응답자별 보기 — 설문 응답자(answer_serial) 목록 + 최종 응답 일시."""
+    sid = (qs.get("id") or qs.get("surveyNo") or [""])[0].strip()
+    if not sid:
+        return {"ok": False, "message": "survey_no 가 필요합니다."}
+    items = []
+    with db_connect() as con:
+        srv = con.execute(
+            "SELECT survey_title, survey_cntnts, start_date, end_date, prsnl_input_yn FROM tb_survey_new WHERE survey_no=? LIMIT 1",
+            (sid,)).fetchone()
+        if not srv:
+            return {"ok": False, "message": "설문을 찾을 수 없습니다."}
+        rows = con.execute(
+            """SELECT a.answer_serial, MAX(CAST(a.answer_dt AS INTEGER)) mdt
+               FROM tb_survey_answer_new a
+               JOIN tb_survey_question_new q ON a.question_no = q.question_no
+               WHERE q.survey_no = ?
+               GROUP BY a.answer_serial
+               ORDER BY mdt DESC""",
+            (sid,)).fetchall()
+        for i, r in enumerate(rows, start=1):
+            items.append({
+                "no": i,
+                "answerSerial": r["answer_serial"] or "",
+                "answerDate": _epoch_ms_to_datetime(r["mdt"]),
+            })
+    return {"ok": True, "total": len(items), "list": items, "surveyNo": sid,
+            "surveyTitle": srv["survey_title"] or "",
+            "surveyCntnts": srv["survey_cntnts"] or "",
+            "startDate": _epoch_ms_to_date(srv["start_date"]),
+            "endDate": _epoch_ms_to_date(srv["end_date"]),
+            "status": _survey_status(srv["start_date"], srv["end_date"])}
+
+
+def api_survey_answer_detail(qs: dict) -> dict:
+    """답변 보기 팝업 — 특정 응답자(answer_serial)의 문항별 선택 답변."""
+    def q1(k):
+        return (qs.get(k) or [""])[0].strip()
+    sid = q1("id") or q1("surveyNo")
+    serial = q1("serial") or q1("answerSerial")
+    if not sid or not serial:
+        return {"ok": False, "message": "survey_no 와 answer_serial 이 필요합니다."}
+    answers = []
+    with db_connect() as con:
+        questions = con.execute(
+            """SELECT question_no, question_title, question_order
+               FROM tb_survey_question_new WHERE survey_no=?
+               ORDER BY CAST(question_order AS INTEGER), CAST(question_no AS INTEGER)""",
+            (sid,)).fetchall()
+        picked = {}
+        for a in con.execute(
+            """SELECT a.question_no, e.example_title
+               FROM tb_survey_answer_new a
+               LEFT JOIN tb_survey_example_new e ON a.example_no = e.example_no
+               WHERE a.answer_serial = ?""",
+            (serial,)).fetchall():
+            picked[str(a["question_no"])] = a["example_title"] or ""
+        for i, q in enumerate(questions, start=1):
+            answers.append({
+                "no": i,
+                "questionTitle": q["question_title"] or "",
+                "answerLabel": picked.get(str(q["question_no"]), ""),
+            })
+    return {"ok": True, "answerSerial": serial, "answers": answers}
+
+
+def build_survey_excel(sid: str):
+    """설문 응답 엑셀(.xlsx) 생성 — (bytes, 파일명). 두 시트: 질문별 응답 / 응답자별 응답."""
+    import io
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment
+
+    sid = str(sid).strip()
+    with db_connect() as con:
+        srv = con.execute(
+            "SELECT survey_title FROM tb_survey_new WHERE survey_no=? LIMIT 1", (sid,)).fetchone()
+        if not srv:
+            return None, None
+        title = srv["survey_title"] or ("survey_" + sid)
+        questions = con.execute(
+            """SELECT question_no, question_title FROM tb_survey_question_new
+               WHERE survey_no=? ORDER BY CAST(question_order AS INTEGER), CAST(question_no AS INTEGER)""",
+            (sid,)).fetchall()
+        qlist = [{"no": str(q["question_no"]), "title": q["question_title"] or ""} for q in questions]
+        # 시트1용 보기/응답수
+        ex_by_q = {}
+        for q in qlist:
+            exs = con.execute(
+                """SELECT example_no, example_title FROM tb_survey_example_new
+                   WHERE question_no=? ORDER BY CAST(example_no AS INTEGER)""", (q["no"],)).fetchall()
+            counts = {str(r["example_no"]): r["c"] for r in con.execute(
+                "SELECT example_no, COUNT(*) c FROM tb_survey_answer_new WHERE question_no=? GROUP BY example_no",
+                (q["no"],)).fetchall()}
+            ex_by_q[q["no"]] = [{"title": e["example_title"] or "",
+                                 "count": counts.get(str(e["example_no"]), 0)} for e in exs]
+        # 시트2용 응답자 + 답변
+        respondents = con.execute(
+            """SELECT a.answer_serial, MAX(CAST(a.answer_dt AS INTEGER)) mdt
+               FROM tb_survey_answer_new a JOIN tb_survey_question_new q ON a.question_no=q.question_no
+               WHERE q.survey_no=? GROUP BY a.answer_serial ORDER BY mdt DESC""", (sid,)).fetchall()
+        picked = {}  # serial -> {qno: label}
+        for a in con.execute(
+            """SELECT a.answer_serial, a.question_no, e.example_title
+               FROM tb_survey_answer_new a
+               JOIN tb_survey_question_new q ON a.question_no=q.question_no
+               LEFT JOIN tb_survey_example_new e ON a.example_no=e.example_no
+               WHERE q.survey_no=?""", (sid,)).fetchall():
+            picked.setdefault(a["answer_serial"], {})[str(a["question_no"])] = a["example_title"] or ""
+
+    wb = Workbook()
+    head_font = Font(bold=True, color="FFFFFF")
+    head_fill = PatternFill("solid", fgColor="2563EB")
+    center = Alignment(horizontal="center", vertical="center")
+
+    def style_header(ws, ncol):
+        for c in range(1, ncol + 1):
+            cell = ws.cell(row=1, column=c)
+            cell.font = head_font
+            cell.fill = head_fill
+            cell.alignment = center
+
+    # 시트1: 질문별 응답
+    ws1 = wb.active
+    ws1.title = "질문별 응답"
+    ws1.append(["문항번호", "문항", "보기", "응답수", "비율(%)"])
+    for i, q in enumerate(qlist, start=1):
+        exs = ex_by_q[q["no"]]
+        total = sum(e["count"] for e in exs) or 0
+        if not exs:
+            ws1.append([i, q["title"], "", 0, 0])
+        for e in exs:
+            pct = round(e["count"] / total * 100) if total else 0
+            ws1.append([i, q["title"], e["title"], e["count"], pct])
+    style_header(ws1, 5)
+    for col, w in zip("ABCDE", (10, 46, 22, 10, 10)):
+        ws1.column_dimensions[col].width = w
+
+    # 시트2: 응답자별 응답
+    ws2 = wb.create_sheet("응답자별 응답")
+    header = ["번호", "응답자 일련번호", "응답 일시"] + [f"Q{i}. {q['title']}" for i, q in enumerate(qlist, start=1)]
+    ws2.append(header)
+    for idx, r in enumerate(respondents, start=1):
+        serial = r["answer_serial"]
+        row = [idx, serial, _epoch_ms_to_datetime(r["mdt"])]
+        ans = picked.get(serial, {})
+        row += [ans.get(q["no"], "") for q in qlist]
+        ws2.append(row)
+    style_header(ws2, len(header))
+    ws2.column_dimensions["A"].width = 6
+    ws2.column_dimensions["B"].width = 40
+    ws2.column_dimensions["C"].width = 20
+    for c in range(4, len(header) + 1):
+        ws2.column_dimensions[ws2.cell(row=1, column=c).column_letter].width = 16
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    safe_title = re.sub(r'[\\/:*?"<>|]', "_", title).strip() or ("survey_" + sid)
+    return buf.getvalue(), safe_title + "_설문응답.xlsx"
+
+
+def _save_survey_examples(con, question_no, examples):
+    """문항의 보기 upsert — 기존 example_no 는 보존(응답 연결 유지), 제거분만 삭제."""
+    question_no = str(question_no)
+    existing = {str(r["example_no"]) for r in con.execute(
+        "SELECT example_no FROM tb_survey_example_new WHERE question_no=?", (question_no,)).fetchall()}
+    seen = set()
+    for e in examples:
+        eno = str(e.get("exampleNo") or "").strip()
+        etitle = (e.get("exampleTitle") or "").strip()
+        if eno and eno in existing:
+            con.execute("UPDATE tb_survey_example_new SET example_title=? WHERE example_no=?", (etitle, eno))
+            seen.add(eno)
+        else:
+            eno = str(_next_id(con, "tb_survey_example_new", "example_no"))
+            con.execute(
+                "INSERT INTO tb_survey_example_new (example_no, question_no, example_title) VALUES (?,?,?)",
+                (eno, question_no, etitle))
+    for eno in existing - seen:
+        con.execute("DELETE FROM tb_survey_example_new WHERE example_no=?", (eno,))
+
+
+def _save_survey_questions(con, survey_no, questions):
+    """설문 문항 upsert — 기존 question_no/example_no 는 보존(응답 연결 유지).
+    반환: 저장된 유효 문항 수."""
+    survey_no = str(survey_no)
+    existing_q = {str(r["question_no"]) for r in con.execute(
+        "SELECT question_no FROM tb_survey_question_new WHERE survey_no=?", (survey_no,)).fetchall()}
+    seen_q = set()
+    order = 0
+    for q in questions:
+        qtitle = (q.get("questionTitle") or "").strip()
+        examples = [e for e in (q.get("examples") or []) if (e.get("exampleTitle") or "").strip()]
+        if not qtitle:      # 제목 없는 문항은 저장하지 않음
+            continue
+        order += 1
+        qno = str(q.get("questionNo") or "").strip()
+        if qno and qno in existing_q:
+            con.execute(
+                "UPDATE tb_survey_question_new SET question_title=?, example_cnt=?, question_order=? WHERE question_no=?",
+                (qtitle, str(len(examples)), str(order), qno))
+            seen_q.add(qno)
+        else:
+            qno = str(_next_id(con, "tb_survey_question_new", "question_no"))
+            con.execute(
+                "INSERT INTO tb_survey_question_new (question_no, survey_no, question_title, example_cnt, question_order) VALUES (?,?,?,?,?)",
+                (qno, survey_no, qtitle, str(len(examples)), str(order)))
+        _save_survey_examples(con, qno, examples)
+    for qno in existing_q - seen_q:
+        con.execute("DELETE FROM tb_survey_example_new WHERE question_no=?", (qno,))
+        con.execute("DELETE FROM tb_survey_question_new WHERE question_no=?", (qno,))
+    return order
+
+
+def api_survey_save(body: dict) -> dict:
+    """설문조사 등록(C)/수정(M) — tb_survey_new + 문항(tb_survey_question_new)/보기(tb_survey_example_new)."""
+    mode = (body.get("mode") or "C").strip().upper()
+    title = (body.get("surveyTitle") or "").strip()
+    if not title:
+        return {"ok": False, "message": "설문 제목을 입력하세요."}
+    start_raw = (body.get("startDate") or "").strip()
+    end_raw = (body.get("endDate") or "").strip()
+    if not start_raw or not end_raw:
+        return {"ok": False, "message": "설문 기간을 입력하세요."}
+    start_ms = _date_to_epoch_ms(start_raw)
+    end_ms = _date_to_epoch_ms(end_raw, end=True)
+    if not start_ms or not end_ms:
+        return {"ok": False, "message": "설문 기간 형식이 올바르지 않습니다."}
+    if int(end_ms) < int(start_ms):
+        return {"ok": False, "message": "종료일이 시작일보다 빠릅니다."}
+    cntnts = (body.get("surveyCntnts") or "").strip()
+    prsnl_yn = "Y" if str(body.get("prsnlInputYn") or "N").upper() == "Y" else "N"
+    prsnl_cntnts = (body.get("prsnlInfoCntnts") or "").strip() if prsnl_yn == "Y" else ""
+    now_ms = str(int(datetime.now().timestamp() * 1000))
+    actor = (body.get("actor") or "neibis").strip()
+    questions = body.get("questions")  # None 이면 문항 미변경, list 면 반영
+    with db_connect() as con:
+        if mode == "M":
+            sid = str(body.get("surveyNo") or body.get("id") or "").strip()
+            if not sid:
+                return {"ok": False, "message": "수정 대상 survey_no 가 없습니다."}
+            cur = con.execute(
+                """UPDATE tb_survey_new
+                   SET survey_title=?, survey_cntnts=?, start_date=?, end_date=?,
+                       prsnl_input_yn=?, prsnl_info_cntnts=?, update_id=?, update_dt=?
+                   WHERE survey_no=?""",
+                (title, cntnts, start_ms, end_ms, prsnl_yn, prsnl_cntnts, actor, now_ms, sid),
+            )
+            if cur.rowcount == 0:
+                return {"ok": False, "message": "수정할 설문을 찾지 못했습니다."}
+            if isinstance(questions, list):
+                qcnt = _save_survey_questions(con, sid, questions)
+                con.execute("UPDATE tb_survey_new SET question_cnt=? WHERE survey_no=?", (str(qcnt), sid))
+            con.commit()
+            return {"ok": True, "message": "저장되었습니다.", "mode": "M", "surveyNo": sid}
+        sid = _next_id(con, "tb_survey_new", "survey_no")
+        con.execute(
+            """INSERT INTO tb_survey_new
+               (survey_no, survey_title, survey_cntnts, start_date, end_date,
+                prsnl_input_yn, prsnl_info_cntnts, question_cnt,
+                create_id, create_dt, update_id, update_dt)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+            (str(sid), title, cntnts, start_ms, end_ms, prsnl_yn, prsnl_cntnts,
+             "0", actor, now_ms, actor, now_ms),
+        )
+        qcnt = 0
+        if isinstance(questions, list):
+            qcnt = _save_survey_questions(con, sid, questions)
+            con.execute("UPDATE tb_survey_new SET question_cnt=? WHERE survey_no=?", (str(qcnt), str(sid)))
+        con.commit()
+        return {"ok": True, "message": "설문이 등록되었습니다.", "mode": "C", "surveyNo": str(sid)}
+
+
+def api_survey_delete(body: dict) -> dict:
+    """설문조사 삭제 — tb_survey_new (+ 문항/보기 정리). 단건 또는 다건(surveyNos)."""
+    ids = body.get("surveyNos")
+    if not ids:
+        one = str(body.get("surveyNo") or body.get("id") or "").strip()
+        ids = [one] if one else []
+    ids = [str(x).strip() for x in ids if str(x).strip()]
+    if not ids:
+        return {"ok": False, "message": "삭제 대상 survey_no 가 없습니다."}
+    deleted = 0
+    with db_connect() as con:
+        for sid in ids:
+            qnos = [str(r["question_no"]) for r in con.execute(
+                "SELECT question_no FROM tb_survey_question_new WHERE survey_no=?", (sid,)).fetchall()]
+            for qno in qnos:
+                con.execute("DELETE FROM tb_survey_example_new WHERE question_no=?", (qno,))
+            con.execute("DELETE FROM tb_survey_question_new WHERE survey_no=?", (sid,))
+            cur = con.execute("DELETE FROM tb_survey_new WHERE survey_no=?", (sid,))
+            deleted += cur.rowcount
+        con.commit()
+    if deleted == 0:
+        return {"ok": False, "message": "삭제할 설문을 찾지 못했습니다."}
+    return {"ok": True, "message": f"{deleted}건이 삭제되었습니다.", "deleted": deleted}
+
+
+def api_survey_legacy_list(qs: dict) -> dict:
+    """이전(레거시) 설문 목록 — 구버전 tb_survey(+ tb_survey_question/tb_survey_answer).
+    읽기 전용 과거 데이터. 참여자 수 = 응답의 distinct sbj_idx."""
+    items = []
+    with db_connect() as con:
+        rows = con.execute(
+            """SELECT srv_seq, srv_nm, start_dt, end_dt FROM tb_survey
+               ORDER BY CAST(srv_seq AS INTEGER) DESC"""
+        ).fetchall()
+        for r in rows:
+            part = con.execute(
+                """SELECT COUNT(DISTINCT a.sbj_idx)
+                   FROM tb_survey_answer a
+                   JOIN tb_survey_question q ON a.qst_seq = q.qst_seq
+                   WHERE q.srv_seq = ?""",
+                (r["srv_seq"],),
+            ).fetchone()[0]
+            items.append({
+                "srvSeq": str(r["srv_seq"]),
+                "srvNm": r["srv_nm"] or "",
+                "startDate": _epoch_ms_to_date(r["start_dt"]),
+                "endDate": _epoch_ms_to_date(r["end_dt"]),
+                "participants": part or 0,
+                "status": _survey_status(r["start_dt"], r["end_dt"]),
+            })
+    return {"ok": True, "total": len(items), "list": items}
+
+
+def api_survey_legacy_detail(qs: dict) -> dict:
+    """이전(레거시) 설문 상세 — tb_survey + 문항별 응답 통계.
+    T(머리말)/C(선택문항, qst_cls_cd 코드그룹 → tb_code_detail 라벨)."""
+    sid = (qs.get("id") or qs.get("srvSeq") or [""])[0].strip()
+    if not sid:
+        return {"ok": False, "message": "srv_seq 가 필요합니다."}
+    with db_connect() as con:
+        srv = con.execute("SELECT * FROM tb_survey WHERE srv_seq=? LIMIT 1", (sid,)).fetchone()
+        if not srv:
+            return {"ok": False, "message": "이전 설문을 찾을 수 없습니다."}
+        s = dict(srv)
+        participants = con.execute(
+            """SELECT COUNT(DISTINCT a.sbj_idx) FROM tb_survey_answer a
+               JOIN tb_survey_question q ON a.qst_seq = q.qst_seq
+               WHERE q.srv_seq = ?""", (sid,)).fetchone()[0]
+        items = []
+        for q in con.execute(
+            """SELECT qst_seq, qst_grp, qst_odr, qst_ty, qst_cls_cd, qst_cntnts
+               FROM tb_survey_question WHERE srv_seq=?
+               ORDER BY CAST(qst_grp AS INTEGER), CAST(qst_odr AS INTEGER), CAST(qst_seq AS INTEGER)""",
+            (sid,),
+        ).fetchall():
+            title = (q["qst_cntnts"] or "").strip()
+            if (q["qst_ty"] or "") == "T":
+                if title:
+                    items.append({"type": "header", "title": title})
+                continue
+            # 선택 문항 — 코드그룹의 보기 라벨 + 응답 집계
+            grp = q["qst_cls_cd"]
+            choices = []
+            if grp:
+                choices = con.execute(
+                    """SELECT code_code, code_name FROM tb_code_detail
+                       WHERE group_code=? AND IFNULL(delete_yn,'N')<>'Y' AND IFNULL(use_yn,'Y')<>'N'
+                       ORDER BY CAST(code_sort_seq AS INTEGER)""", (grp,)).fetchall()
+            counts = {r["ans_cls_cd"]: r["c"] for r in con.execute(
+                "SELECT ans_cls_cd, COUNT(*) c FROM tb_survey_answer WHERE qst_seq=? GROUP BY ans_cls_cd",
+                (q["qst_seq"],)).fetchall()}
+            opts = []
+            for c in choices:
+                opts.append({"label": c["code_name"] or c["code_code"],
+                             "count": counts.pop(c["code_code"], 0)})
+            for code, cnt in counts.items():   # 코드표에 없는 응답도 표기
+                if code:
+                    opts.append({"label": str(code), "count": cnt})
+            items.append({"type": "question", "title": title, "options": opts})
+    return {"ok": True, "data": {
+        "srvSeq": str(s.get("srv_seq") or ""),
+        "srvNm": s.get("srv_nm") or "",
+        "startDate": _epoch_ms_to_date(s.get("start_dt")),
+        "endDate": _epoch_ms_to_date(s.get("end_dt")),
+        "status": _survey_status(s.get("start_dt"), s.get("end_dt")),
+        "participants": participants or 0,
+        "items": items,
+    }}
+
+
+def api_survey_legacy_respondents(qs: dict) -> dict:
+    """이전 설문 응답자별 보기 — 응답자(sbj_idx) 목록 + 최종 응답 일시."""
+    sid = (qs.get("id") or qs.get("srvSeq") or [""])[0].strip()
+    if not sid:
+        return {"ok": False, "message": "srv_seq 가 필요합니다."}
+    items = []
+    with db_connect() as con:
+        srv = con.execute("SELECT srv_nm FROM tb_survey WHERE srv_seq=? LIMIT 1", (sid,)).fetchone()
+        if not srv:
+            return {"ok": False, "message": "이전 설문을 찾을 수 없습니다."}
+        rows = con.execute(
+            """SELECT a.sbj_idx, MAX(CAST(a.ans_dt AS INTEGER)) mdt
+               FROM tb_survey_answer a
+               JOIN tb_survey_question q ON a.qst_seq = q.qst_seq
+               WHERE q.srv_seq = ?
+               GROUP BY a.sbj_idx
+               ORDER BY mdt DESC""", (sid,)).fetchall()
+        for i, r in enumerate(rows, start=1):
+            items.append({
+                "no": i,
+                "answerSerial": r["sbj_idx"] or "",
+                "answerDate": _epoch_ms_to_datetime(r["mdt"]),
+            })
+    return {"ok": True, "total": len(items), "list": items,
+            "srvNm": srv["srv_nm"] or ""}
+
+
+def api_survey_legacy_answer_detail(qs: dict) -> dict:
+    """이전 설문 답변 보기 팝업 — 특정 응답자(sbj_idx)의 문항별 답변(코드→라벨)."""
+    def q1(k):
+        return (qs.get(k) or [""])[0].strip()
+    sid = q1("id") or q1("srvSeq")
+    serial = q1("serial") or q1("sbjIdx")
+    if not sid or not serial:
+        return {"ok": False, "message": "srv_seq 와 응답자 식별자가 필요합니다."}
+    answers = []
+    with db_connect() as con:
+        rows = con.execute(
+            """SELECT q.qst_seq, q.qst_cls_cd, q.qst_cntnts, a.ans_cls_cd, a.ans_opn,
+                      (SELECT code_name FROM tb_code_detail d
+                       WHERE d.group_code = q.qst_cls_cd AND d.code_code = a.ans_cls_cd) AS label
+               FROM tb_survey_question q
+               LEFT JOIN tb_survey_answer a ON a.qst_seq = q.qst_seq AND a.sbj_idx = ?
+               WHERE q.srv_seq = ? AND q.qst_ty = 'C'
+               ORDER BY CAST(q.qst_grp AS INTEGER), CAST(q.qst_odr AS INTEGER), CAST(q.qst_seq AS INTEGER)""",
+            (serial, sid)).fetchall()
+        for i, r in enumerate(rows, start=1):
+            label = r["label"] or (r["ans_opn"] if (r["ans_opn"] and r["ans_opn"] != "None") else "") or (r["ans_cls_cd"] or "")
+            answers.append({
+                "no": i,
+                "questionTitle": (r["qst_cntnts"] or "").strip(),
+                "answerLabel": label,
+            })
+    return {"ok": True, "answerSerial": serial, "answers": answers}
 
 
 def api_oral_source_search(qs: dict) -> dict:
@@ -2386,6 +3330,204 @@ def api_dialect_region_save(body: dict) -> dict:
         }
 
 
+# ── 사용자(회원) 관리 : pt_user (로컬 SQLite 미러) ──────────────────────────
+_USERGROUP_NM = {"1": "시스템관리자", "2": "정보제공관리자", "3": "일반사용자"}
+_AUTH_LABEL = {"9": "정상", "8": "정지", "0": "미인증", "4": "기타"}
+
+
+def _fmt_user_dt(v) -> str:
+    """write_dt/update_dt(에폭 ms 문자열 또는 datetime 문자열) → YYYY-MM-DD."""
+    if v is None or str(v).strip() == "":
+        return ""
+    s = str(v).strip()
+    if s.isdigit():  # 에폭 ms
+        try:
+            return datetime.fromtimestamp(int(s) / 1000).strftime("%Y-%m-%d")
+        except Exception:
+            return ""
+    return s[:10]  # 'YYYY-MM-DD ...' 형태
+
+
+def api_user_list(qs: dict) -> dict:
+    """회원 목록 조회 — pt_user(로컬). 검색/페이징 지원."""
+    def _q(k, d=""):
+        v = qs.get(k)
+        return (v[0] if isinstance(v, list) else v) or d
+
+    page = max(1, int(_q("page", "1") or 1))
+    size = int(_q("size", "10") or 10)
+    if size not in (10, 20, 50, 100):
+        size = 10
+    usergroup_id = str(_q("usergroupId")).strip()
+    se = str(_q("se", "1")).strip()          # 1계정 2이름 3이메일 4부서명
+    search = str(_q("search")).strip()
+    start_dt = str(_q("startDt")).strip()    # YYYY.MM.DD / YYYY-MM-DD
+    end_dt = str(_q("endDt")).strip()
+    status = str(_q("status")).strip()        # 상태: 9정상 8정지 0미인증 ('' 전체)
+    only_locked = str(_q("onlyLocked")).strip() in ("1", "true", "Y")
+
+    where, params = ["1=1"], []
+    if usergroup_id:
+        where.append("usergroup_id = ?"); params.append(usergroup_id)
+    if status in ("9", "8", "0", "4"):
+        where.append("auth = ?"); params.append(status)
+    elif only_locked:
+        where.append("auth = '8'")
+    if search:
+        col = {"1": "usid", "2": "username", "4": "dept_nm"}.get(se)
+        if col:
+            where.append(f"{col} LIKE ?"); params.append(f"%{search}%")
+    # 등록일 범위(write_dt = 에폭 ms 문자열) 필터
+    def _to_ms(d, end=False):
+        d = d.replace(".", "-").strip()
+        if not d:
+            return None
+        try:
+            dt = datetime.strptime(d[:10], "%Y-%m-%d")
+            if end:
+                dt = dt.replace(hour=23, minute=59, second=59)
+            return int(dt.timestamp() * 1000)
+        except Exception:
+            return None
+    ms_s, ms_e = _to_ms(start_dt), _to_ms(end_dt, end=True)
+    # 에폭 ms 저장분에 한해 범위 적용 (숫자형만)
+    if ms_s is not None:
+        where.append("(CASE WHEN write_dt GLOB '[0-9]*' THEN CAST(write_dt AS INTEGER) ELSE NULL END) >= ?")
+        params.append(ms_s)
+    if ms_e is not None:
+        where.append("(CASE WHEN write_dt GLOB '[0-9]*' THEN CAST(write_dt AS INTEGER) ELSE NULL END) <= ?")
+        params.append(ms_e)
+
+    wh = " AND ".join(where)
+    con = db_connect()
+    try:
+        total = con.execute(f"SELECT COUNT(*) FROM pt_user WHERE {wh}", params).fetchone()[0]
+        offset = (page - 1) * size
+        rows = con.execute(
+            f"""SELECT user_id, usergroup_id, usid, username, dept_nm, auth, fail_count, write_dt
+                FROM pt_user WHERE {wh}
+                ORDER BY CAST(user_id AS INTEGER) DESC
+                LIMIT ? OFFSET ?""",
+            params + [size, offset],
+        ).fetchall()
+    finally:
+        con.close()
+
+    out = []
+    for r in rows:
+        auth = str(r["auth"] or "")
+        out.append({
+            "userId": str(r["user_id"] or ""),
+            "usergroupId": str(r["usergroup_id"] or ""),
+            "groupName": _USERGROUP_NM.get(str(r["usergroup_id"] or ""), str(r["usergroup_id"] or "")),
+            "usid": r["usid"] or "",
+            "username": r["username"] or "",
+            "deptNm": r["dept_nm"] or "",
+            "auth": auth,
+            "authLabel": _AUTH_LABEL.get(auth, auth),
+            "failCount": str(r["fail_count"] or "0"),
+            "writeDt": _fmt_user_dt(r["write_dt"]),
+        })
+    return {
+        "ok": True, "total": total, "page": page, "size": size,
+        "totalPages": max(1, (total + size - 1) // size), "rows": out,
+    }
+
+
+def api_user_detail(qs: dict) -> dict:
+    """회원 단건 조회 — pt_user(로컬)."""
+    def _q(k, d=""):
+        v = qs.get(k)
+        return (v[0] if isinstance(v, list) else v) or d
+    user_id = str(_q("userId")).strip()
+    if not user_id:
+        return {"ok": False, "message": "userId가 필요합니다."}
+    con = db_connect()
+    try:
+        r = con.execute(
+            """SELECT user_id, usergroup_id, usid, password, username, dept_nm, mobile,
+                      auth, fail_count, writer, write_dt, updater, update_dt
+               FROM pt_user WHERE user_id = ?""", (user_id,)
+        ).fetchone()
+    finally:
+        con.close()
+    if not r:
+        return {"ok": False, "message": "해당 회원을 찾을 수 없습니다."}
+    auth = str(r["auth"] or "")
+    return {
+        "ok": True,
+        "user": {
+            "userId": str(r["user_id"] or ""),
+            "usergroupId": str(r["usergroup_id"] or ""),
+            "groupName": _USERGROUP_NM.get(str(r["usergroup_id"] or ""), str(r["usergroup_id"] or "")),
+            "usid": r["usid"] or "",
+            "hasPassword": bool((r["password"] or "").strip()),
+            "username": r["username"] or "",
+            "deptNm": r["dept_nm"] or "",
+            "mobile": r["mobile"] or "",
+            "auth": auth,
+            "authLabel": _AUTH_LABEL.get(auth, auth),
+            "failCount": str(r["fail_count"] or "0"),
+            "writer": r["writer"] or "",
+            "writeDt": _fmt_user_dt(r["write_dt"]),
+            "updater": r["updater"] or "",
+            "updateDt": _fmt_user_dt(r["update_dt"]),
+        },
+    }
+
+
+def api_user_unlock(body: dict) -> dict:
+    """정지(잠금) 계정 해제 — auth=9, fail_count=0."""
+    user_id = str(body.get("userId") or "").strip()
+    if not user_id:
+        return {"ok": False, "message": "userId가 필요합니다."}
+    con = db_connect()
+    try:
+        row = con.execute(
+            "SELECT usid, auth, fail_count FROM pt_user WHERE user_id = ?", (user_id,)
+        ).fetchone()
+        if not row:
+            return {"ok": False, "message": "해당 회원을 찾을 수 없습니다."}
+        con.execute(
+            "UPDATE pt_user SET auth = '9', fail_count = '0' WHERE user_id = ?", (user_id,)
+        )
+        con.commit()
+    finally:
+        con.close()
+    return {
+        "ok": True, "message": f"'{row['usid']}' 계정 잠금을 해제했습니다.",
+        "userId": user_id, "auth": "9", "authLabel": "정상", "failCount": "0",
+    }
+
+
+def api_user_reset_pw(body: dict) -> dict:
+    """관리자 임의 비밀번호 재설정 — bcrypt($2a$10$) 해시로 password UPDATE."""
+    user_id = str(body.get("userId") or "").strip()
+    new_pw = str(body.get("newPassword") or "")
+    if not user_id:
+        return {"ok": False, "message": "userId가 필요합니다."}
+    if len(new_pw) < 8:
+        return {"ok": False, "message": "비밀번호는 8자 이상이어야 합니다."}
+    try:
+        import bcrypt
+    except Exception:
+        return {"ok": False, "message": "서버에 bcrypt 모듈이 없습니다. (pip install bcrypt)"}
+    con = db_connect()
+    try:
+        row = con.execute(
+            "SELECT usid FROM pt_user WHERE user_id = ?", (user_id,)
+        ).fetchone()
+        if not row:
+            return {"ok": False, "message": "해당 회원을 찾을 수 없습니다."}
+        hashed = bcrypt.hashpw(new_pw.encode("utf-8"),
+                               bcrypt.gensalt(rounds=10, prefix=b"2a")).decode("ascii")
+        con.execute("UPDATE pt_user SET password = ? WHERE user_id = ?", (hashed, user_id))
+        con.commit()
+    finally:
+        con.close()
+    return {"ok": True, "message": f"'{row['usid']}' 비밀번호를 재설정했습니다.", "userId": user_id}
+
+
 class Handler(http.server.SimpleHTTPRequestHandler):
     def translate_path(self, path):
         # strip query for file mapping
@@ -2483,6 +3625,26 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             body = {}
 
         if path in (
+            "/mariadb/neibis-api/system/user/unlock",
+            "/mariadb/neibis-api/v1/system/user/unlock",
+        ):
+            try:
+                self._send_json(api_user_unlock(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/system/user/reset-pw",
+            "/mariadb/neibis-api/v1/system/user/reset-pw",
+        ):
+            try:
+                self._send_json(api_user_reset_pw(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
             "/mariadb/neibis-api/headword/save",
             "/mariadb/neibis-api/v1/headword/save",
         ):
@@ -2573,12 +3735,66 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return
 
+        if path in (
+            "/mariadb/neibis-api/source/save",
+            "/mariadb/neibis-api/v1/source/save",
+        ):
+            try:
+                self._send_json(api_source_save(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/source/delete",
+            "/mariadb/neibis-api/v1/source/delete",
+        ):
+            try:
+                self._send_json(api_source_delete(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in ("/mariadb/neibis-api/survey/save", "/mariadb/neibis-api/v1/survey/save"):
+            try:
+                self._send_json(api_survey_save(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in ("/mariadb/neibis-api/survey/delete", "/mariadb/neibis-api/v1/survey/delete"):
+            try:
+                self._send_json(api_survey_delete(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
         self.send_error(404, "Not Found")
 
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         qs = urllib.parse.parse_qs(parsed.query)
+
+        if path in (
+            "/mariadb/neibis-api/system/user/list",
+            "/mariadb/neibis-api/v1/system/user/list",
+        ):
+            try:
+                self._send_json(api_user_list(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/system/user/detail",
+            "/mariadb/neibis-api/v1/system/user/detail",
+        ):
+            try:
+                self._send_json(api_user_detail(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
 
         if path in (
             "/mariadb/neibis-api/symbol/list",
@@ -2729,6 +3945,102 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 self._send_json(api_oral_source_search(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in ("/mariadb/neibis-api/source/list", "/mariadb/neibis-api/v1/source/list"):
+            try:
+                self._send_json(api_source_list(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in ("/mariadb/neibis-api/source/regions", "/mariadb/neibis-api/v1/source/regions"):
+            try:
+                self._send_json(api_source_regions(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in ("/mariadb/neibis-api/source/detail", "/mariadb/neibis-api/v1/source/detail"):
+            try:
+                self._send_json(api_source_detail(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in ("/mariadb/neibis-api/survey/list", "/mariadb/neibis-api/v1/survey/list"):
+            try:
+                self._send_json(api_survey_list(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in ("/mariadb/neibis-api/survey/legacy-list", "/mariadb/neibis-api/v1/survey/legacy-list"):
+            try:
+                self._send_json(api_survey_legacy_list(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in ("/mariadb/neibis-api/survey/legacy-detail", "/mariadb/neibis-api/v1/survey/legacy-detail"):
+            try:
+                self._send_json(api_survey_legacy_detail(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in ("/mariadb/neibis-api/survey/legacy-respondents", "/mariadb/neibis-api/v1/survey/legacy-respondents"):
+            try:
+                self._send_json(api_survey_legacy_respondents(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in ("/mariadb/neibis-api/survey/legacy-answer-detail", "/mariadb/neibis-api/v1/survey/legacy-answer-detail"):
+            try:
+                self._send_json(api_survey_legacy_answer_detail(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in ("/mariadb/neibis-api/survey/detail", "/mariadb/neibis-api/v1/survey/detail"):
+            try:
+                self._send_json(api_survey_detail(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in ("/mariadb/neibis-api/survey/respondents", "/mariadb/neibis-api/v1/survey/respondents"):
+            try:
+                self._send_json(api_survey_respondents(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in ("/mariadb/neibis-api/survey/answer-detail", "/mariadb/neibis-api/v1/survey/answer-detail"):
+            try:
+                self._send_json(api_survey_answer_detail(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in ("/mariadb/neibis-api/survey/excel", "/mariadb/neibis-api/v1/survey/excel"):
+            try:
+                sid = (qs.get("id") or qs.get("surveyNo") or [""])[0].strip()
+                data, fname = build_survey_excel(sid)
+                if not data:
+                    self._send_json({"ok": False, "message": "설문을 찾을 수 없습니다."}, 404)
+                    return
+                enc = urllib.parse.quote(fname)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                self.send_header("Content-Disposition", "attachment; filename*=UTF-8''" + enc)
+                self.send_header("Content-Length", str(len(data)))
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                self.wfile.write(data)
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return

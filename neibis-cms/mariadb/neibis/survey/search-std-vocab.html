@@ -1147,6 +1147,19 @@ const getMngrFail = function (xhr, status, error) {
 								<caption class="sr-only">표준어 등록/수정</caption>
 								<tbody>
 									<tr>
+										<th scope="row"><label for="fInitial">초성<i class="req">필수입력</i></label></th>
+										<td>
+											<select id="fInitial" class="form-control" style="width:160px;display:inline-block">
+												<option value="ㄱ">ㄱ</option><option value="ㄴ">ㄴ</option><option value="ㄷ">ㄷ</option>
+												<option value="ㄹ">ㄹ</option><option value="ㅁ">ㅁ</option><option value="ㅂ">ㅂ</option>
+												<option value="ㅅ">ㅅ</option><option value="ㅇ">ㅇ</option><option value="ㅈ">ㅈ</option>
+												<option value="ㅊ">ㅊ</option><option value="ㅋ">ㅋ</option><option value="ㅌ">ㅌ</option>
+												<option value="ㅍ">ㅍ</option><option value="ㅎ">ㅎ</option><option value="#">기타</option>
+											</select>
+											<span style="color:#94a3b8;font-size:12px;margin-left:8px">표준어 입력 시 자동 지정 · 필요 시 변경</span>
+										</td>
+									</tr>
+									<tr>
 										<th scope="row"><label for="fWord">표준어<i class="req">필수입력</i></label></th>
 										<td><input type="text" id="fWord" class="form-control" maxlength="50" placeholder="예: 가위" /></td>
 									</tr>
@@ -1318,14 +1331,18 @@ const getMngrFail = function (xhr, status, error) {
   var STORAGE_KEY = 'neibis.searchStdVocab.v1';
   var SEED_URL = '/mariadb/neibis/survey/data/search-std-vocab.json';
   var HANGUL_CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
-  var state = { items: [], filtered: [], page: 1, pageSize: 10, editId: null };
+  // 검색·목록 초성 필터는 14개 기본 자음만 사용하므로 쌍자음은 기본 자음으로 묶는다.
+  var HANGUL_CHO_BASE = ['ㄱ','ㄱ','ㄴ','ㄷ','ㄷ','ㄹ','ㅁ','ㅂ','ㅂ','ㅅ','ㅅ','ㅇ','ㅈ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+  var state = { items: [], filtered: [], page: 1, pageSize: 10, editId: null, autoInitial: true };
 
   function getInitial(word) {
     if (!word) return '#';
     var code = word.charCodeAt(0);
-    if (code >= 0xAC00 && code <= 0xD7A3) return HANGUL_CHO[Math.floor((code - 0xAC00) / 588)];
+    if (code >= 0xAC00 && code <= 0xD7A3) return HANGUL_CHO_BASE[Math.floor((code - 0xAC00) / 588)];
     return '#';
   }
+  // 항목의 초성: 저장된 값 우선, 없으면 표준어에서 자동 도출
+  function itemInitial(it) { return (it && it.initial) ? it.initial : getInitial(it ? it.word : ''); }
   function today() {
     var d = new Date();
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
@@ -1355,6 +1372,7 @@ const getMngrFail = function (xhr, status, error) {
         return {
           id: it.id || (i + 1),
           word: String(it.word || '').trim(),
+          initial: it.initial || getInitial(String(it.word || '').trim()),
           useYn: it.useYn === 'N' ? 'N' : 'Y',
           sortOrdr: Number(it.sortOrdr) || (i + 1),
           rmrk: it.rmrk || '',
@@ -1384,7 +1402,7 @@ const getMngrFail = function (xhr, status, error) {
     var use = $('input[name=schUseYn]:checked').val() || '';
     var list = state.items.slice();
     if (q) list = list.filter(function (it) { return it.word.indexOf(q) >= 0; });
-    if (ini) list = list.filter(function (it) { return getInitial(it.word) === ini; });
+    if (ini) list = list.filter(function (it) { return itemInitial(it) === ini; });
     if (use) list = list.filter(function (it) { return it.useYn === use; });
     list.sort(function (a, b) {
       if (a.sortOrdr !== b.sortOrdr) return a.sortOrdr - b.sortOrdr;
@@ -1419,7 +1437,7 @@ const getMngrFail = function (xhr, status, error) {
         html += '<tr data-id="' + it.id + '">' +
           '<td><label class="check-item"><input type="checkbox" name="chk" value="' + it.id + '" /><span class="label sr-only">선택</span></label></td>' +
           '<td>' + no + '</td>' +
-          '<td>' + getInitial(it.word) + '</td>' +
+          '<td>' + itemInitial(it) + '</td>' +
           '<td class="text-left"><strong>' + esc(it.word) + '</strong>' + (it.rmrk ? ' <span style="color:#94a3b8;font-size:12px">(' + esc(it.rmrk) + ')</span>' : '') + '</td>' +
           '<td>' + (it.useYn === 'Y' ? '<span class="text-primary">Y</span>' : '<span style="color:#94a3b8">N</span>') + '</td>' +
           '<td>' + esc(it.regDt || '-') + '</td>' +
@@ -1492,6 +1510,9 @@ const getMngrFail = function (xhr, status, error) {
     $('#fWord').val(item ? item.word : '');
     $('#fRmrk').val(item ? (item.rmrk || '') : '');
     $('input[name=fUseYn][value="' + (item && item.useYn === 'N' ? 'N' : 'Y') + '"]').prop('checked', true);
+    // 초성: 수정이면 저장값, 신규면 빈 표준어 기준(#). 신규는 입력 시 자동 지정.
+    $('#fInitial').val(item ? itemInitial(item) : getInitial(''));
+    state.autoInitial = !item; // 신규는 표준어 따라 자동, 수정은 저장값 유지(수동 변경 가능)
     $('#layer-vocab-form').removeClass('hide');
     setTimeout(function () { $('#fWord').focus(); }, 50);
   }
@@ -1510,6 +1531,7 @@ const getMngrFail = function (xhr, status, error) {
     if (!word) { alert('표준어를 입력해 주세요.'); $('#fWord').focus(); return; }
     var useYn = $('input[name=fUseYn]:checked').val() || 'Y';
     var rmrk = ($('#fRmrk').val() || '').trim();
+    var initial = $('#fInitial').val() || getInitial(word);
     var dup = state.items.find(function (it) {
       return it.word === word && it.id !== state.editId;
     });
@@ -1518,11 +1540,11 @@ const getMngrFail = function (xhr, status, error) {
     if (state.editId) {
       state.items = state.items.map(function (it) {
         if (it.id !== state.editId) return it;
-        return Object.assign({}, it, { word: word, useYn: useYn, rmrk: rmrk, updDt: today() });
+        return Object.assign({}, it, { word: word, initial: initial, useYn: useYn, rmrk: rmrk, updDt: today() });
       });
     } else {
       state.items.push({
-        id: nextId(), word: word, useYn: useYn, sortOrdr: nextId(), rmrk: rmrk,
+        id: nextId(), word: word, initial: initial, useYn: useYn, sortOrdr: nextId(), rmrk: rmrk,
         regDt: today(), updDt: today()
       });
     }
@@ -1599,7 +1621,14 @@ const getMngrFail = function (xhr, status, error) {
     $('#btnToggleUseN').on('click', function () { setUseYn(selectedIds(), 'N'); });
     $('#btnOpenReg').on('click', function () { openForm(null); });
     $('#btnSaveForm').on('click', saveForm);
-    
+    // 표준어 입력 시 초성 자동 지정(사용자가 초성을 직접 바꾸기 전까지)
+    $('#fWord').on('input', function () {
+      if (!state.autoInitial) return;
+      $('#fInitial').val(getInitial(($(this).val() || '').trim()));
+    });
+    // 초성을 직접 변경하면 자동 지정 해제
+    $('#fInitial').on('change', function () { state.autoInitial = false; });
+
     
     $('#listBody').on('click', '[data-act]', function () {
       var id = Number($(this).closest('tr').data('id'));

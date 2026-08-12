@@ -641,8 +641,8 @@
 							#save-form .trs-drop .file-name{ margin:10px 0 0; font-size:12.5px; color:#94a3b8; }
 							#save-form .trs-drop .file-name.has-file{ color:#1d4ed8; font-weight:600; }
 							/* 등록할 전사자료 목록: 프레임워크 반응형(flex) 테이블을 일반 테이블로 강제 + 한 줄 표시 */
-							#save-form .table-list .table-inner{ overflow-x:auto; }
-							#save-form .table-list table{ display:table !important; width:100%; table-layout:auto; border-collapse:collapse; }
+							#save-form .table-list, #save-form .table-list .table-inner{ width:100%; max-width:none; overflow-x:auto; }
+							#save-form .table-list table{ display:table !important; width:100%; min-width:680px; table-layout:fixed; border-collapse:collapse; }
 							#save-form .table-list thead{ display:table-header-group !important; }
 							#save-form .table-list tbody{ display:table-row-group !important; }
 							#save-form .table-list tr{ display:table-row !important; }
@@ -933,9 +933,9 @@ function ensureUploadModal(){
 	if(m) return m;
 	m=document.createElement('div'); m.id='uploadConfirmModal';
 	m.style.cssText='position:fixed;inset:0;z-index:1500;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;padding:24px;';
-	m.innerHTML='<div style="background:#fff;width:100%;max-width:680px;max-height:88vh;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(15,23,42,.25)">'
-		+'<div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #e5e7eb;background:#f8fafc"><h2 style="margin:0;font-size:17px;font-weight:800;color:#1e3a8a">업로드 확인</h2><button type="button" id="ucClose" style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;width:34px;height:34px;font-size:18px;cursor:pointer;color:#64748b">×</button></div>'
-		+'<div id="ucBody" style="padding:18px 20px;overflow:auto;flex:1;font-size:13px;color:#334155"></div>'
+	m.innerHTML='<div style="background:#fff;width:100%;max-width:820px;max-height:90vh;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(15,23,42,.25)">'
+		+'<div style="display:flex;justify-content:space-between;align-items:center;padding:20px 28px;border-bottom:1px solid #e5e7eb;background:#f8fafc"><h2 style="margin:0;font-size:22px;font-weight:800;color:#1e3a8a">업로드 확인</h2><button type="button" id="ucClose" style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;width:40px;height:40px;font-size:20px;cursor:pointer;color:#64748b">×</button></div>'
+		+'<div id="ucBody" style="padding:24px 28px;overflow:auto;flex:1;font-size:15px;color:#334155"></div>'
 		+'<div style="display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid #e5e7eb;background:#f8fafc"><button type="button" id="ucCancel" class="btn btn-md btn-outline-gray">취소</button><button type="button" id="ucApply" class="btn btn-md btn-primary">목록에 추가</button></div>'
 		+'</div>';
 	document.body.appendChild(m);
@@ -957,18 +957,20 @@ function openUploadConfirm(order, eafs, wavs){
 	order.forEach(function(b){ var e=eafs[b], w=wavs[b];
 		rows += '<tr><td class="text-left" style="padding:6px 8px">'+esc(e?e.fileName:'-')+'</td><td style="text-align:center">'+esc(e?e.durationHms:'-')+'</td><td class="text-left" style="padding:6px 8px">'+esc(w?w.fileName:'-')+'</td><td style="text-align:center">'+esc(w?w.waveTimeHms:'-')+'</td><td style="text-align:center">'+esc(e?e.segmentCount+'행':'-')+'</td></tr>';
 	});
-	var html='<div style="font-weight:700;margin-bottom:6px">등록할 전사자료</div>'
-		+'<table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:16px">'
-		+'<thead><tr style="background:#f1f5f9;font-size:12px;color:#475569"><th style="padding:6px 8px;text-align:left">전사자료</th><th>전사시간</th><th style="text-align:left">음성자료</th><th>음성시간</th><th>세그먼트</th></tr></thead><tbody>'+rows+'</tbody></table>'
-		+'<div style="font-weight:700;margin-bottom:6px">자동 추출 정보 <span style="font-weight:400;color:#94a3b8;font-size:12px">(EAF 메타데이터)</span></div>'
-		+'<div style="display:grid;grid-template-columns:90px 1fr;gap:4px 10px;margin-bottom:16px;background:#f8fafc;border:1px solid #eef2f7;border-radius:8px;padding:10px 12px">'
+	var html='<div style="font-weight:800;font-size:16px;margin-bottom:10px">등록할 전사자료</div>'
+		+'<table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:20px">'
+		+'<thead><tr style="background:#f1f5f9;font-size:13px;color:#475569"><th style="padding:9px 10px;text-align:left">전사자료</th><th>전사시간</th><th style="text-align:left">음성자료</th><th>음성시간</th><th>세그먼트</th></tr></thead><tbody>'+rows+'</tbody></table>'
+		+'<div style="font-weight:800;font-size:16px;margin-bottom:10px">자동 추출 정보 <span style="font-weight:400;color:#94a3b8;font-size:13px">(EAF 메타데이터)</span></div>'
+		+'<div style="display:grid;grid-template-columns:110px 1fr;gap:8px 14px;margin-bottom:20px;background:#f8fafc;border:1px solid #eef2f7;border-radius:10px;padding:16px 18px">'
 		+'<div style="color:#94a3b8">조사지역</div><div>'+esc(meta.region||'-')+'</div>'
 		+'<div style="color:#94a3b8">조사연도</div><div>'+esc(meta.year||'-')+'</div>'
 		+'<div style="color:#94a3b8">발화주제</div><div>'+esc(meta.topic||'-')+'</div>'
 		+'<div style="color:#94a3b8">제보자</div><div>'+esc(meta.informant||'-')+' ('+esc(meta.sex||'')+(age?(' '+age+'세'):'')+', '+esc(meta.birth||'')+'생)</div>'
+		+(meta.investigator?('<div style="color:#94a3b8">조사자</div><div>'+esc(meta.investigator)+'</div>'):'')
+		+(meta.transcriber?('<div style="color:#94a3b8">전사자</div><div>'+esc(meta.transcriber)+'</div>'):'')
 		+'</div>'
-		+'<div style="font-weight:700;margin-bottom:6px">제보자 확인 · 제보자 관리 연결</div>'
-		+'<div id="ucSrc" style="border:1px solid #eef2f7;border-radius:8px;padding:10px 12px;color:#64748b">제보자 관리에서 검색 중…</div>';
+		+'<div style="font-weight:800;font-size:16px;margin-bottom:10px">제보자 확인 · 제보자 관리 연결</div>'
+		+'<div id="ucSrc" style="border:1px solid #eef2f7;border-radius:10px;padding:14px 16px;color:#64748b">제보자 관리에서 검색 중…</div>';
 	document.getElementById('ucBody').innerHTML=html;
 	m.style.display='flex';
 	// 제보자 매칭 검색
@@ -988,24 +990,82 @@ function renderUcSources(meta){
 	var cs=window._pendingUpload.candidates||[];
 	var defIdx = -1;
 	for(var i=0;i<cs.length;i++){ if(String(cs[i].birth)===String(meta.birth)){ defIdx=i; break; } }
+	var age=(meta.year&&meta.birth)?(Number(meta.year)-Number(meta.birth)+1):'';
+	var sexSel=(meta.sex==='여')?'0':'1';
 	var html='';
 	if(cs.length){
-		html+='<div style="color:#475569;margin-bottom:6px">일치 후보 '+cs.length+'건 — 연결할 제보자를 선택하세요:</div>';
+		html+='<div style="color:#475569;margin-bottom:8px">일치 후보 '+cs.length+'건 — 연결할 제보자를 선택하세요:</div>';
 		cs.forEach(function(c,i){
 			var mark=(String(c.birth)===String(meta.birth))?' <span style="color:#16a34a;font-weight:700">·생년일치</span>':'';
-			html+='<label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer"><input type="radio" name="ucSrcPick" value="'+i+'"'+((i===defIdx)?' checked':'')+'>'
+			html+='<label style="display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer"><input type="radio" name="ucSrcPick" value="'+i+'"'+((i===defIdx)?' checked':'')+' style="width:17px;height:17px;flex:0 0 auto">'
 				+'<span>'+esc(c.name)+' ('+esc(c.sex)+', '+esc(c.birth)+'생) · '+esc(c.residence||c.regionNm||'')+' · 참여 '+c.surveyCount+'건'+(c.job?(' · '+esc(c.job)):'')+mark+'</span></label>';
 		});
 	} else {
 		html+='<div style="color:#94a3b8;margin-bottom:6px">제보자 관리에 일치하는 제보자가 없습니다.</div>';
 	}
-	html+='<label style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid #eef2f7;margin-top:4px;cursor:pointer"><input type="radio" name="ucSrcPick" value="new"'+((defIdx<0)?' checked':'')+'><span>신규 제보자로 등록 (EAF 정보 사용)</span></label>';
+	html+='<label style="display:flex;align-items:center;gap:10px;padding:10px 0 6px;border-top:1px solid #eef2f7;margin-top:6px;cursor:pointer"><input type="radio" name="ucSrcPick" value="new"'+((defIdx<0)?' checked':'')+' style="width:17px;height:17px;flex:0 0 auto"><span style="font-weight:600">신규 제보자로 등록 <span style="font-weight:400;color:#94a3b8">(아래 정보 입력 → 제보자 관리에 저장)</span></span></label>';
+	// 인라인 신규 제보자 등록 폼 (EAF 프리필 + 추가 입력) — 모달을 벗어나지 않고 등록
+	var F='style="width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:10px;padding:12px 14px;font-size:15px;font-family:inherit;background:#fff"';
+	var L='style="display:block;font-size:13px;font-weight:700;color:#475569;margin-bottom:7px"';
+	html+='<div id="ucNewForm" style="display:none;margin-top:12px;padding:18px 18px 16px;border:1px dashed #cbd5e1;border-radius:12px;background:#f8fafc">'
+		+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 20px">'
+		+'<div><label '+L+'>이름 <span style="color:#ef4444">*</span></label><input id="uc-name" '+F+' value="'+esc(meta.informant||'')+'"></div>'
+		+'<div><label '+L+'>성별</label><select id="uc-sex" '+F+'><option value="1"'+(sexSel==='1'?' selected':'')+'>남성</option><option value="0"'+(sexSel==='0'?' selected':'')+'>여성</option></select></div>'
+		+'<div><label '+L+'>조사 당시 연령</label><input id="uc-age" type="number" '+F+' value="'+esc(String(age||''))+'"></div>'
+		+'<div><label '+L+'>출생연도</label><input id="uc-birth" '+F+' value="'+esc(meta.birth||'')+'"></div>'
+		+'<div><label '+L+'>출생지</label><input id="uc-birthPlace" '+F+' placeholder="출생지"></div>'
+		+'<div><label '+L+'>거주지</label><input id="uc-residence" '+F+' placeholder="조사 당시 거주지"></div>'
+		+'<div><label '+L+'>직업</label><input id="uc-job" '+F+' placeholder="직업"></div>'
+		+'<div><label '+L+'>교육수준</label><input id="uc-education" '+F+' placeholder="교육수준"></div>'
+		+'<div style="grid-column:1/-1"><label '+L+'>제보 장소 <span style="color:#ef4444">*</span></label><input id="uc-sourcePlace" '+F+' placeholder="녹취한 장소"></div>'
+		+'</div>'
+		+'<div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:#475569;margin-top:14px;padding:10px 12px;background:#eff6ff;border:1px solid #dbeafe;border-radius:8px;line-height:1.6">'
+			+'<span style="flex:0 0 auto">ℹ️</span>'
+			+'<span><b>이름·제보 장소</b>는 필수입니다. 여기서 입력한 건 <b>기본 정보</b>이며, <b>출생지·거주지·선대 거주지·학력·직업·소개 과정·음성 특징·동의서</b> 등 상세 항목은 <b>「기타관리 &gt; 제보자 관리」</b>에서 추가로 입력·수정할 수 있습니다.</span>'
+			+'</div>'
+		+'</div>';
 	box.innerHTML=html;
+	[].forEach.call(box.querySelectorAll('input[name=ucSrcPick]'), function(r){ r.addEventListener('change', ucToggleNewForm); });
+	ucToggleNewForm();
+}
+function ucToggleNewForm(){
+	var f=document.getElementById('ucNewForm'); if(!f) return;
+	var p=document.querySelector('input[name=ucSrcPick]:checked');
+	f.style.display=(p&&p.value==='new')?'block':'none';
 }
 
 function applyUploadConfirm(){
 	var pu=window._pendingUpload; if(!pu) return;
-	// 목록 채우기
+	var picked=document.querySelector('input[name="ucSrcPick"]:checked');
+	// 신규 제보자 → 모달을 벗어나지 않고 인라인 폼으로 제보자 관리에 저장 후 마무리
+	if(picked && picked.value==='new'){ registerNewSourceInline(pu); return; }
+	// 기존 제보자 연결
+	var c=(picked && picked.value!=='new')?pu.candidates[Number(picked.value)]:null;
+	var linked = c ? {name:c.name,sex:c.sex,age:c.age||'',birth:c.birth,sourceId:c.sourceId,residence:c.residence,birthPlace:c.birthPlace,job:c.job,education:c.education} : null;
+	finalizeUploadConfirm(pu, linked);
+}
+
+// 인라인 폼 값을 모아 wb_source 에 등록(C) 후, 성공하면 그대로 목록 마무리
+function registerNewSourceInline(pu){
+	var g=function(id){ var e=document.getElementById(id); return e?(e.value||'').trim():''; };
+	var name=g('uc-name'); if(!name){ (window.Message&&Message.alert)?Message.alert({icon:'warning',message:'제보자 이름을 입력하세요.'}):alert('제보자 이름을 입력하세요.'); var n=document.getElementById('uc-name'); if(n)n.focus(); return; }
+	var place=g('uc-sourcePlace'); if(!place){ (window.Message&&Message.alert)?Message.alert({icon:'warning',message:'제보 장소를 입력하세요.'}):alert('제보 장소를 입력하세요.'); var s=document.getElementById('uc-sourcePlace'); if(s)s.focus(); return; }
+	var payload={ mode:'C', name:name, sex:g('uc-sex'), age:g('uc-age'), birth:g('uc-birth'),
+		birthPlace:g('uc-birthPlace'), residence:g('uc-residence'), job:g('uc-job'), education:g('uc-education'),
+		sourcePlace:place, regionNm:(pu.meta&&pu.meta.region)||'' };
+	var btn=document.getElementById('ucApply'); if(btn){ btn.disabled=true; btn.textContent='등록 중…'; }
+	fetch('/mariadb/neibis-api/source/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+		.then(function(r){return r.json();}).then(function(d){
+			if(btn){ btn.disabled=false; btn.textContent='목록에 추가'; }
+			if(!d||!d.ok){ (window.Message&&Message.alert)?Message.alert({icon:'error',message:(d&&d.message)||'제보자 저장 실패'}):alert((d&&d.message)||'제보자 저장 실패'); return; }
+			var sexKo=(payload.sex==='1'?'남':(payload.sex==='0'?'여':payload.sex));
+			finalizeUploadConfirm(pu, {name:name,sex:sexKo,age:payload.age,birth:payload.birth,sourceId:d.sourceId,
+				residence:payload.residence,birthPlace:payload.birthPlace,job:payload.job,education:payload.education}, true);
+		}).catch(function(){ if(btn){ btn.disabled=false; btn.textContent='목록에 추가'; } (window.Message&&Message.alert)?Message.alert({icon:'error',message:'제보자 저장 API 호출 실패'}):alert('제보자 저장 API 호출 실패'); });
+}
+
+// 목록 채우기 + 자동 채움 + 제보자 연결 반영 후 모달 닫기
+function finalizeUploadConfirm(pu, linked, isNew){
 	var body=document.getElementById('trsListBody'); var html='';
 	pu.order.forEach(function(b){ var e=pu.eafs[b], w=pu.wavs[b];
 		html+='<tr><td class="text-left">'+esc(e?e.fileName:'-')+'</td><td>'+esc(e?e.durationHms:'-')+'</td><td class="text-left">'+esc(w?w.fileName:'-')+'</td><td>'+esc(w?w.waveTimeHms:'-')+'</td><td>'+esc(e?'1 (신규)':'-')+'</td></tr>';
@@ -1013,17 +1073,17 @@ function applyUploadConfirm(){
 	body.innerHTML=html;
 	window._uploadedEafs = pu.order.filter(function(b){return pu.eafs[b];}).map(function(b){return pu.eafs[b].fileName;});
 	var ns=document.getElementById('trsFilesName'); ns.textContent=window._uploadedEafs.length>1?(window._uploadedEafs[0]+' 외 '+(window._uploadedEafs.length-1)+'건'):(window._uploadedEafs[0]||'선택된 파일 없음'); ns.classList.add('has-file');
-	// 자동 채움
-	autofillFromMeta(pu.meta, pu.firstEafName);
-	// 제보자 연결 선택 반영
-	var picked=document.querySelector('input[name="ucSrcPick"]:checked');
-	if(picked && picked.value!=='new'){
-		var c=pu.candidates[Number(picked.value)];
-		if(c){ document.getElementById('mainsource1').value=c.name+' ( '+c.sex+(c.age?(' '+c.age):'')+' )';
-			window._autoSource={name:c.name,sex:c.sex,age:c.age||'',birth:c.birth,sourceId:c.sourceId,residence:c.residence,birthPlace:c.birthPlace,job:c.job,education:c.education}; }
+	autofillFromMeta(pu.meta, pu.firstEafName); // _autoSource 를 EAF 기준으로 세팅
+	if(linked){ // 마지막에 연결 제보자로 덮어써 sourceId 유지
+		var sexKo=(linked.sex==='1'?'남':(linked.sex==='0'?'여':(linked.sex||'')));
+		var el=document.getElementById('mainsource1');
+		if(el){ el.value=linked.name+' ( '+sexKo+(linked.age?(' '+linked.age):'')+' )'; el.setAttribute('data-source-id', linked.sourceId||''); }
+		window._autoSource={name:linked.name,sex:sexKo,age:linked.age||'',birth:linked.birth||'',sourceId:linked.sourceId,
+			residence:linked.residence,birthPlace:linked.birthPlace,job:linked.job,education:linked.education};
 	}
 	document.getElementById('uploadConfirmModal').style.display='none';
 	window._pendingUpload=null;
+	if(isNew && window.Message && Message.alert){ Message.alert({icon:'success', message:'제보자가 제보자 관리에 등록·연결되었습니다.'}); }
 }
 
 function cancelUploadConfirm(){
@@ -1040,6 +1100,9 @@ function autofillFromMeta(meta, eafName){
 	setIfEmpty('headword', meta.topic);
 	setIfEmpty('researchYear', meta.year);
 	setIfEmpty('regionNm', meta.region);
+	// 조사자/전사자 — EAF에 있을 때만 자동 채움
+	setIfEmpty('researcher', meta.investigator);
+	setIfEmpty('transcriber', meta.transcriber);
 	if(meta.informant){
 		var age = (meta.year && meta.birth) ? (Number(meta.year)-Number(meta.birth)+1) : '';
 		var label = meta.informant + ' ( ' + (meta.sex||'') + (age?(' '+age):'') + ' )';

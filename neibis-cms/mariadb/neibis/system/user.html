@@ -629,7 +629,7 @@
 <tbody>
 <tr>
 <th scope="row"><span>등록일자</span></th>
-<td colspan="3">
+<td>
 <div class="input-group input-group-datepicker" style="max-width:420px">
 <input
 	type="text"
@@ -651,6 +651,15 @@
 	placeholder="YYYY.MM.DD"
 />
 </div>
+</td>
+<th scope="row"><label for="statusFilter">상태</label></th>
+<td>
+<select id="statusFilter" name="statusFilter" class="form-control" style="max-width:200px" title="상태 선택">
+<option value="">전체</option>
+<option value="9">정상</option>
+<option value="8">정지</option>
+<option value="0">미인증</option>
+</select>
 </td>
 </tr>
 <tr>
@@ -691,7 +700,7 @@
 <div class="card">
 <div class="list-control">
 <div class="left">
-<p class="total">총 <strong class="text-primary">614</strong>건(1/62 page)</p>
+<p class="total">총 <strong class="text-primary" id="user-total">0</strong>건(<span id="user-pageinfo">1/1</span> page)</p>
 </div>
 <div class="right">
 <select class="form-control-sm" style="min-width:100px" title="목록 수" id="pageItm">
@@ -708,14 +717,15 @@
 <table id="user-list" style="min-width:1100px">
 <caption class="sr-only">사용자 계정 목록</caption>
 <colgroup>
-<col style="width:70px" />
+<col style="width:60px" />
+<col style="width:110px" />
+<col style="width:100px" />
+<col style="width:110px" />
+<col style="width:160px" />
 <col style="width:120px" />
-<col style="width:120px" />
-<col style="width:120px" />
-<col style="width:180px" />
-<col style="width:140px" />
-<col style="width:80px" />
-<col style="width:120px" />
+<col style="width:90px" />
+<col style="width:110px" />
+<col style="width:200px" />
 </colgroup>
 <thead>
 <tr>
@@ -727,152 +737,165 @@
 <th scope="col">부서명</th>
 <th scope="col">승인</th>
 <th scope="col">등록일</th>
+<th scope="col">관리</th>
 </tr>
 </thead>
 <tbody id="user-list-body">
-
-<tr class="user-row" data-sn="2708" style="cursor:pointer">
-<td>614</td>
-<td class="text-left"><a href="user-updt.do?userId=2708" class="link" onclick="event.stopPropagation();">bakeyeon</a></td>
-<td class="text-left">바케</td>
-<td>일반사용자</td>
-<td class="text-left"></td>
-<td class="text-left"></td>
-<td>9</td>
-<td>2026-07-11</td>
-</tr>
-
-<tr class="user-row" data-sn="2707" style="cursor:pointer">
-<td>613</td>
-<td class="text-left"><a href="user-updt.do?userId=2707" class="link" onclick="event.stopPropagation();">kdw940822</a></td>
-<td class="text-left">김동욱</td>
-<td>일반사용자</td>
-<td class="text-left"></td>
-<td class="text-left"></td>
-<td>9</td>
-<td>2026-06-30</td>
-</tr>
-
-<tr class="user-row" data-sn="2705" style="cursor:pointer">
-<td>612</td>
-<td class="text-left"><a href="user-updt.do?userId=2705" class="link" onclick="event.stopPropagation();">catharsis47</a></td>
-<td class="text-left">jin</td>
-<td>일반사용자</td>
-<td class="text-left"></td>
-<td class="text-left"></td>
-<td>9</td>
-<td>2026-06-26</td>
-</tr>
-
-<tr class="user-row" data-sn="2704" style="cursor:pointer">
-<td>611</td>
-<td class="text-left"><a href="user-updt.do?userId=2704" class="link" onclick="event.stopPropagation();">y00nie</a></td>
-<td class="text-left">혜윤</td>
-<td>일반사용자</td>
-<td class="text-left"></td>
-<td class="text-left"></td>
-<td>9</td>
-<td>2026-06-23</td>
-</tr>
-
-<tr class="user-row" data-sn="2703" style="cursor:pointer">
-<td>610</td>
-<td class="text-left"><a href="user-updt.do?userId=2703" class="link" onclick="event.stopPropagation();">dksxotkd1220</a></td>
-<td class="text-left">안태상</td>
-<td>일반사용자</td>
-<td class="text-left"></td>
-<td class="text-left"></td>
-<td>9</td>
-<td>2026-06-22</td>
-</tr>
-
-<tr class="user-row" data-sn="2702" style="cursor:pointer">
-<td>609</td>
-<td class="text-left"><a href="user-updt.do?userId=2702" class="link" onclick="event.stopPropagation();">cocory0201</a></td>
-<td class="text-left">skfktakfTka</td>
-<td>일반사용자</td>
-<td class="text-left"></td>
-<td class="text-left"></td>
-<td>9</td>
-<td>2026-06-17</td>
-</tr>
-
-<tr class="user-row" data-sn="2701" style="cursor:pointer">
-<td>608</td>
-<td class="text-left"><a href="user-updt.do?userId=2701" class="link" onclick="event.stopPropagation();">biny496</a></td>
-<td class="text-left">biny496</td>
-<td>일반사용자</td>
-<td class="text-left"></td>
-<td class="text-left"></td>
-<td>9</td>
-<td>2026-06-16</td>
-</tr>
-
-<tr class="user-row" data-sn="2700" style="cursor:pointer">
-<td>607</td>
-<td class="text-left"><a href="user-updt.do?userId=2700" class="link" onclick="event.stopPropagation();">jshdash</a></td>
-<td class="text-left">호아현</td>
-<td>일반사용자</td>
-<td class="text-left"></td>
-<td class="text-left"></td>
-<td>9</td>
-<td>2026-06-15</td>
-</tr>
-
-<tr class="user-row" data-sn="2699" style="cursor:pointer">
-<td>606</td>
-<td class="text-left"><a href="user-updt.do?userId=2699" class="link" onclick="event.stopPropagation();">wonker007</a></td>
-<td class="text-left">wonker</td>
-<td>일반사용자</td>
-<td class="text-left"></td>
-<td class="text-left"></td>
-<td>9</td>
-<td>2026-06-14</td>
-</tr>
-
-<tr class="user-row" data-sn="2698" style="cursor:pointer">
-<td>605</td>
-<td class="text-left"><a href="user-updt.do?userId=2698" class="link" onclick="event.stopPropagation();">mh2019</a></td>
-<td class="text-left">다온</td>
-<td>일반사용자</td>
-<td class="text-left"></td>
-<td class="text-left"></td>
-<td>9</td>
-<td>2026-06-14</td>
-</tr>
+<tr><td colspan="9" class="text-center" style="padding:24px;color:#888">목록을 불러오는 중…</td></tr>
 </tbody>
 </table>
 </div>
 </div>
-<div class="pagination">
+<div class="pagination" id="user-pagination">
 <strong>1</strong>
 </div>
 </div>
 </form>
 
 <!-- // 본문 영역 -->
+<!-- 관리 화면 스타일: 승인 상태 배지 / 비밀번호 재설정 모달 -->
+<style>
+  .badge-auth{display:inline-block;min-width:52px;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:700;line-height:1.6;text-align:center}
+  .badge-auth.is-normal{background:#e8f5e9;color:#1b7a34}
+  .badge-auth.is-locked{background:#fdecea;color:#c0281c}
+  .badge-auth.is-etc{background:#eceff1;color:#607d8b}
+  .user-act .btn{margin:0 2px;padding:3px 10px;font-size:12px;white-space:nowrap}
+  .btn-unlock{background:#c0281c;border-color:#c0281c;color:#fff}
+  .btn-resetpw{background:#fff;border:1px solid #b0bec5;color:#37474f}
+</style>
+
+<!-- 비밀번호 재설정 공통 팝업 (모달 마크업/CSS는 스크립트가 주입) -->
+<script src="/mariadb/assets/neibis/js/neibis.pwReset.js"></script>
+
 <script>
-function btnInit(){
-  $('#search-form')[0].reset();
-}
-function searchList(){
-  if(window.Message){ Message.alert({icon:'info', message:'정적 프로토타입입니다. 검색 결과는 예시 데이터로 표시됩니다.'}); }
-  else { alert('정적 프로토타입: 예시 데이터'); }
-}
-function stubExcel(){
-  if(window.Message){ Message.alert({icon:'info', message:'[엑셀 다운] 정적 프로토타입 버튼입니다.'}); }
-  else { alert('엑셀 다운'); }
-}
-$(function(){
-  $('#user-list-body').on('click', 'tr.user-row', function(){
-    var id = $(this).data('sn');
-    location.href = 'user-updt.do?userId=' + encodeURIComponent(id);
-  });
-    } else {
-      alert('userId='+id);
+(function(){
+  var API = '/mariadb/neibis-api/system/user';
+  var state = { page:1, size:10 };
+
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function toast(msg, icon){ if(window.Message){ Message.alert({icon:icon||'info', message:msg}); } else { alert(msg); } }
+  function ask(msg, cb){
+    if(window.Message && Message.confirm){ Message.confirm({message:msg}, cb); }
+    else if(window.confirm(msg)){ cb(); }
+  }
+
+  function badge(auth, label){
+    var cls = auth==='9' ? 'is-normal' : (auth==='8' ? 'is-locked' : 'is-etc');
+    return '<span class="badge-auth '+cls+'">'+esc(label||auth)+'</span>';
+  }
+
+  function currentParams(){
+    var p = {
+      page: state.page,
+      size: $('#pageItm').val() || 10,
+      usergroupId: $('#usergroupId').val() || '',
+      se: $('#se').val() || '1',
+      search: ($('#search').val()||'').trim(),
+      startDt: ($('#searchStartDt').val()||'').trim(),
+      endDt: ($('#searchEndDt').val()||'').trim(),
+      status: $('#statusFilter').val() || ''
+    };
+    state.size = parseInt(p.size,10)||10;
+    return p;
+  }
+
+  function render(data){
+    var rows = data.rows||[], size=data.size||10, page=data.page||1, total=data.total||0;
+    $('#user-total').text(total.toLocaleString());
+    $('#user-pageinfo').text(page + '/' + (data.totalPages||1));
+    var $b = $('#user-list-body').empty();
+    if(!rows.length){
+      $b.append('<tr><td colspan="9" class="text-center" style="padding:24px;color:#888">조회된 회원이 없습니다.</td></tr>');
     }
+    rows.forEach(function(u, i){
+      var seq = total - (page-1)*size - i;
+      var locked = (u.auth==='8');
+      var act = '<button type="button" class="btn btn-sm btn-resetpw" data-act="resetpw" data-uid="'+esc(u.userId)+'" data-usid="'+esc(u.usid)+'">비번재설정</button>';
+      if(locked){
+        act = '<button type="button" class="btn btn-sm btn-unlock" data-act="unlock" data-uid="'+esc(u.userId)+'" data-usid="'+esc(u.usid)+'">잠금해제</button>' + act;
+      }
+      var tr = ''
+        + '<tr class="user-row" data-sn="'+esc(u.userId)+'" style="cursor:pointer">'
+        + '<td>'+seq+'</td>'
+        + '<td class="text-left"><a href="user-updt.do?userId='+encodeURIComponent(u.userId)+'" class="link" onclick="event.stopPropagation();">'+esc(u.usid)+'</a></td>'
+        + '<td class="text-left">'+esc(u.username)+'</td>'
+        + '<td>'+esc(u.groupName)+'</td>'
+        + '<td class="text-left">'+esc(u.email||'')+'</td>'
+        + '<td class="text-left">'+esc(u.deptNm||'')+'</td>'
+        + '<td style="white-space:nowrap">'+badge(u.auth, u.authLabel)+(locked?' <small style="color:#c0281c">('+esc(u.failCount)+'회)</small>':'')+'</td>'
+        + '<td>'+esc(u.writeDt)+'</td>'
+        + '<td class="user-act">'+act+'</td>'
+        + '</tr>';
+      $b.append(tr);
+    });
+    renderPagination(page, data.totalPages||1);
+  }
+
+  function renderPagination(page, totalPages){
+    var $p = $('#user-pagination').empty();
+    if(totalPages<=1){ $p.append('<strong>1</strong>'); return; }
+    var start = Math.max(1, page-4), end = Math.min(totalPages, start+9);
+    start = Math.max(1, Math.min(start, end-9));
+    if(page>1) $p.append('<a href="#" data-pg="'+(page-1)+'">이전</a> ');
+    for(var i=start;i<=end;i++){
+      if(i===page) $p.append('<strong>'+i+'</strong> ');
+      else $p.append('<a href="#" data-pg="'+i+'">'+i+'</a> ');
+    }
+    if(page<totalPages) $p.append('<a href="#" data-pg="'+(page+1)+'">다음</a>');
+  }
+
+  function load(){
+    $('#user-list-body').html('<tr><td colspan="9" class="text-center" style="padding:24px;color:#888">목록을 불러오는 중…</td></tr>');
+    $.getJSON(API+'/list', currentParams())
+      .done(function(res){ if(res && res.ok){ render(res); } else { toast((res&&res.message)||'목록 조회 실패','error'); } })
+      .fail(function(){ toast('목록을 불러오지 못했습니다. (서버 확인)','error'); });
+  }
+
+  // 검색/초기화/페이지수 — 기존 버튼에서 호출
+  window.searchList = function(){ state.page = 1; load(); };
+  window.btnInit = function(){ $('#search-form')[0].reset(); state.page=1; load(); };
+  window.stubExcel = function(){ toast('[엑셀 다운] 프로토타입 버튼입니다.'); };
+
+  // 잠금 해제
+  function unlock(uid, usid){
+    ask("'"+usid+"' 계정의 잠금을 해제할까요? (승인=정상, 실패횟수 0)", function(){
+      $.ajax({url:API+'/unlock', method:'POST', contentType:'application/json',
+        data: JSON.stringify({userId: uid})})
+        .done(function(res){ if(res&&res.ok){ toast(res.message,'success'); load(); } else { toast((res&&res.message)||'해제 실패','error'); } })
+        .fail(function(){ toast('잠금 해제 요청 실패','error'); });
+    });
+  }
+
+  // 비밀번호 재설정 — 공통 팝업(PwReset) 사용
+  function openPwReset(uid, usid){ window.PwReset.open(uid, usid); }
+
+  $(function(){
+    // 단일 위임 핸들러: 관리 버튼 우선, 그 외 행 클릭 → 상세 (계정 링크는 기본 동작)
+    $('#user-list-body').on('click', function(e){
+      var $act = $(e.target).closest('[data-act]');
+      if($act.length){
+        e.preventDefault();
+        var act=$act.data('act'), uid=String($act.data('uid')), usid=$act.data('usid');
+        if(act==='unlock') unlock(uid, usid);
+        else if(act==='resetpw') openPwReset(uid, usid);
+        return;
+      }
+      if($(e.target).closest('a').length) return; // 계정명 링크는 href로 이동
+      var $row = $(e.target).closest('tr.user-row');
+      if($row.length){
+        location.href = 'user-updt.do?userId=' + encodeURIComponent($row.data('sn'));
+      }
+    });
+    // 페이지네이션
+    $('#user-pagination').on('click', 'a[data-pg]', function(e){
+      e.preventDefault(); state.page = parseInt($(this).data('pg'),10)||1; load();
+    });
+    // 상태 필터 변경 → 즉시 재조회
+    $('#statusFilter').on('change', function(){ state.page = 1; load(); });
+    load();
   });
-});
+})();
 </script>
 
 					</div>

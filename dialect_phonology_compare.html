@@ -93,6 +93,11 @@
   .spacer { flex: 1; }
   .scroll-hint { font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 4px; font-weight: 600; }
 
+  .excel-btn-wrapper { display: flex; justify-content: flex-end; margin: 8px 0 16px; }
+  .excel-btn-rect { background: #217346; border: 1px solid #217346; color: #ffffff; padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer; border-radius: 8px; transition: all 0.2s ease; box-shadow: var(--shadow2); display: inline-flex; align-items: center; gap: 6px; font-family: inherit; }
+  .excel-btn-rect:hover { background: #1a5c34; border-color: #1a5c34; color: #ffffff; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(33, 115, 70, 0.25); }
+  .excel-btn-rect i { font-size: 16px; }
+
   .matrix-wrap {
     border: 1px solid var(--line); border-radius: 16px; overflow: auto;
     max-height: 70vh; position: relative; box-shadow: var(--shadow2); background: #ffffff;
@@ -254,6 +259,10 @@
       <div class="word-header">
         <span class="word" id="currentWord"></span>
         <span class="meta" id="wordMeta"></span>
+      </div>
+
+      <div class="excel-btn-wrapper">
+        <button class="excel-btn-rect" type="button" id="excelBtn" onclick="exportComparisonExcel()"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> 엑셀 내려받기</button>
       </div>
 
       <div class="table-controls">
@@ -591,6 +600,48 @@
   function closeDetail() {
     $('overlay').classList.remove('show');
   }
+
+  // 조회된 항목(선택 표제어 + 현재 도 필터)을 엑셀(CSV, BOM)로 내려받기
+  window.exportComparisonExcel = function () {
+    if (!state.selected || !state.envList.length) {
+      alert('먼저 비교할 항목을 선택해 주세요.');
+      return;
+    }
+    const envs = state.envList;
+    const cell = {};
+    const siteMap = new Map();
+    envs.forEach(env => {
+      const b = state.cache[env.code];
+      if (b && b.responses) b.responses.forEach(r => {
+        cell[env.code + '|' + r.site_id] = r;
+        if (!siteMap.has(r.site_id)) siteMap.set(r.site_id, r);
+      });
+    });
+    const groups = groupSitesFromList([...siteMap.values()]);  // 도 필터·정렬 반영
+    const rows = [['도', '지점', '조사연도'].concat(envs.map(e => e.label))];
+    groups.forEach(g => {
+      g.sites.forEach(s => {
+        const row = [g.name, s.place_name || s.raw_header || '', s.survey_year || ''];
+        envs.forEach(env => {
+          const r = cell[env.code + '|' + s.site_id];
+          row.push(r && !r.is_missing ? (r.raw_text || '') : '');
+        });
+        rows.push(row);
+      });
+    });
+    if (rows.length <= 1) { alert('내려받을 데이터가 없습니다.'); return; }
+    const q = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
+    const csv = '﻿' + rows.map(r => r.map(q).join(',')).join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const word = (state.selected.standard_form || '항목').replace(/[\\/:*?"<>|]/g, '_');
+    a.download = `지역별이형태_${word}_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  };
 
   function bindUI() {
     $('initials').addEventListener('click', e => {

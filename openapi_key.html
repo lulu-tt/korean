@@ -381,9 +381,9 @@
     </nav>
 
     <p class="oa-lead">
-      오픈 API 서비스를 이용하려면 먼저 <strong>인증키</strong>를 발급받아야 합니다.<br>
-      인증키가 올바르지 않으면 서비스 이용이 제한되며, 키를 분실한 경우에는 <strong>재발급</strong>해 주세요.
-      <br><span class="warn">※ 회원 1인당 1개의 인증키를 발급받을 수 있습니다.</span>
+      인증키란 오픈 API 서버에서 지역어 사용자를 확인할 수 있는 증명서와 같은 것입니다.<br>
+      인가된 사용자만 오픈 API를 사용할 수 있도록 인증키를 발급하고 관리합니다.
+      <br><span class="warn">※ 인증키는 사용자당 한 개만 발급받을 수 있습니다.</span>
     </p>
 
     <!-- 발급 완료 상태 -->
@@ -410,53 +410,12 @@
         </div>
       </div>
 
-      <div class="oa-form" style="margin-bottom:24px;">
-        <table>
-          <caption class="sr-only">인증키 정보</caption>
-          <tbody>
-            <tr>
-              <th scope="row">신청 아이디</th>
-              <td id="viewUserId">hanguk_user</td>
-            </tr>
-            <tr>
-              <th scope="row">사용 URL</th>
-              <td>
-                <div class="inline-row">
-                  <input type="url" id="viewApiUrl" readonly value="" title="등록된 사용 URL">
-                  <button type="button" class="oa-btn oa-btn--sm oa-btn--ghost" onclick="enableUrlEdit()">수정</button>
-                </div>
-                <span class="hint">API를 호출하는 서비스·사이트 주소를 등록합니다. 변경 후 저장할 수 있습니다.</span>
-              </td>
-            </tr>
-            <tr id="urlEditRow" class="is-hidden">
-              <th scope="row"><label for="editApiUrl">URL 변경</label></th>
-              <td>
-                <div class="inline-row">
-                  <input type="url" id="editApiUrl" placeholder="https://example.com 또는 localhost:8080" title="변경할 사용 URL">
-                  <button type="button" class="oa-btn oa-btn--sm oa-btn--primary" onclick="saveUrlEdit()">저장</button>
-                  <button type="button" class="oa-btn oa-btn--sm oa-btn--ghost" onclick="cancelUrlEdit()">취소</button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="oa-note oa-note--warn">
-        <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+      <div class="oa-note">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
         <div class="oa-note__body">
-          <strong>재발급 안내</strong><br>
-          재발급 시 기존 인증키는 즉시 무효화됩니다. 이미 연동 중인 서비스가 있다면 새 키로 교체해 주세요.
+          인증키는 사용자당 한 개만 발급되며, 이미 발급받으셨습니다.<br>
+          모든 Open API 요청에 이 인증키(<code style="background:#f1f5f9;padding:1px 6px;border-radius:4px;font-size:13px;">apiKey</code>)를 포함해 호출하세요.
         </div>
-      </div>
-
-      <div class="oa-actions">
-        <button type="button" class="oa-btn oa-btn--danger" onclick="confirmReissue()">
-          <i class="ti ti-refresh" aria-hidden="true"></i> 인증키 재발급
-        </button>
-        <a href="./openapi_guide.html" class="oa-btn oa-btn--primary">
-          <i class="ti ti-code" aria-hidden="true"></i> 연동 명세 보기
-        </a>
       </div>
     </section>
 
@@ -467,27 +426,10 @@
         <h2 class="oa-sec__title" id="applyTitle">인증키 발급 신청</h2>
       </div>
 
-      <div class="oa-note">
-        <i class="ti ti-info-circle" aria-hidden="true"></i>
-        <div class="oa-note__body">
-          <strong>신청 전 확인</strong><br>
-          · 로그인한 회원 계정으로 발급됩니다. (프로토타입: <strong>hanguk_user</strong>)<br>
-          · 사용 URL은 API를 연동할 웹사이트·앱 서버 주소를 입력합니다.<br>
-          · 발급된 키는 외부에 공개되지 않도록 안전하게 관리해 주세요.
-        </div>
-      </div>
-
       <form id="keyForm" class="oa-form" onsubmit="return false;">
         <table>
-          <caption class="sr-only">Open API 인증키 발급 신청</caption>
+          <caption class="sr-only">Open API 인증키 발급</caption>
           <tbody>
-            <tr>
-              <th scope="row">신청 아이디</th>
-              <td>
-                <input type="text" id="userId" value="hanguk_user" readonly title="신청 아이디">
-                <span class="hint">본인 계정으로만 발급·조회할 수 있습니다.</span>
-              </td>
-            </tr>
             <tr>
               <th scope="row"><label for="apiUrl">사용 URL<i class="req" aria-label="필수">*</i></label></th>
               <td>
@@ -496,31 +438,25 @@
               </td>
             </tr>
             <tr>
-              <th scope="row"><label for="apiPurpose">사용 목적</label></th>
+              <th scope="row">저작권 정책<i class="req" aria-label="필수">*</i></th>
               <td>
-                <textarea id="apiPurpose" name="apiPurpose" placeholder="예) 지역어 사전 검색 기능 개발, 학술 연구 데이터 수집 등" title="사용 목적 입력"></textarea>
-                <span class="hint">선택 사항입니다. 관리·문의 시 참고용으로 사용됩니다.</span>
+                <div class="inline-row" style="margin-bottom:8px;">
+                  <button type="button" class="oa-btn oa-btn--sm oa-btn--ghost" onclick="openCopyPolicy()">저작권 정책 확인</button>
+                  <span id="copyInfo" class="hint">먼저 저작권 정책을 확인해 주세요.</span>
+                </div>
+                <label class="oa-check" style="margin:0;">
+                  <input type="checkbox" id="agreeCopy" disabled onchange="onAgreeChange()">
+                  <span>저작권 정책을 확인하였으며, 이에 동의합니다. <i class="req" aria-label="필수">*</i></span>
+                </label>
               </td>
             </tr>
           </tbody>
         </table>
       </form>
 
-      <label class="oa-check">
-        <input type="checkbox" id="agreeTerms">
-        <span>
-          Open API 이용 시 <a href="./terms.html" target="_blank" rel="noopener" style="color:var(--blue-accent);font-weight:700;">이용 약관</a> 및
-          <a href="./copyright.html" target="_blank" rel="noopener" style="color:var(--blue-accent);font-weight:700;">저작권 정책</a>을 준수하며,
-          발급받은 인증키를 무단 공유·양도하지 않겠습니다.
-        </span>
-      </label>
-
       <div class="oa-actions">
-        <button type="button" class="oa-btn oa-btn--ghost" onclick="resetForm()">
-          <i class="ti ti-refresh" aria-hidden="true"></i> 초기화
-        </button>
         <button type="button" class="oa-btn oa-btn--primary" id="btnIssue" onclick="issueKey()">
-          <i class="ti ti-key" aria-hidden="true"></i> 발급 신청
+          <i class="ti ti-key" aria-hidden="true"></i> 인증키 발급
         </button>
       </div>
     </section>
@@ -534,7 +470,7 @@
         <li>인증키(<code style="background:#f1f5f9;padding:1px 6px;border-radius:4px;font-size:13px;">apiKey</code>)는 모든 Open API 요청에 필수입니다.</li>
         <li>요청 URL 예: <code style="background:#f1f5f9;padding:1px 6px;border-radius:4px;font-size:13px;">https://dialect.korean.go.kr/dialect/openAPI/data</code></li>
         <li>과도한 호출은 서비스 안정성을 해칠 수 있으니 필요 범위 내에서 이용해 주세요.</li>
-        <li>키 분실·유출이 의심되면 즉시 재발급하고, 기존 연동 설정을 갱신해 주세요.</li>
+        <li>발급받은 키는 외부에 공개되지 않도록 안전하게 관리해 주세요.</li>
         <li>상세 요청 변수·응답 필드는 <a href="./openapi_guide.html" style="color:var(--blue-accent);font-weight:700;text-decoration:none;">활용안내</a>를 참고하세요.</li>
       </ul>
     </section>
@@ -549,6 +485,7 @@
 (function () {
   var STORAGE_KEY = 'dialect_openapi_key_v1';
   var DEMO_USER = 'hanguk_user';
+  var policyViewed = false;   // 저작권 정책 팝업 확인 여부 (확인해야 동의 체크 가능)
 
   function $(id) { return document.getElementById(id); }
 
@@ -618,9 +555,6 @@
     $('issuedKey').textContent = data.apiKey || '—';
     $('issuedDate').textContent = fmtDate(data.apiDt);
     $('issuedUrlMeta').textContent = data.apiUrl || '—';
-    $('viewApiUrl').value = data.apiUrl || '';
-    $('viewUserId').textContent = data.userId || DEMO_USER;
-    cancelUrlEdit();
   }
 
   function showApply() {
@@ -634,37 +568,55 @@
     else showApply();
   }
 
-  window.resetForm = function () {
-    $('apiUrl').value = '';
-    $('apiPurpose').value = '';
-    $('agreeTerms').checked = false;
+  // 저작권 정책 확인 — 팝업을 열면 동의 체크박스가 활성화됨
+  window.openCopyPolicy = function () {
+    window.open('./copyright.html', 'copyPolicy', 'width=1000,height=800,scrollbars=yes');
+    policyViewed = true;
+    var cb = $('agreeCopy');
+    if (cb) cb.disabled = false;
+    var el = $('copyInfo');
+    if (el) {
+      el.style.color = 'var(--blue-accent)';
+      el.style.fontWeight = '700';
+      el.textContent = '확인했습니다. 아래 동의에 체크해 주세요.';
+    }
   };
 
+  // 동의 체크 상태 변경 시 안내 문구 갱신
+  window.onAgreeChange = function () {
+    var el = $('copyInfo');
+    if (!el) return;
+    if ($('agreeCopy').checked) {
+      el.textContent = '저작권 정책에 동의하셨습니다.';
+    } else {
+      el.textContent = '확인했습니다. 아래 동의에 체크해 주세요.';
+    }
+  };
+
+  // 인증키 발급 — 저작권 정책 확인 → 동의 → URL 순으로 검증
   window.issueKey = function () {
     var url = normalizeUrl($('apiUrl').value);
+    if (!policyViewed) {
+      toast('저작권 정책을 확인해 주세요.');
+      return;
+    }
+    if (!$('agreeCopy').checked) {
+      toast('저작권 정책에 동의해 주세요.');
+      return;
+    }
     if (!validUrl(url)) {
-      toast('사용 URL을 올바르게 입력해 주세요.');
+      toast('사용 url을 등록해 주세요.');
       $('apiUrl').focus();
       return;
-    }
-    if (!$('agreeTerms').checked) {
-      toast('이용 약관 및 저작권 정책에 동의해 주세요.');
-      $('agreeTerms').focus();
-      return;
-    }
-    var existing = loadState();
-    if (existing && existing.apiKey) {
-      if (!confirm('이미 발급된 인증키가 있습니다. 기존 키를 무효화하고 재발급할까요?')) return;
     }
     var data = {
       userId: DEMO_USER,
       apiKey: genKey(),
       apiUrl: url,
-      purpose: ($('apiPurpose').value || '').trim(),
       apiDt: Date.now()
     };
     saveState(data);
-    toast('인증키가 발급되었습니다.');
+    toast('API 인증 키가 발급되었습니다.');
     render();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -694,56 +646,6 @@
     }
     document.body.removeChild(ta);
   }
-
-  window.enableUrlEdit = function () {
-    var data = loadState() || {};
-    $('editApiUrl').value = data.apiUrl || '';
-    $('urlEditRow').classList.remove('is-hidden');
-    $('editApiUrl').focus();
-  };
-
-  window.cancelUrlEdit = function () {
-    $('urlEditRow').classList.add('is-hidden');
-  };
-
-  window.saveUrlEdit = function () {
-    var url = normalizeUrl($('editApiUrl').value);
-    if (!validUrl(url)) {
-      toast('사용 URL을 올바르게 입력해 주세요.');
-      $('editApiUrl').focus();
-      return;
-    }
-    var data = loadState();
-    if (!data) return;
-    data.apiUrl = url;
-    data.updatedDt = Date.now();
-    saveState(data);
-    toast('사용 URL을 저장했습니다.');
-    render();
-  };
-
-  window.confirmReissue = function () {
-    var data = loadState();
-    if (!data) return;
-    if (!confirm('기존 인증키를 무효화하고 새 키를 발급할까요?\n연동 중인 서비스는 새 키로 변경해야 합니다.')) return;
-    var next = {
-      userId: data.userId || DEMO_USER,
-      apiKey: genKey(),
-      apiUrl: data.apiUrl || '',
-      purpose: data.purpose || '',
-      apiDt: Date.now(),
-      reissued: true
-    };
-    if (!next.apiUrl) {
-      clearState();
-      showApply();
-      toast('사용 URL을 입력한 뒤 다시 발급해 주세요.');
-      return;
-    }
-    saveState(next);
-    toast('인증키가 재발급되었습니다.');
-    render();
-  };
 
   document.addEventListener('DOMContentLoaded', render);
 })();

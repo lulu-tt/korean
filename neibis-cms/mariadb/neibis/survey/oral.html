@@ -979,10 +979,12 @@ $(function(){
     return ''+
       '<div class="trs-line">'+
         '<div class="trs-header" style="display:none"><dl>'+
-          '<dt>순번</dt><dd>'+sg.seq+'</dd>'+
-          '<dt>화자</dt><dd>'+esc(spk)+'</dd>'+
-          '<dt>주제</dt><dd>'+esc(window._oralTopic||'-')+'</dd>'+
-          '<dt>항목번호</dt><dd>'+esc(sg.item||'-')+'</dd>'+
+          '<dt>표제어번호</dt><dd>'+esc(sg.headwordNo||'-')+'</dd>'+
+          '<dt>표제어</dt><dd>'+esc(sg.headword||'-')+'</dd>'+
+          '<dt>주제</dt><dd>'+esc(sg.subject||window._oralTopic||'-')+'</dd>'+
+          '<dt>소주제</dt><dd>'+esc(sg.subTopic||'-')+'</dd>'+
+          '<dt>음성상태</dt><dd>'+esc(sg.voiceStatus||'-')+'</dd>'+
+          '<dt>비고</dt><dd>'+esc(sg.remark||'-')+'</dd>'+
         '</dl></div>'+
         '<div class="trs-text">'+
           '<span class="ui-line-no">'+sg.seq+'</span>'+
@@ -992,7 +994,7 @@ $(function(){
           '<div style="flex:1 1 auto">'+
             '<span style="display:inline-block;min-width:44px;font-size:11px;font-weight:700;color:'+badgeColor+'">'+esc(spk)+'</span>'+
             '<pre style="display:inline;margin:0;font-size:14px;line-height:1.65;color:#111827;white-space:pre-wrap;word-break:break-word">'+esc(sg.form)+'</pre>'+
-            (stdDiff?'<div style="margin-top:6px;padding:6px 10px 6px 11px;background:#f1f5f9;border-left:3px solid #93c5fd;border-radius:0 6px 6px 0"><span style="display:inline-block;font-size:10px;font-weight:800;color:#1d4ed8;background:#dbeafe;border-radius:4px;padding:1px 7px;margin-right:8px;vertical-align:1px">표준어</span><span style="font-size:13.5px;color:#1f2937;line-height:1.7">'+esc(sg.std)+'</span></div>':'')+
+            (stdDiff?'<div style="margin-top:6px;padding-left:2px"><span style="display:inline-block;font-size:10px;font-weight:800;color:#dc2626;background:#fee2e2;border-radius:4px;padding:1px 7px;margin-right:8px;vertical-align:1px">표준어</span><span style="font-size:14px;color:#1f2937;line-height:1.7">'+esc(sg.std)+'</span></div>':'')+
           '</div>'+
         '</div>'+
       '</div>';
@@ -1030,7 +1032,7 @@ $(function(){
     if(!id){ if(window.Message){Message.alert({icon:'warning',message:'먼저 구술자료 보기로 파일을 여세요.'});}else{alert('대상 자료 없음');} return; }
     fetch(API+'/raw?id='+encodeURIComponent(id)).then(function(r){return r.json();}).then(function(d){
       if(!d||!d.ok){ alert('원문 로드 실패'); return; }
-      _trs={ id:id, fileName:(d.fileName||('trs '+id)), raw:String(d.raw||''), source:d.source||'', format:d.format||'', mode:'raw', wrap:true, editing:false, segs:null, kw:'', cur:-1 };
+      _trs={ id:id, fileName:(d.fileName||('trs '+id)), raw:String(d.raw||''), source:d.source||'', format:d.format||'', editing:false, kw:'', cur:-1 };
       showTrsOverlay();
     }).catch(function(e){ alert('로드 실패: '+e.message); });
   };
@@ -1041,7 +1043,7 @@ $(function(){
     s=s.replace(/(&gt;)/g,'<span style="color:#f2777a">$1</span>');
     return s;
   }
-  var _trs={ id:'', fileName:'', raw:'', source:'', format:'', mode:'raw', wrap:true, editing:false, segs:null, kw:'', cur:-1 };
+  var _trs={ id:'', fileName:'', raw:'', source:'', format:'', editing:false, kw:'', cur:-1 };
   function _trsIsXml(){ return _trs.format==='eaf'||_trs.format==='xml'||String(_trs.raw||'').lastIndexOf('<?xml',0)===0; }
   function _trsMark(escd){
     if(!_trs.kw) return escd;
@@ -1058,39 +1060,20 @@ $(function(){
       h+='<span id="rvFindMsg" style="font-size:12px;color:#fca5a5;margin-right:6px"></span>';
       h+='<button id="rvSave" style="'+_trsBtn(1)+'">저장</button><button id="rvCancel" style="'+_trsBtn(0)+'">취소</button>';
     } else {
-      h+='<input id="rvFindKw" value="'+esc(_trs.kw||'')+'" placeholder="검색어" style="background:#1b1b1b;color:#eee;border:1px solid #4a4a4a;border-radius:6px;padding:4px 8px;font-size:12px;width:120px" />';
+      h+='<input id="rvFindKw" value="'+esc(_trs.kw||'')+'" placeholder="검색어" style="background:#1b1b1b;color:#eee;border:1px solid #4a4a4a;border-radius:6px;padding:4px 8px;font-size:12px;width:140px" />';
       h+='<button id="rvFindNext" style="'+_trsBtn(0)+'">찾기 ▼</button><button id="rvFindPrev" style="'+_trsBtn(0)+'">▲</button>';
-      h+='<span id="rvFindMsg" style="font-size:12px;color:#9ca3af;min-width:44px;display:inline-block;text-align:center"></span>';
-      h+='<span style="width:1px;height:18px;background:#4a4a4a;display:inline-block;margin:0 3px"></span>';
-      h+='<button id="rvModeRaw" style="'+_trsBtn(_trs.mode==='raw')+'">원문</button><button id="rvModeFmt" style="'+_trsBtn(_trs.mode==='formatted')+'">정리본</button>';
-      if(_trs.mode==='raw') h+='<button id="rvWrap" style="'+_trsBtn(0)+'">'+(_trs.wrap?'줄바꿈 ON':'줄바꿈 OFF')+'</button>';
-      if(_trs.mode==='raw' && _trs.source==='file') h+='<button id="rvEdit" style="'+_trsBtn(1)+'">편집</button>';
-      h+='<button id="rvCopy" style="'+_trsBtn(0)+'">복사</button><button id="rvDownload" style="'+_trsBtn(0)+'">다운로드</button>';
+      h+='<span id="rvFindMsg" style="font-size:12px;color:#9ca3af;min-width:48px;display:inline-block;text-align:center"></span>';
     }
     tb.innerHTML=h;
     var g=function(id){return document.getElementById(id);};
     if(g('rvFindKw')) g('rvFindKw').addEventListener('keydown',function(e){ if(e.key==='Enter'){e.preventDefault(); rvFind(1);} });
     if(g('rvFindNext')) g('rvFindNext').onclick=function(){ rvFind(1); };
     if(g('rvFindPrev')) g('rvFindPrev').onclick=function(){ rvFind(-1); };
-    if(g('rvModeRaw')) g('rvModeRaw').onclick=function(){ _trs.mode='raw'; _trs.kw=''; _trs.cur=-1; renderTrs(); };
-    if(g('rvModeFmt')) g('rvModeFmt').onclick=function(){ _trs.mode='formatted'; _trs.kw=''; _trs.cur=-1; renderTrs(); };
-    if(g('rvWrap')) g('rvWrap').onclick=function(){ _trs.wrap=!_trs.wrap; renderTrs(); };
     if(g('rvEdit')) g('rvEdit').onclick=function(){ _trs.editing=true; renderTrs(); };
     if(g('rvSave')) g('rvSave').onclick=rvSave;
     if(g('rvCancel')) g('rvCancel').onclick=function(){ _trs.editing=false; renderTrs(); };
     if(g('rvCopy')) g('rvCopy').onclick=rvCopy;
     if(g('rvDownload')) g('rvDownload').onclick=rvDownload;
-  }
-  function _fmtSeg(sg){
-    var spk=sg.speaker||'', color=(spk==='조사자')?'#38bdf8':'#c4b5fd';
-    var form=_trs.kw?_trsMark(esc(sg.form)):esc(sg.form);
-    var stdRaw=(sg.std&&sg.std!==sg.form)?sg.std:'';
-    var std=stdRaw?(_trs.kw?_trsMark(esc(stdRaw)):esc(stdRaw)):'';
-    return '<div style="padding:8px 4px;border-bottom:1px solid #3a3a3a">'
-      +'<div><span style="display:inline-block;min-width:46px;font-size:11px;font-weight:700;color:'+color+'">'+esc(spk)+'</span>'
-      +'<span style="color:#eaeaea;line-height:1.6">'+form+'</span></div>'
-      +(std?'<div style="margin-top:4px;margin-left:46px;padding:4px 10px;background:#3a3a3a;border-left:3px solid #60a5fa;border-radius:0 6px 6px 0"><span style="font-size:10px;font-weight:800;color:#bfdbfe;margin-right:7px">표준어</span><span style="color:#e5e7eb;font-size:13px;line-height:1.6">'+std+'</span></div>':'')
-      +'</div>';
   }
   function renderTrsBody(){
     var body=document.getElementById('oralRawBody'); if(!body) return;
@@ -1098,18 +1081,11 @@ $(function(){
       body.innerHTML='<textarea id="oralRawEdit" spellcheck="false" style="width:100%;height:100%;box-sizing:border-box;background:#1b1b1b;color:#e6e6e6;border:1px solid #3a3a3a;border-radius:6px;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.6;resize:none;outline:none;white-space:pre;overflow:auto"></textarea>';
       document.getElementById('oralRawEdit').value=_trs.raw; return;
     }
-    if(_trs.mode==='formatted'){
-      if(_trs.segs===null){ body.innerHTML='<div style="color:#aaa;padding:16px">정리본 불러오는 중…</div>';
-        fetch(API+'/detail?id='+encodeURIComponent(_trs.id)).then(function(r){return r.json();}).then(function(d){ _trs.segs=(d&&d.segments)||[]; renderTrsBody(); }); return; }
-      body.innerHTML=_trs.segs.map(_fmtSeg).join('')||'<div style="color:#888;padding:16px">전사 데이터가 없습니다.</div>';
-      return;
-    }
     var xml=_trsIsXml();
-    var wrapCss=_trs.wrap?'white-space:pre-wrap;word-break:break-all':'white-space:pre';
     body.innerHTML=String(_trs.raw||'').split('\n').map(function(l,i){
       var num='<span style="display:inline-block;min-width:46px;text-align:right;color:#6b7280;user-select:none;margin-right:14px">'+(i+1)+'</span>';
       var content=_trs.kw?_trsMark(esc(l)):(xml?hlXml(l):esc(l));
-      return '<div style="'+wrapCss+'">'+num+content+'</div>';
+      return '<div style="white-space:pre-wrap;word-break:break-all">'+num+content+'</div>';
     }).join('')||'<span style="color:#888">(원본 내용 없음)</span>';
   }
   function rvFind(dir){
@@ -1125,8 +1101,7 @@ $(function(){
     if(msg) msg.textContent=(_trs.cur+1)+' / '+marks.length;
   }
   function rvCopy(){
-    var t=(_trs.mode==='formatted' && _trs.segs)? _trs.segs.map(function(s){return (s.speaker||'')+'\t'+(s.form||'')+(s.std&&s.std!==s.form?('\t{'+s.std+'}'):'');}).join('\n') : _trs.raw;
-    if(navigator.clipboard){ navigator.clipboard.writeText(t).then(function(){ var m=document.getElementById('rvFindMsg'); if(m){m.style.color='#86efac';m.textContent='복사됨';} }); }
+    if(navigator.clipboard){ navigator.clipboard.writeText(_trs.raw||'').then(function(){ var m=document.getElementById('rvFindMsg'); if(m){m.style.color='#86efac';m.textContent='복사됨';} }); }
   }
   function rvDownload(){
     var blob=new Blob([_trs.raw||''],{type:'text/plain;charset=utf-8'});
@@ -1138,7 +1113,7 @@ $(function(){
     var msg=document.getElementById('rvFindMsg'); if(msg){ msg.style.color='#9ca3af'; msg.textContent='저장 중…'; }
     fetch('/mariadb/neibis-api/oral/save-raw',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({trsId:_trs.id, raw:ta.value})})
       .then(function(r){return r.json();}).then(function(d){
-        if(d&&d.ok){ _trs.raw=ta.value; _trs.segs=null; _trs.editing=false; renderTrs();
+        if(d&&d.ok){ _trs.raw=ta.value; _trs.editing=false; renderTrs();
           if(window.Message){Message.alert({icon:'success',message:'원본 파일에 저장되었습니다.'});} }
         else if(msg){ msg.style.color='#f87171'; msg.textContent='저장 실패: '+((d&&d.message)||''); }
       }).catch(function(e){ if(msg){ msg.style.color='#f87171'; msg.textContent='저장 실패: '+e.message; } });
@@ -1401,8 +1376,6 @@ $(function(){
 						</div>
 					</div>
 					<div class="trs-funcs">
-						<button type="button" class="btn btn-sm btn-outline-gray" onclick="stub('조사지역 보기')"><i class="ico ico-search-darkgray-sm"></i><span>조사지역 보기</span></button>
-						<button type="button" class="btn btn-sm btn-outline-gray" onclick="oralShowRaw()"><i class="ico ico-file-darkgray-md"></i><span>trs 보기</span></button>
 						<button type="button" class="btn btn-sm btn-outline-gray" onclick="trsDownload('개별')"><i class="ico ico-download-gray-md"></i><span>구술자료받기[개별]</span></button>
 						<button type="button" class="btn btn-sm btn-outline-gray" onclick="trsDownload('병합')"><i class="ico ico-download-gray-md"></i><span>구술자료받기[병합]</span></button>
 						<button type="button" class="btn btn-sm btn-primary" onclick="trsListen()"><i class="ico ico-play-white-sm"></i><span>선택한 자료 듣기</span></button>

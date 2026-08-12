@@ -188,10 +188,12 @@
   }
   .oa-badge {
     display: inline-block; font-size: 11.5px; font-weight: 800; border-radius: 99px;
-    padding: 2px 9px; letter-spacing: .02em;
+    padding: 2px 9px; letter-spacing: .02em; white-space: nowrap;
   }
   .oa-badge--req { background: #fef2f2; color: #b91c1c; }
   .oa-badge--opt { background: #f1f5f9; color: #64748b; }
+  /* 필수 컬럼: 배지가 항상 한 줄로 보이도록 셀도 nowrap */
+  .oa-table td.oa-col-req, .oa-table th.oa-col-req { white-space: nowrap; text-align: center; width: 1%; }
 
   /* 코드 블록 */
   .oa-code {
@@ -355,15 +357,6 @@
       지역어 어휘 정보 Open API 연동을 위한 <strong>요청 URL · 파라미터 · 응답 필드 · 상태 코드</strong>를 안내합니다.<br>
       아래 <strong>테스트베드</strong>에서 조건을 넣어 요청 URL·샘플 응답·호출 코드를 바로 확인할 수 있습니다.
     </p>
-
-    <nav class="oa-toc" aria-label="본문 목차">
-      <a href="#sec-overview"><i class="ti ti-info-circle" aria-hidden="true"></i> 이용 개요</a>
-      <a href="#sec-params"><i class="ti ti-list-details" aria-hidden="true"></i> 요청 변수</a>
-      <a href="#sec-response"><i class="ti ti-database" aria-hidden="true"></i> 응답 필드</a>
-      <a href="#sec-codes"><i class="ti ti-code" aria-hidden="true"></i> 상태 코드</a>
-      <a href="#sec-sample"><i class="ti ti-terminal-2" aria-hidden="true"></i> 호출 예시</a>
-      <a href="#sec-testbed"><i class="ti ti-flask" aria-hidden="true"></i> 테스트베드</a>
-    </nav>
 
     <!-- 1. overview -->
     <section class="oa-sec" id="sec-overview">

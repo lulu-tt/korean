@@ -652,7 +652,7 @@
 </tr>
 											<tr>
 																																																<th scope="row"><label for="birth">제보자 출생연도</label></th>
-												<td>
+												<td colspan="3">
 													<div class="input-group input-group-datepicker" style="max-width:220px;">
 														<input
 															type="text"
@@ -668,21 +668,35 @@
 													</div>
 													<p class="text-guide mt-1" style="margin:4px 0 0;">연도를 한 번만 클릭하면 입력됩니다.</p>
 												</td>
+</tr>
+<tr>
 <th scope="row"><label for="birthPlace">제보자 출생지</label></th>
-												<td>
-													<input type="text" id="birthPlace" name="birthPlace" class="form-control-sm full" placeholder="제보자 출생지를 입력하여 주세요." value="" autocomplete="off" />
+												<td colspan="3">
+													<div class="input-group input-group-region" style="display:flex;gap:8px;align-items:center;max-width:640px;">
+														<input type="text" id="birthPlace" name="birthPlace" class="form-control-sm full" placeholder="제보자 출생지를 입력하여 주세요." value="" autocomplete="off" />
+														<input type="hidden" id="birthPlaceCode" name="birthPlaceCode" value="" />
+														<a href="#layer-region-search" data-modal="open" class="btn btn-sm btn-outline-gray" style="white-space:nowrap;" data-region-target="birthPlace"><i class="ico ico-search-darkgray-sm"></i><span>지역찾기</span></a>
+													</div>
 												</td>
 											</tr>
 											<tr>
 												<th scope="row"><label for="residence">제보자 거주지</label></th>
 												<td colspan="3">
-													<input type="text" id="residence" name="residence" class="form-control-sm full" placeholder="제보자의 조사당시 거주지를 입력하여 주세요." value="" autocomplete="off" />
+													<div class="input-group input-group-region" style="display:flex;gap:8px;align-items:center;max-width:640px;">
+														<input type="text" id="residence" name="residence" class="form-control-sm full" placeholder="제보자의 조사당시 거주지를 입력하여 주세요." value="" autocomplete="off" />
+														<input type="hidden" id="residenceCode" name="residenceCode" value="" />
+														<a href="#layer-region-search" data-modal="open" class="btn btn-sm btn-outline-gray" style="white-space:nowrap;" data-region-target="residence"><i class="ico ico-search-darkgray-sm"></i><span>지역찾기</span></a>
+													</div>
 												</td>
 											</tr>
 											<tr>
 												<th scope="row"><label for="parentResidence">제보자 선대 거주지</label></th>
 												<td colspan="3">
-													<input type="text" id="parentResidence" name="parentResidence" class="form-control-sm full" placeholder="제보자의 선대 거주지를 입력하여 주세요." value="" autocomplete="off" />
+													<div class="input-group input-group-region" style="display:flex;gap:8px;align-items:center;max-width:640px;">
+														<input type="text" id="parentResidence" name="parentResidence" class="form-control-sm full" placeholder="제보자의 선대 거주지를 입력하여 주세요." value="" autocomplete="off" />
+														<input type="hidden" id="parentResidenceCode" name="parentResidenceCode" value="" />
+														<a href="#layer-region-search" data-modal="open" class="btn btn-sm btn-outline-gray" style="white-space:nowrap;" data-region-target="parentResidence"><i class="ico ico-search-darkgray-sm"></i><span>지역찾기</span></a>
+													</div>
 												</td>
 											</tr>
 											<tr>
@@ -726,8 +740,15 @@
 												<th scope="row"><label for="sourcePlace">제보 장소<i class="req">필수입력</i></label></th>
 												<td colspan="3">
 													<input type="text" id="sourcePlace" name="sourcePlace" class="form-control-sm full" placeholder="제보자와 만나 녹취한 장소를 입력하여 주세요." value="" autocomplete="off" required />
-												</td>
-											</tr>
+													</td>
+												</tr>
+												<tr id="trsFileRow" style="display:none;">
+													<th scope="row">Trs File(전사 파일)</th>
+													<td colspan="3">
+														<div id="trsFileList" class="trs-file-list"></div>
+														<p class="text-guide mt-1" style="margin:6px 0 0;">이 제보자가 속한 조사지역에 연동된 전사(.eaf) 파일입니다. (읽기 전용)</p>
+													</td>
+												</tr>
 
 										</tbody>
 									</table>
@@ -737,6 +758,7 @@
 							<div class="btn-group-between">
 								<div class="left">
 									<a href="source.do" data-confirm="leave-saver" class="btn btn-lg btn-outline-gray"><i class="ico ico-chevron-left-gray-md"></i><span>목록</span></a>
+									<button type="button" id="btn-delete" class="btn btn-lg btn-red" style="display:none;" onclick="btnDelete()"><i class="ico ico-trash-white-md"></i><span>삭제</span></button>
 								</div>
 								<div class="right">
 									<button type="button" class="btn btn-lg btn-gray" onclick="btnCancel()"><i class="ico ico-close-white-md"></i><span>취소</span></button>
@@ -745,6 +767,7 @@
 							</div>
 						</div>
 						<div class="btn-group-fixed">
+							<button type="button" id="btn-delete-fixed" class="btn btn-lg btn-red" style="display:none;" onclick="btnDelete()"><i class="ico ico-trash-white-md"></i><span>삭제</span></button>
 							<button type="button" class="btn btn-lg btn-gray" onclick="btnCancel()"><i class="ico ico-close-white-md"></i><span>취소</span></button>
 							<button type="button" class="btn btn-lg btn-primary" onclick="btnSave()"><i class="ico ico-save-white-md"></i><span>저장</span></button>
 						</div>
@@ -923,6 +946,7 @@ $(function(){
 	window._birthYearPickerActive = false;
 	// form-datepicker 글로벌 초기화 이후 실행
 	setTimeout(initBirthYearCalendar, 200);
+	setTimeout(srcInit, 30);
 	$('#age').on('input change', function(){
 		var v = $(this).val();
 		if(v === '') return;
@@ -932,6 +956,62 @@ $(function(){
 		if(n > 120) $(this).val(120);
 	});
 });
+
+// 등록/수정/팝업(전사자료 업로드 연동) 초기화
+window._srcMode = 'C'; window._srcId = ''; window._srcPopup = false; window._srcRegionNm = '';
+function srcInit(){
+	var p = new URLSearchParams(location.search);
+	window._srcPopup = p.get('popup') === '1';
+	window._srcRegionNm = p.get('regionNm') || p.get('region') || '';
+	var id = (p.get('id') || '').trim();
+	if(id){
+		window._srcMode = 'M'; window._srcId = id;
+		var t = document.getElementById('neibisTopTitle'); if(t) t.textContent = t.textContent.replace('등록','수정');
+		// 화면 제목/브레드크럼도 '수정'으로 (운영 페이지와 동일하게)
+		$('.content-title .title').text('제보자 관리 수정');
+		$('.breadcrumb-list li').last().text('수정');
+		// 수정 모드: 삭제 버튼 노출 (팝업 연동 시에는 숨김)
+		if(!window._srcPopup){
+			$('#btn-delete, #btn-delete-fixed').css('display','');
+		}
+		fetch('/mariadb/neibis-api/source/detail?id='+encodeURIComponent(id)).then(function(r){return r.json();}).then(function(d){
+			if(d && d.ok){ fillSourceForm(d.data); window._srcRegionNm = d.data.regionNm || window._srcRegionNm; }
+		}).catch(function(){});
+	} else {
+		fillSourceForm({
+			name: p.get('name')||'', sex: p.get('sex')||'', age: p.get('age')||'',
+			birth: p.get('birth')||'', residence: p.get('residence')||'', birthPlace: p.get('birthPlace')||''
+		});
+	}
+}
+function fillSourceForm(d){
+	function set(id,v){ var el=document.getElementById(id); if(el && v!=null && v!=='') el.value=v; }
+	set('name',d.name); set('age',d.age); set('birth',d.birth); set('birthPlace',d.birthPlace);
+	set('residence',d.residence); set('parentResidence',d.parentResidence); set('job',d.job);
+	set('education',d.education); set('introductionDetail',d.introductionDetail);
+	set('voiceRemark',d.voiceRemark); set('remark',d.remark); set('sourcePlace',d.sourcePlace);
+	// 지역코드(hidden) — 거주지 코드는 legalRegionCode 로 대표 저장됨
+	set('residenceCode', d.residenceCode || d.legalRegionCode || '');
+	set('birthPlaceCode', d.birthPlaceCode || '');
+	set('parentResidenceCode', d.parentResidenceCode || '');
+	var sv=d.sex; if(sv==='남') sv='1'; else if(sv==='여') sv='0';
+	if(sv==='1'||sv==='0'){ var s=document.getElementById('sex'); if(s) s.value=sv; }
+	if(d.consentForm==='0'||d.consentForm==='1'){ var c=document.getElementById('consentForm'); if(c) c.value=d.consentForm; }
+	renderTrsFiles(d.trsFiles || []);
+}
+// 연동된 전사(.eaf) 파일 목록 표시
+function renderTrsFiles(files){
+	var row=document.getElementById('trsFileRow');
+	var box=document.getElementById('trsFileList');
+	if(!row||!box) return;
+	// 등록(신규) 모드에는 조사지역이 아직 없으므로 숨김.
+	// 수정 모드에서는 전사파일이 없어도 컬럼을 항상 표시(빈 상태 안내문구는 CSS로 처리).
+	if(window._srcMode!=='M'){ row.style.display='none'; box.innerHTML=''; return; }
+	var html='';
+	(files||[]).forEach(function(f){ html += '<span class="trs-file-chip">'+f+'</span>'; });
+	box.innerHTML=html;
+	row.style.display='';
+}
 
 function btnCancel(){
 	var go=function(){ location.href='source.do'; };
@@ -958,21 +1038,189 @@ function btnSave(){
 		return $('#sourcePlace').focus();
 	}
 	var done=function(){
-		if(window.Message) Message.alert({icon:'info', message:'정적 프로토타입입니다. 실제 저장은 수행되지 않습니다.'}, function(){ location.href='source.do'; });
-		else { alert('정적 프로토타입: 저장 미수행'); location.href='source.do'; }
+		var val=function(id){ var el=document.getElementById(id); return el? (el.value||'').trim() : ''; };
+		var payload={
+			mode: window._srcMode||'C', sourceId: window._srcId||'',
+			name: val('name'), sex: val('sex'), age: val('age'), birth: val('birth'),
+			birthPlace: val('birthPlace'), residence: val('residence'), parentResidence: val('parentResidence'),
+			birthPlaceCode: val('birthPlaceCode'), residenceCode: val('residenceCode'), parentResidenceCode: val('parentResidenceCode'),
+			job: val('job'), education: val('education'), introductionDetail: val('introductionDetail'),
+			consentForm: val('consentForm'), voiceRemark: val('voiceRemark'), remark: val('remark'),
+			sourcePlace: val('sourcePlace'), regionNm: window._srcRegionNm||''
+		};
+		fetch('/mariadb/neibis-api/source/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+			.then(function(r){return r.json();}).then(function(d){
+				if(!d||!d.ok){ var m=(d&&d.message)||'저장 실패'; if(window.Message) Message.alert({icon:'warning',message:m}); else alert(m); return; }
+				// 팝업(전사자료 업로드 연동): 등록된 제보자를 부모창에 전달 후 닫기
+				if(window._srcPopup && window.opener && typeof window.opener.onSourceRegistered==='function'){
+					window.opener.onSourceRegistered({
+						sourceId: d.sourceId, name: payload.name, sex: payload.sex,
+						age: payload.age, birth: payload.birth, residence: payload.residence,
+						birthPlace: payload.birthPlace, job: payload.job, education: payload.education
+					});
+					window.close(); return;
+				}
+				if(window.Message) Message.alert({icon:'success', message:d.message||'저장되었습니다.'}, function(){ location.href='source.do'; });
+				else { alert(d.message||'저장되었습니다.'); location.href='source.do'; }
+			}).catch(function(){ if(window.Message) Message.alert({icon:'error',message:'저장 API 호출 실패'}); else alert('저장 API 호출 실패'); });
 	};
 	if(window.Message) Message.confirm({icon:'warning', title:'저장하시겠어요?', message:'저장하시려면 ‘확인’을 눌러주세요.'}, done);
 	else if(confirm('저장하시겠어요?')) done();
 }
 function btnDelete(){
+	if(window._srcMode!=='M' || !window._srcId){
+		if(window.Message) Message.alert({icon:'warning', message:'삭제할 제보자가 지정되지 않았습니다.'});
+		else alert('삭제할 제보자가 지정되지 않았습니다.');
+		return;
+	}
 	var done=function(){
-		if(window.Message) Message.alert({icon:'info', message:'정적 프로토타입입니다.'}, function(){ location.href='source.do'; });
-		else { alert('삭제(프로토타입)'); location.href='source.do'; }
+		fetch('/mariadb/neibis-api/source/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sourceId:window._srcId})})
+			.then(function(r){return r.json();}).then(function(d){
+				if(!d||!d.ok){ var m=(d&&d.message)||'삭제 실패'; if(window.Message) Message.alert({icon:'warning',message:m}); else alert(m); return; }
+				if(window.Message) Message.alert({icon:'success', message:d.message||'삭제되었습니다.'}, function(){ location.href='source.do'; });
+				else { alert(d.message||'삭제되었습니다.'); location.href='source.do'; }
+			}).catch(function(){ if(window.Message) Message.alert({icon:'error',message:'삭제 API 호출 실패'}); else alert('삭제 API 호출 실패'); });
 	};
 	if(window.Message) Message.confirm({icon:'warning', title:'제보자를 삭제합니다', message:'그래도 삭제 하시겠어요?'}, done);
 	else if(confirm('삭제하시겠어요?')) done();
 }
 </script>
+
+		<!-- 삭제(빨간) 버튼 · 전사파일 칩 스타일 -->
+		<style>
+			/* 저장/취소와 동일 크기(btn-lg 유지) + 솔리드 레드 */
+			.btn.btn-red{ background:#dc2626; border:1px solid #dc2626; color:#fff; }
+			.btn.btn-red:hover, .btn.btn-red:focus{ background:#b91c1c; border-color:#b91c1c; color:#fff; }
+			.btn.btn-red .ico{ margin-right:6px; }
+			.trs-file-list{ display:flex; flex-wrap:wrap; gap:6px; }
+			.trs-file-list .trs-file-chip{ display:inline-flex; align-items:center; padding:4px 10px; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:14px; font-size:13px; color:#334155; }
+			.trs-file-list:empty::before{ content:'연동된 전사 파일이 없습니다.'; color:#94a3b8; font-size:13px; }
+		</style>
+
+		<!-- Modal Popup : 조사 지역 찾기 -->
+		<style>
+			#layer-region-search .popup-inner{ width:520px; max-width:calc(100% - 40px); margin-left:auto; margin-right:auto; }
+			#layer-region-search .region-search-form{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+			#layer-region-search .region-result{ margin-top:14px; height:260px; overflow-y:auto; border:1px solid #e5e7eb; border-radius:8px; }
+			#layer-region-search .region-result ul{ list-style:none; margin:0; padding:0; }
+			#layer-region-search .region-result li{ padding:10px 14px; border-bottom:1px solid #f1f5f9; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+			#layer-region-search .region-result li:last-child{ border-bottom:0; }
+			#layer-region-search .region-result li:hover{ background:#f8fafc; }
+			#layer-region-search .region-result li .nm{ color:#374151; font-size:14px; }
+			#layer-region-search .region-result li .code{ color:#94a3b8; font-size:12px; white-space:nowrap; }
+			#layer-region-search .region-result li.ab-region .nm{ color:#dc2626; }
+			#layer-region-search .region-result .nodata{ padding:40px 14px; text-align:center; color:#94a3b8; cursor:default; }
+			#layer-region-search .region-result .nodata:hover{ background:transparent; }
+			#layer-region-search .region-target-info{ margin:0 0 10px; font-size:13px; color:#475569; }
+			#layer-region-search .region-target-info strong{ color:#2563eb; }
+		</style>
+		<div class="modal-popup modal-lg hide" id="layer-region-search">
+			<div class="dimed"></div>
+			<div class="popup-inner">
+				<div class="popup-header">
+					<h2 class="popup-title">조사 지역 찾기</h2>
+				</div>
+				<div class="popup-body">
+					<p class="region-target-info">선택 대상: <strong id="regionTargetLabel">-</strong></p>
+					<form class="region-search-form" onsubmit="return false;">
+						<select id="regionSe" class="form-control-sm" style="width:130px" title="검색 구분">
+							<option value="2">읍면동/리</option>
+							<option value="1">시군구</option>
+						</select>
+						<label for="regionSearchKw" class="sr-only">조사지역명</label>
+						<input type="text" id="regionSearchKw" class="form-control-sm" style="width:230px" placeholder="조사지역명을 입력하세요." />
+						<button type="button" class="btn btn-sm btn-primary" onclick="doRegionSearch()"><i class="ico ico-search-white-sm"></i><span>검색</span></button>
+					</form>
+					<div class="region-result">
+						<ul id="regionResultList"></ul>
+					</div>
+				</div>
+				<div class="popup-footer">
+					<div class="btn-group-center">
+						<button type="button" class="btn btn-lg btn-outline-gray" data-modal="close">닫기</button>
+					</div>
+				</div>
+				<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+			</div>
+		</div>
+
+		<script>
+		// 조사 지역 찾기(정적 프로토타입 예시 데이터)
+		var REGION_DATA = [
+			// 시군구
+			{nm:'강원도 삼척시', code:'42230', level:'gu', use:true},
+			{nm:'경상북도 안동시', code:'47170', level:'gu', use:true},
+			{nm:'전라남도 목포시', code:'46110', level:'gu', use:true},
+			{nm:'충청남도 공주시', code:'44150', level:'gu', use:true},
+			{nm:'경상남도 남해군', code:'48840', level:'gu', use:true},
+			{nm:'전라북도 전주시', code:'45110', level:'gu', use:true},
+			{nm:'제주특별자치도 제주시', code:'50110', level:'gu', use:true},
+			{nm:'충청북도 청주시', code:'43110', level:'gu', use:true},
+			{nm:'경기도 수원시', code:'41110', level:'gu', use:true},
+			{nm:'경상남도 마산시', code:'48120', level:'gu', use:false},
+			// 읍면동/리
+			{nm:'강원도 삼척시 원덕읍', code:'42230320', level:'emd', use:true},
+			{nm:'강원도 삼척시 근덕면', code:'42230310', level:'emd', use:true},
+			{nm:'강원도 삼척시 노곡면', code:'42230340', level:'emd', use:true},
+			{nm:'경상북도 안동시 도산면', code:'47170370', level:'emd', use:true},
+			{nm:'경상북도 안동시 임동면', code:'47170340', level:'emd', use:true},
+			{nm:'전라남도 목포시 용당동', code:'46110101', level:'emd', use:true},
+			{nm:'충청남도 공주시 반포면', code:'44150310', level:'emd', use:true},
+			{nm:'경상남도 남해군 상주면', code:'48840340', level:'emd', use:true},
+			{nm:'제주특별자치도 제주시 한경면', code:'50110630', level:'emd', use:true},
+			{nm:'충청북도 청주시 흥덕구 복대동', code:'43111311400', level:'emd', use:true},
+			{nm:'충청북도 청주시 상당구 용암동', code:'43111105', level:'emd', use:true},
+			{nm:'경기도 수원시 팔달구 매산동', code:'41115101', level:'emd', use:true},
+			{nm:'전라북도 전주시 완산구 중앙동', code:'45111101', level:'emd', use:false}
+		];
+
+		// 지역찾기 대상 필드 (birthPlace / residence / parentResidence)
+		window._regionTarget = 'residence';
+		var REGION_TARGET_LABEL = { birthPlace:'제보자 출생지', residence:'제보자 거주지', parentResidence:'제보자 선대 거주지' };
+
+		function renderRegionResult(list){
+			var ul = document.getElementById('regionResultList');
+			if(!list.length){ ul.innerHTML = '<li class="nodata">검색 결과가 없습니다.</li>'; return; }
+			var html = '';
+			list.forEach(function(r){
+				html += '<li class="'+(r.use?'':'ab-region')+'" data-nm="'+r.nm+'" data-code="'+r.code+'" data-use="'+(r.use?1:0)+'">'
+					+ '<span class="nm">'+r.nm+(r.use?'':' (폐지)')+'</span>'
+					+ '<span class="code">'+r.code+'</span></li>';
+			});
+			ul.innerHTML = html;
+		}
+
+		function doRegionSearch(){
+			var level = document.getElementById('regionSe').value === '1' ? 'gu' : 'emd';
+			var kw = document.getElementById('regionSearchKw').value.trim();
+			var list = REGION_DATA.filter(function(r){ return r.level === level && (kw === '' || r.nm.indexOf(kw) >= 0); });
+			renderRegionResult(list);
+		}
+
+		$(function(){
+			// 지역찾기 버튼 클릭 -> 대상 필드 기억 + 라벨/현재값 반영
+			$(document).on('click', '[data-region-target]', function(){
+				var target = $(this).attr('data-region-target');
+				window._regionTarget = target;
+				$('#regionTargetLabel').text(REGION_TARGET_LABEL[target] || target);
+				$('#regionSearchKw').val(($('#'+target).val()||'').trim());
+				doRegionSearch();
+			});
+			// 결과 항목 클릭 -> 대상 필드에 반영 후 닫기
+			$('#regionResultList').on('click', 'li[data-code]', function(){
+				var target = window._regionTarget || 'residence';
+				$('#'+target).val($(this).attr('data-nm'));
+				$('#'+target+'Code').val($(this).attr('data-code'));
+				$('#layer-region-search [data-modal="close"]').first().trigger('click');
+			});
+			// 엔터 검색
+			$('#regionSearchKw').on('keypress', function(e){ if(e.keyCode === 13){ e.preventDefault(); doRegionSearch(); } });
+			// 구분 변경 시 재검색
+			$('#regionSe').on('change', doRegionSearch);
+			// 초기 목록
+			doRegionSearch();
+		});
+		</script>
 
 </div>
 

@@ -660,14 +660,15 @@
 <tr>
 <th scope="row"><label for="currentPassword">현재 비밀번호</label></th>
 <td>
-<input type="text" id="currentPassword" class="form-control" style="max-width:800px;width:100%" value="$2a$10$wiNwGEDNWdRaOhSUPxtPN.hZt560YmpTEi/SWzDHjoDGvVoCKlUpO" readonly />
-<p class="text-guide mt-1" style="margin:4px 0 0;font-size:12px;color:#6b7280;">원본 화면과 같이 저장된 해시 값을 표시합니다.</p>
+<input type="text" id="currentPassword" class="form-control" style="max-width:800px;width:100%" value="············" readonly />
+<p class="text-guide mt-1" style="margin:4px 0 0;font-size:12px;color:#6b7280;">보안을 위해 저장된 비밀번호 값은 표시하지 않습니다.</p>
 </td>
 </tr>
 <tr>
-<th scope="row"><label for="password">비밀번호 변경</label></th>
+<th scope="row">비밀번호 재설정</th>
 <td>
-<input type="text" id="password" name="password" class="form-control" style="max-width:800px;width:100%" value="" placeholder="변경할 비밀번호를 입력해주세요." autocomplete="off" />
+<button type="button" class="btn btn-md btn-primary" onclick="doResetPw()"><i class="ico ico-lock-white-md"></i><span>비밀번호 재설정</span></button>
+<p class="text-guide mt-1" style="margin:6px 0 0;font-size:12px;color:#6b7280;">버튼을 누르면 팝업에서 새 비밀번호를 입력해 관리자가 임의로 재설정합니다. (8자 이상)</p>
 </td>
 </tr>
 <tr>
@@ -687,12 +688,20 @@
 </td>
 </tr>
 <tr>
+<th scope="row">승인상태</th>
+<td>
+<span id="status-badge" class="badge-auth is-etc">-</span>
+<span id="status-note" style="margin-left:8px;color:#c0281c;font-size:13px"></span>
+<button type="button" id="btn-unlock" class="btn btn-sm btn-unlock" style="display:none;margin-left:12px" onclick="doUnlock()">잠금 해제</button>
+</td>
+</tr>
+<tr>
 <th scope="row">최초등록</th>
-<td>bakeyeon - 2026-07-11 </td>
+<td><span id="info-write">-</span></td>
 </tr>
 <tr>
 <th scope="row">수정</th>
-<td>bakeyeon - 2026-07-11 </td>
+<td><span id="info-update">-</span></td>
 </tr>
 </tbody>
 </table>
@@ -711,19 +720,93 @@
 </form>
 
 <!-- // 본문 영역 -->
+<style>
+  .badge-auth{display:inline-block;min-width:52px;padding:3px 12px;border-radius:12px;font-size:13px;font-weight:700;line-height:1.6;text-align:center}
+  .badge-auth.is-normal{background:#e8f5e9;color:#1b7a34}
+  .badge-auth.is-locked{background:#fdecea;color:#c0281c}
+  .badge-auth.is-etc{background:#eceff1;color:#607d8b}
+  .btn-unlock{background:#c0281c;border-color:#c0281c;color:#fff}
+</style>
+<!-- 비밀번호 재설정 공통 팝업 -->
+<script src="/mariadb/assets/neibis/js/neibis.pwReset.js"></script>
 <script>
-function btnSave(){
-  if(window.Message){
-    Message.confirm({icon:'warning', title:'저장하시겠어요?', message:'정적 프로토타입에서는 실제 저장이 수행되지 않습니다.'}, function(){
-      Message.alert({icon:'info', message:'저장 처리(프로토타입)가 완료되었습니다.'}, function(){
-        location.href='/mariadb/neibis/system/user.do';
-      });
-    });
-  } else if(confirm('저장하시겠어요?')){
-    alert('정적 프로토타입: 저장 미수행');
-    location.href='/mariadb/neibis/system/user.do';
+(function(){
+  var API = '/mariadb/neibis-api/system/user';
+  var GROUP = {'1':'시스템관리자','2':'정보제공관리자','3':'일반사용자'};
+
+  function qp(name){
+    var m = new RegExp('[?&]'+name+'=([^&]*)').exec(location.search);
+    return m ? decodeURIComponent(m[1].replace(/\+/g,' ')) : '';
   }
-}
+  function toast(msg, icon){ if(window.Message){ Message.alert({icon:icon||'info', message:msg}); } else { alert(msg); } }
+  function ask(msg, cb){ if(window.Message && Message.confirm){ Message.confirm({message:msg}, cb); } else if(window.confirm(msg)){ cb(); } }
+
+  var currentUserId = qp('userId') || $('#userId').val() || '';
+
+  function applyStatus(auth, authLabel, failCount){
+    var $b = $('#status-badge');
+    $b.removeClass('is-normal is-locked is-etc');
+    $b.addClass(auth==='9'?'is-normal':(auth==='8'?'is-locked':'is-etc')).text(authLabel||auth||'-');
+    if(auth==='8'){
+      $('#status-note').text('(로그인 '+(failCount||'5')+'회 실패로 잠김)');
+      $('#btn-unlock').show();
+    } else {
+      $('#status-note').text('');
+      $('#btn-unlock').hide();
+    }
+  }
+
+  function fillUser(u){
+    currentUserId = u.userId;
+    $('#userId').val(u.userId);
+    $('input[name="auth"]').val(u.auth);
+    $('#usid').val(u.usid);
+    $('#username').val(u.username);
+    $('#email').val(u.email||'');
+    $('#deptNm').val(u.deptNm||'');
+    $('#currentPassword').val(u.hasPassword ? '············' : '(미설정)');
+    $('#phone').val(u.mobile||'');
+    if(GROUP[u.usergroupId]) $('#usergroupId').val(u.usergroupId);
+    $('#info-write').text((u.writer||'')+' - '+(u.writeDt||''));
+    $('#info-update').text((u.updater||u.writer||'')+' - '+(u.updateDt||u.writeDt||''));
+    applyStatus(u.auth, u.authLabel, u.failCount);
+  }
+
+  function loadDetail(){
+    if(!currentUserId){ toast('userId가 없습니다.','warning'); return; }
+    $.getJSON(API+'/detail', {userId: currentUserId})
+      .done(function(res){ if(res && res.ok){ fillUser(res.user); } else { toast((res&&res.message)||'조회 실패','error'); } })
+      .fail(function(){ toast('상세 정보를 불러오지 못했습니다.','error'); });
+  }
+
+  // 잠금 해제
+  window.doUnlock = function(){
+    ask("'"+($('#usid').val())+"' 계정의 잠금을 해제할까요? (승인=정상, 실패횟수 0)", function(){
+      $.ajax({url:API+'/unlock', method:'POST', contentType:'application/json',
+        data: JSON.stringify({userId: currentUserId})})
+        .done(function(res){ if(res&&res.ok){ toast(res.message,'success'); loadDetail(); } else { toast((res&&res.message)||'해제 실패','error'); } })
+        .fail(function(){ toast('잠금 해제 요청 실패','error'); });
+    });
+  };
+
+  // 비밀번호 재설정
+  // 비밀번호 재설정 — 공통 팝업(PwReset). 성공 시 상세 새로고침
+  window.doResetPw = function(){
+    if(!window.PwReset){ toast('비밀번호 재설정 모듈을 불러오지 못했습니다.','error'); return; }
+    window.PwReset.open(currentUserId, $('#usid').val(), loadDetail);
+  };
+
+  // 저장(부서명/휴대전화/권한 등) — 프로토타입: 미구현 안내
+  window.btnSave = function(){
+    if(window.Message){
+      Message.confirm({icon:'warning', title:'저장하시겠어요?', message:'기본정보 저장은 아직 프로토타입입니다. (잠금해제·비밀번호 재설정은 실제 반영됩니다)'}, function(){
+        Message.alert({icon:'info', message:'저장 처리(프로토타입)가 완료되었습니다.'});
+      });
+    } else if(confirm('저장하시겠어요?')){ alert('프로토타입: 기본정보 저장 미수행'); }
+  };
+
+  $(loadDetail);
+})();
 </script>
 
 					</div>

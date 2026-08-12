@@ -627,9 +627,16 @@
 										<caption class="sr-only">제보자 관리 검색조건</caption>
 										<tbody>
 											<tr>
-												<th scope="row"><label for="searchName">제보자 성명</label></th>
+												<th scope="row"><label for="sidoGroup">조사 지역</label></th>
 												<td>
-													<input type="text" id="searchName" name="search" class="form-control" style="max-width:280px" placeholder="제보자 성명 입력" />
+													<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+														<select id="sidoGroup" name="sidoGroup" class="form-control" style="width:200px" title="시/도 선택">
+															<option value="*" selected>전체</option>
+														</select>
+														<select id="sigunguGroup" name="sigunguGroup" class="form-control" style="width:220px" title="시군구 선택">
+															<option value="*" selected>전체</option>
+														</select>
+													</div>
 												</td>
 												<th scope="row"><label for="ageGroup">나이</label></th>
 												<td>
@@ -647,23 +654,9 @@
 												</td>
 											</tr>
 											<tr>
-												<th scope="row"><label for="areaGroup">조사 지역</label></th>
+												<th scope="row"><label for="searchName">제보자 성명</label></th>
 												<td colspan="3">
-													<select id="areaGroup" name="areaGroup" class="form-control" style="max-width:360px" title="지역 선택">
-														<option value="">전체</option>
-														<option value="강원도">강원도</option>
-														<option value="경기도">경기도</option>
-														<option value="경상남도">경상남도</option>
-														<option value="경상북도">경상북도</option>
-														<option value="전라남도">전라남도</option>
-														<option value="전라북도">전라북도</option>
-														<option value="충청남도">충청남도</option>
-														<option value="충청북도">충청북도</option>
-														<option value="제주">제주</option>
-														<option value="광주">광주</option>
-														<option value="울산">울산</option>
-														<option value="대전">대전</option>
-													</select>
+													<input type="text" id="searchName" name="search" class="form-control" style="max-width:280px" placeholder="제보자 성명 입력" />
 												</td>
 											</tr>
 										</tbody>
@@ -1009,10 +1002,73 @@ function delTarget(){
 function btnInit(){
 	$('#search-form')[0].reset();
 	$('.target-line[data-idx="2"],.target-line[data-idx="3"]').hide();
+	// 조사 지역 캐스케이드 초기화 (시/도=전체 → 시군구=전체만)
+	if(document.getElementById('sidoGroup')) document.getElementById('sidoGroup').value='*';
+	if(typeof fillSigunguOptions==='function') fillSigunguOptions();
+}
+function srcEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function renderSourceRows(res){
+	var tb=document.getElementById('source-list-body'); if(!tb) return;
+	// 총 건수/페이지 표시 갱신
+	var tot=document.querySelector('.list-control .total');
+	if(tot) tot.innerHTML='총 <strong class="text-primary">'+(res.total||0)+'</strong>건('+(res.page||1)+'/'+(res.totalPages||1)+' page)';
+	var list=res.list||[]; tb.innerHTML='';
+	if(!list.length){ tb.innerHTML='<tr><td colspan="8" class="text-center" style="padding:24px;color:#64748b">검색 결과가 없습니다.</td></tr>'; return; }
+	var start=(res.page-1)*res.pageSize;
+	list.forEach(function(r,i){
+		var no=res.total-start-i;
+		var upd='source-save.do?id='+encodeURIComponent(r.sourceId);
+		var sexLbl = r.sex==='남'?'남성':(r.sex==='여'?'여성':(r.sex||'-'));
+		tb.insertAdjacentHTML('beforeend',
+			'<tr>'
+			+'<td><label class="check-item"><input type="checkbox" name="chk" value="'+srcEsc(r.sourceId)+'"/><span class="label sr-only">선택</span></label></td>'
+			+'<td>'+no+'</td>'
+			+'<td class="text-left" title="'+srcEsc(r.regionNm)+'">'+srcEsc(r.regionNm||'-')+'</td>'
+			+'<td class="text-left"><a href="'+upd+'" class="link">'+srcEsc(r.name)+'</a></td>'
+			+'<td>'+srcEsc(sexLbl)+'</td>'
+			+'<td>'+srcEsc(r.birth||'-')+'</td>'
+			+'<td>'+srcEsc(r.age||'-')+'</td>'
+			+'<td><div class="btn-group-inline"><a href="'+upd+'" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a></div></td>'
+			+'</tr>');
+	});
 }
 function searchList(){
-	if(window.Message){ Message.alert({icon:'info', message:'정적 프로토타입입니다. 검색 결과는 예시 데이터로 표시됩니다.'}); }
-	else { alert('정적 프로토타입: 예시 데이터'); }
+	var params=new URLSearchParams();
+	var q=document.getElementById('searchName'); if(q && q.value.trim()) params.set('searchText', q.value.trim());
+	// 조사 지역: 시군구가 선택돼 있으면 그 값(시도 시군구), 아니면 시/도 값
+	var sido=document.getElementById('sidoGroup'), sigungu=document.getElementById('sigunguGroup');
+	var region='';
+	if(sigungu && sigungu.value && sigungu.value!=='*') region=sigungu.value;
+	else if(sido && sido.value && sido.value!=='*') region=sido.value;
+	if(region) params.set('region', region);
+	var ag=document.getElementById('ageGroup'); if(ag && ag.value) params.set('ageGroup', ag.value);
+	var ps=document.getElementById('pageItm'); if(ps) params.set('pageSize', ps.value);
+	var tb=document.getElementById('source-list-body'); if(tb) tb.innerHTML='<tr><td colspan="8" class="text-center" style="padding:24px;color:#64748b">불러오는 중…</td></tr>';
+	fetch('/mariadb/neibis-api/source/list?'+params.toString()).then(function(r){return r.json();}).then(function(d){
+		if(d&&d.ok) renderSourceRows(d);
+		else if(tb) tb.innerHTML='<tr><td colspan="8" class="text-center" style="color:#b91c1c">목록을 불러오지 못했습니다.</td></tr>';
+	}).catch(function(){ if(tb) tb.innerHTML='<tr><td colspan="8" class="text-center" style="color:#b91c1c">API 호출 실패</td></tr>'; });
+}
+// 조사 지역 캐스케이드(시/도 → 시군구) 데이터
+window._srcRegionData = { sido:[], sigungu:{} };
+function fillSigunguOptions(){
+	var sido=document.getElementById('sidoGroup').value;
+	var sel=document.getElementById('sigunguGroup');
+	sel.innerHTML='<option value="*">전체</option>';
+	if(sido && sido!=='*' && window._srcRegionData.sigungu[sido]){
+		window._srcRegionData.sigungu[sido].forEach(function(o){
+			var op=document.createElement('option'); op.value=o.value; op.textContent=o.label; sel.appendChild(op);
+		});
+	}
+}
+function initRegionSelect(){
+	fetch('/mariadb/neibis-api/source/regions').then(function(r){return r.json();}).then(function(d){
+		if(!d||!d.ok) return;
+		window._srcRegionData={ sido:d.sido||[], sigungu:d.sigungu||{} };
+		var sel=document.getElementById('sidoGroup');
+		d.sido.forEach(function(s){ var op=document.createElement('option'); op.value=s; op.textContent=s; sel.appendChild(op); });
+	}).catch(function(){});
+	$('#sidoGroup').on('change', fillSigunguOptions);
 }
 function stub(nm){
 	if(window.Message){ Message.alert({icon:'info', message:'['+nm+'] 정적 프로토타입 버튼입니다.'}); }
@@ -1020,6 +1076,8 @@ function stub(nm){
 }
 $(function(){
 	$('#chkAll').on('change', function(){ $('input[name=chk]').prop('checked', this.checked); });
+	initRegionSelect();
+	searchList();
 });
 </script>
 					</div>

@@ -622,6 +622,7 @@
 					
 					
 					<div class="content-body">
+						<div id="viewList">
 						<form id="search-form" class="search-form" onsubmit="return false;">
 							<h3 class="title1 text-primary mt-md-4 ml-md-4">변이형 비교 항목 검색영역</h3>
 							<div class="card">
@@ -632,19 +633,8 @@
 											<tbody>
 												<tr>
 													<th scope="row">표준어(항목)</th>
-													<td>
+													<td colspan="3">
 														<input type="text" class="form-control" id="schWord" style="max-width:320px" placeholder="표준어·코드 검색 (예: 테, 31001)" />
-													</td>
-													<th scope="row">구분</th>
-													<td>
-														<select class="form-control" id="schBand" style="width:180px" title="구분">
-															<option value="">전체</option>
-															<option value="310">체언 대립(310)</option>
-															<option value="320">활용 320</option>
-															<option value="321">활용 321</option>
-															<option value="322">활용 322</option>
-															<option value="323">활용 323</option>
-														</select>
 													</td>
 												</tr>
 												<tr>
@@ -695,7 +685,6 @@
 												<col style="width:56px" />
 												<col style="width:100px" />
 												<col />
-												<col style="width:110px" />
 												<col style="width:80px" />
 												<col style="width:70px" />
 												<col style="width:80px" />
@@ -708,7 +697,6 @@
 													<th scope="col">번호</th>
 													<th scope="col">항목코드</th>
 													<th scope="col">표준어(항목)</th>
-													<th scope="col">구분</th>
 													<th scope="col">하위환경</th>
 													<th scope="col">정렬</th>
 													<th scope="col">사용</th>
@@ -717,7 +705,7 @@
 												</tr>
 											</thead>
 											<tbody id="listBody">
-												<tr><td colspan="10" class="text-center" style="padding:40px;color:#94a3b8">불러오는 중…</td></tr>
+												<tr><td colspan="9" class="text-center" style="padding:40px;color:#94a3b8">불러오는 중…</td></tr>
 											</tbody>
 										</table>
 									</div>
@@ -731,6 +719,135 @@
 								</div>
 </div>
 						</form>
+						</div><!-- /#viewList -->
+
+						<!-- 두번째 페이지: 지역별 조사 원문 -->
+<style>
+																																				.vf-board{ margin-top:18px; border-top:1px solid #e2e8f0; padding-top:14px; }
+																																				.vf-board-ctl{ display:flex; align-items:center; gap:12px; margin-bottom:8px; font-size:12px; color:#64748b; }
+																																				.vf-board-ctl .cnt strong{ color:#2563eb; }
+																																				.vf-board-ctl .spacer{ flex:1; }
+																																				.vf-board-tbl{ border:1px solid #e2e8f0; border-radius:8px; overflow:auto; max-height:340px; }
+																																				.vf-board-tbl table{ width:100%; border-collapse:collapse; font-size:12px; }
+																																				.vf-board-tbl th, .vf-board-tbl td{ border-bottom:1px solid #f1f5f9; padding:7px 8px; text-align:center; }
+																																				.vf-board-tbl th{ background:#f8fafc; color:#475569; font-weight:700; position:sticky; top:0; z-index:2; white-space:nowrap; }
+																																				.vf-board-tbl td.envcells{ text-align:left; }
+																																				.vf-chip{ display:inline-block; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; border-radius:8px; padding:4px 10px; margin:3px 4px 3px 0; font-size:14px; font-weight:600; line-height:1.5; }
+																																				.vf-chip .k{ color:#64748b; font-weight:500; margin-right:2px; }
+																																				.vf-chip.empty{ background:#f8fafc; color:#94a3b8; border-color:#e2e8f0; font-weight:500; }
+																																				.vf-editrow > td{ background:#f8fafc; padding:12px; text-align:left; }
+																																				.vf-editgrid{ display:grid; grid-template-columns:130px 1fr 100px; gap:10px; margin-bottom:10px; }
+																																				.vf-editgrid label, .vf-edit-envs label{ display:block; font-size:12px; color:#475569; font-weight:600; margin-bottom:3px; }
+																																				.vf-edit-envs{ display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:10px; }
+																																				.vf-edit-envs label span{ color:#94a3b8; font-weight:400; font-size:11px; }
+																																				.vf-edit-act{ margin-top:12px; display:flex; gap:6px; }
+																																				.vf-flash{ animation: vfflash 1.2s ease; }
+																																				@keyframes vfflash{ 0%{ background:#fef9c3; } 100%{ background:transparent; } }
+																														</style>
+						<style>
+							#viewList.hide, #viewResp.hide{ display:none !important; }
+							.vr-head{ display:flex; align-items:center; gap:10px; margin:0 0 12px; }
+							.vr-head .spacer{ flex:1; }
+						</style>
+						<div id="viewResp" class="hide">
+							<div class="vr-head">
+								<button type="button" class="btn btn-sm btn-outline-gray" id="respBack"><i class="ico ico-back"></i><span>목록으로</span></button>
+								<h3 class="title1 text-primary" id="respTitle" style="margin:0">지역별 조사 원문</h3>
+								<span class="spacer"></span>
+								<a href="#;" target="_blank" class="btn btn-sm btn-outline-gray" id="respPreviewLink" title="사용자 화면(새 창)"><i class="ico ico-search-gray-sm"></i><span>사용자 화면에서 보기</span></a>
+							</div>
+
+							<style>
+								.rs-checks{ display:flex; flex-wrap:wrap; gap:6px 16px; align-items:center; }
+								.rs-checks .check-item{ margin:0; }
+								.rs-checks.rs-place{ max-height:104px; overflow:auto; border:1px solid #e2e8f0; border-radius:8px; padding:8px 12px; }
+								.rs-allsep{ width:1px; height:16px; background:#e2e8f0; margin:0 2px; }
+							</style>
+							<h3 class="title1 text-primary mt-md-4 ml-md-4">지역별 조사 원문 검색영역</h3>
+							<div class="card">
+								<div class="table table-form-basic">
+									<div class="table-inner">
+										<table>
+											<caption class="sr-only">지역별 조사 원문 검색조건</caption>
+											<colgroup><col style="width:130px" /><col /><col style="width:130px" /><col /></colgroup>
+											<tbody>
+												<tr>
+													<th scope="row">도</th>
+													<td colspan="3"><div id="rsProvBox" class="rs-checks"></div></td>
+												</tr>
+												<tr>
+													<th scope="row">지점</th>
+													<td colspan="3"><div id="rsPlaceBox" class="rs-checks rs-place"></div></td>
+												</tr>
+												<tr>
+													<th scope="row"><label for="rsYear">조사연도</label></th>
+													<td><select class="form-control" id="rsYear" style="max-width:160px"></select></td>
+													<th scope="row"><label for="rsKeyword">키워드</label></th>
+													<td><input type="text" class="form-control" id="rsKeyword" style="max-width:240px" placeholder="조사 원문 내용 검색" /></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="btn-group-center">
+									<button type="button" class="btn btn-md btn-outline-gray" id="rsInit"><i class="ico ico-undo-darkgray-md"></i><span class="text">초기화</span></button>
+									<button type="button" class="btn btn-md btn-primary" id="rsSearch"><i class="ico ico-search-white-md"></i><span class="text">검색</span></button>
+								</div>
+							</div>
+
+							<div class="card">
+								<div class="list-control">
+									<div class="left">
+										<p class="total">총 <strong class="text-primary" id="fRespCnt">0</strong>개 지점 <span id="fRespPageInfo" style="color:#64748b;font-size:13px"></span></p>
+									</div>
+									<div class="right">
+										<select class="form-control-sm" id="respPageSize" style="min-width:100px" title="목록 수">
+											<option value="10" selected>10</option>
+											<option value="20">20</option>
+											<option value="50">50</option>
+											<option value="100">100</option>
+											<option value="9999">전체</option>
+										</select>
+										<button type="button" class="btn btn-sm btn-outline-gray ml-1" id="btnRespApplySize">적용</button>
+									</div>
+								</div>
+
+								<div class="table table-list">
+									<div class="table-inner">
+										<table>
+											<caption class="sr-only">지역별 조사 원문 목록</caption>
+											<colgroup>
+												<col style="width:56px" />
+												<col style="width:90px" />
+												<col style="width:140px" />
+												<col style="width:90px" />
+												<col />
+												<col style="width:160px" />
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col">번호</th>
+													<th scope="col">도</th>
+													<th scope="col">지점</th>
+													<th scope="col">조사연도</th>
+													<th scope="col">환경별 원문</th>
+													<th scope="col">관리</th>
+												</tr>
+											</thead>
+											<tbody id="fRespBody">
+												<tr><td colspan="6" class="text-center" style="padding:40px;color:#94a3b8">불러오는 중…</td></tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="pagination" id="fRespPager"></div>
+								<div class="btn-group-between">
+									<div class="right">
+										<button type="button" class="btn btn-lg btn-primary" id="fRespAdd"><i class="ico ico-plus-white-md"></i><span>지점 추가</span></button>
+									</div>
+								</div>
+							</div>
+						</div><!-- /#viewResp -->
 					</div>
 
 				</article>
@@ -1112,67 +1229,152 @@ const getMngrFail = function (xhr, status, error) {
 	})
 }
 </script>
+		<!-- 지역별 조사 원문 등록/수정 레이어 팝업 -->
+		<style>
+			#layer-resp-form .popup-inner{ width:600px; max-width:calc(100% - 40px); }
+			#layer-resp-form .popup-body{ padding:22px 24px; }
+			.rf-form{ display:flex; flex-direction:column; gap:18px; }
+			.rf-row{ display:grid; grid-template-columns:130px minmax(0,1fr) 110px; gap:14px; align-items:end; }
+			@media (max-width:560px){ .rf-row{ grid-template-columns:1fr; } }
+			.rf-fld > label{ display:block; font-size:13px; color:#334155; font-weight:600; margin-bottom:6px; }
+			.rf-fld > label .req{ color:#ef4444; font-size:11px; margin-left:4px; }
+			.rf-fld .form-control{ width:100%; }
+			.rf-sec{ font-size:14px; font-weight:700; color:#1e293b; margin:0; padding-top:14px; border-top:1px solid #eef2f7; }
+			.rf-sec .sub{ font-weight:500; color:#94a3b8; font-size:12px; margin-left:6px; }
+			.rf-envs{ display:grid; grid-template-columns:1fr; gap:14px; }
+			.rf-env label{ display:block; font-size:13px; color:#334155; font-weight:600; margin-bottom:6px; }
+			.rf-env label span{ color:#94a3b8; font-weight:400; font-size:11px; margin-left:6px; font-family:monospace; }
+			.rf-env .form-control{ width:100%; }
+		</style>
+		<div class="modal-popup modal-lg hide" id="layer-resp-form">
+			<div class="dimed" onclick="closeRespForm()"></div>
+			<div class="popup-inner">
+				<div class="popup-header">
+					<h2 class="popup-title" id="respFormTitle">지역별 조사 원문 등록</h2>
+				</div>
+				<div class="popup-body">
+					<div class="rf-form">
+						<div class="rf-row">
+							<div class="rf-fld">
+								<label for="rfProv">도</label>
+								<select id="rfProv" class="form-control"></select>
+							</div>
+							<div class="rf-fld">
+								<label for="rfPlace">지점명<i class="req">*</i></label>
+								<select id="rfPlace" class="form-control"></select>
+							</div>
+							<div class="rf-fld">
+								<label for="rfYear">조사연도</label>
+								<select id="rfYear" class="form-control"></select>
+							</div>
+						</div>
+						<p class="rf-sec">환경별 원문 <span class="sub">— 환경마다 조사된 원문을 입력하세요</span></p>
+						<div id="rfEnvs" class="rf-envs"></div>
+					</div>
+				</div>
+				<div class="popup-footer">
+					<div class="btn-group-center">
+						<button type="button" class="btn btn-md btn-outline-gray" onclick="closeRespForm()">취소</button>
+						<button type="button" class="btn btn-md btn-primary" id="btnSaveResp"><i class="ico ico-save-white-md"></i><span>저장</span></button>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<!-- 등록/수정 모달 -->
-		<div class="modal-popup modal-md hide" id="layer-variant-form">
+		<style>
+			#layer-variant-form .popup-inner{ width:580px; max-width:calc(100% - 40px); }
+			.vf-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+			@media (max-width:900px){ .vf-grid{ grid-template-columns:1fr; } }
+			.vf-sec{ font-size:14px; font-weight:700; color:#1e293b; margin:0 0 10px; display:flex; align-items:center; gap:6px; }
+			.vf-sec.mt{ margin-top:18px; }
+			.vf-sec .sub{ font-weight:500; color:#94a3b8; font-size:12px; }
+			.vf-sec .btn{ margin-left:auto; }
+			.vf-field{ margin-bottom:12px; }
+			.vf-field > label{ display:block; font-size:13px; color:#475569; font-weight:600; margin-bottom:4px; }
+			.vf-row2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+			.vf-hint{ font-size:11px; color:#94a3b8; margin:4px 0 0; }
+			.vf-hint code{ background:#f1f5f9; padding:1px 5px; border-radius:4px; }
+			.vf-codewrap{ display:flex; gap:6px; }
+			.vf-codewrap .form-control{ flex:1; }
+			.vf-radios{ display:flex; gap:14px; align-items:center; min-height:38px; }
+			.vf-envhead{ display:grid; grid-template-columns:34px 1fr 128px 30px; gap:8px; font-size:11px; color:#94a3b8; font-weight:600; padding:0 2px 4px; }
+			.vf-envrows{ display:flex; flex-direction:column; gap:6px; min-height:16px; }
+			.vf-envrow{ display:grid; grid-template-columns:34px 1fr 128px 30px; gap:8px; align-items:center; }
+			.vf-envrow .grip{ cursor:grab; color:#cbd5e1; text-align:center; user-select:none; line-height:1; }
+			.vf-envrow.dragging{ opacity:.4; }
+			.vf-envrow .envcode{ font-size:11px; font-family:monospace; color:#94a3b8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+			.vf-envdel{ border:none; background:transparent; color:#cbd5e1; cursor:pointer; font-size:18px; line-height:1; }
+			.vf-envdel:hover{ color:#ef4444; }
+			.vf-prevcol{ background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px; }
+			.vf-cov{ font-size:12px; margin-bottom:8px; min-height:20px; }
+			.vf-badge{ display:inline-block; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700; }
+			.vf-badge.ok{ background:#ecfdf5; color:#059669; }
+			.vf-badge.none{ background:#fff7ed; color:#c2410c; }
+			.vf-prev{ overflow:auto; max-height:360px; border:1px solid #e2e8f0; border-radius:8px; background:#fff; }
+			.vf-prev table{ width:100%; border-collapse:collapse; font-size:12px; }
+			.vf-prev th, .vf-prev td{ border-bottom:1px solid #f1f5f9; padding:6px 8px; text-align:center; white-space:nowrap; }
+			.vf-prev th{ background:#f8fafc; color:#475569; font-weight:700; position:sticky; top:0; z-index:2; }
+			.vf-prev th:first-child, .vf-prev td:first-child{ text-align:left; color:#64748b; position:sticky; left:0; background:#fff; z-index:1; }
+			.vf-prev th:first-child{ background:#f8fafc; z-index:3; }
+			.vf-prev .prov td{ background:#f1f5f9; font-weight:700; text-align:left; color:#334155; }
+			.vf-prev .miss{ color:#cbd5e1; }
+			.vf-prev .envcol{ color:#2563eb; }
+			.vf-wordlink{ color:#1d4ed8; text-decoration:none; cursor:pointer; }
+			.vf-wordlink:hover{ text-decoration:underline; }
+			.vf-wordlink strong{ font-weight:700; }
+		</style>
+		<div class="modal-popup modal-lg hide" id="layer-variant-form">
 			<div class="dimed" onclick="closeVariantForm()"></div>
-			<div class="popup-inner" style="max-width:640px">
+			<div class="popup-inner">
 				<div class="popup-header">
 					<h2 class="popup-title" id="variantFormTitle">변이형 항목 등록</h2>
 				</div>
 				<div class="popup-body">
-					<div class="table table-form-basic">
-						<div class="table-inner">
-							<table>
-								<caption class="sr-only">변이형 항목 등록/수정</caption>
-								<tbody>
-									<tr>
-										<th scope="row"><label for="fCode">항목코드<i class="req">필수입력</i></label></th>
-										<td><input type="text" id="fCode" class="form-control" maxlength="40" placeholder="예: 31001" /></td>
-									</tr>
-									<tr>
-										<th scope="row"><label for="fForm">표준어(항목)<i class="req">필수입력</i></label></th>
-										<td><input type="text" id="fForm" class="form-control" maxlength="80" placeholder="예: 테(輪)" /></td>
-									</tr>
-									<tr>
-										<th scope="row"><label for="fBand">구분</label></th>
-										<td>
-											<select id="fBand" class="form-control" style="max-width:220px">
-												<option value="310">체언 대립 (310)</option>
-												<option value="320">활용 (320)</option>
-												<option value="321">활용 (321)</option>
-												<option value="322">활용 (322)</option>
-												<option value="323">활용 (323)</option>
-											</select>
-										</td>
-									</tr>
-									<tr>
-										<th scope="row"><label for="fSort">정렬순서</label></th>
-										<td><input type="number" id="fSort" class="form-control" style="max-width:140px" min="1" step="1" /></td>
-									</tr>
-									<tr>
-										<th scope="row">사용여부</th>
-										<td>
-											<label class="check-item"><input type="radio" name="fUseYn" value="Y" checked /><span class="label">사용(Y)</span></label>
-											<label class="check-item"><input type="radio" name="fUseYn" value="N" /><span class="label">미사용(N)</span></label>
-										</td>
-									</tr>
-									<tr>
-										<th scope="row"><label for="fRmrk">비고</label></th>
-										<td><input type="text" id="fRmrk" class="form-control" maxlength="200" placeholder="선택 입력" /></td>
-									</tr>
-									<tr>
-										<th scope="row">하위 환경</th>
-										<td>
-											<p style="font-size:12px;color:#64748b;margin:0 0 8px">한 줄에 하나. 형식: <code>코드|표제어</code> 또는 표제어만 (코드 자동)</p>
-											<textarea id="fChildren" class="form-control" rows="6" placeholder="31001-0-1|-이/가&#10;31001-0-2|-보다"></textarea>
-										</td>
-									</tr>
-								</tbody>
-							</table>
+					<div class="vf-form-single">
+<p class="vf-sec">항목 정의</p>
+							<div class="vf-field">
+								<label for="fForm">표준어(항목) <i class="req">필수입력</i></label>
+								<input type="text" id="fForm" class="form-control" maxlength="80" placeholder="예: 테(輪)" />
+							</div>
+							<div class="vf-row2">
+								<div class="vf-field">
+									<label for="fCode">항목코드 <i class="req">필수입력</i></label>
+									<div class="vf-codewrap">
+										<input type="text" id="fCode" class="form-control" maxlength="40" placeholder="자동" />
+										<button type="button" class="btn btn-sm btn-outline-gray" id="fCodeAuto" title="다음 코드 자동 생성">자동</button>
+									</div>
+									<p class="vf-hint">‘자동’으로 다음 코드 제안 · 필요 시 수정</p>
+								</div>
+								<div class="vf-field">
+									<label for="fSort">정렬순서</label>
+									<input type="number" id="fSort" class="form-control" min="1" step="1" />
+								</div>
+							</div>
+							<div class="vf-row2">
+								<div class="vf-field">
+									<label>사용여부</label>
+									<div class="vf-radios">
+										<label class="check-item"><input type="radio" name="fUseYn" value="Y" checked /><span class="label">사용(Y)</span></label>
+										<label class="check-item"><input type="radio" name="fUseYn" value="N" /><span class="label">미사용(N)</span></label>
+									</div>
+								</div>
+								<div class="vf-field">
+									<label for="fRmrk">비고</label>
+									<input type="text" id="fRmrk" class="form-control" maxlength="200" placeholder="선택 입력" />
+								</div>
+							</div>
+
+							<p class="vf-sec mt">
+								하위 환경 <span class="sub">— 비교표의 열이 됩니다</span>
+								<button type="button" class="btn btn-xs btn-primary" id="fEnvAdd"><i class="ico ico-plus-white-md mr-0"></i><span>환경 추가</span></button>
+							</p>
+							<div class="vf-envhead"><span></span><span>표제어(환경)</span><span>코드(자동)</span><span></span></div>
+							<div id="fEnvRows" class="vf-envrows"></div>
+							<p class="vf-hint">표제어만 입력하면 코드는 <code>항목코드-0-N</code>으로 자동 부여됩니다. 왼쪽 손잡이를 드래그해 순서를 바꿀 수 있어요.</p>
 						</div>
 					</div>
-				</div>
-				<div class="popup-footer">
+					<div class="popup-footer">
 					<div class="btn-group-center">
 						<button type="button" class="btn btn-md btn-outline-gray" onclick="closeVariantForm()">취소</button>
 						<button type="button" class="btn btn-md btn-primary" id="btnSaveForm"><i class="ico ico-save-white-md"></i><span>저장</span></button>
@@ -1324,7 +1526,15 @@ const getMngrFail = function (xhr, status, error) {
   var STORAGE_KEY = 'neibis.variantItems.v1';
   var SEED_URL = '/mariadb/neibis/survey/data/variant-items-seed.json';
   var BAND_LABEL = { '310': '체언 대립', '320': '활용', '321': '활용', '322': '활용', '323': '활용' };
-  var state = { items: [], filtered: [], page: 1, pageSize: 10, editId: null };
+  var PROC_BASE = 'data/processed';
+  var PROV_ORDER = ['GG','GW','CB','CN','JB','JN','GB','GN','JJ'];
+  var PROV_NAME = { GG:'경기', GW:'강원', CB:'충북', CN:'충남', JB:'전북', JN:'전남', GB:'경북', GN:'경남', JJ:'제주' };
+  var procCache = {};
+  var state = {
+    items: [], filtered: [], page: 1, pageSize: 10, editId: null,
+    formResp: [], respItem: null, respPage: 1, respPageSize: 10, respEditKey: null, respSeq: 0,
+    respSch: { provs: [], places: [], year: '', keyword: '' }, siteMaster: []
+  };
 
   function today() {
     var d = new Date();
@@ -1367,6 +1577,7 @@ const getMngrFail = function (xhr, status, error) {
           useYn: c.useYn === 'N' ? 'N' : 'Y'
         };
       }) : [],
+      responses: Array.isArray(it.responses) ? it.responses : undefined,
       regDt: it.regDt || today(),
       updDt: it.updDt || today()
     };
@@ -1394,7 +1605,6 @@ const getMngrFail = function (xhr, status, error) {
 
   function applyFilter(resetPage) {
     var q = ($('#schWord').val() || '').trim().toLowerCase();
-    var band = $('#schBand').val() || '';
     var use = $('input[name=schUseYn]:checked').val() || '';
     var list = state.items.slice();
     if (q) {
@@ -1404,7 +1614,6 @@ const getMngrFail = function (xhr, status, error) {
           (it.rmrk || '').toLowerCase().indexOf(q) >= 0;
       });
     }
-    if (band) list = list.filter(function (it) { return String(it.band) === band; });
     if (use) list = list.filter(function (it) { return it.useYn === use; });
     list.sort(function (a, b) {
       if (a.sortOrdr !== b.sortOrdr) return a.sortOrdr - b.sortOrdr;
@@ -1437,7 +1646,7 @@ const getMngrFail = function (xhr, status, error) {
     $('#pageInfo').text(state.filtered.length ? '(' + state.page + '/' + slice.pages + ' page)' : '');
     var html = '';
     if (!rows.length) {
-      html = '<tr><td colspan="10" class="text-center" style="padding:40px;color:#94a3b8">검색 결과가 없습니다.</td></tr>';
+      html = '<tr><td colspan="9" class="text-center" style="padding:40px;color:#94a3b8">검색 결과가 없습니다.</td></tr>';
     } else {
       rows.forEach(function (it, i) {
         var no = start + i + 1;
@@ -1446,9 +1655,8 @@ const getMngrFail = function (xhr, status, error) {
           '<td><label class="check-item"><input type="checkbox" name="chk" value="' + it.id + '" /><span class="label sr-only">선택</span></label></td>' +
           '<td>' + no + '</td>' +
           '<td><code>' + esc(it.item_code) + '</code></td>' +
-          '<td class="text-left"><strong>' + esc(it.standard_form) + '</strong>' +
+          '<td class="text-left"><a href="#;" class="vf-wordlink" data-act="resp" title="지역별 조사 원문 보기·등록"><strong>' + esc(it.standard_form) + '</strong></a>' +
             (it.rmrk ? ' <span style="color:#94a3b8;font-size:12px">(' + esc(it.rmrk) + ')</span>' : '') + '</td>' +
-          '<td>' + esc(it.band_label || bandLabel(it.band)) + '<br><span style="font-size:11px;color:#94a3b8">' + esc(it.band) + '</span></td>' +
           '<td>' + childN + '</td>' +
           '<td>' + it.sortOrdr + '</td>' +
           '<td>' + (it.useYn === 'Y' ? '<span class="text-primary">Y</span>' : '<span style="color:#94a3b8">N</span>') + '</td>' +
@@ -1511,40 +1719,326 @@ const getMngrFail = function (xhr, status, error) {
     return $('input[name=chk]:checked').map(function () { return Number(this.value); }).get();
   }
 
-  function childrenToText(children) {
-    return (children || []).map(function (c) {
-      if (c.item_code) return c.item_code + '|' + (c.standard_form || '');
-      return c.standard_form || '';
-    }).join('\n');
+  function shortText(raw, n) {
+    var t = (raw || '').replace(/\s+/g, ' ').trim();
+    return t.length <= n ? t : t.slice(0, n) + '…';
   }
-  function parseChildren(text, parentCode) {
-    var lines = String(text || '').split(/\n+/).map(function (s) { return s.trim(); }).filter(Boolean);
-    var out = [];
-    lines.forEach(function (line, j) {
-      var code = '', form = line;
-      if (line.indexOf('|') >= 0) {
-        var parts = line.split('|');
-        code = parts[0].trim();
-        form = parts.slice(1).join('|').trim();
-      } else {
-        code = parentCode + '-0-' + (j + 1);
+  // 다음 항목코드 자동 생성: 같은 앞3자리 대역의 최대 5자리 코드 + 1 (수정 가능한 제안값)
+  function nextCodeForBand(band) {
+    band = String(band || '310');
+    var max = -1;
+    state.items.forEach(function (it) {
+      var c = String(it.item_code || '');
+      if (c.indexOf(band) === 0 && /^\d{5}$/.test(c)) {
+        var n = parseInt(c, 10);
+        if (n > max) max = n;
       }
+    });
+    return max < 0 ? band + '01' : String(max + 1);
+  }
+
+  // ── 하위 환경 빌더 ──
+  function envRowHtml(form) {
+    return '<div class="vf-envrow" draggable="true">' +
+      '<span class="grip" title="드래그로 정렬">⋮⋮</span>' +
+      '<input type="text" class="form-control envform" value="' + esc(form || '') + '" placeholder="예: -이/가" />' +
+      '<span class="envcode">—</span>' +
+      '<button type="button" class="vf-envdel" title="삭제" aria-label="환경 삭제">&times;</button>' +
+      '</div>';
+  }
+  function renderEnvRows(children) {
+    var $c = $('#fEnvRows').empty();
+    (children || []).forEach(function (c) { $c.append(envRowHtml(c.standard_form)); });
+    if (!(children && children.length)) $c.append(envRowHtml(''));
+    syncEnvCodes();
+  }
+  function readEnvRows() {
+    var out = [];
+    $('#fEnvRows .vf-envrow').each(function () {
+      var form = ($(this).find('.envform').val() || '').trim();
       if (!form) return;
-      out.push({ item_code: code, standard_form: form, sortOrdr: j + 1, useYn: 'Y' });
+      out.push({ standard_form: form });
     });
     return out;
   }
+  function syncEnvCodes() {
+    var base = ($('#fCode').val() || '').trim() || '(코드)';
+    var n = 0;
+    $('#fEnvRows .vf-envrow').each(function () {
+      var form = ($(this).find('.envform').val() || '').trim();
+      if (form) { n++; $(this).find('.envcode').text(base + '-0-' + n); }
+      else { $(this).find('.envcode').text('—'); }
+    });
+  }
 
+  // ── 실시간 미리보기 (실제 조사 원문 fetch) ──
+  function loadProc(code) {
+    if (procCache[code] !== undefined) return Promise.resolve(procCache[code]);
+    var safe = encodeURIComponent(String(code).replace(/\//g, '_'));
+    return fetch(PROC_BASE + '/items/' + safe + '.json')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) { procCache[code] = d; return d; })
+      .catch(function () { procCache[code] = null; return null; });
+  }
+  // 항목(부모 기본형 + 하위환경)의 환경 목록
+  function envListOf(item) {
+    var base = (item && item.item_code) || '';
+    var envs = [{ code: base, label: (item && item.standard_form) || '기본형', isParent: true }];
+    ((item && item.children) || []).forEach(function (c, i) {
+      envs.push({ code: c.item_code || (base + '-0-' + (i + 1)), label: c.standard_form, isParent: false });
+    });
+    return envs;
+  }
+  function formEnvList() { return envListOf(state.respItem); }
+
+  // ── 지역별 조사 원문 보드 (게시판 속 게시판) ──
+  function cloneResp(arr) { try { return JSON.parse(JSON.stringify(arr || [])); } catch (e) { return []; } }
+  // 기존 ETL 원문을 지점 단위로 묶어 편집용 배열로 변환
+  function buildRespFromETL(envs) {
+    return Promise.all(envs.map(function (e) { return loadProc(e.code); })).then(function (bundles) {
+      var byId = {};
+      envs.forEach(function (env, i) {
+        var b = bundles[i];
+        if (b && b.responses) b.responses.forEach(function (r) {
+          var s = byId[r.site_id];
+          if (!s) {
+            s = byId[r.site_id] = {
+              key: r.site_id, province_code: r.province_code,
+              province_name: r.province_name || PROV_NAME[r.province_code] || r.province_code,
+              place_name: r.place_name || r.raw_header || '', survey_year: r.survey_year || '', cells: {}
+            };
+          }
+          s.cells[env.code] = r.is_missing ? '' : (r.raw_text || '');
+        });
+      });
+      return Object.keys(byId).map(function (k) { return byId[k]; });
+    });
+  }
+  function loadFormResp(item, cb) {
+    if (item && Array.isArray(item.responses)) { state.formResp = cloneResp(item.responses); cb(); return; }
+    if (!item) { state.formResp = []; cb(); return; }
+    buildRespFromETL(formEnvList()).then(function (arr) { state.formResp = arr; cb(); });
+  }
+  function respFiltered() {
+    var q = state.respSch;
+    if (!q.provs.length && !q.places.length && !q.year && !q.keyword) return state.formResp;
+    return state.formResp.filter(function (s) {
+      if (q.provs.length && q.provs.indexOf(s.province_code) < 0) return false;
+      if (q.places.length && q.places.indexOf(s.place_name || '') < 0) return false;
+      if (q.year && String(s.survey_year || '') !== q.year) return false;
+      if (q.keyword) {
+        var cells = s.cells || {};
+        var hit = Object.keys(cells).some(function (k) { return String(cells[k] || '').toLowerCase().indexOf(q.keyword) >= 0; });
+        if (!hit) return false;
+      }
+      return true;
+    });
+  }
+  // 검색 UI 구성
+  function buildProvChecks() {
+    $('#rsProvBox').html(
+      '<label class="check-item"><input type="checkbox" id="rsProvAll" /><span class="label">전체</span></label>' +
+      '<span class="rs-allsep"></span>' +
+      PROV_ORDER.map(function (p) {
+        return '<label class="check-item"><input type="checkbox" class="rs-prov" value="' + p + '" /><span class="label">' + PROV_NAME[p] + '</span></label>';
+      }).join('')
+    );
+  }
+  function checkedProvs() {
+    return $('.rs-prov:checked').map(function () { return this.value; }).get();
+  }
+  function buildPlaceChecks() {
+    var provs = checkedProvs();
+    var seen = {}, places = [];
+    (state.formResp || []).forEach(function (s) {
+      if (provs.length && provs.indexOf(s.province_code) < 0) return;
+      var nm = s.place_name || '';
+      if (!nm || seen[nm]) return;
+      seen[nm] = 1; places.push(nm);
+    });
+    places.sort(function (a, b) { return String(a).localeCompare(String(b), 'ko'); });
+    $('#rsPlaceBox').html(places.length
+      ? places.map(function (nm) {
+          return '<label class="check-item"><input type="checkbox" class="rs-place-cb" value="' + esc(nm) + '" /><span class="label">' + esc(nm) + '</span></label>';
+        }).join('')
+      : '<span style="color:#94a3b8;font-size:12px">지점이 없습니다.</span>');
+  }
+  function buildYearOptions() {
+    var yrs = {};
+    (state.formResp || []).forEach(function (s) { if (s.survey_year) yrs[s.survey_year] = 1; });
+    var arr = Object.keys(yrs).sort();
+    $('#rsYear').html('<option value="">전체</option>' + arr.map(function (y) {
+      return '<option value="' + esc(y) + '">' + esc(y) + '</option>';
+    }).join(''));
+  }
+  function readRespSch() {
+    state.respSch = {
+      provs: checkedProvs(),
+      places: $('.rs-place-cb:checked').map(function () { return this.value; }).get(),
+      year: $('#rsYear').val() || '',
+      keyword: ($('#rsKeyword').val() || '').trim().toLowerCase()
+    };
+  }
+  function resetRespSch() {
+    $('#rsProvAll').prop('checked', false);
+    $('.rs-prov').prop('checked', false);
+    $('.rs-place-cb').prop('checked', false);
+    $('#rsYear').val(''); $('#rsKeyword').val('');
+    state.respSch = { provs: [], places: [], year: '', keyword: '' };
+  }
+  function renderRespBoard() {
+    var envs = formEnvList();
+    var list = respFiltered();
+    $('#fRespCnt').text(list.length.toLocaleString('ko-KR'));
+    var size = state.respPageSize;
+    var pages = Math.max(1, Math.ceil(list.length / size));
+    if (state.respPage > pages) state.respPage = pages;
+    $('#fRespPageInfo').text(list.length ? '(' + state.respPage + '/' + pages + ' page)' : '');
+    var start = (state.respPage - 1) * size;
+    var rows = list.slice(start, start + size);
+    var html = '';
+    if (!rows.length) {
+      html = '<tr><td colspan="6" class="text-center" style="padding:40px;color:#94a3b8">등록된 지점이 없습니다. ‘지점 추가’로 입력하세요.</td></tr>';
+    } else {
+      rows.forEach(function (s, i) {
+        var chips = envs.map(function (e) {
+          var v = (s.cells && s.cells[e.code]) || '';
+          return '<span class="vf-chip' + (v ? '' : ' empty') + '"><span class="k">' + esc(e.label || '환경') + '</span> ' + esc(v ? shortText(v, 22) : '—') + '</span>';
+        }).join('');
+        html += '<tr data-key="' + esc(String(s.key)) + '">' +
+          '<td>' + (start + i + 1) + '</td>' +
+          '<td>' + esc(s.province_name || PROV_NAME[s.province_code] || s.province_code || '—') + '</td>' +
+          '<td class="text-left">' + esc(s.place_name || '—') + '</td>' +
+          '<td>' + esc(s.survey_year || '') + '</td>' +
+          '<td class="text-left envcells">' + chips + '</td>' +
+          '<td>' +
+            '<button type="button" class="btn btn-xs btn-outline-gray" data-ract="edit"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></button> ' +
+            '<button type="button" class="btn btn-xs btn-gray btn-delete" data-ract="del"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button>' +
+          '</td></tr>';
+      });
+    }
+    $('#fRespBody').html(html);
+    renderRespPager(pages);
+  }
+
+  // 지점 마스터(site_map) 로드 보장 — 캐시 있으면 즉시, 없으면 fetch 후 콜백
+  function ensureSiteMaster(cb) {
+    if (state.siteMaster && state.siteMaster.length) { if (cb) cb(); return; }
+    fetch(PROC_BASE + '/site_map.json').then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (d) { state.siteMaster = Array.isArray(d) ? d : []; if (cb) cb(); })
+      .catch(function () { state.siteMaster = []; if (cb) cb(); });
+  }
+  // 지역별 조사 원문 등록/수정 레이어 팝업 — 도·지점·연도 모두 select(site_map 기반)
+  // 지점·연도 옵션은 site_map + 현재 항목의 응답(formResp)을 합쳐서 구성 (site_map 실패에도 항상 표시)
+  function rfSites() { return (state.siteMaster || []).concat(state.formResp || []); }
+  function rfBuildPlaces(prov, selPlace) {
+    var seen = {}, uniq = [];
+    rfSites().forEach(function (s) {
+      if (prov && s.province_code !== prov) return;
+      var nm = s.place_name || '';
+      if (nm && !seen[nm]) { seen[nm] = 1; uniq.push(nm); }
+    });
+    uniq.sort(function (a, b) { return String(a).localeCompare(String(b), 'ko'); });
+    if (selPlace && !seen[selPlace]) uniq.unshift(selPlace);
+    $('#rfPlace').html('<option value="">선택</option>' + uniq.map(function (p) {
+      return '<option value="' + esc(p) + '">' + esc(p) + '</option>';
+    }).join(''));
+    $('#rfPlace').val(selPlace || '');
+  }
+  function rfBuildYears(selYear) {
+    var yrs = {};
+    rfSites().forEach(function (s) { if (s.survey_year) yrs[s.survey_year] = 1; });
+    if (selYear) yrs[selYear] = 1;
+    var arr = Object.keys(yrs).sort();
+    $('#rfYear').html('<option value="">선택</option>' + arr.map(function (y) {
+      return '<option value="' + esc(y) + '">' + esc(y) + '</option>';
+    }).join(''));
+    $('#rfYear').val(selYear ? String(selYear) : '');
+  }
+  // 지점 선택 시 도·연도 자동 채움
+  function rfSyncFromPlace() {
+    var place = $('#rfPlace').val();
+    if (!place) return;
+    var prov = $('#rfProv').val();
+    var m = rfSites().filter(function (s) { return s.place_name === place && (!prov || s.province_code === prov); })[0]
+         || rfSites().filter(function (s) { return s.place_name === place; })[0];
+    if (!m) return;
+    if (!$('#rfProv').val()) $('#rfProv').val(m.province_code);
+    if (m.survey_year) $('#rfYear').val(String(m.survey_year));
+  }
+  function openRespForm(site) {
+    var isNew = !site;
+    state.respEditKey = isNew ? ('new-' + (++state.respSeq)) : site.key;
+    $('#respFormTitle').text(isNew ? '지역별 조사 원문 등록' : '지역별 조사 원문 수정');
+    $('#rfProv').html('<option value="">선택</option>' + PROV_ORDER.map(function (p) {
+      return '<option value="' + p + '">' + PROV_NAME[p] + '</option>';
+    }).join(''));
+    var selProv = site ? (site.province_code || '') : '';
+    var selPlace = site ? (site.place_name || '') : '';
+    var selYear = site ? (site.survey_year || '') : '';
+    $('#rfProv').val(selProv);
+    rfBuildPlaces(selProv, selPlace);
+    rfBuildYears(selYear);
+    // 마스터가 아직 안 실렸으면 로드 후 지점·연도 옵션 재구성
+    ensureSiteMaster(function () { rfBuildPlaces($('#rfProv').val(), selPlace); rfBuildYears(selYear); });
+    $('#rfEnvs').html(formEnvList().map(function (e) {
+      var v = (site && site.cells && site.cells[e.code]) || '';
+      return '<div class="rf-env"><label>' + esc(e.label || '환경') + '<span>' + esc(e.code) + '</span></label>' +
+        '<input type="text" class="form-control rf-env-in" data-code="' + esc(e.code) + '" value="' + esc(v) + '" placeholder="조사 원문" /></div>';
+    }).join(''));
+    $('#layer-resp-form').removeClass('hide');
+    setTimeout(function () { $('#rfPlace').focus(); }, 50);
+  }
+  window.closeRespForm = function () {
+    $('#layer-resp-form').addClass('hide');
+    state.respEditKey = null;
+  };
+  function saveRespForm() {
+    var place = ($('#rfPlace').val() || '').trim();
+    if (!place) { alert('지점명을 선택해 주세요.'); $('#rfPlace').focus(); return; }
+    var prov = $('#rfProv').val() || '';
+    if (!prov) {
+      var m = (state.siteMaster || []).filter(function (s) { return s.place_name === place; })[0];
+      if (m) prov = m.province_code;
+    }
+    var site = findResp(state.respEditKey);
+    var isNew = !site;
+    if (isNew) { site = { key: state.respEditKey, cells: {} }; state.formResp.unshift(site); state.respPage = 1; }
+    site.province_code = prov;
+    site.province_name = PROV_NAME[prov] || '';
+    site.place_name = place;
+    site.survey_year = ($('#rfYear').val() || '').trim();
+    site.cells = site.cells || {};
+    $('#rfEnvs .rf-env-in').each(function () { site.cells[$(this).data('code')] = ($(this).val() || '').trim(); });
+    persistResp();
+    closeRespForm();
+    renderRespBoard();
+  }
+  function renderRespPager(pages) {
+    var $p = $('#fRespPager').empty();
+    if (!pages || pages < 2) return;
+    var win = 5, start = Math.max(1, state.respPage - 2), end = Math.min(pages, start + win - 1);
+    start = Math.max(1, end - win + 1);
+    function go(pg) { state.respPage = pg; renderRespBoard(); }
+    if (state.respPage > 1) $p.append($('<a href="#;"></a>').text('‹').on('click', function (e) { e.preventDefault(); go(state.respPage - 1); }));
+    for (var i = start; i <= end; i++) {
+      if (i === state.respPage) $p.append($('<strong></strong>').text(String(i)));
+      else (function (pg) { $p.append(document.createTextNode(' ')); $p.append($('<a href="#;"></a>').text(String(pg)).on('click', function (e) { e.preventDefault(); go(pg); })); })(i);
+    }
+    if (state.respPage < pages) { $p.append(document.createTextNode(' ')); $p.append($('<a href="#;"></a>').text('›').on('click', function (e) { e.preventDefault(); go(state.respPage + 1); })); }
+  }
+  function findResp(key) { return state.formResp.filter(function (s) { return String(s.key) === String(key); })[0]; }
+
+  // 첫 페이지: 변이형 항목 정의 등록/수정 (조사 원문 없음)
   function openForm(item) {
     state.editId = item ? item.id : null;
     $('#variantFormTitle').text(item ? '변이형 항목 수정' : '변이형 항목 등록');
-    $('#fCode').val(item ? item.item_code : '');
     $('#fForm').val(item ? item.standard_form : '');
-    $('#fBand').val(item ? item.band : '310');
+    $('#fCode').val(item ? item.item_code : nextCodeForBand('310'));
     $('#fSort').val(item ? item.sortOrdr : nextId());
     $('#fRmrk').val(item ? (item.rmrk || '') : '');
-    $('#fChildren').val(item ? childrenToText(item.children) : '');
     $('input[name=fUseYn][value="' + (item && item.useYn === 'N' ? 'N' : 'Y') + '"]').prop('checked', true);
+    renderEnvRows(item ? item.children : []);
     $('#layer-variant-form').removeClass('hide');
     setTimeout(function () { $('#fForm').focus(); }, 50);
   }
@@ -1552,6 +2046,48 @@ const getMngrFail = function (xhr, status, error) {
     $('#layer-variant-form').addClass('hide');
     state.editId = null;
   };
+
+  // 두번째 페이지: 지역별 조사 원문 등록/관리
+  function openRespPage(item) {
+    state.respItem = item;
+    state.respPage = 1; state.respEditKey = null;
+    state.respPageSize = 10; $('#respPageSize').val('10');
+    buildProvChecks();
+    resetRespSch();
+    $('#rsPlaceBox').html('<span style="color:#94a3b8;font-size:12px">불러오는 중…</span>');
+    $('#rsYear').html('<option value="">전체</option>');
+    $('#respTitle').text((item.standard_form || '항목') + ' · 지역별 조사 원문');
+    $('#respPreviewLink').attr('href', 'http://127.0.0.1:8765/dialect_phonology_compare.html?code=' + encodeURIComponent(item.item_code));
+    $('#viewList').addClass('hide');
+    $('#viewResp').removeClass('hide');
+    $('#fRespBody').html('<tr><td colspan="6" style="padding:24px;text-align:center;color:#94a3b8">불러오는 중…</td></tr>');
+    state.formResp = [];
+    ensureSiteMaster();
+    loadFormResp(item, function () {
+      buildPlaceChecks(); buildYearOptions(); renderRespBoard();
+    });
+    window.scrollTo(0, 0);
+  }
+  window.closeRespPage = function () {
+    state.respItem = null;
+    $('#viewResp').addClass('hide');
+    $('#viewList').removeClass('hide');
+    window.scrollTo(0, 0);
+  };
+  // 조사 원문 변경 즉시 저장
+  function persistResp() {
+    if (!state.respItem) return;
+    state.respItem.responses = (state.formResp || []).filter(function (s) {
+      var hasCell = s.cells && Object.keys(s.cells).some(function (k) { return (s.cells[k] || '').trim(); });
+      return (s.place_name || '').trim() || hasCell;
+    }).map(function (s) {
+      return {
+        key: String(s.key), province_code: s.province_code || '', province_name: s.province_name || '',
+        place_name: s.place_name || '', survey_year: s.survey_year || '', cells: s.cells || {}
+      };
+    });
+    saveLocal();
+  }
   window.closeBulk = function () {
     $('#layer-variant-bulk').addClass('hide').removeClass('show');
     var f = document.getElementById('bulkExcelFileVariant');
@@ -1561,7 +2097,7 @@ const getMngrFail = function (xhr, status, error) {
   function saveForm() {
     var code = ($('#fCode').val() || '').trim();
     var form = ($('#fForm').val() || '').trim();
-    var band = $('#fBand').val() || '310';
+    var band = code.slice(0, 3) || '310';
     var sortOrdr = parseInt($('#fSort').val(), 10) || nextId();
     var useYn = $('input[name=fUseYn]:checked').val() || 'Y';
     var rmrk = ($('#fRmrk').val() || '').trim();
@@ -1571,8 +2107,9 @@ const getMngrFail = function (xhr, status, error) {
       return it.item_code === code && it.id !== state.editId;
     });
     if (dup) { alert('이미 등록된 항목코드입니다: ' + code); return; }
-    var children = parseChildren($('#fChildren').val(), code);
-
+    var children = readEnvRows().map(function (c, i) {
+      return { item_code: code + '-0-' + (i + 1), standard_form: c.standard_form, sortOrdr: i + 1, useYn: 'Y' };
+    });
     if (state.editId) {
       state.items = state.items.map(function (it) {
         if (it.id !== state.editId) return it;
@@ -1657,7 +2194,6 @@ const getMngrFail = function (xhr, status, error) {
     $('#btnSearch').on('click', function () { applyFilter(true); });
     $('#btnInit').on('click', function () {
       $('#schWord').val('');
-      $('#schBand').val('');
       $('input[name=schUseYn][value=""]').prop('checked', true);
       applyFilter(true);
     });
@@ -1673,20 +2209,92 @@ const getMngrFail = function (xhr, status, error) {
     $('#btnToggleUseN').on('click', function () { setUseYn(selectedIds(), 'N'); });
     $('#btnOpenReg').on('click', function () { openForm(null); });
     $('#btnSaveForm').on('click', saveForm);
-    
-    
+
+    // 등록/수정 폼: 코드·환경 인터랙션
+    $('#fCodeAuto').on('click', function () {
+      var cur = ($('#fCode').val() || '').trim();
+      var prefix = /^\d{3}/.test(cur) ? cur.slice(0, 3) : '310';
+      $('#fCode').val(nextCodeForBand(prefix));
+      syncEnvCodes();
+    });
+    $('#fCode').on('input', function () { syncEnvCodes(); });
+    $('#fEnvAdd').on('click', function () {
+      $('#fEnvRows').append(envRowHtml(''));
+      syncEnvCodes();
+      $('#fEnvRows .vf-envrow:last-child .envform').focus();
+    });
+    $('#fEnvRows').on('input', '.envform', function () { syncEnvCodes(); });
+    $('#fEnvRows').on('click', '.vf-envdel', function () {
+      $(this).closest('.vf-envrow').remove();
+      syncEnvCodes();
+    });
+    // 드래그 정렬
+    var dragEl = null;
+    $('#fEnvRows').on('dragstart', '.vf-envrow', function () { dragEl = this; $(this).addClass('dragging'); })
+      .on('dragend', '.vf-envrow', function () {
+        $(this).removeClass('dragging'); dragEl = null; syncEnvCodes();
+      })
+      .on('dragover', '.vf-envrow', function (e) {
+        e.preventDefault();
+        if (!dragEl || dragEl === this) return;
+        var rect = this.getBoundingClientRect();
+        var after = (e.originalEvent.clientY - rect.top) / rect.height > 0.5;
+        if (after) this.after(dragEl); else this.before(dragEl);
+      });
+
+    // 지역별 조사 원문 보드
+    $('#respBack').on('click', function () { closeRespPage(); });
+    // 도 체크박스: '전체' 토글 + 선택 시 지점 목록 갱신
+    $('#rsProvBox').on('change', '#rsProvAll', function () {
+      $('.rs-prov').prop('checked', this.checked);
+      buildPlaceChecks();
+    }).on('change', '.rs-prov', function () {
+      $('#rsProvAll').prop('checked', $('.rs-prov:checked').length === $('.rs-prov').length);
+      buildPlaceChecks();
+    });
+    $('#rsSearch').on('click', function () { readRespSch(); state.respPage = 1; renderRespBoard(); });
+    $('#rsInit').on('click', function () { resetRespSch(); buildPlaceChecks(); state.respPage = 1; renderRespBoard(); });
+    $('#viewResp').on('keydown', '#rsKeyword', function (e) {
+      if (e.key === 'Enter') { readRespSch(); state.respPage = 1; renderRespBoard(); }
+    });
+    $('#btnRespApplySize').on('click', function () {
+      state.respPageSize = parseInt($('#respPageSize').val(), 10) || 10;
+      state.respPage = 1;
+      renderRespBoard();
+    });
+    $('#fRespAdd').on('click', function () { openRespForm(null); });
+    $('#btnSaveResp').on('click', saveRespForm);
+    $('#rfProv').on('change', function () { rfBuildPlaces(this.value, ''); });
+    $('#rfPlace').on('change', rfSyncFromPlace);
+    // 지점 마스터(site_map) 미리 로드 — 도·지점·연도 select 옵션
+    ensureSiteMaster();
+    $('#fRespBody').on('click', '[data-ract]', function () {
+      var act = this.getAttribute('data-ract');
+      var key = $(this).closest('tr').data('key');
+      if (act === 'edit') { var s = findResp(key); if (s) openRespForm(s); }
+      else if (act === 'del') {
+        if (!confirm('이 지점의 조사 원문을 삭제할까요?')) return;
+        state.formResp = state.formResp.filter(function (s) { return String(s.key) !== String(key); });
+        persistResp(); renderRespBoard();
+      }
+    });
+
+
     $('#btnResetSeed').on('click', function () {
       if (!confirm('초기 데이터(phonology 부모 450항목)로 복원할까요? 현재 변경사항은 사라집니다.')) return;
       localStorage.removeItem(STORAGE_KEY);
       loadSeed(true);
     });
     $('#btnExportJson').on('click', exportJson);
-    $('#listBody').on('click', '[data-act]', function () {
+    $('#listBody').on('click', '[data-act]', function (e) {
+      if (this.tagName === 'A') e.preventDefault();
       var id = Number($(this).closest('tr').data('id'));
       var item = state.items.find(function (it) { return it.id === id; });
       if (!item) return;
-      if (this.getAttribute('data-act') === 'edit') openForm(item);
-      else if (this.getAttribute('data-act') === 'del') deleteIds([id]);
+      var act = this.getAttribute('data-act');
+      if (act === 'edit') openForm(item);
+      else if (act === 'resp') openRespPage(item);
+      else if (act === 'del') deleteIds([id]);
     });
 
     var local = loadLocal();

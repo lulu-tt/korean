@@ -617,62 +617,162 @@
 										<div class="content-body">
 
 <!-- 본문 영역 -->
+<style>
+	.survey-status{ display:inline-block; padding:2px 10px; border-radius:12px; font-size:12px; }
+	.survey-status.ing{ background:#e0f2fe; color:#0369a1; }
+	.survey-status.ready{ background:#fef9c3; color:#a16207; }
+	.survey-status.done{ background:#f1f5f9; color:#64748b; }
+</style>
 
-<div class="card">
-<div class="list-control">
-<div class="left">
-<p class="total">총 <strong class="text-primary">3</strong>건</p>
-</div>
-<div class="right">
-<button type="button" class="btn btn-sm btn-outline-gray" onclick="stub('검색')"><i class="ico ico-search-darkgray-md"></i><span class="text">검색</span></button>
-</div>
-</div>
-<div class="table table-list">
-<div class="table-inner">
-<table style="min-width:900px">
-<caption class="sr-only">설문조사 목록</caption>
-<thead>
-<tr>
-<th scope="col">번호</th><th scope="col">설문명</th><th scope="col">조사기간</th><th scope="col">상태</th><th scope="col">응답수</th>
-</tr>
-</thead>
-<tbody>
+<form id="search-form" class="search-form" onsubmit="return false;">
+	<!-- 검색영역 -->
+	<h3 class="title1 text-primary mt-md-4 ml-md-4">설문조사 관리 검색영역</h3>
+	<div class="card">
+		<div class="table table-form-basic">
+			<div class="table-inner">
+				<table>
+					<caption class="sr-only">설문조사 검색조건</caption>
+					<tbody>
+						<tr>
+							<th scope="row"><label for="searchTitle">설문 제목</label></th>
+							<td>
+								<input type="text" id="searchTitle" name="searchTitle" class="form-control" style="max-width:320px" placeholder="설문 제목 입력" />
+							</td>
+							<th scope="row"><label for="statusSel">설문 상태</label></th>
+							<td>
+								<select id="statusSel" name="statusSel" class="form-control" style="width:160px" title="설문 상태 선택">
+									<option value="">전체</option>
+									<option value="예정">예정</option>
+									<option value="진행중">진행중</option>
+									<option value="종료">종료</option>
+								</select>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="btn-group-center">
+			<button type="button" class="btn btn-md btn-outline-gray" onclick="btnInitSurvey()"><i class="ico ico-undo-darkgray-md"></i><span class="text">초기화</span></button>
+			<button type="button" class="btn btn-md btn-primary" onclick="searchSurvey()"><i class="ico ico-search-white-md"></i><span class="text">검색</span></button>
+		</div>
+	</div>
 
-<tr>
-<td>1</td>
-<td class="text-left">2025년 지역어 인식 조사</td>
-<td>2025.03.01 ~ 2025.06.30</td>
-<td>진행중</td>
-<td class="text-right">128</td>
-</tr>
-<tr>
-<td>2</td>
-<td class="text-left">생활어 사용 실태 설문</td>
-<td>2024.09.01 ~ 2024.12.31</td>
-<td>종료</td>
-<td class="text-right">356</td>
-</tr>
-<tr>
-<td>3</td>
-<td class="text-left">방언 자료 활용 만족도</td>
-<td>2024.01.01 ~ 2024.03.31</td>
-<td>종료</td>
-<td class="text-right">89</td>
-</tr>
-
-</tbody>
-</table>
-</div>
-</div>
-<div class="pagination"><strong>1</strong></div>
-</div>
+	<!-- 목록영역 -->
+	<div class="card">
+		<div class="list-control">
+			<div class="left">
+				<p class="total">총 <strong class="text-primary" id="surveyTotal">0</strong>건</p>
+				<button type="button" class="btn btn-xs btn-outline-gray" data-deselect=".table-list">선택해제</button>
+				<button type="button" class="btn btn-xs btn-gray btn-delete" onclick="deleteSelectedSurvey()"><i class="ico ico-close-white-sm mr-0"></i> 선택 삭제</button>
+			</div>
+			<div class="right">
+				<select class="form-control-sm" style="min-width:100px" title="목록 수" id="pageItm">
+					<option value="10" selected>10</option>
+					<option value="20">20</option>
+					<option value="50">50</option>
+					<option value="100">100</option>
+				</select>
+				<button type="button" class="btn btn-sm btn-outline-gray ml-1" onclick="searchSurvey()">적용</button>
+			</div>
+		</div>
+		<div class="table table-list">
+			<div class="table-inner">
+				<table style="min-width:900px">
+					<caption class="sr-only">설문조사 목록</caption>
+					<thead>
+						<tr>
+							<th scope="col" style="width:44px"><label class="check-item"><input type="checkbox" id="chkAll"/><span class="label sr-only">전체 선택</span></label></th>
+							<th scope="col" style="width:60px">번호</th>
+							<th scope="col">설문 제목</th>
+							<th scope="col" style="width:220px">설문 기간</th>
+							<th scope="col" style="width:100px">응답자 수</th>
+							<th scope="col" style="width:100px">설문 상태</th>
+							<th scope="col" style="width:110px">상세 보기</th>
+						</tr>
+					</thead>
+					<tbody id="survey-list-body">
+						<tr><td colspan="7" class="text-center" style="padding:24px;color:#64748b">불러오는 중…</td></tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="pagination" id="surveyPaging"></div>
+		<div class="btn-group-between">
+			<div class="left">
+				<a href="survey-legacy.do" class="btn btn-lg btn-outline-gray"><i class="ico ico-history-darkgray-md"></i><span>이전 설문 보기</span></a>
+			</div>
+			<div class="right">
+				<a href="survey-save.do" class="btn btn-lg btn-primary"><i class="ico ico-plus-white-md"></i><span>등록</span></a>
+			</div>
+		</div>
+	</div>
+</form>
 
 <!-- // 본문 영역 -->
 <script>
-function stub(nm){
-  if(window.Message){ Message.alert({icon:'info', message:'['+nm+'] 정적 프로토타입입니다.'}); }
-  else { alert(nm); }
+function srvEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function statusBadge(st){
+	var cls = st==='진행중'?'ing':(st==='예정'?'ready':'done');
+	return '<span class="survey-status '+cls+'">'+srvEsc(st||'-')+'</span>';
 }
+function renderSurveyRows(res){
+	var tb=document.getElementById('survey-list-body'); if(!tb) return;
+	document.getElementById('surveyTotal').textContent = res.total||0;
+	var list=res.list||[]; tb.innerHTML='';
+	if(!list.length){ tb.innerHTML='<tr><td colspan="7" class="text-center" style="padding:24px;color:#64748b">등록된 설문이 없습니다.</td></tr>'; return; }
+	var start=(res.page-1)*res.pageSize;
+	list.forEach(function(r,i){
+		var no=res.total-start-i;
+		var view='survey-detail.do?id='+encodeURIComponent(r.surveyNo);
+		var period=(r.startDate||'')+' ~ '+(r.endDate||'');
+		tb.insertAdjacentHTML('beforeend',
+			'<tr>'
+			+'<td><label class="check-item"><input type="checkbox" name="chk" value="'+srvEsc(r.surveyNo)+'"/><span class="label sr-only">선택</span></label></td>'
+			+'<td>'+no+'</td>'
+			+'<td class="text-left"><a href="'+view+'" class="link">'+srvEsc(r.surveyTitle)+'</a></td>'
+			+'<td>'+srvEsc(period)+'</td>'
+			+'<td class="text-right">'+(r.responseCount||0)+'</td>'
+			+'<td>'+statusBadge(r.status)+'</td>'
+			+'<td><a href="'+view+'" class="btn btn-xs btn-primary">상세 보기</a></td>'
+			+'</tr>');
+	});
+}
+function searchSurvey(){
+	var params=new URLSearchParams();
+	var t=document.getElementById('searchTitle'); if(t && t.value.trim()) params.set('searchText', t.value.trim());
+	var st=document.getElementById('statusSel'); if(st && st.value) params.set('status', st.value);
+	var ps=document.getElementById('pageItm'); if(ps) params.set('pageSize', ps.value);
+	var tb=document.getElementById('survey-list-body'); if(tb) tb.innerHTML='<tr><td colspan="7" class="text-center" style="padding:24px;color:#64748b">불러오는 중…</td></tr>';
+	fetch('/mariadb/neibis-api/survey/list?'+params.toString()).then(function(r){return r.json();}).then(function(d){
+		if(d&&d.ok) renderSurveyRows(d);
+		else if(tb) tb.innerHTML='<tr><td colspan="7" class="text-center" style="color:#b91c1c">목록을 불러오지 못했습니다.</td></tr>';
+	}).catch(function(){ if(tb) tb.innerHTML='<tr><td colspan="7" class="text-center" style="color:#b91c1c">API 호출 실패</td></tr>'; });
+}
+function btnInitSurvey(){
+	var f=document.getElementById('search-form'); if(f) f.reset();
+	searchSurvey();
+}
+function deleteSelectedSurvey(){
+	var ids=[].slice.call(document.querySelectorAll('input[name=chk]:checked')).map(function(c){return c.value;});
+	if(!ids.length){ if(window.Message) Message.alert({icon:'warning',message:'삭제할 설문을 선택하세요.'}); else alert('삭제할 설문을 선택하세요.'); return; }
+	var done=function(){
+		fetch('/mariadb/neibis-api/survey/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({surveyNos:ids})})
+			.then(function(r){return r.json();}).then(function(d){
+				if(!d||!d.ok){ var m=(d&&d.message)||'삭제 실패'; if(window.Message) Message.alert({icon:'warning',message:m}); else alert(m); return; }
+				if(window.Message) Message.alert({icon:'success', message:d.message||'삭제되었습니다.'}, searchSurvey);
+				else { alert(d.message||'삭제되었습니다.'); searchSurvey(); }
+			}).catch(function(){ if(window.Message) Message.alert({icon:'error',message:'삭제 API 호출 실패'}); else alert('삭제 API 호출 실패'); });
+	};
+	if(window.Message) Message.confirm({icon:'warning', title:'선택한 설문을 삭제합니다', message:ids.length+'건을 삭제하시겠어요?'}, done);
+	else if(confirm(ids.length+'건을 삭제하시겠어요?')) done();
+}
+$(function(){
+	$('#chkAll').on('change', function(){ $('input[name=chk]').prop('checked', this.checked); });
+	$('#searchTitle').on('keypress', function(e){ if(e.keyCode===13){ e.preventDefault(); searchSurvey(); } });
+	$('#statusSel').on('change', searchSurvey);
+	searchSurvey();
+});
 </script>
 
 					</div>
