@@ -444,8 +444,7 @@ body {
 
     <!-- LEVEL 1: 대분류 갤러리 -->
     <section class="rc-view is-active" id="rcViewCats" aria-label="생활어 대분류">
-      <div class="rc-chips" id="rcChips"></div>
-      <p class="rc-result" id="rcCatResult"></p>
+      <p class="rc-result" id="rcCatResult" style="margin-top: 10px;"></p>
       <div class="rc-grid" id="rcCatGrid"></div>
       <div class="rc-more" id="rcMore"></div>
     </section>
@@ -460,31 +459,13 @@ body {
 /* ────────────── 데이터 & DB 연동 ────────────── */
 let CATEGORIES = [];
 
-const THEMES = [
-  { id: 'all',   label: '전체' },
-  { id: 'food',  label: '식생활' },
-  { id: 'craft', label: '전통 공예' },
-  { id: 'folk',  label: '민속·놀이' },
-  { id: 'work',  label: '생업·무기' },
-];
-
 const $ = (id) => document.getElementById(id);
-const catGrid = $('rcCatGrid'), chips = $('rcChips');
+const catGrid = $('rcCatGrid');
 
 const PAGE = 12;
 let shown = PAGE;
 let curTheme = 'all';
 let curSearch = '';
-
-/* ────────────── 렌더: 필터 칩 ────────────── */
-function renderChips() {
-  chips.innerHTML = THEMES.map(t =>
-    `<button type="button" class="rc-chip${t.id === curTheme ? ' is-active' : ''}" data-theme="${t.id}">${t.label}</button>`
-  ).join('');
-  chips.querySelectorAll('.rc-chip').forEach(b => {
-    b.addEventListener('click', () => { curTheme = b.dataset.theme; renderChips(); renderCategories(); });
-  });
-}
 
 function fetchRegionCultureData() {
   const q = curSearch.trim();
@@ -616,7 +597,6 @@ $('rcSearch').addEventListener('input', (e) => {
 });
 
 /* ────────────── 초기화 ────────────── */
-renderChips();
 fetchRegionCultureData();
 </script>
 <script src="./share.js" defer></script>
