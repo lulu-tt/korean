@@ -134,9 +134,9 @@
     border-radius: 99px; padding: 6px 18px; margin-bottom: 22px;
   }
   .oa-hero__title {
-    font-family: var(--serif); font-size: clamp(2.2rem, 4.5vw, 3.4rem);
-    font-weight: 700; line-height: 1.25; letter-spacing: -.01em;
-    margin: 0 0 20px; text-shadow: 0 4px 25px rgba(0,0,0,0.3);
+    font-family: var(--serif); font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+    font-weight: 700; line-height: 1.3; letter-spacing: -.01em;
+    margin: 0 0 16px; text-shadow: 0 4px 25px rgba(0,0,0,0.3);
   }
   .oa-hero__desc {
     font-size: clamp(0.95rem, 1.4vw, 1.08rem);
@@ -365,10 +365,21 @@
   <section class="oa-hero" aria-labelledby="oa-hero-title">
     <div class="oa-hero__bg"></div>
     <div class="oa-hero__veil"></div>
-    <div class="oa-her    <!-- 01. 개요 섹션 -->
+    <div class="oa-hero__inner">
+      <h2 class="oa-hero__title" id="oa-hero-title">우리말의 살아있는 기록을<br>당신의 서비스와 바로 연결하세요</h2>
+      <p class="oa-hero__desc" style="margin-bottom:0;">
+        국립국어원 지역어 종합 정보 시스템이 수집한 전국 토박이말 어휘 데이터를 Open API로 공개합니다.<br>
+        인증키 하나로 학술 연구, 검색 서비스, 교육용 어플리케이션을 손쉽게 개발해보세요.
+      </p>
+    </div>
+  </section>
+
+  <div class="oa-wrap">
+
+    <!-- 01. 개요 섹션 -->
     <section class="oa-sec">
       <div class="oa-sec__head">
-        <span class="oa-sec__eyebrow">서비스 개요</span>
+        <span class="oa-sec__eyebrow">OVERVIEW</span>
         <h2 class="oa-sec__title">지역어 어휘 정보 Open API란?</h2>
         <p class="oa-sec__lead">지역어 데이터의 가치를 높이고 다양성을 보존하기 위해 프로그래밍 인터페이스로 제공합니다.</p>
       </div>
@@ -383,7 +394,7 @@
             <i class="ti ti-info-circle" aria-hidden="true"></i>
             <span>Open API 개념</span>
           </div>
-          <p>웹사이트 또는 서비스의 내부 기능을 외부에서 표준화된 규격(HTTP GET)으로 호출할 수 있도록 오픈한 데이터 창구입니다. 정해진 요청 주소(URL)와 파라미터를 넘기면 JSON 응답 형태로 데이터를 가져옵니다.</p>
+          <p>웹사이트 또는 서비스의 내부 기능을 외부에서 표준화된 규격(HTTP GET)으로 호출할 수 있도록 오픈한 데이터 창구입니다. 정해진 요청 URL과 파라미터를 넘기면 JSON 응답 형태로 데이터를 가져옵니다.</p>
         </div>
       </div>
     </section>
@@ -391,7 +402,7 @@
     <!-- 02. 활용 가치 섹션 -->
     <section class="oa-sec">
       <div class="oa-sec__head">
-        <span class="oa-sec__eyebrow">특징 및 활용 가치</span>
+        <span class="oa-sec__eyebrow">FEATURES & VALUE</span>
         <h2 class="oa-sec__title">무엇을 할 수 있나요?</h2>
         <p class="oa-sec__lead">어휘 검색 연동부터 학술 연구 및 웹/앱 서비스 개발까지 폭넓게 활용할 수 있습니다.</p>
       </div>
@@ -420,7 +431,7 @@
     <!-- 03. 이용 절차 섹션 -->
     <section class="oa-sec">
       <div class="oa-sec__head">
-        <span class="oa-sec__eyebrow">이용 절차</span>
+        <span class="oa-sec__eyebrow">WORKFLOW</span>
         <h2 class="oa-sec__title">간편한 3단계 이용 절차</h2>
         <p class="oa-sec__lead">회원가입 후 인증키 발급부터 API 연동까지 빠르고 명확하게 진행됩니다.</p>
       </div>
@@ -446,53 +457,8 @@
     <!-- 04. 제공 데이터 개요 섹션 -->
     <section class="oa-sec">
       <div class="oa-sec__head">
-        <span class="oa-sec__eyebrow">데이터 명세</span>
+        <span class="oa-sec__eyebrow">SPECIFICATION</span>
         <h2 class="oa-sec__title">제공 데이터 명세 개요</h2>
-      </div>
-      <div class="oa-data-box">
-        <div class="oa-terminal">
-          <div class="oa-terminal__head">
-            <div class="oa-terminal__dot"></div>
-            <div class="oa-terminal__dot"></div>
-            <div class="oa-terminal__dot"></div>
-            <span class="oa-terminal__title">API 요청 주소 (URL)</span>
-          </div>
-          <p class="oa-terminal__url">https://dialect.korean.go.kr/dialect/openAPI/data</p>
-        </div>
-        <div class="oa-data-list">
-          <h4>주요 응답 필드 항목</h4>
-          <ul>
-            <li>지역어 (방언 표기) & 대응 표준어</li>
-            <li>조사 지역 (시·도 및 시·군·구 명칭)</li>
-            <li>조사 연도 & 자료 출처</li>
-            <li>제보자 연령대 & 성별 (0: 여성, 1: 남성)</li>
-          </ul>
-          <a href="./openapi_guide.html">상세 파라미터 및 응답 규격 보기 <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
-        </div>
-      </div>
-    </section>
-
-    <!-- 05. 하단 바로가기 CTA -->
-    <section class="oa-sec" style="margin-bottom:0;">
-      <div class="oa-sec__head">
-        <span class="oa-sec__eyebrow">다음 단계</span>
-        <h2 class="oa-sec__title">지금 바로 시작해 보세요</h2>
-      </div>
-      <div class="oa-cta-grid">
-        <a href="./openapi_key.html" class="oa-cta-card">
-          <span class="oa-cta-card__step">1단계</span>
-          <h4>Open API 키 발급받기</h4>
-          <p>서비스 연동을 위한 전용 인증키(apiKey)를 신청하고 바로 관리하세요.</p>
-          <span class="go">인증키 발급 메뉴로 이동 <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
-        </a>
-        <a href="./openapi_guide.html" class="oa-cta-card">
-          <span class="oa-cta-card__step">2단계</span>
-          <h4>활용 안내 및 시험대</h4>
-          <p>요청 변수와 응답 필드 명세를 확인하고 코드 생성기로 연동을 테스트하세요.</p>
-          <span class="go">활용 안내 메뉴로 이동 <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
-        </a>
-      </div>
-    </section>�세 개요</h2>
       </div>
       <div class="oa-data-box">
         <div class="oa-terminal">
