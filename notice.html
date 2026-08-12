@@ -414,52 +414,88 @@
 <script src="./share.js" defer></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    let allNotices = [];
+    const PAGE_SIZE = 10;
+    let currentPage = 1;
+
+    function renderPage(page) {
+      currentPage = page;
+      const tbody = document.querySelector('.board-list tbody');
+      const countElem = document.querySelector('.board-count');
+      const paginationElem = document.querySelector('.board-pagination');
+      
+      const totalCount = allNotices.length;
+      const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
+
+      if(countElem) {
+        countElem.innerHTML = `<strong>${totalCount}건</strong>, 현재페이지 ${currentPage}/${totalPages}`;
+      }
+
+      if(tbody) {
+        tbody.innerHTML = '';
+        const startIdx = (currentPage - 1) * PAGE_SIZE;
+        const pageItems = allNotices.slice(startIdx, startIdx + PAGE_SIZE);
+
+        pageItems.forEach((item, index) => {
+          const tr = document.createElement('tr');
+          if(item.fix_yn === 'Y') {
+            tr.className = 'notice-row';
+          }
+          
+          let dateStr = '-';
+          if(item.create_dt) {
+            const date = new Date(parseInt(item.create_dt));
+            if(!isNaN(date.getTime())) {
+              const yyyy = date.getFullYear();
+              const mm = String(date.getMonth() + 1).padStart(2, '0');
+              const dd = String(date.getDate()).padStart(2, '0');
+              dateStr = `${yyyy}.${mm}.${dd}`;
+            }
+          }
+          
+          const hits = item.view_count ? Number(item.view_count).toLocaleString() : '0';
+          const displayNum = item.fix_yn === 'Y' 
+            ? `<span class="notice-badge">공지</span>` 
+            : (totalCount - (startIdx + index));
+
+          tr.innerHTML = `
+            <td class="num">${displayNum}</td>
+            <td class="subject"><a href="./notice_detail.html?id=${item.post_id}">${item.title}</a></td>
+            <td class="date">${dateStr}</td>
+            <td class="hits">${hits}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // Render Pagination
+      if(paginationElem) {
+        let pagHtml = '';
+        pagHtml += `<a href="#" class="arrow-btn ${currentPage === 1 ? 'disabled' : ''}" onclick="event.preventDefault(); if(${currentPage} > 1) renderNoticePage(1);" aria-label="처음 페이지"><i class="ti ti-chevrons-left"></i></a>`;
+        pagHtml += `<a href="#" class="arrow-btn ${currentPage === 1 ? 'disabled' : ''}" onclick="event.preventDefault(); if(${currentPage} > 1) renderNoticePage(${currentPage - 1});" aria-label="이전 페이지"><i class="ti ti-chevron-left"></i></a>`;
+        
+        for(let i = 1; i <= totalPages; i++) {
+          if(i === currentPage) {
+            pagHtml += `<span class="current">${i}</span>`;
+          } else {
+            pagHtml += `<a href="#" class="page-num" onclick="event.preventDefault(); renderNoticePage(${i});">${i}</a>`;
+          }
+        }
+
+        pagHtml += `<a href="#" class="arrow-btn ${currentPage === totalPages ? 'disabled' : ''}" onclick="event.preventDefault(); if(${currentPage} < ${totalPages}) renderNoticePage(${currentPage + 1});" aria-label="다음 페이지"><i class="ti ti-chevron-right"></i></a>`;
+        pagHtml += `<a href="#" class="arrow-btn ${currentPage === totalPages ? 'disabled' : ''}" onclick="event.preventDefault(); if(${currentPage} < ${totalPages}) renderNoticePage(${totalPages});" aria-label="마지막 페이지"><i class="ti ti-chevrons-right"></i></a>`;
+        paginationElem.innerHTML = pagHtml;
+      }
+    }
+
+    window.renderNoticePage = renderPage;
+
     fetch('/api/notices')
       .then(response => response.json())
       .then(res => {
         if(res.status === 'success') {
-          const notices = res.data;
-          const tbody = document.querySelector('.board-list tbody');
-          const countElem = document.querySelector('.board-count');
-          
-          if(countElem) {
-            countElem.innerHTML = `<strong>${notices.length}건</strong> (DB 실시간 연동)`;
-          }
-          
-          if(tbody) {
-            tbody.innerHTML = '';
-            notices.forEach((item, index) => {
-              const tr = document.createElement('tr');
-              if(item.fix_yn === 'Y') {
-                tr.className = 'notice-row';
-              }
-              
-              // Timestamp formatting
-              let dateStr = '-';
-              if(item.create_dt) {
-                const date = new Date(parseInt(item.create_dt));
-                if(!isNaN(date.getTime())) {
-                  const yyyy = date.getFullYear();
-                  const mm = String(date.getMonth() + 1).padStart(2, '0');
-                  const dd = String(date.getDate()).padStart(2, '0');
-                  dateStr = `${yyyy}.${mm}.${dd}`;
-                }
-              }
-              
-              const hits = item.view_count ? Number(item.view_count).toLocaleString() : '0';
-              const numTd = item.fix_yn === 'Y' 
-                ? `<span class="notice-badge">공지</span>` 
-                : (notices.length - index);
-
-              tr.innerHTML = `
-                <td class="num">${numTd}</td>
-                <td class="subject"><a href="./notice_detail.html?id=${item.post_id}">${item.title}</a></td>
-                <td class="date">${dateStr}</td>
-                <td class="hits">${hits}</td>
-              `;
-              tbody.appendChild(tr);
-            });
-          }
+          allNotices = res.data;
+          renderPage(1);
         }
       })
       .catch(err => console.error('DB Notice fetch error:', err));
