@@ -6,24 +6,17 @@
 <title>지역어종합정보 — Open API 키 발급</title>
 <link rel="shortcut icon" href="./favicon.ico">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap">
 <link rel="stylesheet" href="./styles.css">
 <script src="./gnb.js" defer></script>
 <script src="./share.js" defer></script>
 <script src="./footer.js" defer></script>
 <style>
-  html { scrollbar-gutter: stable; }
   .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
-  body {
-    background: #ffffff;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    margin: 0;
-    font-family: 'Pretendard', 'NanumBarunGothicYetHangul', system-ui, -apple-system, sans-serif;
-    color: #1e293b;
-  }
-
-  /* ===== 서브 비주얼 (공통 GNB 스타일 완벽 동기화) ===== */
+  
+  /* ===== 공통 타이틀 영역(sub-visual) ===== */
   .sub-visual {
     background: linear-gradient(180deg, #edf4ff 0%, #f8fafc 100%);
     border-bottom: 1px solid #e2e8f0;
@@ -32,248 +25,317 @@
     position: relative;
     overflow: visible;
     display: block !important;
-    height: auto !important;
     min-height: 180px;
   }
   .sub-visual::before {
     content: '';
-    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    background: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.03) 0%, transparent 40%);
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 80% 20%, rgba(37,99,235,.03) 0%, transparent 40%);
     pointer-events: none;
   }
-  .wrap { max-width: 1440px; margin: 0 auto; padding: 0 20px; position: relative; }
   .sv-title {
     font-size: 30px; font-weight: 800; color: #1e3a8a;
-    letter-spacing: -0.03em; margin: 0 0 16px; position: relative; z-index: 1;
+    letter-spacing: -.03em; margin: 0 0 16px; position: relative; z-index: 1;
   }
   .location-bar {
     display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center;
-    background: #ffffff; padding: 6px 20px; border-radius: 99px;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02); border: 1px solid #cbd5e1;
-    position: relative; z-index: 1;
+    background: #fff; padding: 6px 20px; border-radius: 99px;
+    box-shadow: 0 2px 8px rgba(15,23,42,.02); border: 1px solid #cbd5e1;
+    position: relative; z-index: 1; max-width: calc(100% - 32px);
   }
-  .loc-item { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #475569; }
+  .loc-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 600; color: #475569;
+  }
   .loc-item.home { color: #3b82f6; font-size: 14px; cursor: pointer; }
   .loc-item select {
-    border: none; background: transparent; font-size: 13px; font-weight: 600; color: #334155;
+    border: none; background: transparent;
+    font-size: 13px; font-weight: 600; color: #334155;
     padding: 0 16px 0 0; cursor: pointer; appearance: none; font-family: inherit;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right center;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right center;
   }
   .loc-item select:focus { outline: none; box-shadow: none; }
   .loc-sep { color: #cbd5e1; font-size: 12px; }
 
-  /* ===== 본문 영역 커스텀 ===== */
-  .oa-container {
+  /* ===== 본문 영역 ===== */
+  .oa-page {
+    --ink: #1e293b;
+    --ink-soft: #475569;
+    --blue-deep: #1e3a8a;
+    --blue-accent: #2563eb;
+    --sys: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, "Noto Sans KR", sans-serif;
+    --serif: Georgia, "Noto Serif KR", "Apple SD Gothic Neo", serif;
+    font-family: var(--sys);
     background: #ffffff;
-    padding: 40px 0 100px;
-    flex: 1;
+    color: var(--ink);
+    line-height: 1.75;
+    padding-bottom: 100px;
   }
-  .oa-wrap {
+
+  .oa-container {
+    width: 100%;
     max-width: 1100px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 40px 20px 0;
     box-sizing: border-box;
   }
 
-  /* 2Depth 서브 탭 메가 메뉴 스타일 */
+  /* 탭 메인 스타일 */
   .oa-tabs {
     display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 44px;
+    gap: 0;
+    margin-bottom: 36px;
+    border-bottom: 1px solid #e2e8f0;
   }
-  .oa-tab-item {
+  .oa-tabs a {
+    flex: 1;
+    text-align: center;
+    text-decoration: none;
+    padding: 16px 12px;
+    font-size: 15.5px;
+    font-weight: 600;
+    color: #64748b;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s ease;
+  }
+  .oa-tabs a:hover {
+    color: var(--blue-deep);
+    background: #f8fafc;
+  }
+  .oa-tabs a.is-active {
+    color: var(--blue-deep);
+    border-bottom-color: var(--blue-deep);
+    font-weight: 800;
+  }
+
+  .oa-lead {
+    font-size: 15.5px;
+    line-height: 1.8;
+    color: #334155;
+    margin: 0 0 32px;
+    word-break: keep-all;
+  }
+  .oa-lead strong { color: var(--blue-deep); }
+  .oa-lead .warn { color: #b91c1c; font-weight: 700; }
+
+  /* 섹션 헤더 */
+  .oa-sec { margin-bottom: 44px; }
+  .oa-sec__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #1e293b;
+    margin-bottom: 22px;
+  }
+  .oa-sec__no {
+    font-size: 13px;
+    font-weight: 800;
+    color: #ffffff;
+    background: var(--blue-deep);
+    border-radius: 6px;
+    padding: 4px 10px;
+  }
+  .oa-sec__title {
+    font-family: var(--serif);
+    font-size: 21px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    letter-spacing: -.02em;
+  }
+
+  /* 알림 박스 */
+  .oa-note {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 24px;
+  }
+  .oa-note i { color: var(--blue-accent); font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+  .oa-note__body { font-size: 14.5px; line-height: 1.7; color: #475569; }
+  .oa-note__body strong { color: var(--blue-deep); }
+  .oa-note--warn { background: #fff7ed; border-color: #fed7aa; }
+  .oa-note--warn i { color: #ea580c; }
+
+  /* 폼 스타일 */
+  .oa-form {
+    border: 1px solid #cbd5e1;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #ffffff;
+  }
+  .oa-form table { width: 100%; border-collapse: collapse; }
+  .oa-form th {
+    width: 170px;
+    padding: 20px 22px;
+    text-align: left;
+    vertical-align: middle;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #334155;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
+  }
+  .oa-form td {
+    padding: 18px 22px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+  }
+  .oa-form tr:last-child th, .oa-form tr:last-child td { border-bottom: none; }
+  .oa-form .req { color: #dc2626; font-style: normal; margin-left: 4px; font-size: 12px; }
+  .oa-form input[type="text"],
+  .oa-form input[type="url"],
+  .oa-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    height: 46px;
+    padding: 0 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: #1e293b;
+    font-family: inherit;
+    background: #ffffff;
+    transition: all 0.15s ease;
+  }
+  .oa-form textarea { height: 96px; padding: 14px 16px; resize: vertical; line-height: 1.6; }
+  .oa-form input:focus, .oa-form textarea:focus {
+    outline: none;
+    border-color: var(--blue-accent);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+  .oa-form input[readonly] {
+    background: #f1f5f9;
+    color: #0f172a;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 14px;
+  }
+  .oa-form .hint { display: block; margin-top: 8px; font-size: 13px; color: #64748b; line-height: 1.5; }
+  .oa-form .inline-row { display: flex; gap: 8px; align-items: center; }
+  .oa-form .inline-row input { flex: 1; min-width: 0; }
+
+  .oa-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 22px 0 0;
+    font-size: 14.5px;
+    color: #475569;
+    line-height: 1.6;
+    cursor: pointer;
+  }
+  .oa-check input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--blue-deep); }
+
+  .oa-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 32px;
+  }
+  .oa-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    min-width: 160px;
-    padding: 14px 24px;
-    border-radius: 99px;
+    height: 48px;
+    padding: 0 24px;
+    border-radius: 10px;
     font-size: 15px;
     font-weight: 700;
-    color: #475569;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
     text-decoration: none;
-    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+    border: 1px solid transparent;
+    font-family: inherit;
+    transition: all 0.15s ease;
   }
-  .oa-tab-item:hover {
-    color: #1e3a8a;
-    border-color: #cbd5e1;
-    background: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
-  }
-  .oa-tab-item.is-active {
-    color: #ffffff;
-    background: #1e3a8a;
-    border-color: #1e3a8a;
-    box-shadow: 0 8px 20px rgba(30, 58, 138, 0.25);
-  }
+  .oa-btn--primary { background: var(--blue-deep); color: #ffffff; border-color: var(--blue-deep); }
+  .oa-btn--primary:hover { background: #172554; box-shadow: 0 8px 20px -10px rgba(30, 58, 138, 0.55); }
+  .oa-btn--primary:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+  .oa-btn--ghost { background: #ffffff; color: var(--blue-deep); border-color: #cbd5e1; }
+  .oa-btn--ghost:hover { background: #f1f5f9; }
+  .oa-btn--danger { background: #ffffff; color: #b91c1c; border-color: #fecaca; }
+  .oa-btn--danger:hover { background: #fef2f2; }
+  .oa-btn--sm { height: 40px; padding: 0 16px; font-size: 13.5px; border-radius: 8px; }
 
-  .oa-lead {
-    font-size: 16px; line-height: 1.8; color: #475569; margin: 0 0 32px; word-break: keep-all; text-align: center;
-  }
-  .oa-lead strong { color: #1e3a8a; font-weight: 800; }
-  .oa-lead .warn { color: #dc2626; font-weight: 700; display: inline-block; margin-top: 4px; }
-
-  /* 섹션 바운더리 카드 */
-  .oa-sec {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 20px;
-    padding: 36px;
-    margin-bottom: 32px;
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.02);
-    transition: all 0.25s ease;
-  }
-  .oa-sec:hover {
-    border-color: #cbd5e1;
-    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
-  }
-  .oa-sec__head {
-    display: flex; align-items: center; gap: 12px;
-    padding-bottom: 18px; border-bottom: 2px solid #1e3a8a; margin-bottom: 24px;
-  }
-  .oa-sec__no {
-    font-size: 13px; font-weight: 800; color: #ffffff; background: #1e3a8a;
-    border-radius: 8px; padding: 5px 12px; letter-spacing: 0.02em;
-  }
-  .oa-sec__title {
-    font-size: 21px; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.02em;
-  }
-
-  /* 파란색/주황색 콜아웃 박스 */
-  .oa-note {
-    display: flex; gap: 16px; align-items: flex-start;
-    background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 14px;
-    padding: 20px 22px; margin-bottom: 24px;
-  }
-  .oa-note i { color: #2563eb; font-size: 24px; flex-shrink: 0; margin-top: 1px; }
-  .oa-note__body { font-size: 14.5px; line-height: 1.75; color: #1e40af; }
-  .oa-note__body strong { color: #1e3a8a; font-weight: 800; }
-  .oa-note--warn { background: #fff7ed; border-color: #fed7aa; }
-  .oa-note--warn i { color: #ea580c; }
-  .oa-note--warn .oa-note__body { color: #9a3412; }
-  .oa-note--warn .oa-note__body strong { color: #c2410c; }
-
-  /* 폼 테이블 스타일 */
-  .oa-form {
-    border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; background: #ffffff;
-  }
-  .oa-form table { width: 100%; border-collapse: collapse; }
-  .oa-form th {
-    width: 170px; padding: 20px 22px; text-align: left; vertical-align: middle;
-    font-size: 15px; font-weight: 700; color: #334155; background: #f8fafc;
-    border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;
-  }
-  .oa-form td {
-    padding: 18px 22px; border-bottom: 1px solid #e2e8f0; vertical-align: middle;
-  }
-  .oa-form tr:last-child th, .oa-form tr:last-child td { border-bottom: none; }
-  .oa-form .req { color: #dc2626; font-style: normal; margin-left: 4px; font-weight: 800; }
-  .oa-form input[type="text"],
-  .oa-form input[type="url"],
-  .oa-form textarea {
-    width: 100%; box-sizing: border-box;
-    height: 48px; padding: 0 16px;
-    border: 1px solid #cbd5e1; border-radius: 12px;
-    font-size: 15px; font-weight: 500; color: #1e293b; font-family: inherit;
-    background: #ffffff; transition: all 0.2s ease;
-  }
-  .oa-form textarea { height: 96px; padding: 14px 16px; resize: vertical; line-height: 1.6; }
-  .oa-form input:focus, .oa-form textarea:focus {
-    outline: none; border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
-  }
-  .oa-form input[readonly] {
-    background: #f1f5f9; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 14px; font-weight: 700; letter-spacing: 0.02em;
-  }
-  .oa-form .hint { display: block; margin-top: 8px; font-size: 13px; color: #64748b; line-height: 1.5; }
-  .oa-form .inline-row { display: flex; gap: 10px; align-items: center; }
-  .oa-form .inline-row input { flex: 1; min-width: 0; }
-
-  /* 약관 동의 체크박스 */
-  .oa-check {
-    display: flex; align-items: flex-start; gap: 12px;
-    margin: 24px 0 0; font-size: 14.5px; color: #475569; line-height: 1.6; cursor: pointer;
-    background: #f8fafc; padding: 18px 22px; border-radius: 14px; border: 1px solid #e2e8f0;
-  }
-  .oa-check input { margin-top: 3px; width: 18px; height: 18px; accent-color: #1e3a8a; cursor: pointer; }
-
-  /* 버튼 집합 */
-  .oa-actions {
-    display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 32px;
-  }
-  .oa-btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    height: 50px; padding: 0 26px; border-radius: 12px;
-    font-size: 15px; font-weight: 700; text-decoration: none; cursor: pointer;
-    border: 1px solid transparent; font-family: inherit;
-    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-  }
-  .oa-btn--primary { background: #1e3a8a; color: #ffffff; border-color: #1e3a8a; box-shadow: 0 8px 20px rgba(30, 58, 138, 0.22); }
-  .oa-btn--primary:hover { background: #172554; transform: translateY(-2px); box-shadow: 0 12px 24px rgba(30, 58, 138, 0.32); }
-  .oa-btn--ghost { background: #ffffff; color: #1e3a8a; border-color: #cbd5e1; }
-  .oa-btn--ghost:hover { background: #f8fafc; border-color: #94a3b8; transform: translateY(-2px); }
-  .oa-btn--danger { background: #ffffff; color: #dc2626; border-color: #fca5a5; }
-  .oa-btn--danger:hover { background: #fef2f2; border-color: #f87171; transform: translateY(-2px); }
-  .oa-btn--sm { height: 40px; padding: 0 16px; font-size: 13.5px; border-radius: 10px; }
-
-  /* 키 발급 박스 (다크 인디고 그래디언트) */
   .oa-keybox {
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
-    color: #e2e8f0; border-radius: 20px; padding: 32px; margin-bottom: 28px;
-    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.18);
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+    color: #e2e8f0;
+    border-radius: 16px;
+    padding: 28px 28px 24px;
+    margin-bottom: 24px;
   }
-  .oa-keybox__label {
-    font-size: 13px; font-weight: 800; letter-spacing: 0.08em; color: #93c5fd; margin: 0 0 12px;
-  }
+  .oa-keybox__label { font-size: 12px; font-weight: 800; letter-spacing: .08em; color: #93c5fd; margin: 0 0 12px; }
   .oa-keybox__value {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: clamp(16px, 2.5vw, 20px); line-height: 1.5; word-break: break-all;
-    color: #ffffff; background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.15); border-radius: 12px;
-    padding: 18px 20px; margin: 0 0 18px; font-weight: 700;
+    font-size: clamp(15px, 2.4vw, 18px);
+    line-height: 1.5;
+    word-break: break-all;
+    color: #f8fafc;
+    background: rgba(255, 255, 255, .08);
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin: 0 0 16px;
   }
-  .oa-keybox__meta {
-    display: flex; flex-wrap: wrap; gap: 16px 28px;
-    font-size: 14px; color: #cbd5e1; margin: 0 0 20px;
-  }
+  .oa-keybox__meta { display: flex; flex-wrap: wrap; gap: 14px 24px; font-size: 13.5px; color: #cbd5e1; margin: 0 0 16px; }
   .oa-keybox__meta strong { color: #ffffff; font-weight: 700; }
   .oa-keybox__actions { display: flex; flex-wrap: wrap; gap: 10px; }
 
-  /* 리스트 스타일 */
   .oa-list { list-style: none; margin: 0; padding: 0; }
   .oa-list li {
-    position: relative; padding-left: 22px; margin-bottom: 14px;
-    font-size: 15px; line-height: 1.75; color: #334155;
+    position: relative;
+    padding-left: 22px;
+    margin-bottom: 12px;
+    font-size: 15px;
+    line-height: 1.75;
+    color: #334155;
   }
   .oa-list li::before {
-    content: ''; position: absolute; left: 4px; top: 11px;
-    width: 6px; height: 6px; border-radius: 50%; background: #2563eb;
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 11px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--blue-accent);
   }
 
-  /* 토스트 알림 메시지 */
   .oa-toast {
-    position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(16px);
-    background: #0f172a; color: #ffffff; font-size: 15px; font-weight: 700;
-    padding: 14px 24px; border-radius: 12px; z-index: 1000;
-    opacity: 0; pointer-events: none; transition: all 0.25s ease;
-    box-shadow: 0 16px 40px rgba(15,23,42,0.3); border: 1px solid rgba(255,255,255,0.1);
+    position: fixed;
+    left: 50%;
+    bottom: 32px;
+    transform: translateX(-50%) translateY(12px);
+    background: #0f172a;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: 10px;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.25);
   }
   .oa-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
   .is-hidden { display: none !important; }
 
   @media (max-width: 768px) {
     .oa-form th, .oa-form td { display: block; width: auto; border-right: none; }
-    .oa-form th { padding-bottom: 8px; border-bottom: none; }
+    .oa-form th { padding-bottom: 6px; border-bottom: none; }
     .oa-form td { padding-top: 0; }
-    .oa-tabs { flex-wrap: wrap; }
-    .oa-tab-item { min-width: 120px; flex: 1; }
-    .oa-keybox { padding: 24px; }
+    .oa-tabs a { font-size: 14px; padding: 14px 8px; }
   }
 </style>
 </head>
@@ -283,7 +345,7 @@
 
 <div class="sub-visual">
   <div class="wrap">
-    <h1 class="sv-title">Open API</h1>
+    <h1 class="sv-title">Open API 키 발급</h1>
     <div class="location-bar">
       <div class="loc-item home" onclick="location.href='./index.html'" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
       <i class="ti ti-chevron-right loc-sep"></i>
@@ -309,176 +371,176 @@
   </div>
 </div>
 
-<div class="oa-container">
-<main class="oa-wrap">
-  <!-- 서브 탭 메가 메뉴 -->
-  <nav class="oa-tabs" aria-label="Open API 하위 메뉴">
-    <a href="./openapi_intro.html" class="oa-tab-item"><i class="ti ti-info-circle" aria-hidden="true"></i> 소개</a>
-    <a href="./openapi_key.html" class="oa-tab-item is-active" aria-current="page"><i class="ti ti-key" aria-hidden="true"></i> 키 발급</a>
-    <a href="./openapi_guide.html" class="oa-tab-item"><i class="ti ti-book-2" aria-hidden="true"></i> 활용안내</a>
-  </nav>
+<main class="oa-page">
+  <div class="oa-container">
 
-  <p class="oa-lead">
-    오픈 API 서비스를 이용하려면 먼저 <strong>인증키</strong>를 발급받아야 합니다.
-    인증키가 올바르지 않으면 서비스 이용이 제한됩니다.
-    키가 유효하지 않거나 분실한 경우에는 <strong>재발급</strong>해 주세요.
-    <br><span class="warn">※ 회원 1인당 1개의 인증키를 발급받을 수 있습니다.</span>
-  </p>
+    <nav class="oa-tabs" aria-label="Open API 하위 메뉴">
+      <a href="./openapi_intro.html">소개</a>
+      <a href="./openapi_key.html" class="is-active" aria-current="page">키 발급</a>
+      <a href="./openapi_guide.html">활용안내</a>
+    </nav>
 
-  <!-- 발급 완료 상태 -->
-  <section id="panelIssued" class="oa-sec is-hidden" aria-labelledby="issuedTitle">
-    <div class="oa-sec__head">
-      <span class="oa-sec__no">KEY</span>
-      <h2 class="oa-sec__title" id="issuedTitle">발급된 인증키</h2>
-    </div>
+    <p class="oa-lead">
+      오픈 API 서비스를 이용하려면 먼저 <strong>인증키</strong>를 발급받아야 합니다.<br>
+      인증키가 올바르지 않으면 서비스 이용이 제한되며, 키를 분실한 경우에는 <strong>재발급</strong>해 주세요.
+      <br><span class="warn">※ 회원 1인당 1개의 인증키를 발급받을 수 있습니다.</span>
+    </p>
 
-    <div class="oa-keybox">
-      <p class="oa-keybox__label">API KEY</p>
-      <p class="oa-keybox__value" id="issuedKey">—</p>
-      <div class="oa-keybox__meta">
-        <span>발급일 <strong id="issuedDate">—</strong></span>
-        <span>사용 URL <strong id="issuedUrlMeta">—</strong></span>
+    <!-- 발급 완료 상태 -->
+    <section id="panelIssued" class="oa-sec is-hidden" aria-labelledby="issuedTitle">
+      <div class="oa-sec__head">
+        <span class="oa-sec__no">KEY</span>
+        <h2 class="oa-sec__title" id="issuedTitle">발급된 인증키</h2>
       </div>
-      <div class="oa-keybox__actions">
-        <button type="button" class="oa-btn oa-btn--sm oa-btn--ghost" style="background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.2);" onclick="copyKey()">
-          <i class="ti ti-copy" aria-hidden="true"></i> 키 복사
+
+      <div class="oa-keybox">
+        <p class="oa-keybox__label">API KEY</p>
+        <p class="oa-keybox__value" id="issuedKey">—</p>
+        <div class="oa-keybox__meta">
+          <span>발급일 <strong id="issuedDate">—</strong></span>
+          <span>사용 URL <strong id="issuedUrlMeta">—</strong></span>
+        </div>
+        <div class="oa-keybox__actions">
+          <button type="button" class="oa-btn oa-btn--sm oa-btn--ghost" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);" onclick="copyKey()">
+            <i class="ti ti-copy" aria-hidden="true"></i> 키 복사
+          </button>
+          <a href="./openapi_guide.html" class="oa-btn oa-btn--sm oa-btn--ghost" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);">
+            <i class="ti ti-book-2" aria-hidden="true"></i> 활용안내
+          </a>
+        </div>
+      </div>
+
+      <div class="oa-form" style="margin-bottom:24px;">
+        <table>
+          <caption class="sr-only">인증키 정보</caption>
+          <tbody>
+            <tr>
+              <th scope="row">신청 아이디</th>
+              <td id="viewUserId">hanguk_user</td>
+            </tr>
+            <tr>
+              <th scope="row">사용 URL</th>
+              <td>
+                <div class="inline-row">
+                  <input type="url" id="viewApiUrl" readonly value="" title="등록된 사용 URL">
+                  <button type="button" class="oa-btn oa-btn--sm oa-btn--ghost" onclick="enableUrlEdit()">수정</button>
+                </div>
+                <span class="hint">API를 호출하는 서비스·사이트 주소를 등록합니다. 변경 후 저장할 수 있습니다.</span>
+              </td>
+            </tr>
+            <tr id="urlEditRow" class="is-hidden">
+              <th scope="row"><label for="editApiUrl">URL 변경</label></th>
+              <td>
+                <div class="inline-row">
+                  <input type="url" id="editApiUrl" placeholder="https://example.com 또는 localhost:8080" title="변경할 사용 URL">
+                  <button type="button" class="oa-btn oa-btn--sm oa-btn--primary" onclick="saveUrlEdit()">저장</button>
+                  <button type="button" class="oa-btn oa-btn--sm oa-btn--ghost" onclick="cancelUrlEdit()">취소</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="oa-note oa-note--warn">
+        <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+        <div class="oa-note__body">
+          <strong>재발급 안내</strong><br>
+          재발급 시 기존 인증키는 즉시 무효화됩니다. 이미 연동 중인 서비스가 있다면 새 키로 교체해 주세요.
+        </div>
+      </div>
+
+      <div class="oa-actions">
+        <button type="button" class="oa-btn oa-btn--danger" onclick="confirmReissue()">
+          <i class="ti ti-refresh" aria-hidden="true"></i> 인증키 재발급
         </button>
-        <a href="./openapi_guide.html" class="oa-btn oa-btn--sm oa-btn--ghost" style="background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.2);">
-          <i class="ti ti-book-2" aria-hidden="true"></i> 활용안내
+        <a href="./openapi_guide.html" class="oa-btn oa-btn--primary">
+          <i class="ti ti-code" aria-hidden="true"></i> 연동 명세 보기
         </a>
       </div>
-    </div>
+    </section>
 
-    <div class="oa-form" style="margin-bottom:22px;">
-      <table>
-        <caption class="sr-only">인증키 정보</caption>
-        <tbody>
-          <tr>
-            <th scope="row">아이디</th>
-            <td id="viewUserId">hanguk_user</td>
-          </tr>
-          <tr>
-            <th scope="row">사용 URL</th>
-            <td>
-              <div class="inline-row">
-                <input type="url" id="viewApiUrl" readonly value="" title="등록된 사용 URL">
-                <button type="button" class="oa-btn oa-btn--sm oa-btn--ghost" onclick="enableUrlEdit()">수정</button>
-              </div>
-              <span class="hint">API를 호출하는 서비스·사이트 주소를 등록합니다. 변경 후 저장할 수 있습니다.</span>
-            </td>
-          </tr>
-          <tr id="urlEditRow" class="is-hidden">
-            <th scope="row"><label for="editApiUrl">URL 변경</label></th>
-            <td>
-              <div class="inline-row">
-                <input type="url" id="editApiUrl" placeholder="https://example.com 또는 localhost:8080" title="변경할 사용 URL">
-                <button type="button" class="oa-btn oa-btn--sm oa-btn--primary" onclick="saveUrlEdit()">저장</button>
-                <button type="button" class="oa-btn oa-btn--sm oa-btn--ghost" onclick="cancelUrlEdit()">취소</button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="oa-note oa-note--warn">
-      <i class="ti ti-alert-triangle" aria-hidden="true"></i>
-      <div class="oa-note__body">
-        <strong>재발급 안내</strong><br>
-        재발급 시 기존 인증키는 즉시 무효화됩니다. 이미 연동 중인 서비스가 있다면 새 키로 교체해 주세요.
+    <!-- 신규 발급 신청 -->
+    <section id="panelApply" class="oa-sec" aria-labelledby="applyTitle">
+      <div class="oa-sec__head">
+        <span class="oa-sec__no">01</span>
+        <h2 class="oa-sec__title" id="applyTitle">인증키 발급 신청</h2>
       </div>
-    </div>
 
-    <div class="oa-actions">
-      <button type="button" class="oa-btn oa-btn--danger" onclick="confirmReissue()">
-        <i class="ti ti-refresh" aria-hidden="true"></i> 인증키 재발급
-      </button>
-      <a href="./openapi_guide.html" class="oa-btn oa-btn--primary">
-        <i class="ti ti-code" aria-hidden="true"></i> 연동 명세 보기
-      </a>
-    </div>
-  </section>
-
-  <!-- 신규 발급 신청 -->
-  <section id="panelApply" class="oa-sec" aria-labelledby="applyTitle">
-    <div class="oa-sec__head">
-      <span class="oa-sec__no">01</span>
-      <h2 class="oa-sec__title" id="applyTitle">인증키 발급 신청</h2>
-    </div>
-
-    <div class="oa-note">
-      <i class="ti ti-info-circle" aria-hidden="true"></i>
-      <div class="oa-note__body">
-        <strong>신청 전 확인</strong><br>
-        · 로그인한 회원 계정으로 발급됩니다. (프로토타입: <strong>hanguk_user</strong>)<br>
-        · 사용 URL은 API를 연동할 웹사이트·앱 서버 주소를 입력합니다.<br>
-        · 발급된 키는 외부에 공개되지 않도록 안전하게 관리해 주세요.
+      <div class="oa-note">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        <div class="oa-note__body">
+          <strong>신청 전 확인</strong><br>
+          · 로그인한 회원 계정으로 발급됩니다. (프로토타입: <strong>hanguk_user</strong>)<br>
+          · 사용 URL은 API를 연동할 웹사이트·앱 서버 주소를 입력합니다.<br>
+          · 발급된 키는 외부에 공개되지 않도록 안전하게 관리해 주세요.
+        </div>
       </div>
-    </div>
 
-    <form id="keyForm" class="oa-form" onsubmit="return false;">
-      <table>
-        <caption class="sr-only">Open API 인증키 발급 신청</caption>
-        <tbody>
-          <tr>
-            <th scope="row">신청 아이디</th>
-            <td>
-              <input type="text" id="userId" value="hanguk_user" readonly title="신청 아이디">
-              <span class="hint">본인 계정으로만 발급·조회할 수 있습니다.</span>
-            </td>
-          </tr>
-          <tr>
-            <th scope="row"><label for="apiUrl">사용 URL<i class="req" aria-label="필수">*</i></label></th>
-            <td>
-              <input type="url" id="apiUrl" name="apiUrl" placeholder="예) https://example.com 또는 http://localhost:8080" title="사용 URL 입력" required>
-              <span class="hint">지역어 Open API를 호출할 사이트 또는 개발 환경 주소를 입력해 주세요. (필수)</span>
-            </td>
-          </tr>
-          <tr>
-            <th scope="row"><label for="apiPurpose">사용 목적</label></th>
-            <td>
-              <textarea id="apiPurpose" name="apiPurpose" placeholder="예) 지역어 사전 검색 기능 개발, 학술 연구 데이터 수집 등" title="사용 목적 입력"></textarea>
-              <span class="hint">선택 사항입니다. 관리·문의 시 참고용으로 사용됩니다.</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </form>
+      <form id="keyForm" class="oa-form" onsubmit="return false;">
+        <table>
+          <caption class="sr-only">Open API 인증키 발급 신청</caption>
+          <tbody>
+            <tr>
+              <th scope="row">신청 아이디</th>
+              <td>
+                <input type="text" id="userId" value="hanguk_user" readonly title="신청 아이디">
+                <span class="hint">본인 계정으로만 발급·조회할 수 있습니다.</span>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row"><label for="apiUrl">사용 URL<i class="req" aria-label="필수">*</i></label></th>
+              <td>
+                <input type="url" id="apiUrl" name="apiUrl" placeholder="예) https://example.com 또는 http://localhost:8080" title="사용 URL 입력" required>
+                <span class="hint">지역어 Open API를 호출할 사이트 또는 개발 환경 주소를 입력해 주세요. (필수)</span>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row"><label for="apiPurpose">사용 목적</label></th>
+              <td>
+                <textarea id="apiPurpose" name="apiPurpose" placeholder="예) 지역어 사전 검색 기능 개발, 학술 연구 데이터 수집 등" title="사용 목적 입력"></textarea>
+                <span class="hint">선택 사항입니다. 관리·문의 시 참고용으로 사용됩니다.</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
 
-    <label class="oa-check">
-      <input type="checkbox" id="agreeTerms">
-      <span>
-        Open API 이용 시 <a href="./terms.html" target="_blank" rel="noopener" style="color:#2563eb;font-weight:700;">이용 약관</a> 및
-        <a href="./copyright.html" target="_blank" rel="noopener" style="color:#2563eb;font-weight:700;">저작권 정책</a>을 준수하며,
-        발급받은 인증키를 무단 공유·양도하지 않겠습니다.
-      </span>
-    </label>
+      <label class="oa-check">
+        <input type="checkbox" id="agreeTerms">
+        <span>
+          Open API 이용 시 <a href="./terms.html" target="_blank" rel="noopener" style="color:var(--blue-accent);font-weight:700;">이용 약관</a> 및
+          <a href="./copyright.html" target="_blank" rel="noopener" style="color:var(--blue-accent);font-weight:700;">저작권 정책</a>을 준수하며,
+          발급받은 인증키를 무단 공유·양도하지 않겠습니다.
+        </span>
+      </label>
 
-    <div class="oa-actions">
-      <button type="button" class="oa-btn oa-btn--ghost" onclick="resetForm()">
-        <i class="ti ti-refresh" aria-hidden="true"></i> 초기화
-      </button>
-      <button type="button" class="oa-btn oa-btn--primary" id="btnIssue" onclick="issueKey()">
-        <i class="ti ti-key" aria-hidden="true"></i> 발급 신청
-      </button>
-    </div>
-  </section>
+      <div class="oa-actions">
+        <button type="button" class="oa-btn oa-btn--ghost" onclick="resetForm()">
+          <i class="ti ti-refresh" aria-hidden="true"></i> 초기화
+        </button>
+        <button type="button" class="oa-btn oa-btn--primary" id="btnIssue" onclick="issueKey()">
+          <i class="ti ti-key" aria-hidden="true"></i> 발급 신청
+        </button>
+      </div>
+    </section>
 
-  <section class="oa-sec" style="margin-bottom:0;">
-    <div class="oa-sec__head">
-      <span class="oa-sec__no">02</span>
-      <h2 class="oa-sec__title">이용 유의사항</h2>
-    </div>
-    <ul class="oa-list">
-      <li>인증키(<code style="background:#f1f5f9;padding:1px 6px;border-radius:4px;font-size:12.5px;">apiKey</code>)는 모든 Open API 요청에 필수입니다.</li>
-      <li>요청 URL 예: <code style="background:#f1f5f9;padding:1px 6px;border-radius:4px;font-size:12.5px;">https://dialect.korean.go.kr/dialect/openAPI/data</code></li>
-      <li>과도한 호출은 서비스 안정성을 해칠 수 있으니 필요 범위 내에서 이용해 주세요.</li>
-      <li>키 분실·유출이 의심되면 즉시 재발급하고, 기존 연동 설정을 갱신해 주세요.</li>
-      <li>상세 요청 변수·응답 필드는 <a href="./openapi_guide.html" style="color:#2563eb;font-weight:700;text-decoration:none;">활용안내</a>를 참고하세요.</li>
-    </ul>
-  </section>
+    <section class="oa-sec" style="margin-bottom:0;">
+      <div class="oa-sec__head">
+        <span class="oa-sec__no">02</span>
+        <h2 class="oa-sec__title">이용 유의사항</h2>
+      </div>
+      <ul class="oa-list">
+        <li>인증키(<code style="background:#f1f5f9;padding:1px 6px;border-radius:4px;font-size:13px;">apiKey</code>)는 모든 Open API 요청에 필수입니다.</li>
+        <li>요청 URL 예: <code style="background:#f1f5f9;padding:1px 6px;border-radius:4px;font-size:13px;">https://dialect.korean.go.kr/dialect/openAPI/data</code></li>
+        <li>과도한 호출은 서비스 안정성을 해칠 수 있으니 필요 범위 내에서 이용해 주세요.</li>
+        <li>키 분실·유출이 의심되면 즉시 재발급하고, 기존 연동 설정을 갱신해 주세요.</li>
+        <li>상세 요청 변수·응답 필드는 <a href="./openapi_guide.html" style="color:var(--blue-accent);font-weight:700;text-decoration:none;">활용안내</a>를 참고하세요.</li>
+      </ul>
+    </section>
+
+  </div>
 </main>
-</div>
 
 <div id="footer-common"></div>
 <div class="oa-toast" id="toast" role="status" aria-live="polite"></div>
@@ -529,7 +591,6 @@
   }
 
   function genKey() {
-    // 30자 영숫자 키 (로컬 프로토타입용)
     var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
     var out = '';
     var arr = new Uint8Array(30);
@@ -545,7 +606,6 @@
 
   function validUrl(url) {
     if (!url) return false;
-    // http(s) 또는 localhost/host:port 허용
     if (/^https?:\/\/.+/i.test(url)) return true;
     if (/^localhost(:\d+)?(\/.*)?$/i.test(url)) return true;
     if (/^[\w.-]+(:\d+)?(\/.*)?$/i.test(url) && url.indexOf(' ') < 0) return true;
@@ -666,7 +726,6 @@
     var data = loadState();
     if (!data) return;
     if (!confirm('기존 인증키를 무효화하고 새 키를 발급할까요?\n연동 중인 서비스는 새 키로 변경해야 합니다.')) return;
-    // 재발급 시 기존 URL 유지, 신청 폼으로 보내지 않고 즉시 새 키 생성
     var next = {
       userId: data.userId || DEMO_USER,
       apiKey: genKey(),
@@ -676,7 +735,6 @@
       reissued: true
     };
     if (!next.apiUrl) {
-      // URL 없으면 신청 폼으로
       clearState();
       showApply();
       toast('사용 URL을 입력한 뒤 다시 발급해 주세요.');

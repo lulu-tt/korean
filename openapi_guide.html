@@ -6,269 +6,308 @@
 <title>지역어종합정보 — Open API 활용안내</title>
 <link rel="shortcut icon" href="./favicon.ico">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap">
 <link rel="stylesheet" href="./styles.css">
 <script src="./gnb.js" defer></script>
 <script src="./share.js" defer></script>
 <script src="./footer.js" defer></script>
 <style>
-  html { scrollbar-gutter: stable; }
-  body {
-    background: #ffffff;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    margin: 0;
-    font-family: 'Pretendard', 'NanumBarunGothicYetHangul', system-ui, -apple-system, sans-serif;
-    color: #1e293b;
-  }
-  .sub-visual{
-    background:linear-gradient(180deg,#edf4ff 0%,#f8fafc 100%);
-    border-bottom:1px solid #e2e8f0; padding:55px 0 50px; text-align:center;
-    position:relative; min-height:180px;
-    overflow: visible; display: block !important; height: auto !important;
-  }
-  .sub-visual::before{
-    content:''; position:absolute; top:0; left:0; right:0; bottom:0;
-    background:radial-gradient(circle at 80% 20%,rgba(37,99,235,.03) 0%,transparent 40%);
-    pointer-events:none;
-  }
-  .wrap { max-width: 1440px; margin: 0 auto; padding: 0 20px; position: relative; }
-  .sv-title{
-    font-size:30px; font-weight:800; color:#1e3a8a;
-    letter-spacing:-.03em; margin:0 0 16px; position:relative; z-index:1;
-  }
-  .location-bar{
-    display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center;
-    background:#fff; padding:6px 20px; border-radius:99px;
-    box-shadow:0 2px 8px rgba(15,23,42,.02); border:1px solid #cbd5e1;
-    position:relative; z-index:1; max-width:calc(100% - 32px);
-  }
-  .loc-item{display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:#475569;}
-  .loc-item.home{color:#3b82f6; font-size:14px; cursor:pointer;}
-  .loc-item select{
-    border:none; background:transparent; font-size:13px; font-weight:600; color:#334155;
-    padding:0 16px 0 0; cursor:pointer; appearance:none; font-family:inherit;
-    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right center;
-  }
-  .loc-item select:focus{outline:none; box-shadow:none;}
-  .loc-sep{color:#cbd5e1; font-size:12px;}
-
-  .oa-container { background:#ffffff; padding:40px 0 100px; flex:1; }
-  .oa-wrap{max-width:1100px; margin:0 auto; padding:0 20px; box-sizing:border-box;}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
   
+  /* ===== 공통 타이틀 영역(sub-visual) ===== */
+  .sub-visual {
+    background: linear-gradient(180deg, #edf4ff 0%, #f8fafc 100%);
+    border-bottom: 1px solid #e2e8f0;
+    padding: 55px 0 50px;
+    text-align: center;
+    position: relative;
+    overflow: visible;
+    display: block !important;
+    min-height: 180px;
+  }
+  .sub-visual::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 80% 20%, rgba(37,99,235,.03) 0%, transparent 40%);
+    pointer-events: none;
+  }
+  .sv-title {
+    font-size: 30px; font-weight: 800; color: #1e3a8a;
+    letter-spacing: -.03em; margin: 0 0 16px; position: relative; z-index: 1;
+  }
+  .location-bar {
+    display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center;
+    background: #fff; padding: 6px 20px; border-radius: 99px;
+    box-shadow: 0 2px 8px rgba(15,23,42,.02); border: 1px solid #cbd5e1;
+    position: relative; z-index: 1; max-width: calc(100% - 32px);
+  }
+  .loc-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 600; color: #475569;
+  }
+  .loc-item.home { color: #3b82f6; font-size: 14px; cursor: pointer; }
+  .loc-item select {
+    border: none; background: transparent;
+    font-size: 13px; font-weight: 600; color: #334155;
+    padding: 0 16px 0 0; cursor: pointer; appearance: none; font-family: inherit;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right center;
+  }
+  .loc-item select:focus { outline: none; box-shadow: none; }
+  .loc-sep { color: #cbd5e1; font-size: 12px; }
+
+  /* ===== 본문 영역 ===== */
+  .oa-page {
+    --ink: #1e293b;
+    --ink-soft: #475569;
+    --blue-deep: #1e3a8a;
+    --blue-accent: #2563eb;
+    --sys: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, "Noto Sans KR", sans-serif;
+    --serif: Georgia, "Noto Serif KR", "Apple SD Gothic Neo", serif;
+    font-family: var(--sys);
+    background: #ffffff;
+    color: var(--ink);
+    line-height: 1.75;
+    padding-bottom: 100px;
+  }
+
+  .oa-container {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 20px 0;
+    box-sizing: border-box;
+  }
+
+  /* 탭 메인 스타일 */
   .oa-tabs {
     display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 44px;
+    gap: 0;
+    margin-bottom: 32px;
+    border-bottom: 1px solid #e2e8f0;
   }
-  .oa-tab-item {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-width: 160px;
-    padding: 14px 24px;
-    border-radius: 99px;
-    font-size: 15px;
-    font-weight: 700;
-    color: #475569;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+  .oa-tabs a {
+    flex: 1;
+    text-align: center;
     text-decoration: none;
-    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    padding: 16px 12px;
+    font-size: 15.5px;
+    font-weight: 600;
+    color: #64748b;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s ease;
   }
-  .oa-tab-item:hover {
-    color: #1e3a8a;
-    border-color: #cbd5e1;
-    background: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+  .oa-tabs a:hover {
+    color: var(--blue-deep);
+    background: #f8fafc;
   }
-  .oa-tab-item.is-active {
+  .oa-tabs a.is-active {
+    color: var(--blue-deep);
+    border-bottom-color: var(--blue-deep);
+    font-weight: 800;
+  }
+
+  /* 본문 목차 */
+  .oa-toc {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 32px;
+  }
+  .oa-toc a {
+    display: inline-flex; align-items: center; gap: 6px;
+    text-decoration: none; font-size: 13.5px; font-weight: 700; color: #475569;
+    background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 99px;
+    padding: 8px 16px; transition: all 0.15s ease;
+  }
+  .oa-toc a:hover { color: var(--blue-deep); border-color: #93c5fd; background: #eff6ff; }
+
+  .oa-lead { font-size: 15.5px; line-height: 1.8; color: #334155; margin: 0 0 32px; word-break: keep-all; }
+  .oa-lead strong { color: var(--blue-deep); }
+
+  /* 섹션 헤더 */
+  .oa-sec { margin-bottom: 50px; scroll-margin-top: 24px; }
+  .oa-sec__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #1e293b;
+    margin-bottom: 22px;
+  }
+  .oa-sec__no {
+    font-size: 13px;
+    font-weight: 800;
     color: #ffffff;
-    background: #1e3a8a;
-    border-color: #1e3a8a;
-    box-shadow: 0 8px 20px rgba(30, 58, 138, 0.25);
+    background: var(--blue-deep);
+    border-radius: 6px;
+    padding: 4px 10px;
+  }
+  .oa-sec__title {
+    font-family: var(--serif);
+    font-size: 21px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    letter-spacing: -.02em;
+  }
+  .oa-sec p { font-size: 15px; line-height: 1.78; color: #334155; margin: 0 0 14px; word-break: keep-all; }
+
+  .oa-urlbox {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    background: #0f172a; color: #e2e8f0; border-radius: 14px;
+    padding: 16px 20px; margin: 14px 0 20px;
+  }
+  .oa-urlbox__label { font-size: 11.5px; font-weight: 800; letter-spacing: .08em; color: #93c5fd; flex-shrink: 0; }
+  .oa-urlbox__val {
+    flex: 1; min-width: 0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 14px; word-break: break-all; color: #f8fafc;
+  }
+  .oa-urlbox button {
+    flex-shrink: 0; height: 36px; padding: 0 14px; border-radius: 8px;
+    border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08);
+    color: #ffffff; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+    transition: all 0.15s ease;
+  }
+  .oa-urlbox button:hover { background: rgba(255,255,255,.18); }
+
+  /* 테이블 스타일 */
+  .oa-table-wrap { overflow-x: auto; border: 1px solid #cbd5e1; border-radius: 14px; margin: 14px 0 10px; }
+  .oa-table { width: 100%; border-collapse: collapse; min-width: 640px; font-size: 14px; }
+  .oa-table th {
+    background: #f8fafc; color: #1e293b; font-weight: 700; text-align: left;
+    padding: 14px 16px; border-bottom: 1px solid #cbd5e1; white-space: nowrap;
+  }
+  .oa-table td {
+    padding: 14px 16px; border-bottom: 1px solid #e2e8f0; color: #334155; vertical-align: top; line-height: 1.6;
+  }
+  .oa-table tr:last-child td { border-bottom: none; }
+  .oa-table code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px; background: #eff6ff; color: var(--blue-deep); padding: 2px 7px; border-radius: 4px; font-weight: 600;
+  }
+  .oa-badge {
+    display: inline-block; font-size: 11.5px; font-weight: 800; border-radius: 99px;
+    padding: 2px 9px; letter-spacing: .02em;
+  }
+  .oa-badge--req { background: #fef2f2; color: #b91c1c; }
+  .oa-badge--opt { background: #f1f5f9; color: #64748b; }
+
+  /* 코드 블록 */
+  .oa-code {
+    background: #0f172a; color: #e2e8f0; border-radius: 14px; padding: 0; margin: 14px 0 10px; overflow: hidden;
+  }
+  .oa-code__bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 12px 16px; background: rgba(255,255,255,.04); border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+  .oa-code__tabs { display: flex; gap: 4px; }
+  .oa-code__tabs button {
+    border: none; background: transparent; color: #94a3b8; font-size: 13px; font-weight: 700;
+    padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: inherit;
+    transition: all 0.15s ease;
+  }
+  .oa-code__tabs button.on { background: rgba(255,255,255,.12); color: #ffffff; }
+  .oa-code__bar .copy {
+    border: 1px solid rgba(255,255,255,.18); background: transparent; color: #cbd5e1;
+    font-size: 12.5px; font-weight: 700; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: inherit;
+  }
+  .oa-code pre {
+    margin: 0; padding: 18px 20px; overflow: auto; font-size: 13px; line-height: 1.6;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; white-space: pre-wrap; word-break: break-all;
   }
 
-  /* in-page nav */
-  .oa-toc{
-    display:flex; flex-wrap:wrap; gap:8px; margin:0 0 32px;
+  /* 테스트베드 */
+  .tb {
+    border: 1px solid #cbd5e1; border-radius: 16px; overflow: hidden;
+    background: linear-gradient(180deg, #f8fbff 0%, #ffffff 120px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
   }
-  .oa-toc a{
-    display:inline-flex; align-items:center; gap:6px;
-    text-decoration:none; font-size:13px; font-weight:700; color:#475569;
-    background:#f8fafc; border:1px solid #e2e8f0; border-radius:99px;
-    padding:8px 14px; transition:background .15s, color .15s, border-color .15s;
+  .tb__head {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px;
+    padding: 20px 24px; border-bottom: 1px solid #cbd5e1; background: #eff6ff;
   }
-  .oa-toc a:hover{color:#1e3a8a; border-color:#c7d7fe; background:#eff4ff;}
+  .tb__head h3 { margin: 0; font-size: 17px; font-weight: 800; color: var(--blue-deep); }
+  .tb__head p { margin: 4px 0 0; font-size: 13.5px; color: #64748b; }
+  .tb__body { display: grid; grid-template-columns: 1fr 1fr; gap: 0; min-height: 440px; }
+  .tb__form { padding: 22px 24px; border-right: 1px solid #e2e8f0; }
+  .tb__out { padding: 22px 24px; background: #0b1220; color: #e2e8f0; display: flex; flex-direction: column; min-height: 100%; }
+  .tb-field { margin-bottom: 16px; }
+  .tb-field label {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+    font-size: 13.5px; font-weight: 700; color: #334155;
+  }
+  .tb-field label .req { color: #dc2626; font-size: 11px; }
+  .tb-field label .nm {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px; font-weight: 600; color: #64748b; background: #f1f5f9;
+    padding: 1px 6px; border-radius: 4px;
+  }
+  .tb-field input, .tb-field select {
+    width: 100%; box-sizing: border-box; height: 42px; padding: 0 14px;
+    border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-family: inherit;
+    background: #ffffff; color: #0f172a;
+  }
+  .tb-field input:focus, .tb-field select:focus {
+    outline: none; border-color: var(--blue-accent); box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+  }
+  .tb-field .hint { display: block; margin-top: 6px; font-size: 12.5px; color: #64748b; line-height: 1.45; }
+  .tb-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .tb-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .tb-btn {
+    display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 18px;
+    border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
+    border: 1px solid transparent; transition: all 0.15s ease;
+  }
+  .tb-btn--primary { background: var(--blue-deep); color: #ffffff; }
+  .tb-btn--primary:hover { background: #172554; }
+  .tb-btn--ghost { background: #ffffff; color: var(--blue-deep); border-color: #cbd5e1; }
+  .tb-btn--ghost:hover { background: #eff6ff; }
 
-  .oa-lead{font-size:15px; line-height:1.78; color:#3f4c5f; margin:0 0 28px; word-break:keep-all;}
-  .oa-lead strong{color:#1e3a8a;}
-
-  .oa-sec{margin-bottom:44px; scroll-margin-top:24px;}
-  .oa-sec__head{
-    display:flex; align-items:center; gap:10px;
-    padding-bottom:14px; border-bottom:2px solid #1e293b; margin-bottom:18px;
+  .tb__out-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+  .tb__out-top h4 { margin: 0; font-size: 12.5px; font-weight: 800; letter-spacing: .06em; color: #93c5fd; }
+  .tb__status {
+    font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 99px;
+    background: rgba(255,255,255,.08); color: #cbd5e1;
   }
-  .oa-sec__no{
-    font-size:12px; font-weight:800; color:#fff; background:#1e3a8a;
-    border-radius:6px; padding:4px 10px;
+  .tb__status.ok { background: rgba(34,197,94,.15); color: #86efac; }
+  .tb__status.err { background: rgba(239,68,68,.15); color: #fca5a5; }
+  .tb__status.mock { background: rgba(59,130,246,.18); color: #93c5fd; }
+  .tb__pre {
+    flex: 1; margin: 0; overflow: auto; max-height: 480px;
+    font-size: 12.5px; line-height: 1.55;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    white-space: pre-wrap; word-break: break-all; color: #e2e8f0;
   }
-  .oa-sec__title{font-size:18px; font-weight:800; color:#1e293b; margin:0; letter-spacing:-.02em;}
-  .oa-sec p{font-size:14.5px; line-height:1.75; color:#3f4c5f; margin:0 0 12px; word-break:keep-all;}
-
-  .oa-urlbox{
-    display:flex; flex-wrap:wrap; gap:10px; align-items:center;
-    background:#0f172a; color:#e2e8f0; border-radius:12px;
-    padding:14px 16px; margin:12px 0 18px;
-  }
-  .oa-urlbox__label{font-size:11px; font-weight:800; letter-spacing:.08em; color:#93c5fd; flex-shrink:0;}
-  .oa-urlbox__val{
-    flex:1; min-width:0; font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
-    font-size:13px; word-break:break-all; color:#f8fafc;
-  }
-  .oa-urlbox button{
-    flex-shrink:0; height:34px; padding:0 12px; border-radius:8px;
-    border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.08);
-    color:#fff; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit;
-  }
-  .oa-urlbox button:hover{background:rgba(255,255,255,.16);}
-
-  .oa-table-wrap{overflow-x:auto; border:1px solid #e2e8f0; border-radius:12px; margin:12px 0 8px;}
-  .oa-table{width:100%; border-collapse:collapse; min-width:640px; font-size:13.5px;}
-  .oa-table th{
-    background:#f8fafc; color:#334155; font-weight:700; text-align:left;
-    padding:12px 14px; border-bottom:1px solid #e2e8f0; white-space:nowrap;
-  }
-  .oa-table td{
-    padding:12px 14px; border-bottom:1px solid #f1f5f9; color:#3f4c5f; vertical-align:top; line-height:1.55;
-  }
-  .oa-table tr:last-child td{border-bottom:none;}
-  .oa-table code{
-    font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
-    font-size:12.5px; background:#eff4ff; color:#1e3a8a; padding:1px 6px; border-radius:4px;
-  }
-  .oa-badge{
-    display:inline-block; font-size:11px; font-weight:800; border-radius:99px;
-    padding:2px 8px; letter-spacing:.02em;
-  }
-  .oa-badge--req{background:#fef2f2; color:#b91c1c;}
-  .oa-badge--opt{background:#f1f5f9; color:#64748b;}
-
-  .oa-code{
-    background:#0f172a; color:#e2e8f0; border-radius:12px; padding:0; margin:12px 0 8px; overflow:hidden;
-  }
-  .oa-code__bar{
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding:10px 14px; background:rgba(255,255,255,.04); border-bottom:1px solid rgba(255,255,255,.06);
-  }
-  .oa-code__tabs{display:flex; gap:4px;}
-  .oa-code__tabs button{
-    border:none; background:transparent; color:#94a3b8; font-size:12.5px; font-weight:700;
-    padding:6px 10px; border-radius:6px; cursor:pointer; font-family:inherit;
-  }
-  .oa-code__tabs button.on{background:rgba(255,255,255,.1); color:#fff;}
-  .oa-code__bar .copy{
-    border:1px solid rgba(255,255,255,.15); background:transparent; color:#cbd5e1;
-    font-size:12px; font-weight:700; padding:5px 10px; border-radius:6px; cursor:pointer; font-family:inherit;
-  }
-  .oa-code pre{
-    margin:0; padding:16px 18px; overflow:auto; font-size:12.5px; line-height:1.55;
-    font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; white-space:pre-wrap; word-break:break-all;
+  .tb__note {
+    margin-top: 14px; font-size: 12.5px; line-height: 1.6; color: #94a3b8;
+    border-top: 1px solid rgba(255,255,255,.08); padding-top: 12px;
   }
 
-  /* testbed */
-  .tb{
-    border:1px solid #dbe6ff; border-radius:16px; overflow:hidden;
-    background:linear-gradient(180deg,#f8fbff 0%,#fff 120px);
+  .oa-note {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px;
+    padding: 16px 18px; margin: 14px 0;
   }
-  .tb__head{
-    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px;
-    padding:18px 20px; border-bottom:1px solid #e2e8f0; background:#eff4ff;
-  }
-  .tb__head h3{margin:0; font-size:16px; font-weight:800; color:#1e3a8a;}
-  .tb__head p{margin:4px 0 0; font-size:13px; color:#64748b;}
-  .tb__body{display:grid; grid-template-columns:1fr 1fr; gap:0; min-height:420px;}
-  .tb__form{padding:18px 20px 22px; border-right:1px solid #e2e8f0;}
-  .tb__out{padding:18px 20px 22px; background:#0b1220; color:#e2e8f0; display:flex; flex-direction:column; min-height:100%;}
-  .tb-field{margin-bottom:14px;}
-  .tb-field label{
-    display:flex; align-items:center; gap:8px; margin-bottom:6px;
-    font-size:13px; font-weight:700; color:#334155;
-  }
-  .tb-field label .req{color:#dc2626; font-size:11px;}
-  .tb-field label .nm{
-    font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
-    font-size:11.5px; font-weight:600; color:#64748b; background:#f1f5f9;
-    padding:1px 6px; border-radius:4px;
-  }
-  .tb-field input, .tb-field select{
-    width:100%; box-sizing:border-box; height:40px; padding:0 12px;
-    border:1px solid #cbd5e1; border-radius:9px; font-size:13.5px; font-family:inherit;
-    background:#fff; color:#0f172a;
-  }
-  .tb-field input:focus, .tb-field select:focus{
-    outline:none; border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.1);
-  }
-  .tb-field .hint{display:block; margin-top:5px; font-size:12px; color:#94a3b8; line-height:1.45;}
-  .tb-grid2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
-  .tb-actions{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;}
-  .tb-btn{
-    display:inline-flex; align-items:center; gap:6px; height:42px; padding:0 16px;
-    border-radius:10px; font-size:13.5px; font-weight:700; cursor:pointer; font-family:inherit;
-    border:1px solid transparent;
-  }
-  .tb-btn--primary{background:#1e3a8a; color:#fff;}
-  .tb-btn--primary:hover{background:#172554;}
-  .tb-btn--primary:disabled{opacity:.5; cursor:not-allowed;}
-  .tb-btn--ghost{background:#fff; color:#1e3a8a; border-color:#c7d7fe;}
-  .tb-btn--ghost:hover{background:#eff4ff;}
+  .oa-note i { color: var(--blue-accent); font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .oa-note__body { font-size: 14px; line-height: 1.7; color: #475569; }
+  .oa-note--ok { background: #f0fdf4; border-color: #bbf7d0; }
+  .oa-note--ok i { color: #16a34a; }
 
-  .tb__out-top{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px;}
-  .tb__out-top h4{margin:0; font-size:12px; font-weight:800; letter-spacing:.06em; color:#93c5fd;}
-  .tb__status{
-    font-size:12px; font-weight:700; padding:4px 10px; border-radius:99px;
-    background:rgba(255,255,255,.08); color:#cbd5e1;
+  .oa-toast {
+    position: fixed; left: 50%; bottom: 32px; transform: translateX(-50%) translateY(12px);
+    background: #0f172a; color: #ffffff; font-size: 14px; font-weight: 600;
+    padding: 12px 20px; border-radius: 10px; z-index: 1000;
+    opacity: 0; pointer-events: none; transition: all 0.2s ease;
+    box-shadow: 0 12px 30px rgba(15,23,42,.25);
   }
-  .tb__status.ok{background:rgba(34,197,94,.15); color:#86efac;}
-  .tb__status.err{background:rgba(239,68,68,.15); color:#fca5a5;}
-  .tb__status.mock{background:rgba(59,130,246,.18); color:#93c5fd;}
-  .tb__pre{
-    flex:1; margin:0; overflow:auto; max-height:480px;
-    font-size:12px; line-height:1.5;
-    font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
-    white-space:pre-wrap; word-break:break-all; color:#e2e8f0;
-  }
-  .tb__note{
-    margin-top:12px; font-size:12px; line-height:1.55; color:#94a3b8;
-    border-top:1px solid rgba(255,255,255,.08); padding-top:10px;
-  }
+  .oa-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  .oa-note{
-    display:flex; gap:12px; align-items:flex-start;
-    background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px;
-    padding:14px 16px; margin:12px 0;
-  }
-  .oa-note i{color:#2563eb; font-size:18px; flex-shrink:0; margin-top:2px;}
-  .oa-note__body{font-size:13.5px; line-height:1.65; color:#475569;}
-  .oa-note--ok{background:#f0fdf4; border-color:#bbf7d0;}
-  .oa-note--ok i{color:#16a34a;}
-
-  .oa-toast{
-    position:fixed; left:50%; bottom:32px; transform:translateX(-50%) translateY(12px);
-    background:#0f172a; color:#fff; font-size:14px; font-weight:600;
-    padding:12px 18px; border-radius:10px; z-index:1000;
-    opacity:0; pointer-events:none; transition:opacity .2s, transform .2s;
-  }
-  .oa-toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
-
-  @media (max-width:900px){
-    .tb__body{grid-template-columns:1fr;}
-    .tb__form{border-right:none; border-bottom:1px solid #e2e8f0;}
-    .tb-grid2{grid-template-columns:1fr;}
-    .oa-tabs a{font-size:14px; padding:13px 8px;}
+  @media (max-width: 900px) {
+    .tb__body { grid-template-columns: 1fr; }
+    .tb__form { border-right: none; border-bottom: 1px solid #e2e8f0; }
+    .tb-grid2 { grid-template-columns: 1fr; }
+    .oa-tabs a { font-size: 14px; padding: 14px 8px; }
   }
 </style>
 </head>
@@ -278,7 +317,7 @@
 
 <div class="sub-visual">
   <div class="wrap">
-    <h1 class="sv-title">Open API</h1>
+    <h1 class="sv-title">Open API 활용안내</h1>
     <div class="location-bar">
       <div class="loc-item home" onclick="location.href='./index.html'" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
       <i class="ti ti-chevron-right loc-sep"></i>
@@ -304,344 +343,342 @@
   </div>
 </div>
 
-<div class="oa-container">
-<main class="oa-wrap">
-  <!-- 서브 탭 메가 메뉴 -->
-  <nav class="oa-tabs" aria-label="Open API 하위 메뉴">
-    <a href="./openapi_intro.html" class="oa-tab-item"><i class="ti ti-info-circle" aria-hidden="true"></i> 소개</a>
-    <a href="./openapi_key.html" class="oa-tab-item"><i class="ti ti-key" aria-hidden="true"></i> 키 발급</a>
-    <a href="./openapi_guide.html" class="oa-tab-item is-active" aria-current="page"><i class="ti ti-book-2" aria-hidden="true"></i> 활용안내</a>
-  </nav>
+<main class="oa-page">
+  <div class="oa-container">
+    <nav class="oa-tabs" aria-label="Open API 하위 메뉴">
+      <a href="./openapi_intro.html">소개</a>
+      <a href="./openapi_key.html">키 발급</a>
+      <a href="./openapi_guide.html" class="is-active" aria-current="page">활용안내</a>
+    </nav>
 
-  <p class="oa-lead">
-    지역어 어휘 정보 Open API 연동을 위한 <strong>요청 URL · 파라미터 · 응답 필드 · 상태 코드</strong>를 안내합니다.
-    아래 <strong>테스트베드</strong>에서 조건을 넣어 요청 URL·샘플 응답·호출 코드를 바로 확인할 수 있습니다.
-  </p>
-
-  <nav class="oa-toc" aria-label="본문 목차">
-    <a href="#sec-overview"><i class="ti ti-info-circle" aria-hidden="true"></i> 이용 개요</a>
-    <a href="#sec-params"><i class="ti ti-list-details" aria-hidden="true"></i> 요청 변수</a>
-    <a href="#sec-response"><i class="ti ti-database" aria-hidden="true"></i> 응답 필드</a>
-    <a href="#sec-codes"><i class="ti ti-code" aria-hidden="true"></i> 상태 코드</a>
-    <a href="#sec-sample"><i class="ti ti-terminal-2" aria-hidden="true"></i> 호출 예시</a>
-    <a href="#sec-testbed"><i class="ti ti-flask" aria-hidden="true"></i> 테스트베드</a>
-  </nav>
-
-  <!-- 1. overview -->
-  <section class="oa-sec" id="sec-overview">
-    <div class="oa-sec__head">
-      <span class="oa-sec__no">01</span>
-      <h2 class="oa-sec__title">이용 개요</h2>
-    </div>
-    <p>
-      지역어 Open API는 조사·구축된 지역어 어휘 정보를 JSON으로 제공합니다.
-      서비스 이용 전 <a href="./openapi_key.html" style="color:#2563eb;font-weight:700;text-decoration:none;">인증키 발급</a>이 필요하며,
-      모든 요청에 <code style="background:#eff4ff;color:#1e3a8a;padding:1px 6px;border-radius:4px;font-size:12.5px;">apiKey</code>와 검색어를 포함해야 합니다.
-    </p>
-    <div class="oa-urlbox">
-      <span class="oa-urlbox__label">REQUEST URL</span>
-      <span class="oa-urlbox__val" id="baseUrlText">https://dialect.korean.go.kr/dialect/openAPI/data</span>
-      <button type="button" onclick="copyText(document.getElementById('baseUrlText').textContent, '요청 URL을 복사했습니다.')">복사</button>
-    </div>
-    <div class="oa-note">
-      <i class="ti ti-info-circle" aria-hidden="true"></i>
-      <div class="oa-note__body">
-        전송 방식은 <strong>GET</strong> 쿼리 파라미터 방식입니다.
-        브라우저 주소창 테스트 또는 서버·클라이언트 HTTP 요청으로 호출할 수 있습니다.
-      </div>
-    </div>
-  </section>
-
-  <!-- 2. request params -->
-  <section class="oa-sec" id="sec-params">
-    <div class="oa-sec__head">
-      <span class="oa-sec__no">02</span>
-      <h2 class="oa-sec__title">검색 요청 변수 (Request Parameters)</h2>
-    </div>
-    <div class="oa-table-wrap">
-      <table class="oa-table">
-        <caption class="sr-only">Open API 요청 변수</caption>
-        <thead>
-          <tr>
-            <th scope="col">요청 변수</th>
-            <th scope="col">타입</th>
-            <th scope="col">설명</th>
-            <th scope="col">필수</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>apiKey</code></td>
-            <td>String</td>
-            <td>발급받은 인증키 값</td>
-            <td><span class="oa-badge oa-badge--req">필수</span></td>
-          </tr>
-          <tr>
-            <td><code>searchWord</code></td>
-            <td>String</td>
-            <td>검색어 (지역어·표준어 검색)</td>
-            <td><span class="oa-badge oa-badge--req">필수</span></td>
-          </tr>
-          <tr>
-            <td><code>sidoCd</code></td>
-            <td>String</td>
-            <td>
-              조사지역 대분류(시/도) 코드<br>
-              41 경기도 · 42 강원도 · 43 충청북도 · 44 충청남도 · 45 전라북도 · 46 전라남도 ·
-              47 경상북도 · 48 경상남도 · 50 제주특별자치도 · 51 광주광역시 · 52 대전광역시 · 53 울산광역시 · 54 인천광역시
-            </td>
-            <td><span class="oa-badge oa-badge--opt">선택</span></td>
-          </tr>
-          <tr>
-            <td><code>sigunguNm</code></td>
-            <td>String</td>
-            <td>조사지역 소분류(시/군/구) 이름</td>
-            <td><span class="oa-badge oa-badge--opt">선택</span></td>
-          </tr>
-          <tr>
-            <td><code>startYear</code></td>
-            <td>String</td>
-            <td>조사 시작 연도 (예: 2018)</td>
-            <td><span class="oa-badge oa-badge--opt">선택</span></td>
-          </tr>
-          <tr>
-            <td><code>endYear</code></td>
-            <td>String</td>
-            <td>조사 완료 연도 (예: 2023)</td>
-            <td><span class="oa-badge oa-badge--opt">선택</span></td>
-          </tr>
-          <tr>
-            <td><code>age</code></td>
-            <td>String</td>
-            <td>제보자 연령대 (10대 단위, 예: 70)</td>
-            <td><span class="oa-badge oa-badge--opt">선택</span></td>
-          </tr>
-          <tr>
-            <td><code>sex</code></td>
-            <td>String</td>
-            <td>제보자 성별 — <strong>0</strong> : 여성, <strong>1</strong> : 남성</td>
-            <td><span class="oa-badge oa-badge--opt">선택</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- 3. response fields -->
-  <section class="oa-sec" id="sec-response">
-    <div class="oa-sec__head">
-      <span class="oa-sec__no">03</span>
-      <h2 class="oa-sec__title">검색 출력 결과 필드 (Response field)</h2>
-    </div>
-    <p><code>resultList</code> 배열의 각 항목에 포함되는 필드입니다.</p>
-    <div class="oa-table-wrap">
-      <table class="oa-table">
-        <caption class="sr-only">Open API 응답 필드</caption>
-        <thead>
-          <tr>
-            <th scope="col">Field</th>
-            <th scope="col">Type</th>
-            <th scope="col">Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td><code>dialectId</code></td><td>Integer</td><td>단어 일련번호</td></tr>
-          <tr><td><code>dltTp</code></td><td>String</td><td>지역어</td></tr>
-          <tr><td><code>stdTp</code></td><td>String</td><td>대응 표준어</td></tr>
-          <tr>
-            <td><code>sidoCd</code></td><td>String</td>
-            <td>조사지역 대분류(시/도) 코드 (요청 변수 sidoCd와 동일 코드 체계)</td>
-          </tr>
-          <tr><td><code>sigunguNm</code></td><td>String</td><td>조사지역 소분류(시/군/구) 이름</td></tr>
-          <tr><td><code>source</code></td><td>String</td><td>출처</td></tr>
-          <tr><td><code>basisYear</code></td><td>Integer</td><td>조사 연도</td></tr>
-          <tr><td><code>age</code></td><td>String / Integer</td><td>제보자 연령</td></tr>
-          <tr><td><code>sex</code></td><td>String</td><td>제보자 성별 — 0 : 여성, 1 : 남성</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="oa-note">
-      <i class="ti ti-info-circle" aria-hidden="true"></i>
-      <div class="oa-note__body">
-        원문 안내의 연령 필드명이 문서상 <em>Integer</em>로 표기된 경우가 있으나, 실제 응답에서는 연령 값(<code>age</code>)으로 제공됩니다.
-      </div>
-    </div>
-  </section>
-
-  <!-- 4. return codes -->
-  <section class="oa-sec" id="sec-codes">
-    <div class="oa-sec__head">
-      <span class="oa-sec__no">04</span>
-      <h2 class="oa-sec__title">응답 결과 (Response Result)</h2>
-    </div>
-    <div class="oa-table-wrap">
-      <table class="oa-table">
-        <caption class="sr-only">Open API 응답 결과 키</caption>
-        <thead>
-          <tr>
-            <th scope="col">Key</th>
-            <th scope="col">Data Type</th>
-            <th scope="col">Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>returnCode</code></td>
-            <td>Integer</td>
-            <td>상태 코드 — <strong>60000</strong> : 정상 · <strong>60002</strong> : 유효하지 않은 API 키 값</td>
-          </tr>
-          <tr>
-            <td><code>totalCount</code></td>
-            <td>Integer</td>
-            <td>검색 결과 수</td>
-          </tr>
-          <tr>
-            <td><code>resultList</code></td>
-            <td>Array</td>
-            <td>검색 결과 목록 (응답 필드 객체 배열)</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- 5. samples -->
-  <section class="oa-sec" id="sec-sample">
-    <div class="oa-sec__head">
-      <span class="oa-sec__no">05</span>
-      <h2 class="oa-sec__title">호출 예시</h2>
-    </div>
-    <p>검색어 <strong>맑다</strong>, 시·도 코드 50(제주) 예시입니다. 키 값은 발급받은 인증키로 바꿔 사용하세요.</p>
-    <div class="oa-code">
-      <div class="oa-code__bar">
-        <div class="oa-code__tabs" role="tablist">
-          <button type="button" class="on" data-sample="curl" onclick="switchSample(this)">cURL</button>
-          <button type="button" data-sample="js" onclick="switchSample(this)">JavaScript</button>
-          <button type="button" data-sample="py" onclick="switchSample(this)">Python</button>
-        </div>
-        <button type="button" class="copy" onclick="copySample()">복사</button>
-      </div>
-      <pre id="sampleCode"></pre>
-    </div>
-  </section>
-
-  <!-- 6. testbed -->
-  <section class="oa-sec" id="sec-testbed" style="margin-bottom:0;">
-    <div class="oa-sec__head">
-      <span class="oa-sec__no">06</span>
-      <h2 class="oa-sec__title">API 테스트베드</h2>
-    </div>
-    <p>
-      조건을 입력해 <strong>요청 URL · 샘플 응답 · 호출 코드</strong>를 확인할 수 있습니다.
-      브라우저에서 공식 서버로 직접 호출할 경우 CORS 정책으로 실패할 수 있어, 기본은 <strong>프로토타입 모의 응답</strong>을 제공합니다.
-      (실서비스 연동 시 서버 프록시 또는 백엔드 호출로 전환하면 됩니다.)
+    <p class="oa-lead">
+      지역어 어휘 정보 Open API 연동을 위한 <strong>요청 URL · 파라미터 · 응답 필드 · 상태 코드</strong>를 안내합니다.<br>
+      아래 <strong>테스트베드</strong>에서 조건을 넣어 요청 URL·샘플 응답·호출 코드를 바로 확인할 수 있습니다.
     </p>
 
-    <div class="oa-note oa-note--ok">
-      <i class="ti ti-circle-check" aria-hidden="true"></i>
-      <div class="oa-note__body">
-        <strong>테스트베드 구성 가능 여부: 가능</strong><br>
-        · UI·파라미터 폼·요청 미리보기·코드 생성: 즉시 제공 가능<br>
-        · 실 API 호출: CORS·인증 검증 때문에 서버 프록시(예: serve.py 또는 운영 게이트웨이) 권장<br>
-        · 현재 페이지: 발급 키(localStorage) 자동 반영 + 모의 JSON 응답으로 연동 흐름 검증
-      </div>
-    </div>
+    <nav class="oa-toc" aria-label="본문 목차">
+      <a href="#sec-overview"><i class="ti ti-info-circle" aria-hidden="true"></i> 이용 개요</a>
+      <a href="#sec-params"><i class="ti ti-list-details" aria-hidden="true"></i> 요청 변수</a>
+      <a href="#sec-response"><i class="ti ti-database" aria-hidden="true"></i> 응답 필드</a>
+      <a href="#sec-codes"><i class="ti ti-code" aria-hidden="true"></i> 상태 코드</a>
+      <a href="#sec-sample"><i class="ti ti-terminal-2" aria-hidden="true"></i> 호출 예시</a>
+      <a href="#sec-testbed"><i class="ti ti-flask" aria-hidden="true"></i> 테스트베드</a>
+    </nav>
 
-    <div class="tb">
-      <div class="tb__head">
-        <div>
-          <h3><i class="ti ti-flask" aria-hidden="true"></i> 지역어 어휘 검색 테스트</h3>
-          <p>검색조건만 입력하세요. 요청 URL과 샘플 응답을 만들어 드립니다.</p>
-        </div>
-        <a href="./openapi_key.html" class="tb-btn tb-btn--ghost" style="text-decoration:none;">키 발급 바로가기</a>
+    <!-- 1. overview -->
+    <section class="oa-sec" id="sec-overview">
+      <div class="oa-sec__head">
+        <span class="oa-sec__no">01</span>
+        <h2 class="oa-sec__title">이용 개요</h2>
       </div>
-      <div class="tb__body">
-        <div class="tb__form">
-          <div class="tb-field">
-            <label for="tbApiKey">API Key <span class="req">필수</span> <span class="nm">apiKey</span></label>
-            <input type="text" id="tbApiKey" placeholder="발급받은 인증키 입력" autocomplete="off">
-            <span class="hint">키 발급 페이지에서 받은 키가 있으면 자동으로 채워집니다.</span>
-          </div>
-          <div class="tb-field">
-            <label for="tbSearchWord">검색어 <span class="req">필수</span> <span class="nm">searchWord</span></label>
-            <input type="text" id="tbSearchWord" value="맑다" placeholder="검색어 입력">
-          </div>
-          <div class="tb-grid2">
-            <div class="tb-field">
-              <label for="tbSido">시/도 <span class="nm">sidoCd</span></label>
-              <select id="tbSido">
-                <option value="">전체</option>
-                <option value="41">41 경기도</option>
-                <option value="42">42 강원도</option>
-                <option value="43">43 충청북도</option>
-                <option value="44">44 충청남도</option>
-                <option value="45">45 전라북도</option>
-                <option value="46">46 전라남도</option>
-                <option value="47">47 경상북도</option>
-                <option value="48">48 경상남도</option>
-                <option value="50" selected>50 제주특별자치도</option>
-                <option value="51">51 광주광역시</option>
-                <option value="52">52 대전광역시</option>
-                <option value="53">53 울산광역시</option>
-                <option value="54">54 인천광역시</option>
-              </select>
-            </div>
-            <div class="tb-field">
-              <label for="tbSigungu">시/군/구 <span class="nm">sigunguNm</span></label>
-              <input type="text" id="tbSigungu" placeholder="예) 서귀포시">
-            </div>
-          </div>
-          <div class="tb-grid2">
-            <div class="tb-field">
-              <label for="tbStartYear">시작 연도 <span class="nm">startYear</span></label>
-              <input type="text" id="tbStartYear" placeholder="예) 2018" inputmode="numeric">
-            </div>
-            <div class="tb-field">
-              <label for="tbEndYear">종료 연도 <span class="nm">endYear</span></label>
-              <input type="text" id="tbEndYear" placeholder="예) 2023" inputmode="numeric">
-            </div>
-          </div>
-          <div class="tb-grid2">
-            <div class="tb-field">
-              <label for="tbAge">연령대 <span class="nm">age</span></label>
-              <input type="text" id="tbAge" placeholder="예) 70" inputmode="numeric">
-            </div>
-            <div class="tb-field">
-              <label for="tbSex">성별 <span class="nm">sex</span></label>
-              <select id="tbSex">
-                <option value="">전체</option>
-                <option value="0">0 여성</option>
-                <option value="1">1 남성</option>
-              </select>
-            </div>
-          </div>
-          <div class="tb-actions">
-            <button type="button" class="tb-btn tb-btn--primary" id="tbRunBtn" onclick="runTestbed()">
-              <i class="ti ti-player-play" aria-hidden="true"></i> 실행하기
-            </button>
-            <button type="button" class="tb-btn tb-btn--ghost" onclick="previewRequestOnly()">
-              <i class="ti ti-link" aria-hidden="true"></i> 요청 URL만 보기
-            </button>
-            <button type="button" class="tb-btn tb-btn--ghost" onclick="fillFromKeyPage()">
-              <i class="ti ti-key" aria-hidden="true"></i> 발급 키 불러오기
-            </button>
-          </div>
-        </div>
-        <div class="tb__out">
-          <div class="tb__out-top">
-            <h4>RESPONSE</h4>
-            <span class="tb__status" id="tbStatus">대기</span>
-          </div>
-          <pre class="tb__pre" id="tbResult">// 조건을 입력한 뒤 실행하기를 눌러 주세요.</pre>
-          <div class="tb__note" id="tbNote">
-            모의 응답은 명세 형식에 맞춘 프로토타입 데이터입니다. 실데이터·실키 검증은 운영 API 또는 서버 프록시를 사용하세요.
-          </div>
+      <p>
+        지역어 Open API는 조사·구축된 지역어 어휘 정보를 JSON으로 제공합니다.
+        서비스 이용 전 <a href="./openapi_key.html" style="color:var(--blue-accent);font-weight:700;text-decoration:none;">인증키 발급</a>이 필요하며,
+        모든 요청에 <code style="background:#eff6ff;color:var(--blue-deep);padding:2px 7px;border-radius:4px;font-size:13px;font-weight:600;">apiKey</code>와 검색어를 포함해야 합니다.
+      </p>
+      <div class="oa-urlbox">
+        <span class="oa-urlbox__label">REQUEST URL</span>
+        <span class="oa-urlbox__val" id="baseUrlText">https://dialect.korean.go.kr/dialect/openAPI/data</span>
+        <button type="button" onclick="copyText(document.getElementById('baseUrlText').textContent, '요청 URL을 복사했습니다.')">복사</button>
+      </div>
+      <div class="oa-note">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        <div class="oa-note__body">
+          전송 방식은 <strong>GET</strong> 쿼리 파라미터 방식입니다.
+          브라우저 주소창 테스트 또는 서버·클라이언트 HTTP 요청으로 호출할 수 있습니다.
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+
+    <!-- 2. request params -->
+    <section class="oa-sec" id="sec-params">
+      <div class="oa-sec__head">
+        <span class="oa-sec__no">02</span>
+        <h2 class="oa-sec__title">검색 요청 변수 (Request Parameters)</h2>
+      </div>
+      <div class="oa-table-wrap">
+        <table class="oa-table">
+          <caption class="sr-only">Open API 요청 변수</caption>
+          <thead>
+            <tr>
+              <th scope="col">요청 변수</th>
+              <th scope="col">타입</th>
+              <th scope="col">설명</th>
+              <th scope="col">필수</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>apiKey</code></td>
+              <td>String</td>
+              <td>발급받은 인증키 값</td>
+              <td><span class="oa-badge oa-badge--req">필수</span></td>
+            </tr>
+            <tr>
+              <td><code>searchWord</code></td>
+              <td>String</td>
+              <td>검색어 (지역어·표준어 검색)</td>
+              <td><span class="oa-badge oa-badge--req">필수</span></td>
+            </tr>
+            <tr>
+              <td><code>sidoCd</code></td>
+              <td>String</td>
+              <td>
+                조사지역 대분류(시/도) 코드<br>
+                41 경기도 · 42 강원도 · 43 충청북도 · 44 충청남도 · 45 전라북도 · 46 전라남도 ·
+                47 경상북도 · 48 경상남도 · 50 제주특별자치도 · 51 광주광역시 · 52 대전광역시 · 53 울산광역시 · 54 인천광역시
+              </td>
+              <td><span class="oa-badge oa-badge--opt">선택</span></td>
+            </tr>
+            <tr>
+              <td><code>sigunguNm</code></td>
+              <td>String</td>
+              <td>조사지역 소분류(시/군/구) 이름</td>
+              <td><span class="oa-badge oa-badge--opt">선택</span></td>
+            </tr>
+            <tr>
+              <td><code>startYear</code></td>
+              <td>String</td>
+              <td>조사 시작 연도 (예: 2018)</td>
+              <td><span class="oa-badge oa-badge--opt">선택</span></td>
+            </tr>
+            <tr>
+              <td><code>endYear</code></td>
+              <td>String</td>
+              <td>조사 완료 연도 (예: 2023)</td>
+              <td><span class="oa-badge oa-badge--opt">선택</span></td>
+            </tr>
+            <tr>
+              <td><code>age</code></td>
+              <td>String</td>
+              <td>제보자 연령대 (10대 단위, 예: 70)</td>
+              <td><span class="oa-badge oa-badge--opt">선택</span></td>
+            </tr>
+            <tr>
+              <td><code>sex</code></td>
+              <td>String</td>
+              <td>제보자 성별 — <strong>0</strong> : 여성, <strong>1</strong> : 남성</td>
+              <td><span class="oa-badge oa-badge--opt">선택</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. response fields -->
+    <section class="oa-sec" id="sec-response">
+      <div class="oa-sec__head">
+        <span class="oa-sec__no">03</span>
+        <h2 class="oa-sec__title">검색 출력 결과 필드 (Response field)</h2>
+      </div>
+      <p><code>resultList</code> 배열의 각 항목에 포함되는 필드입니다.</p>
+      <div class="oa-table-wrap">
+        <table class="oa-table">
+          <caption class="sr-only">Open API 응답 필드</caption>
+          <thead>
+            <tr>
+              <th scope="col">Field</th>
+              <th scope="col">Type</th>
+              <th scope="col">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>dialectId</code></td><td>Integer</td><td>단어 일련번호</td></tr>
+            <tr><td><code>dltTp</code></td><td>String</td><td>지역어</td></tr>
+            <tr><td><code>stdTp</code></td><td>String</td><td>대응 표준어</td></tr>
+            <tr>
+              <td><code>sidoCd</code></td><td>String</td>
+              <td>조사지역 대분류(시/도) 코드 (요청 변수 sidoCd와 동일 코드 체계)</td>
+            </tr>
+            <tr><td><code>sigunguNm</code></td><td>String</td><td>조사지역 소분류(시/군/구) 이름</td></tr>
+            <tr><td><code>source</code></td><td>String</td><td>출처</td></tr>
+            <tr><td><code>basisYear</code></td><td>Integer</td><td>조사 연도</td></tr>
+            <tr><td><code>age</code></td><td>String / Integer</td><td>제보자 연령</td></tr>
+            <tr><td><code>sex</code></td><td>String</td><td>제보자 성별 — 0 : 여성, 1 : 남성</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="oa-note">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        <div class="oa-note__body">
+          원문 안내의 연령 필드명이 문서상 <em>Integer</em>로 표기된 경우가 있으나, 실제 응답에서는 연령 값(<code>age</code>)으로 제공됩니다.
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. return codes -->
+    <section class="oa-sec" id="sec-codes">
+      <div class="oa-sec__head">
+        <span class="oa-sec__no">04</span>
+        <h2 class="oa-sec__title">응답 결과 (Response Result)</h2>
+      </div>
+      <div class="oa-table-wrap">
+        <table class="oa-table">
+          <caption class="sr-only">Open API 응답 결과 키</caption>
+          <thead>
+            <tr>
+              <th scope="col">Key</th>
+              <th scope="col">Data Type</th>
+              <th scope="col">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>returnCode</code></td>
+              <td>Integer</td>
+              <td>상태 코드 — <strong>60000</strong> : 정상 · <strong>60002</strong> : 유효하지 않은 API 키 값</td>
+            </tr>
+            <tr>
+              <td><code>totalCount</code></td>
+              <td>Integer</td>
+              <td>검색 결과 수</td>
+            </tr>
+            <tr>
+              <td><code>resultList</code></td>
+              <td>Array</td>
+              <td>검색 결과 목록 (응답 필드 객체 배열)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. samples -->
+    <section class="oa-sec" id="sec-sample">
+      <div class="oa-sec__head">
+        <span class="oa-sec__no">05</span>
+        <h2 class="oa-sec__title">호출 예시</h2>
+      </div>
+      <p>검색어 <strong>맑다</strong>, 시·도 코드 50(제주) 예시입니다. 키 값은 발급받은 인증키로 바꿔 사용하세요.</p>
+      <div class="oa-code">
+        <div class="oa-code__bar">
+          <div class="oa-code__tabs" role="tablist">
+            <button type="button" class="on" data-sample="curl" onclick="switchSample(this)">cURL</button>
+            <button type="button" data-sample="js" onclick="switchSample(this)">JavaScript</button>
+            <button type="button" data-sample="py" onclick="switchSample(this)">Python</button>
+          </div>
+          <button type="button" class="copy" onclick="copySample()">복사</button>
+        </div>
+        <pre id="sampleCode"></pre>
+      </div>
+    </section>
+
+    <!-- 6. testbed -->
+    <section class="oa-sec" id="sec-testbed" style="margin-bottom:0;">
+      <div class="oa-sec__head">
+        <span class="oa-sec__no">06</span>
+        <h2 class="oa-sec__title">API 테스트베드</h2>
+      </div>
+      <p>
+        조건을 입력해 <strong>요청 URL · 샘플 응답 · 호출 코드</strong>를 확인할 수 있습니다.
+        브라우저에서 공식 서버로 직접 호출할 경우 CORS 정책으로 실패할 수 있어, 기본은 <strong>프로토타입 모의 응답</strong>을 제공합니다.
+      </p>
+
+      <div class="oa-note oa-note--ok">
+        <i class="ti ti-circle-check" aria-hidden="true"></i>
+        <div class="oa-note__body">
+          <strong>테스트베드 구성 가능 여부: 가능</strong><br>
+          · UI·파라미터 폼·요청 미리보기·코드 생성: 즉시 제공 가능<br>
+          · 실 API 호출: CORS·인증 검증 때문에 서버 프록시(예: server.py 또는 운영 게이트웨이) 권장<br>
+          · 현재 페이지: 발급 키(localStorage) 자동 반영 + 모의 JSON 응답으로 연동 흐름 검증
+        </div>
+      </div>
+
+      <div class="tb">
+        <div class="tb__head">
+          <div>
+            <h3><i class="ti ti-flask" aria-hidden="true"></i> 지역어 어휘 검색 테스트</h3>
+            <p>검색조건만 입력하세요. 요청 URL과 샘플 응답을 만들어 드립니다.</p>
+          </div>
+          <a href="./openapi_key.html" class="tb-btn tb-btn--ghost" style="text-decoration:none;">키 발급 바로가기</a>
+        </div>
+        <div class="tb__body">
+          <div class="tb__form">
+            <div class="tb-field">
+              <label for="tbApiKey">API Key <span class="req">필수</span> <span class="nm">apiKey</span></label>
+              <input type="text" id="tbApiKey" placeholder="발급받은 인증키 입력" autocomplete="off">
+              <span class="hint">키 발급 페이지에서 받은 키가 있으면 자동으로 채워집니다.</span>
+            </div>
+            <div class="tb-field">
+              <label for="tbSearchWord">검색어 <span class="req">필수</span> <span class="nm">searchWord</span></label>
+              <input type="text" id="tbSearchWord" value="맑다" placeholder="검색어 입력">
+            </div>
+            <div class="tb-grid2">
+              <div class="tb-field">
+                <label for="tbSido">시/도 <span class="nm">sidoCd</span></label>
+                <select id="tbSido">
+                  <option value="">전체</option>
+                  <option value="41">41 경기도</option>
+                  <option value="42">42 강원도</option>
+                  <option value="43">43 충청북도</option>
+                  <option value="44">44 충청남도</option>
+                  <option value="45">45 전라북도</option>
+                  <option value="46">46 전라남도</option>
+                  <option value="47">47 경상북도</option>
+                  <option value="48">48 경상남도</option>
+                  <option value="50" selected>50 제주특별자치도</option>
+                  <option value="51">51 광주광역시</option>
+                  <option value="52">52 대전광역시</option>
+                  <option value="53">53 울산광역시</option>
+                  <option value="54">54 인천광역시</option>
+                </select>
+              </div>
+              <div class="tb-field">
+                <label for="tbSigungu">시/군/구 <span class="nm">sigunguNm</span></label>
+                <input type="text" id="tbSigungu" placeholder="예) 서귀포시">
+              </div>
+            </div>
+            <div class="tb-grid2">
+              <div class="tb-field">
+                <label for="tbStartYear">시작 연도 <span class="nm">startYear</span></label>
+                <input type="text" id="tbStartYear" placeholder="예) 2018" inputmode="numeric">
+              </div>
+              <div class="tb-field">
+                <label for="tbEndYear">종료 연도 <span class="nm">endYear</span></label>
+                <input type="text" id="tbEndYear" placeholder="예) 2023" inputmode="numeric">
+              </div>
+            </div>
+            <div class="tb-grid2">
+              <div class="tb-field">
+                <label for="tbAge">연령대 <span class="nm">age</span></label>
+                <input type="text" id="tbAge" placeholder="예) 70" inputmode="numeric">
+              </div>
+              <div class="tb-field">
+                <label for="tbSex">성별 <span class="nm">sex</span></label>
+                <select id="tbSex">
+                  <option value="">전체</option>
+                  <option value="0">0 여성</option>
+                  <option value="1">1 남성</option>
+                </select>
+              </div>
+            </div>
+            <div class="tb-actions">
+              <button type="button" class="tb-btn tb-btn--primary" id="tbRunBtn" onclick="runTestbed()">
+                <i class="ti ti-player-play" aria-hidden="true"></i> 실행하기
+              </button>
+              <button type="button" class="tb-btn tb-btn--ghost" onclick="previewRequestOnly()">
+                <i class="ti ti-link" aria-hidden="true"></i> 요청 URL만 보기
+              </button>
+              <button type="button" class="tb-btn tb-btn--ghost" onclick="fillFromKeyPage()">
+                <i class="ti ti-key" aria-hidden="true"></i> 발급 키 불러오기
+              </button>
+            </div>
+          </div>
+          <div class="tb__out">
+            <div class="tb__out-top">
+              <h4>RESPONSE</h4>
+              <span class="tb__status" id="tbStatus">대기</span>
+            </div>
+            <pre class="tb__pre" id="tbResult">// 조건을 입력한 뒤 실행하기를 눌러 주세요.</pre>
+            <div class="tb__note" id="tbNote">
+              모의 응답은 명세 형식에 맞춘 프로토타입 데이터입니다. 실데이터·실키 검증은 운영 API 또는 서버 프록시를 사용하세요.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 </main>
-</div>
 
 <div id="footer-common"></div>
 <div class="oa-toast" id="toast" role="status" aria-live="polite"></div>
@@ -781,7 +818,6 @@
       searchWord: '맑다',
       sidoCd: '50'
     };
-    // if testbed filled, prefer that
     var tb = collectParams();
     if (tb.searchWord) p = tb;
     if (!p.apiKey) p.apiKey = 'YOUR_API_KEY';
@@ -808,7 +844,6 @@
   }
 
   function mockResponse(p) {
-    // 유효하지 않은 키 시뮬레이션
     if (!p.apiKey) {
       return {
         returnCode: 60002,
@@ -846,106 +881,42 @@
     return {
       returnCode: 60000,
       totalCount: list.length,
-      resultList: list,
-      _meta: {
-        mode: 'mock',
-        requestUrl: buildRequestUrl(p),
-        note: '공식 서버 실호출이 아닌 명세 기반 모의 응답입니다.'
-      }
+      resultList: list
     };
   }
 
   window.previewRequestOnly = function () {
     var p = collectParams();
-    if (!p.searchWord) {
-      toast('검색어(searchWord)를 입력해 주세요.');
-      $('tbSearchWord').focus();
-      return;
-    }
+    if (!p.apiKey) p.apiKey = getSavedKey() || 'YOUR_API_KEY';
     var url = buildRequestUrl(p);
-    setStatus('mock', 'URL');
+    setStatus('mock', 'REQUEST URL');
     $('tbResult').textContent = url;
-    $('tbNote').textContent = '요청 URL 미리보기입니다. 실행하기를 누르면 모의 응답(JSON)을 표시합니다.';
+    $('tbNote').textContent = '요청 URL 생성 완료. 복사하여 주소창이나 HTTP 클라이언트에서 테스트할 수 있습니다.';
     renderSampleCode();
   };
 
   window.runTestbed = function () {
     var p = collectParams();
-    if (!p.apiKey) {
-      toast('API Key를 입력해 주세요.');
-      $('tbApiKey').focus();
-      setStatus('err', '60002');
-      $('tbResult').textContent = JSON.stringify({
-        returnCode: 60002,
-        totalCount: 0,
-        resultList: [],
-        message: '유효하지 않은 API 키 값'
-      }, null, 2);
-      return;
-    }
     if (!p.searchWord) {
-      toast('검색어(searchWord)를 입력해 주세요.');
+      toast('검색어를 입력해 주세요.');
       $('tbSearchWord').focus();
       return;
     }
+    if (!p.apiKey) p.apiKey = getSavedKey();
+    if (p.apiKey) $('tbApiKey').value = p.apiKey;
+    renderSampleCode();
 
-    var btn = $('tbRunBtn');
-    btn.disabled = true;
-    setStatus('', '요청 중…');
-    $('tbResult').textContent = '// 요청 처리 중…';
-
-    // 1) 실서버 시도 (CORS로 대부분 실패) → 2) 모의 응답
-    var url = buildRequestUrl(p);
-    var finished = false;
-    function done(json, mode, label, note) {
-      if (finished) return;
-      finished = true;
-      btn.disabled = false;
-      setStatus(mode, label);
-      $('tbResult').textContent = JSON.stringify(json, null, 2);
-      $('tbNote').textContent = note;
-      renderSampleCode();
-    }
-
-    // 짧은 타임아웃으로 실호출 시도
-    var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-    var timer = setTimeout(function () {
-      if (ctrl) try { ctrl.abort(); } catch (e) {}
-      var mock = mockResponse(p);
-      done(mock, 'mock', 'MOCK 60000', '실서버 응답 대기 시간 초과 → 명세 기반 모의 응답을 표시했습니다. 요청 URL: ' + url);
-    }, 1800);
-
-    try {
-      fetch(url, {
-        method: 'GET',
-        mode: 'cors',
-        signal: ctrl ? ctrl.signal : undefined
-      }).then(function (res) {
-        clearTimeout(timer);
-        return res.json().then(function (json) {
-          done(json, res.ok ? 'ok' : 'err', 'HTTP ' + res.status, '공식 API 실응답입니다. 요청 URL: ' + url);
-        });
-      }).catch(function () {
-        clearTimeout(timer);
-        var mock = mockResponse(p);
-        done(
-          mock,
-          'mock',
-          'MOCK 60000',
-          '브라우저 CORS 또는 네트워크 제한으로 실호출에 실패해 모의 응답을 표시했습니다. 요청 URL: ' + url +
-          ' · 운영 시에는 서버 프록시를 두면 실호출 테스트베드로 확장할 수 있습니다.'
-        );
-      });
-    } catch (e) {
-      clearTimeout(timer);
-      var mock = mockResponse(p);
-      done(mock, 'mock', 'MOCK 60000', '모의 응답을 표시했습니다. 요청 URL: ' + url);
-    }
+    setStatus('mock', 'PROTOTYPE MOCK (200 OK)');
+    var res = mockResponse(p);
+    var head = '// REQUEST: ' + buildRequestUrl(p) + '\n// MODE: 프로토타입 모의 응답 (JSON)\n\n';
+    $('tbResult').textContent = head + JSON.stringify(res, null, 2);
+    $('tbNote').textContent = '모의 응답 결과입니다. 실서버 연동 시 동일한 JSON 구조로 전달됩니다.';
+    toast('테스트 응답을 생성했습니다.');
   };
 
   document.addEventListener('DOMContentLoaded', function () {
-    var k = getSavedKey();
-    if (k) $('tbApiKey').value = k;
+    var saved = getSavedKey();
+    if (saved) $('tbApiKey').value = saved;
     renderSampleCode();
   });
 })();
