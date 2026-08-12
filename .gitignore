@@ -2,4 +2,5 @@
 *.log
 *.csv
 _dm_shot*.png
-neibis-cms/
+neibis-cms/dialect_local.db
+neibis-cms/mariadb/neibis/survey/data/processed/
