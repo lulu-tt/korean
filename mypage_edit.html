@@ -77,6 +77,12 @@
   .rg-btn:hover { background: var(--rg-dark); }
   .rg-btn--ghost { background: #fff; color: #475569; border: 1px solid #cbd5e1; }
   .rg-btn--ghost:hover { background: #f1f5f9; }
+  .rg-btn--danger { background: #fff; color: #e11d48; border: 1px solid #fecdd3; }
+  .rg-btn--danger:hover { background: #fff1f2; border-color: #fda4af; }
+
+  .rg-withdraw-wrap { display: flex; justify-content: flex-end; margin-top: 40px; padding-top: 24px; border-top: 1px dashed #e2e8f0; }
+  .rg-link-withdraw { font-size: 14px; color: #94a3b8; text-decoration: underline; cursor: pointer; transition: color 0.15s; }
+  .rg-link-withdraw:hover { color: #e11d48; }
 
   /* 완료 화면 */
   #editDone[hidden] { display: none; }
@@ -164,6 +170,7 @@
     <div class="rg-actions">
       <a href="./index.html" class="rg-btn rg-btn--ghost">취소</a>
       <button type="button" class="rg-btn" onclick="submitEdit()">저장</button>
+      <a href="./mypage_withdraw.html" class="rg-btn rg-btn--danger">회원탈퇴</a>
     </div>
   </div>
 

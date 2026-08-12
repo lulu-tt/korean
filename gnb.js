@@ -118,7 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="mega-menu__item"><a href="./mypage_edit.html" class="mega-menu__link" onclick="return openPwModal(event);">나의 정보 수정</a></div>
                 <div class="mega-menu__item"><a href="./mypage_opinion.html" class="mega-menu__link">나의 의견 제시</a></div>
                 <div class="mega-menu__item"><a href="./mypage_map.html" class="mega-menu__link">나의 지도</a></div>
-                <div class="mega-menu__item"><a href="./mypage_withdraw.html" class="mega-menu__link">회원탈퇴</a></div>
               </div>
             </div>
           </div>
@@ -136,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <a href="./mypage_edit.html" class="util-mypage__link" role="menuitem" onclick="return openPwModal(event);">나의 정보 수정</a>
             <a href="./mypage_opinion.html" class="util-mypage__link" role="menuitem">나의 의견 제시</a>
             <a href="./mypage_map.html" class="util-mypage__link" role="menuitem">나의 지도</a>
-            <a href="./mypage_withdraw.html" class="util-mypage__link" role="menuitem">회원탈퇴</a>
           </div>
         </div>
       </div>
