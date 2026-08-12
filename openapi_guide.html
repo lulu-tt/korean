@@ -11,17 +11,28 @@
 <script src="./share.js" defer></script>
 <script src="./footer.js" defer></script>
 <style>
-  body { background:#fff; display:flex; flex-direction:column; min-height:100vh; margin:0; }
+  html { scrollbar-gutter: stable; }
+  body {
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Pretendard', 'NanumBarunGothicYetHangul', system-ui, -apple-system, sans-serif;
+    color: #1e293b;
+  }
   .sub-visual{
     background:linear-gradient(180deg,#edf4ff 0%,#f8fafc 100%);
     border-bottom:1px solid #e2e8f0; padding:55px 0 50px; text-align:center;
     position:relative; min-height:180px;
+    overflow: visible; display: block !important; height: auto !important;
   }
   .sub-visual::before{
-    content:''; position:absolute; inset:0;
+    content:''; position:absolute; top:0; left:0; right:0; bottom:0;
     background:radial-gradient(circle at 80% 20%,rgba(37,99,235,.03) 0%,transparent 40%);
     pointer-events:none;
   }
+  .wrap { max-width: 1440px; margin: 0 auto; padding: 0 20px; position: relative; }
   .sv-title{
     font-size:30px; font-weight:800; color:#1e3a8a;
     letter-spacing:-.03em; margin:0 0 16px; position:relative; z-index:1;
@@ -37,21 +48,49 @@
   .loc-item select{
     border:none; background:transparent; font-size:13px; font-weight:600; color:#334155;
     padding:0 16px 0 0; cursor:pointer; appearance:none; font-family:inherit;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat:no-repeat; background-position:right center;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right center;
   }
-  .loc-item select:focus{outline:none;}
+  .loc-item select:focus{outline:none; box-shadow:none;}
   .loc-sep{color:#cbd5e1; font-size:12px;}
 
-  .oa-wrap{width:100%; max-width:1040px; margin:0 auto; padding:40px 20px 100px; flex:1; box-sizing:border-box;}
-  .oa-tabs{display:flex; gap:0; margin:0 0 28px; border-bottom:1px solid #e2e8f0;}
-  .oa-tabs a{
-    flex:1; text-align:center; text-decoration:none; padding:15px 12px;
-    font-size:15px; font-weight:600; color:#64748b;
-    border-bottom:3px solid transparent; margin-bottom:-1px;
+  .oa-container { background:#ffffff; padding:40px 0 100px; flex:1; }
+  .oa-wrap{max-width:1100px; margin:0 auto; padding:0 20px; box-sizing:border-box;}
+  
+  .oa-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 44px;
   }
-  .oa-tabs a:hover{color:#1e3a8a; background:#f8fafc;}
-  .oa-tabs a.is-active{color:#1e3a8a; border-bottom-color:#1e3a8a; font-weight:800;}
+  .oa-tab-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 160px;
+    padding: 14px 24px;
+    border-radius: 99px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #475569;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  .oa-tab-item:hover {
+    color: #1e3a8a;
+    border-color: #cbd5e1;
+    background: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+  }
+  .oa-tab-item.is-active {
+    color: #ffffff;
+    background: #1e3a8a;
+    border-color: #1e3a8a;
+    box-shadow: 0 8px 20px rgba(30, 58, 138, 0.25);
+  }
 
   /* in-page nav */
   .oa-toc{
@@ -265,11 +304,13 @@
   </div>
 </div>
 
+<div class="oa-container">
 <main class="oa-wrap">
+  <!-- 서브 탭 메가 메뉴 -->
   <nav class="oa-tabs" aria-label="Open API 하위 메뉴">
-    <a href="./openapi_intro.html">소개</a>
-    <a href="./openapi_key.html">키 발급</a>
-    <a href="./openapi_guide.html" class="is-active" aria-current="page">활용안내</a>
+    <a href="./openapi_intro.html" class="oa-tab-item"><i class="ti ti-info-circle" aria-hidden="true"></i> 소개</a>
+    <a href="./openapi_key.html" class="oa-tab-item"><i class="ti ti-key" aria-hidden="true"></i> 키 발급</a>
+    <a href="./openapi_guide.html" class="oa-tab-item is-active" aria-current="page"><i class="ti ti-book-2" aria-hidden="true"></i> 활용안내</a>
   </nav>
 
   <p class="oa-lead">
@@ -600,6 +641,7 @@
     </div>
   </section>
 </main>
+</div>
 
 <div id="footer-common"></div>
 <div class="oa-toast" id="toast" role="status" aria-live="polite"></div>
