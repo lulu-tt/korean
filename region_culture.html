@@ -527,8 +527,6 @@ function catCardHTML(c, i) {
   return `
     <div class="rc-cat" role="button" tabindex="0" data-cat="${encodeURIComponent(c.name)}" onclick="location.href='./region_culture_list.html?cat=${encodeURIComponent(c.name)}'" style="animation-delay:${(i % PAGE) * 55}ms" aria-label="${c.name} 분류 열기">
       <div class="rc-cat__media" style="background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.3) 0%, rgba(15, 23, 42, 0.7) 100%), url('${c.img}');">
-        <button type="button" class="rc-cat__scrap" aria-label="스크랩" onclick="event.stopPropagation();"><i class="ti ti-bookmark"></i></button>
-        <div class="rc-cat__count-badge">+${c.count}</div>
         <div class="rc-cat__hero-body">
           <div class="rc-cat__name">${c.name}</div>
           <div class="rc-cat__desc">${c.desc}</div>
