@@ -1048,14 +1048,9 @@
     function buildPopupRows(baseRows, detail) {
       var rows = baseRows.slice();
       if (detail) {
-        if (detail.stdTp) rows.push(['대응 표준어', detail.stdTp]);
         if (detail.basisYear) rows.push(['조사 연도', detail.basisYear + '년']);
-        if (detail.researchDegree) rows.push(['조사 차수', detail.researchDegree + '차']);
         var informant = [detail.sex, detail.age ? (detail.age + '세') : ''].filter(Boolean).join(' · ');
         if (informant) rows.push(['제보자', informant]);
-        if (detail.serialNm) rows.push(['일련번호', detail.serialNm]);
-        if (detail.source) rows.push(['출처', detail.source]);
-        if (detail.itemNm) rows.push(['항목번호', detail.itemNm]);
         if (detail.fileMemo) rows.push(['파일 메모', detail.fileMemo]);
       }
       // 중복 키 제거 (앞쪽 우선)
@@ -1077,13 +1072,13 @@
         return '<tr><th scope="row">' + escHtml(r[0]) + '</th><td>' + escHtml(r[1]) + '</td></tr>';
       }).join('');
       var audioCell = '';
-      if (extra.serialNm) {
+      // 음성 파일 연동 전이면 버튼만 비활성 표시 (일련번호는 노출하지 않음)
+      if (extra.showAudioPlaceholder) {
         audioCell =
           '<tr><th scope="row">음성</th><td>' +
             '<button type="button" class="popup-speaker-btn" disabled title="음성 파일 연동 준비 중" aria-label="음성 재생 (준비 중)">' +
-              '<i class="ti ti-volume" aria-hidden="true"></i> ' + escHtml(extra.serialNm) +
+              '<i class="ti ti-volume" aria-hidden="true"></i> 듣기' +
             '</button>' +
-            '<div style="margin-top:4px;font-size:11.5px;color:#94a3b8;">일련번호는 확인됨 · 음성 파일 연결은 추후 제공</div>' +
           '</td></tr>';
       }
       return '' +
@@ -1120,19 +1115,8 @@
 
       var payload = currentPayload || {};
       var baseRows = [
-        ['지역어', v.word],
-        ['방언 계열', g.label || ''],
-        ['표준어', payload.headword || ''],
-        ['품사', payload.word_class || ''],
-        ['지역', placeLabel],
-        ['시도', (pl && pl.sido) || ''],
-        ['시군구', (pl && pl.sigungu) || '']
+        ['지역', placeLabel]
       ];
-      if (payload.meaning) {
-        var mean = String(payload.meaning);
-        if (mean.length > 80) mean = mean.slice(0, 80) + '…';
-        baseRows.push(['뜻풀이', mean]);
-      }
 
       var rows = buildPopupRows(baseRows, null);
       popupContent.innerHTML = renderPopupHtml(v, g, placeLabel, rows, {});
@@ -1160,7 +1144,7 @@
           }) || res.data[0];
           var enriched = buildPopupRows(baseRows, detail);
           popupContent.innerHTML = renderPopupHtml(v, g, placeLabel, enriched, {
-            serialNm: detail.serialNm || ''
+            showAudioPlaceholder: true
           });
           var closer2 = document.getElementById('popup-closer');
           if (closer2) closer2.onclick = function () { popupOverlay.setPosition(undefined); return false; };

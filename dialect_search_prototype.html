@@ -472,6 +472,11 @@
   .src-line dd.spoken { opacity: 0.5; }
   .src-line.src-phoneme { display: none; }
   .src-scroll.show-phoneme .src-line.src-phoneme { display: flex; }
+  /* 음성상태/비고 (네이비스 관리자 메타정보) — 토글 ON & 값이 있는 항목에만 노출 */
+  .src-line.src-meta { display: none; }
+  .src-scroll.show-meta .src-line.src-meta { display: flex; }
+  .src-line.src-meta dt { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+  .src-line.src-meta dd { color: #475569; font-weight: 600; }
   .s-keyword { color: #be123c; font-weight: 700; }
   .src-play-btn { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 99px; border: none; background: var(--blue); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2); transition: 0.2s ease; }
   .src-play-btn:hover { background: var(--blue-hover); transform: translateY(-1px); }
@@ -1989,6 +1994,8 @@
       <div class="src-check">
         <input type="checkbox" id="phonemeToggle" onchange="togglePhoneme(this)" />
         <label for="phonemeToggle">음소전사 보기</label>
+        <input type="checkbox" id="metaToggle" onchange="toggleMeta(this)" style="margin-left:18px" />
+        <label for="metaToggle">음성상태/비고 보기</label>
         <button type="button" class="src-play-btn" id="srcPlayBtn" onclick="toggleSourcePlay()">
           <i class="ti ti-player-play-filled" aria-hidden="true"></i> 전체 음성 듣기
         </button>
@@ -2029,6 +2036,8 @@
             <div class="src-line"><dt>형태음소전사</dt><dd>예, 디딜방, 예, 예.</dd></div>
             <div class="src-line src-phoneme"><dt>음소전사</dt><dd>예 디딜빵 예 예</dd></div>
             <div class="src-line"><dt>표준어 대역</dt><dd>예, 디딜방아, 예, 예.</dd></div>
+            <div class="src-line src-meta"><dt>음성상태</dt><dd>양호</dd></div>
+            <div class="src-line src-meta"><dt>비고</dt><dd>제보자 확인 발화 (짧은 응답)</dd></div>
           </dl>
         </div>
 
@@ -2038,6 +2047,7 @@
             <div class="src-line"><dt>형태음소전사</dt><dd>근데 저 저, 저 머이나 경남인가 가니까 그건 그 족침이라고</dd></div>
             <div class="src-line src-phoneme"><dt>음소전사</dt><dd>근데 저 저 저 머이나 경나민가 가니까 그건 그 족치미라고</dd></div>
             <div class="src-line"><dt>표준어 대역</dt><dd>그런데 저 저, 뭐냐 경남인가 가니까 그건 그 족침이라고</dd></div>
+            <div class="src-line src-meta"><dt>비고</dt><dd>주변 소음으로 일부 구간 청취 곤란</dd></div>
           </dl>
         </div>
 
@@ -2047,6 +2057,7 @@
             <div class="src-line"><dt>형태음소전사</dt><dd>예, 족침이라고 하는데 여긴 족침이란 말 안 씁니다. 안 쓰고 디딜방아.</dd></div>
             <div class="src-line src-phoneme"><dt>음소전사</dt><dd>예 족치미라고 하는데 여긴 족치미란 말 안씀미다. 안쓰고 디딜빵아</dd></div>
             <div class="src-line"><dt>표준어 대역</dt><dd>예, 족침이라고 하는데 여긴 족침이란 말을 안 씁니다. 안 쓰고 디딜방아.</dd></div>
+            <div class="src-line src-meta"><dt>음성상태</dt><dd>잡음 있음</dd></div>
           </dl>
         </div>
 
@@ -3520,6 +3531,11 @@ function handleSourceOverlayClick(e) {
 }
 function togglePhoneme(cb) {
   document.getElementById('srcScroll').classList.toggle('show-phoneme', cb.checked);
+}
+
+// 음성상태/비고 보기 — ON 시 네이비스 관리자 메타정보(값이 있는 항목)를 각 발화 아래에 노출
+function toggleMeta(cb) {
+  document.getElementById('srcScroll').classList.toggle('show-meta', cb.checked);
 }
 
 function setSrcPlayIcon(playing) {

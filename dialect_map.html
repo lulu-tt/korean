@@ -1074,7 +1074,6 @@ body { background: #ffffff; }
               </div>
             </div>
           </div>
-          <button class="toolbtn" type="button" id="btnShare"><i class="ti ti-link" aria-hidden="true"></i> 공유</button>
           <div class="popwrap">
             <button class="toolbtn toolbtn--primary" type="button" id="btnDownload" aria-haspopup="true" aria-expanded="false"><i class="ti ti-download" aria-hidden="true"></i> 다운로드</button>
             <div class="popmenu" id="popDownload" hidden>
@@ -1911,24 +1910,6 @@ body { background: #ffffff; }
   bindPop('btnDownload', 'popDownload');
   document.addEventListener('click', function () {
     document.querySelectorAll('.popmenu').forEach(function (p) { p.hidden = true; });
-  });
-
-  /* ─ 공유 → 상태 URL 복사 + 토스트 ─ */
-  var toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i> 현재 단어와 표시 상태가 담긴 링크를 복사했습니다.';
-  document.body.appendChild(toast);
-  var toastTimer = null;
-  function showToast() {
-    toast.classList.add('is-show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { toast.classList.remove('is-show'); }, 2400);
-  }
-  if ($('btnShare')) $('btnShare').addEventListener('click', function () {
-    var mw = $('mapWord');
-    var url = location.href.split('?')[0] + '?word=' + encodeURIComponent(mw ? mw.textContent : '');
-    if (navigator.clipboard) navigator.clipboard.writeText(url).catch(function () {});
-    showToast();
   });
 
   /* ─ 첫 방문 코치 바 닫기 ─ */
