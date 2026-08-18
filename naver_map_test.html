@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>네이버 지도 키 테스트</title>
+<style>
+  html,body{margin:0;height:100%;font-family:sans-serif}
+  #map{width:100%;height:70vh}
+  #status{padding:12px 16px;font-size:14px;font-weight:700}
+</style>
+</head>
+<body>
+<div id="status">네이버 지도 로딩 중… (ncpKeyId=lyljs260xn)</div>
+<div id="map"></div>
+<script>
+  // 인증 실패 콜백 (도메인 미등록 시 호출됨)
+  window.navermap_authFailure = function () {
+    document.getElementById('status').textContent =
+      '❌ 인증 실패: 이 도메인(' + location.origin + ')은 NCP 콘솔에 등록되지 않았습니다.';
+    document.getElementById('status').style.color = '#dc2626';
+  };
+</script>
+<script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=lyljs260xn"></script>
+<script>
+  try {
+    if (window.naver && naver.maps) {
+      var map = new naver.maps.Map('map', {
+        center: new naver.maps.LatLng(37.5665, 126.9780),
+        zoom: 8
+      });
+      document.getElementById('status').textContent = '✅ 네이버 지도 로드 성공 (' + location.origin + ')';
+      document.getElementById('status').style.color = '#16a34a';
+    } else {
+      document.getElementById('status').textContent = '⚠️ naver.maps 객체 없음 — 스크립트 로드 실패';
+      document.getElementById('status').style.color = '#dc2626';
+    }
+  } catch (e) {
+    document.getElementById('status').textContent = '⚠️ 오류: ' + e.message;
+    document.getElementById('status').style.color = '#dc2626';
+  }
+</script>
+</body>
+</html>

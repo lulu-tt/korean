@@ -235,9 +235,30 @@
   /* 하단 버튼 */
   .view-actions {
     display: flex;
-    justify-content: flex-start;
+    align-items: center;
+    justify-content: space-between;
     margin-top: 30px;
   }
+  .view-actions__right { display: flex; gap: 10px; }
+  .btn-edit, .btn-delete {
+    height: 46px;
+    padding: 0 30px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
+  }
+  .btn-edit { color: #ffffff; background: #2563eb; border-color: #2563eb; }
+  .btn-edit:hover { background: #1e40af; border-color: #1e40af; }
+  .btn-delete { color: #dc2626; background: #ffffff; border-color: #fca5a5; }
+  .btn-delete:hover { background: #fef2f2; border-color: #dc2626; }
   .btn-list {
     height: 46px;
     padding: 0 34px;
@@ -350,11 +371,24 @@
   <!-- 하단 버튼 -->
   <div class="view-actions">
     <a href="./mypage_opinion.html" class="btn-list">목록</a>
+    <div class="view-actions__right">
+      <a href="./mypage_opinion_write.html?mode=edit" class="btn-edit"><i class="ti ti-pencil" aria-hidden="true"></i>수정</a>
+      <button type="button" class="btn-delete" onclick="deleteOpinion()"><i class="ti ti-trash" aria-hidden="true"></i>삭제</button>
+    </div>
   </div>
 </div>
 
 <div id="footer-common"></div>
 
 <script src="./share.js" defer></script>
+<script>
+  // 나의 의견 제시 — 삭제 (프로토타입: 확인 후 목록으로 이동)
+  function deleteOpinion() {
+    if (confirm('이 의견을 삭제하시겠습니까?\n삭제한 글은 복구할 수 없습니다.')) {
+      alert('삭제되었습니다.');
+      location.href = './mypage_opinion.html';
+    }
+  }
+</script>
 </body>
 </html>

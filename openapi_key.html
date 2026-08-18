@@ -399,6 +399,7 @@
         <div class="oa-keybox__meta">
           <span>발급일 <strong id="issuedDate">—</strong></span>
           <span>사용 URL <strong id="issuedUrlMeta">—</strong></span>
+          <span>사용목적 <strong id="issuedPurposeMeta">—</strong></span>
         </div>
         <div class="oa-keybox__actions">
           <button type="button" class="oa-btn oa-btn--sm oa-btn--ghost" style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);" onclick="copyKey()">
@@ -435,6 +436,13 @@
               <td>
                 <input type="url" id="apiUrl" name="apiUrl" placeholder="예) https://example.com 또는 http://localhost:8080" title="사용 URL 입력" required>
                 <span class="hint">지역어 Open API를 호출할 사이트 또는 개발 환경 주소를 입력해 주세요. (필수)</span>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row"><label for="apiPurpose">사용목적<i class="req" aria-label="필수">*</i></label></th>
+              <td>
+                <textarea id="apiPurpose" name="apiPurpose" placeholder="예) 지역어 어휘 데이터를 활용한 방언 학습 웹서비스 개발" title="사용목적 입력" required></textarea>
+                <span class="hint">발급받은 인증키로 지역어 Open API를 어떤 용도로 활용하실지 간단히 적어 주세요. (필수)</span>
               </td>
             </tr>
             <tr>
@@ -555,6 +563,7 @@
     $('issuedKey').textContent = data.apiKey || '—';
     $('issuedDate').textContent = fmtDate(data.apiDt);
     $('issuedUrlMeta').textContent = data.apiUrl || '—';
+    $('issuedPurposeMeta').textContent = data.apiPurpose || '—';
   }
 
   function showApply() {
@@ -609,10 +618,17 @@
       $('apiUrl').focus();
       return;
     }
+    var purpose = ($('apiPurpose').value || '').trim();
+    if (!purpose) {
+      toast('사용목적을 입력해 주세요.');
+      $('apiPurpose').focus();
+      return;
+    }
     var data = {
       userId: DEMO_USER,
       apiKey: genKey(),
       apiUrl: url,
+      apiPurpose: purpose,
       apiDt: Date.now()
     };
     saveState(data);

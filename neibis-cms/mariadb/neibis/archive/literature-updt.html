@@ -618,7 +618,7 @@
 																									<div class="content-body">
 	<!-- 본문 영역 -->
 					<form id="save-form" onsubmit="return false;">
-						<input type="hidden" id="literId" name="literId" value="146" />
+						<input type="hidden" id="literId" name="literId" value="" />
 						<div class="card">
 							<div class="table table-row">
 								<div class="table-inner">
@@ -627,13 +627,13 @@
 										<tbody>
 											<tr>
 												<th scope="row"><label for="dltTp">표제어<i class="req">필수입력</i></label></th>
-												<td><input type="text" id="dltTp" name="dltTp" class="form-control-sm full" placeholder="표제어(지역어)를 입력해주세요." value="가시게" required /></td>
+												<td><input type="text" id="dltTp" name="dltTp" class="form-control-sm full" placeholder="표제어(지역어)를 입력해주세요." value="" required /></td>
 												<th scope="row"><label for="wordClass">품사</label></th>
 												<td>
 													<select id="wordClass" name="wordClass" class="form-control-sm" style="width:100%; max-width:405px" title="품사 선택">
 														<option value="">품사를 선택해주세요.</option>
 														<optgroup label="단일 품사">
-															<option value="명사" selected>명사</option>
+															<option value="명사">명사</option>
 															<option value="대명사">대명사</option>
 															<option value="수사">수사</option>
 															<option value="조사">조사</option>
@@ -660,13 +660,13 @@
 											</tr>
 											<tr>
 												<th scope="row"><label for="stdTp">대응표준어<i class="req">필수입력</i></label></th>
-												<td><input type="text" id="stdTp" name="stdTp" class="form-control-sm full" placeholder="대응 표준어를 입력해주세요." value="가위" required /></td>
+												<td><input type="text" id="stdTp" name="stdTp" class="form-control-sm full" placeholder="대응 표준어를 입력해주세요." value="" required /></td>
 												<th scope="row"><label for="addMean">표준어 부가 의미</label></th>
 												<td><input type="text" id="addMean" name="addMean" class="form-control-sm full" placeholder="필요한 경우 부가 의미를 입력하세요." value="" /></td>
 											</tr>
 											<tr>
 												<th scope="row"><label for="mean">의미</label></th>
-												<td colspan="3"><textarea id="mean" name="mean" class="form-control-sm full" rows="3" placeholder="뜻풀이를 입력해주세요." style="min-height:80px; width:100%;">옷감, 종이, 머리털 따위를 자르는 기구.</textarea></td>
+												<td colspan="3"><textarea id="mean" name="mean" class="form-control-sm full" rows="3" placeholder="뜻풀이를 입력해주세요." style="min-height:80px; width:100%;"></textarea></td>
 											</tr>
 											<tr>
 												<th scope="row"><span>지역</span></th>
@@ -674,7 +674,7 @@
 													<div id="regionNmGroup" class="region-check-group" style="display:flex; flex-wrap:wrap; gap:4px 12px; align-items:center;">
 														<label class="check-item"><input type="checkbox" name="regionNm" value="강원도" /><span class="label">강원도</span></label>
 														<label class="check-item"><input type="checkbox" name="regionNm" value="경기도" /><span class="label">경기도</span></label>
-														<label class="check-item"><input type="checkbox" name="regionNm" value="경상도" checked /><span class="label">경상도</span></label>
+														<label class="check-item"><input type="checkbox" name="regionNm" value="경상도" /><span class="label">경상도</span></label>
 														<label class="check-item"><input type="checkbox" name="regionNm" value="전라도" /><span class="label">전라도</span></label>
 														<label class="check-item"><input type="checkbox" name="regionNm" value="제주도" /><span class="label">제주도</span></label>
 														<label class="check-item"><input type="checkbox" name="regionNm" value="충청도" /><span class="label">충청도</span></label>
@@ -686,11 +686,11 @@
 											</tr>
 											<tr>
 												<th scope="row"><label for="relDlt">다른 방언형</label></th>
-												<td colspan="3"><input type="text" id="relDlt" name="relDlt" class="form-control-sm full" placeholder="예: 까위, 가이, 가새" value="까위, 가이, 가새, 가이개, 가시개, 까시개" /></td>
+												<td colspan="3"><input type="text" id="relDlt" name="relDlt" class="form-control-sm full" placeholder="예: 까위, 가이, 가새" value="" /></td>
 											</tr>
 											<tr>
 												<th scope="row"><label for="wordDesc">해설</label></th>
-												<td colspan="3"><textarea id="wordDesc" name="wordDesc" class="form-control-sm full" rows="5" placeholder="어원·방언 특징 등 해설을 입력해주세요." style="min-height:120px; width:100%;">경상도 방언에는 옛날말의 ‘ㅿ’이 ‘ㅅ’으로 변하여 된 어휘가 많이 있는데 ‘야시/여시(여우), 가시개/가새(가위), 저실(겨울), 가실(가을)’ 등이 그에 해당되는 예이다. ‘가위’는 ‘가르다’와 같은 어원을 가진 말로서 ‘다’에 명사화접미사 &#x27;-개&#x27;가 결합하여 이루어진 말이다. 즉 {-}+{개(명사화 접미사)}’에서 이후 ‘개&gt;스개&gt;가시개’로 변화하였다. 여기서 /ㅿ/은 /ㅅ/으로 실현되어 나타나는데 이는 경상도 방언의 대표적인 특징이라 볼 수 있다. 또 다른 방언형인 ‘가새’는 {-}+{개}에서 ‘개&gt;애&gt;가새’의 변화를 겪은 것이고, 표준어 ‘가위’는 ‘개&gt;애’에서 /ㅿ/이 탈락한 후 모음변화를 겪은 것이다.</textarea></td>
+												<td colspan="3"><textarea id="wordDesc" name="wordDesc" class="form-control-sm full" rows="5" placeholder="어원·방언 특징 등 해설을 입력해주세요." style="min-height:120px; width:100%;"></textarea></td>
 											</tr>
 											<tr>
 												<th scope="row"><span>상태<i class="req">필수입력</i></span></th>
@@ -701,15 +701,15 @@
 											</tr>
 											<tr>
 												<th scope="row"><label for="exhBookNm">출처 도서명</label></th>
-												<td><input type="text" id="exhBookNm" name="exhBookNm" class="form-control-sm full" placeholder="예: 문학 속의 경상 방언" value="문학 속의 경상 방언" /></td>
+												<td><input type="text" id="exhBookNm" name="exhBookNm" class="form-control-sm full" placeholder="예: 문학 속의 경상 방언" value="" /></td>
 												<th scope="row"><label for="exhAuthor">출처 저자</label></th>
-												<td><input type="text" id="exhAuthor" name="exhAuthor" class="form-control-sm full" placeholder="예: 이상규·신승용" value="이상규·신승용" /></td>
+												<td><input type="text" id="exhAuthor" name="exhAuthor" class="form-control-sm full" placeholder="예: 이상규·신승용" value="" /></td>
 											</tr>
 											<tr>
 												<th scope="row"><label for="exhPublishCom">출처 출판사</label></th>
-												<td><input type="text" id="exhPublishCom" name="exhPublishCom" class="form-control-sm full" value="글누림" /></td>
+												<td><input type="text" id="exhPublishCom" name="exhPublishCom" class="form-control-sm full" value="" /></td>
 												<th scope="row"><label for="exhPublishYear">출처 출판연도</label></th>
-												<td><input type="text" id="exhPublishYear" name="exhPublishYear" class="form-control-sm" style="width:160px" placeholder="YYYY" value="2010" /></td>
+												<td><input type="text" id="exhPublishYear" name="exhPublishYear" class="form-control-sm" style="width:160px" placeholder="YYYY" value="" /></td>
 											</tr>
 											<tr>
 												<th scope="row">문학 용례</th>
@@ -792,15 +792,110 @@ function addExample(prefill){
 	document.getElementById('example-list').insertAdjacentHTML('beforeend', html);
 }
 
+var API = '/mariadb/neibis-api/archive/literature';
+
+function toast(msg, icon){
+	if(window.Message){ Message.alert({icon:icon||'info', message:msg}); }
+	else { alert(msg); }
+}
+function ask(opts, cb){
+	if(window.Message && Message.confirm){ Message.confirm(opts, cb); }
+	else if(window.confirm(opts.message||opts.title||'확인')){ cb(); }
+}
+function qsId(){
+	var m = location.search.match(/[?&]id=([^&]*)/);
+	return m ? decodeURIComponent(m[1]) : '';
+}
+function collectExamples(){
+	var list = [];
+	$('#example-list .sub-card').each(function(){
+		var $c = $(this);
+		list.push({
+			wordExample: ($c.find('.ex-word').val()||'').trim(),
+			stdExample: ($c.find('.ex-std').val()||'').trim(),
+			writer: ($c.find('.ex-writer').val()||'').trim(),
+			bookName: ($c.find('.ex-book').val()||'').trim(),
+			publishCompany: ($c.find('.ex-pub').val()||'').trim(),
+			publishYear: ($c.find('.ex-year').val()||'').trim(),
+			volumeNo: ($c.find('.ex-volume').val()||'').trim(),
+			pageNo: ($c.find('.ex-page').val()||'').trim(),
+			sidoCd: ($c.find('.ex-sido').val()||'').trim(),
+			sigunguNm: ($c.find('.ex-sigungu').val()||'').trim()
+		});
+	});
+	return list;
+}
+function collectPayload(){
+	var regions = [];
+	$('input[name="regionNm"]:checked').each(function(){ regions.push($(this).val()); });
+	return {
+		literId: ($('#literId').val()||'').trim(),
+		dltTp: ($('#dltTp').val()||'').trim(),
+		stdTp: ($('#stdTp').val()||'').trim(),
+		addMean: ($('#addMean').val()||'').trim(),
+		wordClass: ($('#wordClass').val()||'').trim(),
+		mean: ($('#mean').val()||'').trim(),
+		regionNm: regions,
+		relDlt: ($('#relDlt').val()||'').trim(),
+		wordDesc: ($('#wordDesc').val()||'').trim(),
+		useYn: $('input[name="useYn"]:checked').val() || 'Y',
+		exhBookNm: ($('#exhBookNm').val()||'').trim(),
+		exhAuthor: ($('#exhAuthor').val()||'').trim(),
+		exhPublishCom: ($('#exhPublishCom').val()||'').trim(),
+		exhPublishYear: ($('#exhPublishYear').val()||'').trim(),
+		examples: collectExamples()
+	};
+}
+function applyDetail(d){
+	$('#literId').val(d.literId||'');
+	$('#dltTp').val(d.dltTp||'');
+	$('#stdTp').val(d.stdTp||'');
+	$('#addMean').val(d.addMean||'');
+	$('#wordClass').val(d.wordClass||'');
+	$('#mean').val(d.mean||'');
+	$('#relDlt').val(d.relDlt||'');
+	$('#wordDesc').val(d.wordDesc||'');
+	$('#exhBookNm').val(d.exhBookNm||'');
+	$('#exhAuthor').val(d.exhAuthor||'');
+	$('#exhPublishCom').val(d.exhPublishCom||'');
+	$('#exhPublishYear').val(d.exhPublishYear||'');
+	$('input[name="useYn"][value="'+(d.useYn==='N'?'N':'Y')+'"]').prop('checked', true);
+	var reg = String(d.regionNm||'');
+	$('input[name="regionNm"]').each(function(){
+		$(this).prop('checked', reg.indexOf($(this).val()) >= 0);
+	});
+	$('#example-list').empty();
+	ei = 0;
+	(d.examples||[]).forEach(function(ex){
+		addExample({
+			word_example: ex.wordExample||'',
+			std_example: ex.stdExample||'',
+			writer: ex.writer||'',
+			book_name: ex.bookName||'',
+			publish_company: ex.publishCompany||'',
+			publish_year: ex.publishYear||'',
+			volume_no: ex.volumeNo||'',
+			page_no: ex.pageNo||''
+		});
+		// 시도 선택 복원
+		var $last = $('#example-list .sub-card').last();
+		if(ex.sidoCd){
+			$last.find('.ex-sido').val(ex.sidoCd);
+			fillExSigungu($last.find('.ex-sido')[0]);
+			if(ex.sigunguNm) $last.find('.ex-sigungu').val(ex.sigunguNm);
+		}
+	});
+}
+
 function btnSave(){
 	var dlt = ($('#dltTp').val()||'').trim();
 	var std = ($('#stdTp').val()||'').trim();
 	if(!dlt){
-		if(window.Message){ Message.alert({icon:'warning', message:'표제어를 입력해주세요.'}); } else { alert('표제어를 입력해주세요.'); }
+		toast('표제어를 입력해주세요.', 'warning');
 		return $('#dltTp').focus();
 	}
 	if(!std){
-		if(window.Message){ Message.alert({icon:'warning', message:'대응표준어를 입력해주세요.'}); } else { alert('대응표준어를 입력해주세요.'); }
+		toast('대응표준어를 입력해주세요.', 'warning');
 		return $('#stdTp').focus();
 	}
 	var emptyEx = false;
@@ -808,41 +903,69 @@ function btnSave(){
 		if(!($(this).val()||'').trim()){ emptyEx = true; }
 	});
 	if($('#example-list .sub-card').length && emptyEx){
-		if(window.Message){ Message.alert({icon:'warning', message:'지역어 예문을 입력해주세요. (빈 용례 블록이 있습니다)'}); }
-		else { alert('지역어 예문을 입력해주세요.'); }
+		toast('지역어 예문을 입력해주세요. (빈 용례 블록이 있습니다)', 'warning');
 		return;
 	}
-	var done = function(){
-		if(window.Message){
-			Message.alert({icon:'info', message:'정적 프로토타입입니다. 실제 저장은 수행되지 않습니다.'}, function(){ location.href='literature.do'; });
-		} else {
-			alert('정적 프로토타입: 저장 미수행');
-			location.href='literature.do';
-		}
+	var payload = collectPayload();
+	var doSave = function(){
+		$.ajax({
+			url: API + '/save',
+			method: 'POST',
+			contentType: 'application/json',
+			data: JSON.stringify(payload)
+		}).done(function(res){
+			if(res && res.ok){
+				if(window.Message){
+					Message.alert({icon:'success', message: res.message || '저장되었습니다.'}, function(){ location.href='literature.do'; });
+				} else {
+					alert(res.message||'저장되었습니다.');
+					location.href='literature.do';
+				}
+			} else {
+				toast((res && res.message) || '저장 실패', 'error');
+			}
+		}).fail(function(){ toast('저장 요청 실패', 'error'); });
 	};
-	if(window.Message){
-		Message.confirm({icon:'warning', title:'저장하시겠어요?', message:'저장하시려면 ‘확인’을 눌러주세요.'}, done);
-	} else if(confirm('저장하시겠어요?')){ done(); }
+	ask({icon:'warning', title:'저장하시겠어요?', message:'저장하시려면 ‘확인’을 눌러주세요.'}, doSave);
 }
 
 function btnDelete(){
-	var done = function(){
-		if(window.Message){
-			Message.alert({icon:'info', message:'정적 프로토타입입니다. 실제 삭제는 수행되지 않습니다.'}, function(){ location.href='literature.do'; });
-		} else {
-			alert('정적 프로토타입: 삭제 미수행');
-			location.href='literature.do';
-		}
+	var id = ($('#literId').val()||'').trim();
+	if(!id){ toast('삭제할 자료 ID가 없습니다.', 'warning'); return; }
+	var doDel = function(){
+		$.ajax({
+			url: API + '/delete',
+			method: 'POST',
+			contentType: 'application/json',
+			data: JSON.stringify({ literId: id })
+		}).done(function(res){
+			if(res && res.ok){
+				if(window.Message){
+					Message.alert({icon:'success', message: res.message || '삭제되었습니다.'}, function(){ location.href='literature.do'; });
+				} else {
+					alert(res.message||'삭제되었습니다.');
+					location.href='literature.do';
+				}
+			} else {
+				toast((res && res.message) || '삭제 실패', 'error');
+			}
+		}).fail(function(){ toast('삭제 요청 실패', 'error'); });
 	};
-	if(window.Message){
-		Message.confirm({icon:'warning', title:'삭제하시겠어요?', message:'삭제된 데이터는 복구할 수 없습니다.'}, done);
-	} else if(confirm('삭제하시겠어요?')){ done(); }
+	ask({icon:'warning', title:'삭제하시겠어요?', message:'삭제된 데이터는 복구할 수 없습니다.'}, doDel);
 }
 
 $(function(){
-	// 상세/수정: 기존 용례 데이터 로드 (샘플)
-	addExample({word_example:'네가 주는 것이 무엇인가?/ 어린애게도 늙은이게도/ 즘생보담은 신령하단 사람에게/ 단맛뵈는 엿만이아니다/ 단맛넘어 그맛을 아는맘/ 아모라도가젓느니 잇지말라고/ 큰가새로 목닥치는네가/ 주는것이란 엇재 엿뿐이랴!',std_example:'',writer:'이상규 편',book_name:'엿장사',publish_company:'이상화전집',publish_year:'1982',volume_no:'',page_no:'148'});
-	addExample({word_example:'얼매나 놀랬는동 그때 뱃속에 아가 놀래 가주고 얼라를 낳아 놓으이 얼라 다리가 똑 가시게 겉애. 골병이 들어 가주고, 쫓개 댕기니라꼬 골병이 들었잖니껴. 요새도 억시 적은 편은 안가도 기중 약하니더.',std_example:'',writer:'김점호',book_name:'베도 숱한 베 짜고',publish_company:'',publish_year:'1992',volume_no:'',page_no:'59'});
+	var id = qsId();
+	if(!id){
+		toast('수정할 항목 ID가 없습니다. 목록에서 다시 선택해주세요.', 'warning');
+		return;
+	}
+	$.getJSON(API + '/detail', { id: id })
+		.done(function(res){
+			if(res && res.ok && res.data){ applyDetail(res.data); }
+			else { toast((res && res.message) || '상세 조회 실패', 'error'); }
+		})
+		.fail(function(){ toast('상세를 불러오지 못했습니다.', 'error'); });
 });
 </script>
 					</div>

@@ -446,12 +446,19 @@
       var features = [];
       Object.keys(GROUPS).forEach(function (gkey) {
         GROUPS[gkey].variants.forEach(function (v) {
-          (v.points || []).forEach(function (pt) {
+          (v.points || []).forEach(function (pt, pi) {
             var f = new ol.Feature({ geometry: new ol.geom.Point(ol.proj.fromLonLat(pt)) });
             f.set('vid', v.id);
             f.set('word', v.word);
             f.set('lng', pt[0]);
             f.set('lat', pt[1]);
+            // places[i] 가 points[i] 와 대응되면 지점 메타를 피처에 심음
+            var place = (v.places && v.places[pi]) || null;
+            if (!place && v.places && v.places.length) {
+              var lk = Number(pt[0]).toFixed(5) + ',' + Number(pt[1]).toFixed(5);
+              place = placeByCoord[lk] || null;
+            }
+            if (place) f.set('place', place);
             f.set('stackIndex', 0);
             f.set('stackCount', 1);
             features.push(f);
@@ -1007,6 +1014,93 @@
       }
     }
 
+    var currentPayload = null;
+    var popupReqSeq = 0;
+
+    function escHtml(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function resolvePlace(feature, v) {
+      var pl = feature && feature.get('place');
+      if (pl) return pl;
+      if (feature && feature.get('lng') != null && feature.get('lat') != null) {
+        var lk = Number(feature.get('lng')).toFixed(5) + ',' + Number(feature.get('lat')).toFixed(5);
+        if (placeByCoord[lk]) return placeByCoord[lk];
+      }
+      // variant.places 에서 좌표 일치 찾기
+      if (v && v.places && feature) {
+        var lng = Number(feature.get('lng'));
+        var lat = Number(feature.get('lat'));
+        for (var i = 0; i < v.places.length; i++) {
+          var p = v.places[i];
+          if (p && Math.abs(Number(p.lng) - lng) < 1e-5 && Math.abs(Number(p.lat) - lat) < 1e-5) return p;
+        }
+        if (v.places.length === v.points.length) {
+          // points 인덱스 추정
+        }
+      }
+      return null;
+    }
+
+    function buildPopupRows(baseRows, detail) {
+      var rows = baseRows.slice();
+      if (detail) {
+        if (detail.stdTp) rows.push(['대응 표준어', detail.stdTp]);
+        if (detail.basisYear) rows.push(['조사 연도', detail.basisYear + '년']);
+        if (detail.researchDegree) rows.push(['조사 차수', detail.researchDegree + '차']);
+        var informant = [detail.sex, detail.age ? (detail.age + '세') : ''].filter(Boolean).join(' · ');
+        if (informant) rows.push(['제보자', informant]);
+        if (detail.serialNm) rows.push(['일련번호', detail.serialNm]);
+        if (detail.source) rows.push(['출처', detail.source]);
+        if (detail.itemNm) rows.push(['항목번호', detail.itemNm]);
+        if (detail.fileMemo) rows.push(['파일 메모', detail.fileMemo]);
+      }
+      // 중복 키 제거 (앞쪽 우선)
+      var seen = {};
+      var out = [];
+      rows.forEach(function (r) {
+        if (seen[r[0]]) return;
+        seen[r[0]] = 1;
+        if (r[1] == null || String(r[1]).trim() === '') return;
+        out.push(r);
+      });
+      return out;
+    }
+
+    function renderPopupHtml(v, g, placeLabel, rows, optsExtra) {
+      var color = (g && g.color) || '#64748b';
+      var extra = optsExtra || {};
+      var table = rows.map(function (r) {
+        return '<tr><th scope="row">' + escHtml(r[0]) + '</th><td>' + escHtml(r[1]) + '</td></tr>';
+      }).join('');
+      var audioCell = '';
+      if (extra.serialNm) {
+        audioCell =
+          '<tr><th scope="row">음성</th><td>' +
+            '<button type="button" class="popup-speaker-btn" disabled title="음성 파일 연동 준비 중" aria-label="음성 재생 (준비 중)">' +
+              '<i class="ti ti-volume" aria-hidden="true"></i> ' + escHtml(extra.serialNm) +
+            '</button>' +
+            '<div style="margin-top:4px;font-size:11.5px;color:#94a3b8;">일련번호는 확인됨 · 음성 파일 연결은 추후 제공</div>' +
+          '</td></tr>';
+      }
+      return '' +
+        '<div class="popup-header">' +
+          '<div class="popup-header__title">' +
+            '<span class="popup-header__word" style="color:' + color + '">' + escHtml(v.word) + '</span>' +
+            '<span>' + escHtml(placeLabel) + '</span>' +
+            (g && g.label ? '<span>' + escHtml(g.label) + '</span>' : '') +
+          '</div>' +
+          '<button type="button" class="popup-close" id="popup-closer" aria-label="닫기"><i class="ti ti-x"></i></button>' +
+        '</div>' +
+        '<div class="popup-body">' +
+          '<div class="popup-body__title"><span style="color:' + color + '">' + escHtml(v.word) + '</span> · ' + escHtml(placeLabel) + '</div>' +
+          '<table class="popup-table"><tbody>' + table + audioCell + '</tbody></table>' +
+        '</div>';
+    }
+
     function showGenericPopup(vid, coord, feature) {
       if (!opts.popup || !popupOverlay) return;
       var popupContent = $(opts.popupContentId);
@@ -1017,31 +1111,61 @@
       var v = null;
       g.variants.forEach(function (x) { if (x.id === vid) v = x; });
       if (!v) return;
+
+      var pl = resolvePlace(feature, v);
       var placeLabel = '조사 지점';
-      if (feature && feature.get('lng') != null && feature.get('lat') != null) {
-        var lk = Number(feature.get('lng')).toFixed(5) + ',' + Number(feature.get('lat')).toFixed(5);
-        var pl = placeByCoord[lk];
-        if (pl && (pl.region_nm || pl.sigungu)) {
-          placeLabel = pl.region_nm || ((pl.sido || '') + ' ' + (pl.sigungu || '')).trim();
-        }
+      if (pl && (pl.region_nm || pl.sigungu || pl.sido)) {
+        placeLabel = pl.region_nm || ((pl.sido || '') + ' ' + (pl.sigungu || '')).trim();
       }
-      var color = g.color || '#64748b';
-      popupContent.innerHTML =
-        '<div class="popup-header">' +
-          '<div class="popup-header__title">' +
-            '<span class="popup-header__word" style="color:' + color + '">' + v.word + '</span>' +
-            '<span>' + placeLabel + '</span>' +
-            '<span>' + (g.label || '') + '</span>' +
-          '</div>' +
-          '<button type="button" class="popup-close" id="popup-closer" aria-label="닫기"><i class="ti ti-x"></i></button>' +
-        '</div>' +
-        '<div class="popup-body">' +
-          '<div class="popup-body__title"><span style="color:' + color + '">' + v.word + '</span> · ' + placeLabel + '</div>' +
-          '<p style="margin:0;font-size:13px;color:#64748b;line-height:1.5;">지도 표시용 실데이터 지점입니다. (음성 연결은 serial 매핑 후 제공 예정)</p>' +
-        '</div>';
+
+      var payload = currentPayload || {};
+      var baseRows = [
+        ['지역어', v.word],
+        ['방언 계열', g.label || ''],
+        ['표준어', payload.headword || ''],
+        ['품사', payload.word_class || ''],
+        ['지역', placeLabel],
+        ['시도', (pl && pl.sido) || ''],
+        ['시군구', (pl && pl.sigungu) || '']
+      ];
+      if (payload.meaning) {
+        var mean = String(payload.meaning);
+        if (mean.length > 80) mean = mean.slice(0, 80) + '…';
+        baseRows.push(['뜻풀이', mean]);
+      }
+
+      var rows = buildPopupRows(baseRows, null);
+      popupContent.innerHTML = renderPopupHtml(v, g, placeLabel, rows, {});
       popupOverlay.setPosition(coord);
       var closer = document.getElementById('popup-closer');
       if (closer) closer.onclick = function () { popupOverlay.setPosition(undefined); return false; };
+
+      // DB에서 제보자·연도·일련번호 보강
+      var reqId = ++popupReqSeq;
+      var qs = new URLSearchParams({
+        word: v.word || '',
+        std: payload.headword || '',
+        sido: (pl && pl.sido) || '',
+        sigungu: (pl && pl.sigungu) || '',
+        region: placeLabel || ''
+      });
+      fetch('/api/map_point?' + qs.toString())
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          if (reqId !== popupReqSeq) return;
+          if (!res || res.status !== 'success' || !res.data || !res.data.length) return;
+          // 방언형 일치 우선
+          var detail = res.data.find(function (d) {
+            return d.dltTp === v.word || (d.dltTp && d.dltTp.indexOf(v.word) === 0);
+          }) || res.data[0];
+          var enriched = buildPopupRows(baseRows, detail);
+          popupContent.innerHTML = renderPopupHtml(v, g, placeLabel, enriched, {
+            serialNm: detail.serialNm || ''
+          });
+          var closer2 = document.getElementById('popup-closer');
+          if (closer2) closer2.onclick = function () { popupOverlay.setPosition(undefined); return false; };
+        })
+        .catch(function () { /* 보강 실패 시 기본 팝업 유지 */ });
     }
 
     // 원본 심볼 PNG 아이콘 스타일 (symbolFile 있을 때 사용). 크기는 운영과 동일(~13px)로 정규화.
@@ -1070,6 +1194,7 @@
     }
 
     function applyMapPayload(payload) {
+      currentPayload = payload || null;
       GROUPS = {};
       activeVariants = {};
       variantStyles = {};

@@ -14,6 +14,7 @@ import os
 import re
 import socketserver
 import sqlite3
+import time
 import unicodedata
 import urllib.parse
 import wave
@@ -3528,6 +3529,412 @@ def api_user_reset_pw(body: dict) -> dict:
     return {"ok": True, "message": f"'{row['usid']}' 비밀번호를 재설정했습니다.", "userId": user_id}
 
 
+# ── 문학 속 지역어 (tb_literature + tb_literature_example) ──
+
+def _lit_q1(qs: dict, key: str, default: str = "") -> str:
+    v = qs.get(key, [default])
+    if isinstance(v, list):
+        return (v[0] if v else default) or default
+    return str(v or default)
+
+
+def _lit_match_sql(col: str, mode: str) -> str:
+    m = (mode or "contains").lower()
+    if m in ("match", "exact", "eq", "일치"):
+        return f"{col} = ?"
+    if m in ("startswith", "prefix", "start", "시작문자"):
+        return f"{col} LIKE ?"
+    if m in ("endswith", "suffix", "end", "끝문자"):
+        return f"{col} LIKE ?"
+    return f"{col} LIKE ?"
+
+
+def _lit_match_val(term: str, mode: str) -> str:
+    m = (mode or "contains").lower()
+    if m in ("match", "exact", "eq", "일치"):
+        return term
+    if m in ("startswith", "prefix", "start", "시작문자"):
+        return f"{term}%"
+    if m in ("endswith", "suffix", "end", "끝문자"):
+        return f"%{term}"
+    return f"%{term}%"
+
+
+def _lit_field_col(field: str) -> str | None:
+    f = (field or "").strip().lower()
+    return {
+        "dlt": "l.dlt_tp",
+        "dlt_tp": "l.dlt_tp",
+        "std": "l.std_tp",
+        "std_tp": "l.std_tp",
+        "mean": "l.mean",
+        "writer": "e.writer",
+        "book": "e.book_name",
+        "book_name": "e.book_name",
+        "example": "e.word_example",
+        "word_example": "e.word_example",
+        "rel_dlt": "l.rel_dlt",
+        "region": "l.region_nm",
+    }.get(f)
+
+
+def api_literature_list(qs: dict) -> dict:
+    """관리자 문학 속 지역어 목록 (dialect_local.db)."""
+    try:
+        page = max(1, int(_lit_q1(qs, "page", "1") or 1))
+    except ValueError:
+        page = 1
+    try:
+        size = min(100, max(1, int(_lit_q1(qs, "size", "10") or 10)))
+    except ValueError:
+        size = 10
+    region = _lit_q1(qs, "region").strip()
+    word_class = _lit_q1(qs, "wordClass").strip() or _lit_q1(qs, "word_class").strip()
+    use_yn = _lit_q1(qs, "useYn").strip().upper()
+    main_fix = _lit_q1(qs, "mainFixYn").strip().upper()
+    q = _lit_q1(qs, "q").strip()
+
+    # targets: JSON array [{field, mode, term, conn}]  or t1_field/t1_mode/t1_term ...
+    targets = []
+    raw_targets = _lit_q1(qs, "targets").strip()
+    if raw_targets:
+        try:
+            parsed = json.loads(raw_targets)
+            if isinstance(parsed, list):
+                targets = parsed
+        except Exception:
+            targets = []
+    if not targets:
+        for i in range(1, 4):
+            term = _lit_q1(qs, f"t{i}_term").strip()
+            if not term:
+                continue
+            targets.append({
+                "field": _lit_q1(qs, f"t{i}_field", "dlt"),
+                "mode": _lit_q1(qs, f"t{i}_mode", "contains"),
+                "term": term,
+                "conn": _lit_q1(qs, f"t{i}_conn", "in"),
+            })
+    if q and not targets:
+        targets = [{"field": "dlt", "mode": "contains", "term": q, "conn": "in"}]
+
+    where = ["1=1"]
+    params: list = []
+
+    if region:
+        where.append("l.region_nm LIKE ?")
+        params.append(f"%{region}%")
+    if word_class:
+        where.append("l.word_class LIKE ?")
+        params.append(f"%{word_class}%")
+    if use_yn in ("Y", "N"):
+        where.append("UPPER(COALESCE(l.use_yn,'')) = ?")
+        params.append(use_yn)
+    # 메인고정 컬럼 없음 → 목록 표시는 항상 N. Y 필터 시 0건
+    if main_fix == "Y":
+        where.append("1=0")
+
+    need_example_join = False
+    for t in targets:
+        field = str(t.get("field") or "dlt")
+        col = _lit_field_col(field)
+        if not col:
+            continue
+        if col.startswith("e."):
+            need_example_join = True
+        term = str(t.get("term") or "").strip()
+        if not term:
+            continue
+        mode = str(t.get("mode") or "contains")
+        conn = str(t.get("conn") or "in").lower()
+        clause = _lit_match_sql(col, mode)
+        val = _lit_match_val(term, mode)
+        if conn in ("notin", "not", "제외", "and_not"):
+            where.append(f"NOT ({clause})")
+        else:
+            where.append(clause)
+        params.append(val)
+
+    where_sql = " AND ".join(where)
+    join_sql = (
+        "LEFT JOIN tb_literature_example e ON l.liter_id = e.liter_id"
+        if need_example_join or True
+        else ""
+    )
+    # always left join so writer/book can be selected for list display
+    join_sql = "LEFT JOIN tb_literature_example e ON l.liter_id = e.liter_id"
+
+    offset = (page - 1) * size
+    with db_connect() as con:
+        total = con.execute(
+            f"""
+            SELECT COUNT(DISTINCT l.liter_id) AS c
+            FROM tb_literature l
+            {join_sql}
+            WHERE {where_sql}
+            """,
+            params,
+        ).fetchone()["c"]
+
+        rows = con.execute(
+            f"""
+            SELECT l.liter_id, l.dlt_tp, l.std_tp, l.word_class, l.mean,
+                   l.region_nm, l.use_yn, l.rel_dlt,
+                   (SELECT e2.writer FROM tb_literature_example e2
+                     WHERE e2.liter_id = l.liter_id
+                     ORDER BY CAST(e2.liter_exam_id AS INTEGER) ASC LIMIT 1) AS writer,
+                   (SELECT e2.book_name FROM tb_literature_example e2
+                     WHERE e2.liter_id = l.liter_id
+                     ORDER BY CAST(e2.liter_exam_id AS INTEGER) ASC LIMIT 1) AS book_name
+            FROM tb_literature l
+            {join_sql}
+            WHERE {where_sql}
+            GROUP BY l.liter_id
+            ORDER BY CAST(l.liter_id AS INTEGER) ASC
+            LIMIT ? OFFSET ?
+            """,
+            params + [size, offset],
+        ).fetchall()
+
+    items = []
+    for r in rows:
+        items.append({
+            "literId": str(r["liter_id"] or ""),
+            "dltTp": r["dlt_tp"] or "",
+            "stdTp": r["std_tp"] or "",
+            "wordClass": r["word_class"] or "",
+            "mean": r["mean"] or "",
+            "regionNm": r["region_nm"] or "",
+            "useYn": (r["use_yn"] or "N").upper() if (r["use_yn"] or "").strip() else "N",
+            "mainFixYn": "N",
+            "writer": (r["writer"] or "").strip(),
+            "bookName": (r["book_name"] or "").strip(),
+            "relDlt": r["rel_dlt"] or "",
+        })
+
+    total_pages = max(1, (int(total) + size - 1) // size) if total else 1
+    return {
+        "ok": True,
+        "total": int(total),
+        "page": page,
+        "size": size,
+        "totalPages": total_pages,
+        "rows": items,
+        "db": str(DB_PATH),
+    }
+
+
+def api_literature_detail(qs: dict) -> dict:
+    liter_id = _lit_q1(qs, "id") or _lit_q1(qs, "literId") or _lit_q1(qs, "liter_id")
+    liter_id = liter_id.strip()
+    if not liter_id:
+        return {"ok": False, "message": "id(liter_id)가 필요합니다."}
+
+    with db_connect() as con:
+        row = con.execute(
+            "SELECT * FROM tb_literature WHERE liter_id = ? LIMIT 1",
+            (liter_id,),
+        ).fetchone()
+        if not row:
+            return {"ok": False, "message": f"자료를 찾을 수 없습니다. (id={liter_id})"}
+
+        ex_rows = con.execute(
+            """
+            SELECT * FROM tb_literature_example
+            WHERE liter_id = ?
+            ORDER BY CAST(liter_exam_id AS INTEGER) ASC
+            """,
+            (liter_id,),
+        ).fetchall()
+
+    examples = []
+    for ex in ex_rows:
+        examples.append({
+            "literExamId": str(ex["liter_exam_id"] or ""),
+            "wordExample": ex["word_example"] or "",
+            "stdExample": ex["std_example"] or "",
+            "writer": ex["writer"] or "",
+            "bookName": ex["book_name"] or "",
+            "publishCompany": ex["publish_company"] or "",
+            "publishYear": ex["publish_year"] or "",
+            "volumeNo": ex["volume_no"] or "",
+            "pageNo": ex["page_no"] or "",
+            "sidoCd": ex["sido_cd"] or "",
+            "sigunguCd": ex["sigungu_cd"] or "",
+            "sidoNm": ex["sido_nm"] or "",
+            "sigunguNm": ex["sigungu_nm"] or "",
+            "useYn": ex["use_yn"] or "Y",
+        })
+
+    data = {
+        "literId": str(row["liter_id"] or ""),
+        "dltTp": row["dlt_tp"] or "",
+        "stdTp": row["std_tp"] or "",
+        "addMean": row["add_mean"] or "",
+        "wordClass": row["word_class"] or "",
+        "mean": row["mean"] or "",
+        "regionNm": row["region_nm"] or "",
+        "relDlt": row["rel_dlt"] or "",
+        "wordDesc": row["word_desc"] or "",
+        "useYn": (row["use_yn"] or "N").upper() if (row["use_yn"] or "").strip() else "N",
+        "exhBookNm": row["exh_book_nm"] or "",
+        "exhAuthor": row["exh_author"] or "",
+        "exhPublishCom": row["exh_publish_com"] or "",
+        "exhPublishYear": row["exh_publish_year"] or "",
+        "examples": examples,
+    }
+    return {"ok": True, "data": data}
+
+
+def api_literature_save(body: dict) -> dict:
+    """문학 지역어 등록/수정 + 용례 교체 저장."""
+    liter_id = str(body.get("literId") or body.get("liter_id") or "").strip()
+    dlt_tp = str(body.get("dltTp") or body.get("dlt_tp") or "").strip()
+    std_tp = str(body.get("stdTp") or body.get("std_tp") or "").strip()
+    if not dlt_tp:
+        return {"ok": False, "message": "표제어를 입력해주세요."}
+    if not std_tp:
+        return {"ok": False, "message": "대응표준어를 입력해주세요."}
+
+    add_mean = str(body.get("addMean") or body.get("add_mean") or "").strip()
+    word_class = str(body.get("wordClass") or body.get("word_class") or "").strip()
+    mean = str(body.get("mean") or "").strip()
+    region_nm = body.get("regionNm") or body.get("region_nm") or ""
+    if isinstance(region_nm, list):
+        region_nm = ", ".join([str(x).strip() for x in region_nm if str(x).strip()])
+    else:
+        region_nm = str(region_nm or "").strip()
+    rel_dlt = str(body.get("relDlt") or body.get("rel_dlt") or "").strip()
+    word_desc = str(body.get("wordDesc") or body.get("word_desc") or "").strip()
+    use_yn = str(body.get("useYn") or body.get("use_yn") or "Y").strip().upper() or "Y"
+    if use_yn not in ("Y", "N"):
+        use_yn = "Y"
+    exh_book = str(body.get("exhBookNm") or body.get("exh_book_nm") or "").strip()
+    exh_author = str(body.get("exhAuthor") or body.get("exh_author") or "").strip()
+    exh_com = str(body.get("exhPublishCom") or body.get("exh_publish_com") or "").strip()
+    exh_year = str(body.get("exhPublishYear") or body.get("exh_publish_year") or "").strip()
+    examples = body.get("examples") or []
+    if not isinstance(examples, list):
+        examples = []
+
+    now_ms = str(int(time.time() * 1000))
+
+    with db_connect() as con:
+        if liter_id:
+            exists = con.execute(
+                "SELECT liter_id FROM tb_literature WHERE liter_id = ?", (liter_id,)
+            ).fetchone()
+            if not exists:
+                return {"ok": False, "message": f"자료를 찾을 수 없습니다. (id={liter_id})"}
+            con.execute(
+                """
+                UPDATE tb_literature SET
+                  dlt_tp=?, std_tp=?, add_mean=?, word_class=?, mean=?,
+                  region_nm=?, rel_dlt=?, word_desc=?, use_yn=?,
+                  exh_book_nm=?, exh_author=?, exh_publish_com=?, exh_publish_year=?,
+                  upt_id=?, upt_dt=?
+                WHERE liter_id=?
+                """,
+                (
+                    dlt_tp, std_tp, add_mean, word_class, mean,
+                    region_nm, rel_dlt, word_desc, use_yn,
+                    exh_book, exh_author, exh_com, exh_year,
+                    "0", now_ms, liter_id,
+                ),
+            )
+            con.execute("DELETE FROM tb_literature_example WHERE liter_id = ?", (liter_id,))
+        else:
+            row = con.execute(
+                "SELECT COALESCE(MAX(CAST(liter_id AS INTEGER)), 0) + 1 AS n FROM tb_literature"
+            ).fetchone()
+            liter_id = str(row["n"])
+            con.execute(
+                """
+                INSERT INTO tb_literature (
+                  liter_id, dlt_tp, std_tp, add_mean, word_class, mean,
+                  region_nm, rel_dlt, word_desc, use_yn, cause,
+                  reg_id, reg_dt, upt_id, upt_dt,
+                  exh_book_nm, exh_author, exh_publish_com, exh_publish_year
+                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                """,
+                (
+                    liter_id, dlt_tp, std_tp, add_mean, word_class, mean,
+                    region_nm, rel_dlt, word_desc, use_yn, "",
+                    "0", now_ms, "0", now_ms,
+                    exh_book, exh_author, exh_com, exh_year,
+                ),
+            )
+
+        # next exam id
+        max_ex = con.execute(
+            "SELECT COALESCE(MAX(CAST(liter_exam_id AS INTEGER)), 0) AS n FROM tb_literature_example"
+        ).fetchone()["n"]
+        next_ex = int(max_ex or 0)
+
+        for ex in examples:
+            if not isinstance(ex, dict):
+                continue
+            word_ex = str(ex.get("wordExample") or ex.get("word_example") or "").strip()
+            if not word_ex:
+                continue
+            next_ex += 1
+            con.execute(
+                """
+                INSERT INTO tb_literature_example (
+                  liter_exam_id, liter_id, word_example, std_example,
+                  writer, book_name, publish_company, publish_year,
+                  sido_cd, sigungu_cd, sido_nm, sigungu_nm,
+                  use_yn, reg_id, reg_dt, upt_id, upt_dt, page_no, volume_no
+                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                """,
+                (
+                    str(next_ex), liter_id, word_ex,
+                    str(ex.get("stdExample") or ex.get("std_example") or "").strip(),
+                    str(ex.get("writer") or "").strip(),
+                    str(ex.get("bookName") or ex.get("book_name") or "").strip(),
+                    str(ex.get("publishCompany") or ex.get("publish_company") or "").strip(),
+                    str(ex.get("publishYear") or ex.get("publish_year") or "").strip(),
+                    str(ex.get("sidoCd") or ex.get("sido_cd") or "").strip(),
+                    str(ex.get("sigunguCd") or ex.get("sigungu_cd") or "").strip(),
+                    str(ex.get("sidoNm") or ex.get("sido_nm") or "").strip(),
+                    str(ex.get("sigunguNm") or ex.get("sigungu_nm") or "").strip(),
+                    "Y", "0", now_ms, "0", now_ms,
+                    str(ex.get("pageNo") or ex.get("page_no") or "").strip(),
+                    str(ex.get("volumeNo") or ex.get("volume_no") or "").strip(),
+                ),
+            )
+        con.commit()
+
+    return {"ok": True, "message": "저장되었습니다.", "literId": liter_id}
+
+
+def api_literature_delete(body: dict) -> dict:
+    """문학 지역어 단건/다건 삭제 (용례 포함)."""
+    ids = body.get("ids") or body.get("literIds") or []
+    if not ids:
+        one = body.get("literId") or body.get("id") or body.get("liter_id")
+        if one:
+            ids = [one]
+    ids = [str(x).strip() for x in ids if str(x).strip()]
+    if not ids:
+        return {"ok": False, "message": "삭제할 항목을 선택해주세요."}
+
+    with db_connect() as con:
+        placeholders = ",".join("?" * len(ids))
+        con.execute(
+            f"DELETE FROM tb_literature_example WHERE liter_id IN ({placeholders})",
+            ids,
+        )
+        cur = con.execute(
+            f"DELETE FROM tb_literature WHERE liter_id IN ({placeholders})",
+            ids,
+        )
+        con.commit()
+        deleted = cur.rowcount if cur.rowcount is not None else len(ids)
+
+    return {"ok": True, "message": f"{deleted}건 삭제되었습니다.", "deleted": deleted}
+
+
 class Handler(http.server.SimpleHTTPRequestHandler):
     def translate_path(self, path):
         # strip query for file mapping
@@ -3623,6 +4030,32 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             body = json.loads(raw.decode("utf-8") or "{}")
         except Exception:
             body = {}
+
+        if path in (
+            "/mariadb/neibis-api/archive/literature/save",
+            "/mariadb/neibis-api/v1/archive/literature/save",
+            "/mariadb/neibis-api/literature/save",
+        ):
+            try:
+                self._send_json(api_literature_save(body))
+            except FileNotFoundError as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/archive/literature/delete",
+            "/mariadb/neibis-api/v1/archive/literature/delete",
+            "/mariadb/neibis-api/literature/delete",
+        ):
+            try:
+                self._send_json(api_literature_delete(body))
+            except FileNotFoundError as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
 
         if path in (
             "/mariadb/neibis-api/system/user/unlock",
@@ -3815,6 +4248,32 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 self._send_json(api_vocab_list(qs))
+            except FileNotFoundError as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/archive/literature/list",
+            "/mariadb/neibis-api/v1/archive/literature/list",
+            "/mariadb/neibis-api/literature/list",
+        ):
+            try:
+                self._send_json(api_literature_list(qs))
+            except FileNotFoundError as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/archive/literature/detail",
+            "/mariadb/neibis-api/v1/archive/literature/detail",
+            "/mariadb/neibis-api/literature/detail",
+        ):
+            try:
+                self._send_json(api_literature_detail(qs))
             except FileNotFoundError as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             except Exception as e:
@@ -4105,6 +4564,26 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(data)
             return
 
+        # 1차: /Users/aaa/inseq/korean 루트 디렉토리 정적 파일 우선 확인
+        if path != "/" and not path.startswith("/mariadb/"):
+            rel_path = path.lstrip("/")
+            alt_file = (USER_MAP_ROOT / rel_path).resolve()
+            try:
+                alt_file.relative_to(USER_MAP_ROOT.resolve())
+                if alt_file.is_file():
+                    ctype = self.guess_type(str(alt_file))
+                    data = alt_file.read_bytes()
+                    self.send_response(200)
+                    self.send_header("Content-Type", ctype)
+                    self.send_header("Content-Length", str(len(data)))
+                    self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+                    self.end_headers()
+                    self.wfile.write(data)
+                    return
+            except Exception:
+                pass
+
+        # 2차: neibis-cms 정적 파일 및 default handler
         return super().do_GET()
 
     def end_headers(self):

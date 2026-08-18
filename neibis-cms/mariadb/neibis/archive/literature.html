@@ -746,7 +746,7 @@
 							<div class="btn-group-center">
 								<button type="button" class="btn btn-md btn-outline-gray" onclick="btnInit()"><i class="ico ico-undo-darkgray-md"></i><span class="text">초기화</span></button>
 								<button type="button" class="btn btn-md btn-primary" onclick="searchList()"><i class="ico ico-search-white-md"></i><span class="text">검색</span></button>
-								<button type="button" class="btn btn-md" style="background:#217346;border-color:#217346;color:#fff" onclick="stub('엑셀 다운')"><i class="ico ico-fileexcel-white-md"></i><span class="text">엑셀 다운</span></button>
+								<button type="button" class="btn btn-md" style="background:#217346;border-color:#217346;color:#fff" onclick="stubExcel()"><i class="ico ico-fileexcel-white-md"></i><span class="text">엑셀 다운</span></button>
 							</div>
 						</div>
 
@@ -754,9 +754,9 @@
 						<div class="card">
 							<div class="list-control">
 								<div class="left">
-									<p class="total">총 <strong class="text-primary">2,000</strong>건(1/200 page)</p>
+									<p class="total">총 <strong class="text-primary" id="lit-total">0</strong>건(<span id="lit-pageinfo">1/1</span> page)</p>
 									<button type="button" class="btn btn-xs btn-outline-gray" data-deselect=".table-list">선택해제</button>
-									<button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('선택삭제')"><i class="ico ico-close-white-sm mr-0"></i> 선택삭제</button>
+									<button type="button" class="btn btn-xs btn-gray btn-delete" onclick="deleteSelected()"><i class="ico ico-close-white-sm mr-0"></i> 선택삭제</button>
 								</div>
 								<div class="right">
 									<select class="form-control-sm" style="min-width:100px" title="목록 수" id="pageItm">
@@ -803,165 +803,13 @@
 											</tr>
 										</thead>
 										<tbody id="lit-list-body">
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="1" /><span class="label sr-only">선택</span></label></td>
-											<td>1</td>
-											<td class="text-left"><a href="literature-updt.do" class="link">가새</a></td>
-											<td>명사</td>
-											<td class="text-left">가위</td>
-											<td class="text-left" title="옷감, 종이, 머리털 따위를 자르는 기구. 날이 있는 두 개의 쇠를 교차시켜 가운데 사북을 박고, 지레의 원리를 이용하여 다리를 벌렸다 오므렸다 하여 자른다.">옷감, 종이, 머리털 따위를 자르는 기구. 날이 있는 두 개의 쇠를 교차시켜 가운데 사…</td>
-											<td>강원도</td>
-											<td>김유정</td>
-											<td class="text-left">만무방</td>
-											<td>Y</td>
-											<td>N</td>
-											<td>
-												<div class="btn-group-inline"><a href="literature-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a><button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button></div></td>
-										</tr>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="2" /><span class="label sr-only">선택</span></label></td>
-											<td>2</td>
-											<td class="text-left"><a href="literature-updt.do" class="link">가생이</a></td>
-											<td>명사</td>
-											<td class="text-left">가(邊)</td>
-											<td class="text-left" title="바깥 둘레 부분.">바깥 둘레 부분.</td>
-											<td>강원도</td>
-											<td>김유정</td>
-											<td class="text-left">노다지</td>
-											<td>Y</td>
-											<td>Y</td>
-											<td>
-												<div class="btn-group-inline"><a href="literature-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a><button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button></div></td>
-										</tr>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="5" /><span class="label sr-only">선택</span></label></td>
-											<td>3</td>
-											<td class="text-left"><a href="literature-updt.do" class="link">강낭이</a></td>
-											<td>명사</td>
-											<td class="text-left">옥수수</td>
-											<td class="text-left" title="줄기와 잎 사이에 수염 같은 암꽃이 피는 농작물. 또는 긴 이삭에 알갱이가 촘촘히 붙은 열매.">줄기와 잎 사이에 수염 같은 암꽃이 피는 농작물. 또는 긴 이삭에 알갱이가 촘촘히 붙은…</td>
-											<td>강원도</td>
-											<td>김유정</td>
-											<td class="text-left">만무방</td>
-											<td>N</td>
-											<td>N</td>
-											<td>
-												<div class="btn-group-inline"><a href="literature-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a><button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button></div></td>
-										</tr>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="7" /><span class="label sr-only">선택</span></label></td>
-											<td>4</td>
-											<td class="text-left"><a href="literature-updt.do" class="link">건덕지</a></td>
-											<td>명사</td>
-											<td class="text-left">건더기</td>
-											<td class="text-left" title="①국이나 찌개 따위의 국물이 있는 음식 속에 들어 있는 국물 이외의 것.">①국이나 찌개 따위의 국물이 있는 음식 속에 들어 있는 국물 이외의 것.</td>
-											<td>강원도</td>
-											<td>김유정</td>
-											<td class="text-left">애기</td>
-											<td>Y</td>
-											<td>N</td>
-											<td>
-												<div class="btn-group-inline"><a href="literature-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a><button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button></div></td>
-										</tr>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="146" /><span class="label sr-only">선택</span></label></td>
-											<td>5</td>
-											<td class="text-left"><a href="literature-updt.do" class="link">가시게</a></td>
-											<td>명사</td>
-											<td class="text-left">가위</td>
-											<td class="text-left" title="옷감, 종이, 머리털 따위를 자르는 기구.">옷감, 종이, 머리털 따위를 자르는 기구.</td>
-											<td>경상도</td>
-											<td>이상규 편</td>
-											<td class="text-left">엿장사</td>
-											<td>Y</td>
-											<td>N</td>
-											<td>
-												<div class="btn-group-inline"><a href="literature-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a><button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button></div></td>
-										</tr>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="147" /><span class="label sr-only">선택</span></label></td>
-											<td>6</td>
-											<td class="text-left"><a href="literature-updt.do" class="link">가찹다</a></td>
-											<td>형용사</td>
-											<td class="text-left">가깝다</td>
-											<td class="text-left" title="어느 한 곳에서 다른 곳까지의 거리가 짧다.">어느 한 곳에서 다른 곳까지의 거리가 짧다.</td>
-											<td>경상도</td>
-											<td>성춘식</td>
-											<td class="text-left">이부자리 피이 놓고</td>
-											<td>Y</td>
-											<td>Y</td>
-											<td>
-												<div class="btn-group-inline"><a href="literature-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a><button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button></div></td>
-										</tr>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="148" /><span class="label sr-only">선택</span></label></td>
-											<td>7</td>
-											<td class="text-left"><a href="literature-updt.do" class="link">간땡이</a></td>
-											<td>명사</td>
-											<td class="text-left">간</td>
-											<td class="text-left" title="간(肝)을 속되게 이르는 말.">간(肝)을 속되게 이르는 말.</td>
-											<td>경상도</td>
-											<td>김여정</td>
-											<td class="text-left">간단상(肝斷想)1</td>
-											<td>Y</td>
-											<td>N</td>
-											<td>
-												<div class="btn-group-inline"><a href="literature-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a><button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button></div></td>
-										</tr>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="149" /><span class="label sr-only">선택</span></label></td>
-											<td>8</td>
-											<td class="text-left"><a href="literature-updt.do" class="link">갓들</a></td>
-											<td>부사</td>
-											<td class="text-left">가득</td>
-											<td class="text-left" title="① 분량이나 수효 따위가 어떤 범위나 한도에 꽉 찬 모양.">① 분량이나 수효 따위가 어떤 범위나 한도에 꽉 찬 모양.</td>
-											<td>경상도</td>
-											<td>이기철 편</td>
-											<td class="text-left">달아</td>
-											<td>N</td>
-											<td>N</td>
-											<td>
-												<div class="btn-group-inline"><a href="literature-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a><button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button></div></td>
-										</tr>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="150" /><span class="label sr-only">선택</span></label></td>
-											<td>9</td>
-											<td class="text-left"><a href="literature-updt.do" class="link">갓부다</a></td>
-											<td>형용사</td>
-											<td class="text-left">가분하다, 가뿐하다</td>
-											<td class="text-left" title="몸이나 마음이 적당히 가볍다.">몸이나 마음이 적당히 가볍다.</td>
-											<td>경상도</td>
-											<td>이기철 편</td>
-											<td class="text-left">빼앗긴 들에도 봄은 오는가</td>
-											<td>Y</td>
-											<td>N</td>
-											<td>
-												<div class="btn-group-inline"><a href="literature-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a><button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button></div></td>
-										</tr>
-										<tr>
-											<td><label class="check-item"><input type="checkbox" name="chk" value="120" /><span class="label sr-only">선택</span></label></td>
-											<td>10</td>
-											<td class="text-left"><a href="literature-updt.do" class="link">검질</a></td>
-											<td>명사</td>
-											<td class="text-left">잡초</td>
-											<td class="text-left" title="논밭에 나서 농작물의 생육을 방해하는 풀.">논밭에 나서 농작물의 생육을 방해하는 풀.</td>
-											<td>제주도</td>
-											<td>현기영</td>
-											<td class="text-left">순이 삼촌</td>
-											<td>Y</td>
-											<td>N</td>
-											<td>
-												<div class="btn-group-inline"><a href="literature-updt.do" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a><button type="button" class="btn btn-xs btn-gray btn-delete" onclick="stub('삭제')"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button></div></td>
-										</tr>
+										<tr><td colspan="12" class="text-center" style="padding:24px;color:#888">목록을 불러오는 중…</td></tr>
 										</tbody>
 									</table>
 								</div>
 							</div>
 
-							<div class="pagination">
-									<strong>1</strong> <a href="javascript:void(0);">2</a> <a href="javascript:void(0);">3</a> <a href="javascript:void(0);">4</a> <a href="javascript:void(0);">5</a>
-									<a href="javascript:void(0);">…</a> <a href="javascript:void(0);">200</a>
-								</div>
+							<div class="pagination" id="lit-pagination"></div>
 								<div class="btn-group-between">
 									<div class="right">
 										<a href="literature-save.do" class="btn btn-lg btn-primary"><i class="ico ico-plus-white-md"></i><span>등록</span></a>
@@ -971,41 +819,187 @@
 					</form>
 					<!-- // 본문 영역 -->
 <script>
-// 찾을 대상 +/-
-function addTarget(){
-	if($('.target-line[data-idx="2"]').css('display')==='none'){ $('.target-line[data-idx="2"]').css('display','flex'); }
-	else { $('.target-line[data-idx="3"]').css('display','flex'); }
-}
-function delTarget(){
-	if($('.target-line[data-idx="3"]').css('display')!=='none'){ $('.target-line[data-idx="3"]').hide(); }
-	else { $('.target-line[data-idx="2"]').hide(); }
-}
-function btnInit(){
-	$('#search-form')[0].reset();
-	$('.target-line[data-idx="2"],.target-line[data-idx="3"]').hide();
-}
-// 공개여부 / 메인고정 조건으로 목록 필터 (전체=조건없음)
-function searchList(){
-	var pub  = $('input[name="useYn"]:checked').val() || '';
-	var main = $('input[name="mainFixYn"]:checked').val() || '';
-	var n = 0;
-	$('#lit-list-body > tr').each(function(){
-		var $td = $(this).children('td');
-		var rp = $.trim($td.eq(9).text());    // 공개여부
-		var rm = $.trim($td.eq(10).text());   // 메인고정
-		var show = (pub==='' || rp===pub) && (main==='' || rm===main);
-		$(this).toggle(show);
-		if(show){ n++; $td.eq(1).text(n); }
-	});
-	$('.list-control .total').html('총 <strong class="text-primary">'+n.toLocaleString()+'</strong>건(1/1 page)');
-}
-function stub(nm){
-	if(window.Message){ Message.alert({icon:'info', message:'['+nm+'] 정적 프로토타입 버튼입니다.'}); }
-	else { alert(nm); }
-}
-$(function(){
-	$('#chkAll').on('change', function(){ $('input[name=chk]').prop('checked', this.checked); });
-});
+(function(){
+  var API = '/mariadb/neibis-api/archive/literature';
+  var state = { page: 1, size: 10 };
+
+  function esc(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function toast(msg, icon){
+    if(window.Message){ Message.alert({icon:icon||'info', message:msg}); }
+    else { alert(msg); }
+  }
+  function ask(msg, cb){
+    if(window.Message && Message.confirm){ Message.confirm({message:msg}, cb); }
+    else if(window.confirm(msg)){ cb(); }
+  }
+  function trunc(s, n){
+    s = String(s==null?'':s);
+    return s.length > n ? s.slice(0, n) + '…' : s;
+  }
+
+  // 찾을 대상 +/-
+  window.addTarget = function(){
+    if($('.target-line[data-idx="2"]').css('display')==='none'){ $('.target-line[data-idx="2"]').css('display','flex'); }
+    else { $('.target-line[data-idx="3"]').css('display','flex'); }
+  };
+  window.delTarget = function(){
+    if($('.target-line[data-idx="3"]').css('display')!=='none'){ $('.target-line[data-idx="3"]').hide(); }
+    else { $('.target-line[data-idx="2"]').hide(); }
+  };
+  window.btnInit = function(){
+    $('#search-form')[0].reset();
+    $('.target-line[data-idx="2"],.target-line[data-idx="3"]').hide();
+    state.page = 1;
+    load();
+  };
+  window.searchList = function(){ state.page = 1; load(); };
+  window.stubExcel = function(){ toast('[엑셀 다운] 준비 중입니다.'); };
+  window.stub = function(nm){ toast('['+nm+'] 기능입니다.'); };
+
+  function collectTargets(){
+    var targets = [];
+    $('.target-line').each(function(){
+      if($(this).css('display')==='none') return;
+      var $sels = $(this).find('select');
+      var $inp = $(this).find('input[type="text"]');
+      var term = ($inp.val()||'').trim();
+      if(!term) return;
+      var field, mode, conn = 'in';
+      if($sels.length === 2){
+        field = $sels.eq(0).val();
+        mode = $sels.eq(1).val();
+      } else if($sels.length >= 3){
+        conn = $sels.eq(0).val();
+        field = $sels.eq(1).val();
+        mode = $sels.eq(2).val();
+      } else {
+        field = 'dlt'; mode = 'contains';
+      }
+      targets.push({ field: field, mode: mode, term: term, conn: conn });
+    });
+    return targets;
+  }
+
+  function currentParams(){
+    state.size = parseInt($('#pageItm').val(), 10) || 10;
+    return {
+      page: state.page,
+      size: state.size,
+      region: $('input[name="region"]:checked').val() || '',
+      wordClass: $('#wordClass').val() || '',
+      useYn: $('input[name="useYn"]:checked').val() || '',
+      mainFixYn: $('input[name="mainFixYn"]:checked').val() || '',
+      targets: JSON.stringify(collectTargets())
+    };
+  }
+
+  function renderPagination(page, totalPages){
+    var $p = $('#lit-pagination').empty();
+    if(totalPages <= 1){ $p.append('<strong>1</strong>'); return; }
+    var start = Math.max(1, page - 4);
+    var end = Math.min(totalPages, start + 9);
+    start = Math.max(1, Math.min(start, end - 9));
+    if(page > 1) $p.append('<a href="#" data-pg="'+(page-1)+'">이전</a> ');
+    for(var i = start; i <= end; i++){
+      if(i === page) $p.append('<strong>'+i+'</strong> ');
+      else $p.append('<a href="#" data-pg="'+i+'">'+i+'</a> ');
+    }
+    if(page < totalPages) $p.append('<a href="#" data-pg="'+(page+1)+'">다음</a>');
+  }
+
+  function render(res){
+    var rows = res.rows || [];
+    var total = res.total || 0;
+    var page = res.page || 1;
+    var size = res.size || 10;
+    var totalPages = res.totalPages || 1;
+    $('#lit-total').text(total.toLocaleString());
+    $('#lit-pageinfo').text(page + '/' + totalPages);
+    var $b = $('#lit-list-body').empty();
+    if(!rows.length){
+      $b.append('<tr><td colspan="12" class="text-center" style="padding:24px;color:#888">조회된 자료가 없습니다.</td></tr>');
+      renderPagination(1, 1);
+      return;
+    }
+    rows.forEach(function(r, i){
+      var seq = (page - 1) * size + i + 1;
+      var id = r.literId;
+      var href = 'literature-updt.do?id=' + encodeURIComponent(id);
+      var mean = r.mean || '';
+      var tr =
+        '<tr data-id="'+esc(id)+'">' +
+        '<td><label class="check-item"><input type="checkbox" name="chk" value="'+esc(id)+'" /><span class="label sr-only">선택</span></label></td>' +
+        '<td>'+seq+'</td>' +
+        '<td class="text-left"><a href="'+href+'" class="link">'+esc(r.dltTp)+'</a></td>' +
+        '<td>'+esc(r.wordClass)+'</td>' +
+        '<td class="text-left">'+esc(r.stdTp)+'</td>' +
+        '<td class="text-left" title="'+esc(mean)+'">'+esc(trunc(mean, 40))+'</td>' +
+        '<td>'+esc(r.regionNm)+'</td>' +
+        '<td>'+esc(r.writer)+'</td>' +
+        '<td class="text-left">'+esc(r.bookName)+'</td>' +
+        '<td>'+esc(r.useYn)+'</td>' +
+        '<td>'+esc(r.mainFixYn||'N')+'</td>' +
+        '<td><div class="btn-group-inline">' +
+          '<a href="'+href+'" class="btn btn-xs btn-outline-gray btn-modify"><i class="ico ico-pen-darkgary-sm"></i><span>수정</span></a>' +
+          '<button type="button" class="btn btn-xs btn-gray btn-delete" data-del="'+esc(id)+'"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button>' +
+        '</div></td></tr>';
+      $b.append(tr);
+    });
+    renderPagination(page, totalPages);
+    $('#chkAll').prop('checked', false);
+  }
+
+  function load(){
+    $('#lit-list-body').html('<tr><td colspan="12" class="text-center" style="padding:24px;color:#888">목록을 불러오는 중…</td></tr>');
+    $.getJSON(API + '/list', currentParams())
+      .done(function(res){
+        if(res && res.ok){ render(res); }
+        else { toast((res && res.message) || '목록 조회 실패', 'error'); }
+      })
+      .fail(function(){ toast('목록을 불러오지 못했습니다. (서버·DB 확인)', 'error'); });
+  }
+
+  function deleteIds(ids){
+    if(!ids.length){ toast('삭제할 항목을 선택해주세요.', 'warning'); return; }
+    ask(ids.length + '건을 삭제하시겠어요? (복구 불가)', function(){
+      $.ajax({
+        url: API + '/delete',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ ids: ids })
+      }).done(function(res){
+        if(res && res.ok){ toast(res.message || '삭제되었습니다.', 'success'); load(); }
+        else { toast((res && res.message) || '삭제 실패', 'error'); }
+      }).fail(function(){ toast('삭제 요청 실패', 'error'); });
+    });
+  }
+
+  window.deleteSelected = function(){
+    var ids = [];
+    $('input[name=chk]:checked').each(function(){ ids.push(String($(this).val())); });
+    deleteIds(ids);
+  };
+
+  $(function(){
+    $('#chkAll').on('change', function(){
+      $('input[name=chk]').prop('checked', this.checked);
+    });
+    $('#lit-pagination').on('click', 'a[data-pg]', function(e){
+      e.preventDefault();
+      state.page = parseInt($(this).data('pg'), 10) || 1;
+      load();
+    });
+    $('#lit-list-body').on('click', 'button[data-del]', function(e){
+      e.preventDefault();
+      deleteIds([String($(this).data('del'))]);
+    });
+    load();
+  });
+})();
 </script>
 					</div>
 

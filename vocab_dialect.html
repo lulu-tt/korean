@@ -10,6 +10,9 @@
 <!-- OpenLayers -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.9.0/ol.css">
 <script src="https://cdn.jsdelivr.net/npm/ol@v10.9.0/dist/ol.js"></script>
+<!-- 공통 한반도 지도 (시·도 경계 벡터) — korea-map.js + skorea-provinces.js -->
+<script src="./skorea-provinces.js"></script>
+<script src="./korea-map.js"></script>
 <link rel="stylesheet" href="./styles.css">
 <script src="./gnb.js" defer></script>
 <script src="./share.js" defer></script>
@@ -436,6 +439,7 @@
   }
   .details-map-btn:hover { background: var(--blue-light); border-color: var(--blue-hover); color: var(--blue-hover); transform: translateY(-1px); }
   .details-map-btn i { font-size: 15px; }
+
 
   /* 지도 보기 모달 */
   .map-modal { max-width: 1200px; width: calc(100vw - 80px); }
@@ -1474,7 +1478,7 @@
 	      <div class="simple-row" style="display: flex; gap: 12px; align-items: flex-start;">
 	        <div class="simple-conds" id="simpleConds" aria-label="간단히 검색 조건" style="flex: 1; min-width: 0;">
 	          <div class="simple-cond" style="display: flex; flex-direction: column; align-items: stretch; gap: 6px;">
-	            <input type="text" class="search-input" value="감자" placeholder="예: 감자, 옥수수, 부추" style="height: 39px; box-sizing: border-box;" />
+	            <input type="text" id="searchWord0" name="searchWord0" class="search-input" value="감자" placeholder="예: 감자, 옥수수, 부추" style="height: 39px; box-sizing: border-box;" />
 	            <!-- 추천 검색어 정렬 보정 -->
 	            <div class="search-recommend-chips" style="display: flex; gap: 8px; align-items: center; margin-top: 6px; padding-left: 8px; flex-wrap: wrap;">
 	              <span style="font-size: 11.5px; font-weight: 700; color: #64748b;">추천 검색어:</span>
@@ -1487,7 +1491,7 @@
 	          </div>
 	        </div>
 	        <div class="simple-actions" style="display: flex; gap: 8px;">
-	          <button class="btn-outline" onclick="toggleOldKor()" style="height: 39px; box-sizing: border-box;">옛 한글</button>
+	          <button type="button" class="btn-outline" onclick="openOldHangul('searchWord0')" style="height: 39px; box-sizing: border-box;">옛 한글</button>
 	          <button class="btn-primary" onclick="doSearch()" style="height: 39px; box-sizing: border-box;"><i class="ti ti-search" aria-hidden="true"></i> 검색</button>
 	        </div>
 	      </div>
@@ -1642,8 +1646,8 @@
               <option value="startsWith">시작 문자</option>
               <option value="endsWith">끝 문자</option>
             </select>
-            <input type="text" class="search-target-input-field" placeholder="검색어를 입력하세요." style="flex:1;min-width:100px;" />
-            <button type="button" class="btn-outline" onclick="toggleOldKor()">옛 한글</button>
+            <input type="text" id="searchWordDetail0" name="searchWordDetail0" class="search-target-input-field" placeholder="검색어를 입력하세요." style="flex:1;min-width:100px;" />
+            <button type="button" class="btn-outline" onclick="openOldHangul('searchWordDetail0')">옛 한글</button>
           </div>
           <div id="additionalSearchTargets" style="display: flex; flex-direction: column; gap: 8px; width: 100%;"></div>
         </div>
@@ -1654,22 +1658,7 @@
       </div>
     </div>
 
-    <div id="oldkorPanel" style="display:none;margin-top:10px;">
-      <div class="oldkor-panel">
-        <div class="ok-title">옛 한글 입력기 — 입력 구간 선택</div>
-        <div class="ok-chars">
-          <span class="ok-char">각~꼬</span><span class="ok-char">낙~넝</span><span class="ok-char">닥~뒤</span><span class="ok-char">랄~뢰</span><span class="ok-char">맑~링</span><span class="ok-char">발~빌</span><span class="ok-char">빠~삣</span><span class="ok-char">빠~뼁</span><span class="ok-char">삭~싯</span><span class="ok-char">싸~씽</span><span class="ok-char">사~싯</span><span class="ok-char">앗~을</span><span class="ok-char">ᄫ~ᄯ</span><span class="ok-char">아~왁</span>
-        </div>
-        <div class="ok-row">
-          <input type="text" class="ok-input" placeholder="선택한 글자가 여기에 입력됩니다." />
-          <button class="btn-primary" onclick="closeOldKor()">입력</button>
-          <button class="btn-outline" onclick="closeOldKor()">닫기</button>
-        </div>
-      </div>
-    </div>
   </div>
-
-
 
   <!-- 검색 결과 건수 안내 문구 (검색 창 밑 중앙 배치) -->
   <div class="search-results-intro">
@@ -2209,19 +2198,10 @@
           <!-- 지도 -->
           <div id="vocabMapModal" class="vocab-map" role="region" aria-label="지역어 분포 지도"></div>
 
-          <!-- 범례 -->
-          <div class="map-legend">
-            <h4 class="map-legend-title">지도 범례</h4>
-            <p class="map-legend-text">지역별 분포를 지도에서 확인할 수 있습니다.</p>
-          </div>
-
           <!-- 시도 상세 정보 패널 -->
           <div id="regionDetailPanelModal" class="region-detail-panel">
             <div class="panel-header">
               <h3 id="regionPanelTitleModal" class="panel-title"></h3>
-              <button type="button" class="close-panel-btn" onclick="closeRegionPanel(modalMapCtx)" aria-label="패널 닫기">
-                <i class="ti ti-x"></i>
-              </button>
             </div>
             <div class="panel-content">
               <div id="regionDialectsContainerModal"></div>
@@ -2231,6 +2211,7 @@
       </div>
     </div>
   </div>
+
 
   <!-- 공통 Footer 영역 (footer.js에 의해 동적으로 로드 및 렌더링됩니다) -->
   <div id="footer-common"></div>
@@ -2330,11 +2311,46 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 }, { once: true });
 
-function toggleOldKor() {
-  const p = document.getElementById('oldkorPanel');
-  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+/** 국립국어원 지역어 사이트와 동일한 옛한글 입력기 팝업 */
+var _oldHangulWin = null;
+function openOldHangul(targetId) {
+  var tid = targetId || 'searchWord0';
+  if (!targetId) {
+    var ae = document.activeElement;
+    if (ae && ae.classList && ae.classList.contains('search-target-input-field') && ae.id) {
+      tid = ae.id;
+    } else {
+      var dp = document.getElementById('detailPanel');
+      if (dp && dp.style.display !== 'none') {
+        var di = document.querySelector('#detailPanel .search-target-input-field');
+        if (di && di.id) tid = di.id;
+      }
+    }
+  }
+  var url = new URL('oldhangul.html', window.location.href);
+  url.searchParams.set('target', tid);
+  var w = 720, h = 760;
+  var left = Math.max(0, Math.floor((screen.width - w) / 2));
+  var top = Math.max(0, Math.floor((screen.height - h) / 2));
+  var features = 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',scrollbars=yes,resizable=yes';
+  try {
+    if (_oldHangulWin && !_oldHangulWin.closed) {
+      _oldHangulWin.location.href = url.toString();
+      _oldHangulWin.focus();
+      return;
+    }
+  } catch (e) {
+    _oldHangulWin = null;
+  }
+  _oldHangulWin = window.open(url.toString(), 'oldHangulPopup', features);
+  if (!_oldHangulWin) {
+    alert('팝업이 차단되었습니다. 브라우저에서 이 사이트의 팝업을 허용해 주세요.');
+  } else {
+    try { _oldHangulWin.focus(); } catch (e) {}
+  }
 }
-function closeOldKor() { document.getElementById('oldkorPanel').style.display = 'none'; }
+function toggleOldKor() { openOldHangul('searchWord0'); }
+function closeOldKor() { if (_oldHangulWin && !_oldHangulWin.closed) _oldHangulWin.close(); }
 function doSearch() {
   document.querySelector('.result-count em').textContent = '89건';
   updateSearchBadges();
@@ -2502,57 +2518,67 @@ function updateMapLegend(ctx, regionData, colorMap, topStandards) {
   legendContent.innerHTML = html;
 }
 
+// 시·도의 표준어 분포로 대표 색을 결정 (원 마커 시절과 동일 규칙)
+function regionFillColor(standards, colorMap, topStandards) {
+  const regionTopStandards = topStandards.filter(std => std in standards);
+  const hasOther = Object.keys(standards).some(std => !topStandards.includes(std));
+  if (regionTopStandards.length === 1 && !hasOther) return colorMap[regionTopStandards[0]];
+  if (regionTopStandards.length > 1 || (regionTopStandards.length === 1 && hasOther)) return '#9ca3af'; // 혼재색
+  if (hasOther) return colorMap['기타'] || '#d1d5db';
+  return null;
+}
+
 function drawRegionMarkers(ctx, regionData, colorMap, topStandards) {
-  // 기존 마커 레이어 제거
+  // 기존 레이어 제거
   if (ctx.markerLayer && ctx.map) {
     ctx.map.removeLayer(ctx.markerLayer);
+    ctx.markerLayer = null;
   }
+  if (!ctx.map || !window.KOREA_PROVINCES) return;
 
-  // 새 마커 레이어 생성
-  const features = [];
+  const hexRgba = (hex, a) => (window.KoreaMap && KoreaMap.hexToRgba) ? KoreaMap.hexToRgba(hex, a) : hex;
 
-  Object.entries(regionData).forEach(([region, standards]) => {
-    const coord = provinceCoords[region];
-    if (!coord) return;
-
-    // 시도의 표준어 목록에서 상위 4개 확인
-    const regionTopStandards = topStandards.filter(std => std in standards);
-    const hasOther = Object.keys(standards).some(std => !topStandards.includes(std));
-
-    // 색상 결정: 하나만 있으면 그 색, 여러 개면 혼재색
-    let color;
-    if (regionTopStandards.length === 1 && !hasOther) {
-      color = colorMap[regionTopStandards[0]];
-    } else if (regionTopStandards.length > 1 || (regionTopStandards.length === 1 && hasOther)) {
-      // 혼재색: 중간톤 회색
-      color = '#9ca3af';
-    } else if (hasOther) {
-      color = colorMap['기타'] || '#d1d5db';
-    }
-
-    // 마커 생성
-    const feature = new ol.Feature({
-      geometry: new ol.geom.Circle(ol.proj.fromLonLat(coord), 45000),
-      region: region,
-      standards: standards,
-      color: color
-    });
-
-    features.push(feature);
+  // 공통 지도의 시·도 폴리곤을 읽어, 데이터가 있는 시·도에만 색/속성을 부여
+  const source = new ol.source.Vector();
+  const feats = new ol.format.GeoJSON().readFeatures(window.KOREA_PROVINCES, {
+    dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'
+  });
+  // 남·북에 같은 이름의 도가 있는지 집계 (예: '강원도' — 남한/북한 모두 존재)
+  const nameCount = {};
+  window.KOREA_PROVINCES.features.forEach(p => {
+    const n = p.properties && p.properties.name;
+    if (n) nameCount[n] = (nameCount[n] || 0) + 1;
   });
 
-  // 벡터 레이어 생성
+  feats.forEach(f => {
+    const name = f.get('name');
+    const isNorth = f.get('region') === 'KP'; // GeoJSON 원본 속성: 'KR'/'KP'
+    // 남북 동일 지명(강원도)의 조사 데이터는 남한 데이터이므로 남한(KR) 폴리곤에만 매칭.
+    // → 북한 강원도가 남한 데이터로 함께 칠해지거나 같이 선택되지 않도록 분리.
+    if (nameCount[name] > 1 && isNorth) return;
+    const standards = regionData[name];
+    if (!standards) return; // 검색 결과가 없는 시·도는 표시하지 않음
+    f.set('region', name);
+    f.set('standards', standards);
+    source.addFeature(f);
+  });
+
+  // 데이터가 있는 시·도는 기본 그레이, 마우스 호버(또는 선택) 시에만 붉은색으로 강조
+  const GRAY = '#9ca3af', RED = '#ef4444';
   ctx.markerLayer = new ol.layer.Vector({
-    source: new ol.source.Vector({ features: features }),
+    source: source,
+    zIndex: 2,
     style: function(feature) {
-      const isSelected = feature.get('region') === ctx.selectedRegion;
+      const region = feature.get('region');
+      const isSelected = region === ctx.selectedRegion;
+      const isHover = region === ctx.hoverRegion;
+      const active = isSelected || isHover;
+      const c = active ? RED : GRAY;
       return new ol.style.Style({
-        fill: new ol.style.Fill({
-          color: feature.get('color')
-        }),
+        fill: new ol.style.Fill({ color: hexRgba(c, active ? 0.75 : 0.5) }),
         stroke: new ol.style.Stroke({
-          color: isSelected ? '#1e40af' : '#ffffff',
-          width: isSelected ? 4 : 2
+          color: isSelected ? '#b91c1c' : hexRgba(c, isHover ? 0.95 : 0.85),
+          width: isSelected ? 2.5 : (isHover ? 1.8 : 1.2)
         })
       });
     }
@@ -2580,6 +2606,13 @@ function drawRegionMarkers(ctx, regionData, colorMap, topStandards) {
       const feature = ctx.map.forEachFeatureAtPixel(evt.pixel, function(f) {
         return f;
       }, { layerFilter: l => l === ctx.markerLayer });
+
+      // 호버한 시·도만 붉게 강조 (변경 시에만 리렌더)
+      const region = feature ? feature.get('region') : null;
+      if (region !== ctx.hoverRegion) {
+        ctx.hoverRegion = region;
+        if (ctx.markerLayer) ctx.markerLayer.changed();
+      }
 
       if (feature) {
         showRegionTooltip(evt, feature);
@@ -2797,7 +2830,7 @@ let lastTopStandards = null;
 
 // 지도 모달 컨트롤러 — 독립된 OpenLayers 인스턴스를 보유
 const modalMapCtx = {
-  map: null, markerLayer: null, selectedRegion: null, handlersBound: false,
+  map: null, markerLayer: null, selectedRegion: null, hoverRegion: null, handlersBound: false,
   mapId: 'vocabMapModal',
   panelId: 'regionDetailPanelModal', titleId: 'regionPanelTitleModal', containerId: 'regionDialectsContainerModal',
   legendTextSel: '#mapModalOverlay .map-legend-text'
@@ -2860,8 +2893,8 @@ function initVocabMap(ctx) {
   // 이미 초기화됨
   if (ctx.map) return;
 
-  // OpenLayers가 로드되지 않았으면 대기
-  if (!window.ol || !window.ol.Map) {
+  // OpenLayers 또는 공통 지도(KoreaMap/행정구역 데이터)가 로드되지 않았으면 대기
+  if (!window.ol || !window.ol.Map || !window.KoreaMap || !window.KOREA_PROVINCES) {
     setTimeout(() => {
       initVocabMap(ctx);
     }, 100);
@@ -2876,19 +2909,13 @@ function initVocabMap(ctx) {
   }
 
   try {
-    ctx.map = new ol.Map({
-      target: ctx.mapId,
-      layers: [
-        new ol.layer.Tile({
-          source: new ol.source.OSM()
-        })
-      ],
-      view: new ol.View({
-        // 결과에 북한 지역이 있을 때만 한반도 전체로 넓힌다(없으면 기존 남한 뷰 그대로)
-        center: ol.proj.fromLonLat(hasNorthRegions() ? [127.6, 39.2] : [127.0, 37.5]),
-        zoom: hasNorthRegions() ? 6.05 : 7
-      })
+    // 공통 지도(korea-map.js) 사용 — OSM 타일 대신 시·도 경계 벡터 지도를 베이스로 사용
+    ctx.map = KoreaMap.create(ctx.mapId, {
+      // 결과에 북한 지역이 있을 때만 한반도 전체로 넓힌다(없으면 기존 남한 뷰 그대로)
+      center: hasNorthRegions() ? [127.6, 39.2] : [127.0, 37.5],
+      zoom: hasNorthRegions() ? 6.05 : 7
     });
+    if (!ctx.map) throw new Error('KoreaMap.create() returned null');
 
     // 지도 렌더링 완료 후 크기 조정 및 데이터 표시
     setTimeout(() => {
@@ -2916,6 +2943,12 @@ function openMapModal(word) {
 
   // 검색 결과 데이터가 아직 없으면 집계
   if (!lastRegionData) updateMapWithSearchResults();
+
+  // 우측 상세 목록을 기본으로 펼쳐 표시 (첫 번째 데이터 시·도 자동 선택)
+  if (lastRegionData) {
+    const firstRegion = Object.keys(lastRegionData)[0];
+    if (firstRegion) selectRegion(modalMapCtx, firstRegion, lastRegionData[firstRegion]);
+  }
 
   initVocabMap(modalMapCtx);
 
@@ -3454,8 +3487,8 @@ function addSearchTargetRow() {
       <option value="startsWith">시작 문자</option>
       <option value="endsWith">끝 문자</option>
     </select>
-    <input type="text" placeholder="검색어를 입력하세요." style="flex:1;min-width:100px;" />
-    <button type="button" class="btn-outline" onclick="toggleOldKor()">옛 한글</button>
+    <input type="text" id="'+rowId+'" name="'+rowId+'" class="search-target-input-field" placeholder="검색어를 입력하세요." style="flex:1;min-width:100px;" />
+    <button type="button" class="btn-outline" onclick="openOldHangul(\''+rowId+'\')">옛 한글</button>
   `;
   newRow.appendChild(makeRowDeleteBtn(newRow));
   container.appendChild(newRow);

@@ -449,7 +449,7 @@
     <!-- 하단 버튼 -->
     <div class="form-actions">
       <a href="./mypage_opinion.html" class="btn-cancel">취소</a>
-      <button type="submit" class="btn-submit">등록</button>
+      <button type="submit" class="btn-submit" id="submitBtn">등록</button>
     </div>
   </form>
 </div>
@@ -457,5 +457,15 @@
 <div id="footer-common"></div>
 
 <script src="./share.js" defer></script>
+<script>
+  // 수정 모드(?mode=edit)로 진입 시 문구를 '수정'으로 전환
+  (function () {
+    var isEdit = new URLSearchParams(location.search).get('mode') === 'edit';
+    if (!isEdit) return;
+    document.title = '지역어종합정보 — 의견 제시 수정';
+    var btn = document.getElementById('submitBtn');
+    if (btn) btn.textContent = '수정';
+  })();
+</script>
 </body>
 </html>

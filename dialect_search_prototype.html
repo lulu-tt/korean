@@ -911,7 +911,7 @@
 	          </div>
 	        </div>
 	        <div class="simple-actions" style="display: flex; gap: 8px;">
-	          <button class="btn-outline" onclick="toggleOldKor()" style="height: 39px; box-sizing: border-box;">옛 한글</button>
+	          <button class="btn-outline" onclick="openOldHangul(null, this)" style="height: 39px; box-sizing: border-box;">옛 한글</button>
 	          <button class="btn-primary" onclick="doSearch()" style="height: 39px; box-sizing: border-box;"><i class="ti ti-search" aria-hidden="true"></i> 검색</button>
 	        </div>
 	      </div>
@@ -1067,7 +1067,7 @@
               <option value="endsWith">끝 문자</option>
             </select>
             <input type="text" class="search-target-input-field" placeholder="검색어를 입력하세요." style="flex:1;min-width:100px;" />
-            <button type="button" class="btn-outline" onclick="toggleOldKor()">옛 한글</button>
+            <button type="button" class="btn-outline" onclick="openOldHangul(null, this)">옛 한글</button>
           </div>
           <div id="additionalSearchTargets" style="display: flex; flex-direction: column; gap: 8px; width: 100%;"></div>
         </div>
@@ -2454,11 +2454,41 @@ function toggle(id) {
   body.classList.toggle('show');
   card.classList.toggle('open');
 }
-function toggleOldKor() {
-  const p = document.getElementById('oldkorPanel');
-  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+/* ── 옛한글 입력기 팝업 (vocab_dialect.html과 동일 방식) ── */
+var _oldHangulWin = null;
+function _ohFindInput(btn){
+  if (btn) {
+    var p = btn;
+    for (var k = 0; k < 5 && p; k++) {
+      p = p.parentElement; if (!p) break;
+      var i = p.querySelector('.search-input, .search-target-input-field');
+      if (i) return i;
+    }
+  }
+  var ae = document.activeElement;
+  if (ae && ae.classList && (ae.classList.contains('search-input') || ae.classList.contains('search-target-input-field'))) return ae;
+  return document.querySelector('.search-input, .search-target-input-field');
 }
-function closeOldKor() { document.getElementById('oldkorPanel').style.display = 'none'; }
+function openOldHangul(targetId, btn){
+  var tid = targetId;
+  if (!tid) {
+    var input = _ohFindInput(btn);
+    if (input && !input.id) input.id = 'ohTarget_' + Math.random().toString(36).slice(2, 8);
+    tid = (input && input.id) || 'searchWord0';
+  }
+  var url = new URL('oldhangul.html', window.location.href);
+  url.searchParams.set('target', tid);
+  var w = 720, h = 760;
+  var left = Math.max(0, Math.floor((screen.width - w) / 2));
+  var top = Math.max(0, Math.floor((screen.height - h) / 2));
+  var features = 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',scrollbars=yes,resizable=yes';
+  try { if (_oldHangulWin && !_oldHangulWin.closed) { _oldHangulWin.location.href = url.toString(); _oldHangulWin.focus(); return; } } catch (e) { _oldHangulWin = null; }
+  _oldHangulWin = window.open(url.toString(), 'oldHangulPopup', features);
+  if (!_oldHangulWin) { alert('팝업이 차단되었습니다. 브라우저에서 이 사이트의 팝업을 허용해 주세요.'); }
+  else { try { _oldHangulWin.focus(); } catch (e) {} }
+}
+function toggleOldKor(btn){ openOldHangul(null, btn || (window.event && window.event.currentTarget)); }
+function closeOldKor(){ if (_oldHangulWin && !_oldHangulWin.closed) _oldHangulWin.close(); }
 function doSearch() {
   const q = getSearchQuery();
   // 요약 문구 갱신 (프로토타입: 기존 정적 건수 + 음운 히트 반영 안내)
@@ -2631,7 +2661,7 @@ function addSearchTargetRow() {
       <option value="endsWith">끝 문자</option>
     </select>
     <input type="text" placeholder="검색어를 입력하세요." style="flex:1;min-width:100px;" />
-    <button type="button" class="btn-outline" onclick="toggleOldKor()">옛 한글</button>
+    <button type="button" class="btn-outline" onclick="openOldHangul(null, this)">옛 한글</button>
   `;
   newRow.appendChild(makeRowDeleteBtn(newRow));
   container.appendChild(newRow);

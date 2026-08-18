@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>옛 한글 입력기</title>
+  <style>
+    @font-face {
+      font-family: 'NanumBarunGothicYetHangul';
+      src: url('https://cdn.jsdelivr.net/npm/@kfonts/nanum-barun-gothic-yet-hangul-otf/NanumBarunGothic-YetHangul.woff2') format('woff2'),
+           url('https://cdn.jsdelivr.net/npm/@kfonts/nanum-barun-gothic-yet-hangul-otf/NanumBarunGothic-YetHangul.woff') format('woff'),
+           url('./neibis-cms/mariadb/assets/neibis/fonts/yet-hangul/NanumBarunGothic-YetHangul.woff2') format('woff2'),
+           url('./neibis-cms/mariadb/assets/neibis/fonts/yet-hangul/NanumBarunGothic-YetHangul.woff') format('woff');
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'NanumBarunGothicYetHangul', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      color: #1e293b;
+      background: #f1f5f9;
+    }
+    #header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 22px;
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    #header h1 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+    .btn-close {
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      color: #475569;
+      font-family: inherit;
+    }
+    .btn-close:hover { background: #f8fafc; }
+    #contents { padding: 18px 22px 28px; min-height: calc(100vh - 56px); }
+    #searchWrapper {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      align-items: stretch;
+      margin-bottom: 8px;
+    }
+    #searchText {
+      flex: 1;
+      max-width: 560px;
+      padding: 12px 14px;
+      font-size: 18px;
+      border: 1px solid #93c5fd;
+      border-radius: 10px;
+      outline: none;
+      font-family: inherit;
+      background: #fff;
+    }
+    #searchText:focus { box-shadow: 0 0 0 3px rgba(37,99,235,.12); border-color: #2563eb; }
+    #searchWrapper .btn-insert {
+      padding: 0 22px;
+      border: none;
+      border-radius: 10px;
+      background: #2563eb;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    #searchWrapper .btn-insert:hover { background: #1d4ed8; }
+    .wordWrapper { margin-top: 22px; }
+    .describe {
+      display: block;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 10px;
+    }
+    .describe::before {
+      content: "■";
+      color: #2563eb;
+      margin-right: 6px;
+      font-size: 11px;
+      vertical-align: middle;
+    }
+    .itemContainer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 2px;
+      padding: 14px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      box-shadow: 0 1px 2px rgba(15,23,42,.04);
+    }
+    .itemContainer button {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-family: inherit;
+      color: #1e293b;
+      border-radius: 6px;
+      line-height: 1.4;
+    }
+    .itemContainer button:hover,
+    .itemContainer button:focus {
+      color: #2563eb;
+      text-decoration: underline;
+      outline: none;
+      background: #eff6ff;
+    }
+    .wordGroup button {
+      font-size: 20px;
+      padding: 6px 10px;
+    }
+    .wordGroup button.active {
+      color: #2563eb;
+      font-weight: 800;
+      background: #dbeafe;
+      text-decoration: none;
+    }
+    .wordPreview {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      min-height: 72px;
+      font-size: 48px;
+      color: #2563eb;
+      margin-bottom: 8px;
+      border-bottom: 1px dashed #e2e8f0;
+      padding-bottom: 8px;
+    }
+    .wordDetail {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+      width: 100%;
+    }
+    .wordDetail button {
+      font-size: 17px;
+      padding: 2px 4px;
+    }
+    .hint {
+      margin-top: 10px;
+      font-size: 12.5px;
+      color: #64748b;
+      text-align: center;
+    }
+    @media (max-width: 640px) {
+      .wordGroup button { font-size: 16px; padding: 4px 6px; }
+      .wordPreview { font-size: 36px; min-height: 56px; }
+      .wordDetail button { font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <h1>옛 한글 입력기</h1>
+    <button type="button" class="btn-close" onclick="closePopup()">닫기</button>
+  </div>
+  <div id="contents">
+    <div id="searchWrapper">
+      <input id="searchText" name="searchText" title="옛 한글 입력" autocomplete="off" />
+      <button type="button" class="btn-insert" onclick="insertOldHangul()">입력</button>
+    </div>
+    <p class="hint">구간을 고른 뒤 글자를 클릭해 입력창에 넣고, <strong>입력</strong>을 누르면 검색창에 반영됩니다.</p>
+
+    <div class="wordWrapper">
+      <span class="describe">입력 구간을 선택하십시오.</span>
+      <div class="itemContainer wordGroup" id="wordGroup"></div>
+    </div>
+
+    <div class="wordWrapper">
+      <span class="describe">입력할 글자를 선택하시고 입력 창의 글자를 누르십시오.</span>
+      <div class="itemContainer">
+        <div class="wordPreview" id="wordPreview"></div>
+        <div class="wordDetail" id="wordDetail"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./oldhangul-data.js"></script>
+  <script>
+    (function () {
+      var groups = window.OLDHANGUL_GROUPS || [];
+      var activeIndex = 0;
+
+      function qs(name) {
+        return new URL(window.location.href).searchParams.get(name) || '';
+      }
+
+      function renderGroups() {
+        var box = document.getElementById('wordGroup');
+        box.innerHTML = '';
+        groups.forEach(function (g, i) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = g.label;
+          btn.dataset.index = String(i);
+          if (i === activeIndex) btn.classList.add('active');
+          btn.addEventListener('click', function () {
+            selectGroup(i);
+          });
+          box.appendChild(btn);
+        });
+      }
+
+      function selectGroup(index) {
+        activeIndex = index;
+        var g = groups[index];
+        if (!g) return;
+        document.querySelectorAll('.wordGroup button').forEach(function (b) {
+          b.classList.toggle('active', Number(b.dataset.index) === index);
+        });
+        var detail = document.getElementById('wordDetail');
+        var preview = document.getElementById('wordPreview');
+        detail.innerHTML = '';
+        preview.textContent = (g.chars && g.chars[0]) || '';
+        (g.chars || []).forEach(function (ch) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = ch;
+          btn.addEventListener('mouseover', function () {
+            preview.textContent = ch;
+          });
+          btn.addEventListener('focus', function () {
+            preview.textContent = ch;
+          });
+          btn.addEventListener('click', function () {
+            selectDetail(ch);
+          });
+          detail.appendChild(btn);
+        });
+      }
+
+      function selectDetail(item) {
+        var el = document.getElementById('searchText');
+        el.value = (el.value || '') + item;
+        el.focus();
+      }
+
+      function resolveTargetInput() {
+        var target = qs('target');
+        if (!target) return null;
+        try {
+          if (window.opener && !window.opener.closed) {
+            var doc = window.opener.document;
+            var el = doc.getElementById(target) || doc.querySelector('[name="' + target + '"]') || doc.querySelector(target);
+            return el;
+          }
+        } catch (e) {}
+        return null;
+      }
+
+      window.insertOldHangul = function () {
+        var text = document.getElementById('searchText').value || '';
+        if (!text) {
+          alert('입력할 글자를 선택해 주세요.');
+          return;
+        }
+        var el = resolveTargetInput();
+        if (el) {
+          // 커서 위치에 삽입 시도
+          try {
+            var start = el.selectionStart;
+            var end = el.selectionEnd;
+            if (typeof start === 'number' && typeof end === 'number') {
+              var v = el.value || '';
+              el.value = v.slice(0, start) + text + v.slice(end);
+              var pos = start + text.length;
+              el.setSelectionRange(pos, pos);
+            } else {
+              el.value = (el.value || '') + text;
+            }
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.focus();
+          } catch (e) {
+            el.value = (el.value || '') + text;
+          }
+          window.close();
+          return;
+        }
+        // opener 없을 때: postMessage (임베드/새탭 대비)
+        if (window.opener) {
+          try {
+            window.opener.postMessage({ type: 'oldhangul-insert', target: qs('target'), text: text }, '*');
+          } catch (e) {}
+          window.close();
+          return;
+        }
+        alert('부모 검색창을 찾을 수 없습니다. 검색 페이지에서 다시 열어 주세요.');
+      };
+
+      window.closePopup = function () {
+        window.close();
+      };
+
+      window.selectGroup = selectGroup;
+      window.selectDetail = selectDetail;
+
+      if (!groups.length) {
+        document.getElementById('wordDetail').textContent = '옛한글 데이터를 불러오지 못했습니다. (oldhangul-data.js)';
+        return;
+      }
+      renderGroups();
+      selectGroup(0);
+      document.getElementById('searchText').focus();
+    })();
+  </script>
+</body>
+</html>

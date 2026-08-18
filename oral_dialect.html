@@ -280,6 +280,11 @@
   .src-line dd.spoken { opacity: 0.5; }
   .src-line.src-phoneme { display: none; }
   .src-scroll.show-phoneme .src-line.src-phoneme { display: flex; }
+  /* 음성상태/비고 (네이비스 관리자 메타정보) — 토글 ON & 값이 있는 항목에만 노출 */
+  .src-line.src-meta { display: none; }
+  .src-scroll.show-meta .src-line.src-meta { display: flex; }
+  .src-line.src-meta dt { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+  .src-line.src-meta dd { color: #475569; font-weight: 600; }
   .s-keyword { color: #d81b60; font-weight: 700; }
 
   /* 원문 전체 음성 재생 컨트롤 & 진행 표시 */
@@ -454,7 +459,7 @@
           </div>
         </div>
         <div class="simple-actions" style="display: flex; gap: 8px;">
-          <button class="btn-outline" onclick="toggleOldKor()" style="height: 39px; box-sizing: border-box;">옛 한글</button>
+          <button class="btn-outline" onclick="openOldHangul(null, this)" style="height: 39px; box-sizing: border-box;">옛 한글</button>
           <button class="btn-primary" onclick="doSearch()" style="height: 39px; box-sizing: border-box;"><i class="ti ti-search" aria-hidden="true"></i> 검색</button>
         </div>
       </div>
@@ -643,7 +648,7 @@
               <option value="endsWith">끝 문자</option>
             </select>
             <input type="text" class="search-target-input-field" placeholder="검색어를 입력하세요." style="flex:1;min-width:100px;" />
-            <button type="button" class="btn-outline" onclick="toggleOldKor()">옛 한글</button>
+            <button type="button" class="btn-outline" onclick="openOldHangul(null, this)">옛 한글</button>
           </div>
           <div id="additionalSearchTargets" style="display: flex; flex-direction: column; gap: 8px; width: 100%;"></div>
         </div>
@@ -963,6 +968,8 @@
         <div class="src-check">
           <input type="checkbox" id="phonemeToggle" onchange="togglePhoneme(this)" />
           <label for="phonemeToggle">음소전사 보기</label>
+          <input type="checkbox" id="metaToggle" onchange="toggleMeta(this)" style="margin-left:18px" />
+          <label for="metaToggle">음성상태/비고 보기</label>
           <button type="button" class="src-play-btn" id="srcPlayBtn" onclick="toggleSourcePlay()">
             <i class="ti ti-player-play-filled" aria-hidden="true"></i> 전체 음성 듣기
           </button>
@@ -1003,6 +1010,8 @@
               <div class="src-line"><dt>형태음소전사</dt><dd>예, 디딜방, 예, 예.</dd></div>
               <div class="src-line src-phoneme"><dt>음소전사</dt><dd>예 디딜빵 예 예</dd></div>
               <div class="src-line"><dt>표준어 대역</dt><dd>예, 디딜방아, 예, 예.</dd></div>
+              <div class="src-line src-meta"><dt>음성상태</dt><dd>양호</dd></div>
+              <div class="src-line src-meta"><dt>비고</dt><dd>제보자 확인 발화 (짧은 응답)</dd></div>
             </dl>
           </div>
 
@@ -1012,6 +1021,7 @@
               <div class="src-line"><dt>형태음소전사</dt><dd>근데 저 저, 저 머이나 경남인가 가니까 그건 그 족침이라고</dd></div>
               <div class="src-line src-phoneme"><dt>음소전사</dt><dd>근데 저 저 저 머이나 경나민가 가니까 그건 그 족치미라고</dd></div>
               <div class="src-line"><dt>표준어 대역</dt><dd>그런데 저 저, 뭐냐 경남인가 가니까 그건 그 족침이라고</dd></div>
+              <div class="src-line src-meta"><dt>비고</dt><dd>주변 소음으로 일부 구간 청취 곤란</dd></div>
             </dl>
           </div>
 
@@ -1021,6 +1031,7 @@
               <div class="src-line"><dt>형태음소전사</dt><dd>예, 족침이라고 하는데 여긴 족침이란 말 안 씁니다. 안 쓰고 디딜방아.</dd></div>
               <div class="src-line src-phoneme"><dt>음소전사</dt><dd>예 족치미라고 하는데 여긴 족치미란 말 안씀미다. 안쓰고 디딜빵아</dd></div>
               <div class="src-line"><dt>표준어 대역</dt><dd>예, 족침이라고 하는데 여긴 족침이란 말을 안 씁니다. 안 쓰고 디딜방아.</dd></div>
+              <div class="src-line src-meta"><dt>음성상태</dt><dd>잡음 있음</dd></div>
             </dl>
           </div>
 
@@ -1151,11 +1162,41 @@
     document.getElementById('detailPanel').style.display = mode === 'detail' ? 'block' : 'none';
   }
 
-  function toggleOldKor() {
-    const p = document.getElementById('oldkorPanel');
-    p.style.display = p.style.display === 'none' ? 'block' : 'none';
+  /* ── 옛한글 입력기 팝업 (vocab_dialect.html과 동일 방식) ── */
+  var _oldHangulWin = null;
+  function _ohFindInput(btn){
+    if (btn) {
+      var p = btn;
+      for (var k = 0; k < 5 && p; k++) {
+        p = p.parentElement; if (!p) break;
+        var i = p.querySelector('.search-input, .search-target-input-field');
+        if (i) return i;
+      }
+    }
+    var ae = document.activeElement;
+    if (ae && ae.classList && (ae.classList.contains('search-input') || ae.classList.contains('search-target-input-field'))) return ae;
+    return document.querySelector('.search-input, .search-target-input-field');
   }
-  function closeOldKor() { document.getElementById('oldkorPanel').style.display = 'none'; }
+  function openOldHangul(targetId, btn){
+    var tid = targetId;
+    if (!tid) {
+      var input = _ohFindInput(btn);
+      if (input && !input.id) input.id = 'ohTarget_' + Math.random().toString(36).slice(2, 8);
+      tid = (input && input.id) || 'searchWord0';
+    }
+    var url = new URL('oldhangul.html', window.location.href);
+    url.searchParams.set('target', tid);
+    var w = 720, h = 760;
+    var left = Math.max(0, Math.floor((screen.width - w) / 2));
+    var top = Math.max(0, Math.floor((screen.height - h) / 2));
+    var features = 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',scrollbars=yes,resizable=yes';
+    try { if (_oldHangulWin && !_oldHangulWin.closed) { _oldHangulWin.location.href = url.toString(); _oldHangulWin.focus(); return; } } catch (e) { _oldHangulWin = null; }
+    _oldHangulWin = window.open(url.toString(), 'oldHangulPopup', features);
+    if (!_oldHangulWin) { alert('팝업이 차단되었습니다. 브라우저에서 이 사이트의 팝업을 허용해 주세요.'); }
+    else { try { _oldHangulWin.focus(); } catch (e) {} }
+  }
+  function toggleOldKor(btn){ openOldHangul(null, btn || (window.event && window.event.currentTarget)); }
+  function closeOldKor(){ if (_oldHangulWin && !_oldHangulWin.closed) _oldHangulWin.close(); }
 
   function doSearch() {
     // 프로토타입: 실제 데이터 연동 전 자리 (검색 결과 위치로 스크롤)
@@ -1278,7 +1319,7 @@
         <option value="endsWith">끝 문자</option>
       </select>
       <input type="text" placeholder="검색어를 입력하세요." style="flex:1;min-width:100px;" />
-      <button type="button" class="btn-outline" onclick="toggleOldKor()">옛 한글</button>
+      <button type="button" class="btn-outline" onclick="openOldHangul(null, this)">옛 한글</button>
     `;
     newRow.appendChild(makeRowDeleteBtn(newRow));
     container.appendChild(newRow);
@@ -1388,6 +1429,11 @@
   }
   function togglePhoneme(cb) {
     document.getElementById('srcScroll').classList.toggle('show-phoneme', cb.checked);
+  }
+
+  // 음성상태/비고 보기 — ON 시 네이비스 관리자 메타정보(값이 있는 항목)를 각 발화 아래에 노출
+  function toggleMeta(cb) {
+    document.getElementById('srcScroll').classList.toggle('show-meta', cb.checked);
   }
 
   function renderTopicList() {

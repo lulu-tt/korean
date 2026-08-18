@@ -758,7 +758,8 @@
       line-height: 1.6;
     }
     .result-meta .rm-line b { color: #374151; font-weight: 700; margin-right: 4px; }
-    .result-meta .def-src { color: #ea580c; font-weight: 500; }
+    .result-meta .def-src,
+    .lit-value .def-src { color: #ea580c; font-weight: 500; }
 
     /* 용례 목록 (1건 이상) + 접기/펼치기 — 카드형·목록형 공용 */
     .eg-block { margin: 8px 0 20px; flex: 1; }
@@ -1108,7 +1109,7 @@
               <div class="simple-row">
                 <input type="text" class="search-input" value="" placeholder="예: 감자, 옥수수, 부추" aria-label="검색어 입력">
                 <div class="simple-actions">
-                  <button type="button" class="btn-outline">옛 한글</button>
+                  <button type="button" class="btn-outline" onclick="openOldHangul(null, this)">옛 한글</button>
                   <button type="button" class="btn-primary" aria-label="검색"><i class="ti ti-search" aria-hidden="true"></i> 검색</button>
                 </div>
               </div>
@@ -1147,105 +1148,9 @@
                       <button type="button" class="cho-tab" data-cho="ㅎ" onclick="selectChoseong(this)">ㅎ</button>
                     </div>
                     <div class="picker-list" id="authorList">
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="강석경"><span>강석경</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="강준희"><span>강준희</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="강평원"><span>강평원</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="구술/성춘식·편집/신경란"><span>구술/성춘식, 편집/신경란</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="권정생"><span>권정생</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김남천"><span>김남천</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김남천(金南天)"><span>김남천(金南天)</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김동리"><span>김동리</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김문수"><span>김문수</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김성동"><span>김성동</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김소월" checked><span>김소월</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김소월역(譯)"><span>김소월역(譯)</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김여정"><span>김여정</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김영랑"><span>김영랑</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김용길"><span>김용길</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김용택"><span>김용택</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김원일"><span>김원일</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김재흔"><span>김재흔</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김점호"><span>김점호</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김정한"><span>김정한</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김주영"><span>김주영</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김중태"><span>김중태</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김지하"><span>김지하</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김춘복"><span>김춘복</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김춘수"><span>김춘수</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김태진"><span>김태진</span></label>
-                      <label class="pick" data-cho="ㄱ"><input type="radio" name="author" value="김훈"><span>김훈</span></label>
-                      <label class="pick" data-cho="ㄴ"><input type="radio" name="author" value="노천명"><span>노천명</span></label>
-                      <label class="pick" data-cho="ㅁ"><input type="radio" name="author" value="문충성"><span>문충성</span></label>
-                      <label class="pick" data-cho="ㅁ"><input type="radio" name="author" value="민현숙"><span>민현숙</span></label>
-                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="박경리"><span>박경리</span></label>
-                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="박경수"><span>박경수</span></label>
-                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="박두진"><span>박두진</span></label>
-                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="박목월"><span>박목월</span></label>
-                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="박범신"><span>박범신</span></label>
-                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="박상륭"><span>박상륭</span></label>
-                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="박종화"><span>박종화</span></label>
-                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="박태일"><span>박태일</span></label>
-                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="백석"><span>백석</span></label>
-                      <label class="pick" data-cho="ㅂ"><input type="radio" name="author" value="복거일"><span>복거일</span></label>
-                      <label class="pick" data-cho="ㅅ"><input type="radio" name="author" value="서정범"><span>서정범</span></label>
-                      <label class="pick" data-cho="ㅅ"><input type="radio" name="author" value="서정주"><span>서정주</span></label>
-                      <label class="pick" data-cho="ㅅ"><input type="radio" name="author" value="서지월"><span>서지월</span></label>
-                      <label class="pick" data-cho="ㅅ"><input type="radio" name="author" value="성춘식"><span>성춘식</span></label>
-                      <label class="pick" data-cho="ㅅ"><input type="radio" name="author" value="송기숙"><span>송기숙</span></label>
-                      <label class="pick" data-cho="ㅅ"><input type="radio" name="author" value="신경숙"><span>신경숙</span></label>
-                      <label class="pick" data-cho="ㅅ"><input type="radio" name="author" value="신석정"><span>신석정</span></label>
-                      <label class="pick" data-cho="ㅅ"><input type="radio" name="author" value="심원섭"><span>심원섭</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="안수길"><span>안수길</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="양주동"><span>양주동</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="양중해"><span>양중해</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="오성찬"><span>오성찬</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="오영수"><span>오영수</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="오장환"><span>오장환</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="유정"><span>유정</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="유치환"><span>유치환</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="윤곤강"><span>윤곤강</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="윤대녕"><span>윤대녕</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="윤동주"><span>윤동주</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="윤흥길"><span>윤흥길</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이광복"><span>이광복</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이기영"><span>이기영</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이기철 편"><span>이기철 편</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이기형"><span>이기형</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이동하"><span>이동하</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이동희"><span>이동희</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이만희"><span>이만희</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이무영"><span>이무영</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이문구"><span>이문구</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이문열"><span>이문열</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이병천"><span>이병천</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이상규"><span>이상규</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이상규 편"><span>이상규 편</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이상화"><span>이상화</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이아정"><span>이아정</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이오덕"><span>이오덕</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이용악"><span>이용악</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이육사"><span>이육사</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이정호"><span>이정호</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이현수"><span>이현수</span></label>
-                      <label class="pick" data-cho="ㅇ"><input type="radio" name="author" value="이호철"><span>이호철</span></label>
-                      <label class="pick" data-cho="ㅈ"><input type="radio" name="author" value="정숙"><span>정숙</span></label>
-                      <label class="pick" data-cho="ㅈ"><input type="radio" name="author" value="정지용"><span>정지용</span></label>
-                      <label class="pick" data-cho="ㅈ"><input type="radio" name="author" value="조오현"><span>조오현</span></label>
-                      <label class="pick" data-cho="ㅈ"><input type="radio" name="author" value="조정래"><span>조정래</span></label>
-                      <label class="pick" data-cho="ㅊ"><input type="radio" name="author" value="채만식"><span>채만식</span></label>
-                      <label class="pick" data-cho="ㅊ"><input type="radio" name="author" value="최명희"><span>최명희</span></label>
-                      <label class="pick" data-cho="ㅍ"><input type="radio" name="author" value="피천득"><span>피천득</span></label>
-                      <label class="pick" data-cho="ㅎ"><input type="radio" name="author" value="한기팔"><span>한기팔</span></label>
-                      <label class="pick" data-cho="ㅎ"><input type="radio" name="author" value="허수경"><span>허수경</span></label>
-                      <label class="pick" data-cho="ㅎ"><input type="radio" name="author" value="현기영"><span>현기영</span></label>
-                      <label class="pick" data-cho="ㅎ"><input type="radio" name="author" value="현길언"><span>현길언</span></label>
-                      <label class="pick" data-cho="ㅎ"><input type="radio" name="author" value="현진건"><span>현진건</span></label>
-                      <label class="pick" data-cho="ㅎ"><input type="radio" name="author" value="홍명희"><span>홍명희</span></label>
-                      <label class="pick" data-cho="ㅎ"><input type="radio" name="author" value="홍희표"><span>홍희표</span></label>
-                      <label class="pick" data-cho="ㅎ"><input type="radio" name="author" value="황석영"><span>황석영</span></label>
-                      <label class="pick" data-cho="ㅎ"><input type="radio" name="author" value="황순원"><span>황순원</span></label>
+                      <!-- 작가 목록: /api/literature_facets 에서 dialect_local.db 로드 -->
                     </div>
-                    <p class="picker-empty" id="authorEmpty" style="display:none;">해당 초성의 작가 표본 데이터가 없습니다.</p>
+                    <p class="picker-empty" id="authorEmpty" style="display:none;">해당 초성의 작가 데이터가 없습니다.</p>
                   </div>
               </div>
 
@@ -1254,40 +1159,9 @@
                 <span class="form-label">작품</span>
                 <div class="form-controls form-controls--block">
                     <div class="picker-list" id="workList">
-                      <label class="pick"><input type="radio" name="work" value="전체" checked><span>(전체)</span></label>
-                      <label class="pick"><input type="radio" name="work" value="귀쑤람이"><span>귀쑤람이</span></label>
-                      <label class="pick"><input type="radio" name="work" value="그를 숨꾼 밤"><span>그를 숨꾼 밤</span></label>
-                      <label class="pick"><input type="radio" name="work" value="기억(記憶)"><span>기억(記憶)</span></label>
-                      <label class="pick"><input type="radio" name="work" value="나는 세상 모르고 사랏노라"><span>나는 세상 모르고 사랏노라</span></label>
-                      <label class="pick"><input type="radio" name="work" value="녀름의 달밤"><span>녀름의 달밤</span></label>
-                      <label class="pick"><input type="radio" name="work" value="니불"><span>니불</span></label>
-                      <label class="pick"><input type="radio" name="work" value="님에게"><span>님에게</span></label>
-                      <label class="pick"><input type="radio" name="work" value="님의 말슴"><span>님의 말슴</span></label>
-                      <label class="pick"><input type="radio" name="work" value="달밤"><span>달밤</span></label>
-                      <label class="pick"><input type="radio" name="work" value="몹쏠쑴"><span>몹쏠쑴</span></label>
-                      <label class="pick"><input type="radio" name="work" value="무신(無信)"><span>무신(無信)</span></label>
-                      <label class="pick"><input type="radio" name="work" value="바라건대는 우리에게 우리의 보섭 대일 짱이 잇섯드면"><span>바라건대는 우리에게 우리의 보섭 대일 짱이 잇섯드면</span></label>
-                      <label class="pick"><input type="radio" name="work" value="바리운몸"><span>바리운몸</span></label>
-                      <label class="pick"><input type="radio" name="work" value="벗마을"><span>벗마을</span></label>
-                      <label class="pick"><input type="radio" name="work" value="부부(夫婦)"><span>부부(夫婦)</span></label>
-                      <label class="pick"><input type="radio" name="work" value="불탄자리"><span>불탄자리</span></label>
-                      <label class="pick"><input type="radio" name="work" value="비난수하는 맘"><span>비난수하는 맘</span></label>
-                      <label class="pick"><input type="radio" name="work" value="빗"><span>빗</span></label>
-                      <label class="pick"><input type="radio" name="work" value="산(山)"><span>산(山)</span></label>
-                      <label class="pick"><input type="radio" name="work" value="오는봄"><span>오는봄</span></label>
-                      <label class="pick"><input type="radio" name="work" value="우리집"><span>우리집</span></label>
-                      <label class="pick"><input type="radio" name="work" value="월색(月色)"><span>월색(月色)</span></label>
-                      <label class="pick"><input type="radio" name="work" value="이한밤"><span>이한밤</span></label>
-                      <label class="pick"><input type="radio" name="work" value="접동새"><span>접동새</span></label>
-                      <label class="pick"><input type="radio" name="work" value="접동"><span>접동</span></label>
-                      <label class="pick"><input type="radio" name="work" value="진달내쏫"><span>진달내쏫</span></label>
-                      <label class="pick"><input type="radio" name="work" value="찬저녁"><span>찬저녁</span></label>
-                      <label class="pick"><input type="radio" name="work" value="창(窓)을 열어 놓아"><span>창(窓)을 열어 놓아</span></label>
-                      <label class="pick"><input type="radio" name="work" value="첫치마"><span>첫치마</span></label>
-                      <label class="pick"><input type="radio" name="work" value="춘조(春朝)"><span>춘조(春朝)</span></label>
-                      <label class="pick"><input type="radio" name="work" value="홋길"><span>홋길</span></label>
+                      <!-- 작가 선택 후 /api/literature_facets 에서 작품 로드 -->
                     </div>
-                    <p class="picker-empty" id="workEmpty" style="display:none;">검색 결과가 없습니다.</p>
+                    <p class="picker-empty" id="workEmpty">작가를 선택해주세요</p>
                   </div>
               </div>
 
@@ -1299,7 +1173,7 @@
                     <button type="button" class="ms-chip ms-all" data-all="1" aria-pressed="false" onclick="toggleMultiChip(this)">전체</button>
                     <button type="button" class="ms-chip" data-value="강원도" aria-pressed="false" onclick="toggleMultiChip(this)">강원도</button>
                     <button type="button" class="ms-chip" data-value="경기도" aria-pressed="false" onclick="toggleMultiChip(this)">경기도</button>
-                    <button type="button" class="ms-chip" data-value="경상도" aria-pressed="true" onclick="toggleMultiChip(this)">경상도</button>
+                    <button type="button" class="ms-chip" data-value="경상도" aria-pressed="false" onclick="toggleMultiChip(this)">경상도</button>
                     <button type="button" class="ms-chip" data-value="전라도" aria-pressed="false" onclick="toggleMultiChip(this)">전라도</button>
                     <button type="button" class="ms-chip" data-value="제주도" aria-pressed="false" onclick="toggleMultiChip(this)">제주도</button>
                     <button type="button" class="ms-chip" data-value="충청도" aria-pressed="false" onclick="toggleMultiChip(this)">충청도</button>
@@ -1329,7 +1203,7 @@
                       <option value="끝문자">끝 문자</option>
                     </select>
                     <input type="text" class="target-input" placeholder="검색어를 입력하세요." aria-label="검색어 입력">
-                    <button type="button" class="btn-outline oldkor-btn">옛 한글</button>
+                    <button type="button" class="btn-outline oldkor-btn" onclick="openOldHangul(null, this)">옛 한글</button>
                   </div>
                   <div id="additionalTargets"></div>
                 </div>
@@ -1359,7 +1233,7 @@
                 <div style="display: inline-block;">
                   <h2 style="font-size: 22px; font-weight: 800; color: #1e3a8a; margin: 0 0 6px; letter-spacing: -0.02em;">선택 조건 방언 검색 결과</h2>
                   <p style="font-size: 14px; color: var(--muted); margin: 0; font-weight: 500;">
-                    선택된 조건으로 검색된 지역어는 총 <strong id="resultTotalCount" style="color: var(--primary); font-weight: 800;">11</strong>건입니다. (해설, 용례, 다른 방언형 중심)
+                    선택된 조건으로 검색된 지역어는 총 <strong id="resultTotalCount" style="color: var(--primary); font-weight: 800;">0</strong>건입니다. (해설, 용례, 다른 방언형 중심)
                   </p>
               </div>
 
@@ -1373,351 +1247,12 @@
 
               <!-- 카드형 뷰 -->
               <div class="result-cards" id="viewCards">
-                <!-- 1 가새보리 -->
-                <article class="result-card">
-                  <div class="result-head">
-                    <div class="dialect-word"><strong>가새보리</strong><span class="tag region">충청도</span><span class="tag type">명사</span></div>
-                    <div class="source-meta">대응 표준어: 대응 표준어 없음</div>
-                  </div>
-                  <div class="eg-block">
-                    <ul class="eg-list">
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">인분은 옥수수 뿐만 아니라 밀과 보리에도 퍼다 주는데, 이는 대개 밀, 보리가 <mark>가새보리</mark> 또는 가새밀이 될 때 퍼다 준다. <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></li>
-                    </ul>
-                  </div>
-                  <div class="result-meta">
-                    <span class="rm-line"><b>뜻풀이</b>보리 싹이 자라서 보리 잎이 가위 모양으로 두세 잎 정도로 자란 보리. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
-                    <span class="rm-line"><b>다른 방언형</b>가위보리</span>
-                  </div>
-                </article>
-
-                <!-- 2 간두다 -->
-                <article class="result-card">
-                  <div class="result-head">
-                    <div class="dialect-word"><strong>간두다</strong><span class="tag region">충청도</span><span class="tag type">동사</span></div>
-                    <div class="source-meta">대응 표준어: 그만두다</div>
-                  </div>
-                  <div class="eg-block">
-                    <ul class="eg-list">
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “<mark>간도</mark>.” “언눔이 도령.” “<mark>간두</mark>라니까.” <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></li>
-                    </ul>
-                  </div>
-                  <div class="result-meta">
-                    <span class="rm-line"><b>뜻풀이</b>하던 일이나 하던 말을 더 이상 하지 말고 그치다. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
-                    <span class="rm-line"><b>다른 방언형</b>고만두다, 곤두다, 건두다</span>
-                  </div>
-                </article>
-
-                <!-- 3 갑북갑북 -->
-                <article class="result-card">
-                  <div class="result-head">
-                    <div class="dialect-word"><strong>갑북갑북</strong><span class="tag region">충청도</span><span class="tag type">부사</span></div>
-                    <div class="source-meta">대응 표준어: 깜빡깜빡, #흠뻑흠뻑.</div>
-                  </div>
-                  <div class="eg-block">
-                    <ul class="eg-list">
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“그러면 나는 어리어리한 환몽에서 다시 진달래를 씹었고 또 그러면 솔솔 불어오는 재넘이에 <mark>갑북갑북</mark> 졸음이 왔다. <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></li>
-                    </ul>
-                  </div>
-                  <div class="result-meta">
-                    <span class="rm-line"><b>뜻풀이</b>① 졸음이 오거나 술에 취해서 눈이 자꾸 감겼다 뜨였다 하면서 고개를 꾸벅이는 모양. ② 여러 사람이 모두 술에 흠뻑 취해 있거나 물에 흠뻑 젖어 있는 모양. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
-                    <span class="rm-line"><b>다른 방언형</b>깜빡깜빡</span>
-                  </div>
-                </article>
-
-                <!-- 4 갑산 돈피 -->
-                <article class="result-card">
-                  <div class="result-head">
-                    <div class="dialect-word"><strong>갑산 돈피</strong><span class="tag region">충청도</span><span class="tag type">구</span></div>
-                    <div class="source-meta">대응 표준어: 대응 표준어 없음</div>
-                  </div>
-                  <div class="eg-block">
-                    <ul class="eg-list">
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">이런 중에도 부역 나가고 남의 집 품팔이 하고 나무해다 장에 팔고 틈틈이 공부까지 하려니 몸이 <mark>갑산 돈피</mark>라도 지탱할 수가 없어 파김치 되기 십상이었다. <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></li>
-                    </ul>
-                  </div>
-                  <div class="result-meta">
-                    <span class="rm-line"><b>뜻풀이</b>아주 튼튼하고 체력이 강함을 비유적으로 나타낸 말. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
-                    <span class="rm-line"><b>다른 방언형</b>다른 방언형 없음</span>
-                  </div>
-                </article>
-
-                <!-- 5 개살스럽다 -->
-                <article class="result-card">
-                  <div class="result-head">
-                    <div class="dialect-word"><strong>개살스럽다</strong><span class="tag region">충청도, 강원도</span><span class="tag type">형용사</span></div>
-                    <div class="source-meta">대응 표준어: 독살스럽다</div>
-                  </div>
-                  <div class="eg-block">
-                    <ul class="eg-list">
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">홀어머니가 며느리를 보면 <mark>개살스러워</mark>져 심통부리기 예사요, 아들 내외가 정분이라도 좋으면 이게 질투가 나 심술을 부리며 눈에 쌍심지를 켠다는 말 말이다. <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></li>
-                    </ul>
-                  </div>
-                  <div class="result-meta">
-                    <span class="rm-line"><b>뜻풀이</b>성품이나 행동이 살기가 있고 날카로우며 모질고 악독한 데가 있다. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
-                    <span class="rm-line"><b>다른 방언형</b>매살스럽다</span>
-                  </div>
-                </article>
-
-                <!-- 6 개토시 -->
-                <article class="result-card">
-                  <div class="result-head">
-                    <div class="dialect-word"><strong>개토시</strong><span class="tag region">충청도</span><span class="tag type">명사</span></div>
-                    <div class="source-meta">대응 표준어: 개차반</div>
-                  </div>
-                  <div class="eg-block">
-                    <ul class="eg-list">
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">선생님한테 불려가 치도곤을 당한 게 한두 번이 아니요 악동의 <mark>개토시</mark>로 악명 높아 어머니가 대신 무릎 꿇은 게 한두 번이 아니었지만 나는 예원이 앞에서만은 늘 주인 앞의 강아지 같았다. <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></li>
-                    </ul>
-                  </div>
-                  <div class="result-meta">
-                    <span class="rm-line"><b>뜻풀이</b>말과 행동이 아주 거칠고 너절한 사람을 비유적으로 속되게 이르는 말. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
-                    <span class="rm-line"><b>다른 방언형</b>개차반</span>
-                  </div>
-                </article>
-
-                <!-- 7 객사한 놈 지팡이 버리듯 한다 -->
-                <article class="result-card">
-                  <div class="result-head">
-                    <div class="dialect-word"><strong>객사한 놈 지팡이 버리듯 한다</strong><span class="tag region">충청도</span><span class="tag type">속담</span></div>
-                    <div class="source-meta">대응 표준어: 대응 표준어 없음</div>
-                  </div>
-                  <div class="eg-block">
-                    <ul class="eg-list">
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">타락한 것들은 돈이라면 환장을 하고 부패한 것들은 돈이라면 사족을 못 써 지조 따위는 원두장이 쓴 외 버리듯 하고 청렴 따위는 <mark>객사한 놈 지팡이 버리듯 한다</mark>. <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></li>
-                    </ul>
-                  </div>
-                  <div class="result-meta">
-                    <span class="rm-line"><b>뜻풀이</b>객지에서 죽은 사람이 가지고 다니던 지팡이를 쉽게 버리듯이 지조나 청렴을 쉽게 버림을 비유적으로 이르는 말. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
-                    <span class="rm-line"><b>다른 방언형</b>원두쟁이 쏜 외 버리듯 한다, 객사한 놈 지팽이 버리듯 한다.</span>
-                  </div>
-                </article>
-
-                <!-- 8 갸기부리다 -->
-                <article class="result-card">
-                  <div class="result-head">
-                    <div class="dialect-word"><strong>갸기부리다</strong><span class="tag region">충청도</span><span class="tag type">동사</span></div>
-                    <div class="source-meta">대응 표준어: 대응 표준어 없음</div>
-                  </div>
-                  <div class="eg-block">
-                    <ul class="eg-list">
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">인사를 받든 안 받든 나만 인사하면 되고 등기부 열람해다 사무보면 그게 사무원다운 거지. 위인들이 <mark>갸기부리</mark>고 곤댓짓하는 거야 제가 잘나 그런 줄 착각하는 모양이니 치지도외 해버리자. <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></li>
-                    </ul>
-                  </div>
-                  <div class="result-meta">
-                    <span class="rm-line"><b>뜻풀이</b>남을 업신여기고 잘난 체하며 뽐내는 행동을 하다. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
-                    <span class="rm-line"><b>다른 방언형</b>갸기부리다</span>
-                  </div>
-                </article>
-
-                <!-- 9 거렁뱅이 -->
-                <article class="result-card">
-                  <div class="result-head">
-                    <div class="dialect-word"><strong>거렁뱅이</strong><span class="tag region">충청도</span><span class="tag type">명사</span></div>
-                    <div class="source-meta">대응 표준어: 비렁뱅이</div>
-                  </div>
-                  <div class="eg-block">
-                    <ul class="eg-list">
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“자네 그거 어디서 배워먹은 행세따리야. 손님한테 밥대접하는 게 개돼지 밥주듯 하다니. 아무리 비럭질로 연명하는 <mark>거렁뱅이</mark>라도 대문을 넘어서면 손님이야. 그런데 그런 손님한테 밥을 쏟아부어줘? 천하에 못된 거 같으니라고.” <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></li>
-                    </ul>
-                  </div>
-                  <div class="result-meta">
-                    <span class="rm-line"><b>뜻풀이</b>남에게 빌어먹고 사는 사람을 낮잡아 이르는 말. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
-                    <span class="rm-line"><b>다른 방언형</b>걸뱅이, 걸빙이, 걸비이, 동냥아치, 동냥치, 동냥박씨, 어더배기, 어더박시, 어더뱅이, 으더박시, 비렁뱅이, 비렁배이, 비렁배, 비렁이, 비렝박이, 그지</span>
-                  </div>
-                </article>
-
-                <!-- 10 거악하다 -->
-                <article class="result-card">
-                  <div class="result-head">
-                    <div class="dialect-word"><strong>거악하다</strong><span class="tag region">충청도</span><span class="tag type">형용사</span></div>
-                    <div class="source-meta">대응 표준어: 그악하다</div>
-                  </div>
-                  <div class="eg-block">
-                    <ul class="eg-list">
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">먼저 살던 곳에서 이곳까지는 60리가 실한 산길이고 이 산길 중간엔 길마재라고 하는 <mark>거악한</mark> 재와 곤은터재라고 하는 가파른 재가 있는데 우리는 이 두 재를 지게로 이삿짐을 다 져날랐다. <span class="eg-src">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></li>
-                    </ul>
-                  </div>
-                  <div class="result-meta">
-                    <span class="rm-line"><b>뜻풀이</b>산세나 지세가 발을 디디기 어려울 만큼 험하고 가파르다. <span class="def-src">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span>
-                    <span class="rm-line"><b>다른 방언형</b>그악스럽다, 그악시룹다</span>
-                  </div>
-                </article>
-
-                <!-- 11 가씨나 (용례 다건 예시) -->
-                <article class="result-card">
-                  <div class="result-head">
-                    <div class="dialect-word"><strong>가씨나</strong><span class="tag region">경상도</span><span class="tag type">명사</span></div>
-                    <div class="source-meta">대응 표준어: 계집아이, 계집</div>
-                  </div>
-                  <div class="eg-block">
-                    <ul class="eg-list collapsed">
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">‘망할 놈의 <mark>가씨나</mark>!’ <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">‘배짱이 맞아서 지랄 잘한다. <mark>가씨나</mark>까지 내쫓고… …’ <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">‘빌어묵을 <mark>가씨나</mark>! 죽이부릴까.’ <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“시끄럽다. 장가를 못 가서 분통이 터져서 안 그라나. 이런 날 시집가는 <mark>가씨나</mark> 풍파 데기 많겠다.” <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“이 <mark>가시나</mark>, 이 <mark>가시나</mark>가 뭐라 카노?” 명혜가 새파란 얼굴로 앙칼지게 소리치며 그런 종숙이 누나를 뒤쫓았다. <span class="eg-src">〈이문열, 변경, 1992〉</span></span></li>
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“참 얄궂제. 어디 <mark>가씨나</mark>가 없어서 하필이믄 용란이한테 청혼을 했을까? 세상이 다 아는 일인데…” 안방에서 부리던 심술이 아직도 삭지 않았다. “생이는 그라믄 용란이 생이가 시집도 못 가고 그냥 늙어 죽었음 속이씨원하것소.” <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">명숙이 고 <mark>가시나</mark> 얼굴이 반쪽이더라. 남편이 바람폈다 카드라. <span class="eg-src">〈이만희, 이만희희곡집2, 1998〉</span></span></li>
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">용옥은 기가 차는 모양이다. “그러나 저러나 홍섭이 그놈이 서울 <mark>가씨나</mark>한테 장가들었다믄?” <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">저자식 학교 다닐 적에 <mark>가시나</mark>들한테 인기 되게 없었어요. 나만 보면 “형! <mark>가시나</mark> 하나만 돌라 하나만 돌라… …” <span class="eg-src">〈이만희, 이만희희곡집2, 1998〉</span></span></li>
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“<mark>가씨나</mark>나 하나 둘 기지. 앉아서 밥 얻어묵기 민망하구마.” <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
-                    </ul>
-                    <button type="button" class="eg-toggle" onclick="toggleExamples(this)">용례 더보기 (총 10건) <span class="eg-caret">▾</span></button>
-                  </div>
-                  <div class="result-meta">
-                    <span class="rm-line"><b>뜻풀이</b>① 시집가지 않은 어린 여자 아이를 낮잡아 이르는 말. ② ‘여자’를 낮잡아 이르는 말. <span class="def-src">〈문학 속의 경상 방언, 이상규·신승용, 글누림, 2010〉</span></span>
-                    <span class="rm-line"><b>다른 방언형</b>가시나, 가스나, 가스내</span>
-                  </div>
-                </article>
+                <div style="grid-column:1/-1;text-align:center;padding:40px;color:#64748b;">로컬 데이터베이스에서 불러오는 중…</div>
               </div>
 
               <!-- 목록형 뷰 -->
               <div class="result-list" id="viewList" style="display: none;">
-                <!-- 1 가새보리 -->
-                <article class="lit-entry">
-                  <div class="lit-head">
-                    <span class="lit-num">1</span>
-                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">가새보리</span> <span class="lit-pos">「명사」</span></span>
-                    <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>대응 표준어 없음</b></span></span>
-                  </div>
-                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">보리 싹이 자라서 보리 잎이 가위 모양으로 두세 잎 정도로 자란 보리. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>인분은 옥수수 뿐만 아니라 밀과 보리에도 퍼다 주는데, 이는 대개 밀, 보리가 <mark>가새보리</mark> 또는 가새밀이 될 때 퍼다 준다. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">가위보리</span></div>
-                </article>
-
-                <!-- 2 간두다 -->
-                <article class="lit-entry">
-                  <div class="lit-head">
-                    <span class="lit-num">2</span>
-                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">간두다</span> <span class="lit-pos">「동사」</span></span>
-                    <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>그만두다</b></span></span>
-                  </div>
-                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">하던 일이나 하던 말을 더 이상 하지 말고 그치다. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “<mark>간도</mark>.” “언눔이 도령.” “<mark>간두</mark>라니까.” <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">고만두다, 곤두다, 건두다</span></div>
-                </article>
-
-                <!-- 3 갑북갑북 -->
-                <article class="lit-entry">
-                  <div class="lit-head">
-                    <span class="lit-num">3</span>
-                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">갑북갑북</span> <span class="lit-pos">「부사」</span></span>
-                    <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>깜빡깜빡, #흠뻑흠뻑.</b></span></span>
-                  </div>
-                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">① 졸음이 오거나 술에 취해서 눈이 자꾸 감겼다 뜨였다 하면서 고개를 꾸벅이는 모양. ② 여러 사람이 모두 술에 흠뻑 취해 있거나 물에 흠뻑 젖어 있는 모양. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>“그러면 나는 어리어리한 환몽에서 다시 진달래를 씹었고 또 그러면 솔솔 불어오는 재넘이에 <mark>갑북갑북</mark> 졸음이 왔다. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">깜빡깜빡</span></div>
-                </article>
-
-                <!-- 4 갑산 돈피 -->
-                <article class="lit-entry">
-                  <div class="lit-head">
-                    <span class="lit-num">4</span>
-                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">갑산 돈피</span> <span class="lit-pos">「구」</span></span>
-                    <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>대응 표준어 없음</b></span></span>
-                  </div>
-                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">아주 튼튼하고 체력이 강함을 비유적으로 나타낸 말. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>이런 중에도 부역 나가고 남의 집 품팔이 하고 나무해다 장에 팔고 틈틈이 공부까지 하려니 몸이 <mark>갑산 돈피</mark>라도 지탱할 수가 없어 파김치 되기 십상이었다. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">다른 방언형 없음</span></div>
-                </article>
-
-                <!-- 5 개살스럽다 -->
-                <article class="lit-entry">
-                  <div class="lit-head">
-                    <span class="lit-num">5</span>
-                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">개살스럽다</span> <span class="lit-pos">「형용사」</span></span>
-                    <span class="lit-head-right"><span>지역 : <b>충청도, 강원도</b></span><span>대응 표준어 : <b>독살스럽다</b></span></span>
-                  </div>
-                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">성품이나 행동이 살기가 있고 날카로우며 모질고 악독한 데가 있다. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>홀어머니가 며느리를 보면 <mark>개살스러워</mark>져 심통부리기 예사요, 아들 내외가 정분이라도 좋으면 이게 질투가 나 심술을 부리며 눈에 쌍심지를 켠다는 말 말이다. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">매살스럽다</span></div>
-                </article>
-
-                <!-- 6 개토시 -->
-                <article class="lit-entry">
-                  <div class="lit-head">
-                    <span class="lit-num">6</span>
-                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">개토시</span> <span class="lit-pos">「명사」</span></span>
-                    <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>개차반</b></span></span>
-                  </div>
-                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">말과 행동이 아주 거칠고 너절한 사람을 비유적으로 속되게 이르는 말. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>선생님한테 불려가 치도곤을 당한 게 한두 번이 아니요 악동의 <mark>개토시</mark>로 악명 높아 어머니가 대신 무릎 꿇은 게 한두 번이 아니었지만 나는 예원이 앞에서만은 늘 주인 앞의 강아지 같았다. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">개차반</span></div>
-                </article>
-
-                <!-- 7 객사한 놈 지팡이 버리듯 한다 -->
-                <article class="lit-entry">
-                  <div class="lit-head">
-                    <span class="lit-num">7</span>
-                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">객사한 놈 지팡이 버리듯 한다</span> <span class="lit-pos">「속담」</span></span>
-                    <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>대응 표준어 없음</b></span></span>
-                  </div>
-                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">객지에서 죽은 사람이 가지고 다니던 지팡이를 쉽게 버리듯이 지조나 청렴을 쉽게 버림을 비유적으로 이르는 말. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>타락한 것들은 돈이라면 환장을 하고 부패한 것들은 돈이라면 사족을 못 써 지조 따위는 원두장이 쓴 외 버리듯 하고 청렴 따위는 <mark>객사한 놈 지팡이 버리듯 한다</mark>. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">원두쟁이 쏜 외 버리듯 한다, 객사한 놈 지팽이 버리듯 한다.</span></div>
-                </article>
-
-                <!-- 8 갸기부리다 -->
-                <article class="lit-entry">
-                  <div class="lit-head">
-                    <span class="lit-num">8</span>
-                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">갸기부리다</span> <span class="lit-pos">「동사」</span></span>
-                    <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>대응 표준어 없음</b></span></span>
-                  </div>
-                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">남을 업신여기고 잘난 체하며 뽐내는 행동을 하다. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>인사를 받든 안 받든 나만 인사하면 되고 등기부 열람해다 사무보면 그게 사무원다운 거지. 위인들이 <mark>갸기부리</mark>고 곤댓짓하는 거야 제가 잘나 그런 줄 착각하는 모양이니 치지도외 해버리자. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(중) 1996〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">갸기부리다</span></div>
-                </article>
-
-                <!-- 9 거렁뱅이 -->
-                <article class="lit-entry">
-                  <div class="lit-head">
-                    <span class="lit-num">9</span>
-                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">거렁뱅이</span> <span class="lit-pos">「명사」</span></span>
-                    <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>비렁뱅이</b></span></span>
-                  </div>
-                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">남에게 빌어먹고 사는 사람을 낮잡아 이르는 말. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>“자네 그거 어디서 배워먹은 행세따리야. 손님한테 밥대접하는 게 개돼지 밥주듯 하다니. 아무리 비럭질로 연명하는 <mark>거렁뱅이</mark>라도 대문을 넘어서면 손님이야. 그런데 그런 손님한테 밥을 쏟아부어줘? 천하에 못된 거 같으니라고.” <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">걸뱅이, 걸빙이, 걸비이, 동냥아치, 동냥치, 동냥박씨, 어더배기, 어더박시, 어더뱅이, 으더박시, 비렁뱅이, 비렁배이, 비렁배, 비렁이, 비렝박이, 그지</span></div>
-                </article>
-
-                <!-- 10 거악하다 -->
-                <article class="lit-entry">
-                  <div class="lit-head">
-                    <span class="lit-num">10</span>
-                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">거악하다</span> <span class="lit-pos">「형용사」</span></span>
-                    <span class="lit-head-right"><span>지역 : <b>충청도</b></span><span>대응 표준어 : <b>그악하다</b></span></span>
-                  </div>
-                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">산세나 지세가 발을 디디기 어려울 만큼 험하고 가파르다. <span class="lit-source">〈문학 속의 충청 방언, 박경래, 글누림, 2010〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><span class="lit-eg">▸</span>먼저 살던 곳에서 이곳까지는 60리가 실한 산길이고 이 산길 중간엔 길마재라고 하는 <mark>거악한</mark> 재와 곤은터재라고 하는 가파른 재가 있는데 우리는 이 두 재를 지게로 이삿짐을 다 져날랐다. <span class="lit-source">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">그악스럽다, 그악시룹다</span></div>
-                </article>
-
-                <!-- 11 가씨나 (용례 다건 예시) -->
-                <article class="lit-entry">
-                  <div class="lit-head">
-                    <span class="lit-num">11</span>
-                    <span class="lit-head-main"><span class="lbl">지역어 :</span> <span class="lit-word">가씨나</span> <span class="lit-pos">「명사」</span></span>
-                    <span class="lit-head-right"><span>지역 : <b>경상도</b></span><span>대응 표준어 : <b>계집아이, 계집</b></span></span>
-                  </div>
-                  <div class="lit-row"><span class="lit-label">해설 :</span><span class="lit-value">① 시집가지 않은 어린 여자 아이를 낮잡아 이르는 말. ② ‘여자’를 낮잡아 이르는 말. <span class="lit-source">〈문학 속의 경상 방언, 이상규·신승용, 글누림, 2010〉</span></span></div>
-                  <div class="lit-row"><span class="lit-label">용례 :</span><span class="lit-value"><div class="eg-block">
-                    <ul class="eg-list collapsed">
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">‘망할 놈의 <mark>가씨나</mark>!’ <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">‘배짱이 맞아서 지랄 잘한다. <mark>가씨나</mark>까지 내쫓고… …’ <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">‘빌어묵을 <mark>가씨나</mark>! 죽이부릴까.’ <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“시끄럽다. 장가를 못 가서 분통이 터져서 안 그라나. 이런 날 시집가는 <mark>가씨나</mark> 풍파 데기 많겠다.” <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“이 <mark>가시나</mark>, 이 <mark>가시나</mark>가 뭐라 카노?” 명혜가 새파란 얼굴로 앙칼지게 소리치며 그런 종숙이 누나를 뒤쫓았다. <span class="eg-src">〈이문열, 변경, 1992〉</span></span></li>
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“참 얄궂제. 어디 <mark>가씨나</mark>가 없어서 하필이믄 용란이한테 청혼을 했을까? 세상이 다 아는 일인데…” 안방에서 부리던 심술이 아직도 삭지 않았다. “생이는 그라믄 용란이 생이가 시집도 못 가고 그냥 늙어 죽었음 속이씨원하것소.” <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">명숙이 고 <mark>가시나</mark> 얼굴이 반쪽이더라. 남편이 바람폈다 카드라. <span class="eg-src">〈이만희, 이만희희곡집2, 1998〉</span></span></li>
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">용옥은 기가 차는 모양이다. “그러나 저러나 홍섭이 그놈이 서울 <mark>가씨나</mark>한테 장가들었다믄?” <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">저자식 학교 다닐 적에 <mark>가시나</mark>들한테 인기 되게 없었어요. 나만 보면 “형! <mark>가시나</mark> 하나만 돌라 하나만 돌라… …” <span class="eg-src">〈이만희, 이만희희곡집2, 1998〉</span></span></li>
-                      <li class="eg-item"><span class="eg-mark">▸</span><span class="eg-text">“<mark>가씨나</mark>나 하나 둘 기지. 앉아서 밥 얻어묵기 민망하구마.” <span class="eg-src">〈박경리, 김약국의 딸들, 1993〉</span></span></li>
-                    </ul>
-                    <button type="button" class="eg-toggle" onclick="toggleExamples(this)">용례 더보기 (총 10건) <span class="eg-caret">▾</span></button>
-                  </div></span></div>
-                  <div class="lit-row"><span class="lit-label">다른 방언형 :</span><span class="lit-value">가시나, 가스나, 가스내</span></div>
-                </article>
+                <div style="text-align:center;padding:40px;color:#64748b;">로컬 데이터베이스에서 불러오는 중…</div>
               </div>
 
               <!-- 동적 페이징 영역 -->
@@ -1780,7 +1315,7 @@
       '<select class="detail-select compact" aria-label="지역어 타입"><option value="전체" selected>전체</option><option value="지역어">지역어</option><option value="표준어">표준어</option></select>' +
       '<select class="detail-select compact" aria-label="포함 여부"><option value="포함" selected>포함</option><option value="일치">일치</option><option value="시작문자">시작 문자</option><option value="끝문자">끝 문자</option></select>' +
       '<input type="text" class="target-input" placeholder="검색어를 입력하세요." aria-label="검색어 입력">' +
-      '<button type="button" class="btn-outline oldkor-btn">옛 한글</button>' +
+      '<button type="button" class="btn-outline oldkor-btn" onclick="openOldHangul(null, this)">옛 한글</button>' +
       '<button type="button" class="row-del-btn" title="이 조건 삭제" aria-label="이 조건 삭제" onclick="this.closest(\'.search-target-row\').remove()"><i class="ti ti-x" aria-hidden="true"></i></button>';
     holder.appendChild(row);
   }
@@ -1878,173 +1413,272 @@
 </script>
 
 <script>
-  // Dynamic API Fetch & Render for Literature Dialects
+  // ── Literature Dialect · dialect_local.db 연동 ──
   let currentLitPage = 1;
   const currentLitLimit = 12;
+  let litFacets = { authors: [], books: [], regions: [] };
+  let litLoading = false;
 
-  function loadLiteratureData(page = 1) {
-    currentLitPage = page;
-    const searchInput = document.querySelector('.search-input');
-    const q = searchInput ? searchInput.value.trim() : '';
-    
-    // Region chips
-    const selectedRegions = [];
-    document.querySelectorAll('.chip-multi .ms-chip[aria-pressed="true"]:not([data-all])').forEach(c => {
-      selectedRegions.push(c.textContent.trim());
-    });
-    const regionStr = selectedRegions.join(',');
-
-    const url = `/api/literatures?q=${encodeURIComponent(q)}&region=${encodeURIComponent(regionStr)}&page=${page}&limit=${currentLitLimit}`;
-
-    fetch(url)
-      .then(res => res.json())
-      .then(res => {
-        if(res.status === 'success') {
-          renderLiteratureView(res.data, res.total, page, currentLitLimit);
-        }
-      })
-      .catch(err => console.error('Literature API fetch error:', err));
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
-  function renderLiteratureView(items, total, page, limit) {
-    // 1. Total Count & Metrics
-    const totalCountElem = document.getElementById('resultTotalCount');
-    if(totalCountElem) totalCountElem.textContent = total.toLocaleString();
+  /** 해설 출처: 〈책명, 저자, 출판사, 연도〉 */
+  function formatMeanSrc(item) {
+    if (!item) return '';
+    if (item.mean_src) return item.mean_src;
+    const parts = [item.exh_book_nm, item.exh_author, item.exh_publish_com, item.exh_publish_year]
+      .map(function (p) { return (p || '').trim(); })
+      .filter(Boolean);
+    return parts.length ? '〈' + parts.join(', ') + '〉' : '';
+  }
 
-    const countBadges = document.querySelectorAll('.count-badge b');
-    if(countBadges.length > 0) countBadges[0].textContent = total.toLocaleString();
+  function markTerm(text, term) {
+    const raw = String(text == null ? '' : text);
+    const safe = escHtml(raw);
+    const t = (term || '').trim();
+    if (!t) return safe;
+    try {
+      const re = new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+      return safe.replace(re, '<mark>$1</mark>');
+    } catch (e) {
+      return safe;
+    }
+  }
 
-    const summaryCount = document.querySelector('.summary-card h2');
-    if(summaryCount) {
-      summaryCount.textContent = `검색 결과 (총 ${total.toLocaleString()}건)`;
+  function getSelectedWriter() {
+    const el = document.querySelector('input[name="author"]:checked');
+    return el ? (el.value || '').trim() : '';
+  }
+
+  function getSelectedBook() {
+    const el = document.querySelector('input[name="work"]:checked');
+    const v = el ? (el.value || '').trim() : '';
+    if (!v || v === '전체' || v === '(전체)') return '';
+    return v;
+  }
+
+  function getSelectedRegions() {
+    const selected = [];
+    document.querySelectorAll('.chip-multi .ms-chip[aria-pressed="true"]:not([data-all])').forEach(c => {
+      const v = (c.dataset.value || c.textContent || '').trim();
+      if (v) selected.push(v);
+    });
+    return selected;
+  }
+
+  function getSearchTarget() {
+    const input = document.getElementById('searchTargetInput');
+    if (input && input.value) return input.value;
+    const checked = document.querySelector('.search-target-group [role="radio"][aria-checked="true"]');
+    return checked ? (checked.getAttribute('data-value') || 'all') : 'all';
+  }
+
+  function getMatchModeFromDetail() {
+    // 자세히 검색 첫 행의 포함 여부 셀렉트
+    const sel = document.querySelector('.filter-panel .search-target-row select[aria-label="포함 여부"]');
+    if (!sel) return 'contains';
+    const v = sel.value;
+    if (v === '일치') return 'exact';
+    if (v === '시작문자') return 'prefix';
+    if (v === '끝문자') return 'suffix';
+    return 'contains';
+  }
+
+  function getQueryText() {
+    // 자세히 검색 대상 입력란에 값이 있으면 우선
+    const detailInput = document.querySelector('.filter-panel .search-target-row .target-input');
+    if (detailInput && detailInput.value.trim()) return detailInput.value.trim();
+    const searchInput = document.querySelector('.search-input');
+    return searchInput ? searchInput.value.trim() : '';
+  }
+
+  function getDetailFieldTarget() {
+    const sel = document.querySelector('.filter-panel .search-target-row select[aria-label="지역어 타입"]');
+    if (!sel) return getSearchTarget();
+    if (sel.value === '지역어') return 'dialect';
+    if (sel.value === '표준어') return 'standard';
+    return getSearchTarget();
+  }
+
+  function loadLiteratureData(page) {
+    if (page == null) page = 1;
+    currentLitPage = page;
+    if (litLoading) return;
+    litLoading = true;
+
+    const q = getQueryText();
+    const regionStr = getSelectedRegions().join(',');
+    const writer = getSelectedWriter();
+    const book = getSelectedBook();
+    // 자세히 검색 패널이 열려 있고 대상 입력이 있으면 detail target 사용
+    const device = document.getElementById('device');
+    const expanded = device && device.classList.contains('state-expanded');
+    const target = expanded ? getDetailFieldTarget() : getSearchTarget();
+    const match = expanded ? getMatchModeFromDetail() : 'contains';
+
+    const params = new URLSearchParams({
+      q: q,
+      region: regionStr,
+      writer: writer,
+      book: book,
+      target: target,
+      match: match,
+      page: String(page),
+      limit: String(currentLitLimit),
+    });
+
+    const cardsContainer = document.getElementById('viewCards');
+    const listContainer = document.getElementById('viewList');
+    if (cardsContainer) {
+      cardsContainer.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#64748b;">검색 중…</div>';
+    }
+    if (listContainer && listContainer.style.display !== 'none') {
+      listContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#64748b;">검색 중…</div>';
     }
 
-    // 2. Render Cards View (#viewCards)
+    fetch('/api/literatures?' + params.toString())
+      .then(function (res) { return res.json(); })
+      .then(function (res) {
+        litLoading = false;
+        if (res.status === 'success') {
+          renderLiteratureView(res.data || [], res.total || 0, page, currentLitLimit, q);
+        } else {
+          showLitError(res.message || '검색에 실패했습니다.');
+        }
+      })
+      .catch(function (err) {
+        litLoading = false;
+        console.error('Literature API fetch error:', err);
+        showLitError('로컬 DB API에 연결할 수 없습니다. server.py(8765)가 실행 중인지 확인하세요.');
+      });
+  }
+
+  function showLitError(msg) {
     const cardsContainer = document.getElementById('viewCards');
-    if(cardsContainer) {
-      if(items.length === 0) {
-        cardsContainer.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:50px; color:#64748b; font-size:16px;">검색 결과가 없습니다.</div>`;
+    const listContainer = document.getElementById('viewList');
+    const html = '<div style="grid-column:1/-1;text-align:center;padding:50px;color:#b91c1c;font-size:15px;">' + escHtml(msg) + '</div>';
+    if (cardsContainer) cardsContainer.innerHTML = html;
+    if (listContainer) listContainer.innerHTML = '<div style="text-align:center;padding:50px;color:#b91c1c;">' + escHtml(msg) + '</div>';
+  }
+
+  function renderExamplesHtml(examples, q) {
+    if (!examples || !examples.length) return '';
+    const hasMore = examples.length > 1;
+    const items = examples.map(function (ex) {
+      const srcParts = [ex.writer, ex.book_name, ex.publish_year].filter(Boolean).join(' ');
+      const src = srcParts ? ' <span class="eg-src">〈' + escHtml(srcParts) + '〉</span>' : '';
+      return (
+        '<li class="eg-item">' +
+          '<span class="eg-mark">▸</span>' +
+          '<span class="eg-text">' + markTerm(ex.example || '', q) + src + '</span>' +
+        '</li>'
+      );
+    }).join('');
+    return (
+      '<div class="eg-block">' +
+        '<ul class="eg-list' + (hasMore ? ' collapsed' : '') + '">' + items + '</ul>' +
+        (hasMore
+          ? '<button type="button" class="eg-toggle" onclick="toggleExamples(this)">용례 더보기 (총 ' +
+            examples.length + '건) <span class="eg-caret">▾</span></button>'
+          : '') +
+      '</div>'
+    );
+  }
+
+  function renderLiteratureView(items, total, page, limit, q) {
+    const totalCountElem = document.getElementById('resultTotalCount');
+    if (totalCountElem) totalCountElem.textContent = Number(total).toLocaleString();
+
+    document.querySelectorAll('.count-badge b').forEach(function (el) {
+      el.textContent = Number(total).toLocaleString();
+    });
+
+    const cardsContainer = document.getElementById('viewCards');
+    if (cardsContainer) {
+      if (!items.length) {
+        cardsContainer.innerHTML =
+          '<div style="grid-column:1/-1;text-align:center;padding:50px;color:#64748b;font-size:16px;">검색 결과가 없습니다.</div>';
       } else {
-        cardsContainer.innerHTML = items.map((item, i) => {
+        cardsContainer.innerHTML = items.map(function (item) {
           const region = item.region_nm || '전국';
           const pos = item.word_class || '어휘';
           const std = item.std_tp || '대응 표준어 없음';
           const mean = item.mean || '';
+          const meanSrc = item.mean_src || formatMeanSrc(item);
           const relDlt = item.rel_dlt || '-';
-
-          let egHtml = '';
-          if(item.examples && item.examples.length > 0) {
-            const hasMore = item.examples.length > 1;
-            egHtml = `
-              <div class="eg-block">
-                <ul class="eg-list collapsed">
-                  ${item.examples.map(ex => `
-                    <li class="eg-item">
-                      <span class="eg-mark">▸</span>
-                      <span class="eg-text">${ex.example || ''} <span class="eg-src">〈${ex.writer || ''} ${ex.book_name || ''} ${ex.publish_year || ''}〉</span></span>
-                    </li>
-                  `).join('')}
-                </ul>
-                ${hasMore ? `
-                  <button type="button" class="eg-toggle" onclick="toggleExamples(this)">
-                    용례 더보기 (총 ${item.examples.length}건) <span class="eg-caret">▾</span>
-                  </button>
-                ` : ''}
-              </div>
-            `;
-          }
-
-          return `
-            <article class="result-card">
-              <div class="result-head">
-                <div class="dialect-word"><strong>${item.dlt_tp}</strong><span class="tag region">${region}</span><span class="tag type">${pos}</span></div>
-                <div class="source-meta">대응 표준어: ${std}</div>
-              </div>
-              ${egHtml}
-              <div class="result-meta">
-                <span class="rm-line"><b>뜻풀이</b>${mean}</span>
-                <span class="rm-line"><b>다른 방언형</b>${relDlt}</span>
-              </div>
-            </article>
-          `;
+          const egHtml = renderExamplesHtml(item.examples, q);
+          const meanHtml = markTerm(mean, q) +
+            (meanSrc ? ' <span class="def-src">' + escHtml(meanSrc) + '</span>' : '');
+          return (
+            '<article class="result-card">' +
+              '<div class="result-head">' +
+                '<div class="dialect-word"><strong>' + markTerm(item.dlt_tp, q) +
+                  '</strong><span class="tag region">' + escHtml(region) +
+                  '</span><span class="tag type">' + escHtml(pos) + '</span></div>' +
+                '<div class="source-meta">대응 표준어: ' + markTerm(std, q) + '</div>' +
+              '</div>' +
+              egHtml +
+              '<div class="result-meta">' +
+                '<span class="rm-line"><b>해설</b>' + meanHtml + '</span>' +
+                '<span class="rm-line"><b>다른 방언형</b>' + markTerm(relDlt, q) + '</span>' +
+              '</div>' +
+            '</article>'
+          );
         }).join('');
       }
     }
 
-    // 3. Render List View (#viewList)
     const listContainer = document.getElementById('viewList');
-    if(listContainer) {
-      if(items.length === 0) {
-        listContainer.innerHTML = `<div style="text-align:center; padding:50px; color:#64748b; font-size:16px;">검색 결과가 없습니다.</div>`;
+    if (listContainer) {
+      if (!items.length) {
+        listContainer.innerHTML =
+          '<div style="text-align:center;padding:50px;color:#64748b;font-size:16px;">검색 결과가 없습니다.</div>';
       } else {
-        listContainer.innerHTML = items.map((item, i) => {
+        listContainer.innerHTML = items.map(function (item, i) {
           const num = (page - 1) * limit + i + 1;
           const region = item.region_nm || '전국';
           const pos = item.word_class || '어휘';
           const std = item.std_tp || '대응 표준어 없음';
           const mean = item.mean || '';
+          const meanSrc = item.mean_src || formatMeanSrc(item);
           const relDlt = item.rel_dlt || '-';
-
-          let egBlockHtml = '';
-          if(item.examples && item.examples.length > 0) {
-            const hasMore = item.examples.length > 1;
-            egBlockHtml = `
-              <div class="eg-block">
-                <ul class="eg-list collapsed">
-                  ${item.examples.map(ex => `
-                    <li class="eg-item">
-                      <span class="eg-mark">▸</span>
-                      <span class="eg-text">${ex.example || ''} <span class="eg-src">〈${ex.writer || ''} ${ex.book_name || ''} ${ex.publish_year || ''}〉</span></span>
-                    </li>
-                  `).join('')}
-                </ul>
-                ${hasMore ? `
-                  <button type="button" class="eg-toggle" onclick="toggleExamples(this)">
-                    용례 더보기 (총 ${item.examples.length}건) <span class="eg-caret">▾</span>
-                  </button>
-                ` : ''}
-              </div>
-            `;
-          }
-
-          return `
-            <article class="lit-entry">
-              <div class="lit-head">
-                <span class="lit-num">${num}</span>
-                <div class="lit-head-main">
-                  <span class="lit-word">${item.dlt_tp}</span>
-                  <span class="lit-pos">(${pos})</span>
-                </div>
-                <div class="lit-head-right">
-                  <span>지역: <b>${region}</b></span>
-                  <span>대응 표준어: <b>${std}</b></span>
-                </div>
-              </div>
-              <div class="lit-row">
-                <div class="lit-label">뜻풀이</div>
-                <div class="lit-value">${mean}</div>
-              </div>
-              ${egBlockHtml ? `
-                <div class="lit-row">
-                  <div class="lit-label">문학 용례</div>
-                  <div class="lit-value">${egBlockHtml}</div>
-                </div>
-              ` : ''}
-              <div class="lit-row">
-                <div class="lit-label">다른 방언형</div>
-                <div class="lit-value">${relDlt}</div>
-              </div>
-            </article>
-          `;
+          const egBlockHtml = renderExamplesHtml(item.examples, q);
+          const meanHtml = markTerm(mean, q) +
+            (meanSrc ? ' <span class="def-src">' + escHtml(meanSrc) + '</span>' : '');
+          return (
+            '<article class="lit-entry">' +
+              '<div class="lit-head">' +
+                '<span class="lit-num">' + num + '</span>' +
+                '<div class="lit-head-main">' +
+                  '<span class="lit-word">' + markTerm(item.dlt_tp, q) + '</span>' +
+                  '<span class="lit-pos">(' + escHtml(pos) + ')</span>' +
+                '</div>' +
+                '<div class="lit-head-right">' +
+                  '<span>지역: <b>' + escHtml(region) + '</b></span>' +
+                  '<span>대응 표준어: <b>' + markTerm(std, q) + '</b></span>' +
+                '</div>' +
+              '</div>' +
+              '<div class="lit-row"><div class="lit-label">해설</div><div class="lit-value">' + meanHtml + '</div></div>' +
+              (egBlockHtml
+                ? '<div class="lit-row"><div class="lit-label">문학 용례</div><div class="lit-value">' + egBlockHtml + '</div></div>'
+                : '') +
+              '<div class="lit-row"><div class="lit-label">다른 방언형</div><div class="lit-value">' + markTerm(relDlt, q) + '</div></div>' +
+            '</article>'
+          );
         }).join('');
       }
     }
 
-    // 4. Render Pagination (#litPagination)
     const pagContainer = document.getElementById('litPagination');
-    if(pagContainer) {
-      const totalPages = Math.ceil(total / limit);
-      if(totalPages <= 1) {
+    if (pagContainer) {
+      const totalPages = Math.max(1, Math.ceil(total / limit));
+      if (totalPages <= 1) {
         pagContainer.innerHTML = '';
       } else {
         let pagHtml = '';
@@ -2055,57 +1689,222 @@
           endPage = totalPages;
           startPage = Math.max(1, endPage - maxPagesToShow + 1);
         }
-
-        // Prev Arrow
         if (page > 1) {
-          pagHtml += `<a href="javascript:void(0)" class="arrow-btn" onclick="loadLiteratureData(${page - 1})" aria-label="이전 페이지"><i class="ti ti-chevron-left"></i></a>`;
+          pagHtml += '<a href="javascript:void(0)" class="arrow-btn" onclick="loadLiteratureData(' + (page - 1) + ')" aria-label="이전 페이지"><i class="ti ti-chevron-left"></i></a>';
         } else {
-          pagHtml += `<span class="arrow-btn disabled" style="opacity:0.4; cursor:not-allowed;"><i class="ti ti-chevron-left"></i></span>`;
+          pagHtml += '<span class="arrow-btn disabled" style="opacity:0.4;cursor:not-allowed;"><i class="ti ti-chevron-left"></i></span>';
         }
-
-        // Page Numbers
         for (let p = startPage; p <= endPage; p++) {
-          if (p === page) {
-            pagHtml += `<span class="current">${p}</span>`;
-          } else {
-            pagHtml += `<a href="javascript:void(0)" class="page-num" onclick="loadLiteratureData(${p})">${p}</a>`;
-          }
+          if (p === page) pagHtml += '<span class="current">' + p + '</span>';
+          else pagHtml += '<a href="javascript:void(0)" class="page-num" onclick="loadLiteratureData(' + p + ')">' + p + '</a>';
         }
-
-        // Next Arrow
         if (page < totalPages) {
-          pagHtml += `<a href="javascript:void(0)" class="arrow-btn" onclick="loadLiteratureData(${page + 1})" aria-label="다음 페이지"><i class="ti ti-chevron-right"></i></a>`;
+          pagHtml += '<a href="javascript:void(0)" class="arrow-btn" onclick="loadLiteratureData(' + (page + 1) + ')" aria-label="다음 페이지"><i class="ti ti-chevron-right"></i></a>';
         } else {
-          pagHtml += `<span class="arrow-btn disabled" style="opacity:0.4; cursor:not-allowed;"><i class="ti ti-chevron-right"></i></span>`;
+          pagHtml += '<span class="arrow-btn disabled" style="opacity:0.4;cursor:not-allowed;"><i class="ti ti-chevron-right"></i></span>';
         }
-
         pagContainer.innerHTML = pagHtml;
       }
     }
   }
 
-  document.addEventListener('DOMContentLoaded', function() {
-    // Search Button Click Event
-    const searchBtn = document.querySelector('.search-panel .btn-primary');
-    if(searchBtn) {
-      searchBtn.addEventListener('click', function() {
+  function renderAuthorList(authors) {
+    const list = document.getElementById('authorList');
+    if (!list) return;
+    const prev = getSelectedWriter();
+    let html = '';
+    authors.forEach(function (a) {
+      const name = a.name || '';
+      const cho = a.cho || '';
+      const cnt = a.count != null ? ' <small style="color:#94a3b8;">(' + a.count + ')</small>' : '';
+      const checked = prev && prev === name ? ' checked' : '';
+      html +=
+        '<label class="pick" data-cho="' + escHtml(cho) + '">' +
+          '<input type="radio" name="author" value="' + escHtml(name) + '"' + checked + '>' +
+          '<span>' + escHtml(name) + cnt + '</span>' +
+        '</label>';
+    });
+    list.innerHTML = html;
+    list.querySelectorAll('input[name="author"]').forEach(function (inp) {
+      inp.addEventListener('change', function () {
+        // 작가 변경 시 해당 작가 작품 목록 갱신
+        loadWorkList(getSelectedWriter());
+      });
+      // 같은 항목 재클릭 시 선택 해제 → 전체(필터 없음)
+      inp.addEventListener('click', function () {
+        if (inp.dataset.wasChecked === '1') {
+          inp.checked = false;
+          inp.dataset.wasChecked = '0';
+          loadWorkList('');
+        } else {
+          list.querySelectorAll('input[name="author"]').forEach(function (r) {
+            r.dataset.wasChecked = r.checked ? '1' : '0';
+          });
+        }
+      });
+    });
+    filterPicker('authorList', '');
+  }
+
+  function clearWorkList(message) {
+    const list = document.getElementById('workList');
+    const empty = document.getElementById('workEmpty');
+    if (list) list.innerHTML = '';
+    if (empty) {
+      empty.textContent = message || '작가를 선택해주세요';
+      empty.style.display = '';
+    }
+  }
+
+  function renderWorkList(books) {
+    const list = document.getElementById('workList');
+    if (!list) return;
+    const prev = getSelectedBook();
+    // 작가 선택 후: 기본은 (전체) — 해당 작가의 전 작품
+    const allChecked = !prev ? ' checked' : '';
+    let html = '<label class="pick"><input type="radio" name="work" value=""' + allChecked + '><span>(전체)</span></label>';
+    (books || []).forEach(function (b) {
+      const name = b.name || '';
+      const cnt = b.count != null ? ' <small style="color:#94a3b8;">(' + b.count + ')</small>' : '';
+      const checked = prev && prev === name ? ' checked' : '';
+      html +=
+        '<label class="pick">' +
+          '<input type="radio" name="work" value="' + escHtml(name) + '"' + checked + '>' +
+          '<span>' + escHtml(name) + cnt + '</span>' +
+        '</label>';
+    });
+    list.innerHTML = html;
+    const empty = document.getElementById('workEmpty');
+    if (empty) {
+      // 작품 목록(전체 포함)이 있으면 안내 문구 숨김
+      empty.style.display = 'none';
+    }
+  }
+
+  function loadFacets(writer) {
+    // 작가 미선택: 작가 목록만 로드, 작품은 안내 문구만 표시
+    if (!writer) {
+      return fetch('/api/literature_facets')
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          if (res.status !== 'success' || !res.data) return;
+          litFacets = res.data;
+          renderAuthorList(res.data.authors || []);
+          clearWorkList('작가를 선택해주세요');
+        })
+        .catch(function (err) {
+          console.error('literature_facets error:', err);
+        });
+    }
+    const qs = '?writer=' + encodeURIComponent(writer);
+    return fetch('/api/literature_facets' + qs)
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (res.status !== 'success' || !res.data) return;
+        litFacets = res.data;
+        renderWorkList(res.data.books || []);
+      })
+      .catch(function (err) {
+        console.error('literature_facets error:', err);
+      });
+  }
+
+  function loadWorkList(writer) {
+    if (!writer) {
+      clearWorkList('작가를 선택해주세요');
+      return Promise.resolve();
+    }
+    return loadFacets(writer);
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    // 검색 버튼들 (간단/자세히)
+    document.querySelectorAll('.search-panel .btn-primary, .detail-actions .btn-primary').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
         loadLiteratureData(1);
       });
-    }
+    });
 
-    // Input Enter Event
     const searchInput = document.querySelector('.search-input');
-    if(searchInput) {
-      searchInput.addEventListener('keyup', function(e) {
-        if(e.key === 'Enter') loadLiteratureData(1);
+    if (searchInput) {
+      searchInput.addEventListener('keyup', function (e) {
+        if (e.key === 'Enter') loadLiteratureData(1);
       });
     }
 
-    // Initial Load
-    loadLiteratureData(1);
+    // 자세히 검색 대상 입력 Enter
+    document.querySelectorAll('.filter-panel .target-input').forEach(function (inp) {
+      inp.addEventListener('keyup', function (e) {
+        if (e.key === 'Enter') loadLiteratureData(1);
+      });
+    });
+
+    // 추천 검색어 칩
+    document.querySelectorAll('.rec-chip').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        const v = chip.textContent.trim();
+        if (searchInput) searchInput.value = v;
+        loadLiteratureData(1);
+      });
+    });
+
+    // 작가/작품/지역 변경 시 자동 검색 (자세히 모드에서 유용)
+    document.addEventListener('change', function (e) {
+      const t = e.target;
+      if (t && (t.name === 'author' || t.name === 'work')) {
+        // 작품 목록 갱신은 author change에서 처리. 검색은 사용자가 검색 버튼을 누르도록 유도해도 되지만
+        // 선택 즉시 반영하는 편이 UX에 맞음
+        if (t.name === 'author') {
+          /* loadWorkList already bound */
+        }
+      }
+    });
+
+    // facets → list 초기 로드
+    loadFacets('').then(function () {
+      loadLiteratureData(1);
+    });
   });
 </script>
 
 <script src="./share.js" defer></script>
+<script>
+/* ── 옛한글 입력기 팝업 (vocab_dialect.html과 동일 방식) ── */
+var _oldHangulWin = null;
+function _ohFindInput(btn){
+  if (btn) {
+    var p = btn;
+    for (var k = 0; k < 5 && p; k++) {
+      p = p.parentElement; if (!p) break;
+      var i = p.querySelector('.search-input, .search-target-input-field');
+      if (i) return i;
+    }
+  }
+  var ae = document.activeElement;
+  if (ae && ae.classList && (ae.classList.contains('search-input') || ae.classList.contains('search-target-input-field'))) return ae;
+  return document.querySelector('.search-input, .search-target-input-field');
+}
+function openOldHangul(targetId, btn){
+  var tid = targetId;
+  if (!tid) {
+    var input = _ohFindInput(btn);
+    if (input && !input.id) input.id = 'ohTarget_' + Math.random().toString(36).slice(2, 8);
+    tid = (input && input.id) || 'searchWord0';
+  }
+  var url = new URL('oldhangul.html', window.location.href);
+  url.searchParams.set('target', tid);
+  var w = 720, h = 760;
+  var left = Math.max(0, Math.floor((screen.width - w) / 2));
+  var top = Math.max(0, Math.floor((screen.height - h) / 2));
+  var features = 'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',scrollbars=yes,resizable=yes';
+  try { if (_oldHangulWin && !_oldHangulWin.closed) { _oldHangulWin.location.href = url.toString(); _oldHangulWin.focus(); return; } } catch (e) { _oldHangulWin = null; }
+  _oldHangulWin = window.open(url.toString(), 'oldHangulPopup', features);
+  if (!_oldHangulWin) { alert('팝업이 차단되었습니다. 브라우저에서 이 사이트의 팝업을 허용해 주세요.'); }
+  else { try { _oldHangulWin.focus(); } catch (e) {} }
+}
+function toggleOldKor(btn){ openOldHangul(null, btn || (window.event && window.event.currentTarget)); }
+function closeOldKor(){ if (_oldHangulWin && !_oldHangulWin.closed) _oldHangulWin.close(); }
+</script>
 </body>
 </html>

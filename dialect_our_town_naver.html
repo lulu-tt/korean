@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>지역어 지도 (네이버 지도 테스트)</title>
+<style>
+  :root{ --line:#e2e8f0; --text:#0f172a; --muted:#64748b; --blue:#2563eb; }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;font-family:'Pretendard',-apple-system,sans-serif;color:var(--text)}
+  .wrap{display:flex;flex-direction:column;height:100vh}
+  .top{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:#fff}
+  .top h1{font-size:18px;font-weight:800;margin:0}
+  .top .tag{font-size:12px;font-weight:700;color:#fff;background:#16a34a;border-radius:99px;padding:3px 10px}
+  .top .field{display:flex;align-items:center;gap:8px;margin-left:auto}
+  .top label{font-size:13px;font-weight:700;color:var(--muted)}
+  select{height:38px;border:1px solid var(--line);border-radius:8px;padding:0 32px 0 12px;font-size:14px;font-weight:700;font-family:inherit;color:var(--text);cursor:pointer;background:#fff}
+  .meta{font-size:13px;color:var(--muted);font-weight:600}
+  .stage{flex:1;position:relative;min-height:0}
+  #map{position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%}
+  .legend{position:absolute;left:16px;bottom:16px;z-index:5;background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.08);padding:14px 16px;max-width:260px;max-height:56vh;overflow:auto}
+  .legend h3{margin:0 0 10px;font-size:14px;font-weight:800}
+  .legend .row{display:flex;align-items:center;gap:9px;padding:4px 0;font-size:13px;font-weight:600}
+  .legend .dot{width:13px;height:13px;border-radius:50%;flex:0 0 auto;border:1.5px solid #fff;box-shadow:0 0 2px rgba(0,0,0,.35)}
+  .legend .cnt{margin-left:auto;color:var(--muted);font-weight:700;font-size:12px}
+  .note{position:absolute;right:16px;top:16px;z-index:5;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--muted);font-weight:600}
+  .iw{padding:10px 13px;font-size:13px;line-height:1.5;min-width:150px}
+  .iw b{font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>지역어 지도</h1>
+    <span class="tag">네이버 지도 테스트</span>
+    <div class="field">
+      <label for="wordSel">단어</label>
+      <select id="wordSel"><option>불러오는 중…</option></select>
+      <span class="meta" id="meta"></span>
+    </div>
+  </div>
+  <div class="stage">
+    <div id="map"></div>
+    <div class="legend" id="legend"><h3>범례</h3></div>
+    <div class="note">실제 조사지점(위경도) 데이터를 네이버 지도에 표시</div>
+  </div>
+</div>
+
+<script>
+  window.navermap_authFailure = function () {
+    document.getElementById('map').innerHTML =
+      '<div style="padding:40px;color:#dc2626;font-weight:700">네이버 지도 인증 실패 — 이 도메인(' +
+      location.origin + ')이 NCP 콘솔에 등록되어 있어야 합니다.</div>';
+  };
+</script>
+<script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=lyljs260xn"></script>
+<script>
+(function () {
+  var BASE = './data/processed/map/';
+  var map, markers = [], infoWindow;
+
+  function init() {
+    map = new naver.maps.Map('map', {
+      center: new naver.maps.LatLng(36.5, 127.8),
+      zoom: 7,
+      mapTypeControl: false
+    });
+    infoWindow = new naver.maps.InfoWindow({ content: '', borderWidth: 0, disableAnchor: false, backgroundColor: '#fff', anchorSize: new naver.maps.Size(10, 10) });
+    // 초기 레이아웃 이후 지도 크기 재계산 (컨테이너 높이 0으로 잡히는 문제 방지)
+    setTimeout(function () { naver.maps.Event.trigger(map, 'resize'); }, 120);
+    loadIndex();
+  }
+
+  function clearMarkers() {
+    markers.forEach(function (m) { m.setMap(null); });
+    markers = [];
+  }
+
+  function loadIndex() {
+    fetch(BASE + 'index.json').then(function (r) { return r.json(); }).then(function (idx) {
+      var sel = document.getElementById('wordSel');
+      sel.innerHTML = '';
+      idx.items.forEach(function (it) {
+        var o = document.createElement('option');
+        o.value = it.headword_no;
+        o.textContent = it.headword + ' (' + it.points + '지점)';
+        o.dataset.word = it.headword;
+        sel.appendChild(o);
+      });
+      // 기본: 곁두리(있으면) 아니면 첫 항목
+      var def = Array.prototype.find.call(sel.options, function (o) { return o.dataset.word === '곁두리'; });
+      sel.value = def ? def.value : sel.options[0].value;
+      sel.addEventListener('change', function () { loadWord(sel.value); });
+      loadWord(sel.value);
+    }).catch(function (e) {
+      document.getElementById('meta').textContent = 'index.json 로드 실패';
+    });
+  }
+
+  function loadWord(headwordNo) {
+    fetch(BASE + headwordNo + '.json').then(function (r) { return r.json(); }).then(function (d) {
+      render(d);
+    }).catch(function (e) {
+      document.getElementById('meta').textContent = headwordNo + '.json 로드 실패';
+    });
+  }
+
+  function render(d) {
+    clearMarkers();
+    document.getElementById('meta').textContent =
+      "'" + d.headword + "' · " + (d.regions ? d.regions.length : 0) + '개 조사지점';
+
+    // 포인트 마커 (지점별 방언형 + 색상)
+    (d.regions || []).forEach(function (p) {
+      if (p.lat == null || p.lng == null) return;
+      var fc = 'rgb(' + (p.faceColor || '120,120,120') + ')';
+      var marker = new naver.maps.Marker({
+        position: new naver.maps.LatLng(p.lat, p.lng),
+        map: map,
+        title: p.regionNm + ' — ' + p.word,
+        icon: {
+          content: '<div style="width:12px;height:12px;border-radius:50%;background:' + fc +
+                   ';border:1.5px solid #fff;box-shadow:0 0 3px rgba(0,0,0,.45);cursor:pointer"></div>',
+          anchor: new naver.maps.Point(6, 6)
+        }
+      });
+      naver.maps.Event.addListener(marker, 'click', function () {
+        infoWindow.setContent(
+          '<div class="iw"><b>' + p.word + '</b><br>' +
+          '<span style="color:#64748b">' + (p.regionNm || (p.sido + ' ' + p.sigungu)) + '</span></div>'
+        );
+        infoWindow.open(map, marker);
+      });
+      markers.push(marker);
+    });
+
+    renderLegend(d);
+    fitToPoints(d.regions);
+  }
+
+  function renderLegend(d) {
+    var el = document.getElementById('legend');
+    var html = '<h3>' + d.headword + ' — 방언형</h3>';
+    var groups = d.groups || {};
+    Object.keys(groups).forEach(function (gk) {
+      var g = groups[gk];
+      if (!g || !g.variants || !g.variants.length) return;
+      var n = g.variants.reduce(function (a, v) { return a + (v.n || 0); }, 0);
+      var words = g.variants.map(function (v) { return v.word; }).slice(0, 3).join(', ');
+      html += '<div class="row"><span class="dot" style="background:' + (g.color || '#888') + '"></span>' +
+              '<span>' + (g.label || gk) + '<br><span style="color:#94a3b8;font-weight:500;font-size:11.5px">' + words + '</span></span>' +
+              '<span class="cnt">' + n + '</span></div>';
+    });
+    el.innerHTML = html;
+  }
+
+  function fitToPoints(regions) {
+    if (!regions || !regions.length) return;
+    var lats = [], lngs = [];
+    regions.forEach(function (p) { if (p.lat != null) { lats.push(p.lat); lngs.push(p.lng); } });
+    if (!lats.length) return;
+    var sw = new naver.maps.LatLng(Math.min.apply(null, lats), Math.min.apply(null, lngs));
+    var ne = new naver.maps.LatLng(Math.max.apply(null, lats), Math.max.apply(null, lngs));
+    map.fitBounds(new naver.maps.LatLngBounds(sw, ne));
+  }
+
+  if (window.naver && naver.maps) init();
+  else document.getElementById('map').innerHTML = '<div style="padding:40px;color:#dc2626">네이버 지도 스크립트 로드 실패</div>';
+})();
+</script>
+</body>
+</html>

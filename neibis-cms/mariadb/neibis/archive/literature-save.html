@@ -803,15 +803,66 @@ function btnCancel(){
 	} else if(confirm('목록으로 이동하시겠어요?')){ go(); }
 }
 
+var API = '/mariadb/neibis-api/archive/literature';
+
+function toast(msg, icon){
+	if(window.Message){ Message.alert({icon:icon||'info', message:msg}); }
+	else { alert(msg); }
+}
+function ask(opts, cb){
+	if(window.Message && Message.confirm){ Message.confirm(opts, cb); }
+	else if(window.confirm(opts.message||opts.title||'확인')){ cb(); }
+}
+function collectExamples(){
+	var list = [];
+	$('#example-list .sub-card').each(function(){
+		var $c = $(this);
+		list.push({
+			wordExample: ($c.find('.ex-word').val()||'').trim(),
+			stdExample: ($c.find('.ex-std').val()||'').trim(),
+			writer: ($c.find('.ex-writer').val()||'').trim(),
+			bookName: ($c.find('.ex-book').val()||'').trim(),
+			publishCompany: ($c.find('.ex-pub').val()||'').trim(),
+			publishYear: ($c.find('.ex-year').val()||'').trim(),
+			volumeNo: ($c.find('.ex-volume').val()||'').trim(),
+			pageNo: ($c.find('.ex-page').val()||'').trim(),
+			sidoCd: ($c.find('.ex-sido').val()||'').trim(),
+			sigunguNm: ($c.find('.ex-sigungu').val()||'').trim()
+		});
+	});
+	return list;
+}
+function collectPayload(){
+	var regions = [];
+	$('input[name="regionNm"]:checked').each(function(){ regions.push($(this).val()); });
+	return {
+		literId: '',
+		dltTp: ($('#dltTp').val()||'').trim(),
+		stdTp: ($('#stdTp').val()||'').trim(),
+		addMean: ($('#addMean').val()||'').trim(),
+		wordClass: ($('#wordClass').val()||'').trim(),
+		mean: ($('#mean').val()||'').trim(),
+		regionNm: regions,
+		relDlt: ($('#relDlt').val()||'').trim(),
+		wordDesc: ($('#wordDesc').val()||'').trim(),
+		useYn: $('input[name="useYn"]:checked').val() || 'Y',
+		exhBookNm: ($('#exhBookNm').val()||'').trim(),
+		exhAuthor: ($('#exhAuthor').val()||'').trim(),
+		exhPublishCom: ($('#exhPublishCom').val()||'').trim(),
+		exhPublishYear: ($('#exhPublishYear').val()||'').trim(),
+		examples: collectExamples()
+	};
+}
+
 function btnSave(){
 	var dlt = ($('#dltTp').val()||'').trim();
 	var std = ($('#stdTp').val()||'').trim();
 	if(!dlt){
-		if(window.Message){ Message.alert({icon:'warning', message:'표제어를 입력해주세요.'}); } else { alert('표제어를 입력해주세요.'); }
+		toast('표제어를 입력해주세요.', 'warning');
 		return $('#dltTp').focus();
 	}
 	if(!std){
-		if(window.Message){ Message.alert({icon:'warning', message:'대응표준어를 입력해주세요.'}); } else { alert('대응표준어를 입력해주세요.'); }
+		toast('대응표준어를 입력해주세요.', 'warning');
 		return $('#stdTp').focus();
 	}
 	var emptyEx = false;
@@ -819,21 +870,30 @@ function btnSave(){
 		if(!($(this).val()||'').trim()){ emptyEx = true; }
 	});
 	if($('#example-list .sub-card').length && emptyEx){
-		if(window.Message){ Message.alert({icon:'warning', message:'지역어 예문을 입력해주세요. (빈 용례 블록이 있습니다)'}); }
-		else { alert('지역어 예문을 입력해주세요.'); }
+		toast('지역어 예문을 입력해주세요. (빈 용례 블록이 있습니다)', 'warning');
 		return;
 	}
-	var done = function(){
-		if(window.Message){
-			Message.alert({icon:'info', message:'정적 프로토타입입니다. 실제 저장은 수행되지 않습니다.'}, function(){ location.href='literature.do'; });
-		} else {
-			alert('정적 프로토타입: 저장 미수행');
-			location.href='literature.do';
-		}
+	var payload = collectPayload();
+	var doSave = function(){
+		$.ajax({
+			url: API + '/save',
+			method: 'POST',
+			contentType: 'application/json',
+			data: JSON.stringify(payload)
+		}).done(function(res){
+			if(res && res.ok){
+				if(window.Message){
+					Message.alert({icon:'success', message: res.message || '저장되었습니다.'}, function(){ location.href='literature.do'; });
+				} else {
+					alert(res.message||'저장되었습니다.');
+					location.href='literature.do';
+				}
+			} else {
+				toast((res && res.message) || '저장 실패', 'error');
+			}
+		}).fail(function(){ toast('저장 요청 실패', 'error'); });
 	};
-	if(window.Message){
-		Message.confirm({icon:'warning', title:'저장하시겠어요?', message:'저장하시려면 ‘확인’을 눌러주세요.'}, done);
-	} else if(confirm('저장하시겠어요?')){ done(); }
+	ask({icon:'warning', title:'저장하시겠어요?', message:'저장하시려면 ‘확인’을 눌러주세요.'}, doSave);
 }
 
 $(function(){
