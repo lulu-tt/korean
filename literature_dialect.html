@@ -1553,10 +1553,90 @@
         }
       })
       .catch(function (err) {
-        litLoading = false;
-        console.error('Literature API fetch error:', err);
-        showLitError('로컬 DB API에 연결할 수 없습니다. server.py(8765)가 실행 중인지 확인하세요.');
+        console.warn('Literature API fetch failed, falling back to static data:', err);
+        fetchStaticLiteratureData(q, regionStr, writer, book, target, match, page, currentLitLimit);
       });
+  }
+
+  var staticLitCache = null;
+  function fetchStaticLiteratureData(q, regionStr, writer, book, target, match, page, limit) {
+    var promise = staticLitCache
+      ? Promise.resolve(staticLitCache)
+      : fetch('./data/literature_data.json')
+          .then(function (r) { return r.json(); })
+          .then(function (res) {
+            staticLitCache = res.data || [];
+            return staticLitCache;
+          });
+
+    promise.then(function (allData) {
+      litLoading = false;
+      var filtered = filterStaticLiterature(allData, q, regionStr, writer, book, target, match);
+      var total = filtered.length;
+      var start = (page - 1) * limit;
+      var pagedData = filtered.slice(start, start + limit);
+      renderLiteratureView(pagedData, total, page, limit, q);
+    }).catch(function (e) {
+      litLoading = false;
+      console.error('Static Literature Data fetch error:', e);
+      showLitError('데이터를 불러오는데 실패했습니다.');
+    });
+  }
+
+  function filterStaticLiterature(data, q, regionStr, writer, book, target, match) {
+    var query = (q || '').trim().toLowerCase();
+    var regions = (regionStr || '').replace(/\|/g, ',').split(',').map(function(r){ return r.trim(); }).filter(function(r){ return r && r !== '전체'; });
+
+    return data.filter(function (item) {
+      // Region filter
+      if (regions.length > 0) {
+        var itemRegion = item.region_nm || '';
+        var matchReg = regions.some(function(r){ return itemRegion.indexOf(r) !== -1; });
+        if (!matchReg) return false;
+      }
+
+      // Writer filter
+      if (writer && writer !== '전체' && writer !== '(전체)' && writer !== 'all') {
+        var hasWriter = (item.examples || []).some(function(ex){ return (ex.writer || '').trim() === writer; });
+        if (!hasWriter) return false;
+      }
+
+      // Book filter
+      if (book && book !== '전체' && book !== '(전체)' && book !== 'all') {
+        var hasBook = (item.examples || []).some(function(ex){ return (ex.book_name || '').trim() === book; });
+        if (!hasBook) return false;
+      }
+
+      // Keyword query search
+      if (query) {
+        var checkStr = function(val) {
+          if (!val) return false;
+          var str = String(val).toLowerCase();
+          if (match === 'exact' || match === 'eq') return str === query;
+          if (match === 'prefix' || match === 'start') return str.indexOf(query) === 0;
+          if (match === 'suffix' || match === 'end') return str.endsWith(query);
+          return str.indexOf(query) !== -1;
+        };
+
+        if (target === 'dialect' || target === 'dlt') {
+          if (!checkStr(item.dlt_tp)) return false;
+        } else if (target === 'standard' || target === 'std') {
+          if (!checkStr(item.std_tp)) return false;
+        } else {
+          var hit = checkStr(item.dlt_tp) ||
+                    checkStr(item.std_tp) ||
+                    checkStr(item.mean) ||
+                    checkStr(item.rel_dlt) ||
+                    checkStr(item.region_nm) ||
+                    (item.examples || []).some(function(ex){
+                      return checkStr(ex.example) || checkStr(ex.writer) || checkStr(ex.book_name);
+                    });
+          if (!hit) return false;
+        }
+      }
+
+      return true;
+    });
   }
 
   function showLitError(msg) {
