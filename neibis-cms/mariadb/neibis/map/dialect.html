@@ -695,6 +695,12 @@
 <input type="text" id="searchText" name="searchText" class="form-control" style="max-width:320px" maxlength="20" placeholder="표제어 검색어 입력" onkeypress="if(event.keyCode===13){searchList(1);return false;}" />
 </td>
 </tr>
+<tr>
+<th scope="row"><label for="writer">등록자 계정</label></th>
+<td colspan="3">
+<input type="text" id="writer" name="writer" class="form-control" style="max-width:320px" maxlength="40" placeholder="계정(아이디) 정확히 입력" onkeypress="if(event.keyCode===13){searchList(1);return false;}" />
+</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -888,6 +894,7 @@ function escHtml(s){
 
 function btnInit(){
   $('#search-form')[0].reset();
+  $('#writer').val('');
   $('#SearchType').val('3');
   $('#pageItm').val('10');
   hwState.status = '';
@@ -989,13 +996,15 @@ function renderPager(page, totalPages){
 function searchList(page){
   if(page) hwState.page = page;
   hwState.pageSize = parseInt($('#pageItm').val(), 10) || 10;
-  var q = $.param({
+  var qp = {
     SearchType: $('#SearchType').val() || '3',
     searchText: $('#searchText').val() || '',
     status: hwState.status || '',
     page: hwState.page,
     pageSize: hwState.pageSize
-  });
+  };
+  qp.writer = $('#writer').val() || '';
+  var q = $.param(qp);
   $('#headword-list-body').html('<tr><td colspan="13" class="text-center" style="padding:24px;color:#64748b">불러오는 중…</td></tr>');
   $.ajax({
     url: '/mariadb/neibis-api/headword/list?' + q,
@@ -1051,6 +1060,9 @@ $(function(){
     var pg = parseInt($(this).data('page'), 10);
     if(pg) searchList(pg);
   });
+  // 사용자 계정관리 → 「나의 지도」 건수 클릭 시 ?writer=계정 으로 진입 → 검색조건에 채운 뒤 조회
+  var m = /[?&](?:writer|usid)=([^&]+)/.exec(location.search);
+  if (m) $('#writer').val(decodeURIComponent(m[1]));
   searchList(1);
 });
 </script>

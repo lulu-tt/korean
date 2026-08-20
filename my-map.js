@@ -212,7 +212,13 @@
     if (ind) text(ind, state.step + ' / 3 · ' + (STEP_LABELS[state.step] || ''));
     var prev = $('btn-step-prev');
     var next = $('btn-step-next');
-    if (prev) prev.disabled = state.step <= 1;
+    // 1단계에는 앞 단계가 없어 영구 비활성이므로 아예 숨긴다.
+    // (자리는 유지해 단계 표시가 좌우로 흔들리지 않게 한다)
+    if (prev) {
+      var first = state.step <= 1;
+      prev.disabled = first;
+      prev.style.visibility = first ? 'hidden' : '';
+    }
     if (next) {
       var st = stepStatus();
       var atEnd = state.step >= 3;

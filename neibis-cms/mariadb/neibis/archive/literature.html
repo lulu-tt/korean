@@ -9,6 +9,27 @@
 		<link rel="shortcut icon" href="../../../mariadb/assets/neibis/images/favicon.png" />
 		<link rel="stylesheet" href="../../../mariadb/assets/neibis/css/style.css" />
 		<link rel="stylesheet" href="../../../mariadb/assets/neibis/css/board-attach-ext.css" />
+		<style>
+			.pos-picker { background:#fff; border:1px solid #e5e7eb; border-radius:8px; width:100%; max-width:none; overflow:hidden; }
+			.pos-acc-toggle { display:flex; align-items:center; gap:10px; width:100%; height:38px; padding:0 14px; border:0; background:#fff; cursor:pointer; font-family:inherit; text-align:left; }
+			.pos-acc-toggle:hover { background:#f8fafc; }
+			.pos-picker-count { flex:1 1 auto; min-width:0; font-size:13px; font-weight:700; color:#334155; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+			.pos-acc-caret { flex:0 0 auto; width:8px; height:8px; margin-top:-2px; border-right:2px solid #94a3b8; border-bottom:2px solid #94a3b8; transform:rotate(45deg); transition:transform .18s ease; }
+			.pos-picker.is-open .pos-acc-caret { margin-top:3px; transform:rotate(-135deg); }
+			.pos-acc-body { display:none; padding:12px 14px 14px; border-top:1px solid #e5e7eb; background:#f8fafc; }
+			.pos-picker.is-open .pos-acc-body { display:block; }
+			.pos-picker-top { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+			.pos-chip { display:inline-flex; align-items:center; justify-content:center; width:100%; height:32px; padding:0 8px; margin:0; border:1px solid #d1d5db; border-radius:6px; background:#fff; font-size:13px; font-weight:600; color:#334155; cursor:pointer; user-select:none; line-height:1; text-align:center; box-sizing:border-box; transition:background .15s, border-color .15s, color .15s; }
+			.pos-chip input { position:absolute; width:1px; height:1px; opacity:0; overflow:hidden; }
+			.pos-chip:hover { border-color:#2563eb; color:#1e3a8a; }
+			.pos-chip.is-on { background:#2563eb; border-color:#2563eb; color:#fff; }
+			.pos-chip.is-on:hover { background:#1d4ed8; border-color:#1d4ed8; color:#fff; }
+			.pos-chip-all { width:auto; min-width:64px; padding:0 16px; border-style:dashed; }
+			.pos-chip-all.is-on { border-style:solid; }
+			.pos-group + .pos-group { margin-top:10px; padding-top:10px; border-top:1px dashed #e5e7eb; }
+			.pos-group-title { font-size:12px; font-weight:700; color:#64748b; margin:0 0 8px; }
+			.pos-chip-row { display:grid; grid-template-columns:repeat(auto-fill, minmax(136px, 1fr)); gap:6px; }
+		</style>
 
 		<!-- JavaScript -->
 		<script src="../../../mariadb/assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
@@ -644,21 +665,54 @@
 											<tr>
 												<th scope="row">품사</th>
 												<td colspan="3">
-													<select id="wordClass" class="form-control" style="width:280px" title="품사 선택">
-														<option value="">--전체--</option>
-														<option value="명사">명사</option>
-														<option value="대명사">대명사</option>
-														<option value="수사">수사</option>
-														<option value="동사">동사</option>
-														<option value="형용사">형용사</option>
-														<option value="관형사">관형사</option>
-														<option value="부사">부사</option>
-														<option value="감탄사">감탄사</option>
-														<option value="조사">조사</option>
-														<option value="속담">속담</option>
-														<option value="관용구">관용구</option>
-														<option value="구">구</option>
-													</select>
+													<div class="pos-picker" id="posPicker">
+														<button type="button" class="pos-acc-toggle" id="posAccToggle" aria-expanded="false" aria-controls="posAccBody">
+															<span class="pos-picker-count" id="posPickerCount">전체</span>
+															<span class="pos-acc-caret" aria-hidden="true"></span>
+														</button>
+														<div class="pos-acc-body" id="posAccBody">
+														<div class="pos-picker-top">
+															<label class="pos-chip pos-chip-all is-on"><input type="checkbox" id="wordClassAll" checked /><span>전체</span></label>
+														</div>
+														<div class="pos-group">
+															<div class="pos-group-title">단일 품사</div>
+															<div class="pos-chip-row">
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="명사" /><span>명사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="대명사" /><span>대명사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="수사" /><span>수사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="조사" /><span>조사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="동사" /><span>동사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="형용사" /><span>형용사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="관형사" /><span>관형사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="부사" /><span>부사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="감탄사" /><span>감탄사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="접사" /><span>접사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="의존 명사" /><span>의존 명사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="보조 동사" /><span>보조 동사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="보조 형용사" /><span>보조 형용사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="어미" /><span>어미</span></label>
+															</div>
+														</div>
+														<div class="pos-group">
+															<div class="pos-group-title">복합 품사</div>
+															<div class="pos-chip-row">
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="관형사·명사" /><span>관형사·명사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="수사·관형사" /><span>수사·관형사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="명사·부사" /><span>명사·부사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="감탄사·명사" /><span>감탄사·명사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="대명사·부사" /><span>대명사·부사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="대명사·감탄사" /><span>대명사·감탄사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="동사·형용사" /><span>동사·형용사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="관형사·감탄사" /><span>관형사·감탄사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="부사·감탄사" /><span>부사·감탄사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="의존 명사·조사" /><span>의존 명사·조사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="수사·관형사·명사" /><span>수사·관형사·명사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="대명사·관형사" /><span>대명사·관형사</span></label>
+																<label class="pos-chip"><input type="checkbox" name="wordClass" value="품사 없음" /><span>품사 없음</span></label>
+															</div>
+														</div>
+														</div>
+													</div>
 												</td>
 											</tr>
 											<tr>
@@ -850,13 +904,34 @@
     if($('.target-line[data-idx="3"]').css('display')!=='none'){ $('.target-line[data-idx="3"]').hide(); }
     else { $('.target-line[data-idx="2"]').hide(); }
   };
+  function syncPosChips(){
+    var allOn = $('#wordClassAll').prop('checked');
+    $('#wordClassAll').closest('.pos-chip').toggleClass('is-on', !!allOn);
+    $('input[name="wordClass"]').each(function(){
+      $(this).closest('.pos-chip').toggleClass('is-on', this.checked);
+    });
+    var n = $('input[name="wordClass"]:checked').length;
+    var names = [];
+    $('input[name="wordClass"]:checked').each(function(){ names.push(String(this.value||'')); });
+    var txt = (allOn || n===0) ? '전체' : (n<=3 ? names.join(', ') : names.slice(0,3).join(', ') + ' 외 ' + (n-3) + '개');
+    $('#posPickerCount').text(txt);
+  }
+  function setPosAccordion(open){
+    var $p = $('#posPicker');
+    $p.toggleClass('is-open', !!open);
+    $('#posAccToggle').attr('aria-expanded', open ? 'true' : 'false');
+  }
   window.btnInit = function(){
     $('#search-form')[0].reset();
     $('.target-line[data-idx="2"],.target-line[data-idx="3"]').hide();
+    $('#wordClassAll').prop('checked', true);
+    $('input[name="wordClass"]').prop('checked', false);
+    syncPosChips();
+    setPosAccordion(false);
     state.page = 1;
     load();
   };
-  window.searchList = function(){ state.page = 1; load(); };
+  window.searchList = function(){ setPosAccordion(false); state.page = 1; load(); };
   window.stubExcel = function(){ toast('[엑셀 다운] 준비 중입니다.'); };
   window.stub = function(nm){ toast('['+nm+'] 기능입니다.'); };
 
@@ -884,13 +959,23 @@
     return targets;
   }
 
+  function selectedWordClasses(){
+    if($('#wordClassAll').prop('checked')) return [];
+    var vals = [];
+    $('input[name="wordClass"]:checked').each(function(){
+      var v = String(this.value || '').trim();
+      if(v && vals.indexOf(v) < 0) vals.push(v);
+    });
+    return vals;
+  }
+
   function currentParams(){
     state.size = parseInt($('#pageItm').val(), 10) || 10;
     return {
       page: state.page,
       size: state.size,
       region: $('input[name="region"]:checked').val() || '',
-      wordClass: $('#wordClass').val() || '',
+      wordClass: selectedWordClasses().join(','),
       useYn: $('input[name="useYn"]:checked').val() || '',
       mainFixYn: $('input[name="mainFixYn"]:checked').val() || '',
       targets: JSON.stringify(collectTargets())
@@ -985,6 +1070,20 @@
   };
 
   $(function(){
+    $('#wordClassAll').on('change', function(){
+      if(this.checked){ $('input[name="wordClass"]').prop('checked', false); }
+      else if(!$('input[name="wordClass"]:checked').length){ this.checked = true; }
+      syncPosChips();
+    });
+    $('input[name="wordClass"]').on('change', function(){
+      if(this.checked){ $('#wordClassAll').prop('checked', false); }
+      else if(!$('input[name="wordClass"]:checked').length){ $('#wordClassAll').prop('checked', true); }
+      syncPosChips();
+    });
+    syncPosChips();
+    $('#posAccToggle').on('click', function(){
+      setPosAccordion(!$('#posPicker').hasClass('is-open'));
+    });
     $('#chkAll').on('change', function(){
       $('input[name=chk]').prop('checked', this.checked);
     });

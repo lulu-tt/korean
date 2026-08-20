@@ -700,11 +700,41 @@
 </td>
 </tr>
 <tr>
-<th scope="row">승인상태</th>
+<th scope="row"><label for="authSel">승인상태</label></th>
 <td>
 <span id="status-badge" class="badge-auth is-etc">-</span>
+<select id="authSel" class="form-control" style="display:inline-block;width:150px;margin-left:10px;vertical-align:middle" title="승인상태 선택">
+<option value="9">정상</option>
+<option value="0">미인증</option>
+<option value="8">정지</option>
+<option value="5">탈퇴</option>
+</select>
+<button type="button" id="btn-auth-apply" class="btn btn-sm btn-primary" style="margin-left:6px" onclick="doApplyAuth()">적용</button>
+<button type="button" id="btn-unlock" class="btn btn-sm btn-unlock" style="display:none;margin-left:6px" onclick="doUnlock()">잠금 해제</button>
 <span id="status-note" style="margin-left:8px;color:#c0281c;font-size:13px"></span>
-<button type="button" id="btn-unlock" class="btn btn-sm btn-unlock" style="display:none;margin-left:12px" onclick="doUnlock()">잠금 해제</button>
+<p class="text-guide mt-1" style="margin:6px 0 0;font-size:12px;color:#6b7280">
+탈퇴로 지정하면 계정을 삭제하지 않고 탈퇴 상태로 전환하며, 등록한 지도·의견은 사용자단에서 숨겨집니다.
+탈퇴일시가 기록되고 언제든 다른 상태로 되돌릴 수 있습니다. <b id="secsn-dt-note"></b>
+</p>
+</td>
+</tr>
+<tr>
+<th scope="row">등록 현황</th>
+<td>
+<span>나의 지도 <a id="info-mymap-link" href="#" class="link"><b id="info-mymap">-</b>건</a></span>
+<span style="display:inline-block;width:16px"></span>
+<span>의견 제시 <a id="info-opinion-link" href="#" class="link"><b id="info-opinion">-</b>건</a></span>
+</td>
+</tr>
+<tr>
+<th scope="row">로그인 이력</th>
+<td>
+<span>최종 로그인 <b id="info-lastlogin">-</b></span>
+<span style="display:inline-block;width:16px"></span>
+<span>누적 로그인 <b id="info-logincnt">-</b>회</span>
+<p class="text-guide mt-1" style="margin:6px 0 0;font-size:12px;color:#6b7280">
+로그인 이력은 아직 수집하지 않습니다. <code>pt_user.last_login_dt</code>, <code>pt_user.login_cnt</code> 적용 후 표시됩니다.
+</p>
 </td>
 </tr>
 <tr>
@@ -755,10 +785,30 @@
 
   var currentUserId = qp('userId') || $('#userId').val() || '';
 
+  /* 승인상태 직접 지정 — 탈퇴('5') 선택 시 물리삭제 없이 상태만 전환하고 탈퇴일시를 기록한다. */
+  window.doApplyAuth = function(){
+    var v = $('#authSel').val();
+    var label = $('#authSel option:selected').text();
+    var msg = (v==='5')
+      ? '이 계정을 「탈퇴」 상태로 변경할까요?\n계정은 삭제되지 않으며, 등록한 지도·의견이 사용자단에서 숨겨집니다.'
+      : '승인상태를 「'+label+'」(으)로 변경할까요?';
+    ask(msg, function(){
+      $.ajax({
+        url: '/mariadb/neibis-api/system/user/auth', type:'post', dataType:'json',
+        contentType:'application/json',
+        data: JSON.stringify({ userId: currentUserId, auth: v })
+      }).done(function(r){
+        toast((r&&r.message) || '변경했습니다.', r&&r.ok ? 'success' : 'warning');
+        loadDetail();
+      }).fail(function(){ toast('변경에 실패했습니다.', 'error'); });
+    });
+  };
+
   function applyStatus(auth, authLabel, failCount){
     var $b = $('#status-badge');
-    $b.removeClass('is-normal is-locked is-etc');
-    $b.addClass(auth==='9'?'is-normal':(auth==='8'?'is-locked':'is-etc')).text(authLabel||auth||'-');
+    $b.removeClass('is-normal is-locked is-etc is-secsn');
+    $b.addClass(auth==='9'?'is-normal':(auth==='8'?'is-locked':(auth==='5'?'is-secsn':'is-etc'))).text(authLabel||auth||'-');
+    $('#authSel').val(auth||'');
     if(auth==='8'){
       $('#status-note').text('(로그인 '+(failCount||'5')+'회 실패로 잠김)');
       $('#btn-unlock').show();
@@ -779,6 +829,17 @@
     $('#currentPassword').val(u.hasPassword ? '············' : '(미설정)');
     $('#phone').val(u.mobile||'');
     if(GROUP[u.usergroupId]) $('#usergroupId').val(u.usergroupId);
+    // 건수가 있을 때만 해당 관리자 메뉴로 이동(계정 필터 적용)
+    var mc = Number(u.myMapCnt||0), oc = Number(u.opinionCnt||0);
+    $('#info-mymap').text(mc);
+    $('#info-opinion').text(oc);
+    if (mc) $('#info-mymap-link').attr('href', '../map/dialect.html?usid='+encodeURIComponent(u.usid));
+    else    $('#info-mymap-link').replaceWith('<span style="color:#bbb"><b>0</b>건</span>');
+    if (oc) $('#info-opinion-link').attr('href', '../bbs/254/list.html?createId='+encodeURIComponent(u.usid));
+    else    $('#info-opinion-link').replaceWith('<span style="color:#bbb"><b>0</b>건</span>');
+    $('#secsn-dt-note').text(u.secsnDt ? ('탈퇴일시: ' + u.secsnDt) : '');
+    $('#info-lastlogin').text(u.lastLoginDt || '-');
+    $('#info-logincnt').text(u.loginCnt != null ? Number(u.loginCnt).toLocaleString() : '-');
     $('#info-write').text((u.writer||'')+' - '+(u.writeDt||''));
     $('#info-update').text((u.updater||u.writer||'')+' - '+(u.updateDt||u.writeDt||''));
     applyStatus(u.auth, u.authLabel, u.failCount);

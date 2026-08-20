@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 		<meta name="format-detection" content="telephone=no" />
-		<title id="neibisTopTitle">사이트별 운영관리 | 지역어 종합 정보 | 지역어 자료관 | 문학 속 지역어 | 수정</title>
+		<title id="neibisTopTitle">사이트별 운영관리 | 지역어 종합 정보 | 지역어 지도 | 상징 부호 수정</title>
 		<link rel="shortcut icon" href="../../../mariadb/assets/neibis/images/favicon.png" />
 		<link rel="stylesheet" href="../../../mariadb/assets/neibis/css/style.css" />
 		<link rel="stylesheet" href="../../../mariadb/assets/neibis/css/board-attach-ext.css" />
@@ -468,16 +468,16 @@
 													<a href="../../../mariadb/neibis/survey/search-topic.do" >검색 주제 분류 관리</a>
 										</li>
 										</ul></li>
-										<li data-level="2" >
+										<li data-level="2" class="on">
 													<a href="javascript:void(0)">지역어 지도</a>
-										<ul style="display:none;">
-										<li data-level="3">
+										<ul style="display:block;">
+										<li data-level="3" >
 													<a href="../../../mariadb/neibis/map/dialect.do" >지역어 지도</a>
 										</li>
 										<li data-level="3">
 													<a href="../../../mariadb/neibis/map/weather.do" >지역어 기상도</a>
 										</li>
-										<li data-level="3" >
+										<li data-level="3" class="on">
 													<a href="../../../mariadb/neibis/map/symbol.do" >상징 부호 관리</a>
 										</li>
 										</ul></li>
@@ -494,10 +494,10 @@
 													<a href="../../../mariadb/neibis/bbs/254/list.do" >의견제시</a>
 										</li>
 										</ul></li>
-										<li data-level="2" class="on">
+										<li data-level="2" >
 													<a href="javascript:void(0)">지역어 자료관</a>
-										<ul style="display:block;">
-										<li data-level="3" class="on">
+										<ul style="display:none;">
+										<li data-level="3">
 													<a href="../../../mariadb/neibis/archive/literature.do" >문학 속 지역어</a>
 										</li>
 										<li data-level="3">
@@ -594,427 +594,298 @@
 				<article id="content">
 					<div class="content-header">
 						<a href="#;" class="btn-tile btn-back list-button" onclick="history.back(); return false;">
-							<i class="ico ico-back"></i><span class="sr-only">뒤로가기</span>
+							<i class="ico ico-back"></i>
+							<span class="sr-only">뒤로가기</span>
 						</a>
 						<div class="tile">
 							<div class="location">
-								<button type="button" class="btn btn-icon btn-copy"><i class="ico ico-copy-gray-sm"></i><span class="sr-only">복사</span></button>
+								<button type="button" class="btn btn-icon btn-copy">
+									<i class="ico ico-copy-gray-sm"></i>
+									<span class="sr-only">복사</span>
+								</button>
 								<ol class="breadcrumb-list">
-									<li>사이트별 운영관리</li>
-									<li>지역어 종합 정보</li>
-									<li>지역어 자료관</li>
-									<li>문학 속 지역어</li>
-									<li>수정</li>
-								</ol>
+<li>사이트별 운영관리</li>
+<li>지역어 종합 정보</li>
+<li>지역어 지도</li>
+<li>상징 부호 관리</li>
+<li>수정</li>
+</ol>
 							</div>
 							<div class="content-title">
-								<h2 class="title">문학 속 지역어 수정</h2>
-								<button type="button" id="favorit-add-button" class="btn-favorit"><i class="ico ico-favorit"></i><span class="sr-only">즐겨찾기</span></button>
+								<div class="tooltip" id="tooltip_area"><p id="tooltip_p"></p><div class='btn-group' id="tooltip_btn"></div></div>
+								<h2 class="title">상징 부호 수정</h2>
+								<button type="button" id="favorit-add-button" class="btn-favorit">
+									<i class="ico ico-favorit"></i>
+									<span class="sr-only">즐겨찾기</span>
+								</button>
 							</div>
 						</div>
-						<a href="#;" class="btn-tile btn-allmenu-open"><i class="ico ico-allmenu"></i><span class="sr-only">메뉴</span></a>
+						<a href="#;" class="btn-tile btn-allmenu-open">
+							<i class="ico ico-allmenu"></i>
+							<span class="sr-only">메뉴</span>
+						</a>
 					</div>
+					<div class="content-body">
 
-																									<div class="content-body">
-	<!-- 본문 영역 -->
-					<form id="save-form" onsubmit="return false;">
-						<input type="hidden" id="literId" name="literId" value="" />
-						<div class="card">
-							<div class="table table-row">
-								<div class="table-inner">
-									<table>
-										<caption class="sr-only">문학 속 지역어 수정</caption>
-										<tbody>
-											<tr>
-												<th scope="row"><label for="dltTp">표제어<i class="req">필수입력</i></label></th>
-												<td><input type="text" id="dltTp" name="dltTp" class="form-control-sm full" placeholder="표제어(지역어)를 입력해주세요." value="" required /></td>
-												<th scope="row"><label for="wordClass">품사</label></th>
-												<td>
-													<select id="wordClass" name="wordClass" class="form-control-sm" style="width:100%; max-width:405px" title="품사 선택">
-														<option value="">품사를 선택해주세요.</option>
-														<optgroup label="단일 품사">
-															<option value="명사">명사</option>
-															<option value="대명사">대명사</option>
-															<option value="수사">수사</option>
-															<option value="조사">조사</option>
-															<option value="동사">동사</option>
-															<option value="형용사">형용사</option>
-															<option value="관형사">관형사</option>
-															<option value="부사">부사</option>
-															<option value="감탄사">감탄사</option>
-															<option value="접사">접사</option>
-															<option value="의존 명사">의존 명사</option>
-															<option value="보조 동사">보조 동사</option>
-															<option value="보조 형용사">보조 형용사</option>
-															<option value="어미">어미</option>
-														</optgroup>
-														<optgroup label="복합 품사">
-															<option value="관형사·명사">관형사·명사</option>
-															<option value="수사·관형사">수사·관형사</option>
-															<option value="명사·부사">명사·부사</option>
-															<option value="감탄사·명사">감탄사·명사</option>
-															<option value="대명사·부사">대명사·부사</option>
-															<option value="대명사·감탄사">대명사·감탄사</option>
-															<option value="동사·형용사">동사·형용사</option>
-															<option value="관형사·감탄사">관형사·감탄사</option>
-															<option value="부사·감탄사">부사·감탄사</option>
-															<option value="의존 명사·조사">의존 명사·조사</option>
-															<option value="수사·관형사·명사">수사·관형사·명사</option>
-															<option value="대명사·관형사">대명사·관형사</option>
-														</optgroup>
-														<option value="품사 없음">품사 없음</option>
-													</select>
-												</td>
-											</tr>
-											<tr>
-												<th scope="row"><label for="stdTp">대응표준어<i class="req">필수입력</i></label></th>
-												<td><input type="text" id="stdTp" name="stdTp" class="form-control-sm full" placeholder="대응 표준어를 입력해주세요." value="" required /></td>
-												<th scope="row"><label for="addMean">표준어 부가 의미</label></th>
-												<td><input type="text" id="addMean" name="addMean" class="form-control-sm full" placeholder="필요한 경우 부가 의미를 입력하세요." value="" /></td>
-											</tr>
-											<tr>
-												<th scope="row"><label for="mean">의미</label></th>
-												<td colspan="3"><textarea id="mean" name="mean" class="form-control-sm full" rows="3" placeholder="뜻풀이를 입력해주세요." style="min-height:80px; width:100%;"></textarea></td>
-											</tr>
-											<tr>
-												<th scope="row"><span>지역</span></th>
-												<td colspan="3">
-													<div id="regionNmGroup" class="region-check-group" style="display:flex; flex-wrap:wrap; gap:4px 12px; align-items:center;">
-														<label class="check-item"><input type="checkbox" name="regionNm" value="강원도" /><span class="label">강원도</span></label>
-														<label class="check-item"><input type="checkbox" name="regionNm" value="경기도" /><span class="label">경기도</span></label>
-														<label class="check-item"><input type="checkbox" name="regionNm" value="경상도" /><span class="label">경상도</span></label>
-														<label class="check-item"><input type="checkbox" name="regionNm" value="전라도" /><span class="label">전라도</span></label>
-														<label class="check-item"><input type="checkbox" name="regionNm" value="제주도" /><span class="label">제주도</span></label>
-														<label class="check-item"><input type="checkbox" name="regionNm" value="충청도" /><span class="label">충청도</span></label>
-														<label class="check-item"><input type="checkbox" name="regionNm" value="평안도" /><span class="label">평안도</span></label>
-														<label class="check-item"><input type="checkbox" name="regionNm" value="함경도" /><span class="label">함경도</span></label>
-														<label class="check-item"><input type="checkbox" name="regionNm" value="황해도" /><span class="label">황해도</span></label>
-													</div>
-												</td>
-											</tr>
-											<tr>
-												<th scope="row"><label for="relDlt">다른 방언형</label></th>
-												<td colspan="3"><input type="text" id="relDlt" name="relDlt" class="form-control-sm full" placeholder="예: 까위, 가이, 가새" value="" /></td>
-											</tr>
-											<tr>
-												<th scope="row"><label for="wordDesc">해설</label></th>
-												<td colspan="3"><textarea id="wordDesc" name="wordDesc" class="form-control-sm full" rows="5" placeholder="어원·방언 특징 등 해설을 입력해주세요." style="min-height:120px; width:100%;"></textarea></td>
-											</tr>
-											<tr>
-												<th scope="row"><span>상태<i class="req">필수입력</i></span></th>
-												<td colspan="3">
-													<label class="check-item"><input type="radio" name="useYn" value="Y" checked /><span class="label">Y (사용)</span></label>
-													<label class="check-item"><input type="radio" name="useYn" value="N" /><span class="label">N (미사용)</span></label>
-												</td>
-											</tr>
-											<tr>
-												<th scope="row"><label for="exhBookNm">출처 도서명</label></th>
-												<td><input type="text" id="exhBookNm" name="exhBookNm" class="form-control-sm full" placeholder="예: 문학 속의 경상 방언" value="" /></td>
-												<th scope="row"><label for="exhAuthor">출처 저자</label></th>
-												<td><input type="text" id="exhAuthor" name="exhAuthor" class="form-control-sm full" placeholder="예: 이상규·신승용" value="" /></td>
-											</tr>
-											<tr>
-												<th scope="row"><label for="exhPublishCom">출처 출판사</label></th>
-												<td><input type="text" id="exhPublishCom" name="exhPublishCom" class="form-control-sm full" value="" /></td>
-												<th scope="row"><label for="exhPublishYear">출처 출판연도</label></th>
-												<td><input type="text" id="exhPublishYear" name="exhPublishYear" class="form-control-sm" style="width:160px" placeholder="YYYY" value="" /></td>
-											</tr>
-											<tr>
-												<th scope="row">문학 용례</th>
-												<td colspan="3">
-													<button type="button" class="btn btn-sm btn-outline-gray" onclick="addExample()"><i class="ico ico-plus-gray-sm"></i><span>용례 추가</span></button>
-													<div id="example-list"></div>
-												</td>
-											</tr>
-										</tbody>
-									</table>
-								</div>
-							</div>
+<!-- 본문 영역 -->
 
-							<div class="btn-group-between">
-								<div class="left">
-									<a href="literature.do" data-confirm="leave-saver" class="btn btn-lg btn-outline-gray"><i class="ico ico-chevron-left-gray-md"></i><span>목록</span></a>
-								</div>
-								<div class="right">
-									<button type="button" class="btn btn-lg btn-primary" onclick="btnSave()"><i class="ico ico-save-white-md"></i><span>저장</span></button>
-									<button type="button" class="btn btn-lg btn-gray" onclick="btnDelete()"><i class="ico ico-trash-white-md"></i><span>삭제</span></button>
-								</div>
-							</div>
-						</div>
-						<div class="btn-group-fixed">
-							<button type="button" class="btn btn-lg btn-primary" onclick="btnSave()"><i class="ico ico-save-white-md"></i><span>저장</span></button>
-							<button type="button" class="btn btn-lg btn-gray" onclick="btnDelete()"><i class="ico ico-trash-white-md"></i><span>삭제</span></button>
-						</div>
-					</form>
-					<!-- // 본문 영역 -->
+<style>
+/* 상징부호 등록/수정 전용 (symf- 접두사로 공통 CSS 와 분리) */
+.symf-preview{display:inline-flex;align-items:center;justify-content:center;width:64px;height:64px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;margin-right:12px;vertical-align:middle}
+.symf-preview img{max-width:48px;max-height:48px}
+.symf-preview img.symf-mask{filter:invert(1)}
+.symf-preview .symf-empty{font-size:11px;color:#94a3b8}
+.symf-filebox{display:inline-block;vertical-align:middle}
+.symf-guide{display:block;margin-top:6px;font-size:12px;font-weight:700;color:#dc2626}
+.symf-filenm{display:block;margin-top:4px;font-size:12px;color:#64748b;word-break:break-all}
+</style>
+
+<form id="symbol-form" class="search-form" onsubmit="return false;">
+<h3 class="title1 text-primary mt-md-4 ml-md-4"><span id="symfTitle">상징 부호 등록</span></h3>
+<div class="card">
+<div class="table table-form-basic">
+<div class="table-inner">
+<table>
+<caption class="sr-only">상징 부호 등록/수정</caption>
+<colgroup>
+<col style="width:220px" />
+<col />
+</colgroup>
+<tbody>
+<tr id="row-image">
+<th scope="row"><label for="file">상징부호<i class="req">필수입력</i></label></th>
+<td>
+<span class="symf-preview" id="symfPreview"><span class="symf-empty">미리보기</span></span>
+<span class="symf-filebox">
+<input type="file" id="file" name="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg" title="상징부호 이미지 선택" />
+<span class="symf-guide">권장 규격은 21*21 pixel(픽셀)입니다. (png, jpg 파일만 올릴 수 있습니다.)</span>
+<span class="symf-filenm" id="symfFileNm"></span>
+</span>
+</td>
+</tr>
+<!-- 텍스트형 부호(symbolGb=T) 입력 — 원본과 동일하게 화면에서는 숨김 -->
+<tr id="row-text" style="display:none">
+<th scope="row"><label for="symbolNm">상징부호<i class="req">필수입력</i></label></th>
+<td>
+<input type="text" id="symbolNm" name="symbolNm" class="form-control" style="max-width:320px" maxlength="125" placeholder="상징부호 입력하세요." title="상징부호를 입력해주세요." />
+</td>
+</tr>
+<tr>
+<th scope="row"><label for="comment">설명</label></th>
+<td>
+<input type="text" id="comment" name="comment" class="form-control full" maxlength="200" placeholder="설명을 입력하세요." title="설명을 입력해주세요." />
+</td>
+</tr>
+<tr>
+<th scope="row"><label for="useYn">상태</label></th>
+<td>
+<select id="useYn" name="useYn" class="form-control" style="max-width:120px" title="상태 선택">
+<option value="Y" selected>사용</option>
+<option value="N">미사용</option>
+</select>
+</td>
+</tr>
+<tr id="row-regdt" style="display:none">
+<th scope="row">등록일</th>
+<td><span id="symfRegDt">-</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="btn-group-between">
+<div class="left">
+<button type="button" class="btn btn-lg btn-outline-gray" onclick="goList()"><i class="ico ico-undo-darkgray-md"></i><span>목록</span></button>
+</div>
+<div class="right">
+<button type="button" class="btn btn-lg btn-gray btn-delete" id="btnDelete" style="display:none" onclick="removeSymbol()"><i class="ico ico-trash-white-md"></i><span>삭제</span></button>
+<button type="button" class="btn btn-lg btn-primary" onclick="saveSymbol()"><i class="ico ico-save-white-md"></i><span>저장</span></button>
+</div>
+</div>
+</form>
+
+<!-- // 본문 영역 -->
 <script>
-var SIDO_OPTS = '<option value="">--선택--</option><option value="42">강원도</option><option value="41">경기도</option><option value="48">경상남도</option><option value="47">경상북도</option><option value="29">광주광역시</option><option value="27">대구광역시</option><option value="30">대전광역시</option><option value="26">부산광역시</option><option value="11">서울특별시</option><option value="31">울산광역시</option><option value="28">인천광역시</option><option value="46">전라남도</option><option value="45">전라북도</option><option value="50">제주특별자치도</option><option value="44">충청남도</option><option value="43">충청북도</option>';
-var GU_DATA = [["41","가평군"],["42","강릉시"],["46","강진군"],["28","강화군"],["48","거제시"],["48","거창군"],["47","경산시"],["47","경주시"],["44","계룡시"],["47","고령군"],["42","고성군"],["48","고성군"],["41","고양시"],["45","고창군"],["46","고흥군"],["46","곡성군"],["44","공주시"],["29","광산구"],["46","광양시"],["43","괴산군"],["46","구례군"],["41","구리시"],["47","구미시"],["45","군산시"],["47","군위군"],["44","금산군"],["26","기장군"],["45","김제시"],["47","김천시"],["41","김포시"],["48","김해시"],["46","나주시"],["29","남구"],["31","남구"],["45","남원시"],["48","남해군"],["44","논산시"],["43","단양군"],["27","달성군"],["46","담양군"],["44","당진시"],["42","동해시"],["46","목포시"],["46","무안군"],["45","무주군"],["47","문경시"],["48","밀양시"],["44","보령시"],["46","보성군"],["43","보은군"],["47","봉화군"],["45","부안군"],["44","부여군"],["29","북구"],["31","북구"],["48","사천시"],["48","산청군"],["42","삼척시"],["47","상주시"],["30","서구"],["50","서귀포시"],["44","서산시"],["44","서천군"],["47","성주군"],["44","세종시(연기군)"],["42","속초시"],["41","수원시"],["45","순창군"],["46","순천시"],["41","시흥시"],["46","신안군"],["44","아산시"],["47","안동시"],["41","안성시"],["42","양구군"],["48","양산시"],["42","양양군"],["41","양주시"],["41","양평군"],["46","여수시"],["41","여주시"],["28","연수구"],["41","연천군"],["46","영광군"],["47","영덕군"],["43","영동군"],["46","영암군"],["47","영양군"],["42","영월군"],["47","영주시"],["47","영천시"],["44","예산군"],["47","예천군"],["43","옥천군"],["28","옹진군"],["46","완도군"],["45","완주군"],["41","용인시"],["47","울릉군"],["31","울주군"],["47","울진군"],["42","원주시"],["43","음성군"],["48","의령군"],["47","의성군"],["41","이천시"],["45","익산시"],["42","인제군"],["45","임실군"],["46","장성군"],["45","장수군"],["46","장흥군"],["45","전주시"],["42","정선군"],["45","정읍시"],["50","제주시"],["43","제천시"],["11","종로구"],["31","중구"],["43","증평군"],["46","진도군"],["45","진안군"],["48","진주시"],["43","진천군"],["48","창녕군"],["48","창원시"],["44","천안시"],["42","철원군"],["47","청도군"],["47","청송군"],["44","청양군"],["43","청주시"],["42","춘천시"],["43","충주시"],["47","칠곡군"],["42","태백시"],["44","태안군"],["48","통영시"],["41","파주시"],["42","평창군"],["41","평택시"],["41","포천시"],["47","포항시"],["41","하남시"],["48","하동군"],["48","함안군"],["48","함양군"],["46","함평군"],["48","합천군"],["46","해남군"],["44","홍성군"],["42","홍천군"],["41","화성시"],["46","화순군"],["42","화천군"],["42","횡성군"]];
-var ei = 0;
+var symfMode = 'M';          // C: 등록, M: 수정
+var symfIcon = '';                  // 새로 선택한 이미지(base64 data URI)
+var symfFile = '';                  // 새로 선택한 파일명
 
-function stub(nm){
-	if(window.Message){ Message.alert({icon:'info', message:'['+nm+'] 정적 프로토타입입니다.'}); }
-	else { alert(nm); }
-}
-function delBlock(btn){ btn.closest('.sub-card').remove(); }
+/* 유형(symbolShape) · 구분(symbolGb) 은 원본 관리자와 동일하게 화면에 노출하지 않는다.
+   등록은 원본과 같은 고정값(A / I), 수정은 기존 행의 값을 그대로 유지한다. */
+var symfShape = 'A';
+var symfGb = 'I';
 
-function resetExample(btn){
-	var $card = $(btn).closest('.sub-card');
-	$card.find('textarea, input[type="text"]').val('');
-	$card.find('select').each(function(){ this.selectedIndex = 0; });
-	$card.find('.ex-sigungu').empty().append('<option value="">--전체--</option>');
+function symAlert(icon, msg, cb){
+  if(window.Message){ Message.alert({ icon:icon, message:msg }, cb || function(){}); }
+  else { alert(msg); if(cb) cb(); }
 }
 
-function fillExSigungu(sel){
-	var $box = $(sel).closest('td').find('.ex-sigungu');
-	var v = $(sel).val();
-	$box.empty().append('<option value="">--전체--</option>');
-	GU_DATA.forEach(function(r){ if(r[0]===v){ $box.append('<option value="'+r[1]+'">'+r[1]+'</option>'); } });
+function symConfirm(msg, cb){
+  if(window.Message){ Message.confirm({ icon:'warning', message:msg }, cb); }
+  else if(confirm(msg)){ cb(); }
 }
 
-function addExample(prefill){
-	ei++;
-	var d = prefill || {};
-	var html =
-	'<div class="sub-card" style="border:1px solid #e5e7eb; border-radius:8px; margin-top:10px; overflow:hidden;">'+
-	'<div class="table table-row"><div class="table-inner"><table>'+
-	'<colgroup><col style="width:150px"><col><col style="width:150px"><col></colgroup><tbody>'+
-	'<tr><th scope="row"><span>지역어 예문<i class="req">필수입력</i></span></th><td colspan="3">'+
-	'<div style="display:flex; gap:8px; align-items:center; width:100%;">'+
-	'<input type="text" class="form-control-sm ex-word" value="'+(d.word_example||'')+'" placeholder="지역어가 포함된 예문을 입력해주세요." style="flex:1 1 auto; width:100%; min-width:0; max-width:none;" />'+
-	'<button type="button" class="btn btn-sm btn-outline-gray" onclick="resetExample(this)" style="flex:0 0 auto; white-space:nowrap;"><i class="ico ico-undo-darkgray-md"></i><span>초기화</span></button>'+
-	'<button type="button" class="btn btn-sm btn-gray btn-delete" onclick="delBlock(this)" style="flex:0 0 auto; white-space:nowrap;"><i class="ico ico-trash-white-sm"></i><span>삭제</span></button>'+
-	'</div></td></tr>'+
-	'<tr><th scope="row">표준어 대역문</th><td colspan="3"><input type="text" class="form-control-sm full ex-std" value="'+(d.std_example||'')+'" placeholder="표준어로 옮긴 문장(선택)" /></td></tr>'+
-	'<tr><th scope="row">작가</th><td><input type="text" class="form-control-sm full ex-writer" value="'+(d.writer||'')+'" placeholder="작가명" /></td>'+
-	'<th scope="row">작품명</th><td><input type="text" class="form-control-sm full ex-book" value="'+(d.book_name||'')+'" placeholder="작품명" /></td></tr>'+
-	'<tr><th scope="row">작품출처</th><td><input type="text" class="form-control-sm full ex-pub" value="'+(d.publish_company||'')+'" placeholder="작품출처" /></td>'+
-	'<th scope="row">출판연도</th><td><input type="text" class="form-control-sm ex-year" style="width:120px" value="'+(d.publish_year||'')+'" placeholder="YYYY" /></td></tr>'+
-	'<tr><th scope="row">권호</th><td><input type="text" class="form-control-sm ex-volume" style="width:160px" value="'+(d.volume_no||'')+'" placeholder="권호" /></td>'+
-	'<th scope="row">쪽수</th><td><input type="text" class="form-control-sm ex-page" style="width:160px" value="'+(d.page_no||'')+'" placeholder="쪽수" /></td></tr>'+
-	'<tr><th scope="row">지역(시도/시군구)</th><td colspan="3">'+
-	'<select class="form-control-sm ex-sido" style="width:220px" onchange="fillExSigungu(this)">'+SIDO_OPTS+'</select> '+
-	'<select class="form-control-sm ex-sigungu" style="width:220px; margin-left:6px;"><option value="">--전체--</option></select>'+
-	'</td></tr>'+
-	'</tbody></table></div></div></div>';
-	document.getElementById('example-list').insertAdjacentHTML('beforeend', html);
+function symfParam(name){
+  var m = new RegExp('[?&]' + name + '=([^&]*)').exec(location.search);
+  return m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : '';
 }
 
-var API = '/mariadb/neibis-api/archive/literature';
-
-function toast(msg, icon){
-	if(window.Message){ Message.alert({icon:icon||'info', message:msg}); }
-	else { alert(msg); }
-}
-function ask(opts, cb){
-	if(window.Message && Message.confirm){ Message.confirm(opts, cb); }
-	else if(window.confirm(opts.message||opts.title||'확인')){ cb(); }
-}
-function qsId(){
-	var m = location.search.match(/[?&]id=([^&]*)/);
-	return m ? decodeURIComponent(m[1]) : '';
-}
-function collectExamples(){
-	var list = [];
-	$('#example-list .sub-card').each(function(){
-		var $c = $(this);
-		list.push({
-			wordExample: ($c.find('.ex-word').val()||'').trim(),
-			stdExample: ($c.find('.ex-std').val()||'').trim(),
-			writer: ($c.find('.ex-writer').val()||'').trim(),
-			bookName: ($c.find('.ex-book').val()||'').trim(),
-			publishCompany: ($c.find('.ex-pub').val()||'').trim(),
-			publishYear: ($c.find('.ex-year').val()||'').trim(),
-			volumeNo: ($c.find('.ex-volume').val()||'').trim(),
-			pageNo: ($c.find('.ex-page').val()||'').trim(),
-			sidoCd: ($c.find('.ex-sido').val()||'').trim(),
-			sigunguNm: ($c.find('.ex-sigungu').val()||'').trim()
-		});
-	});
-	return list;
-}
-function collectPayload(){
-	var regions = [];
-	$('input[name="regionNm"]:checked').each(function(){ regions.push($(this).val()); });
-	return {
-		literId: ($('#literId').val()||'').trim(),
-		dltTp: ($('#dltTp').val()||'').trim(),
-		stdTp: ($('#stdTp').val()||'').trim(),
-		addMean: ($('#addMean').val()||'').trim(),
-		wordClass: ($('#wordClass').val()||'').trim(),
-		mean: ($('#mean').val()||'').trim(),
-		regionNm: regions,
-		relDlt: ($('#relDlt').val()||'').trim(),
-		wordDesc: ($('#wordDesc').val()||'').trim(),
-		useYn: $('input[name="useYn"]:checked').val() || 'Y',
-		exhBookNm: ($('#exhBookNm').val()||'').trim(),
-		exhAuthor: ($('#exhAuthor').val()||'').trim(),
-		exhPublishCom: ($('#exhPublishCom').val()||'').trim(),
-		exhPublishYear: ($('#exhPublishYear').val()||'').trim(),
-		examples: collectExamples()
-	};
-}
-function posTokens(s){
-	return String(s||'').split(/[·,\/]/).map(function(p){
-		return p.replace(/\s+/g,'').replace(/[.\u3002]+$/,'');
-	}).filter(Boolean);
-}
-function canonicalWordClass(raw){
-	var s = String(raw||'').trim();
-	if(!s) return '';
-	var $sel = $('#wordClass');
-	var options = [];
-	$sel.find('option').each(function(){ if(this.value) options.push(this.value); });
-	if(options.indexOf(s) >= 0) return s;
-	var alias = {
-		'의존명사':'의존 명사', '보조동사':'보조 동사', '보조형용사':'보조 형용사',
-		'접미사':'접사', '접두사':'접사', '종결어미':'어미'
-	};
-	var compact = s.replace(/\s+/g,'');
-	if(alias[compact] && options.indexOf(alias[compact]) >= 0) return alias[compact];
-	var parts = posTokens(s).map(function(p){ return alias[p] || p; });
-	var want = parts.slice().sort().join('|');
-	for(var i=0;i<options.length;i++){
-		var key = posTokens(options[i]).map(function(p){ return alias[p] || p; }).sort().join('|');
-		if(key === want) return options[i];
-	}
-	return s;
-}
-function setWordClass(raw){
-	var v = canonicalWordClass(raw);
-	var $sel = $('#wordClass');
-	if(v && !$sel.find('option').filter(function(){ return this.value === v; }).length){
-		$sel.append($('<option></option>').attr('value', v).text(v + ' (기존값)'));
-	}
-	$sel.val(v);
-}
-function applyDetail(d){
-	$('#literId').val(d.literId||'');
-	$('#dltTp').val(d.dltTp||'');
-	$('#stdTp').val(d.stdTp||'');
-	$('#addMean').val(d.addMean||'');
-	setWordClass(d.wordClass||'');
-	$('#mean').val(d.mean||'');
-	$('#relDlt').val(d.relDlt||'');
-	$('#wordDesc').val(d.wordDesc||'');
-	$('#exhBookNm').val(d.exhBookNm||'');
-	$('#exhAuthor').val(d.exhAuthor||'');
-	$('#exhPublishCom').val(d.exhPublishCom||'');
-	$('#exhPublishYear').val(d.exhPublishYear||'');
-	$('input[name="useYn"][value="'+(d.useYn==='N'?'N':'Y')+'"]').prop('checked', true);
-	var reg = String(d.regionNm||'');
-	$('input[name="regionNm"]').each(function(){
-		$(this).prop('checked', reg.indexOf($(this).val()) >= 0);
-	});
-	$('#example-list').empty();
-	ei = 0;
-	(d.examples||[]).forEach(function(ex){
-		addExample({
-			word_example: ex.wordExample||'',
-			std_example: ex.stdExample||'',
-			writer: ex.writer||'',
-			book_name: ex.bookName||'',
-			publish_company: ex.publishCompany||'',
-			publish_year: ex.publishYear||'',
-			volume_no: ex.volumeNo||'',
-			page_no: ex.pageNo||''
-		});
-		// 시도 선택 복원
-		var $last = $('#example-list .sub-card').last();
-		if(ex.sidoCd){
-			$last.find('.ex-sido').val(ex.sidoCd);
-			fillExSigungu($last.find('.ex-sido')[0]);
-			if(ex.sigunguNm) $last.find('.ex-sigungu').val(ex.sigunguNm);
-		}
-	});
+function symfSymbolId(){
+  return symfParam('symbolId');
 }
 
-function btnSave(){
-	var dlt = ($('#dltTp').val()||'').trim();
-	var std = ($('#stdTp').val()||'').trim();
-	if(!dlt){
-		toast('표제어를 입력해주세요.', 'warning');
-		return $('#dltTp').focus();
-	}
-	if(!std){
-		toast('대응표준어를 입력해주세요.', 'warning');
-		return $('#stdTp').focus();
-	}
-	var emptyEx = false;
-	$('#example-list .ex-word').each(function(){
-		if(!($(this).val()||'').trim()){ emptyEx = true; }
-	});
-	if($('#example-list .sub-card').length && emptyEx){
-		toast('지역어 예문을 입력해주세요. (빈 용례 블록이 있습니다)', 'warning');
-		return;
-	}
-	var payload = collectPayload();
-	var doSave = function(){
-		$.ajax({
-			url: API + '/save',
-			method: 'POST',
-			contentType: 'application/json',
-			data: JSON.stringify(payload)
-		}).done(function(res){
-			if(res && res.ok){
-				if(window.Message){
-					Message.alert({icon:'success', message: res.message || '저장되었습니다.'}, function(){ location.href='literature.do'; });
-				} else {
-					alert(res.message||'저장되었습니다.');
-					location.href='literature.do';
-				}
-			} else {
-				toast((res && res.message) || '저장 실패', 'error');
-			}
-		}).fail(function(){ toast('저장 요청 실패', 'error'); });
-	};
-	ask({icon:'warning', title:'저장하시겠어요?', message:'저장하시려면 ‘확인’을 눌러주세요.'}, doSave);
+function goList(){
+  location.href = 'symbol.do';
 }
 
-function btnDelete(){
-	var id = ($('#literId').val()||'').trim();
-	if(!id){ toast('삭제할 자료 ID가 없습니다.', 'warning'); return; }
-	var doDel = function(){
-		$.ajax({
-			url: API + '/delete',
-			method: 'POST',
-			contentType: 'application/json',
-			data: JSON.stringify({ literId: id })
-		}).done(function(res){
-			if(res && res.ok){
-				if(window.Message){
-					Message.alert({icon:'success', message: res.message || '삭제되었습니다.'}, function(){ location.href='literature.do'; });
-				} else {
-					alert(res.message||'삭제되었습니다.');
-					location.href='literature.do';
-				}
-			} else {
-				toast((res && res.message) || '삭제 실패', 'error');
-			}
-		}).fail(function(){ toast('삭제 요청 실패', 'error'); });
-	};
-	ask({icon:'warning', title:'삭제하시겠어요?', message:'삭제된 데이터는 복구할 수 없습니다.'}, doDel);
+/* UI 킷이 select 를 커스텀 드롭다운으로 바꿔 두므로,
+   값을 코드로 넣은 뒤에는 드롭다운을 다시 만들어야 표기가 따라온다. */
+function symfRebuildDropdown(id, css){
+  var $sel = $('#' + id);
+  if(!$.fn.selectToDropdown){ $sel.trigger('change'); return; }
+  $sel.next('.dropdown').remove();
+  $sel.attr('style', css);
+  $sel.selectToDropdown();
+}
+
+function symfSetPreview(src, kind){
+  var $p = $('#symfPreview').empty();
+  if(!src){ $p.append('<span class="symf-empty">미리보기</span>'); return; }
+  // symbol_mask 는 흰색 실루엣이라 그대로 두면 흰 배경에서 안 보인다 → 반전해서 표시
+  $p.append($('<img alt="상징부호 미리보기" />')
+    .addClass(kind === 'mask' ? 'symf-mask' : '')
+    .attr('src', src));
+}
+
+/* 수정 화면 — 기존 값 로딩 */
+function loadDetail(){
+  var id = symfSymbolId();
+  if(!id){
+    symAlert('warning', '잘못된 접근입니다.', goList);
+    return;
+  }
+  $.ajax({
+    url: '/mariadb/neibis-api/symbol/detail?symbolId=' + encodeURIComponent(id),
+    method: 'GET',
+    dataType: 'json'
+  }).done(function(res){
+    if(!res || !res.ok){
+      symAlert('error', (res && res.message) || '상징부호 정보를 불러오지 못했습니다.', goList);
+      return;
+    }
+    var it = res.item;
+    // 화면에 없는 값은 기존 행의 것을 그대로 유지(저장 시 덮어쓰지 않기 위함)
+    symfShape = it.symbolShape === 'B' ? 'B' : 'A';
+    symfGb = it.symbolGb === 'T' ? 'T' : 'I';
+    // 텍스트형 부호면 파일 대신 텍스트 칸을 쓴다(원본 스크립트와 동일한 전환)
+    $('#row-image').toggle(symfGb === 'I');
+    $('#row-text').toggle(symfGb === 'T');
+    $('#symbolNm').val(it.symbolNm || '');
+    $('#comment').val(it.comment || '');
+    $('#useYn').val(it.useYn === 'N' ? 'N' : 'Y');
+    symfRebuildDropdown('useYn', 'max-width:120px');
+    $('#symfRegDt').text(it.regDt || '-');
+    $('#symfFileNm').text(it.fileNm ? '현재 파일: ' + it.fileNm : '등록된 이미지 파일이 없습니다.');
+    symfSetPreview(it.iconSrc || '', it.iconKind);
+  }).fail(function(xhr){
+    symAlert('error', '상세 API 호출 실패 (HTTP ' + xhr.status + ')', goList);
+  });
+}
+
+function saveSymbol(){
+  if(symfGb === 'T' && !$('#symbolNm').val().trim()){
+    symAlert('warning', '상징부호를 입력해주세요.');
+    $('#symbolNm').focus();
+    return;
+  }
+  if(symfGb === 'I' && symfMode === 'C' && !symfIcon){
+    symAlert('warning', '상징부호 화일을 선택하여 주십시요.');
+    return;
+  }
+  var payload = {
+    mode: symfMode,
+    symbolGb: symfGb,
+    symbolShape: symfShape,
+    symbolNm: $('#symbolNm').val().trim(),
+    comment: $('#comment').val().trim(),
+    useYn: $('#useYn').val()
+  };
+  if(symfMode === 'M') payload.symbolId = symfSymbolId();
+  if(symfIcon){
+    payload.icon = symfIcon;
+    payload.fileNm = symfFile;
+  }
+  $.ajax({
+    url: '/mariadb/neibis-api/symbol/save',
+    method: 'POST',
+    contentType: 'application/json; charset=utf-8',
+    data: JSON.stringify(payload)
+  }).done(function(res){
+    if(!res || !res.ok){
+      symAlert('error', (res && res.message) || '저장에 실패했습니다.');
+      return;
+    }
+    symAlert('success', res.message || '저장되었습니다.', goList);
+  }).fail(function(xhr){
+    var m = (xhr.responseJSON && xhr.responseJSON.message) || ('저장 API 호출 실패 (HTTP ' + xhr.status + ')');
+    symAlert('error', m);
+  });
+}
+
+function removeSymbol(){
+  symConfirm('선택하신 상징부호를 삭제하시겠습니까?', function(){
+    $.ajax({
+      url: '/mariadb/neibis-api/symbol/delete',
+      method: 'POST',
+      contentType: 'application/json; charset=utf-8',
+      data: JSON.stringify({ ids: [symfSymbolId()] })
+    }).done(function(res){
+      if(!res || !res.ok){
+        symAlert('error', (res && res.message) || '삭제에 실패했습니다.');
+        return;
+      }
+      symAlert('success', res.message || '삭제되었습니다.', goList);
+    }).fail(function(xhr){
+      symAlert('error', '삭제 API 호출 실패 (HTTP ' + xhr.status + ')');
+    });
+  });
 }
 
 $(function(){
-	var id = qsId();
-	if(!id){
-		toast('수정할 항목 ID가 없습니다. 목록에서 다시 선택해주세요.', 'warning');
-		return;
-	}
-	$.getJSON(API + '/detail', { id: id })
-		.done(function(res){
-			if(res && res.ok && res.data){ applyDetail(res.data); }
-			else { toast((res && res.message) || '상세 조회 실패', 'error'); }
-		})
-		.fail(function(){ toast('상세를 불러오지 못했습니다.', 'error'); });
+  $('#file').on('change', function(){
+    var f = this.files && this.files[0];
+    symfIcon = '';
+    symfFile = '';
+    if(!f){ symfSetPreview(''); $('#symfFileNm').text(''); return; }
+    if(!/\.(png|jpe?g)$/i.test(f.name)){
+      symAlert('warning', 'png, jpg 파일만 올릴 수 있습니다.');
+      this.value = '';
+      symfSetPreview('');
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function(e){
+      symfIcon = e.target.result;
+      symfFile = f.name;
+      symfSetPreview(symfIcon);
+      $('#symfFileNm').text('선택한 파일: ' + f.name);
+    };
+    reader.readAsDataURL(f);
+  });
+
+  if(symfMode === 'M'){
+    $('#symfTitle').text('상징 부호 수정');
+    $('#row-regdt').show();
+    $('#btnDelete').show();
+    loadDetail();
+  }
 });
 </script>
+
+
 					</div>
-
-
-
-
 				</article>
 			</div>
 		</div>
@@ -1152,6 +1023,7 @@ $(function(){
 				<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
 			</form>
 		</div>
+
 
 <!-- login.do 빼고사용 -->
 <script>

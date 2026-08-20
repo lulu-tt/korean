@@ -696,40 +696,16 @@
 											<tr>
 												<th scope="row">발화 주제</th>
 												<td colspan="3">
-													<select class="form-control" id="topic" style="width:100%; max-width:360px" title="발화 주제 선택">
-														<option value="">전체</option>
-														<option value="가신과 조상 숭배 신앙">가신과 조상 숭배 신앙</option>
-														<option value="가을걷이와 겨우살이">가을걷이와 겨우살이</option>
-														<option value="각종 질병과 민간요법">각종 질병과 민간요법</option>
-														<option value="결혼 생활에 대한 이야기">결혼 생활에 대한 이야기</option>
-														<option value="결혼하기까지의 과정">결혼하기까지의 과정</option>
-														<option value="고기잡이">고기잡이</option>
-														<option value="금기 생활">금기 생활</option>
-														<option value="나물 채취와 요리">나물 채취와 요리</option>
-														<option value="논농사">논농사</option>
-														<option value="누에치기와 비단 짜기">누에치기와 비단 짜기</option>
-														<option value="마을 공동체 생활을 위한 일손">마을 공동체 생활을 위한 일손</option>
-														<option value="마을 들여다보기">마을 들여다보기</option>
-														<option value="목화, 삼, 모시의 재배와 길쌈">목화, 삼, 모시의 재배와 길쌈</option>
-														<option value="밑반찬의 조리">밑반찬의 조리</option>
-														<option value="바느질과 세탁">바느질과 세탁</option>
-														<option value="밭농사">밭농사</option>
-														<option value="사냥">사냥</option>
-														<option value="세시 풍속">세시 풍속</option>
-														<option value="시집살이에 대한 경험담">시집살이에 대한 경험담</option>
-														<option value="약초 캐기">약초 캐기</option>
-														<option value="약초 캐는 과정과 주변 이야기">약초 캐는 과정과 주변 이야기</option>
-														<option value="옷 만들기">옷 만들기</option>
-														<option value="장례 절차에 대한 이야기">장례 절차에 대한 이야기</option>
-														<option value="전설과 설화">전설과 설화</option>
-														<option value="전통 놀이">전통 놀이</option>
-														<option value="전통 혼례식">전통 혼례식</option>
-														<option value="제보자의 출생과 성장">제보자의 출생과 성장</option>
-														<option value="제사에 대한 이야기">제사에 대한 이야기</option>
-														<option value="집짓기">집짓기</option>
-														<option value="채소 재배와 요리">채소 재배와 요리</option>
-														<option value="환갑잔치">환갑잔치</option>
-													</select>
+													<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+														<label class="sr-only" for="topicUpper">발화 주제 대분류</label>
+														<select class="form-control" id="topicUpper" style="width:300px" title="발화 주제 대분류 선택">
+															<option value="">대분류 전체</option>
+														</select>
+														<label class="sr-only" for="topicSub">발화 주제 소분류</label>
+														<select class="form-control" id="topicSub" style="width:300px" title="발화 주제 소분류 선택">
+															<option value="">소분류 전체</option>
+														</select>
+													</div>
 												</td>
 											</tr>
 											<tr>
@@ -775,7 +751,7 @@
 									<table style="min-width:1200px">
 										<caption class="sr-only">구술발화조사자료 목록</caption>
 										<colgroup>
-											<col style="width:52px" /><col style="width:64px" /><col style="width:80px" /><col style="width:170px" /><col style="width:220px" /><col /><col style="width:100px" /><col style="width:130px" /><col style="width:150px" />
+											<col style="width:52px" /><col style="width:64px" /><col style="width:80px" /><col style="width:170px" /><col style="width:190px" /><col style="width:170px" /><col /><col style="width:100px" /><col style="width:130px" /><col style="width:150px" />
 										</colgroup>
 										<thead>
 											<tr>
@@ -783,7 +759,8 @@
 												<th scope="col">번호</th>
 												<th scope="col">연도</th>
 												<th scope="col">지역명</th>
-												<th scope="col">발화 주제</th>
+												<th scope="col">발화 주제(대분류)</th>
+												<th scope="col">발화 주제(소분류)</th>
 												<th scope="col">조사파일명</th>
 												<th scope="col">시간</th>
 												<th scope="col">공개여부</th>
@@ -791,7 +768,7 @@
 											</tr>
 										</thead>
 										<tbody id="talkList">
-											<tr><td colspan="9" style="padding:40px;text-align:center;color:#94a3b8">목록을 불러오는 중…</td></tr>
+											<tr><td colspan="10" style="padding:40px;text-align:center;color:#94a3b8">목록을 불러오는 중…</td></tr>
 										</tbody>
 									</table>
 								</div>
@@ -893,6 +870,10 @@ $(function(){
     if(year) qs+='&year='+encodeURIComponent(year);
     if(sex) qs+='&sex='+encodeURIComponent(sex);
     if(kw.trim()) qs+='&q='+encodeURIComponent(kw.trim());
+    var tu=(document.getElementById('topicUpper')||{}).value||'';
+    var ts=(document.getElementById('topicSub')||{}).value||'';
+    if(tu) qs+='&topicUpper='+encodeURIComponent(tu);
+    if(ts) qs+='&topicSub='+encodeURIComponent(ts);
     return qs;
   }
 
@@ -906,7 +887,8 @@ $(function(){
       '<td>'+esc(it.no)+'</td>'+
       '<td>'+esc(it.year)+'</td>'+
       '<td><a href="oral-updt.do?id='+encodeURIComponent(it.oralId)+'" class="link">'+esc(it.region||'-')+'</a></td>'+
-      '<td class="text-left">'+esc(it.topic||'-')+'</td>'+
+      '<td class="text-left">'+esc(it.topicUpper||it.topic||'-')+'</td>'+
+      '<td class="text-left">'+(it.topicSub?esc(it.topicSub):'<span style="color:#94a3b8">-</span>')+'</td>'+
       '<td class="text-left"><a href="#layer-trs-view" data-modal="open" class="link js-oral-open" data-oral-id="'+esc(it.oralId)+'">'+esc(it.fileName)+'</a>'+media+'</td>'+
       '<td>'+esc(it.duration)+'</td>'+
       '<td>'+esc(openTxt)+'</td>'+
@@ -919,12 +901,12 @@ $(function(){
 
   window.loadOralList=function(){
     var tb=document.getElementById('talkList');
-    if(tb) tb.innerHTML='<tr><td colspan="9" style="padding:40px;text-align:center;color:#94a3b8">목록을 불러오는 중…</td></tr>';
+    if(tb) tb.innerHTML='<tr><td colspan="10" style="padding:40px;text-align:center;color:#94a3b8">목록을 불러오는 중…</td></tr>';
     fetch(API+'/list?'+gatherFilters(),{headers:{'Accept':'application/json'}})
       .then(function(r){return r.json();})
       .then(function(d){
         if(!d||!d.ok){throw new Error((d&&d.message)||'로드 실패');}
-        if(!d.list.length){ tb.innerHTML='<tr><td colspan="9" style="padding:40px;text-align:center;color:#94a3b8">검색 결과가 없습니다.</td></tr>'; }
+        if(!d.list.length){ tb.innerHTML='<tr><td colspan="10" style="padding:40px;text-align:center;color:#94a3b8">검색 결과가 없습니다.</td></tr>'; }
         else { tb.innerHTML=d.list.map(rowHtml).join(''); }
         var tot=document.querySelector('.list-control .total');
         if(tot) tot.innerHTML='총 <strong class="text-primary">'+Number(d.total).toLocaleString()+'</strong>건('+d.page+'/'+d.totalPages+' page)';
@@ -932,7 +914,7 @@ $(function(){
         var chkAll=document.getElementById('chkAll'); if(chkAll) chkAll.checked=false;
       })
       .catch(function(e){
-        tb.innerHTML='<tr><td colspan="9" style="padding:40px;text-align:center;color:#dc2626">목록 로드 실패: '+esc(e.message)+'</td></tr>';
+        tb.innerHTML='<tr><td colspan="10" style="padding:40px;text-align:center;color:#dc2626">목록 로드 실패: '+esc(e.message)+'</td></tr>';
       });
   };
 
@@ -951,10 +933,76 @@ $(function(){
     el.innerHTML=h;
   }
 
+  /* ── 발화 주제 대분류 → 소분류 연동 select (DB 실제 값) ── */
+  var _topicTree=[];
+  /* 테마 select 위젯(.dropdown)은 로드 시점 option 으로 1회만 만들어진다.
+     비동기로 option 을 교체한 뒤에는 위젯을 재생성해야 목록/라벨이 맞는다.
+     아직 위젯이 안 만들어졌으면(초기 로드 경합) 그대로 두면 테마가 새 option 으로 만든다. */
+  function rebuildDropdown(el){
+    if(!el || !window.jQuery || !jQuery.fn.selectToDropdown) return;
+    var $s=jQuery(el), $d=$s.next('.dropdown');
+    if(!$d.length) return;
+    $d.remove();
+    $s.css({opacity:'',visibility:'',display:''});
+    $s.selectToDropdown();
+  }
+  function fillTopicSub(){
+    var sel=document.getElementById('topicSub');
+    var up=(document.getElementById('topicUpper')||{}).value||'';
+    if(!sel) return;
+    var keep=sel.value;
+    var node=_topicTree.filter(function(t){return t.name===up;})[0];
+    var subs=node?node.subs:[];
+    // 대분류 미선택이면 전체 소분류를 합쳐서 보여준다.
+    if(!up){
+      var seen={};
+      subs=[];
+      _topicTree.forEach(function(t){ (t.subs||[]).forEach(function(sb){
+        if(seen[sb.name]==null){ seen[sb.name]=subs.length; subs.push({name:sb.name,count:sb.count}); }
+        else { subs[seen[sb.name]].count+=sb.count; }
+      });});
+      subs.sort(function(a,b){ return b.count-a.count || (a.name<b.name?-1:1); });
+    }
+    sel.innerHTML='<option value="">소분류 전체</option>'+subs.map(function(sb){
+      return '<option value="'+esc(sb.name)+'">'+esc(sb.name)+' ('+sb.count+')</option>';
+    }).join('');
+    // 대분류를 바꿔도 같은 소분류가 있으면 선택 유지
+    if(keep && sel.querySelector('option[value="'+keep.replace(/"/g,'\\"')+'"]')) sel.value=keep;
+    rebuildDropdown(sel);
+  }
+  function loadTopics(){
+    var up=document.getElementById('topicUpper');
+    if(!up) return;
+    fetch(API+'/topics',{headers:{'Accept':'application/json'}})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(!d||!d.ok) return;
+        _topicTree=d.list||[];
+        up.innerHTML='<option value="">대분류 전체</option>'+_topicTree.map(function(t){
+          return '<option value="'+esc(t.name)+'">'+esc(t.name)+' ('+t.count+')</option>';
+        }).join('');
+        rebuildDropdown(up);
+        fillTopicSub();
+      })
+      .catch(function(){});
+  }
+  /* 테마 위젯은 옵션 클릭 시 jQuery .change() 로만 알리므로(네이티브 이벤트 아님)
+     jQuery 위임 핸들러로 받는다. jQuery 미로드 시 네이티브로 폴백. */
+  if(window.jQuery) jQuery(document).on('change','#topicUpper',function(){ fillTopicSub(); });
+  else document.addEventListener('change', function(e){
+    if(e.target && e.target.id==='topicUpper') fillTopicSub();
+  });
+
   /* 검색/초기화 버튼을 실데이터 재조회로 재정의 */
   window.searchList=function(){ state.page=1; window.loadOralList(); };
   var _origBtnInit=window.btnInit;
-  window.btnInit=function(){ if(typeof _origBtnInit==='function'){try{_origBtnInit();}catch(e){}} state.page=1; window.loadOralList(); };
+  window.btnInit=function(){
+    if(typeof _origBtnInit==='function'){try{_origBtnInit();}catch(e){}}
+    var up=document.getElementById('topicUpper'); if(up){ up.value=''; rebuildDropdown(up); }
+    var sub=document.getElementById('topicSub'); if(sub) sub.value='';
+    fillTopicSub();
+    state.page=1; window.loadOralList();
+  };
 
   /* ── 상세(구술자료 보기) ── */
   function ensureAudio(){
@@ -1154,8 +1202,9 @@ $(function(){
     if(c){ var a=document.getElementById('oralAudio'); if(a){a.pause();} _stopAt=null; }
   });
 
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',window.loadOralList);
-  else window.loadOralList();
+  function bootOral(){ loadTopics(); window.loadOralList(); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bootOral);
+  else bootOral();
 })();
 </script>
 

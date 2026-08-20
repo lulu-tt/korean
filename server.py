@@ -3,11 +3,283 @@ import socketserver
 import sqlite3
 import json
 import os
+import re
+import time
+import uuid
 import urllib.parse
+import urllib.request
+import ssl
+from datetime import datetime
+import oral_api
+import vocab_api
 
 PORT = 8765
 DIRECTORY = "/Users/aaa/inseq/korean"
 DB_PATH = "/Users/aaa/inseq/korean/dialect_local.db"
+
+
+def _epoch_ms_to_date(ms) -> str:
+    s = str(ms or "").strip()
+    if not s:
+        return ""
+    try:
+        return datetime.fromtimestamp(int(s) / 1000).strftime("%Y-%m-%d")
+    except (ValueError, OverflowError, OSError):
+        return ""
+
+
+def _db_connect():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def _next_id(con, table, col) -> int:
+    row = con.execute(f"SELECT MAX(CAST({col} AS INTEGER)) FROM {table}").fetchone()
+    return (row[0] or 0) + 1
+
+
+def api_survey_active():
+    """메인 노출용 — 현재 진행 중인 설문 1건(가장 최근 등록)."""
+    now_ms = int(time.time() * 1000)
+    with _db_connect() as con:
+        row = con.execute(
+            """SELECT * FROM tb_survey_new
+               WHERE CAST(start_date AS INTEGER) <= ?
+                 AND CAST(end_date AS INTEGER) >= ?
+               ORDER BY CAST(survey_no AS INTEGER) DESC
+               LIMIT 1""",
+            (now_ms, now_ms),
+        ).fetchone()
+        if not row:
+            return {"status": "success", "data": None}
+        sid = str(row["survey_no"])
+        questions = []
+        for q in con.execute(
+            """SELECT question_no, question_title, question_order
+               FROM tb_survey_question_new WHERE survey_no=?
+               ORDER BY CAST(question_order AS INTEGER), CAST(question_no AS INTEGER)""",
+            (sid,),
+        ).fetchall():
+            examples = [
+                {"exampleNo": str(e["example_no"]), "exampleTitle": e["example_title"] or ""}
+                for e in con.execute(
+                    """SELECT example_no, example_title FROM tb_survey_example_new
+                       WHERE question_no=? ORDER BY CAST(example_no AS INTEGER)""",
+                    (q["question_no"],),
+                ).fetchall()
+            ]
+            questions.append({
+                "questionNo": str(q["question_no"]),
+                "questionTitle": q["question_title"] or "",
+                "examples": examples,
+            })
+        return {"status": "success", "data": {
+            "surveyNo": sid,
+            "surveyTitle": row["survey_title"] or "",
+            "surveyCntnts": row["survey_cntnts"] or "",
+            "startDate": _epoch_ms_to_date(row["start_date"]),
+            "endDate": _epoch_ms_to_date(row["end_date"]),
+            "prsnlInputYn": (row["prsnl_input_yn"] or "N").upper(),
+            "prsnlInfoCntnts": row["prsnl_info_cntnts"] or "",
+            "questionCnt": len(questions),
+            "questions": questions,
+        }}
+
+
+def api_survey_answer_save(body: dict):
+    """메인 설문 팝업 제출 — tb_survey_answer_new (+ 개인정보)."""
+    sid = str(body.get("surveyNo") or "").strip()
+    answers = body.get("answers") or []
+    if not sid:
+        return {"status": "error", "message": "survey_no 가 필요합니다."}
+    if not isinstance(answers, list) or not answers:
+        return {"status": "error", "message": "응답이 없습니다."}
+
+    now_ms = int(time.time() * 1000)
+    with _db_connect() as con:
+        srv = con.execute(
+            "SELECT * FROM tb_survey_new WHERE survey_no=? LIMIT 1", (sid,)
+        ).fetchone()
+        if not srv:
+            return {"status": "error", "message": "설문을 찾을 수 없습니다."}
+        try:
+            start_ms = int(str(srv["start_date"] or "0"))
+            end_ms = int(str(srv["end_date"] or "0"))
+        except ValueError:
+            start_ms, end_ms = 0, 0
+        if now_ms < start_ms or now_ms > end_ms:
+            return {"status": "error", "message": "진행 중인 설문이 아닙니다."}
+
+        qrows = con.execute(
+            """SELECT question_no FROM tb_survey_question_new WHERE survey_no=?
+               ORDER BY CAST(question_order AS INTEGER), CAST(question_no AS INTEGER)""",
+            (sid,),
+        ).fetchall()
+        qnos = [str(q["question_no"]) for q in qrows]
+        if not qnos:
+            return {"status": "error", "message": "등록된 문항이 없습니다."}
+
+        picked = {}
+        for a in answers:
+            qno = str(a.get("questionNo") or "").strip()
+            eno = str(a.get("exampleNo") or "").strip()
+            if qno and eno:
+                picked[qno] = eno
+        missing = [qno for qno in qnos if qno not in picked]
+        if missing:
+            return {"status": "error", "message": "답변을 선택해주세요."}
+
+        for qno, eno in picked.items():
+            if qno not in qnos:
+                return {"status": "error", "message": "잘못된 문항입니다."}
+            ok = con.execute(
+                "SELECT 1 FROM tb_survey_example_new WHERE example_no=? AND question_no=? LIMIT 1",
+                (eno, qno),
+            ).fetchone()
+            if not ok:
+                return {"status": "error", "message": "잘못된 보기입니다."}
+
+        serial = str(uuid.uuid4())
+        answer_dt = str(now_ms)
+        next_no = _next_id(con, "tb_survey_answer_new", "answer_no")
+        for qno in qnos:
+            con.execute(
+                """INSERT INTO tb_survey_answer_new
+                   (answer_no, question_no, answer_serial, example_no, answer_dt)
+                   VALUES (?,?,?,?,?)""",
+                (str(next_no), qno, serial, picked[qno], answer_dt),
+            )
+            next_no += 1
+
+        if (srv["prsnl_input_yn"] or "N").upper() == "Y":
+            agree = "Y" if str(body.get("personalInfoAgree") or "N").upper() == "Y" else "N"
+            phone = (body.get("personalContAgree") or "").strip() if agree == "Y" else ""
+            if len(phone) > 40:
+                phone = phone[:40]
+            con.execute(
+                """INSERT INTO tb_survey_answer_personal_info
+                   (answer_serial, prsnl_consent_yn, prsnl_info_answer, answer_dt)
+                   VALUES (?,?,?,?)""",
+                (serial, agree, phone, answer_dt),
+            )
+        con.commit()
+    return {"status": "success", "json": "SUCCESS", "message": "참여해 주셔서 감사합니다."}
+
+
+def _ensure_api_purpose_col(con) -> None:
+    cols = {str(r[1]) for r in con.execute("PRAGMA table_info(pt_user)").fetchall()}
+    if "api_purpose" not in cols:
+        con.execute("ALTER TABLE pt_user ADD COLUMN api_purpose TEXT")
+        con.commit()
+
+
+def _next_user_id(con) -> int:
+    row = con.execute("SELECT MAX(CAST(user_id AS INTEGER)) FROM pt_user").fetchone()
+    return (row[0] or 0) + 1
+
+
+def _openapi_user_payload(row) -> dict:
+    return {
+        "usid": row["usid"] or "",
+        "username": row["username"] or "",
+        "apiKey": row["api_key"] or "",
+        "apiUrl": row["api_url"] or "",
+        "apiPurpose": row["api_purpose"] or "",
+        "apiDt": int(row["api_dt"]) if str(row["api_dt"] or "").isdigit() else 0,
+    }
+
+
+def api_openapi_mine(qs: dict) -> dict:
+    usid = ((qs.get("usid") or [""])[0] or "").strip()
+    if not usid:
+        return {"status": "success", "data": None}
+    with _db_connect() as con:
+        _ensure_api_purpose_col(con)
+        row = con.execute(
+            "SELECT usid, username, api_key, api_url, api_purpose, api_dt FROM pt_user WHERE usid=? LIMIT 1",
+            (usid,),
+        ).fetchone()
+        if not row or not (row["api_key"] or "").strip():
+            return {"status": "success", "data": None}
+        return {"status": "success", "data": _openapi_user_payload(row)}
+
+
+def api_openapi_issue(body: dict) -> dict:
+    """인증키 발급 — pt_user.api_key / api_url / api_purpose / api_dt."""
+    usid = str(body.get("usid") or body.get("userId") or "").strip()
+    if not usid:
+        usid = "hanguk_user"
+    if len(usid) > 50 or not re.fullmatch(r"[A-Za-z0-9_.\-]+", usid):
+        return {"status": "error", "message": "아이디 형식이 올바르지 않습니다."}
+    url = str(body.get("apiUrl") or "").strip()
+    purpose = str(body.get("apiPurpose") or "").strip()
+    if not url:
+        return {"status": "error", "message": "사용 URL을 입력해 주세요."}
+    if not purpose:
+        return {"status": "error", "message": "사용목적을 입력해 주세요."}
+    if len(url) > 500:
+        url = url[:500]
+    if len(purpose) > 500:
+        purpose = purpose[:500]
+    now_ms = str(int(time.time() * 1000))
+    chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789"
+    key = "".join(chars[b % len(chars)] for b in os.urandom(30))
+
+    with _db_connect() as con:
+        _ensure_api_purpose_col(con)
+        row = con.execute("SELECT * FROM pt_user WHERE usid=? LIMIT 1", (usid,)).fetchone()
+        if row and (row["api_key"] or "").strip():
+            # 이미 발급됨 — 목적/URL만 비어 있으면 보강, 키는 유지
+            need_url = not (row["api_url"] or "").strip()
+            need_purpose = not (row["api_purpose"] or "").strip()
+            if need_url or need_purpose:
+                con.execute(
+                    "UPDATE pt_user SET api_url=?, api_purpose=? WHERE usid=?",
+                    (url if need_url else row["api_url"],
+                     purpose if need_purpose else row["api_purpose"],
+                     usid),
+                )
+                con.commit()
+                row = con.execute(
+                    "SELECT usid, username, api_key, api_url, api_purpose, api_dt FROM pt_user WHERE usid=?",
+                    (usid,),
+                ).fetchone()
+            return {
+                "status": "success",
+                "already": True,
+                "message": "이미 발급된 인증키가 있습니다.",
+                "data": _openapi_user_payload(row),
+            }
+        if row:
+            con.execute(
+                """UPDATE pt_user
+                   SET api_key=?, api_url=?, api_purpose=?, api_dt=?, update_dt=?
+                   WHERE usid=?""",
+                (key, url, purpose, now_ms, now_ms, usid),
+            )
+        else:
+            uid = _next_user_id(con)
+            con.execute(
+                """INSERT INTO pt_user
+                   (user_id, usergroup_id, usid, username, auth, fail_count,
+                    api_key, api_url, api_purpose, api_dt, write_dt, update_dt, writer)
+                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (str(uid), "3", usid, usid, "9", "0",
+                 key, url, purpose, now_ms, now_ms, now_ms, usid),
+            )
+        con.commit()
+        saved = con.execute(
+            "SELECT usid, username, api_key, api_url, api_purpose, api_dt FROM pt_user WHERE usid=?",
+            (usid,),
+        ).fetchone()
+    return {
+        "status": "success",
+        "already": False,
+        "message": "API 인증 키가 발급되었습니다.",
+        "data": _openapi_user_payload(saved),
+    }
+
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -677,10 +949,222 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode('utf-8'))
             return
 
+        # ── 구술발화 조사 자료: 검색(발화 턴 단위 + 파일 단위 동시 집계) ──
+        elif parsed_url.path == '/api/oral_search':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json; charset=utf-8')
+            self.end_headers()
+            try:
+                res = oral_api.search(query_params)
+            except Exception as e:
+                res = {"status": "error", "message": str(e)}
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
+            return
+
+        # ── 구술발화 조사 자료: 원문 전문(3단 전사) ──
+        elif parsed_url.path == '/api/oral_detail':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json; charset=utf-8')
+            self.end_headers()
+            try:
+                res = oral_api.detail(query_params)
+            except Exception as e:
+                res = {"status": "error", "message": str(e)}
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
+            return
+
+        # ── 구술발화 음성: 문장 단위 재생을 위해 Range 요청(206) 지원 ──
+        elif parsed_url.path == '/api/oral_audio':
+            trs_id = (query_params.get('trsId') or [''])[0].strip()
+            path = None
+            try:
+                path = oral_api.audio_path(trs_id)
+            except Exception:
+                path = None
+            if not path or not os.path.exists(path):
+                self.send_response(404)
+                self.send_header('Content-type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps(
+                    {"status": "error", "message": "audio not found", "trsId": trs_id},
+                    ensure_ascii=False).encode('utf-8'))
+                return
+            size = os.path.getsize(path)
+            rng = self.headers.get('Range')
+            start, end = 0, size - 1
+            partial = False
+            if rng:
+                m = re.match(r'bytes=(\d*)-(\d*)', rng)
+                if m:
+                    if m.group(1):
+                        start = int(m.group(1))
+                    if m.group(2):
+                        end = min(int(m.group(2)), size - 1)
+                    if start <= end < size:
+                        partial = True
+            self.send_response(206 if partial else 200)
+            self.send_header('Content-type', 'audio/wav')
+            self.send_header('Accept-Ranges', 'bytes')
+            self.send_header('Content-Length', str(end - start + 1))
+            if partial:
+                self.send_header('Content-Range', f'bytes {start}-{end}/{size}')
+            self.end_headers()
+            with open(path, 'rb') as f:
+                f.seek(start)
+                remain = end - start + 1
+                while remain > 0:
+                    chunk = f.read(min(65536, remain))
+                    if not chunk:
+                        break
+                    self.wfile.write(chunk)
+                    remain -= len(chunk)
+            return
+
+        # ── 어휘 조사 자료: 목록(지역어형×표준어 조합 단위) ──
+        elif parsed_url.path == '/api/vocab_search':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json; charset=utf-8')
+            self.end_headers()
+            try:
+                res = vocab_api.search(query_params)
+            except Exception as e:
+                res = {"status": "error", "message": str(e)}
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
+            return
+
+        # ── 어휘 조사 자료: 상세(조사 지점별 목록 + 음성 URL) ──
+        elif parsed_url.path == '/api/vocab_detail':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json; charset=utf-8')
+            self.end_headers()
+            try:
+                res = vocab_api.detail(query_params)
+            except Exception as e:
+                res = {"status": "error", "message": str(e)}
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
+            return
+
+        # ── 어휘 음성 중계: 운영 파일서버가 자체 서명 인증서라 브라우저가 직접 못 받는다 ──
+        elif parsed_url.path == '/api/vocab_audio':
+            year = (query_params.get('year') or [''])[0].strip()
+            serial = (query_params.get('serial') or [''])[0].strip()
+            if not re.fullmatch(r'\d{4}', year) or not re.fullmatch(r'[A-Za-z0-9_-]+', serial):
+                self.send_response(400)
+                self.send_header('Content-type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "error", "message": "bad params"}).encode('utf-8'))
+                return
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+            try:
+                with urllib.request.urlopen(vocab_api.audio_origin(year, serial), context=ctx, timeout=20) as up:
+                    body = up.read()
+            except Exception as e:
+                self.send_response(404)
+                self.send_header('Content-type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "error", "message": str(e)},
+                                            ensure_ascii=False).encode('utf-8'))
+                return
+            self.send_response(200)
+            self.send_header('Content-type', 'audio/mpeg')
+            self.send_header('Content-Length', str(len(body)))
+            self.send_header('Accept-Ranges', 'none')
+            self.end_headers()
+            self.wfile.write(body)
+            return
+
+        # ── 어휘 지도: 지역어형 1개의 시도별 표준어 분포 ──
+        elif parsed_url.path == '/api/vocab_map':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json; charset=utf-8')
+            self.end_headers()
+            try:
+                res = vocab_api.map_data(query_params)
+            except Exception as e:
+                res = {"status": "error", "message": str(e)}
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
+            return
+
+        elif parsed_url.path == '/api/openapi/mine':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json; charset=utf-8')
+            self.end_headers()
+            try:
+                res = api_openapi_mine(query_params)
+            except Exception as e:
+                res = {"status": "error", "message": str(e)}
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
+            return
+
+        # ── 메인 설문조사 팝업: 진행 중인 설문 1건 ──
+        elif parsed_url.path == '/api/survey/active':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json; charset=utf-8')
+            self.end_headers()
+            try:
+                res = api_survey_active()
+            except Exception as e:
+                res = {"status": "error", "message": str(e)}
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
+            return
+
         return super().do_GET()
+
+    def do_POST(self):
+        parsed_url = urllib.parse.urlparse(self.path)
+        length = int(self.headers.get('Content-Length') or 0)
+        raw = self.rfile.read(length) if length > 0 else b""
+        ctype = (self.headers.get('Content-Type') or "").split(";")[0].strip().lower()
+
+        def send_json(obj, status=200):
+            self.send_response(status)
+            self.send_header('Content-type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps(obj, ensure_ascii=False).encode('utf-8'))
+
+        body = {}
+        if raw:
+            try:
+                if ctype in ("application/json", "text/json", ""):
+                    body = json.loads(raw.decode("utf-8") or "{}")
+                else:
+                    parsed = urllib.parse.parse_qs(raw.decode("utf-8"), keep_blank_values=True)
+                    body = {k: (v[0] if len(v) == 1 else v) for k, v in parsed.items()}
+            except Exception:
+                send_json({"status": "error", "message": "요청 본문을 해석할 수 없습니다."}, 400)
+                return
+        if not isinstance(body, dict):
+            body = {}
+
+        if parsed_url.path == '/api/survey/answer':
+            try:
+                res = api_survey_answer_save(body)
+                send_json(res, 200 if res.get("status") == "success" else 400)
+            except Exception as e:
+                send_json({"status": "error", "message": str(e)}, 500)
+            return
+
+        if parsed_url.path == '/api/openapi/issue':
+            try:
+                res = api_openapi_issue(body)
+                send_json(res, 200 if res.get("status") == "success" else 400)
+            except Exception as e:
+                send_json({"status": "error", "message": str(e)}, 500)
+            return
+
+        self.send_error(404, "Not Found")
+
+class ThreadedServer(socketserver.ThreadingTCPServer):
+    """음성(wav) 스트리밍이 한 커넥션을 오래 붙잡는다.
+    단일 스레드 TCPServer 로는 재생 중 다른 요청(페이지·검색·구간 탐색)이 전부 막힌다."""
+    daemon_threads = True
+    allow_reuse_address = True
+
 
 if __name__ == "__main__":
     socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("127.0.0.1", PORT), Handler) as httpd:
+    with ThreadedServer(("127.0.0.1", PORT), Handler) as httpd:
         print(f"Serving HTTP on 127.0.0.1 port {PORT} (http://127.0.0.1:{PORT}/) with API support...")
         httpd.serve_forever()

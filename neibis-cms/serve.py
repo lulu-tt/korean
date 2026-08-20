@@ -279,6 +279,174 @@ def parse_eaf(eaf_path: Path) -> dict:
     }
 
 
+def parse_trs(trs_path: Path) -> dict:
+    """Transcriber .trs (XML) 파싱 → parse_eaf 와 같은 구조.
+
+    Sync 시각 + `10604@ 방언 {표준어}` / `10604# …` 라인을 세그먼트로 만든다.
+    첫 Sync의 헤더에서 제보자·지역·연도 등을 추정한다.
+    """
+    raw = trs_path.read_bytes()
+    text = None
+    for enc in ("utf-8", "cp949", "euc-kr"):
+        try:
+            text = raw.decode(enc)
+            break
+        except UnicodeDecodeError:
+            continue
+    if text is None:
+        text = raw.decode("utf-8", "replace")
+    try:
+        root = ET.fromstring(text)
+    except ET.ParseError:
+        # DTD / 제어문자 등 — 선언부만 걷어내고 재시도
+        cleaned = re.sub(r"<!DOCTYPE[^>]*>", "", text, count=1, flags=re.I)
+        root = ET.fromstring(cleaned)
+
+    trans = root if (root.tag or "").endswith("Trans") else root.find(".//Trans")
+    if trans is None:
+        trans = root
+    scribe = (trans.get("scribe") or "").strip()
+    if scribe.lower() in ("", "(unknown)", "unknown"):
+        scribe = ""
+    audio_attr = (trans.get("audio_filename") or "").strip()
+
+    section_end = 0.0
+    for sec in root.iter("Section"):
+        try:
+            section_end = max(section_end, float(sec.get("endTime") or 0))
+        except (TypeError, ValueError):
+            pass
+
+    syncs: list[tuple[float, str]] = []
+    for turn in root.iter("Turn"):
+        for ch in list(turn):
+            if (ch.tag or "").endswith("Sync"):
+                try:
+                    t = float(ch.get("time") or 0)
+                except (TypeError, ValueError):
+                    t = 0.0
+                syncs.append((t, (ch.tail or "").strip()))
+
+    header = ""
+    line_re = re.compile(r"^(?:(\d{3,6})\s*)?([@#]\d*)\s*(.*)$", re.S)
+    segments: list[dict] = []
+    items_seen: list[str] = []
+    for i, (start, body) in enumerate(syncs):
+        if not body:
+            continue
+        end = syncs[i + 1][0] if i + 1 < len(syncs) else section_end
+        m = line_re.match(body)
+        if not m:
+            if not header:
+                header = body
+            continue
+        item, mark, rest = m.group(1) or "", m.group(2), (m.group(3) or "").strip()
+        if mark.startswith("@"):
+            speaker = "조사자"
+        else:
+            n = mark[1:] or "1"
+            speaker = "제보자" + n
+        std = ""
+        bm = re.search(r"\{(.*)\}\s*$", rest, re.S)
+        if bm:
+            std = bm.group(1).strip()
+            rest = rest[: bm.start()].strip()
+        start_ms = int(round(start * 1000))
+        end_ms = int(round(end * 1000)) if end and end > start else start_ms
+        segments.append({
+            "speaker": speaker,
+            "startMs": start_ms,
+            "endMs": end_ms,
+            "form": rest,
+            "std": std,
+            "item": item,
+        })
+        if item:
+            items_seen.append(item)
+
+    for i, s in enumerate(segments, 1):
+        s["seq"] = i
+
+    meta: dict[str, str] = {}
+    ym = re.search(r"(19\d{2}|20\d{2})\s*년", header)
+    if ym:
+        meta["year"] = ym.group(1)
+    nm = re.search(r"([가-힣]{2,10})\s*\(([^)]*세[^)]*)\)", header)
+    if nm:
+        meta["informant"] = nm.group(1)
+        info = nm.group(2)
+        parts = [p.strip() for p in info.split(",") if p.strip()]
+        if parts:
+            meta["region"] = parts[0]
+        am = re.search(r"(\d+)\s*세", info)
+        if am:
+            meta["age"] = am.group(1)
+        if re.search(r"여(성|자)?", info) and not re.search(r"남(성|자)?", info):
+            meta["sex"] = "여"
+        elif re.search(r"남(성|자)?", info):
+            meta["sex"] = "남"
+    if not meta.get("region"):
+        rm = re.search(r"\(([^)]*(?:특별|광역|자치)?(?:시|도)[^)]*)\)\s*$", header)
+        if rm:
+            meta["region"] = rm.group(1).strip()
+    year = meta.get("year") or ""
+    age = meta.get("age") or ""
+    birth = ""
+    if year.isdigit() and age.isdigit():
+        birth = str(int(year) - int(age) + 1)
+
+    oral_id = _oral_id_of(trs_path)
+    content_code = ""
+    if items_seen:
+        content_code = items_seen[0][:3] + "00" if len(items_seen[0]) >= 3 else items_seen[0]
+    if not content_code:
+        m = re.search(r"(\d{5})", oral_id)
+        content_code = m.group(1) if m else ""
+    duration_ms = int(round(section_end * 1000)) if section_end else (
+        max((s["endMs"] for s in segments), default=0)
+    )
+    topic = ORAL_TOPIC_MAP.get(content_code, content_code or "-")
+    if header:
+        rest = header
+        if nm:
+            rest = header[nm.end():].strip()
+        rest = re.sub(r"(?:19|20)\d{2}\s*년.*$", "", rest).strip(" ,.-")
+        if rest:
+            topic = rest
+
+    return {
+        "oralId": oral_id or audio_attr,
+        "region": meta.get("region", ""),
+        "sidoCd": _sido_cd_of(meta.get("region", "")),
+        "year": year,
+        "contentCode": content_code,
+        "topic": topic,
+        "informant": meta.get("informant", ""),
+        "sex": meta.get("sex", ""),
+        "birth": birth,
+        "investigator": "",
+        "transcriber": scribe,
+        "durationMs": duration_ms,
+        "segmentCount": len(segments),
+        "segments": segments,
+        "tiers": {},
+        "itemSpans": [],
+        "voiceSpans": [],
+        "remarkSpans": [],
+        "format": "trs",
+    }
+
+
+def parse_oral_transcript(path: Path) -> dict:
+    """업로드된 전사자료(.eaf / .trs) 파싱."""
+    ext = path.suffix.lower()
+    if ext == ".trs":
+        return parse_trs(path)
+    if ext == ".eaf":
+        return parse_eaf(path)
+    raise ValueError(f"지원하지 않는 전사 형식: {path.suffix}")
+
+
 def _scan_oral_files() -> list[Path]:
     """데이터 루트 하위의 모든 .eaf 경로 (정렬)."""
     if not ORAL_DATA_ROOT.is_dir():
@@ -384,6 +552,8 @@ def api_oral_list(qs: dict) -> dict:
     year = q1("year") or q1("researchYear")
     sex = q1("sex")           # '' | man | woman | wom | 남 | 여
     q = q1("q") or q1("searchValue")
+    topic_upper = q1("topicUpper") or q1("topic")   # 발화 주제 대분류
+    topic_sub = q1("topicSub")                      # 발화 주제 소분류
 
     where: list[str] = []
     params: list = []
@@ -402,6 +572,12 @@ def api_oral_list(qs: dict) -> dict:
             "OR IFNULL(f.headword,'') LIKE ? OR IFNULL(rr.region_nm,'') LIKE ?)"
         )
         params += [like, like, like, like]
+    if topic_upper:
+        where.append("IFNULL(f.upper_headword,'') = ?")
+        params.append(topic_upper)
+    if topic_sub:
+        where.append("IFNULL(f.headword,'') = ?")
+        params.append(topic_sub)
     sex_code = "1" if sex in ("man", "남") else ("0" if sex in ("woman", "wom", "여") else "")  # wb_source: 0=여,1=남
     if sex_code:
         where.append(
@@ -457,6 +633,9 @@ def api_oral_list(qs: dict) -> dict:
             "oralId": tid,
             "year": r["research_year"] or "",
             "region": r["region_nm"] or r["sigungu_nm"] or "-",
+            "topicUpper": r["upper_headword"] or "",
+            "topicSub": r["headword"] or "",
+            # 하위 호환(구 화면): 대분류 우선
             "topic": r["upper_headword"] or r["headword"] or "-",
             "fileName": r["trs_file_nm"] or (audio_id + ".eaf"),
             "duration": _sec_to_hms(dur_sec),
@@ -478,6 +657,38 @@ def api_oral_list(qs: dict) -> dict:
         "list": items,
         "db": str(DB_PATH),
     }
+
+
+def api_oral_topics(qs: dict) -> dict:
+    """발화 주제 분류(대분류 → 소분류) — 검색폼 2단 select용. DB 실제 값 기준."""
+    with db_connect() as con:
+        rows = con.execute(
+            """SELECT IFNULL(upper_headword,'') AS up, IFNULL(headword,'') AS sub,
+                      COUNT(*) AS cnt
+                 FROM wb_trs_file_talk
+                GROUP BY up, sub"""
+        ).fetchall()
+
+    tree: dict[str, dict] = {}
+    for r in rows:
+        up, sub, cnt = r["up"].strip(), r["sub"].strip(), r["cnt"] or 0
+        if not up:
+            continue
+        node = tree.setdefault(up, {"name": up, "count": 0, "subs": {}})
+        node["count"] += cnt
+        if sub:
+            node["subs"][sub] = node["subs"].get(sub, 0) + cnt
+
+    out = []
+    for up in sorted(tree, key=lambda k: (-tree[k]["count"], k)):
+        node = tree[up]
+        out.append({
+            "name": node["name"],
+            "count": node["count"],
+            "subs": [{"name": nm, "count": node["subs"][nm]}
+                     for nm in sorted(node["subs"], key=lambda k: (-node["subs"][k], k))],
+        })
+    return {"ok": True, "list": out}
 
 
 def _find_source_eaf(trs_file_nm: str) -> Path | None:
@@ -1003,7 +1214,7 @@ def _wav_duration_sec(path: Path) -> float:
 
 
 def api_oral_upload(raw: bytes, ctype: str) -> dict:
-    """등록 ① 업로드+파싱 — .eaf/.wav 저장 후 파일별 정보 반환."""
+    """등록 ① 업로드+파싱 — .eaf/.trs/.wav 저장 후 파일별 정보 반환."""
     mp = _parse_multipart(raw, ctype)
     if not mp["files"]:
         return {"ok": False, "message": "업로드된 파일이 없습니다."}
@@ -1017,14 +1228,15 @@ def api_oral_upload(raw: bytes, ctype: str) -> dict:
         dest.write_bytes(f["data"])
         ext = fname.rsplit(".", 1)[-1].lower() if "." in fname else ""
         base = _oral_id_of(dest)
-        if ext == "eaf":
+        if ext in ("eaf", "trs"):
             try:
-                rec = parse_eaf(dest)
+                rec = parse_oral_transcript(dest)
             except Exception as e:
-                results.append({"ok": False, "fileName": fname, "message": f"EAF 파싱 실패: {e}"})
+                label = "TRS" if ext == "trs" else "EAF"
+                results.append({"ok": False, "fileName": fname, "message": f"{label} 파싱 실패: {e}"})
                 continue
             results.append({
-                "ok": True, "kind": "eaf", "fileName": fname, "baseId": base,
+                "ok": True, "kind": ext, "fileName": fname, "baseId": base,
                 "durationSec": round(rec["durationMs"] / 1000, 3),
                 "durationHms": _ms_to_hms(rec["durationMs"]),
                 "segmentCount": rec["segmentCount"],
@@ -1045,7 +1257,7 @@ def api_oral_upload(raw: bytes, ctype: str) -> dict:
                 "waveSec": round(sec, 3), "waveTimeHms": _sec_to_hms(sec),
             })
         else:
-            results.append({"ok": False, "fileName": fname, "message": "지원하지 않는 형식(.eaf/.wav)"})
+            results.append({"ok": False, "fileName": fname, "message": "지원하지 않는 형식(.eaf/.trs/.wav)"})
     return {"ok": True, "results": results}
 
 
@@ -1059,7 +1271,7 @@ def api_oral_create(body: dict) -> dict:
     조사지역 wb_research_region, 제보자 wb_source 생성."""
     files = body.get("files") or []
     if not files:
-        return {"ok": False, "message": "등록할 전사자료(.eaf)가 없습니다."}
+        return {"ok": False, "message": "등록할 전사자료(.eaf/.trs)가 없습니다."}
     region = body.get("region") or {}
     headword = (body.get("headword") or "").strip()
     use_yn = "N" if str(body.get("useYn") or "Y").upper() == "N" else "Y"
@@ -1141,8 +1353,9 @@ def api_oral_create(body: dict) -> dict:
             p = ORAL_UPLOAD_DIR / safe
             if not p.is_file():
                 return {"ok": False, "message": f"업로드 파일을 찾을 수 없습니다: {safe}"}
-            rec = parse_eaf(p)
+            rec = parse_oral_transcript(p)
             base = _oral_id_of(p)
+            stored_nm = (base + ".eaf") if p.suffix.lower() == ".eaf" else (base + p.suffix.lower())
             wav = base + ".wav"
             wav_sec = _wav_duration_sec(ORAL_UPLOAD_DIR / wav) if (ORAL_UPLOAD_DIR / wav).is_file() else 0.0
             trs_id = str(next_trs)
@@ -1153,7 +1366,7 @@ def api_oral_create(body: dict) -> dict:
                     wave_file_nm, wave_time, research_degree, audio_filename, ver, use_yn)
                    VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
                 (
-                    trs_id, str(rrid), headword, base + ".eaf",
+                    trs_id, str(rrid), headword, stored_nm,
                     str(round(rec["durationMs"] / 1000, 3)),
                     wav, str(round(wav_sec, 3)) if wav_sec else "",
                     degree, base, "1", use_yn,
@@ -1172,7 +1385,7 @@ def api_oral_create(body: dict) -> dict:
                     ),
                 )
                 next_line += 1
-            created.append({"trsId": trs_id, "fileName": base + ".eaf", "segments": rec["segmentCount"]})
+            created.append({"trsId": trs_id, "fileName": stored_nm, "segments": rec["segmentCount"]})
         con.commit()
 
     return {"ok": True, "researchRegionId": str(rrid), "created": created,
@@ -2535,8 +2748,63 @@ def api_vocab_list(qs: dict) -> dict:
     }
 
 
-def api_symbol_list(qs: dict) -> dict:
+# 부호 이미지 원본 위치 — DB icon 이 비어 있는 행(운영 CUBRID 에서 파일로만 관리)용
+SYMBOL_ASSET_DIR = USER_MAP_ROOT / "symbol"
+SYMBOL_MASK_DIR = USER_MAP_ROOT / "symbol_mask"
+
+
+def _symbol_icon(icon, file_nm):
+    """(iconSrc, iconKind) 반환.
+    ① tb_map_symbol.icon(raw base64) → data URI
+    ② 없으면 symbol/<file_nm> 실제 부호 이미지
+    ③ 그것도 없으면 symbol_mask/<file_nm> 흰색 실루엣(화면에서 반전해 표시)"""
+    v = str(icon or "")
+    if v.startswith("data:"):
+        return v, "icon"
+    if len(v) > 20:
+        return f"data:image/png;base64,{v}", "icon"
+    fn = str(file_nm or "").strip()
+    if fn and "/" not in fn and "\\" not in fn and ".." not in fn:
+        if (SYMBOL_ASSET_DIR / fn).is_file():
+            return "/user-map/symbol/" + urllib.parse.quote(fn), "file"
+        if (SYMBOL_MASK_DIR / fn).is_file():
+            return "/user-map/symbol_mask/" + urllib.parse.quote(fn), "mask"
+    return "", ""
+
+
+def _symbol_where(qs: dict):
+    """검색조건(유형 A/B) → WHERE 절."""
     search = (qs.get("searchValue") or [""])[0].strip()
+    if search in ("A", "B"):
+        return " WHERE s.symbol_shape = ?", [search]
+    return "", []
+
+
+def _symbol_row(r) -> dict:
+    src, kind = _symbol_icon(r["icon"], r["file_nm"])
+    return {
+        "symbolId": r["symbol_id"],
+        "symbolNm": r["symbol_nm"] or "",
+        "comment": r["comment"] or "",
+        "useYn": r["use_yn"] or "",
+        "regDt": fmt_reg_dt(r["reg_dt"], r["upt_dt"], r["file_nm"]),
+        "symbolGb": r["symbol_gb"] or "",
+        "symbolShape": r["symbol_shape"] or "",
+        "fileNm": r["file_nm"] or "",
+        "iconSrc": src,
+        "iconKind": kind,
+    }
+
+
+SYMBOL_SELECT = """
+    SELECT s.symbol_id, s.symbol_nm, s.comment, s.use_yn, s.reg_dt, s.upt_dt,
+           s.symbol_gb, s.symbol_shape, s.map_symbol_id, m.file_nm, m.icon
+    FROM tb_symbol s
+    LEFT JOIN tb_map_symbol m ON m.map_symbol_id = s.map_symbol_id
+"""
+
+
+def api_symbol_list(qs: dict) -> dict:
     try:
         page = max(1, int((qs.get("page") or ["1"])[0]))
     except ValueError:
@@ -2548,12 +2816,7 @@ def api_symbol_list(qs: dict) -> dict:
     if page_size not in (10, 50, 100, 200, 300):
         page_size = 10
 
-    where = []
-    params: list = []
-    if search in ("A", "B"):
-        where.append("s.symbol_shape = ?")
-        params.append(search)
-    wh = (" WHERE " + " AND ".join(where)) if where else ""
+    wh, params = _symbol_where(qs)
 
     with db_connect() as con:
         total = con.execute(
@@ -2561,39 +2824,14 @@ def api_symbol_list(qs: dict) -> dict:
         ).fetchone()[0]
         offset = (page - 1) * page_size
         rows = con.execute(
-            f"""
-            SELECT s.symbol_id, s.symbol_nm, s.use_yn, s.reg_dt, s.upt_dt, s.symbol_gb,
-                   s.symbol_shape, m.file_nm, m.icon
-            FROM tb_symbol s
-            LEFT JOIN tb_map_symbol m ON m.map_symbol_id = s.map_symbol_id
-            {wh}
-            ORDER BY CAST(s.symbol_id AS INTEGER)
+            f"""{SYMBOL_SELECT}{wh}
+            ORDER BY CAST(s.symbol_id AS INTEGER) DESC
             LIMIT ? OFFSET ?
             """,
             params + [page_size, offset],
         ).fetchall()
 
-    items = []
-    for r in rows:
-        icon = r["icon"] or ""
-        # icon 컬럼이 raw base64 문자열
-        if icon and not str(icon).startswith("data:"):
-            icon_src = f"data:image/png;base64,{icon}" if len(str(icon)) > 20 else ""
-        else:
-            icon_src = str(icon) if icon else ""
-        items.append(
-            {
-                "symbolId": r["symbol_id"],
-                "symbolNm": r["symbol_nm"] or "",
-                "useYn": r["use_yn"] or "",
-                "regDt": fmt_reg_dt(r["reg_dt"], r["upt_dt"], r["file_nm"]),
-                "symbolGb": r["symbol_gb"] or "",
-                "symbolShape": r["symbol_shape"] or "",
-                "fileNm": r["file_nm"] or "",
-                "iconSrc": icon_src,
-            }
-        )
-
+    items = [_symbol_row(r) for r in rows]
     total_pages = max(1, (total + page_size - 1) // page_size)
     return {
         "ok": True,
@@ -2604,6 +2842,210 @@ def api_symbol_list(qs: dict) -> dict:
         "list": items,
         "db": str(DB_PATH),
     }
+
+
+def api_symbol_detail(qs: dict) -> dict:
+    symbol_id = (qs.get("symbolId") or [""])[0].strip()
+    if not symbol_id:
+        return {"ok": False, "message": "symbolId 가 필요합니다."}
+    with db_connect() as con:
+        r = con.execute(
+            f"""{SYMBOL_SELECT}
+            WHERE CAST(s.symbol_id AS INTEGER) = CAST(? AS INTEGER)
+            """,
+            (symbol_id,),
+        ).fetchone()
+    if not r:
+        return {"ok": False, "message": "해당 상징부호를 찾을 수 없습니다."}
+    item = _symbol_row(r)
+    item["mapSymbolId"] = r["map_symbol_id"] or ""
+    return {"ok": True, "item": item}
+
+
+def _symbol_next_id(con) -> int:
+    a = con.execute("SELECT MAX(CAST(symbol_id AS INTEGER)) FROM tb_symbol").fetchone()[0]
+    b = con.execute("SELECT MAX(CAST(map_symbol_id AS INTEGER)) FROM tb_map_symbol").fetchone()[0]
+    return max(int(a or 0), int(b or 0)) + 1
+
+
+def api_symbol_save(body: dict) -> dict:
+    """상징부호 등록(C)/수정(M). 이미지는 base64(data URI 허용)로 받아
+    tb_map_symbol.icon 에 원본과 동일한 형태(raw base64)로 저장한다."""
+    mode = str(body.get("mode") or "C").upper()
+    symbol_gb = str(body.get("symbolGb") or "I").upper()
+    if symbol_gb not in ("I", "T"):
+        symbol_gb = "I"
+    symbol_shape = str(body.get("symbolShape") or "A").upper()
+    if symbol_shape not in ("A", "B"):
+        symbol_shape = "A"
+    symbol_nm = str(body.get("symbolNm") or "").strip()
+    comment = str(body.get("comment") or "").strip()
+    use_yn = "N" if str(body.get("useYn") or "Y").upper() == "N" else "Y"
+    reg_id = str(body.get("regId") or "admin").strip() or "admin"
+
+    icon = str(body.get("icon") or "").strip()
+    if icon.startswith("data:"):
+        icon = icon.split(",", 1)[-1].strip()
+    file_nm = str(body.get("fileNm") or "").strip()
+    now_ms = str(int(time.time() * 1000))
+
+    if symbol_gb == "T":
+        if not symbol_nm:
+            return {"ok": False, "message": "상징부호(텍스트)를 입력해 주세요."}
+        icon, file_nm = "", ""
+    elif mode == "C" and not icon:
+        return {"ok": False, "message": "상징부호 화일을 선택하여 주십시요."}
+
+    if icon and not file_nm:
+        file_nm = now_ms + ".png"
+
+    with db_connect() as con:
+        if mode == "M":
+            symbol_id = str(body.get("symbolId") or "").strip()
+            if not symbol_id:
+                return {"ok": False, "message": "symbolId 가 필요합니다."}
+            row = con.execute(
+                "SELECT symbol_id, map_symbol_id FROM tb_symbol"
+                " WHERE CAST(symbol_id AS INTEGER) = CAST(? AS INTEGER)",
+                (symbol_id,),
+            ).fetchone()
+            if not row:
+                return {"ok": False, "message": "해당 상징부호를 찾을 수 없습니다."}
+            map_symbol_id = row["map_symbol_id"] or symbol_id
+            if icon:
+                exists = con.execute(
+                    "SELECT 1 FROM tb_map_symbol"
+                    " WHERE CAST(map_symbol_id AS INTEGER) = CAST(? AS INTEGER)",
+                    (map_symbol_id,),
+                ).fetchone()
+                if exists:
+                    con.execute(
+                        "UPDATE tb_map_symbol SET icon = ?, file_nm = ?"
+                        " WHERE CAST(map_symbol_id AS INTEGER) = CAST(? AS INTEGER)",
+                        (icon, file_nm, map_symbol_id),
+                    )
+                else:
+                    con.execute(
+                        "INSERT INTO tb_map_symbol (map_symbol_id, icon, file_nm)"
+                        " VALUES (?,?,?)",
+                        (str(map_symbol_id), icon, file_nm),
+                    )
+            con.execute(
+                """UPDATE tb_symbol
+                      SET symbol_shape = ?, comment = ?, symbol_nm = ?, use_yn = ?,
+                          symbol_gb = ?, upt_id = ?, upt_dt = ?
+                    WHERE CAST(symbol_id AS INTEGER) = CAST(? AS INTEGER)""",
+                (symbol_shape, comment, symbol_nm, use_yn, symbol_gb,
+                 reg_id, now_ms, symbol_id),
+            )
+            con.commit()
+            return {"ok": True, "symbolId": int(symbol_id), "message": "수정되었습니다."}
+
+        new_id = _symbol_next_id(con)
+        if icon:
+            con.execute(
+                "INSERT INTO tb_map_symbol (map_symbol_id, icon, file_nm) VALUES (?,?,?)",
+                (str(new_id), icon, file_nm),
+            )
+        con.execute(
+            """INSERT INTO tb_symbol
+                 (symbol_id, symbol_shape, comment, symbol_nm, use_yn,
+                  reg_id, reg_dt, upt_id, upt_dt, symbol_gb, map_symbol_id)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+            (str(new_id), symbol_shape, comment, symbol_nm, use_yn,
+             reg_id, now_ms, "", "", symbol_gb, str(new_id)),
+        )
+        con.commit()
+        return {"ok": True, "symbolId": new_id, "message": "등록되었습니다."}
+
+
+def api_symbol_delete(body: dict) -> dict:
+    """선택 삭제 — tb_symbol / tb_symbol_mapp / tb_map_symbol 동시 정리."""
+    raw = body.get("ids") or body.get("checkList") or []
+    if isinstance(raw, str):
+        raw = [x for x in re.split(r"[,\s]+", raw) if x]
+    ids = []
+    for v in raw:
+        try:
+            ids.append(int(str(v).strip()))
+        except (TypeError, ValueError):
+            continue
+    if not ids:
+        return {"ok": False, "message": "삭제를 위한 상징부호를 선택해주세요."}
+
+    with db_connect() as con:
+        marks = ",".join("?" * len(ids))
+        maps = [
+            r[0]
+            for r in con.execute(
+                f"SELECT map_symbol_id FROM tb_symbol"
+                f" WHERE CAST(symbol_id AS INTEGER) IN ({marks})",
+                ids,
+            ).fetchall()
+            if r[0]
+        ]
+        con.execute(
+            f"DELETE FROM tb_symbol_mapp WHERE CAST(symbol_id AS INTEGER) IN ({marks})",
+            ids,
+        )
+        cur = con.execute(
+            f"DELETE FROM tb_symbol WHERE CAST(symbol_id AS INTEGER) IN ({marks})", ids
+        )
+        deleted = cur.rowcount
+        if maps:
+            mm = ",".join("?" * len(maps))
+            con.execute(
+                f"DELETE FROM tb_map_symbol WHERE map_symbol_id IN ({mm})", maps
+            )
+        con.commit()
+    return {"ok": True, "deleted": deleted, "message": f"{deleted}건이 삭제되었습니다."}
+
+
+def build_symbol_excel(qs: dict):
+    """상징부호 자료내려받기 — 검색조건 그대로 전체 건 엑셀."""
+    import io as _io
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment
+
+    wh, params = _symbol_where(qs)
+    with db_connect() as con:
+        rows = con.execute(
+            f"""{SYMBOL_SELECT}{wh}
+            ORDER BY CAST(s.symbol_id AS INTEGER) DESC
+            """,
+            params,
+        ).fetchall()
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "상징부호"
+    headers = ["번호", "상징부호 ID", "구분", "유형", "상징부호", "설명", "상태", "등록일"]
+    ws.append(headers)
+    head_font = Font(bold=True, color="FFFFFF")
+    head_fill = PatternFill("solid", fgColor="2563EB")
+    for c in range(1, len(headers) + 1):
+        cell = ws.cell(row=1, column=c)
+        cell.font = head_font
+        cell.fill = head_fill
+        cell.alignment = Alignment(horizontal="center")
+
+    for i, r in enumerate(rows, start=1):
+        gb = (r["symbol_gb"] or "").upper()
+        ws.append([
+            i,
+            r["symbol_id"],
+            "텍스트" if gb == "T" else "이미지",
+            "유형 " + (r["symbol_shape"] or "-"),
+            (r["symbol_nm"] or "-") if gb == "T" else (r["file_nm"] or "-"),
+            r["comment"] or "",
+            "사용" if (r["use_yn"] or "") == "Y" else "미사용",
+            fmt_reg_dt(r["reg_dt"], r["upt_dt"], r["file_nm"]) or "",
+        ])
+    for col, w in zip("ABCDEFGH", (8, 14, 10, 10, 34, 34, 10, 14)):
+        ws.column_dimensions[col].width = w
+    buf = _io.BytesIO()
+    wb.save(buf)
+    return buf.getvalue(), "상징부호_목록.xlsx"
 
 
 # 게시 상태(status) 정의 — kd_headword.use_yn / appro 조합만으로 표현
@@ -2698,6 +3140,19 @@ def api_headword_list(qs: dict) -> dict:
 
     where = []
     params: list = []
+
+    # 등록자(계정) 검색 — 이름은 중복이 많아(615명 중 124개 계정이 동명이인) 계정만 받는다.
+    #   사용자 계정관리에서 「나의 지도」 건수를 누르면 ?writer=계정 으로 진입한다.
+    writer = (qs.get("writer") or qs.get("usid") or [""])[0].strip()
+    if writer:
+        where.append("h.usid = ?")
+        params.append(writer)
+
+    # 탈퇴 회원이 등록한 지도는 기본 숨김 (관리자 화면에서 includeSecsn=1 로만 조회)
+    if (qs.get("includeSecsn") or ["0"])[0] not in ("1", "true", "Y", "y"):
+        where.append(
+            f"NOT EXISTS (SELECT 1 FROM pt_user u WHERE u.usid = h.usid AND IFNULL(u.auth,'') = '{_AUTH_WITHDRAWN}')"
+        )
 
     # SearchType: 1관리자 2사용자 3전체 4게시승인
     if search_type == "1":
@@ -3333,7 +3788,11 @@ def api_dialect_region_save(body: dict) -> dict:
 
 # ── 사용자(회원) 관리 : pt_user (로컬 SQLite 미러) ──────────────────────────
 _USERGROUP_NM = {"1": "시스템관리자", "2": "정보제공관리자", "3": "일반사용자"}
-_AUTH_LABEL = {"9": "정상", "8": "정지", "0": "미인증", "4": "기타"}
+# auth: 9정상 / 8정지(로그인 5회 실패) / 5탈퇴 / 0미인증
+# 탈퇴는 물리삭제 대신 상태 전환. 탈퇴 일시는 pt_user.secsn_dt 에 별도 보관한다
+# (update_dt 는 비밀번호 재설정 등 다른 수정에도 갱신되어 탈퇴 시점 근거로 쓸 수 없음).
+_AUTH_WITHDRAWN = "5"
+_AUTH_LABEL = {"9": "정상", "8": "정지", "5": "탈퇴", "0": "미인증", "4": "기타"}
 
 
 def _fmt_user_dt(v) -> str:
@@ -3347,6 +3806,22 @@ def _fmt_user_dt(v) -> str:
         except Exception:
             return ""
     return s[:10]  # 'YYYY-MM-DD ...' 형태
+
+
+def _parse_user_dt(v, keep=None):
+    """'YYYY-MM-DD' / 'YYYY.MM.DD' → 에폭 ms 문자열.
+    빈 값이면 keep(기존 값)을 그대로 돌려준다. 형식이 어긋나면 ValueError."""
+    s = str(v or "").strip()
+    if not s:
+        return keep
+    if s.isdigit():          # 이미 에폭 ms
+        return s
+    t = s.replace(".", "-").replace("/", "-")[:10]
+    try:
+        d = datetime.strptime(t, "%Y-%m-%d")
+    except ValueError:
+        raise ValueError("날짜는 YYYY-MM-DD 형식으로 입력해 주세요. (%s)" % s)
+    return str(int(d.timestamp() * 1000))
 
 
 def api_user_list(qs: dict) -> dict:
@@ -3370,12 +3845,12 @@ def api_user_list(qs: dict) -> dict:
     where, params = ["1=1"], []
     if usergroup_id:
         where.append("usergroup_id = ?"); params.append(usergroup_id)
-    if status in ("9", "8", "0", "4"):
+    if status in ("9", "8", "5", "0", "4"):
         where.append("auth = ?"); params.append(status)
     elif only_locked:
         where.append("auth = '8'")
     if search:
-        col = {"1": "usid", "2": "username", "4": "dept_nm"}.get(se)
+        col = {"1": "usid", "2": "username"}.get(se)   # 이메일·부서명 검색은 화면에서 제거됨
         if col:
             where.append(f"{col} LIKE ?"); params.append(f"%{search}%")
     # 등록일 범위(write_dt = 에폭 ms 문자열) 필터
@@ -3399,15 +3874,30 @@ def api_user_list(qs: dict) -> dict:
         where.append("(CASE WHEN write_dt GLOB '[0-9]*' THEN CAST(write_dt AS INTEGER) ELSE NULL END) <= ?")
         params.append(ms_e)
 
+    # 탈퇴 회원은 기본 제외. 관리자가 「탈퇴 회원 포함」을 켜면 함께 조회한다.
+    include_secsn = (qs.get("includeSecsn") or ["0"])[0] in ("1", "true", "Y", "y")
+    if not include_secsn and status != _AUTH_WITHDRAWN:
+        where.append(f"IFNULL(auth,'') <> '{_AUTH_WITHDRAWN}'")
+
     wh = " AND ".join(where)
     con = db_connect()
     try:
-        total = con.execute(f"SELECT COUNT(*) FROM pt_user WHERE {wh}", params).fetchone()[0]
+        total = con.execute(f"SELECT COUNT(*) FROM pt_user u WHERE {wh}", params).fetchone()[0]
         offset = (page - 1) * size
+        # usid 기준 등록 건수 집계
+        #   나의 지도   : kd_headword (지역어 지도 표제어, map/dialect.do 목록과 동일 기준)
+        #   의견 제시   : tb_board_post board_id='qna'
         rows = con.execute(
-            f"""SELECT user_id, usergroup_id, usid, username, dept_nm, auth, fail_count, write_dt
-                FROM pt_user WHERE {wh}
-                ORDER BY CAST(user_id AS INTEGER) DESC
+            f"""SELECT u.user_id, u.usergroup_id, u.usid, u.username, u.dept_nm,
+                       u.auth, u.fail_count, u.write_dt, u.secsn_dt,
+                       (SELECT COUNT(*) FROM tb_board_post p
+                         WHERE p.board_id = 'qna'
+                           AND IFNULL(p.use_yn,'Y') <> 'N'
+                           AND p.create_id = u.usid) AS opinion_cnt,
+                       (SELECT COUNT(*) FROM kd_headword h
+                         WHERE h.usid = u.usid) AS mymap_cnt
+                FROM pt_user u WHERE {wh}
+                ORDER BY CAST(u.user_id AS INTEGER) DESC
                 LIMIT ? OFFSET ?""",
             params + [size, offset],
         ).fetchall()
@@ -3424,6 +3914,9 @@ def api_user_list(qs: dict) -> dict:
             "usid": r["usid"] or "",
             "username": r["username"] or "",
             "deptNm": r["dept_nm"] or "",
+            "opinionCnt": int(r["opinion_cnt"] or 0),
+            "myMapCnt": int(r["mymap_cnt"] or 0),
+            "secsnDt": _fmt_user_dt(r["secsn_dt"]),
             "auth": auth,
             "authLabel": _AUTH_LABEL.get(auth, auth),
             "failCount": str(r["fail_count"] or "0"),
@@ -3433,6 +3926,349 @@ def api_user_list(qs: dict) -> dict:
         "ok": True, "total": total, "page": page, "size": size,
         "totalPages": max(1, (total + size - 1) // size), "rows": out,
     }
+
+
+
+def api_board_post_list(qs: dict) -> dict:
+    """게시판 글 목록 — tb_board_post. 의견 제시(qna) 등 board_id 별 조회.
+    createId 를 주면 해당 계정이 작성한 글만 (사용자 계정관리 → 「의견 제시」 건수 클릭)."""
+    board_id = (qs.get("boardId") or ["qna"])[0].strip() or "qna"
+    create_id = (qs.get("createId") or qs.get("writer") or [""])[0].strip()
+    search = (qs.get("search") or qs.get("searchKeyword") or [""])[0].strip()
+    # 검색 구분 — '' 전체 / 1 제목 / 2 내용 / 0 제목+내용 / 3 작성자 아이디 / 4 작성자 이름
+    cond = (qs.get("searchCondition") or [""])[0].strip()
+    try:
+        page = max(1, int((qs.get("page") or ["1"])[0]))
+    except ValueError:
+        page = 1
+    try:
+        size = int((qs.get("pageSize") or ["10"])[0])
+    except ValueError:
+        size = 10
+    size = size if size in (10, 20, 50, 100) else 10
+
+    # use_yn='N' 은 삭제된 글(소프트 삭제). 기본 제외, includeDeleted=1 이면 함께 조회.
+    include_deleted = (qs.get("includeDeleted") or ["0"])[0] in ("1", "true", "Y", "y")
+    where = ["p.board_id = ?"]
+    params: list = [board_id]
+    if not include_deleted:
+        where.append("IFNULL(p.use_yn,'Y') <> 'N'")
+    if create_id:
+        where.append("p.create_id = ?")
+        params.append(create_id)
+    if search:
+        like = f"%{search}%"
+        if cond == "1":
+            where.append("IFNULL(p.post_title,'') LIKE ?"); params.append(like)
+        elif cond == "2":
+            where.append("IFNULL(p.post_content,'') LIKE ?"); params.append(like)
+        elif cond == "3":
+            # 작성자 아이디는 계정 정확일치 (관리자 화면의 건수 링크와 결과가 일치해야 함)
+            where.append("p.create_id = ?"); params.append(search)
+        elif cond == "4":
+            # 작성자 이름은 동명이인이 있어 부분일치로 찾는다
+            where.append(
+                "EXISTS (SELECT 1 FROM pt_user u WHERE u.usid = p.create_id AND IFNULL(u.username,'') LIKE ?)"
+            )
+            params.append(like)
+        else:
+            where.append(
+                "(IFNULL(p.post_title,'') LIKE ? OR IFNULL(p.post_content,'') LIKE ?"
+                " OR p.create_id = ?"
+                " OR EXISTS (SELECT 1 FROM pt_user u WHERE u.usid = p.create_id AND IFNULL(u.username,'') LIKE ?))"
+            )
+            params += [like, like, search, like]
+    # 탈퇴 회원이 쓴 글도 동일하게 기본 숨김
+    if (qs.get("includeSecsn") or ["0"])[0] not in ("1", "true", "Y", "y"):
+        where.append(
+            f"NOT EXISTS (SELECT 1 FROM pt_user u WHERE u.usid = p.create_id AND IFNULL(u.auth,'') = '{_AUTH_WITHDRAWN}')"
+        )
+    wh = " AND ".join(where)
+
+    con = db_connect()
+    try:
+        total = con.execute(f"SELECT COUNT(*) FROM tb_board_post p WHERE {wh}", params).fetchone()[0]
+        rows = con.execute(
+            f"""SELECT p.post_id, p.post_title, p.view_count, p.public_yn, p.use_yn,
+                       p.category_code, p.create_id, p.create_dt,
+                       (SELECT u.username FROM pt_user u WHERE u.usid = p.create_id LIMIT 1) AS username,
+                       (SELECT COUNT(*) FROM tb_board_answer a
+                         WHERE a.post_id = p.post_id AND IFNULL(a.use_yn,'Y') <> 'N') AS answer_cnt
+                FROM tb_board_post p WHERE {wh}
+                ORDER BY CAST(p.post_id AS INTEGER) DESC
+                LIMIT ? OFFSET ?""",
+            params + [size, (page - 1) * size],
+        ).fetchall()
+    finally:
+        con.close()
+
+    cats = board_categories(board_id)
+    out = []
+    for r in rows:
+        cat = (r["category_code"] or "").strip()
+        out.append({
+            "postId": str(r["post_id"] or ""),
+            "title": r["post_title"] or "",
+            "categoryCode": cat,
+            "categoryName": cats.get(cat, cat),
+            "createId": r["create_id"] or "",
+            "username": r["username"] or "",
+            "createDt": _fmt_user_dt(r["create_dt"]),
+            "viewCount": str(r["view_count"] or "0"),
+            "publicYn": r["public_yn"] or "",
+            "deleted": str(r["use_yn"] or "Y") == "N",
+            "answered": int(r["answer_cnt"] or 0) > 0,
+        })
+    return {"ok": True, "total": total, "page": page, "size": size,
+            "totalPages": max(1, (total + size - 1) // size), "rows": out}
+
+
+
+def board_categories(board_id: str = "qna") -> dict:
+    """게시판 분류 코드 → 명칭. tb_board.category_group 으로 tb_code_detail 을 조회한다.
+    (명칭을 코드에 박아 두면 DB 와 어긋나므로 항상 DB 값을 쓴다)"""
+    con = db_connect()
+    try:
+        grp = con.execute(
+            "SELECT category_group FROM tb_board WHERE board_id = ?", (board_id,)
+        ).fetchone()
+        if not grp or not (grp["category_group"] or "").strip():
+            return {}
+        rows = con.execute(
+            """SELECT code_code, code_name FROM tb_code_detail
+                WHERE group_code = ?
+                  AND IFNULL(use_yn,'Y') <> 'N' AND IFNULL(delete_yn,'N') <> 'Y'
+                ORDER BY CAST(IFNULL(code_sort_seq,'9999') AS INTEGER)""",
+            (grp["category_group"],),
+        ).fetchall()
+    finally:
+        con.close()
+    return {(r["code_code"] or "").strip(): (r["code_name"] or "").strip() for r in rows}
+
+
+def api_board_post_detail(qs: dict) -> dict:
+    """의견 제시 상세 — 글 + 답변 1건(있으면)."""
+    post_id = (qs.get("postId") or [""])[0].strip()
+    if not post_id:
+        return {"ok": False, "message": "postId가 필요합니다."}
+    con = db_connect()
+    try:
+        p = con.execute(
+            """SELECT p.*,
+                      (SELECT u.username FROM pt_user u WHERE u.usid = p.create_id LIMIT 1) AS username,
+                      (SELECT u.username FROM pt_user u WHERE u.usid = p.update_id LIMIT 1) AS update_username
+               FROM tb_board_post p WHERE p.post_id = ?""", (post_id,)).fetchone()
+        if not p:
+            return {"ok": False, "message": "해당 글을 찾을 수 없습니다."}
+        a = con.execute(
+            """SELECT a.*,
+                      (SELECT u.username FROM pt_user u WHERE u.usid = a.create_id LIMIT 1) AS username,
+                      (SELECT u.username FROM pt_user u WHERE u.usid = a.update_id LIMIT 1) AS update_username
+               FROM tb_board_answer a
+               WHERE a.post_id = ? AND IFNULL(a.use_yn,'Y') <> 'N'
+               ORDER BY CAST(a.answer_id AS INTEGER) DESC LIMIT 1""", (post_id,)).fetchone()
+    finally:
+        con.close()
+
+    cats = board_categories(p["board_id"] or "qna")
+    cat = (p["category_code"] or "").strip()
+    post = {
+        "postId": str(p["post_id"] or ""),
+        "boardId": p["board_id"] or "",
+        "title": p["post_title"] or "",
+        "content": p["post_content"] or "",
+        "categoryCode": cat,
+        "categoryName": cats.get(cat, cat),
+        "viewCount": str(p["view_count"] or "0"),
+        "publicYn": p["public_yn"] or "",
+        "useYn": p["use_yn"] or "",
+        "deleted": str(p["use_yn"] or "Y") == "N",
+        "createId": p["create_id"] or "",
+        "username": p["username"] or "",
+        "createDt": _fmt_user_dt(p["create_dt"]),
+        "updateId": p["update_id"] or "",
+        "updateName": p["update_username"] or "",
+        "updateDt": _fmt_user_dt(p["update_dt"]),
+    }
+    answer = None
+    if a:
+        answer = {
+            "answerId": str(a["answer_id"] or ""),
+            "content": a["answer_content"] or "",
+            # 작성자/등록일시 · 수정자/수정일시를 각각 따로 내려 준다
+            "createId": a["create_id"] or "",
+            "username": a["username"] or "",
+            "createDt": _fmt_user_dt(a["create_dt"]),
+            "updateId": a["update_id"] or "",
+            "updateName": a["update_username"] or "",
+            "updateDt": _fmt_user_dt(a["update_dt"]),
+        }
+    return {"ok": True, "post": post, "answer": answer,
+            "answered": answer is not None,
+            "categories": cats}
+
+
+def api_board_post_update(body: dict) -> dict:
+    """질문(원글) 수정 — 제목·내용·분류·게시여부."""
+    post_id = str(body.get("postId") or "").strip()
+    if not post_id:
+        return {"ok": False, "message": "postId가 필요합니다."}
+    title = str(body.get("title") or "").strip()
+    if not title:
+        return {"ok": False, "message": "제목을 입력해 주세요."}
+    content = str(body.get("content") or "")
+    cat = str(body.get("categoryCode") or "").strip()
+    public_yn = "Y" if str(body.get("publicYn") or "Y") == "Y" else "N"
+    use_yn = "Y" if str(body.get("useYn") or "Y") == "Y" else "N"
+    editor = str(body.get("editorId") or "admin").strip() or "admin"
+
+    con = db_connect()
+    try:
+        row = con.execute(
+            "SELECT create_dt, update_dt FROM tb_board_post WHERE post_id = ?", (post_id,)
+        ).fetchone()
+        if not row:
+            return {"ok": False, "message": "해당 글을 찾을 수 없습니다."}
+        # 등록일시·수정일시는 관리자가 직접 고칠 수 있다.
+        # 값을 보내지 않으면 등록일시는 유지, 수정일시는 지금 시각으로 찍는다.
+        try:
+            create_dt = _parse_user_dt(body.get("createDt"), keep=row["create_dt"])
+            update_dt = _parse_user_dt(body.get("updateDt"),
+                                       keep=str(int(time.time() * 1000)))
+        except ValueError as e:
+            return {"ok": False, "message": str(e)}
+        con.execute(
+            """UPDATE tb_board_post
+                  SET post_title = ?, post_content = ?, category_code = ?,
+                      public_yn = ?, use_yn = ?, create_dt = ?,
+                      update_id = ?, update_dt = ?
+                WHERE post_id = ?""",
+            (title, content, cat, public_yn, use_yn, create_dt,
+             editor, update_dt, post_id),
+        )
+        con.commit()
+    finally:
+        con.close()
+    return {"ok": True, "message": "질문을 저장했습니다."}
+
+
+def api_board_answer_save(body: dict) -> dict:
+    """답변 등록·수정. 기존 답변이 있으면 수정, 없으면 새로 등록한다."""
+    post_id = str(body.get("postId") or "").strip()
+    if not post_id:
+        return {"ok": False, "message": "postId가 필요합니다."}
+    content = str(body.get("content") or "").strip()
+    if not content:
+        return {"ok": False, "message": "답변 내용을 입력해 주세요."}
+    # 작성자/수정자를 각각 받는다. writerId 는 신규 등록 시 create_id 로 들어간다.
+    editor = str(body.get("editorId") or "admin").strip() or "admin"
+    writer = str(body.get("writerId") or "").strip()
+    now_ms = str(int(time.time() * 1000))
+
+    con = db_connect()
+    try:
+        if not con.execute("SELECT 1 FROM tb_board_post WHERE post_id = ?", (post_id,)).fetchone():
+            return {"ok": False, "message": "해당 글을 찾을 수 없습니다."}
+        row = con.execute(
+            """SELECT answer_id, create_id, create_dt FROM tb_board_answer
+                WHERE post_id = ? AND IFNULL(use_yn,'Y') <> 'N'
+                ORDER BY CAST(answer_id AS INTEGER) DESC LIMIT 1""", (post_id,)).fetchone()
+        # 등록일시·수정일시는 관리자가 직접 고칠 수 있다.
+        try:
+            create_dt = _parse_user_dt(body.get("createDt"),
+                                       keep=(row["create_dt"] if row else now_ms))
+            update_dt = _parse_user_dt(body.get("updateDt"), keep=now_ms)
+        except ValueError as e:
+            return {"ok": False, "message": str(e)}
+        if row:
+            con.execute(
+                """UPDATE tb_board_answer
+                      SET answer_content = ?, create_id = ?, create_dt = ?,
+                          update_id = ?, update_dt = ?
+                    WHERE answer_id = ?""",
+                (content, writer or row["create_id"], create_dt,
+                 editor, update_dt, row["answer_id"]),
+            )
+            msg = "답변을 수정했습니다."
+        else:
+            nxt = con.execute(
+                "SELECT IFNULL(MAX(CAST(answer_id AS INTEGER)), 0) + 1 FROM tb_board_answer"
+            ).fetchone()[0]
+            con.execute(
+                """INSERT INTO tb_board_answer
+                       (answer_id, post_id, answer_content, use_yn, create_id, create_dt)
+                   VALUES (?, ?, ?, 'Y', ?, ?)""",
+                (str(nxt), post_id, content, writer or editor, create_dt),
+            )
+            msg = "답변을 등록했습니다."
+        con.commit()
+    finally:
+        con.close()
+    return {"ok": True, "message": msg}
+
+
+def api_board_post_delete(body: dict) -> dict:
+    """글 삭제·복원 — 물리삭제 없이 use_yn 만 전환한다(게시물 복원 관리와 동일 방식)."""
+    post_id = str(body.get("postId") or "").strip()
+    restore = str(body.get("restore") or "") in ("1", "true", "Y", "y")
+    if not post_id:
+        return {"ok": False, "message": "postId가 필요합니다."}
+    editor = str(body.get("editorId") or "admin").strip() or "admin"
+    con = db_connect()
+    try:
+        row = con.execute("SELECT use_yn FROM tb_board_post WHERE post_id = ?", (post_id,)).fetchone()
+        if not row:
+            return {"ok": False, "message": "해당 글을 찾을 수 없습니다."}
+        cur = str(row["use_yn"] or "Y")
+        if restore and cur != "N":
+            return {"ok": False, "message": "삭제된 글이 아닙니다."}
+        if not restore and cur == "N":
+            return {"ok": False, "message": "이미 삭제된 글입니다."}
+        con.execute(
+            "UPDATE tb_board_post SET use_yn = ?, update_id = ?, update_dt = ? WHERE post_id = ?",
+            ("Y" if restore else "N", editor, str(int(time.time() * 1000)), post_id),
+        )
+        con.commit()
+    finally:
+        con.close()
+    return {"ok": True, "message": "글을 복원했습니다." if restore else "글을 삭제했습니다."}
+
+def api_user_set_auth(body: dict) -> dict:
+    """승인상태 변경 — 관리자가 수정 화면에서 직접 지정한다.
+    탈퇴('5')는 물리삭제 대신 상태 전환이며 탈퇴 일시를 기록하고,
+    다른 상태로 되돌리면 탈퇴 일시를 지운다(보존기한 무기한 정책)."""
+    user_id = str(body.get("userId") or "").strip()
+    auth = str(body.get("auth") or "").strip()
+    if not user_id:
+        return {"ok": False, "message": "userId가 필요합니다."}
+    if auth not in _AUTH_LABEL:
+        return {"ok": False, "message": f"허용되지 않은 상태값입니다: {auth}"}
+    con = db_connect()
+    try:
+        row = con.execute("SELECT usid, auth FROM pt_user WHERE user_id = ?", (user_id,)).fetchone()
+        if not row:
+            return {"ok": False, "message": "해당 회원을 찾을 수 없습니다."}
+        before = str(row["auth"] or "")
+        if before == auth:
+            return {"ok": False, "message": f"이미 「{_AUTH_LABEL.get(auth, auth)}」 상태입니다."}
+        now_ms = str(int(time.time() * 1000))
+        if auth == _AUTH_WITHDRAWN:
+            con.execute(
+                "UPDATE pt_user SET auth = ?, secsn_dt = ?, fail_count = '0' WHERE user_id = ?",
+                (auth, now_ms, user_id),
+            )
+            msg = f"{row['usid']} 계정을 탈퇴 상태로 변경했습니다. 등록 자료는 사용자단에서 숨겨집니다."
+        else:
+            # 정지 해제 시 실패 횟수도 함께 초기화
+            con.execute(
+                "UPDATE pt_user SET auth = ?, secsn_dt = NULL, fail_count = '0' WHERE user_id = ?",
+                (auth, user_id),
+            )
+            msg = f"{row['usid']} 계정의 승인상태를 「{_AUTH_LABEL.get(auth, auth)}」(으)로 변경했습니다."
+        con.commit()
+    finally:
+        con.close()
+    return {"ok": True, "message": msg}
 
 
 def api_user_detail(qs: dict) -> dict:
@@ -3446,9 +4282,16 @@ def api_user_detail(qs: dict) -> dict:
     con = db_connect()
     try:
         r = con.execute(
-            """SELECT user_id, usergroup_id, usid, password, username, dept_nm, mobile,
-                      auth, fail_count, writer, write_dt, updater, update_dt
-               FROM pt_user WHERE user_id = ?""", (user_id,)
+            """SELECT u.user_id, u.usergroup_id, u.usid, u.password, u.username, u.dept_nm,
+                      u.mobile, u.auth, u.fail_count, u.writer, u.write_dt, u.updater, u.update_dt,
+                      u.secsn_dt,
+                      (SELECT COUNT(*) FROM kd_headword h
+                        WHERE h.usid = u.usid) AS mymap_cnt,
+                      (SELECT COUNT(*) FROM tb_board_post p
+                        WHERE p.board_id = 'qna'
+                          AND IFNULL(p.use_yn,'Y') <> 'N'
+                          AND p.create_id = u.usid) AS opinion_cnt
+               FROM pt_user u WHERE u.user_id = ?""", (user_id,)
         ).fetchone()
     finally:
         con.close()
@@ -3465,10 +4308,13 @@ def api_user_detail(qs: dict) -> dict:
             "hasPassword": bool((r["password"] or "").strip()),
             "username": r["username"] or "",
             "deptNm": r["dept_nm"] or "",
+            "myMapCnt": int(r["mymap_cnt"] or 0),
+            "opinionCnt": int(r["opinion_cnt"] or 0),
             "mobile": r["mobile"] or "",
             "auth": auth,
             "authLabel": _AUTH_LABEL.get(auth, auth),
             "failCount": str(r["fail_count"] or "0"),
+            "secsnDt": _fmt_user_dt(r["secsn_dt"]),
             "writer": r["writer"] or "",
             "writeDt": _fmt_user_dt(r["write_dt"]),
             "updater": r["updater"] or "",
@@ -3529,6 +4375,192 @@ def api_user_reset_pw(body: dict) -> dict:
     return {"ok": True, "message": f"'{row['usid']}' 비밀번호를 재설정했습니다.", "userId": user_id}
 
 
+# ── Open API 사용현황 : pt_user.api_key / api_url / api_purpose / api_dt ──
+
+def _ensure_api_purpose_col(con) -> None:
+    cols = {str(r[1]) for r in con.execute("PRAGMA table_info(pt_user)").fetchall()}
+    if "api_purpose" not in cols:
+        con.execute("ALTER TABLE pt_user ADD COLUMN api_purpose TEXT")
+        con.commit()
+
+
+def _fmt_api_dt(v) -> str:
+    s = str(v or "").strip()
+    if not s:
+        return ""
+    if s.isdigit():
+        try:
+            return datetime.fromtimestamp(int(s) / 1000).strftime("%Y.%m.%d %H:%M")
+        except Exception:
+            return ""
+    return s[:16]
+
+
+def _api_dt_range_ms(d: str, end=False):
+    d = (d or "").replace(".", "-").strip()
+    if not d:
+        return None
+    try:
+        dt = datetime.strptime(d[:10], "%Y-%m-%d")
+        if end:
+            dt = dt.replace(hour=23, minute=59, second=59)
+        return int(dt.timestamp() * 1000)
+    except Exception:
+        return None
+
+
+def api_openapi_usage_list(qs: dict) -> dict:
+    """Open API 인증키 발급 현황 — 활용목적 포함."""
+    def q1(k, d=""):
+        return (qs.get(k) or [d])[0].strip()
+    try:
+        page = max(1, int(q1("page", "1")))
+    except ValueError:
+        page = 1
+    try:
+        page_size = int(q1("pageSize", "10") or q1("size", "10"))
+    except ValueError:
+        page_size = 10
+    if page_size not in (10, 20, 50, 100):
+        page_size = 10
+    cond = q1("searchCondition")
+    keyword = q1("searchKeyword") or q1("q")
+    start_ms = _api_dt_range_ms(q1("searchStartDt") or q1("startDt"))
+    end_ms = _api_dt_range_ms(q1("searchEndDt") or q1("endDt"), end=True)
+
+    where = ["IFNULL(u.api_key,'') <> ''"]
+    params = []
+    if start_ms is not None:
+        where.append("(CASE WHEN u.api_dt GLOB '[0-9]*' THEN CAST(u.api_dt AS INTEGER) ELSE NULL END) >= ?")
+        params.append(start_ms)
+    if end_ms is not None:
+        where.append("(CASE WHEN u.api_dt GLOB '[0-9]*' THEN CAST(u.api_dt AS INTEGER) ELSE NULL END) <= ?")
+        params.append(end_ms)
+    if keyword:
+        colmap = {
+            "usid": "u.usid",
+            "username": "u.username",
+            "api_key": "u.api_key",
+            "api_url": "u.api_url",
+            "api_purpose": "u.api_purpose",
+        }
+        if cond in colmap:
+            where.append(f"IFNULL({colmap[cond]},'') LIKE ?")
+            params.append("%" + keyword + "%")
+        else:
+            where.append(
+                "(IFNULL(u.usid,'') LIKE ? OR IFNULL(u.username,'') LIKE ? "
+                "OR IFNULL(u.api_key,'') LIKE ? OR IFNULL(u.api_url,'') LIKE ? "
+                "OR IFNULL(u.api_purpose,'') LIKE ?)"
+            )
+            params.extend(["%" + keyword + "%"] * 5)
+    wh = " AND ".join(where)
+    with db_connect() as con:
+        _ensure_api_purpose_col(con)
+        total = con.execute(f"SELECT COUNT(*) FROM pt_user u WHERE {wh}", params).fetchone()[0]
+        total_pages = max(1, (total + page_size - 1) // page_size)
+        if page > total_pages:
+            page = total_pages
+        offset = (page - 1) * page_size
+        rows = con.execute(
+            f"""SELECT u.user_id, u.usid, u.username, u.api_key, u.api_url,
+                       u.api_purpose, u.api_dt
+                FROM pt_user u WHERE {wh}
+                ORDER BY CAST(u.api_dt AS INTEGER) DESC, CAST(u.user_id AS INTEGER) DESC
+                LIMIT ? OFFSET ?""",
+            params + [page_size, offset],
+        ).fetchall()
+    items = []
+    for r in rows:
+        items.append({
+            "userId": str(r["user_id"] or ""),
+            "usid": r["usid"] or "",
+            "username": r["username"] or "",
+            "apiKey": r["api_key"] or "",
+            "apiUrl": r["api_url"] or "",
+            "apiPurpose": r["api_purpose"] or "",
+            "apiDt": _fmt_api_dt(r["api_dt"]),
+            "callTotal": 0,
+            "callToday": 0,
+            "callThisMonth": 0,
+            "callLastMonth": 0,
+        })
+    return {"ok": True, "total": total, "page": page, "pageSize": page_size,
+            "totalPages": total_pages, "list": items}
+
+
+def build_openapi_excel(qs: dict):
+    """Open API 사용현황 엑셀 — 활용목적 포함."""
+    import io
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment
+
+    def q1(k, d=""):
+        return (qs.get(k) or [d])[0].strip()
+    items = []
+    cond = q1("searchCondition")
+    keyword = q1("searchKeyword") or q1("q")
+    start_ms = _api_dt_range_ms(q1("searchStartDt") or q1("startDt"))
+    end_ms = _api_dt_range_ms(q1("searchEndDt") or q1("endDt"), end=True)
+    where = ["IFNULL(u.api_key,'') <> ''"]
+    params = []
+    if start_ms is not None:
+        where.append("(CASE WHEN u.api_dt GLOB '[0-9]*' THEN CAST(u.api_dt AS INTEGER) ELSE NULL END) >= ?")
+        params.append(start_ms)
+    if end_ms is not None:
+        where.append("(CASE WHEN u.api_dt GLOB '[0-9]*' THEN CAST(u.api_dt AS INTEGER) ELSE NULL END) <= ?")
+        params.append(end_ms)
+    if keyword:
+        colmap = {
+            "usid": "u.usid", "username": "u.username", "api_key": "u.api_key",
+            "api_url": "u.api_url", "api_purpose": "u.api_purpose",
+        }
+        if cond in colmap:
+            where.append(f"IFNULL({colmap[cond]},'') LIKE ?")
+            params.append("%" + keyword + "%")
+        else:
+            where.append(
+                "(IFNULL(u.usid,'') LIKE ? OR IFNULL(u.username,'') LIKE ? "
+                "OR IFNULL(u.api_key,'') LIKE ? OR IFNULL(u.api_url,'') LIKE ? "
+                "OR IFNULL(u.api_purpose,'') LIKE ?)"
+            )
+            params.extend(["%" + keyword + "%"] * 5)
+    wh = " AND ".join(where)
+    with db_connect() as con:
+        _ensure_api_purpose_col(con)
+        rows = con.execute(
+            f"""SELECT u.usid, u.username, u.api_key, u.api_url, u.api_purpose, u.api_dt
+                FROM pt_user u WHERE {wh}
+                ORDER BY CAST(u.api_dt AS INTEGER) DESC""",
+            params,
+        ).fetchall()
+        for r in rows:
+            items.append((
+                r["usid"] or "", r["username"] or "", r["api_key"] or "",
+                r["api_url"] or "", r["api_purpose"] or "", _fmt_api_dt(r["api_dt"]),
+            ))
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Open API 사용현황"
+    headers = ["번호", "아이디", "이름", "API Key", "사용 URL", "활용목적", "발급일시"]
+    ws.append(headers)
+    head_font = Font(bold=True, color="FFFFFF")
+    head_fill = PatternFill("solid", fgColor="2563EB")
+    for c in range(1, len(headers) + 1):
+        cell = ws.cell(row=1, column=c)
+        cell.font = head_font
+        cell.fill = head_fill
+        cell.alignment = Alignment(horizontal="center")
+    for i, row in enumerate(items, start=1):
+        ws.append([i, *row])
+    for col, w in zip("ABCDEFG", (8, 16, 14, 34, 40, 40, 18)):
+        ws.column_dimensions[col].width = w
+    buf = io.BytesIO()
+    wb.save(buf)
+    return buf.getvalue(), "OpenAPI_사용현황.xlsx"
+
+
 # ── 문학 속 지역어 (tb_literature + tb_literature_example) ──
 
 def _lit_q1(qs: dict, key: str, default: str = "") -> str:
@@ -3536,6 +4568,60 @@ def _lit_q1(qs: dict, key: str, default: str = "") -> str:
     if isinstance(v, list):
         return (v[0] if v else default) or default
     return str(v or default)
+
+
+def _lit_word_classes(qs: dict) -> list[str]:
+    """품사 검색값 — 단일/콤마구분/반복 파라미터를 모두 허용.
+    복합 품사는 가운뎃점(·)을 쓰므로 콤마는 선택값 구분자로만 쓴다."""
+    raw: list[str] = []
+    for key in ("wordClass", "word_class"):
+        v = qs.get(key, [])
+        if isinstance(v, list):
+            raw.extend(str(x) for x in v)
+        elif v:
+            raw.append(str(v))
+    out: list[str] = []
+    seen: set[str] = set()
+    for item in raw:
+        for part in item.split(","):
+            p = part.strip()
+            if p and p not in seen:
+                seen.add(p)
+                out.append(p)
+    return out
+
+
+def _lit_pos_variants(label: str) -> tuple[list[str], bool]:
+    """검색 품사 라벨 → DB word_class 표기 변형. (variants, include_empty)."""
+    s = (label or "").strip()
+    if not s:
+        return [], False
+    include_empty = s == "품사 없음"
+    parts = [p.strip() for p in re.split(r"[·,/]", s) if p.strip()]
+    out: set[str] = {s, s.replace(" ", "")}
+    if include_empty:
+        out.update(["품사 없음", "없음"])
+    if s == "접사":
+        out.update(["접사", "접미사", "접두사"])
+    if s == "어미":
+        out.update(["어미", "종결어미"])
+    if parts:
+        n = len(parts)
+        perms: list[tuple[str, ...]] = [tuple(parts)]
+        if n == 2:
+            perms.append((parts[1], parts[0]))
+        elif n == 3:
+            a, b, c = parts
+            perms.extend([(a, c, b), (b, a, c), (b, c, a), (c, a, b), (c, b, a)])
+        for perm in perms:
+            compact = tuple(p.replace(" ", "") for p in perm)
+            for seq in (perm, compact):
+                out.add("·".join(seq))
+                out.add(",".join(seq))
+                out.add(", ".join(seq))
+                out.add(" ".join(seq))
+    variants = [v for v in out if v]
+    return variants, include_empty
 
 
 def _lit_match_sql(col: str, mode: str) -> str:
@@ -3589,7 +4675,7 @@ def api_literature_list(qs: dict) -> dict:
     except ValueError:
         size = 10
     region = _lit_q1(qs, "region").strip()
-    word_class = _lit_q1(qs, "wordClass").strip() or _lit_q1(qs, "word_class").strip()
+    word_classes = _lit_word_classes(qs)
     use_yn = _lit_q1(qs, "useYn").strip().upper()
     main_fix = _lit_q1(qs, "mainFixYn").strip().upper()
     q = _lit_q1(qs, "q").strip()
@@ -3624,9 +4710,21 @@ def api_literature_list(qs: dict) -> dict:
     if region:
         where.append("l.region_nm LIKE ?")
         params.append(f"%{region}%")
-    if word_class:
-        where.append("l.word_class LIKE ?")
-        params.append(f"%{word_class}%")
+    if word_classes:
+        ors = []
+        for wc in word_classes:
+            variants, include_empty = _lit_pos_variants(wc)
+            if variants:
+                ph = ",".join("?" * len(variants))
+                if include_empty:
+                    ors.append(f"(IFNULL(l.word_class,'') = '' OR IFNULL(l.word_class,'') IN ({ph}))")
+                else:
+                    ors.append(f"IFNULL(l.word_class,'') IN ({ph})")
+                params.extend(variants)
+            elif include_empty:
+                ors.append("IFNULL(l.word_class,'') = ''")
+        if ors:
+            where.append("(" + " OR ".join(ors) + ")")
     if use_yn in ("Y", "N"):
         where.append("UPPER(COALESCE(l.use_yn,'')) = ?")
         params.append(use_yn)
@@ -4058,6 +5156,46 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return
 
         if path in (
+            "/mariadb/neibis-api/board/post/update",
+            "/mariadb/neibis-api/v1/board/post/update",
+        ):
+            try:
+                self._send_json(api_board_post_update(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/board/post/delete",
+            "/mariadb/neibis-api/v1/board/post/delete",
+        ):
+            try:
+                self._send_json(api_board_post_delete(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/board/answer/save",
+            "/mariadb/neibis-api/v1/board/answer/save",
+        ):
+            try:
+                self._send_json(api_board_answer_save(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/system/user/auth",
+            "/mariadb/neibis-api/v1/system/user/auth",
+        ):
+            try:
+                self._send_json(api_user_set_auth(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
             "/mariadb/neibis-api/system/user/unlock",
             "/mariadb/neibis-api/v1/system/user/unlock",
         ):
@@ -4073,6 +5211,26 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 self._send_json(api_user_reset_pw(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/symbol/save",
+            "/mariadb/neibis-api/v1/symbol/save",
+        ):
+            try:
+                self._send_json(api_symbol_save(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/symbol/delete",
+            "/mariadb/neibis-api/v1/symbol/delete",
+        ):
+            try:
+                self._send_json(api_symbol_delete(body))
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return
@@ -4210,6 +5368,26 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         qs = urllib.parse.parse_qs(parsed.query)
 
         if path in (
+            "/mariadb/neibis-api/board/post/detail",
+            "/mariadb/neibis-api/v1/board/post/detail",
+        ):
+            try:
+                self._send_json(api_board_post_detail(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/board/post/list",
+            "/mariadb/neibis-api/v1/board/post/list",
+        ):
+            try:
+                self._send_json(api_board_post_list(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
             "/mariadb/neibis-api/system/user/list",
             "/mariadb/neibis-api/v1/system/user/list",
         ):
@@ -4220,11 +5398,67 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return
 
         if path in (
+            "/mariadb/neibis-api/stats/openapi",
+            "/mariadb/neibis-api/v1/stats/openapi",
+        ):
+            try:
+                self._send_json(api_openapi_usage_list(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/stats/openapi/excel",
+            "/mariadb/neibis-api/v1/stats/openapi/excel",
+        ):
+            try:
+                data, fname = build_openapi_excel(qs)
+                enc = urllib.parse.quote(fname)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                self.send_header("Content-Disposition", "attachment; filename*=UTF-8''" + enc)
+                self.send_header("Content-Length", str(len(data)))
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                self.wfile.write(data)
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
             "/mariadb/neibis-api/system/user/detail",
             "/mariadb/neibis-api/v1/system/user/detail",
         ):
             try:
                 self._send_json(api_user_detail(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/symbol/detail",
+            "/mariadb/neibis-api/v1/symbol/detail",
+        ):
+            try:
+                self._send_json(api_symbol_detail(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/symbol/excel",
+            "/mariadb/neibis-api/v1/symbol/excel",
+        ):
+            try:
+                data, fname = build_symbol_excel(qs)
+                enc = urllib.parse.quote(fname)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                self.send_header("Content-Disposition", "attachment; filename*=UTF-8''" + enc)
+                self.send_header("Content-Length", str(len(data)))
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                self.wfile.write(data)
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return
@@ -4360,6 +5594,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 self._send_json(api_oral_list(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/oral/topics",
+            "/mariadb/neibis-api/v1/oral/topics",
+            "/mariadb/neibis-api/survey/oral/topics",
+        ):
+            try:
+                self._send_json(api_oral_topics(qs))
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return

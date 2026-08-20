@@ -592,33 +592,30 @@
 										<caption class="sr-only">의견제시 상세</caption>
 										<tbody>
 											<tr>
-												<th scope="row"><span>게시여부</span></th>
-												<td>
-													<label class="check-item"><input type="radio" name="dataSttsCd" checked disabled /><span class="label">게시</span></label>
-													<label class="check-item"><input type="radio" name="dataSttsCd"  disabled /><span class="label">미게시</span></label>
-												</td>
+												<th scope="row"><span>상태</span></th>
+												<td id="d-state">-</td>
 												<th scope="row"><span>분류</span></th>
-												<td>이용 문의</td>
+												<td id="d-category">-</td>
 											</tr>
 											<tr>
 												<th scope="row"><span>등록일시</span></th>
-												<td>2024.06.23 07:47:46</td>
+												<td id="d-createdt">-</td>
 												<th scope="row"><span>수정일시</span></th>
-												<td>2024.06.23 07:47:46</td>
+												<td id="d-updatedt">-</td>
 											</tr>
 											<tr>
 												<th scope="row"><span>등록자</span></th>
-												<td>spmizuno</td>
+												<td id="d-writer">-</td>
 												<th scope="row"><span>조회수</span></th>
-												<td>653</td>
+												<td id="d-viewcnt">-</td>
 											</tr>
 											<tr>
 												<th scope="row"><span>제목</span></th>
-												<td colspan="3">안녕하십니까?</td>
+												<td colspan="3" id="d-title">-</td>
 											</tr>
 											<tr>
 												<th scope="row"><span>답변상태</span></th>
-												<td colspan="3">답변완료</td>
+												<td colspan="3" id="d-answered">-</td>
 											</tr>
 										</tbody>
 									</table>
@@ -641,11 +638,11 @@
 
 							<div class="btn-group-between">
 								<div class="left">
-									<a href="list.do" class="btn btn-lg btn-outline-gray"><i class="ico ico-chevron-left-gray-md"></i><span>목록</span></a>
+									<a id="pg-list" href="list.html" class="btn btn-lg btn-outline-gray"><i class="ico ico-chevron-left-gray-md"></i><span>목록</span></a>
 								</div>
-								<div class="right">
-									<button type="button" class="btn btn-lg btn-gray btn-delete delete-button" onclick="if(confirm('삭제하시겠어요?')) location.href='list.do';"><i class="ico ico-trash-white-md"></i><span>삭제</span></button>
-									<a href="updt.do" class="btn btn-lg btn-primary-soft"><i class="ico ico-pen-primary-md"></i><span>수정</span></a>
+								<div class="right" id="pg-actions">
+									<button type="button" id="pg-delete" class="btn btn-lg btn-gray btn-delete"><i class="ico ico-trash-white-md"></i><span>삭제</span></button>
+									<a id="pg-updt" href="#" class="btn btn-lg btn-primary-soft"><i class="ico ico-pen-primary-md"></i><span>질문 수정</span></a>
 								</div>
 							</div>
 						</div>
@@ -662,62 +659,19 @@
 											<tbody>
 												<tr>
 													<th scope="row">
-														<label for="strRegDt">답변 등록일시<i class="req">필수입력</i></label>
+														<span>답변 등록일시</span>
 													</th>
-													<td>
-														<div class="input-group input-group-datepicker">
-															<input type="text" class="form-control form-datepicker" title="등록일" id="strRegDt" placeholder="YYYY.MM.DD" value="2024.07.02" />
-														</div>
-													</td>
+													<td><span id="strRegDt">-</span></td>
 													<th scope="row">
-														<label for="strMdfcnDt">답변 수정일시<i class="req">필수입력</i></label>
+														<span>답변 수정일시</span>
 													</th>
-													<td>
-														<div class="input-group input-group-datepicker">
-															<input type="text" class="form-control form-datepicker" title="수정일" id="strMdfcnDt" placeholder="YYYY.MM.DD" value="2024.07.02" />
-														</div>
-													</td>
+													<td><span id="strMdfcnDt">-</span></td>
 												</tr>
 												<tr>
-													<th scope="row"><span>담당부서 <i class="req">필수입력</i></span></th>
-													<td>
-														<input type="text" id="mngrDeptNm" class="form-control full" placeholder="담당부서 입력" required value="국립국어원 어문연구과" />
-													</td>
-													<th scope="row"><span>담당자 <i class="req">필수입력</i></span></th>
-													<td>
-														<input type="text" id="mngrNm" class="form-control full" placeholder="담당자 입력" required value="isskor" />
-														<input type="hidden" id="mngrCntnId" value="neibis"/>
-													</td>
-												</tr>
-												<tr>
-													<th scope="row"><span>처리진행상태</span></th>
+													<th scope="row"><span>담당자</span></th>
 													<td colspan="3">
-														<label class="check-item">
-															<input type="radio" name="prcsSttsCd" id="prcsSttsCd1" value="1" />
-															<span class="label">접수</span>
-														</label>
-														<label class="check-item">
-															<input type="radio" name="prcsSttsCd" id="prcsSttsCd2" value="2" />
-															<span class="label">반려</span>
-														</label>
-														<label class="check-item">
-															<input type="radio" name="prcsSttsCd" id="prcsSttsCd3" value="3" />
-															<span class="label">처리중</span>
-														</label>
-														<label class="check-item">
-															<input type="radio" name="prcsSttsCd" id="prcsSttsCd4" value="4" checked />
-															<span class="label">처리완료</span>
-														</label>
-													</td>
-												</tr>
-												<tr>
-													<th scope="row"><span>첨부파일</span></th>
-													<td colspan="3">
-														<div class="file-upload file-upload-multiple" data-file-type="A">
-															<input type="hidden" name="dataTypeCd" id="thumbDataTypeCd" value="P" />
-															<input type="hidden" name="atchFileTypeCd" id="atchFileTypeCd" value="D" />
-															<p class="text-guide" style="color:#6b7280;">정적 프로토타입: 첨부 영역입니다.</p>
-														</div>
+														<span id="ans-writer">-</span>
+														<span style="margin-left:8px;font-size:12px;color:#6b7280">답변 등록 계정(tb_board_answer.create_id)</span>
 													</td>
 												</tr>
 											</tbody>
@@ -727,57 +681,10 @@
 
 								<div class="html-editor-area">
 									<h4 class="title1 mt-10 mb-3">답변 내용</h4>
-									<div class="html-editor-header">
-										<nav class="tabmenu tabmenu-type2">
-											<ul class="tab-list type2" id="edtrSeCd">
-												<li data-value="2">
-													<a href="javascript:void(0);" onclick="codeToggleTabs && codeToggleTabs();"><span>코드로 수정</span></a>
-												</li>
-												<li class="on" data-value="3">
-													<a href="javascript:void(0);" onclick="webeditorToggleTabs && webeditorToggleTabs();"><span>웹 에디터로 수정</span></a>
-												</li>
-											</ul>
-										</nav>
-									</div>
-									<div class="html-editor-body">
-										<div class="codes-area">
-											<h3 class="sr-only">코드로 수정</h3>
-											<div class="code-item code-item-html">
-												<div class="code-item-header"><h4 class="code-item-title">HTML</h4></div>
-												<div class="code-item-body">
-													<textarea class="form-code html-code" name="pstCn" id="pstCn"><p>안녕하십니까? 지역어 종합 정보 시스템 담당자입니다. 지역어 종합 정보 시스템에 관심을 가져 주셔서 감사드립니다. 문의하신 내용에 대해 답변드리겠습니다. 선생님께서는 &#x27;내 지도 그리기&#x27; 서비스가 자신의 방언 조사 결과를 가지고 자기만의 언어 지도를 그릴 수 있는 서비스가 맞는지 질문하셨습니다. 또한 지도 작성법 설명 자료 위치와 제작 결과 공개 여부에 대해 문의해 주셨습니다. &#x27;내 지도 그리기&#x27; 서비스는 자신의 방언 조사 결과를 가지고 자기만의 언어 지도를 그릴 수 있는 서비스가 맞으며, 지도 작성법은 누리집 자료실에서 &#x27;지역어 지도 작성법&#x27;이라는 제목으로 검색하여 찾아보실 수 있습니다. 또한 지도 제작은 로그인한 해당 계정에 한해서만 보여지고 일반인에게는 공개되지 않습니다. 제작된 지도에 대해 공개 여부를 묻는 서비스 항목이 있으나(내 지도 그리기&gt; 표제어 등록&gt; 표제어 클릭 &gt; 서비스 신청) 현재 지원하지 않고 있는 서비스이므로 이점 참고 부탁드립니다. 더 궁금하신 점이 있으시면 의견 제시란에 의견을 주시거나 국립국어원 어문연구과(02-2669-9719)로 연락 주시기 바랍니다. 그럼 안녕히 계십시오. 
-<br>
-<br></p></textarea>
-												</div>
-											</div>
+									<div id="ans-view" style="padding:16px 18px;line-height:1.85;white-space:pre-wrap;background:#fff;border:1px solid #e5e7eb;border-radius:6px;min-height:120px"></div>
+										<div style="display:flex;justify-content:flex-end;margin-top:12px">
+											<a id="pg-ans" href="#" class="btn btn-lg btn-primary-soft"><i class="ico ico-pen-primary-md"></i><span>답변 수정</span></a>
 										</div>
-										<style>
-/* 정적 프로토타입: CKEditor/CodeMirror 미초기화로 붕괴되는 에디터 레이아웃을 일반 흐름으로 강제 */
-.html-editor-body{ position:static !important; height:auto !important; min-height:0 !important; }
-.html-editor-body .codes-area,
-.html-editor-body .webeditor-area,
-.html-editor-body .webeditor-viewport{ position:static !important; visibility:visible !important; height:auto !important; }
-#pstCnWysiwyg{ visibility:visible !important; display:block !important; }
-.html-editor-body .form-code.html-code{ visibility:visible !important; display:block !important; width:100%; min-height:240px; }
-.html-editor-body .CodeMirror{ visibility:visible !important; }
-</style>
-										<div class="webeditor-area">
-											<h3 class="sr-only">웹 에디터로 수정</h3>
-											<div class="webeditor-viewport">
-												<div id="pstCnWysiwyg" contenteditable="true" class="form-control" style="visibility:visible !important; min-height:240px; max-height:520px; overflow:auto; padding:16px 18px; line-height:1.8; background:#fff; border:1px solid #e2e8f0; border-radius:8px;"><p>안녕하십니까? 지역어 종합 정보 시스템 담당자입니다. 지역어 종합 정보 시스템에 관심을 가져 주셔서 감사드립니다. 문의하신 내용에 대해 답변드리겠습니다. 선생님께서는 &#x27;내 지도 그리기&#x27; 서비스가 자신의 방언 조사 결과를 가지고 자기만의 언어 지도를 그릴 수 있는 서비스가 맞는지 질문하셨습니다. 또한 지도 작성법 설명 자료 위치와 제작 결과 공개 여부에 대해 문의해 주셨습니다. &#x27;내 지도 그리기&#x27; 서비스는 자신의 방언 조사 결과를 가지고 자기만의 언어 지도를 그릴 수 있는 서비스가 맞으며, 지도 작성법은 누리집 자료실에서 &#x27;지역어 지도 작성법&#x27;이라는 제목으로 검색하여 찾아보실 수 있습니다. 또한 지도 제작은 로그인한 해당 계정에 한해서만 보여지고 일반인에게는 공개되지 않습니다. 제작된 지도에 대해 공개 여부를 묻는 서비스 항목이 있으나(내 지도 그리기&gt; 표제어 등록&gt; 표제어 클릭 &gt; 서비스 신청) 현재 지원하지 않고 있는 서비스이므로 이점 참고 부탁드립니다. 더 궁금하신 점이 있으시면 의견 제시란에 의견을 주시거나 국립국어원 어문연구과(02-2669-9719)로 연락 주시기 바랍니다. 그럼 안녕히 계십시오. 
-<br>
-<br></p></div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</form>
-							<div class="btn-group-between">
-								<div class="right">
-									<button type="button" id="updt-button" class="btn btn-lg btn-primary" onclick="saveAnswer()">
-										<i class="ico ico-pen-primary-md"></i>
-										<span>답변 수정</span>
-									</button>
 								</div>
 							</div>
 						</div>
@@ -792,14 +699,7 @@
 						</ul>
 
 						<div class="btn-group-fixed">
-							<button type="button" class="btn btn-lg btn-gray btn-delete delete-button" onclick="if(confirm('삭제하시겠어요?')) location.href='list.do';">
-								<i class="ico ico-trash-white-md"></i>
-								<span>삭제</span>
-							</button>
-							<a href="updt.do" class="btn btn-lg btn-primary-soft updt-button">
-								<i class="ico ico-pen-primary-md"></i>
-								<span>수정</span>
-							</a>
+<!-- 상단 삭제/수정 버튼 제거: 하단 버튼으로 통일 -->
 						</div>
 <!-- // 본문 영역 -->
 <script>
@@ -1199,5 +1099,83 @@ const getMngrFail = function (xhr, status, error) {
 }
 </script>
 
-	</body>
+	
+<script>
+/* 의견 제시 상세 — tb_board_post + tb_board_answer 연동 */
+(function () {
+  function esc(v){ return String(v==null?'':v).replace(/[&<>"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function qp(n){ var m=new RegExp('[?&]'+n+'=([^&]*)').exec(location.search);
+    return m?decodeURIComponent(m[1]):''; }
+  var postId = qp('postId');
+
+  function fill(){
+    if(!postId){ return; }
+    $.getJSON('../../../../mariadb/neibis-api/board/post/detail?postId='+encodeURIComponent(postId), function(d){
+      if(!d || !d.ok){ alert((d&&d.message)||'상세를 불러오지 못했습니다.'); return; }
+      var p = d.post, a = d.answer;
+      $('#d-category').text(p.categoryName || '-');
+      $('#d-createdt').text(p.createDt || '-');
+      $('#d-updatedt').text(p.updateDt || '-');
+      $('#d-writer').text((p.username ? p.username + ' (' + p.createId + ')' : p.createId) || '-');
+      $('#d-viewcnt').text(Number(p.viewCount||0).toLocaleString());
+      $('#d-title').text(p.title || '(제목 없음)');
+      $('#d-answered').html(d.answered
+        ? '답변완료 <span style="color:#6b7280;font-size:13px">(' + esc(a.username||a.createId) + ' · ' + esc(a.updateDt||a.createDt) + ')</span>'
+        : '<span style="color:#c0281c;font-weight:700">미답변</span>');
+
+      // 상태 — use_yn='N' 은 삭제된 글(소프트 삭제)
+      $('#d-state').html(p.deleted
+        ? '<span style="color:#c0281c;font-weight:700">삭제됨</span>'
+        : '<span style="color:#1f6b39;font-weight:700">정상</span>');
+      if(p.deleted && !$('#deleted-banner').length){
+        $('.site-manage-body').first().prepend(
+          '<div id="deleted-banner" style="margin:0 0 14px;padding:12px 16px;border-radius:6px;'
+          + 'background:#fdecea;border:1px solid #f5c6c2;color:#a32c22;font-weight:700">'
+          + '삭제된 글입니다. 사용자단에는 노출되지 않습니다.</div>');
+      }
+
+      // 질문 내용 — 「내용」 영역의 에디터 자리
+      var $q = $('.info-editor-area .editor-wrap').first();
+      if($q.length) $q.html('<div style="padding:14px 16px;line-height:1.8">' + (p.content || '<span style="color:#9ca3af">내용 없음</span>') + '</div>');
+
+      // 답변 내용 + 담당자
+      if(a){
+        $('#strRegDt').text(a.createDt || '-');
+        $('#strMdfcnDt').text(a.updateDt || '-');
+        $('#ans-writer').text(a.username ? (a.username + ' (' + a.createId + ')') : (a.createId || '-'));
+        $('#ans-view').text(a.content || '');
+      } else {
+        $('#strRegDt, #strMdfcnDt').text('-');
+        $('#ans-writer').text('-');
+        $('#ans-view').html('<span style="color:#9ca3af">등록된 답변이 없습니다.</span>');
+      }
+
+      // 하단 버튼 연결 (페이지 자체 버튼 사용 — 모달 버튼과 구분)
+      $('#pg-updt').attr('href', 'updt.html?postId=' + encodeURIComponent(postId));
+      $('#pg-ans').attr('href', 'answer-updt.html?postId=' + encodeURIComponent(postId))
+                  .find('span').text(d.answered ? '답변 수정' : '답변 등록');
+      var $del = $('#pg-delete');
+      $del.find('span').text(p.deleted ? '복원' : '삭제');
+      $del.off('click').on('click', function(){
+        var restore = !!p.deleted;
+        var msg = restore
+          ? '이 글을 복원할까요?\n사용자단에 다시 노출됩니다.'
+          : '이 글을 삭제할까요?\n실제로 지우지 않고 삭제 상태로 전환하며, 사용자단에서 숨겨집니다.';
+        if(!confirm(msg)) return;
+        $.ajax({
+          url: '../../../../mariadb/neibis-api/board/post/delete', type:'post',
+          dataType:'json', contentType:'application/json',
+          data: JSON.stringify({ postId: postId, restore: restore ? 1 : 0, editorId: 'admin' })
+        }).done(function(r){
+          alert((r&&r.message) || '처리했습니다.');
+          if(r&&r.ok) location.reload();
+        }).fail(function(){ alert('처리에 실패했습니다.'); });
+      });
+    });
+  }
+  $(fill);
+})();
+</script>
+</body>
 </html>

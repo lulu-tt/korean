@@ -1438,9 +1438,325 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
 .hero-sub { animation-delay: 0.3s; }
 .search-wrap { animation-delay: 0.4s; }
 .search-tags { animation-delay: 0.5s; }
+
+/* ── 메인 설문조사 팝업 (현재 사이트 스타일) ── */
+.survey-pop {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: var(--sans);
+}
+.survey-pop.is-open { display: flex; }
+.survey-pop__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(4px);
+}
+.survey-pop__card {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  max-height: min(860px, calc(100vh - 48px));
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+  overflow: hidden;
+}
+.survey-pop .pop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 0;
+  flex-shrink: 0;
+}
+.survey-pop .pop-head > div {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--indigo-pale);
+  color: var(--indigo);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+.survey-pop .pop-head > div::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--indigo-mid);
+  border-radius: 50%;
+}
+.survey-pop .pop-head > .btn-pop-close {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--bg-white);
+  color: var(--text-mid);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.survey-pop .pop-head > .btn-pop-close:hover {
+  background: var(--indigo-pale);
+  color: var(--indigo);
+  border-color: var(--indigo-light);
+}
+.survey-pop .pop-head > .btn-pop-close svg {
+  width: 14px;
+  height: 14px;
+}
+.survey-pop .pop-content {
+  overflow: auto;
+  padding: 18px 28px 24px;
+  min-height: 0;
+  flex: 1;
+}
+.survey-pop .survey-tit {
+  font-family: var(--display);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  color: var(--text-dark);
+  margin: 4px 0 16px;
+}
+.survey-pop .survey-desc {
+  background: var(--indigo-pale);
+  border: 1px solid rgba(30, 64, 175, 0.08);
+  margin-bottom: 8px;
+  font-size: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  color: var(--text-mid);
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+.survey-pop .survey-desc .mt-3 {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--indigo);
+}
+.survey-pop .survey-list { margin: 0 0 8px; list-style: none; padding: 0; }
+.survey-pop .survey-list > li {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+}
+.survey-pop .survey-list > li:last-child { border-bottom: none; }
+.survey-pop .survey-list > li > .q-tit {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dark);
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+.survey-pop .survey-list > li > .q-tit > span {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: var(--indigo);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.survey-pop .survey-list > li > .q-tit > div { flex: 1; }
+.survey-pop .survey-list > li > ul {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.survey-pop .survey-list > li > ul > li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-white);
+  line-height: 1.4;
+  transition: background 0.15s, border-color 0.15s;
+}
+.survey-pop .survey-list > li > ul > li:hover {
+  background: var(--bg-warm);
+  border-color: var(--border-strong);
+}
+.survey-pop .survey-list > li > ul > li:has(input[type=radio]:checked) {
+  background: var(--indigo-pale);
+  border-color: var(--indigo-light);
+}
+.survey-pop .survey-list > li > ul > li > input[type=radio] {
+  margin: 0;
+  accent-color: var(--indigo-mid);
+  flex-shrink: 0;
+}
+.survey-pop .survey-list > li > ul > li > label {
+  cursor: pointer;
+  flex: 1;
+  font-size: 14px;
+  color: var(--text-mid);
+  font-weight: 500;
+}
+.survey-pop .survey-list > li > ul > li:has(input[type=radio]:checked) > label {
+  color: var(--indigo);
+  font-weight: 600;
+}
+.survey-pop .survey-list > li > ul > li > .input-tel {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-dark);
+  background: var(--bg-white);
+}
+.survey-pop .survey-list > li > ul > li > .input-tel:focus {
+  outline: none;
+  border-color: var(--indigo-light);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+}
+.survey-pop .survey-list > li > ul > li > .input-tel:disabled {
+  background: var(--bg-warm);
+  color: var(--text-light);
+}
+.survey-pop .survey-list > li > ul > li > .input-tel::placeholder { color: var(--text-light); }
+.survey-pop .survey-list > li > .q-consent {
+  font-size: 13px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  color: #92400E;
+  background: #FFFBEB;
+  border: 1px solid rgba(245, 158, 11, 0.22);
+  border-radius: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  font-weight: 500;
+}
+.survey-pop .text-center { text-align: center; padding-top: 8px; }
+.survey-pop .btn-survey-send {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 46px;
+  padding: 0 28px;
+  border: none;
+  border-radius: 30px;
+  background: var(--indigo);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, transform 0.15s;
+}
+.survey-pop .btn-survey-send:hover { background: var(--indigo-mid); }
+.survey-pop .btn-survey-send:disabled { opacity: 0.55; cursor: not-allowed; }
+.survey-pop .pop-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 10px 20px;
+  background: var(--bg-warm);
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-mid);
+  flex-shrink: 0;
+}
+.survey-pop .pop-footer .pop-hide-7d {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.survey-pop .pop-footer input[type=checkbox] {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--indigo-mid);
+}
+.survey-pop .pop-footer > .btn-pop-close {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-mid);
+  padding: 6px 4px;
+  font-family: inherit;
+}
+.survey-pop .pop-footer > .btn-pop-close:hover { color: var(--indigo); }
+@media (max-width: 767px) {
+  .survey-pop { padding: 10px; align-items: flex-end; }
+  .survey-pop__card { max-height: calc(100vh - 20px); border-radius: 16px; }
+  .survey-pop .pop-content { padding: 12px 18px 20px; }
+  .survey-pop .survey-tit { font-size: 20px; }
+}
 </style>
 </head>
 <body>
+
+<!-- pop : 설문조사 (관리자 등록 · 진행 중 설문을 메인에 노출) -->
+<div id="surveyPop" class="survey-pop" hidden>
+  <div class="survey-pop__backdrop" data-survey-dismiss></div>
+  <div class="survey-pop__card" role="dialog" aria-modal="true" aria-labelledby="surveyPopTitle">
+    <div class="pop-head">
+      <div id="surveyPopTitle" tabindex="0">설문 조사</div>
+      <button type="button" title="닫기" class="btn-pop-close" aria-label="닫기">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="pop-content">
+      <div class="survey-tit" id="surveyTit"></div>
+      <div class="survey-desc">
+        <div id="surveyDesc"></div>
+        <div class="mt-3" id="surveyPeriod"></div>
+      </div>
+      <ul class="survey-list" id="surveyList"></ul>
+      <div class="text-center">
+        <button type="button" class="btn-survey-send" id="surveySubmit">설문 제출</button>
+      </div>
+    </div>
+    <div class="pop-footer">
+      <label class="pop-hide-7d" id="surveyHide7d">
+        <input type="checkbox" id="pop-time-check">
+        <span>일주일 동안 보지 않겠습니다</span>
+      </label>
+      <button type="button" class="btn-pop-close">닫기</button>
+    </div>
+  </div>
+</div>
+<!--// pop : 설문조사 -->
 
 <div id="gnb-common"></div>
 
@@ -2308,6 +2624,174 @@ window.addEventListener('resize', function(){
       updateMapTab(word);
     });
   });
+})();
+</script>
+
+<script>
+/* 메인 설문조사 팝업 — 관리자에서 등록·진행 중인 설문을 운영과 동일하게 노출 */
+(function () {
+  var COOKIE_PREFIX = 'surveyModal_';
+  var DEFAULT_PRSNL =
+    '경품 응모를 원할 경우 휴대전화 번호를 입력해주세요. 설문 응답자 대상으로 추첨하여 경품을 드립니다.\n' +
+    '입력한 정보는 제출 후 변경이 불가하며, 잘못 입력된 정보로 인한 경품 재발송은 불가합니다.';
+
+  function setCookie(name, value, days) {
+    var d = new Date();
+    d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+    document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + d.toUTCString() + ';path=/';
+  }
+  function getCookie(name) {
+    var prefix = name + '=';
+    var parts = document.cookie.split(';');
+    for (var i = 0; i < parts.length; i++) {
+      var c = parts[i].trim();
+      if (c.indexOf(prefix) === 0) return decodeURIComponent(c.substring(prefix.length));
+    }
+    return '';
+  }
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function fmtKoDate(ymd) {
+    var p = String(ymd || '').split('-');
+    if (p.length < 3) return ymd || '';
+    return p[0] + '년 ' + p[1] + '월 ' + p[2] + '일';
+  }
+
+  var pop = document.getElementById('surveyPop');
+  if (!pop) return;
+  var state = { survey: null };
+
+  function closePop() {
+    pop.classList.remove('is-open');
+    pop.hidden = true;
+    document.body.style.overflow = '';
+  }
+  function hideFor7Days() {
+    if (state.survey && state.survey.surveyNo) {
+      setCookie(COOKIE_PREFIX + state.survey.surveyNo, 'done', 7);
+    }
+    closePop();
+  }
+
+  pop.querySelectorAll('.btn-pop-close').forEach(function (btn) {
+    btn.addEventListener('click', closePop);
+  });
+  var backdrop = pop.querySelector('[data-survey-dismiss]');
+  if (backdrop) backdrop.addEventListener('click', closePop);
+  document.getElementById('surveyHide7d').addEventListener('click', function (e) {
+    e.preventDefault();
+    hideFor7Days();
+  });
+
+  function bindPersonalToggle() {
+    var radios = pop.querySelectorAll('input[name="personalInfoAgree"]');
+    var tel = document.getElementById('personal-cont-agree');
+    if (!radios.length || !tel) return;
+    function sync() {
+      var yes = pop.querySelector('input[name="personalInfoAgree"][value="Y"]');
+      tel.disabled = !(yes && yes.checked);
+      if (tel.disabled) tel.value = '';
+    }
+    radios.forEach(function (r) { r.addEventListener('change', sync); });
+    sync();
+  }
+
+  function render(d) {
+    state.survey = d;
+    document.getElementById('surveyTit').textContent = d.surveyTitle || '';
+    document.getElementById('surveyDesc').textContent = d.surveyCntnts || '';
+    document.getElementById('surveyPeriod').textContent =
+      '• 설문 기간 : ' + fmtKoDate(d.startDate) + ' ~ ' + fmtKoDate(d.endDate);
+
+    var html = '';
+    (d.questions || []).forEach(function (q, qi) {
+      html += '<li><div class="q-tit"><span>' + (qi + 1) + '</span><div>' + esc(q.questionTitle) + '</div></div><ul>';
+      (q.examples || []).forEach(function (ex, ei) {
+        var id = 'q' + (qi + 1) + '-' + (ei + 1);
+        html += '<li><input type="radio" name="exampleNo[' + qi + ']" id="' + id + '" value="' + esc(ex.exampleNo) + '" data-qno="' + esc(q.questionNo) + '">'
+          + '<label for="' + id + '">' + esc(ex.exampleTitle) + '</label></li>';
+      });
+      html += '</ul></li>';
+    });
+
+    if ((d.prsnlInputYn || 'N') === 'Y') {
+      var consent = (d.prsnlInfoCntnts || '').trim() || DEFAULT_PRSNL;
+      html += '<li><div class="q-consent">' + esc(consent) + '</div><ul>'
+        + '<li><input type="radio" name="personalInfoAgree" id="personal-info-agree1" value="N" checked>'
+        + '<label for="personal-info-agree1">개인정보 수집 동의 안 함</label></li>'
+        + '<li><input type="radio" name="personalInfoAgree" id="personal-info-agree2" value="Y">'
+        + '<label for="personal-info-agree2">개인정보 수집 동의 함</label></li>'
+        + '<li><input type="text" placeholder="전화번호 입력" name="personalContAgree" id="personal-cont-agree" class="input-tel" disabled></li>'
+        + '</ul></li>';
+    }
+    document.getElementById('surveyList').innerHTML = html;
+    bindPersonalToggle();
+    document.getElementById('surveyList').addEventListener('click', function (e) {
+      var row = e.target.closest('li');
+      if (!row || e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL' || e.target.classList.contains('input-tel')) return;
+      var radio = row.querySelector('input[type="radio"]');
+      if (radio) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+    pop.hidden = false;
+    pop.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  document.getElementById('surveySubmit').addEventListener('click', function () {
+    var btn = this;
+    var d = state.survey;
+    if (!d) return;
+    var answers = [];
+    var qs = d.questions || [];
+    for (var i = 0; i < qs.length; i++) {
+      var picked = pop.querySelector('input[name="exampleNo[' + i + ']"]:checked');
+      if (!picked) {
+        alert('답변을 선택해주세요.');
+        var first = pop.querySelector('input[name="exampleNo[' + i + ']"]');
+        if (first) first.focus();
+        return;
+      }
+      answers.push({ questionNo: picked.getAttribute('data-qno'), exampleNo: picked.value });
+    }
+    var agreeEl = pop.querySelector('input[name="personalInfoAgree"]:checked');
+    var telEl = document.getElementById('personal-cont-agree');
+    btn.disabled = true;
+    fetch('/api/survey/answer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        surveyNo: d.surveyNo,
+        answers: answers,
+        personalInfoAgree: agreeEl ? agreeEl.value : 'N',
+        personalContAgree: telEl && !telEl.disabled ? telEl.value : ''
+      })
+    }).then(function (r) { return r.json(); }).then(function (res) {
+      if (res && res.status === 'success') {
+        alert('참여해 주셔서 감사합니다.');
+        hideFor7Days();
+      } else {
+        alert((res && res.message) || '설문 저장 중에 오류가 발생하였습니다.');
+      }
+    }).catch(function () {
+      alert('설문 저장 중에 오류가 발생하였습니다.');
+    }).finally(function () {
+      btn.disabled = false;
+    });
+  });
+
+  fetch('/api/survey/active').then(function (r) { return r.json(); }).then(function (res) {
+    var d = res && res.data;
+    if (!d || !d.surveyNo) return;
+    if (getCookie(COOKIE_PREFIX + d.surveyNo) === 'done') return;
+    if (!(d.questions || []).length) return;
+    render(d);
+  }).catch(function () {});
 })();
 </script>
 

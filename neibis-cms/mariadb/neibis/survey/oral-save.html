@@ -918,10 +918,11 @@ function uploadFileList(files){
 			(d.results||[]).forEach(function(r){
 				if(!r.ok) return;
 				if(order.indexOf(r.baseId)<0) order.push(r.baseId);
-				if(r.kind==='eaf') eafs[r.baseId]=r; else if(r.kind==='wav') wavs[r.baseId]=r;
+				if(r.kind==='eaf' || r.kind==='trs') eafs[r.baseId]=r;
+				else if(r.kind==='wav') wavs[r.baseId]=r;
 			});
 			nameSpan.textContent = '선택된 파일 없음'; nameSpan.classList.remove('has-file');
-			if(!order.some(function(b){return eafs[b];})){ msgWarn('유효한 전사자료(.eaf)가 없습니다.'); return; }
+			if(!order.some(function(b){return eafs[b];})){ msgWarn('유효한 전사자료(.eaf/.trs)가 없습니다.'); return; }
 			openUploadConfirm(order, eafs, wavs);
 		})
 		.catch(function(e){ nameSpan.textContent='선택된 파일 없음'; msgWarn('업로드 실패: '+e.message); });
@@ -960,7 +961,7 @@ function openUploadConfirm(order, eafs, wavs){
 	var html='<div style="font-weight:800;font-size:16px;margin-bottom:10px">등록할 전사자료</div>'
 		+'<table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:20px">'
 		+'<thead><tr style="background:#f1f5f9;font-size:13px;color:#475569"><th style="padding:9px 10px;text-align:left">전사자료</th><th>전사시간</th><th style="text-align:left">음성자료</th><th>음성시간</th><th>세그먼트</th></tr></thead><tbody>'+rows+'</tbody></table>'
-		+'<div style="font-weight:800;font-size:16px;margin-bottom:10px">자동 추출 정보 <span style="font-weight:400;color:#94a3b8;font-size:13px">(EAF 메타데이터)</span></div>'
+		+'<div style="font-weight:800;font-size:16px;margin-bottom:10px">자동 추출 정보 <span style="font-weight:400;color:#94a3b8;font-size:13px">(전사자료 메타데이터)</span></div>'
 		+'<div style="display:grid;grid-template-columns:110px 1fr;gap:8px 14px;margin-bottom:20px;background:#f8fafc;border:1px solid #eef2f7;border-radius:10px;padding:16px 18px">'
 		+'<div style="color:#94a3b8">조사지역</div><div>'+esc(meta.region||'-')+'</div>'
 		+'<div style="color:#94a3b8">조사연도</div><div>'+esc(meta.year||'-')+'</div>'
@@ -981,7 +982,7 @@ function openUploadConfirm(order, eafs, wavs){
 			renderUcSources(meta);
 		}).catch(function(){ document.getElementById('ucSrc').innerHTML='<span style="color:#dc2626">제보자 검색 실패 — 신규로 등록됩니다.</span>'; });
 	} else {
-		document.getElementById('ucSrc').innerHTML='<span>EAF에 제보자 정보가 없습니다.</span>';
+		document.getElementById('ucSrc').innerHTML='<span>전사자료에 제보자 정보가 없습니다. 아래에서 직접 연결하거나 신규 등록할 수 있습니다.</span>';
 	}
 }
 
@@ -1137,7 +1138,7 @@ function oralSave(){
 	if(!document.getElementById('startDate').value.trim() || !document.getElementById('endDate').value.trim()){
 		msgWarn('조사기간(시작일~종료일)을 입력해 주세요.'); return document.getElementById('startDate').focus();
 	}
-	if(!window._uploadedEafs || !window._uploadedEafs.length){ msgWarn('전사자료(.eaf) 업로드가 완료되지 않았습니다.'); return; }
+	if(!window._uploadedEafs || !window._uploadedEafs.length){ msgWarn('전사자료(.eaf/.trs) 업로드가 완료되지 않았습니다.'); return; }
 	var done = function(){
 		var g = function(id){ var e=document.getElementById(id); return e?e.value:''; };
 		var uyEl = document.querySelector('input[name="trsfileUseYn"]:checked');

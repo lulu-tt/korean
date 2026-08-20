@@ -1072,12 +1072,12 @@
         return '<tr><th scope="row">' + escHtml(r[0]) + '</th><td>' + escHtml(r[1]) + '</td></tr>';
       }).join('');
       var audioCell = '';
-      // 음성 파일 연동 전이면 버튼만 비활성 표시 (일련번호는 노출하지 않음)
+      // 음성 파일 연동 전: 아이콘만 있는 심플 버튼 (비활성)
       if (extra.showAudioPlaceholder) {
         audioCell =
-          '<tr><th scope="row">음성</th><td>' +
-            '<button type="button" class="popup-speaker-btn" disabled title="음성 파일 연동 준비 중" aria-label="음성 재생 (준비 중)">' +
-              '<i class="ti ti-volume" aria-hidden="true"></i> 듣기' +
+          '<tr><th scope="row">음성</th><td style="text-align:left;">' +
+            '<button type="button" class="popup-speaker-btn" disabled title="준비 중" aria-label="음성 듣기 (준비 중)">' +
+              '<i class="ti ti-volume" aria-hidden="true"></i>' +
             '</button>' +
           '</td></tr>';
       }

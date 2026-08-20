@@ -1432,6 +1432,17 @@ const getMngrFail = function (xhr, status, error) {
 			}
 			#layer-variant-bulk .file-name.has-file{ color: #374151; }
 			#layer-variant-bulk .input-addon{ color: #374151; }
+			#layer-variant-bulk #bulkKindGroup{
+				display: flex;
+				flex-wrap: wrap;
+				gap: 6px 18px;
+			}
+			#layer-variant-bulk .bulk-kind-desc{
+				margin: 6px 0 0;
+				color: #6b7280;
+				font-size: 12px;
+				line-height: 1.5;
+			}
 		</style>
 
 		<div class="modal-popup modal-lg hide" id="layer-variant-bulk">
@@ -1451,6 +1462,36 @@ const getMngrFail = function (xhr, status, error) {
 								</colgroup>
 								<tbody>
 									<tr>
+										<th scope="row" style="white-space:nowrap"><span>업로드 유형<i class="req">필수입력</i></span></th>
+										<td>
+											<div class="check-group" id="bulkKindGroup">
+												<label class="check-item"><input type="radio" name="bulkKind" value="item" checked /><span class="label">① 항목(비교단위)</span></label>
+												<label class="check-item"><input type="radio" name="bulkKind" value="site" /><span class="label">② 조사지점</span></label>
+												<label class="check-item"><input type="radio" name="bulkKind" value="resp" /><span class="label">③ 지점 응답(통합자료)</span></label>
+												<label class="check-item"><input type="radio" name="bulkKind" value="respOne" /><span class="label">③-1 지점 응답(개별)</span></label>
+											</div>
+											<p class="bulk-kind-desc" id="bulkKindDesc"></p>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row" style="white-space:nowrap"><span>대상 도(道)</span></th>
+										<td>
+											<select class="form-control" id="bulkProvince" style="max-width:220px">
+												<option value="">파일에서 자동 판별</option>
+												<option value="GG">경기</option>
+												<option value="GW">강원</option>
+												<option value="CB">충북</option>
+												<option value="CN">충남</option>
+												<option value="JB">전북</option>
+												<option value="JN">전남</option>
+												<option value="GB">경북</option>
+												<option value="GN">경남</option>
+												<option value="JJ">제주</option>
+											</select>
+											<p class="bulk-kind-desc">파일명으로 도를 판별합니다. 파일명을 바꿔 올리는 경우 여기서 지정하세요.</p>
+										</td>
+									</tr>
+									<tr>
 										<th scope="row" style="white-space:nowrap"><span>엑셀파일등록<i class="req">필수입력</i></span></th>
 										<td>
 											<label class="file-picker">
@@ -1458,12 +1499,14 @@ const getMngrFail = function (xhr, status, error) {
 												<span class="file-btn">파일 선택</span>
 												<span class="file-name" id="bulkExcelNameVariant">선택된 파일 없음</span>
 											</label>
+											<p class="bulk-kind-desc">국립국어원 지역어조사보고서 통합자료(.xls/.xlsx)는 변형 없이 «③ 지점 응답» 유형으로 그대로 올릴 수 있습니다.</p>
 										</td>
 									</tr>
 									<tr>
 										<th scope="row">서식 파일</th>
 										<td>
 											<button type="button" class="btn btn-sm btn-outline-gray" onclick="bulkTemplateDown()"><i class="ico ico-download-gray-md"></i><span>저장</span></button>
+											<p class="bulk-kind-desc">유형 4종의 시트와 작성 규칙이 한 파일에 들어 있습니다.</p>
 										</td>
 									</tr>
 								</tbody>
@@ -1493,11 +1536,17 @@ const getMngrFail = function (xhr, status, error) {
 				span.classList.remove('has-file');
 			}
 		}
+		// 일괄등록 서식(xlsx). 생성 스크립트: scripts/make_variant_bulk_template.py
+		var BULK_TEMPLATE_FILE = '변이형비교_일괄등록_양식.xlsx';
 		function bulkTemplateDown(){
-			if(window.Message){ Message.alert({icon:'info', message:'[서식 파일 다운로드] 정적 프로토타입 버튼입니다.'}); }
-			else { alert('서식 파일 다운로드'); }
+			var a = document.createElement('a');
+			a.href = 'data/' + encodeURIComponent(BULK_TEMPLATE_FILE);
+			a.download = BULK_TEMPLATE_FILE;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
 		}
-		function bulkExcelSave(excelInputId){
+		function bulkExcelSave(excelInputId, kind){
 			var xls = document.getElementById(excelInputId);
 			if(!xls || !xls.files || xls.files.length === 0){
 				if(window.Message){ Message.alert({icon:'warning', message:'엑셀 파일을 등록해 주세요.'}); }
@@ -1505,20 +1554,54 @@ const getMngrFail = function (xhr, status, error) {
 				if(xls) xls.focus();
 				return;
 			}
+			var kindText = (kind && kind.info)
+				? (kind.info.label + ' — 「' + kind.info.sheet + '」 시트')
+				: '';
 			var doneMsg = function(){
-				if(window.Message){ Message.alert({icon:'info', message:'정적 프로토타입입니다. 실제 업로드는 수행되지 않습니다.'}); }
-				else { alert('정적 프로토타입: 업로드 미수행'); }
+				var msg = '정적 프로토타입입니다. 실제 업로드는 수행되지 않습니다.'
+					+ (kindText ? ('\n선택한 유형: ' + kindText) : '');
+				if(window.Message){ Message.alert({icon:'info', message:msg}); }
+				else { alert(msg); }
 			};
 			if(window.Message){
-				Message.confirm({icon:'warning', title:'일괄 등록하시겠어요?', message:'등록하시려면 ‘확인’을 눌러주세요.'}, doneMsg);
-			}else if(confirm('일괄 등록하시겠어요?')){
+				Message.confirm({
+					icon:'warning',
+					title:'일괄 등록하시겠어요?',
+					message:(kindText ? (kindText + '(으)로 처리합니다. ') : '') + '등록하시려면 ‘확인’을 눌러주세요.'
+				}, doneMsg);
+			}else if(confirm('일괄 등록하시겠어요?' + (kindText ? ('\n' + kindText) : ''))){
 				doneMsg();
 			}
 		}
 		</script>
 
 		<script>
-		function variantBulkSave(){ bulkExcelSave('bulkExcelFileVariant'); }
+		// 업로드 유형 = 일괄등록의 '단위'. 서식(xlsx)의 시트와 1:1 대응한다.
+		var BULK_KINDS = {
+			item:    { label: '① 항목(비교단위)',      sheet: '①항목',          unit: '한 행 = 한 항목' },
+			site:    { label: '② 조사지점',            sheet: '②조사지점',      unit: '한 행 = 한 지점' },
+			resp:    { label: '③ 지점 응답(통합자료)', sheet: '③응답(음운)',    unit: '행 = 항목, 열 = 지점' },
+			respOne: { label: '③-1 지점 응답(개별)',   sheet: '③-1응답(개별)', unit: '한 행 = 한 응답' }
+		};
+		function bulkKind(){
+			var el = document.querySelector('input[name=bulkKind]:checked');
+			var key = el ? el.value : 'item';
+			return { key: key, info: BULK_KINDS[key] || BULK_KINDS.item };
+		}
+		function bulkKindDescSync(){
+			var k = bulkKind();
+			var el = document.getElementById('bulkKindDesc');
+			if(el){ el.textContent = '서식의 「' + k.info.sheet + '」 시트를 사용합니다. ' + k.info.unit + '.'; }
+		}
+		function variantBulkSave(){
+			var k = bulkKind();
+			bulkExcelSave('bulkExcelFileVariant', k);
+		}
+		document.addEventListener('DOMContentLoaded', function(){
+			var g = document.getElementById('bulkKindGroup');
+			if(g){ g.addEventListener('change', bulkKindDescSync); }
+			bulkKindDescSync();
+		});
 		</script>
 
 		<script>

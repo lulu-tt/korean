@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.9.0/ol.css">
 <script src="https://cdn.jsdelivr.net/npm/ol@v10.9.0/dist/ol.js"></script>
+<script src="./skorea-provinces.js"></script>
+<script src="./korea-map.js"></script>
 <link rel="stylesheet" href="./styles.css">
 <script src="./gnb.js" defer></script>
 <script src="./share.js" defer></script>
@@ -1146,7 +1148,7 @@
                 <div class="details-header">
                   <div class="details-title">감자의 지역별 음성 듣기</div>
                   <div class="details-header-actions">
-                    <button type="button" class="details-map-btn" onclick="event.stopPropagation(); openMapModal('감자')"><i class="ti ti-map-2" aria-hidden="true"></i> 지도로 보기</button>
+                    <button type="button" class="details-map-btn" data-word="감자" onclick="event.stopPropagation(); openMapModal(this.getAttribute('data-word'))"><i class="ti ti-map-2" aria-hidden="true"></i> 지도로 보기</button>
                   </div>
                 </div>
                 <div class="details-table-wrapper">
@@ -1191,7 +1193,7 @@
                 <div class="details-header">
                   <div class="details-title">궁게의 지역별 음성 듣기</div>
                   <div class="details-header-actions">
-                    <button type="button" class="details-map-btn" onclick="event.stopPropagation(); openMapModal('궁게')"><i class="ti ti-map-2" aria-hidden="true"></i> 지도로 보기</button>
+                    <button type="button" class="details-map-btn" data-word="궁게" onclick="event.stopPropagation(); openMapModal(this.getAttribute('data-word'))"><i class="ti ti-map-2" aria-hidden="true"></i> 지도로 보기</button>
                   </div>
                 </div>
                 <div class="details-table-wrapper">
@@ -1242,7 +1244,7 @@
                 <div class="details-header">
                   <div class="details-title">셋바눌의 지역별 음성 듣기</div>
                   <div class="details-header-actions">
-                    <button type="button" class="details-map-btn" onclick="event.stopPropagation(); openMapModal('셋바눌')"><i class="ti ti-map-2" aria-hidden="true"></i> 지도로 보기</button>
+                    <button type="button" class="details-map-btn" data-word="셋바눌" onclick="event.stopPropagation(); openMapModal(this.getAttribute('data-word'))"><i class="ti ti-map-2" aria-hidden="true"></i> 지도로 보기</button>
                   </div>
                 </div>
                 <div class="details-table-wrapper">
@@ -1287,6 +1289,12 @@
           <tr id="details-4" class="details-row">
             <td colspan="5">
               <div class="details-container">
+                <div class="details-header">
+                  <div class="details-title">감자(=감'자)의 지역별 음성 듣기</div>
+                  <div class="details-header-actions">
+                    <button type="button" class="details-map-btn" data-word="감자(=감'자)" onclick="event.stopPropagation(); openMapModal(this.getAttribute('data-word'))"><i class="ti ti-map-2" aria-hidden="true"></i> 지도로 보기</button>
+                  </div>
+                </div>
                 <div class="details-empty">음성 데이터 준비 중입니다.</div>
               </div>
             </td>
@@ -1302,6 +1310,12 @@
           <tr id="details-5" class="details-row">
             <td colspan="5">
               <div class="details-container">
+                <div class="details-header">
+                  <div class="details-title">감자(=감:자)의 지역별 음성 듣기</div>
+                  <div class="details-header-actions">
+                    <button type="button" class="details-map-btn" data-word="감자(=감:자)" onclick="event.stopPropagation(); openMapModal(this.getAttribute('data-word'))"><i class="ti ti-map-2" aria-hidden="true"></i> 지도로 보기</button>
+                  </div>
+                </div>
                 <div class="details-empty">음성 데이터 준비 중입니다.</div>
               </div>
             </td>
@@ -1317,6 +1331,12 @@
           <tr id="details-6" class="details-row">
             <td colspan="5">
               <div class="details-container">
+                <div class="details-header">
+                  <div class="details-title">감자(=감자')의 지역별 음성 듣기</div>
+                  <div class="details-header-actions">
+                    <button type="button" class="details-map-btn" data-word="감자(=감자')" onclick="event.stopPropagation(); openMapModal(this.getAttribute('data-word'))"><i class="ti ti-map-2" aria-hidden="true"></i> 지도로 보기</button>
+                  </div>
+                </div>
                 <div class="details-empty">음성 데이터 준비 중입니다.</div>
               </div>
             </td>
@@ -1332,6 +1352,12 @@
           <tr id="details-7" class="details-row">
             <td colspan="5">
               <div class="details-container">
+                <div class="details-header">
+                  <div class="details-title">감자(=감:자)의 지역별 음성 듣기</div>
+                  <div class="details-header-actions">
+                    <button type="button" class="details-map-btn" data-word="감자(=감:자)" onclick="event.stopPropagation(); openMapModal(this.getAttribute('data-word'))"><i class="ti ti-map-2" aria-hidden="true"></i> 지도로 보기</button>
+                  </div>
+                </div>
                 <div class="details-empty">음성 데이터 준비 중입니다.</div>
               </div>
             </td>
@@ -1347,6 +1373,12 @@
           <tr id="details-8" class="details-row">
             <td colspan="5">
               <div class="details-container">
+                <div class="details-header">
+                  <div class="details-title">감자발콩의 지역별 음성 듣기</div>
+                  <div class="details-header-actions">
+                    <button type="button" class="details-map-btn" data-word="감자발콩" onclick="event.stopPropagation(); openMapModal(this.getAttribute('data-word'))"><i class="ti ti-map-2" aria-hidden="true"></i> 지도로 보기</button>
+                  </div>
+                </div>
                 <div class="details-empty">음성 데이터 준비 중입니다.</div>
               </div>
             </td>
@@ -1362,6 +1394,12 @@
           <tr id="details-9" class="details-row">
             <td colspan="5">
               <div class="details-container">
+                <div class="details-header">
+                  <div class="details-title">감자발콩(=감:자발콩)의 지역별 음성 듣기</div>
+                  <div class="details-header-actions">
+                    <button type="button" class="details-map-btn" data-word="감자발콩(=감:자발콩)" onclick="event.stopPropagation(); openMapModal(this.getAttribute('data-word'))"><i class="ti ti-map-2" aria-hidden="true"></i> 지도로 보기</button>
+                  </div>
+                </div>
                 <div class="details-empty">음성 데이터 준비 중입니다.</div>
               </div>
             </td>
@@ -1377,6 +1415,12 @@
           <tr id="details-10" class="details-row">
             <td colspan="5">
               <div class="details-container">
+                <div class="details-header">
+                  <div class="details-title">감자콩의 지역별 음성 듣기</div>
+                  <div class="details-header-actions">
+                    <button type="button" class="details-map-btn" data-word="감자콩" onclick="event.stopPropagation(); openMapModal(this.getAttribute('data-word'))"><i class="ti ti-map-2" aria-hidden="true"></i> 지도로 보기</button>
+                  </div>
+                </div>
                 <div class="details-empty">음성 데이터 준비 중입니다.</div>
               </div>
             </td>
@@ -1941,7 +1985,6 @@
     <div class="modal-head">
       <div>
         <div class="modal-head-title">'<span id="mapModalWord">감자</span>'의 지역분포 지도</div>
-        <div class="modal-head-sub">지역어 조사 및 보완 조사 사업(2004–2018) · 국립국어원</div>
       </div>
       <button type="button" class="close-btn" onclick="closeMapModal()" aria-label="닫기"><i class="ti ti-x" aria-hidden="true"></i></button>
     </div>
@@ -1950,19 +1993,10 @@
         <!-- 지도 -->
         <div id="vocabMapModal" class="vocab-map" role="region" aria-label="지역어 분포 지도"></div>
 
-        <!-- 범례 -->
-        <div class="map-legend">
-          <h4 class="map-legend-title">지도 범례</h4>
-          <p class="map-legend-text">지역별 분포를 지도에서 확인할 수 있습니다.</p>
-        </div>
-
         <!-- 시도 상세 정보 패널 -->
         <div id="regionDetailPanelModal" class="region-detail-panel">
           <div class="panel-header">
             <h3 id="regionPanelTitleModal" class="panel-title"></h3>
-            <button type="button" class="close-panel-btn" onclick="closeRegionPanel(modalMapCtx)" aria-label="패널 닫기">
-              <i class="ti ti-x"></i>
-            </button>
           </div>
           <div class="panel-content">
             <div id="regionDialectsContainerModal"></div>
@@ -2443,6 +2477,10 @@ document.addEventListener('click', function (e) {
 });
 // 초기 상태: 전체 탭 기준으로 어휘 목록 제한 적용 + 음운 인덱스 로드
 document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeMapModal();
+  });
+  setTimeout(function () { if (typeof updateMapWithSearchResults === 'function') updateMapWithSearchResults(); }, 80);
   const active = document.querySelector('.tab-bar .tab.on') || document.querySelector('.tab-bar .tab');
   if (active) setTab(active);
   loadPhonoIndex().then(function () {
@@ -2988,11 +3026,17 @@ let lastTopStandards = null;
 
 // 지도 모달 컨트롤러 — 독립된 OpenLayers 인스턴스를 보유
 const modalMapCtx = {
-  map: null, markerLayer: null, selectedRegion: null, handlersBound: false,
+  map: null, markerLayer: null, selectedRegion: null, hoverRegion: null, handlersBound: false,
   mapId: 'vocabMapModal',
   panelId: 'regionDetailPanelModal', titleId: 'regionPanelTitleModal', containerId: 'regionDialectsContainerModal',
   legendTextSel: '#mapModalOverlay .map-legend-text'
 };
+
+const NK_SIDO = ['함경북도', '함경남도', '평안북도', '평안남도', '황해북도', '황해남도',
+                 '자강도', '량강도', '평양시', '남포시', '라선시', '개성시'];
+function hasNorthRegions() {
+  return Object.keys(lastRegionData || {}).some(r => NK_SIDO.indexOf(r) !== -1);
+}
 
 // 시도별 좌표 (경도, 위도)
 const provinceCoords = {
@@ -3104,40 +3148,50 @@ function updateMapLegend(ctx, regionData, colorMap, topStandards) {
 }
 
 function drawRegionMarkers(ctx, regionData, colorMap, topStandards) {
-  if (ctx.markerLayer && ctx.map) ctx.map.removeLayer(ctx.markerLayer);
+  if (ctx.markerLayer && ctx.map) {
+    ctx.map.removeLayer(ctx.markerLayer);
+    ctx.markerLayer = null;
+  }
+  if (!ctx.map || !window.KOREA_PROVINCES) return;
 
-  const features = [];
-  Object.entries(regionData).forEach(([region, standards]) => {
-    const coord = provinceCoords[region];
-    if (!coord) return;
-
-    const regionTopStandards = topStandards.filter(std => std in standards);
-    const hasOther = Object.keys(standards).some(std => !topStandards.includes(std));
-
-    let color;
-    if (regionTopStandards.length === 1 && !hasOther) {
-      color = colorMap[regionTopStandards[0]];
-    } else if (regionTopStandards.length > 1 || (regionTopStandards.length === 1 && hasOther)) {
-      color = '#9ca3af'; // 혼재색
-    } else if (hasOther) {
-      color = colorMap['기타'] || '#d1d5db';
-    }
-
-    features.push(new ol.Feature({
-      geometry: new ol.geom.Circle(ol.proj.fromLonLat(coord), 45000),
-      region: region,
-      standards: standards,
-      color: color
-    }));
+  const hexRgba = (hex, a) => (window.KoreaMap && KoreaMap.hexToRgba) ? KoreaMap.hexToRgba(hex, a) : hex;
+  const source = new ol.source.Vector();
+  const feats = new ol.format.GeoJSON().readFeatures(window.KOREA_PROVINCES, {
+    dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'
+  });
+  const nameCount = {};
+  window.KOREA_PROVINCES.features.forEach(p => {
+    const n = p.properties && p.properties.name;
+    if (n) nameCount[n] = (nameCount[n] || 0) + 1;
   });
 
+  feats.forEach(f => {
+    const name = f.get('name');
+    const isNorth = f.get('region') === 'KP';
+    if (nameCount[name] > 1 && isNorth) return;
+    const standards = regionData[name];
+    if (!standards) return;
+    f.set('region', name);
+    f.set('standards', standards);
+    source.addFeature(f);
+  });
+
+  const GRAY = '#9ca3af', RED = '#ef4444';
   ctx.markerLayer = new ol.layer.Vector({
-    source: new ol.source.Vector({ features: features }),
+    source: source,
+    zIndex: 2,
     style: function(feature) {
-      const isSelected = feature.get('region') === ctx.selectedRegion;
+      const region = feature.get('region');
+      const isSelected = region === ctx.selectedRegion;
+      const isHover = region === ctx.hoverRegion;
+      const active = isSelected || isHover;
+      const c = active ? RED : GRAY;
       return new ol.style.Style({
-        fill: new ol.style.Fill({ color: feature.get('color') }),
-        stroke: new ol.style.Stroke({ color: isSelected ? '#1e40af' : '#ffffff', width: isSelected ? 4 : 2 })
+        fill: new ol.style.Fill({ color: hexRgba(c, active ? 0.75 : 0.5) }),
+        stroke: new ol.style.Stroke({
+          color: isSelected ? '#b91c1c' : hexRgba(c, isHover ? 0.95 : 0.85),
+          width: isSelected ? 2.5 : (isHover ? 1.8 : 1.2)
+        })
       });
     }
   });
@@ -3147,12 +3201,21 @@ function drawRegionMarkers(ctx, regionData, colorMap, topStandards) {
 
   if (!ctx.handlersBound) {
     ctx.map.on('click', function(evt) {
-      const feature = ctx.map.forEachFeatureAtPixel(evt.pixel, f => f, { layerFilter: l => l === ctx.markerLayer });
+      const feature = ctx.map.forEachFeatureAtPixel(evt.pixel, function(f) {
+        return f;
+      }, { layerFilter: l => l === ctx.markerLayer });
       if (feature) selectRegion(ctx, feature.get('region'), feature.get('standards'));
       else closeRegionPanel(ctx);
     });
     ctx.map.on('pointermove', function(evt) {
-      const feature = ctx.map.forEachFeatureAtPixel(evt.pixel, f => f, { layerFilter: l => l === ctx.markerLayer });
+      const feature = ctx.map.forEachFeatureAtPixel(evt.pixel, function(f) {
+        return f;
+      }, { layerFilter: l => l === ctx.markerLayer });
+      const region = feature ? feature.get('region') : null;
+      if (region !== ctx.hoverRegion) {
+        ctx.hoverRegion = region;
+        if (ctx.markerLayer) ctx.markerLayer.changed();
+      }
       if (feature) {
         showRegionTooltip(evt, feature);
         ctx.map.getTargetElement().style.cursor = 'pointer';
@@ -3312,7 +3375,7 @@ function renderCtxMapData(ctx) {
 function initVocabMap(ctx) {
   if (ctx.map) return;
 
-  if (!window.ol || !window.ol.Map) {
+  if (!window.ol || !window.ol.Map || !window.KoreaMap || !window.KOREA_PROVINCES) {
     setTimeout(() => initVocabMap(ctx), 100);
     return;
   }
@@ -3321,11 +3384,11 @@ function initVocabMap(ctx) {
   if (!mapElement) { console.error(ctx.mapId + ' element not found'); return; }
 
   try {
-    ctx.map = new ol.Map({
-      target: ctx.mapId,
-      layers: [ new ol.layer.Tile({ source: new ol.source.OSM() }) ],
-      view: new ol.View({ center: ol.proj.fromLonLat([127.0, 37.5]), zoom: 7 })
+    ctx.map = KoreaMap.create(ctx.mapId, {
+      center: hasNorthRegions() ? [127.6, 39.2] : [127.0, 37.5],
+      zoom: hasNorthRegions() ? 6.05 : 7
     });
+    if (!ctx.map) throw new Error('KoreaMap.create() returned null');
     setTimeout(() => {
       if (ctx.map) { ctx.map.updateSize(); ctx.map.renderSync(); renderCtxMapData(ctx); }
     }, 150);
@@ -3346,6 +3409,12 @@ function openMapModal(word) {
   overlay.classList.add('show');
 
   if (!lastRegionData) updateMapWithSearchResults();
+
+  if (lastRegionData) {
+    const firstRegion = Object.keys(lastRegionData)[0];
+    if (firstRegion) selectRegion(modalMapCtx, firstRegion, lastRegionData[firstRegion]);
+  }
+
   initVocabMap(modalMapCtx);
 
   setTimeout(() => {

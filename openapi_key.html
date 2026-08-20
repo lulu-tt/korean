@@ -505,6 +505,14 @@
     toast._t = setTimeout(function () { el.classList.remove('show'); }, 2200);
   }
 
+  function currentUsid() {
+    try {
+      var s = JSON.parse(localStorage.getItem('myMap.sessionUser') || 'null');
+      if (s && (s.id || s.usid)) return String(s.id || s.usid);
+    } catch (e) {}
+    return DEMO_USER;
+  }
+
   function loadState() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
@@ -624,17 +632,37 @@
       $('apiPurpose').focus();
       return;
     }
-    var data = {
-      userId: DEMO_USER,
-      apiKey: genKey(),
-      apiUrl: url,
-      apiPurpose: purpose,
-      apiDt: Date.now()
-    };
-    saveState(data);
-    toast('API 인증 키가 발급되었습니다.');
-    render();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    var btn = $('btnIssue');
+    if (btn) btn.disabled = true;
+    fetch('/api/openapi/issue', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        usid: currentUsid(),
+        apiUrl: url,
+        apiPurpose: purpose
+      })
+    }).then(function (r) { return r.json(); }).then(function (res) {
+      if (!res || res.status !== 'success' || !res.data || !res.data.apiKey) {
+        toast((res && res.message) || '인증키 발급에 실패했습니다.');
+        return;
+      }
+      var data = {
+        userId: res.data.usid || currentUsid(),
+        apiKey: res.data.apiKey,
+        apiUrl: res.data.apiUrl || url,
+        apiPurpose: res.data.apiPurpose || purpose,
+        apiDt: res.data.apiDt || Date.now()
+      };
+      saveState(data);
+      toast(res.already ? '이미 발급된 인증키가 있습니다.' : 'API 인증 키가 발급되었습니다.');
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }).catch(function () {
+      toast('인증키 발급 중 오류가 발생했습니다.');
+    }).finally(function () {
+      if (btn) btn.disabled = false;
+    });
   };
 
   window.copyKey = function () {
@@ -663,7 +691,23 @@
     document.body.removeChild(ta);
   }
 
-  document.addEventListener('DOMContentLoaded', render);
+  document.addEventListener('DOMContentLoaded', function () {
+    fetch('/api/openapi/mine?usid=' + encodeURIComponent(currentUsid()))
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (res && res.data && res.data.apiKey) {
+          saveState({
+            userId: res.data.usid || currentUsid(),
+            apiKey: res.data.apiKey,
+            apiUrl: res.data.apiUrl || '',
+            apiPurpose: res.data.apiPurpose || '',
+            apiDt: res.data.apiDt || Date.now()
+          });
+        }
+      })
+      .catch(function () {})
+      .finally(render);
+  });
 })();
 </script>
 </body>

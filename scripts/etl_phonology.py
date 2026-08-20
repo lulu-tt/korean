@@ -231,17 +231,51 @@ def iter_sheet_rows(path: Path, sheet_name: str = SHEET_NAME):
     return gen
 
 
+def sheet_names_of(path: Path) -> list[str]:
+    suf = path.suffix.lower()
+    try:
+        if suf == ".xlsx":
+            if openpyxl is None:
+                return []
+            wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
+            names = list(wb.sheetnames)
+            wb.close()
+            return names
+        if suf == ".xls":
+            if xlrd is None:
+                return []
+            return list(xlrd.open_workbook(str(path)).sheet_names())
+    except Exception:
+        return []
+    return []
+
+
+def resolve_sheet_name(path: Path, sheet_name: str = SHEET_NAME) -> str:
+    """
+    대상 시트 결정. 통합자료 원본은 '음운' 정확 일치.
+    일괄등록 서식처럼 '③응답(음운)' 등으로 이름이 확장된 경우도 받아들인다.
+    """
+    names = sheet_names_of(path)
+    if not names or sheet_name in names:
+        return sheet_name
+    for n in names:
+        if sheet_name in n:
+            return n
+    return sheet_name
+
+
 def parse_phonology_sheet(path: Path) -> dict:
     """
     한 파일의 음운 시트 → 구조화 결과.
     returns dict with keys: ok, error, header_row, site_headers, rows, stats
     """
     prov_code, prov_name = detect_province(path.name)
-    gen = iter_sheet_rows(path, SHEET_NAME)
+    target_sheet = resolve_sheet_name(path)
+    gen = iter_sheet_rows(path, target_sheet)
     if gen is None:
         return {
             "ok": False,
-            "error": f"시트 '{SHEET_NAME}' 없음 또는 형식 미지원",
+            "error": f"시트 '{target_sheet}' 없음 또는 형식 미지원",
             "source_file": path.name,
             "province_code": prov_code,
             "province_name": prov_name,

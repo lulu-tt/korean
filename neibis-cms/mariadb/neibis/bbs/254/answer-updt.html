@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 		<meta name="format-detection" content="telephone=no" />
-		<title id="neibisTopTitle">사이트별 운영관리 | 지역어 종합 정보 | 알림마당 | 의견제시 | 등록</title>
+		<title id="neibisTopTitle">사이트별 운영관리 | 지역어 종합 정보 | 알림마당 | 의견제시 | 수정</title>
 		<link rel="shortcut icon" href="../../../../mariadb/assets/neibis/images/favicon.png" />
 		<link rel="stylesheet" href="../../../../mariadb/assets/neibis/css/style.css" />
 		<link rel="stylesheet" href="../../../../mariadb/assets/neibis/css/board-attach-ext.css" />
@@ -156,7 +156,16 @@
 			});
 			;
 		</script>
-	</head>
+	<style>
+/* 정적 프로토타입 CSS가 폼 내부 요소에 visibility:hidden 을 걸어 두어 보정한다 */
+#ans-form, #ans-form * { visibility: visible !important; }
+#ans-form .table-inner { overflow-x: auto; }
+#ans-form .table-inner > table { width: 100%; min-width: 900px; table-layout: fixed; }
+#ans-form td { word-break: break-word; }
+#a-question { width: 100%; max-width: none; }
+#ansCn { width: 100% !important; }
+</style>
+</head>
 	<body class="layout-type-sub">
 	<input type="hidden" id="_setToken" value=""/>
 		<div class="loadingbar">
@@ -382,20 +391,6 @@
 									<i class="ico ico-earth-md"></i>
 									<span>사이트 관리</span>
 								</div>
-								<form action="#;" class="site-search">
-									<fieldset>
-										<legend class="sr-only">사이트 검색</legend>
-										<input
-											type="text" name="siteSearchKeyword" id="siteSearchKeyword"
-											class="form-control"
-											placeholder="사이트를 검색해 주세요"
-											title="사이트를 검색해 주세요"
-										/>
-										<button type="button" class="btn-search" id="siteSearchBtn">
-											<i class="ico ico-search-gray-sm"></i><span class="sr-only">검색</span>
-										</button>
-									</fieldset>
-								</form>
 								<nav class="site-menu">
 									<ul class="site-list">
 										<li data-level="1" class="on">
@@ -559,7 +554,6 @@
 									<li>지역어 종합 정보</li>
 									<li>알림마당</li>
 									<li>의견제시</li>
-									<li>등록</li>
 								</ol>
 							</div>
 							<div class="content-title">
@@ -567,7 +561,7 @@
 									<p id="tooltip_p"></p>
 									<div class='btn-group' id="tooltip_btn"></div>
 								</div>
-								<h2 class="title">의견제시 등록</h2>
+								<h2 class="title">의견제시 답변 수정</h2>
 								<button type="button" id="favorit-add-button" class="btn-favorit">
 									<i class="ico ico-favorit"></i>
 									<span class="sr-only">즐겨찾기</span>
@@ -584,65 +578,155 @@
 
 <!-- 본문 영역 -->
 
-					<form id="save-form" action="list.do" onsubmit="return false;" method="post">
+					<form id="updt-form" action="list.do" onsubmit="return false;" method="post">
 						<input type="hidden" id="bbsId" value="qna"/>
+						<input type="hidden" id="pstSn" value="60"/>
 						<div class="card">
 							<div class="table table-row">
 								<div class="table-inner">
 									<table>
-										<caption class="sr-only">의견제시 등록</caption>
+										<caption class="sr-only">의견제시 답변 수정</caption>
 										<tbody>
 											<tr>
 												<th scope="row"><label>게시여부 <i class="req">필수입력</i></label></th>
 												<td>
 													<label class="check-item"><input type="radio" name="dataSttsCd" value="A" checked /><span class="label">게시</span></label>
-													<label class="check-item"><input type="radio" name="dataSttsCd" value="H" /><span class="label">미게시</span></label>
+													<label class="check-item"><input type="radio" name="dataSttsCd" value="H"  /><span class="label">미게시</span></label>
 												</td>
 												<th scope="row"><label for="categoryCode">분류 <i class="req">필수입력</i></label></th>
 												<td>
 													<select id="categoryCode" name="categoryCode" class="form-control-sm" style="width:100%;max-width:220px">
-														<option value="usage">이용 문의</option>
-														<option value="improvement">개선 요청</option>
-														<option value="disability">장애 신고</option>
-														<option value="inaccuracy">오류 신고</option>
-														<option value="other">기타</option>
+														<!-- 분류 목록은 load() 에서 tb_code_detail 값으로 채운다 -->
 													</select>
 												</td>
 											</tr>
 											<tr>
+												<th scope="row"><label for="strRegDt">등록일시</label></th>
+												<td>
+													<input type="text" id="strRegDt" class="form-control-sm" style="width:180px" readonly />
+												</td>
+												<th scope="row"><label for="strMdfcnDt">수정일시</label></th>
+												<td>
+													<input type="text" id="strMdfcnDt" class="form-control-sm" style="width:180px" readonly />
+												</td>
+											</tr>
+											<tr>
+												<th scope="row"><span>등록자</span></th>
+												<td colspan="3"><input type="text" id="userNm" class="form-control full" readonly /></td>
+											</tr>
+											<tr>
 												<th scope="row"><label for="ttl">제목 <i class="req">필수입력</i></label></th>
-												<td colspan="3"><input type="text" id="ttl" class="form-control full" placeholder="제목 입력" required /></td>
+												<td colspan="3"><input type="text" id="ttl" class="form-control full" readonly /></td>
 											</tr>
 										</tbody>
 									</table>
 								</div>
 							</div>
-							<div class="html-editor-area">
-								<h4 class="title1 mt-10 mb-3">내용</h4>
-								<textarea class="form-control full" id="pstCn" name="pstCn" rows="12" style="min-height:200px;width:100%" placeholder="내용을 입력하세요."></textarea>
-							</div>
+							<style>
+/* 정적 프로토타입 웹에디터 (실제 neibis 리치에디터 형태 재현) */
+.html-editor-body{ position:static !important; height:auto !important; min-height:0 !important; }
+.html-editor-body .codes-area, .html-editor-body .webeditor-area{ position:static !important; visibility:visible !important; height:auto !important; }
+.html-editor-body .form-code.html-code{ visibility:visible !important; display:block !important; width:100%; min-height:300px; border:1px solid #cbd5e1; border-radius:10px; padding:14px; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; line-height:1.6; }
+.we-wrap{ border:1px solid #cbd5e1; border-radius:10px; overflow:hidden; background:#fff; }
+.we-toolbar{ display:flex; flex-wrap:wrap; align-items:center; gap:2px; padding:8px 10px; background:#f1f5f9; border-bottom:1px solid #e2e8f0; }
+.we-toolbar .we-btn{ min-width:30px; height:30px; padding:0 6px; border:none; background:transparent; border-radius:6px; color:#334155; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:15px; line-height:1; }
+.we-toolbar .we-btn:hover{ background:#e2e8f0; }
+.we-toolbar .we-btn.txt{ font-size:13px; font-weight:700; }
+.we-toolbar .we-sep{ width:1px; height:20px; background:#cbd5e1; margin:0 4px; }
+.we-toolbar .we-right{ margin-left:auto; }
+.we-toolbar .we-preview{ display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border:1px solid #cbd5e1; border-radius:8px; background:#fff; font-size:13px; color:#475569; cursor:pointer; }
+.we-body{ min-height:320px; max-height:600px; overflow:auto; padding:18px 20px; line-height:1.8; color:#111827; outline:none; }
+.we-body p{ margin:0 0 10px; }
+</style>
+<div class="html-editor-area">
+	<h4 class="title1 mt-10 mb-3">내용</h4>
+	<div class="html-editor-header">
+		<nav class="tabmenu tabmenu-type2">
+			<ul class="tab-list type2" id="edtrSeCd">
+				<li data-value="2"><a href="javascript:void(0);" onclick="codeToggleTabs()"><span>코드로 수정</span></a></li>
+				<li class="on" data-value="3"><a href="javascript:void(0);" onclick="webeditorToggleTabs()"><span>웹 에디터로 수정</span></a></li>
+			</ul>
+		</nav>
+	</div>
+	<div class="html-editor-body">
+		<div class="codes-area" style="display:none;">
+			<textarea class="form-code html-code" name="pstCn" id="pstCn"></textarea>
+		</div>
+		<div class="webeditor-area">
+			<div class="we-wrap">
+				<div class="we-toolbar"><button type="button" class="we-btn" title="실행취소" onclick="weCmd('undo')">↶</button><button type="button" class="we-btn" title="다시실행" onclick="weCmd('redo')">↷</button><span class="we-sep"></span><button type="button" class="we-btn txt" title="제목1" onclick="weBlock('H1')">제목1</button><button type="button" class="we-btn txt" title="제목2" onclick="weBlock('H2')">제목2</button><button type="button" class="we-btn txt" title="제목3" onclick="weBlock('H3')">제목3</button><span class="we-sep"></span><button type="button" class="we-btn" style="font-weight:800" title="굵게" onclick="weCmd('bold')">B</button><button type="button" class="we-btn" style="font-style:italic" title="기울임" onclick="weCmd('italic')">I</button><button type="button" class="we-btn" style="text-decoration:underline" title="밑줄" onclick="weCmd('underline')">U</button><button type="button" class="we-btn" style="text-decoration:line-through" title="취소선" onclick="weCmd('strikeThrough')">S</button><span class="we-sep"></span><button type="button" class="we-btn" title="글머리 기호" onclick="weCmd('insertUnorderedList')">•</button><button type="button" class="we-btn" title="번호 매기기" onclick="weCmd('insertOrderedList')">1.</button><span class="we-sep"></span><button type="button" class="we-btn" title="왼쪽 정렬" onclick="weCmd('justifyLeft')">⯇</button><button type="button" class="we-btn" title="가운데 정렬" onclick="weCmd('justifyCenter')">≡</button><button type="button" class="we-btn" title="오른쪽 정렬" onclick="weCmd('justifyRight')">⯈</button><span class="we-sep"></span><button type="button" class="we-btn" title="링크" onclick="weLink()">🔗</button><button type="button" class="we-btn" title="표" onclick="weStub('표 삽입')">▦</button><button type="button" class="we-btn" title="이미지" onclick="weStub('이미지 삽입')">🖼</button><button type="button" class="we-btn" title="이모지" onclick="weStub('이모지')">🙂</button><span class="we-right"><button type="button" class="we-preview" onclick="weStub('기기별 미리보기')">기기별 미리보기 ▾</button></span></div>
+				<div id="pstCnWysiwyg" class="we-body" contenteditable="true"></div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="ans-form">
+	<h4 class="title1 mt-10 mb-3">답변</h4>
+	<div class="table table-col">
+		<div class="table-inner">
+			<table>
+				<caption class="sr-only">의견제시 답변</caption>
+				<colgroup><col style="width:160px"><col><col style="width:160px"><col></colgroup>
+				<tbody>
+					<tr>
+						<th scope="row"><span>답변 상태</span></th>
+						<td colspan="3" id="a-state">-</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="ansWriterNm">답변 작성자</label></th>
+						<td><input type="text" id="ansWriterNm" class="form-control-sm" style="width:260px" placeholder="작성자 아이디" /></td>
+						<th scope="row"><label for="ansRegDt">답변 등록일시</label></th>
+						<td><input type="text" id="ansRegDt" class="form-control-sm form-datepicker" style="width:180px" title="답변 등록일시 선택" placeholder="YYYY.MM.DD" /></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="ansEditorNm">답변 수정자</label></th>
+						<td><input type="text" id="ansEditorNm" class="form-control-sm" style="width:260px" placeholder="수정자 아이디" /></td>
+						<th scope="row"><label for="ansMdfcnDt">답변 수정일시</label></th>
+						<td><input type="text" id="ansMdfcnDt" class="form-control-sm form-datepicker" style="width:180px" title="답변 수정일시 선택" placeholder="YYYY.MM.DD" /></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="ansCn">답변 내용 <i class="req">필수입력</i></label></th>
+						<td colspan="3">
+							<textarea id="ansCn" class="form-control" style="width:100%;min-height:320px;padding:12px;line-height:1.8" placeholder="답변 내용을 입력하세요."></textarea>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
 							<div class="btn-group-between">
 								<div class="left">
 									<a href="list.do" class="btn btn-lg btn-outline-gray"><i class="ico ico-chevron-left-gray-md"></i><span>목록</span></a>
 								</div>
 								<div class="right">
-									<button type="button" class="btn btn-lg btn-primary" onclick="saveNew()"><i class="ico ico-save-white-md"></i><span>저장</span></button>
+									<button type="button" class="btn btn-lg btn-gray" onclick="if(confirm('삭제하시겠어요?')) location.href='list.do';"><i class="ico ico-trash-white-md"></i><span>삭제</span></button>
+									<button type="button" class="btn btn-lg btn-primary-soft save-button" onclick="saveUpdt()"><i class="ico ico-pen-primary-md"></i><span>수정</span></button>
 								</div>
 							</div>
 						</div>
 					</form>
 <script>
-function saveNew(){
+
+// 정적 웹에디터: 서식 명령 / 코드<->웹에디터 토글 & 동기화
+function weStub(nm){ if(window.Message){Message.alert({icon:'info',message:'['+nm+'] 정적 프로토타입 기능입니다.'});}else{alert(nm);} }
+function weCmd(c,v){ try{document.execCommand(c,false,v||null);}catch(e){} var w=document.getElementById('pstCnWysiwyg'); if(w) w.focus(); }
+function weBlock(t){ weCmd('formatBlock', t); }
+function weLink(){ var u=prompt('링크 URL을 입력하세요','https://'); if(u) weCmd('createLink', u); }
+window.codeToggleTabs=function(){ var w=document.getElementById('pstCnWysiwyg'); if(w){ $('#pstCn').val(w.innerHTML); } $('.codes-area').show(); $('.webeditor-area').hide(); $('#edtrSeCd li').removeClass('on').filter('[data-value="2"]').addClass('on'); };
+window.webeditorToggleTabs=function(){ var w=document.getElementById('pstCnWysiwyg'); if(w){ w.innerHTML=$('#pstCn').val(); } $('.codes-area').hide(); $('.webeditor-area').show(); $('#edtrSeCd li').removeClass('on').filter('[data-value="3"]').addClass('on'); };
+$(function(){ webeditorToggleTabs(); });
+
+function saveUpdt(){
 	if(!$('#ttl').val().trim()){ alert('제목을 입력해주세요.'); return $('#ttl').focus(); }
 	if(window.Message){
-		Message.confirm({icon:'warning', title:'저장하시겠어요?', message:'정적 프로토타입입니다.'}, function(){ location.href='list.do'; });
-	} else if(confirm('저장하시겠어요?')){ location.href='list.do'; }
+		Message.confirm({icon:'warning', title:'수정하시겠어요?', message:'정적 프로토타입입니다.'}, function(){ location.href='detail.do'; });
+	} else if(confirm('수정하시겠어요?')){ location.href='detail.do'; }
 }
 </script>
 
 <!-- // 본문 영역 -->
-<form id="list-form" action="list.do" method="post">
-						<input type="hidden" name="bbsId" value="20260416141311"/>
+<form id="list-form" action="list.do" onsubmit="return false;" method="post">
 						<input type="hidden" name="pageIndex" value="1"/>
 						<input type="hidden" name="pageItm" value="10"/>
 						<input type="hidden" name="searchOrderSort" value="0"/>
@@ -650,34 +734,33 @@ function saveNew(){
 </form>
 <!-- 공통 스크립트 -->
 <script>
+
 var value = new NeibisValidWrapper();
 var htmlEditorOvrvwCn;
+
 $(function () {
-	ActionInit.click(".list-button",listAction);
-	$(".cancel-button").on("click", function(e){
-			e.preventDefault();
-			Message.confirm({icon:"warning", title:"목록으로 이동하시겠어요?", message:"입력한 내용은 저장되지 않습니다."}, function(){
-				location.href = "list.do";
-			});
-		});
-	ActionInit.click(".save-button", function(){
-			var ttl = ($("#ttl").val()||"").trim();
-			if(!ttl){ Message.alert({icon:"warning", message:"제목을 입력해주세요."}); return $("#ttl").focus(); }
-			Message.confirm({icon:"warning", title:"저장하시겠어요?", message:"정적 프로토타입입니다. 실제 저장은 수행되지 않습니다."}, function(){
-				location.href = "list.do";
-			});
-		});
+	$(".list-button").on("click", function(e){ e.preventDefault(); location.href="list.do"; });
+	$(".save-button").on("click", function(){
+		var ttl=($("#ttl").val()||"").trim();
+		if(!ttl){ Message.alert({icon:"warning",message:"제목을 입력해주세요."}); return $("#ttl").focus(); }
+		Message.confirm({icon:"warning", title:"저장하시겠어요?", message:"정적 프로토타입입니다."}, function(){ location.href="detail.do"; });
+	});
 	ActionInit.click("#search-adres-button",adresPopup);
 	ActionInit.click("input[name=ntcYn]",ntcYnClickProc,this);
 	ActionInit.click("#ntcDtResetBtn",ntcDtReset);
 	value.init();
-	$('.list-button').attr('onclick', '');
+	$(".delete-button").on("click", function(){
+		Message.confirm({icon:"warning", title:"게시물을 삭제합니다", message:"그래도 삭제 하시겠어요?"}, function(){
+			Message.alert({icon:"info", message:"정적 프로토타입입니다."}, function(){ location.href="list.do"; });
+		});
+	});
 
+	$('.list-button').attr('onclick', '');
 	setBbsAtchFilePrmsnExtnNm();
 });
 
 function setBbsAtchFilePrmsnExtnNm(){
-	var filePrmsnExtnNm =  ".gif,.bmp,.jpg,.png,.jpeg,.svg,.mp4,.wmv,.avi,.hwp,.hwpx,.doc,.docx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";
+	var filePrmsnExtnNm =  ".gif,.bmp,.jpg,.png,.jpeg,.svg,.mp4,.wmv,.avi,.hwp,.hwpx,.doc,.docx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif"
 	if(filePrmsnExtnNm != ""){
 		window.ACCEPTED_FILES  = filePrmsnExtnNm;
 	}
@@ -745,13 +828,14 @@ const listAction = function(e){
         title: "작성중인 내용이 사라져요",
         message: "그래도 초기화 하시겠어요?"
     },function(){
+    	console.log("listAction");
     	$("#list-form").attr("action","list.do").submit();
     });
 }
 
 const saveAction = function(){
 	$(".text-invalid").remove();
-	formInputAttPassword("save-form");
+	formInputAttPassword("updt-form");
 	htmlEditorOvrvwCn?.save();
 
 	    $("#pstCn").val(window.htmlCentralData.html);
@@ -759,23 +843,25 @@ const saveAction = function(){
 		return;
 	    }
 
-	var valid = value.valid("save-form");
+	var valid = value.valid("updt-form");
 	if(!valid.result){
 		let validErr = validErrorCustom(valid);
 		return validErrorProc(validErr.id, validErr.msg);
 	}
 
 	if(false && checkPridValid(valid.data)) {
-		alert(
-			{
-			icon: "warning",
-			title: "날짜를 확인해 주세요",
-			message: "종료일이 시작일보다 먼저이면 안돼요."
-			},
-			function () {
-				return false;
-			}
-		);
+		if(false && checkPridValid(valid.data)) {
+			alert(
+				{
+				icon: "warning",
+				title: "날짜를 확인해 주세요",
+				message: "종료일이 시작일보다 먼저이면 안돼요."
+				},
+				function () {
+					return false;
+				}
+			);
+		}
 		return;
 	}
 
@@ -785,30 +871,23 @@ const saveAction = function(){
 
 	Message.confirm({
 		icon: "warning",
-		title: "저장하시겠어요?",
-		message: "저장하시려면 ‘확인’을 눌러주세요."
+		title: "수정하시겠어요?",
+		message: "수정하시려면 ‘확인’을 눌러주세요."
     },function(){
 		var param = valid.data;
 		if(fileTmprList.length > 0){
 			param.fileTmprList = fileTmprList;
 		}
-        param.edtrSeCd  = $("#edtrSeCd li.on").data("value");
-    	Ajax.post("/mariadb/neibis-api/v1/core/bbs?action=post",success,fail,{data:JSON.stringify(param)});
+		param.atchFileSnArr = atchFileSnArr;
+		param.edtrSeCd  = $("#edtrSeCd li.on").data("value");
+
+		Ajax.post("/mariadb/neibis-api/v1/core/bbs/22?action=put",success,fail,{data:JSON.stringify(param)});
     });
 }
 
-const cancelAction = function(e){
-	Message.confirm({
-		 	icon: "info",
-		 	title: "",
-		 	message: "등록을 취소하고 목록으로 돌아갑니다. 계속하시겠어요?"
-		 },function(){$("#list-form").attr("action","list.do").submit();});
-}
-
 const success = function(data){
-	console.log(data);
 	Message.success(data,function(){
-		location.href = 'detail.do?pageIndex=1&pageItm=10&searchOrderSort=0&searchGbn=0&pstSn='+data.data.pstSn;
+		location.href = 'detail.do?pageIndex=1&pageItm=10&searchOrderSort=0&searchGbn=0&pstSn=22'
 	});
 }
 
@@ -818,19 +897,24 @@ const fail = function(xhr, status, error){
 	})
 }
 
-const confirmSaveDeafaultDatas ={
-		icon: "warning",
-		title: "저장하시겠어요?",
-		message: "저장하시려면 ‘확인’을 눌러주세요."
-}
+setCkEditorUplodUrl("neibis","246");
+
 
 var thisMenuSn =  "246";
 var thisStieId = "neibis"
+var thisEdtrSecd = "3";
 
 	$(document).ready(function(){
+		if(thisEdtrSecd =='3'){
+			webeditorToggleTabs();
+		}else{
+			codeToggleTabs();
+		}
+
 		setCkEditorUplodUrl(thisStieId,thisMenuSn);
-		webeditorToggleTabs();
+		window.WebEditorPlugin.changeWebContentHtml($("#pstCn").val() || "");
 	});
+
 
 function validateNoticePeriod() {
 	const isNotice = $('input[name="ntcYn"]:checked').val() === 'Y';
@@ -862,6 +946,7 @@ function validateNoticePeriod() {
 	}
 	return true;
 }
+
 </script>
 <!-- 공통 스크립트 -->
 <!-- 개별 스크립트 -->
@@ -1238,5 +1323,105 @@ const getMngrFail = function (xhr, status, error) {
 }
 </script>
 
-	</body>
+	
+<script>
+/* 의견 제시 — 답변 등록·수정. tb_board_answer 를 갱신(없으면 신규 등록)한다. */
+(function () {
+  function esc(v){ return String(v==null?'':v).replace(/[&<>"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function qp(n){ var m=new RegExp('[?&]'+n+'=([^&]*)').exec(location.search);
+    return m?decodeURIComponent(m[1]):''; }
+  var postId = qp('postId');
+  var API = '../../../../mariadb/neibis-api';
+
+  /* 'YYYY-MM-DD' → 'YYYY.MM.DD' (캘린더 위젯 표기) */
+  function toDot(v){ return String(v||'').slice(0,10).replace(/-/g,'.'); }
+  /* 캘린더 위젯은 페이지 로드 시 .form-datepicker 에 한 번만 붙는다.
+     값을 나중에 채워도 되도록, 붙지 않은 입력에만 다시 붙인다. */
+  function ensureDatepicker($inp){
+    if(!$.fn.customDatepicker) return;
+    if($inp.parent('.datepicker').length) return;
+    $inp.customDatepicker();
+  }
+
+  /* selectToDropdown 이 만든 커스텀 드롭다운을 현재 option 기준으로 재생성한다. */
+  function rebuildDropdown($sel){
+    if(!$.fn.selectToDropdown){ $sel.trigger('change'); return; }
+    $sel.next('.dropdown').remove();
+    $sel.attr('style', 'width:100%;max-width:220px');
+    $sel.selectToDropdown();
+  }
+
+  /* 이 화면은 답변만 저장한다. 질문 정보 영역은 DB 값을 그대로 보여 주기만 한다. */
+  function fillQuestionFields(p, cats){
+    var $sel = $('#categoryCode');
+    $sel.empty();
+    $.each(cats || {}, function (code, name) {
+      $sel.append($('<option>').attr('value', code).text(name));
+    });
+    // 목록에 없는 코드가 들어 있어도 값이 사라지지 않게 한다
+    if (p.categoryCode && !$sel.find('option[value="' + p.categoryCode + '"]').length) {
+      $sel.append($('<option>').attr('value', p.categoryCode).text(p.categoryName || p.categoryCode));
+    }
+    $sel.val(p.categoryCode).prop('disabled', true);
+    rebuildDropdown($sel);
+
+    $('input[name=dataSttsCd]').prop('checked', false).prop('disabled', true);
+    $('input[name=dataSttsCd]').eq(p.useYn === 'N' ? 1 : 0).prop('checked', true);
+    $('#strRegDt').val(p.createDt || '');
+    $('#strMdfcnDt').val(p.updateDt || p.createDt || '');
+    $('#userNm').val(p.username ? (p.username + ' (' + p.createId + ')') : p.createId);
+    $('#ttl').val(p.title || '');
+    $('#pstCn').val(p.content || '');
+    if (typeof webeditorToggleTabs === 'function') webeditorToggleTabs();
+    $('#pstCnWysiwyg').attr('contenteditable', 'false');
+    $('#pstCn').prop('readonly', true);
+  }
+
+  function load(){
+    if(!postId){ alert('postId 가 없습니다.'); return; }
+    $('#pstSn').val(postId);
+    $.getJSON(API+'/board/post/detail?postId='+encodeURIComponent(postId), function(d){
+      if(!d || !d.ok){ alert((d&&d.message)||'글을 불러오지 못했습니다.'); return; }
+      var p = d.post, a = d.answer;
+      fillQuestionFields(p, d.categories);
+      if(a){
+        $('#a-state').html('답변완료');
+        $('#ansWriterNm').val(a.createId || '');
+        $('#ansRegDt').val(toDot(a.createDt));
+        $('#ansEditorNm').val(a.updateId || '');
+        $('#ansMdfcnDt').val(toDot(a.updateDt));
+        $('#ansCn').val(a.content || '');
+      } else {
+        $('#a-state').html('<span style="color:#c0281c;font-weight:700">미답변</span>');
+      }
+      ensureDatepicker($('#ansRegDt'));
+      ensureDatepicker($('#ansMdfcnDt'));
+    });
+  }
+
+  window.saveUpdt = function(){
+    var content = ($('#ansCn').val()||'').trim();
+    if(!content){ alert('답변 내용을 입력해 주세요.'); $('#ansCn').focus(); return; }
+    if(!confirm('답변을 저장할까요?')) return;
+    $.ajax({
+      url: API+'/board/answer/save', type:'post', dataType:'json', contentType:'application/json',
+      data: JSON.stringify({
+        postId: postId,
+        content: content,
+        writerId: $('#ansWriterNm').val() || '',
+        createDt: $('#ansRegDt').val() || '',
+        editorId: ($('#ansEditorNm').val() || 'admin'),
+        updateDt: $('#ansMdfcnDt').val() || ''
+      })
+    }).done(function(r){
+      alert((r&&r.message) || '저장했습니다.');
+      if(r&&r.ok) location.href = 'detail.html?postId='+encodeURIComponent(postId);
+    }).fail(function(){ alert('저장에 실패했습니다.'); });
+  };
+
+  $(load);
+})();
+</script>
+</body>
 </html>

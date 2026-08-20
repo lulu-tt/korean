@@ -156,7 +156,12 @@
 			});
 			;
 		</script>
-	</head>
+	<style>
+/* 정적 프로토타입 CSS 보정 — 주입한 편집 영역이 숨거나 좁아지지 않게 한다 */
+#pstCnArea { visibility: visible !important; width: 100% !important; min-width: 600px; }
+.editor-wrap { visibility: visible !important; overflow-x: auto; }
+</style>
+</head>
 	<body class="layout-type-sub">
 	<input type="hidden" id="_setToken" value=""/>
 		<div class="loadingbar">
@@ -601,23 +606,23 @@
 												<th scope="row"><label for="categoryCode">분류 <i class="req">필수입력</i></label></th>
 												<td>
 													<select id="categoryCode" name="categoryCode" class="form-control-sm" style="width:100%;max-width:220px">
-														<option value="usage" selected>이용 문의</option><option value="improvement">개선 요청</option><option value="disability">장애 신고</option><option value="inaccuracy">오류 신고</option><option value="other">기타</option>
+														<!-- 분류 목록은 load() 에서 tb_code_detail 값으로 교체된다 (아래는 로딩 전 임시 표기) -->
 													</select>
 												</td>
 											</tr>
 											<tr>
 												<th scope="row"><label for="strRegDt">등록일시</label></th>
 												<td>
-													<input type="text" id="strRegDt" class="form-control-sm" style="width:180px" value="2024.06.23" readonly />
+													<input type="text" id="strRegDt" class="form-control-sm form-datepicker" style="width:180px" title="등록일시 선택" placeholder="YYYY.MM.DD" />
 												</td>
 												<th scope="row"><label for="strMdfcnDt">수정일시</label></th>
 												<td>
-													<input type="text" id="strMdfcnDt" class="form-control-sm" style="width:180px" value="2024.06.23" readonly />
+													<input type="text" id="strMdfcnDt" class="form-control-sm form-datepicker" style="width:180px" title="수정일시 선택" placeholder="YYYY.MM.DD" />
 												</td>
 											</tr>
 											<tr>
 												<th scope="row"><span>등록자</span></th>
-												<td colspan="3"><input type="text" id="userNm" class="form-control full" value="spmizuno" /></td>
+												<td colspan="3"><input type="text" id="userNm" class="form-control full" readonly /></td>
 											</tr>
 											<tr>
 												<th scope="row"><label for="ttl">제목 <i class="req">필수입력</i></label></th>
@@ -1293,5 +1298,95 @@ const getMngrFail = function (xhr, status, error) {
 }
 </script>
 
-	</body>
+	
+<script>
+/* 의견 제시 — 질문(원글) 수정. tb_board_post 를 갱신한다. */
+(function () {
+  function qp(n){ var m=new RegExp('[?&]'+n+'=([^&]*)').exec(location.search);
+    return m?decodeURIComponent(m[1]):''; }
+  var postId = qp('postId');
+  var API = '../../../../mariadb/neibis-api';
+
+  /* 'YYYY-MM-DD' → 'YYYY.MM.DD' (캘린더 위젯 표기) */
+  function toDot(v){ return String(v||'').slice(0,10).replace(/-/g,'.'); }
+  /* 캘린더 위젯은 페이지 로드 시 .form-datepicker 에 한 번만 붙는다.
+     값을 나중에 채워도 되도록, 붙지 않은 입력에만 다시 붙인다. */
+  function ensureDatepicker($inp){
+    if(!$.fn.customDatepicker) return;
+    if($inp.parent('.datepicker').length) return;
+    $inp.customDatepicker();
+  }
+
+  /* selectToDropdown 이 만든 커스텀 드롭다운을 현재 option 기준으로 재생성한다. */
+  function rebuildDropdown($sel){
+    if(!$.fn.selectToDropdown){ $sel.trigger('change'); return; }
+    $sel.next('.dropdown').remove();
+    $sel.attr('style', 'width:100%;max-width:220px');
+    $sel.selectToDropdown();
+  }
+
+  function load(){
+    if(!postId) return;
+    $('#pstSn').val(postId);
+    $.getJSON(API+'/board/post/detail?postId='+encodeURIComponent(postId), function(d){
+      if(!d || !d.ok){ alert((d&&d.message)||'글을 불러오지 못했습니다.'); return; }
+      var p = d.post;
+      $('#ttl').val(p.title);
+      // 분류 선택지는 tb_code_detail 값으로 채운다(하드코딩 금지)
+      var $sel = $('#categoryCode');
+      if (d.categories) {
+        $sel.empty();
+        $.each(d.categories, function (code, name) {
+          $sel.append($('<option>').attr('value', code).text(name));
+        });
+      }
+      $sel.val(p.categoryCode);
+      // UI 킷이 select 를 커스텀 드롭다운(dl.select)으로 바꿔 둔 뒤라
+      // option 을 갈아끼워도 화면 표기·목록이 그대로 남는다. 드롭다운을 다시 만든다.
+      rebuildDropdown($sel);
+      $('#strRegDt').val(toDot(p.createDt));
+      $('#strMdfcnDt').val(toDot(p.updateDt));
+      ensureDatepicker($('#strRegDt'));
+      ensureDatepicker($('#strMdfcnDt'));
+      $('#userNm').val(p.username ? (p.username + ' (' + p.createId + ')') : p.createId);
+      $('input[name=dataSttsCd]').prop('checked', false);
+      $('input[name=dataSttsCd]').eq(p.useYn === 'N' ? 1 : 0).prop('checked', true);
+      // 내용 — 코드 textarea(#pstCn)가 원본이고, 웹에디터는 그 값을 렌더링한다
+      $('#pstCn').val(p.content || '');
+      if (typeof webeditorToggleTabs === 'function') webeditorToggleTabs();
+    });
+  }
+
+  window.saveUpdt = window.btnSave = function(){
+    var title = ($('#ttl').val()||'').trim();
+    if(!title){ alert('제목을 입력해 주세요.'); $('#ttl').focus(); return; }
+    // 웹에디터 탭이 열려 있으면 편집분을 #pstCn 으로 먼저 옮긴다
+    if($('.webeditor-area').is(':visible')){
+      var w = document.getElementById('pstCnWysiwyg');
+      if(w) $('#pstCn').val(w.innerHTML);
+    }
+    if(!confirm('질문 내용을 저장할까요?')) return;
+    $.ajax({
+      url: API+'/board/post/update', type:'post', dataType:'json', contentType:'application/json',
+      data: JSON.stringify({
+        postId: postId,
+        title: title,
+        content: $('#pstCn').val() || '',
+        categoryCode: $('#categoryCode').val() || '',
+        createDt: $('#strRegDt').val() || '',
+        updateDt: $('#strMdfcnDt').val() || '',
+        useYn: $('input[name=dataSttsCd]:checked').index('input[name=dataSttsCd]') === 1 ? 'N' : 'Y',
+        publicYn: 'Y',
+        editorId: 'admin'
+      })
+    }).done(function(r){
+      alert((r&&r.message) || '저장했습니다.');
+      if(r&&r.ok) location.href = 'detail.html?postId='+encodeURIComponent(postId);
+    }).fail(function(){ alert('저장에 실패했습니다.'); });
+  };
+
+  $(load);
+})();
+</script>
+</body>
 </html>

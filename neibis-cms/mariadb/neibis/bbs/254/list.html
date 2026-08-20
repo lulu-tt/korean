@@ -719,6 +719,10 @@
 
 																	<option value="0" >제목/내용</option>
 
+																	<option value="3" >작성자 아이디</option>
+
+																	<option value="4" >작성자 이름</option>
+
 															</select>
 															<input
 																type="text"
@@ -728,6 +732,7 @@
 																value=""
 																placeholder="검색어를 입력해주세요."
 															/>
+															<label class="check-item" style="margin-left:12px;white-space:nowrap"><input type="checkbox" id="includeDeleted" /><span class="label">삭제 포함</span></label>
 														</div>
 													</td>
 												</tr>
@@ -817,989 +822,12 @@
 												<th scope="col">조회수</th>
 												<th scope="col">등록일시</th>
 												<th scope="col">답변</th>
-												<th scope="col">게시여부</th>
-												<th scope="col">관리</th>
+												<th scope="col">상태</th>
+												<th scope="col">작성자</th>
 											</tr>
 										</thead>
-										<tbody>
-										<!-- 목록 조회 -->
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="88" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>25</td>
-														<td>기타</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="88">
-																nirs_test
-															</a>
-														</td>
-														<td></td>
-														<td>1</td>
-														<td>2026.02.12 13:38:06</td>
-														<td><span class="badge" style="background:#94a3b8;color:#fff">미답변</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="88" id="dataSttsCd88Qna" value="A"   />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="88" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="88" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="87" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>24</td>
-														<td>이용 문의</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="87">
-																안녕하세요.
-															</a>
-														</td>
-														<td></td>
-														<td>1</td>
-														<td>2026.01.29 09:55:25</td>
-														<td><span class="badge" style="background:#94a3b8;color:#fff">미답변</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="87" id="dataSttsCd87Qna" value="A"   />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="87" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="87" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="85" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>23</td>
-														<td>개선 요청</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="85">
-																질문
-															</a>
-														</td>
-														<td></td>
-														<td>3</td>
-														<td>2026.01.26 15:01:24</td>
-														<td><span class="badge" style="background:#94a3b8;color:#fff">미답변</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="85" id="dataSttsCd85Qna" value="A"   />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="85" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="85" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="84" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>22</td>
-														<td>이용 문의</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="84">
-																안녕하세요.
-															</a>
-														</td>
-														<td></td>
-														<td>1</td>
-														<td>2026.01.26 14:57:10</td>
-														<td><span class="badge" style="background:#94a3b8;color:#fff">미답변</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="84" id="dataSttsCd84Qna" value="A"   />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="84" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="84" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="83" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>21</td>
-														<td>이용 문의</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="83">
-																안녕하세요.
-															</a>
-														</td>
-														<td></td>
-														<td>2</td>
-														<td>2026.01.22 13:20:16</td>
-														<td><span class="badge" style="background:#94a3b8;color:#fff">미답변</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="83" id="dataSttsCd83Qna" value="A"   />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="83" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="83" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="60" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>20</td>
-														<td>이용 문의</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="60">
-																안녕하십니까?
-															</a>
-														</td>
-														<td></td>
-														<td>653</td>
-														<td>2024.06.23 07:47:46</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="60" id="dataSttsCd60Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="60" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="60" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="59" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>19</td>
-														<td>개선 요청</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="59">
-																지역어 자료 검색 문의
-															</a>
-														</td>
-														<td></td>
-														<td>582</td>
-														<td>2024.02.15 21:51:37</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="59" id="dataSttsCd59Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="59" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="59" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="58" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>18</td>
-														<td>개선 요청</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="58">
-																지억어 이야기 자료 듣기
-															</a>
-														</td>
-														<td></td>
-														<td>17</td>
-														<td>2023.11.27 15:03:48</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="58" id="dataSttsCd58Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="58" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="58" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="57" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>17</td>
-														<td>기타</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="57">
-																이야기 자료 듣기 음성 파일 요청드립니다.
-															</a>
-														</td>
-														<td></td>
-														<td>19</td>
-														<td>2023.09.11 15:54:47</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="57" id="dataSttsCd57Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="57" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="57" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="56" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>16</td>
-														<td>장애 신고</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="56">
-																네이버 지도 Open API 인증 실패 오류
-															</a>
-														</td>
-														<td></td>
-														<td>9</td>
-														<td>2022.11.29 10:06:05</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="56" id="dataSttsCd56Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="56" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="56" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="55" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>15</td>
-														<td>이용 문의</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="55">
-																서울 지역어 이야기 자료
-															</a>
-														</td>
-														<td></td>
-														<td>24</td>
-														<td>2022.10.05 17:40:02</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="55" id="dataSttsCd55Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="55" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="55" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="54" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>14</td>
-														<td>이용 문의</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="54">
-																해외 동포가 사용하는 지역어 지도
-															</a>
-														</td>
-														<td></td>
-														<td>707</td>
-														<td>2022.07.01 09:12:44</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="54" id="dataSttsCd54Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="54" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="54" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="53" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>13</td>
-														<td>장애 신고</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="53">
-																지역어 찾기 결과 오류
-															</a>
-														</td>
-														<td></td>
-														<td>1219</td>
-														<td>2021.12.14 12:54:26</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="53" id="dataSttsCd53Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="53" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="53" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="52" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>12</td>
-														<td>이용 문의</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="52">
-																지역어 자료 요청
-															</a>
-														</td>
-														<td></td>
-														<td>6</td>
-														<td>2021.11.03 16:13:05</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="52" id="dataSttsCd52Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="52" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="52" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="51" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>11</td>
-														<td>이용 문의</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="51">
-																방언자료 관련 문의드립니다.
-															</a>
-														</td>
-														<td></td>
-														<td>16</td>
-														<td>2021.09.15 14:45:56</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="51" id="dataSttsCd51Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="51" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="51" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="50" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>10</td>
-														<td>기타</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="50">
-																방언자료 관련 문의드립니다.
-															</a>
-														</td>
-														<td></td>
-														<td>6</td>
-														<td>2021.09.15 14:45:35</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="50" id="dataSttsCd50Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="50" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="50" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="49" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>9</td>
-														<td>기타</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="49">
-																지역어 자료 요청
-															</a>
-														</td>
-														<td></td>
-														<td>13</td>
-														<td>2021.07.20 13:14:44</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="49" id="dataSttsCd49Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="49" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="49" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="48" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>8</td>
-														<td>장애 신고</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="48">
-																장애 신고
-															</a>
-														</td>
-														<td></td>
-														<td>877</td>
-														<td>2021.03.11 15:21:52</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="48" id="dataSttsCd48Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="48" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="48" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="47" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>7</td>
-														<td>이용 문의</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="47">
-																이야기 자료 이용
-															</a>
-														</td>
-														<td></td>
-														<td>872</td>
-														<td>2021.02.11 22:29:55</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="47" id="dataSttsCd47Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="47" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="47" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="46" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>6</td>
-														<td>이용 문의</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="46">
-																자료 요청
-															</a>
-														</td>
-														<td></td>
-														<td>16</td>
-														<td>2021.02.01 17:42:40</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="46" id="dataSttsCd46Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="46" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="46" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="45" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>5</td>
-														<td>이용 문의</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="45">
-																지역어 지도 페이지 개선
-															</a>
-														</td>
-														<td></td>
-														<td>10</td>
-														<td>2020.10.29 20:09:30</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="45" id="dataSttsCd45Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="45" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="45" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="44" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>4</td>
-														<td>이용 문의</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="44">
-																청주를 CW로 표시한 이유
-															</a>
-														</td>
-														<td></td>
-														<td>831</td>
-														<td>2020.10.21 00:41:47</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="44" id="dataSttsCd44Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="44" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="44" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="43" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>3</td>
-														<td>장애 신고</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="43">
-																경상남도 창녕군 남 73세 녹음 음성 및 텍스트 없음
-															</a>
-														</td>
-														<td></td>
-														<td>789</td>
-														<td>2020.09.27 22:41:31</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="43" id="dataSttsCd43Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="43" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="43" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="42" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>2</td>
-														<td>이용 문의</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="42">
-																(제목 없음)
-															</a>
-														</td>
-														<td></td>
-														<td>731</td>
-														<td>2020.05.11 16:14:51</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="42" id="dataSttsCd42Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="42" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="42" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-													<tr>
-														<td>
-															<label class="check-item">
-																<input type="checkbox" name="listCheckBox" value="41" />
-																<span class="label sr-only">선택</span>
-															</label>
-														</td>
-														<td>1</td>
-														<td>오류 신고</td>
-														<td class="text-left link-ellipsis ">
-															<a href="detail.do" class="link detail-button" data-sn="41">
-																(제목 없음)
-															</a>
-														</td>
-														<td></td>
-														<td>891</td>
-														<td>2020.05.02 12:40:40</td>
-														<td><span class="badge badge-primary">답변완료</span></td>
-														<td>
-															<label class="check-switch check-switch-fix">
-																<input type="checkbox" name="dataSttsCd" data-sn="41" id="dataSttsCd41Qna" value="A"  checked  />
-																<span class="label">
-																	<span class="text-checked">게시</span>
-																	<span class="text-uncheck">미게시</span>
-																</span>
-															</label>
-														</td>
-														<td>
-															<a href="detail.do" data-sn="41" class="btn btn-xs btn-outline-gray btn-modify updt-button">
-																<i class="ico ico-pen-darkgary-sm"></i>
-																<span>수정</span>
-															</a>
-															<button type="button" data-sn="41" class="btn btn-xs btn-gray btn-delete del-button" onclick="alert('정적 프로토타입: 삭제'); return false;">
-																<i class="ico ico-trash-white-sm"></i>
-																<span>삭제</span>
-															</button>
-														</td>
-													</tr>
-
-										<!-- 목록 조회 -->
-										</tbody>
+										<tbody id="qna-list-body">
+</tbody>
 									</table>
 
 								</div>
@@ -1810,14 +838,6 @@
 								</div>
 
 </form>
-							<div class="btn-group-between">
-								<div class="right">
-									<a href="save.do" id="save-button" class="btn btn-lg btn-primary">
-										<i class="ico ico-plus-white-md"></i>
-										<span>등록</span>
-									</a>
-								</div>
-							</div>
 						</div>
 
 						<!-- // 본문 영역 -->
@@ -1856,11 +876,6 @@ const searchAction = function(){
 
 
 	$("#search-form").append(pageItm).submit();
-}
-
-const saveAction = function(){
-	submitToSavePage(getActionParamInputs);
-
 }
 
 const detailAction = function(e,_this){
@@ -2355,5 +1370,111 @@ const getMngrFail = function (xhr, status, error) {
 }
 </script>
 
-	</body>
+	
+<script>
+/* 의견 제시 목록 — tb_board_post 연동.
+   사용자 계정관리에서 「의견 제시」 건수를 누르면 ?createId=계정 으로 진입해 해당 글만 표시한다. */
+(function () {
+  var state = { page: 1, pageSize: 10 };
+
+  function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  /* 검색은 페이지 기본 검색 영역(#search-form)의 «검색어» 조건을 그대로 사용한다.
+     작성자 아이디는 계정 정확일치, 작성자 이름은 부분일치로 조회한다. */
+  function bindSearchArea() {
+    $('.search-button').off('click.qna').on('click.qna', function (e) { e.preventDefault(); load(1); });
+    $('.reset-button').off('click.qna').on('click.qna', function () {
+      setTimeout(function () { load(1); }, 0);
+    });
+    $('#searchKeyword').on('keypress', function (e) { if (e.keyCode === 13) { e.preventDefault(); load(1); } });
+    $('#includeDeleted').on('change', function () { load(1); });
+  }
+
+  /* 페이지네이션 — NEIBIS 규격: 현재 페이지는 <strong>, 나머지는 <a>,
+     이전/다음은 button.direction.prev|next (아이콘은 CSS 배경). 10개씩 블록 노출. */
+  var PAGE_BLOCK = 10;
+  function renderPager(res) {
+    var el = document.querySelector('.pagination');
+    if (!el) return;
+    var pages = Math.ceil(res.total / res.size) || 1;
+    if (pages <= 1) { el.innerHTML = ''; el.style.display = 'none'; return; }
+    el.style.display = '';
+    var cur = res.page;
+    var start = Math.floor((cur - 1) / PAGE_BLOCK) * PAGE_BLOCK + 1;
+    var end = Math.min(start + PAGE_BLOCK - 1, pages);
+    var h = '<button type="button" class="direction prev' + (cur <= 1 ? ' disabled' : '')
+          + '" aria-label="이전 페이지"' + (cur <= 1 ? ' disabled' : ' data-page="' + (cur - 1) + '"')
+          + '>이전</button>';
+    for (var n = start; n <= end; n++) {
+      h += (n === cur)
+        ? '<strong>' + n + '</strong>'
+        : '<a href="javascript:void(0);" data-page="' + n + '">' + n + '</a>';
+    }
+    h += '<button type="button" class="direction next' + (cur >= pages ? ' disabled' : '')
+       + '" aria-label="다음 페이지"' + (cur >= pages ? ' disabled' : ' data-page="' + (cur + 1) + '"')
+       + '>다음</button>';
+    el.innerHTML = h;
+    $(el).off('click.pg').on('click.pg', '[data-page]', function () {
+      load(parseInt($(this).data('page'), 10));
+    });
+  }
+
+  function load(page) {
+    if (page) state.page = page;
+    var q = $.param({
+      boardId: 'qna',
+      searchCondition: $('#searchCondition').val() || '',
+      searchKeyword: ($('#searchKeyword').val() || '').trim(),
+      includeDeleted: $('#includeDeleted').is(':checked') ? 1 : 0,
+      page: state.page, pageSize: state.pageSize
+    });
+    $('#qna-list-body').html('<tr><td colspan="10" class="text-center" style="padding:24px;color:#64748b">불러오는 중…</td></tr>');
+    $.getJSON('../../../../mariadb/neibis-api/board/post/list?' + q, function (d) {
+      if (!d || !d.ok) { $('#qna-list-body').html('<tr><td colspan="10" class="text-center" style="padding:24px;color:#c0281c">목록을 불러오지 못했습니다.</td></tr>'); return; }
+      if (!d.rows.length) {
+        $('#qna-list-body').html('<tr><td colspan="10" class="text-center" style="padding:32px;color:#64748b">등록된 의견이 없습니다.</td></tr>');
+        renderPager(d);
+        return;
+      }
+      var base = (d.page - 1) * d.size;
+      var html = d.rows.map(function (r, i) {
+        return '<tr' + (r.deleted ? ' style="opacity:.55"' : '') + '>'
+          + '<td><label class="check-item"><input type="checkbox" /><span class="label sr-only">선택</span></label></td>'
+          + '<td>' + (d.total - base - i) + '</td>'
+          + '<td>' + (esc(r.categoryName) || '<span style="color:#bbb">-</span>') + '</td>'
+          + '<td class="text-left"><a href="detail.html?postId=' + encodeURIComponent(r.postId) + '" class="link">' + esc(r.title) + '</a></td>'
+          + '<td>-</td>'
+          + '<td>' + esc(r.viewCount) + '</td>'
+          + '<td>' + esc(r.createDt) + '</td>'
+          + '<td>' + (r.answered ? '답변완료' : '<span style="color:#c0281c">미답변</span>') + '</td>'
+          + '<td>' + (r.deleted
+              ? '<span style="color:#c0281c;font-weight:700">삭제됨</span>'
+              : '<span style="color:#6b7280">정상</span>') + '</td>'
+          + '<td class="text-left">' + (r.username
+              ? esc(r.username) + ' <span style="color:#6b7280;font-size:12px">(' + esc(r.createId) + ')</span>'
+              : esc(r.createId || '-')) + '</td>'
+          + '</tr>';
+      }).join('');
+      $('#qna-list-body').html(html);
+      renderPager(d);
+    });
+  }
+
+  $(function () {
+    bindSearchArea();
+    // 사용자 계정관리 → 「의견 제시」 건수 클릭 시 ?createId=계정 으로 진입
+    var m = /[?&](?:createId|writer)=([^&]+)/.exec(location.search);
+    if (m) {
+      $('#searchCondition').val('3');
+      $('#searchKeyword').val(decodeURIComponent(m[1]));
+    }
+    load(1);
+  });
+})();
+</script>
+</body>
 </html>

@@ -4,3 +4,13 @@
 _dm_shot*.png
 neibis-cms/dialect_local.db
 neibis-cms/mariadb/neibis/survey/data/processed/
+data/uploads/
+data/exports/
+data/dialect_phonology_compare/
+*.wav
+*.eaf
+*.pfsx
+*.xls
+*.xlsx
+*.zip
+

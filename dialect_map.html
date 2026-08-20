@@ -83,6 +83,11 @@ body { background: #ffffff; }
 .recentcard .more { font-size: 13px; font-weight: 700; color: var(--blue); text-decoration: none; }
 .recentcard .more:hover { text-decoration: underline; }
 .recentlist { list-style: none; margin: 0; padding: 0; }
+.recentlist.is-scrollable { overflow-y: auto; padding-right: 6px; scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+.recentlist.is-scrollable::-webkit-scrollbar { width: 5px; }
+.recentlist.is-scrollable::-webkit-scrollbar-track { background: transparent; }
+.recentlist.is-scrollable::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+.recentlist.is-scrollable::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 .recentitem { width: 100%; display: flex; align-items: center; gap: 10px; padding: 12px 4px; background: none; border: none; border-top: 1px solid var(--line); cursor: pointer; font-size: 15px; font-weight: 600; color: #334155; font-family: inherit; text-align: left; transition: color 0.15s; }
 .recentlist li:first-child .recentitem { border-top: none; }
 .recentitem:hover { color: var(--blue); }
@@ -1038,7 +1043,6 @@ body { background: #ffffff; }
       <section class="card recentcard" aria-label="최근 본 단어">
         <div class="recentcard__head">
           <div class="recentcard__title">최근 본 단어</div>
-          <a class="more" href="#">전체 보기</a>
         </div>
         <ul class="recentlist" id="recentList" aria-label="최근 본 단어 목록"></ul>
       </section>
@@ -1049,7 +1053,6 @@ body { background: #ffffff; }
       <header class="mapbar" aria-label="지도 제목 및 도구">
         <div class="mapbar__titles">
           <div class="mapbar__title">‘<b id="mapWord">가을</b>’의 방언 분포 지도</div>
-          <div class="mapbar__meta">지역어 조사 및 보완 조사 사업(2004–2018) · 국립국어원</div>
         </div>
         <div class="mapbar__actions">
           <div class="popwrap">
@@ -1326,12 +1329,30 @@ body { background: #ffffff; }
   var RECENT_MAX = 6;
   var recentList = $('recentList');
 
+  var RECENT_VISIBLE = 4;   // 화면에 보이는 개수, 나머지는 스크롤
+
   function renderRecent() {
     if (!recentList) return;
     recentList.innerHTML = recentWords.map(function (w) {
       return '<li><button class="recentitem" type="button" data-word="' + w + '">' +
              '<i class="ti ti-clock recentitem__ico" aria-hidden="true"></i><span>' + w + '</span></button></li>';
     }).join('');
+    limitRecentHeight();
+  }
+
+  // 목록이 RECENT_VISIBLE 개를 넘으면 그 높이로 잘라 스크롤을 만든다.
+  function limitRecentHeight() {
+    if (!recentList) return;
+    var items = recentList.querySelectorAll(':scope > li');
+    if (items.length <= RECENT_VISIBLE) {
+      recentList.classList.remove('is-scrollable');
+      recentList.style.maxHeight = '';
+      return;
+    }
+    var last = items[RECENT_VISIBLE - 1];
+    var h = last.offsetTop + last.offsetHeight - items[0].offsetTop;
+    recentList.classList.add('is-scrollable');
+    recentList.style.maxHeight = h + 'px';
   }
 
   function addRecent(word) {

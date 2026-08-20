@@ -628,6 +628,19 @@
 
 <!-- 본문 영역 -->
 
+<style>
+/* 상징부호 목록 전용 (sym- 접두사로 공통 CSS 와 분리) */
+.sym-cell{display:inline-flex;align-items:center;justify-content:center;min-height:28px}
+.sym-cell img{max-width:28px;max-height:28px;image-rendering:auto;vertical-align:middle}
+.sym-cell img.sym-mask{filter:invert(1)}
+.sym-text{font-size:15px;font-weight:700;color:#0f172a}
+.sym-none{color:#94a3b8}
+.sym-badge{display:inline-block;font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.sym-badge--y{background:#ecfdf5;color:#047857}
+.sym-badge--n{background:#f1f5f9;color:#64748b}
+.sym-gb{display:inline-block;font-size:11px;font-weight:700;color:#64748b;background:#f1f5f9;border-radius:4px;padding:1px 6px;margin-left:6px}
+</style>
+
 <form id="search-form" class="search-form" onsubmit="return false;">
 <h3 class="title1 text-primary mt-md-4 ml-md-4">상징 부호 관리 검색영역</h3>
 <div class="card">
@@ -655,7 +668,7 @@
 <div class="btn-group-center">
 <button type="button" class="btn btn-md btn-outline-gray" onclick="btnInit()"><i class="ico ico-undo-darkgray-md"></i><span class="text">초기화</span></button>
 <button type="button" class="btn btn-md btn-primary" onclick="searchList(1)"><i class="ico ico-search-white-md"></i><span class="text">검색</span></button>
-<button type="button" class="btn btn-md" style="background:#217346;border-color:#217346;color:#fff" onclick="stubExcel()"><i class="ico ico-fileexcel-white-md"></i><span class="text">엑셀 다운</span></button>
+<button type="button" class="btn btn-md" style="background:#217346;border-color:#217346;color:#fff" onclick="symbolExcel()"><i class="ico ico-fileexcel-white-md"></i><span class="text">상징부호 자료내려받기</span></button>
 </div>
 </div>
 
@@ -664,7 +677,7 @@
 <div class="left">
 <p class="total">총 <strong class="text-primary" id="totalCnt">0</strong>건 <span id="pageInfo" style="color:#64748b;font-size:13px"></span></p>
 <button type="button" class="btn btn-xs btn-outline-gray" id="btnDeselect">선택해제</button>
-<button type="button" class="btn btn-xs btn-gray btn-delete" onclick="deleteList()"><i class="ico ico-close-white-sm mr-0"></i> 선택삭제</button>
+<button type="button" class="btn btn-xs btn-gray btn-delete" onclick="deleteList()"><i class="ico ico-close-white-sm mr-0"></i> 선택 삭제</button>
 </div>
 <div class="right">
 <select class="form-control-sm" style="min-width:100px" title="목록 수" id="pageItm">
@@ -710,7 +723,7 @@
 <div class="btn-group-between">
 <div class="left"></div>
 <div class="right">
-<button type="button" class="btn btn-lg btn-primary" onclick="symbolReg()"><i class="ico ico-plus-white-md"></i><span>등록</span></button>
+<button type="button" class="btn btn-lg btn-primary" onclick="symbolReg()"><i class="ico ico-plus-white-md"></i><span>상징부호 등록</span></button>
 </div>
 </div>
 </form>
@@ -725,34 +738,80 @@ function escHtml(s){
     .replace(/"/g,'&quot;');
 }
 
+function symAlert(icon, msg, cb){
+  if(window.Message){ Message.alert({ icon:icon, message:msg }, cb || function(){}); }
+  else { alert(msg); if(cb) cb(); }
+}
+
+function symConfirm(msg, cb){
+  if(window.Message){ Message.confirm({ icon:'warning', message:msg }, cb); }
+  else if(confirm(msg)){ cb(); }
+}
+
+function symbolQuery(){
+  return { searchValue: $('#searchValue').val() || '' };
+}
+
 function btnInit(){
   $('#search-form')[0].reset();
   $('#pageItm').val('10');
   searchList(1);
 }
 
-function stubExcel(){
-  if(window.Message){ Message.alert({icon:'info', message:'[엑셀 다운] 정적 프로토타입 버튼입니다.'}); }
-  else { alert('엑셀 다운'); }
+/* 상징부호 자료내려받기 — 검색조건 그대로 전체 건 엑셀 */
+function symbolExcel(){
+  location.href = '/mariadb/neibis-api/symbol/excel?' + $.param(symbolQuery());
 }
+
+/* 상징부호 등록 */
 function symbolReg(){
-  if(window.Message){ Message.alert({icon:'info', message:'상징부호 등록 팝업(정적 프로토타입)입니다. 등록 화면 HTML을 주시면 구성합니다.'}); }
-  else { alert('상징부호 등록'); }
+  location.href = 'symbol-save.do';
 }
+
+/* 상징부호 수정 */
+function symbolUpdt(id){
+  location.href = 'symbol-updt.do?symbolId=' + encodeURIComponent(id);
+}
+
 function deleteList(){
-  var n = $('input[name=chk]:checked').length;
-  if(n < 1){
-    if(window.Message){ Message.alert({icon:'warning', message:'삭제를 위한 상징부호를 선택해주세요.'}); }
-    else { alert('삭제를 위한 상징부호를 선택해주세요.'); }
+  var ids = $('input[name=chk]:checked').map(function(){ return this.value; }).get();
+  if(ids.length < 1){
+    symAlert('warning', '삭제를 위한 상징부호를 선택해주세요.');
     return;
   }
-  if(window.Message){
-    Message.confirm({icon:'warning', message:'선택하신 상징부호를 일괄적으로 삭제하시겠습니까?'}, function(){
-      Message.alert({icon:'info', message:'삭제 API는 아직 연결되지 않았습니다. (조회만 DB 연동)'});
+  symConfirm('선택하신 상징부호를 일괄적으로 삭제하시겠습니까?', function(){
+    $.ajax({
+      url: '/mariadb/neibis-api/symbol/delete',
+      method: 'POST',
+      contentType: 'application/json; charset=utf-8',
+      data: JSON.stringify({ ids: ids })
+    }).done(function(res){
+      if(!res || !res.ok){
+        symAlert('error', (res && res.message) || '삭제에 실패했습니다.');
+        return;
+      }
+      symAlert('success', res.message || '삭제되었습니다.', function(){ searchList(1); });
+    }).fail(function(xhr){
+      symAlert('error', '삭제 API 호출 실패 (HTTP ' + xhr.status + ')');
     });
-  } else if(confirm('선택하신 상징부호를 일괄적으로 삭제하시겠습니까?')){
-    alert('삭제 API 미연결');
+  });
+}
+
+/* 상징부호 셀 — 이미지(I) 는 아이콘, 텍스트(T) 는 문자 그대로 */
+function symbolCellHtml(row){
+  if(row.symbolGb === 'T'){
+    var t = row.symbolNm || row.comment || '';
+    return t
+      ? '<span class="sym-cell sym-text">' + escHtml(t) + '</span><span class="sym-gb">텍스트</span>'
+      : '<span class="sym-cell sym-none">(텍스트 미입력)</span><span class="sym-gb">텍스트</span>';
   }
+  if(row.iconSrc){
+    var alt = row.comment || row.fileNm || '상징부호';
+    // symbol_mask 는 흰색 실루엣이라 그대로 두면 흰 배경에서 안 보인다 → 반전해서 표시
+    var cls = row.iconKind === 'mask' ? ' sym-mask' : '';
+    return '<span class="sym-cell"><img class="sym-img' + cls + '" src="' + row.iconSrc.replace(/"/g,'') + '" alt="' + escHtml(alt) + '" /></span>';
+  }
+  return '<span class="sym-cell sym-none">' + escHtml(row.fileNm || '(이미지 없음)') + '</span>';
 }
 
 function renderRows(list, page, pageSize){
@@ -763,22 +822,16 @@ function renderRows(list, page, pageSize){
   }
   var startNo = (page - 1) * pageSize;
   list.forEach(function(row, i){
-    // 번호만 역순 (전체 건수 기준 내림차순 표시)
-    var no = (symbolState.total || 0) - startNo - i;
-    var useLabel = row.useYn === 'Y' ? '사용' : (row.useYn === 'N' ? '미사용' : escHtml(row.useYn || '-'));
-    var symbolCell;
-    if(row.symbolGb === 'T'){
-      symbolCell = '<span>' + escHtml(row.symbolNm || '-') + '</span>';
-    } else if(row.iconSrc){
-      symbolCell = '<img src="' + row.iconSrc.replace(/"/g,'') + '" alt="' + escHtml(row.symbolNm || row.fileNm || '') + '" style="max-height:28px;max-width:28px;vertical-align:middle" />';
-    } else {
-      symbolCell = '<span class="text-secondary">' + escHtml(row.fileNm || row.symbolNm || '-') + '</span>';
-    }
-    var tr = $('<tr class="symbol-row" style="cursor:pointer"></tr>').attr('data-sn', row.symbolId);
+    var no = startNo + i + 1;
+    var useCls = row.useYn === 'Y' ? 'sym-badge--y' : 'sym-badge--n';
+    var useLabel = row.useYn === 'Y' ? '사용' : (row.useYn === 'N' ? '미사용' : (row.useYn || '-'));
+    var tr = $('<tr class="symbol-row" style="cursor:pointer"></tr>')
+      .attr('data-sn', row.symbolId)
+      .attr('title', '클릭하면 수정 화면으로 이동합니다.');
     tr.append('<td><label class="check-item"><input type="checkbox" name="chk" value="' + escHtml(row.symbolId) + '" onclick="event.stopPropagation()" /><span class="label sr-only">선택</span></label></td>');
     tr.append('<td>' + no + '</td>');
-    tr.append('<td class="text-center">' + symbolCell + '</td>');
-    tr.append('<td>' + useLabel + '</td>');
+    tr.append('<td class="text-center">' + symbolCellHtml(row) + '</td>');
+    tr.append('<td><span class="sym-badge ' + useCls + '">' + escHtml(useLabel) + '</span></td>');
     tr.append('<td>' + escHtml(row.regDt || '-') + '</td>');
     $tb.append(tr);
   });
@@ -808,14 +861,12 @@ function renderPager(page, totalPages){
 function searchList(page){
   if(page) symbolState.page = page;
   symbolState.pageSize = parseInt($('#pageItm').val(), 10) || 10;
-  var q = $.param({
-    searchValue: $('#searchValue').val() || '',
-    page: symbolState.page,
-    pageSize: symbolState.pageSize
-  });
+  var q = symbolQuery();
+  q.page = symbolState.page;
+  q.pageSize = symbolState.pageSize;
   $('#symbol-list-body').html('<tr><td colspan="5" class="text-center" style="padding:24px;color:#64748b">불러오는 중…</td></tr>');
   $.ajax({
-    url: '/mariadb/neibis-api/symbol/list?' + q,
+    url: '/mariadb/neibis-api/symbol/list?' + $.param(q),
     method: 'GET',
     dataType: 'json'
   }).done(function(res){
@@ -844,19 +895,17 @@ function searchList(page){
 $(function(){
   $('#chkAll').on('change', function(){ $('input[name=chk]').prop('checked', this.checked); });
   $('#btnDeselect').on('click', function(){ $('input[name=chk], #chkAll').prop('checked', false); });
-  $('#symbol-list-body').on('click', 'tr.symbol-row', function(){
-    var id = $(this).data('sn');
-    if(window.Message){
-      Message.alert({icon:'info', message:'상징부호 상세/수정(symbolId='+id+') — 조회만 DB 연동, 상세는 추후 연결'});
-    } else {
-      alert('symbolId='+id);
-    }
+  $('#symbol-list-body').on('click', 'tr.symbol-row', function(e){
+    // 선택(체크박스) 칸 클릭은 수정 이동으로 보지 않는다
+    if($(e.target).closest('td').index() === 0) return;
+    symbolUpdt($(this).data('sn'));
   });
   $('#symbol-pagination').on('click', 'a.page-link', function(e){
     e.preventDefault();
     var pg = parseInt($(this).data('page'), 10);
     if(pg) searchList(pg);
   });
+  $('#pageItm').on('change', function(){ searchList(1); });
   searchList(1);
 });
 </script>
