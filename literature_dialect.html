@@ -1873,7 +1873,8 @@
           clearWorkList('작가를 선택해주세요');
         })
         .catch(function (err) {
-          console.error('literature_facets error:', err);
+          console.warn('literature_facets API fetch failed, loading static facets:', err);
+          return loadStaticFacets(null);
         });
     }
     const qs = '?writer=' + encodeURIComponent(writer);
@@ -1885,8 +1886,77 @@
         renderWorkList(res.data.books || []);
       })
       .catch(function (err) {
-        console.error('literature_facets error:', err);
+        console.warn('literature_facets API fetch failed, loading static work list:', err);
+        return loadStaticFacets(writer);
       });
+  }
+
+  function getHangulCho(s) {
+    if (!s) return '';
+    var ch = s.trim()[0];
+    if (ch >= '가' && ch <= '힣') {
+      var cho = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ',
+                 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+      return cho[Math.floor((ch.charCodeAt(0) - 0xAC00) / 588)];
+    }
+    return ch;
+  }
+
+  function loadStaticFacets(writer) {
+    var promise = staticLitCache
+      ? Promise.resolve(staticLitCache)
+      : fetch('./data/literature_data.json')
+          .then(function (r) { return r.json(); })
+          .then(function (res) {
+            staticLitCache = res.data || [];
+            return staticLitCache;
+          });
+
+    return promise.then(function (allData) {
+      if (!writer) {
+        // Compute authors
+        var authorMap = {};
+        allData.forEach(function (item) {
+          (item.examples || []).forEach(function (ex) {
+            var w = (ex.writer || '').trim();
+            if (w) {
+              authorMap[w] = (authorMap[w] || 0) + 1;
+            }
+          });
+        });
+        var authors = Object.keys(authorMap).sort().map(function (w) {
+          return {
+            name: w,
+            count: authorMap[w],
+            cho: getHangulCho(w)
+          };
+        });
+        renderAuthorList(authors);
+        clearWorkList('작가를 선택해주세요');
+      } else {
+        // Compute books for selected writer
+        var bookMap = {};
+        allData.forEach(function (item) {
+          (item.examples || []).forEach(function (ex) {
+            if ((ex.writer || '').trim() === writer) {
+              var b = (ex.book_name || '').trim();
+              if (b) {
+                bookMap[b] = (bookMap[b] || 0) + 1;
+              }
+            }
+          });
+        });
+        var books = Object.keys(bookMap).sort().map(function (b) {
+          return {
+            name: b,
+            count: bookMap[b]
+          };
+        });
+        renderWorkList(books);
+      }
+    }).catch(function (e) {
+      console.error('Static Facets load error:', e);
+    });
   }
 
   function loadWorkList(writer) {
