@@ -221,6 +221,22 @@
   .board-list tr.notice-row td.subject a {
     font-weight: 700;
   }
+  /* 새 글 표시 — 목록 맨 위 2건 */
+  .board-list td.subject .new-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 17px;
+    height: 17px;
+    margin-left: 6px;
+    border-radius: 50%;
+    background: #dc2626;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+    vertical-align: 2px;
+  }
   .board-list td.date {
     color: #64748b;
     font-size: 14px;
@@ -458,9 +474,14 @@
             ? `<span class="notice-badge">공지</span>` 
             : (totalCount - (startIdx + index));
 
+          // 목록 맨 위 2건만 새 글로 표시 (2페이지 이후에는 붙지 않는다)
+          const newMark = (currentPage === 1 && index < 2)
+            ? `<span class="new-mark" aria-label="새 글" title="새 글">N</span>`
+            : '';
+
           tr.innerHTML = `
             <td class="num">${displayNum}</td>
-            <td class="subject"><a href="./notice_detail.html?id=${item.post_id}">${item.title}</a></td>
+            <td class="subject"><a href="./notice_detail.html?id=${item.post_id}">${item.title}</a>${newMark}</td>
             <td class="date">${dateStr}</td>
             <td class="hits">${hits}</td>
           `;
