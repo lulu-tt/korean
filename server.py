@@ -9,6 +9,7 @@ import uuid
 import urllib.parse
 import urllib.request
 import ssl
+import zlib
 from datetime import datetime
 import oral_api
 import vocab_api
@@ -16,6 +17,80 @@ import vocab_api
 PORT = 8765
 DIRECTORY = "/Users/aaa/inseq/korean"
 DB_PATH = "/Users/aaa/inseq/korean/dialect_local.db"
+IMAGE_DIR = os.path.join(DIRECTORY, "image")
+
+# 보유 중인 지역어 사진. DB에는 4천여 건이 등록돼 있으나 원본 파일은 일부만 반입된
+# 상태여서, 누락된 건은 아래 목록에서 하나를 골라 대체한다.
+_REAL_PHOTOS = sorted(
+    f for f in os.listdir(IMAGE_DIR)
+    if re.fullmatch(r"(19|20)\d{7}(-\d+)?\.jpg", f)
+) if os.path.isdir(IMAGE_DIR) else []
+
+
+# 운영(dialect.inseq.co.kr)의 분류별 대표 사진. 운영 페이지에서 추출한 지정값이며,
+# DB의 어떤 컬럼으로도 재현되지 않아 매핑으로 보관한다.
+SUBJECT_THUMB = {
+    "구덕과 차롱": "200801003",
+    "그물 손질부터 어판장까지": "201002001",
+    "김치": "200706001-1",
+    "나주소반장": "200810001",
+    "남사당놀이": "200808001",
+    "남원목기": "200903001",
+    "대고장": "200704301",
+    "도검": "200908056",
+    "돌살": "201104001",
+    "두석장": "200805003",
+    "떡": "200911640-1",
+    "모필장": "200804003",
+    "미역업": "200704101",
+    "민속음식": "200701201",
+    "배첩장": "200906001",
+    "부채장": "200710219",
+    "북 메우기": "200909001",
+    "비양도의 고기잡이": "201001001",
+    "사기장": "200708201",
+    "사찰생활어(승려어)": "200807003",
+    "숭어들이": "201204001-1",
+    "승무": "200809101-1",
+    "심마니": "200707188",
+    "악기장": "200710459",
+    "안동포길쌈": "200802006",
+    "어부": "200701102-1",
+    "어촌 생활어 기초 어휘": "201005233",
+    "염전": "201003012",
+    "오징어 잡이에서 덕장까지": "201202004-1",
+    "옹기장": "200708088",
+    "유기장": "200704535",
+    "자염": "201103001-1",
+    "장 담그기": "200904041-1",
+    "장아찌": "200706101-1",
+    "젓갈": "200706243",
+    "죽렴장": "200710101-1",
+    "죽방렴": "201004028",
+    "참빗장": "200710094",
+    "채낚기": "201204107",
+    "채상장": "200710400-1",
+    "초고장": "200809005",
+    "추자도 고기잡이": "201201001-1",
+    "토속음식": "200902003-1",
+    "한과": "200910007",
+    "해녀": "200701001",
+    "호상옷": "200901003",
+}
+
+
+def photo_img(sys_file_name, file_ext, seed=0):
+    """DB에 등록된 사진 경로를 반환하고, 파일이 없으면 보유 사진으로 대체한다."""
+    if sys_file_name:
+        name = f"{sys_file_name}.{file_ext}"
+        if os.path.isfile(os.path.join(IMAGE_DIR, name)):
+            return f"./image/{name}"
+    if not _REAL_PHOTOS:
+        return "./image/200911310.jpg"
+    # 같은 자료는 항상 같은 사진이 나오도록 안정적인 인덱스를 만든다.
+    # (hash()는 실행마다 값이 바뀌므로 crc32를 쓴다.)
+    idx = zlib.crc32(str(seed).encode("utf-8")) % len(_REAL_PHOTOS)
+    return f"./image/{_REAL_PHOTOS[idx]}"
 
 
 def _epoch_ms_to_date(ms) -> str:
@@ -279,6 +354,58 @@ def api_openapi_issue(body: dict) -> dict:
         "message": "API 인증 키가 발급되었습니다.",
         "data": _openapi_user_payload(saved),
     }
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# 기상도 — 전용 테이블(wb_weather_*)에서 화면 구조를 만들어 준다
+#
+# awareness_by_region.json 과 **같은 구조**를 돌려준다. 구조 조립과 상태 판정은
+# scripts/etl_awareness_region.py 의 build_output() 한 곳에서만 한다 —
+# 두 곳으로 갈라지면 API 로 바꾼 순간 지도 색이 달라진다.
+#
+# 정적 호스팅(GitHub Pages)에는 서버가 없으므로 프론트는 이 API 를 먼저 부르고
+# 실패하면 data/processed/awareness_by_region.json 으로 되돌아간다.
+# ────────────────────────────────────────────────────────────────────────────
+WEATHER_DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'gisangdo.db')
+
+
+def _load_etl():
+    """ETL 모듈 로드. 구조 조립·판정·DB 로더가 모두 거기 한 곳에 있다."""
+    import importlib.util
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        'scripts', 'etl_awareness_region.py')
+    spec = importlib.util.spec_from_file_location('etl_awareness_region', path)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+_WEATHER_CACHE = {'sig': None, 'data': None}
+
+
+def api_weather_awareness():
+    """기상도 화면 자료 — 전용 테이블 기준. 적재 상태가 그대로면 캐시를 쓴다."""
+    import sqlite3
+
+    sig = None
+    if os.path.exists(WEATHER_DB_PATH):
+        con = sqlite3.connect(WEATHER_DB_PATH)
+        try:
+            n = con.execute('SELECT COUNT(*) FROM wb_weather_response').fetchone()[0]
+            d = con.execute('SELECT MAX(reg_dt) FROM wb_weather_file').fetchone()[0]
+            sig = (n, d, os.path.getmtime(WEATHER_DB_PATH))
+        finally:
+            con.close()
+    if sig and _WEATHER_CACHE['sig'] == sig and _WEATHER_CACHE['data'] is not None:
+        return _WEATHER_CACHE['data']
+
+    etl = _load_etl()
+    recs, nfiles = etl.load_records_from_db(WEATHER_DB_PATH)
+    out = etl.build_output(recs, nfiles)
+    etl.fill_db_qc(out, WEATHER_DB_PATH)
+    _WEATHER_CACHE['sig'] = sig
+    _WEATHER_CACHE['data'] = out
+    return out
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -684,7 +811,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     WHERE p.use_yn = 'Y' AND p.subject IS NOT NULL AND p.subject != ''
                     {("AND " + where_sql[6:]) if where_sql else ""}
                     GROUP BY p.subject
-                    ORDER BY total_count DESC
+                    ORDER BY p.subject
                 """, params)
                 
                 rows = cursor.fetchall()
@@ -696,11 +823,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                         FROM tb_region_photo p
                         LEFT JOIN tb_region_photo_file f ON p.region_photo_id = f.region_photo_id
                         WHERE p.subject = ? AND p.use_yn = 'Y'
+                        ORDER BY (f.sys_file_name = ?) DESC, CAST(f.file_idx AS INTEGER)
                         LIMIT 3
-                    """, (subject,))
+                    """, (subject, SUBJECT_THUMB.get(subject, "")))
                     sample_items = []
                     for item in cursor.fetchall():
-                        img_path = f"./image/{item['sys_file_name']}.{item['file_ext']}" if item["sys_file_name"] else "./image/200911310.jpg"
+                        img_path = photo_img(item["sys_file_name"], item["file_ext"], item["title"] or subject)
                         sample_items.append({
                             "title": item["title"],
                             "mean": item["mean"],
@@ -758,7 +886,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 rows = cursor.fetchall()
                 items = []
                 for row in rows:
-                    img_path = f"./image/{row['sys_file_name']}.{row['file_ext']}" if row["sys_file_name"] else "./image/200911310.jpg"
+                    img_path = photo_img(row["sys_file_name"], row["file_ext"], row["region_photo_id"])
                     items.append({
                         "id": row["region_photo_id"],
                         "title": row["title"],
@@ -808,9 +936,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     images = []
                     for f in file_rows:
                         if f["sys_file_name"]:
-                            images.append(f"./image/{f['sys_file_name']}.{f['file_ext']}")
+                            images.append(photo_img(f["sys_file_name"], f["file_ext"], f["sys_file_name"]))
                     if not images:
-                        images = ["./image/200911310.jpg"]
+                        images = [photo_img(None, None, photo_id)]
 
                     # Fetch related items in same subject
                     subject = row["subject"]
@@ -825,7 +953,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     
                     related = []
                     for r in cursor.fetchall():
-                        r_img = f"./image/{r['sys_file_name']}.{r['file_ext']}" if r["sys_file_name"] else "./image/200911310.jpg"
+                        r_img = photo_img(r["sys_file_name"], r["file_ext"], r["region_photo_id"])
                         related.append({
                             "id": r["region_photo_id"],
                             "title": r["title"],
@@ -1099,6 +1227,18 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return
 
         # ── 메인 설문조사 팝업: 진행 중인 설문 1건 ──
+        elif parsed_url.path == '/api/weather/awareness':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json; charset=utf-8')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            try:
+                res = api_weather_awareness()
+            except Exception as e:
+                res = {"status": "error", "message": str(e)}
+            self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
+            return
+
         elif parsed_url.path == '/api/survey/active':
             self.send_response(200)
             self.send_header('Content-type', 'application/json; charset=utf-8')

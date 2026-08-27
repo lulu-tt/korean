@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import functools
 import http.server
+import io
 import json
 import os
 import re
@@ -19,6 +20,7 @@ import unicodedata
 import urllib.parse
 import wave
 import xml.etree.ElementTree as ET
+import zipfile
 from datetime import datetime
 from pathlib import Path
 
@@ -141,6 +143,20 @@ def _oral_id_of(eaf_path: Path) -> str:
 _ORAL_CACHE: dict[str, dict] = {}  # id -> {"mtime": float, "data": {...}}
 
 
+def _meta_key(k: str) -> str:
+    """'조사 지역' · '제보자 이름'처럼 띄어쓰기가 흔들려도 같은 키로 본다."""
+    return re.sub(r"\s+", "", k or "")
+
+
+def _meta_pick(meta: dict, *names: str) -> str:
+    """띄어쓰기 흔들림과 별칭(주제보자이름 등)을 모두 받아 첫 값을 돌려준다."""
+    for n in names:
+        v = meta.get(_meta_key(n))
+        if v:
+            return str(v).strip()
+    return ""
+
+
 def parse_eaf(eaf_path: Path) -> dict:
     """ELAN .eaf 파싱 → 메타데이터 + 시간정렬 세그먼트.
 
@@ -203,10 +219,10 @@ def parse_eaf(eaf_path: Path) -> dict:
     for kv in meta_raw.split("/"):
         if ":" in kv:
             k, val = kv.split(":", 1)
-            meta[k.strip()] = val.strip()
+            meta[_meta_key(k)] = val.strip()
 
-    region = meta.get("조사지역", "")
-    content_code = meta.get("조사내용", "")
+    region = _meta_pick(meta, "조사지역")
+    content_code = _meta_pick(meta, "조사내용")
     oral_id = _oral_id_of(eaf_path)
     if not content_code:
         m = re.search(r"(\d{5})", oral_id)
@@ -231,7 +247,19 @@ def parse_eaf(eaf_path: Path) -> dict:
             })
         return segs
 
-    segments = pair_speaker("조사자") + pair_speaker("제보자1") + pair_speaker("제보자2")
+    # 전사자료에 실제로 등장한 화자 — 계층 이름에서 뽑는다.
+    #  · 제보자가 2명 이상인지 여기서만 알 수 있다(메타데이터 계층엔 주제보자 이름만 적힌다)
+    #  · 조사자/제보자1/제보자2 를 하드코딩하면 '제보자'(숫자 없음)·'제보자3' 이상의 발화가 통째로 유실된다
+    speakers = []
+    for tid, cnt in tier_counts.items():
+        m2 = re.match(r"^(.*?)\s*\(형태음소전사\)$", tid)
+        if m2 and cnt:
+            speakers.append({"name": m2.group(1).strip(), "lines": cnt})
+    speakers.sort(key=lambda x: (0 if x["name"].startswith("조사자") else 1, x["name"]))
+
+    segments = []
+    for sp in speakers:
+        segments += pair_speaker(sp["name"])
     segments.sort(key=lambda s: (s["startMs"], 0 if s["speaker"] == "조사자" else 1))
 
     # 항목번호를 시간구간으로 매핑 (희소)
@@ -251,21 +279,23 @@ def parse_eaf(eaf_path: Path) -> dict:
     # 전사자(ANNOTATOR) / 조사자 — 있을 때만 채움
     #  · 전사자: 메타데이터 '전사자' 키 우선, 없으면 ANNOTATOR 속성(단일이면 그 값)
     #  · 조사자: 메타데이터 '조사자' 키가 있을 때만 (EAF에 이름 없으면 빈 값)
-    transcriber = (meta.get("전사자") or meta.get("전사자명") or "").strip()
+    transcriber = _meta_pick(meta, "전사자", "전사자명")
     if not transcriber and len(annotators) == 1:
         transcriber = annotators[0]
-    investigator = (meta.get("조사자") or meta.get("조사자명") or "").strip()
+    investigator = _meta_pick(meta, "조사자", "조사자명")
 
     return {
         "oralId": oral_id,
         "region": region,
         "sidoCd": _sido_cd_of(region),
-        "year": meta.get("조사연도", ""),
+        "year": _meta_pick(meta, "조사연도"),
         "contentCode": content_code,
         "topic": ORAL_TOPIC_MAP.get(content_code, content_code or "-"),
-        "informant": meta.get("제보자이름", ""),
-        "sex": meta.get("성별", ""),
-        "birth": meta.get("출생연도", ""),
+        # 파일마다 '제보자 이름' / '주제보자이름' 으로 갈린다 — 둘 다 받는다
+        "informant": _meta_pick(meta, "제보자이름", "주제보자이름"),
+        "sex": _meta_pick(meta, "성별"),
+        "birth": _meta_pick(meta, "출생연도"),
+        "speakers": speakers,
         "investigator": investigator,
         "transcriber": transcriber,
         "durationMs": duration_ms,
@@ -414,6 +444,13 @@ def parse_trs(trs_path: Path) -> dict:
         if rest:
             topic = rest
 
+    # 화자 목록 — .trs 는 계층이 없어 세그먼트 화자를 센다
+    spk_counts: dict[str, int] = {}
+    for sg in segments:
+        spk_counts[sg["speaker"]] = spk_counts.get(sg["speaker"], 0) + 1
+    speakers = [{"name": k, "lines": v} for k, v in spk_counts.items()]
+    speakers.sort(key=lambda x: (0 if x["name"].startswith("조사자") else 1, x["name"]))
+
     return {
         "oralId": oral_id or audio_attr,
         "region": meta.get("region", ""),
@@ -424,6 +461,7 @@ def parse_trs(trs_path: Path) -> dict:
         "informant": meta.get("informant", ""),
         "sex": meta.get("sex", ""),
         "birth": birth,
+        "speakers": speakers,
         "investigator": "",
         "transcriber": scribe,
         "durationMs": duration_ms,
@@ -1174,6 +1212,168 @@ def api_oral_save_raw(body: dict) -> dict:
 ORAL_UPLOAD_DIR = ORAL_DATA_ROOT / "uploads"
 
 
+# ── .xlsx 리더 (외부 의존성 없이 표준 라이브러리만 사용) ────────────────
+_XL_NS = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+_XL_REL = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
+
+
+def _xl_col_index(letters: str) -> int:
+    """엑셀 열 문자('A','B','AA')를 0부터 시작하는 인덱스로 변환."""
+    n = 0
+    for ch in letters:
+        n = n * 26 + (ord(ch.upper()) - 64)
+    return max(0, n - 1)
+
+
+def _read_xlsx(data: bytes) -> list:
+    """.xlsx → [(시트명, [[셀값, ...], ...]), ...]"""
+    zf = zipfile.ZipFile(io.BytesIO(data))
+    names = zf.namelist()
+
+    shared = []
+    if "xl/sharedStrings.xml" in names:
+        for si in ET.fromstring(zf.read("xl/sharedStrings.xml")):
+            shared.append("".join(t.text or "" for t in si.iter(_XL_NS + "t")))
+
+    rels = {}
+    if "xl/_rels/workbook.xml.rels" in names:
+        for r in ET.fromstring(zf.read("xl/_rels/workbook.xml.rels")):
+            rels[r.get("Id")] = r.get("Target") or ""
+
+    sheets = []
+    for sh in ET.fromstring(zf.read("xl/workbook.xml")).iter(_XL_NS + "sheet"):
+        target = rels.get(sh.get(_XL_REL + "id"), "")
+        path = "xl/" + target.lstrip("/")
+        path = path.replace("xl/xl/", "xl/")
+        sheets.append((sh.get("name") or "", path))
+
+    out = []
+    for name, path in sheets:
+        if path not in names:
+            continue
+        rows = []
+        for row in ET.fromstring(zf.read(path)).iter(_XL_NS + "row"):
+            cells = []
+            for c in row.iter(_XL_NS + "c"):
+                ref = c.get("r") or ""
+                col = _xl_col_index("".join(ch for ch in ref if ch.isalpha()))
+                ctype_attr = c.get("t")
+                v = c.find(_XL_NS + "v")
+                if ctype_attr == "s" and v is not None and (v.text or "").isdigit():
+                    val = shared[int(v.text)] if int(v.text) < len(shared) else ""
+                elif ctype_attr == "inlineStr":
+                    node = c.find(_XL_NS + "is")
+                    val = "".join(t.text or "" for t in node.iter(_XL_NS + "t")) if node is not None else ""
+                else:
+                    val = (v.text or "") if v is not None else ""
+                while len(cells) < col:
+                    cells.append("")
+                cells.append(str(val).strip())
+            rows.append(cells)
+        out.append((name, rows))
+    return out
+
+
+# ── 검색 표준어 어휘 일괄 등록 ──────────────────────────────────────────
+STD_VOCAB_JSON = ROOT / "mariadb/neibis/survey/data/search-std-vocab.json"
+
+
+def _find_col(header: list, *keywords) -> int:
+    """헤더 행에서 키워드를 포함하는 열의 인덱스를 찾는다. 없으면 -1."""
+    for i, cell in enumerate(header):
+        flat = str(cell or "").replace(" ", "")
+        if any(k in flat for k in keywords):
+            return i
+    return -1
+
+
+def api_std_vocab_bulk(raw: bytes, ctype: str) -> dict:
+    """업로드된 엑셀에서 '표준어' 열을 읽어 검색 어휘 목록을 통째로 교체한다."""
+    mp = _parse_multipart(raw, ctype)
+    files = mp.get("files") or []
+    if not files:
+        return {"ok": False, "message": "엑셀 파일이 첨부되지 않았습니다."}
+
+    up = files[0]
+    if not str(up.get("filename", "")).lower().endswith((".xlsx", ".xlsm")):
+        return {"ok": False, "message": "xlsx 형식의 파일만 등록할 수 있습니다."}
+
+    try:
+        sheets = _read_xlsx(up["data"])
+    except Exception as e:
+        return {"ok": False, "message": f"엑셀을 읽을 수 없습니다: {e}"}
+
+    # '표준어' 열을 가진 첫 시트를 대상으로 삼는다.
+    target = None
+    skipped_sheets = []
+    for name, rows in sheets:
+        hit = None
+        for idx, row in enumerate(rows[:10]):
+            if _find_col(row, "표준어") >= 0:
+                hit = idx
+                break
+        if hit is not None and target is None:
+            target = (name, rows, hit)
+        elif any(any(c for c in r) for r in rows):
+            skipped_sheets.append(name)
+
+    if target is None:
+        return {"ok": False, "message": "'표준어' 열이 있는 시트를 찾지 못했습니다."}
+
+    name, rows, hrow = target
+    header = rows[hrow]
+    c_word = _find_col(header, "표준어")
+    c_no = _find_col(header, "항목번호", "항목No")
+
+    today = datetime.now().strftime("%Y-%m-%d")
+    items, seen = [], {}
+    blank = dup = 0
+    for row in rows[hrow + 1:]:
+        word = row[c_word].strip() if c_word < len(row) else ""
+        if not word:
+            blank += 1
+            continue
+        if word in seen:
+            dup += 1
+            continue
+        seen[word] = True
+        item_no = row[c_no].strip() if 0 <= c_no < len(row) else ""
+        items.append({
+            "id": len(items) + 1,
+            "itemNo": item_no,
+            "word": word,
+            "useYn": "Y",
+            "sortOrdr": len(items) + 1,
+            "rmrk": "",
+            "regDt": today,
+            "updDt": today,
+        })
+
+    if not items:
+        return {"ok": False, "message": "등록할 어휘가 없습니다."}
+
+    # 기존 목록은 .bak 한 부만 남긴다.
+    if STD_VOCAB_JSON.is_file():
+        STD_VOCAB_JSON.with_suffix(".json.bak").write_bytes(STD_VOCAB_JSON.read_bytes())
+
+    STD_VOCAB_JSON.parent.mkdir(parents=True, exist_ok=True)
+    STD_VOCAB_JSON.write_text(json.dumps({
+        "source": up["filename"],
+        "updated": today,
+        "items": items,
+    }, ensure_ascii=False, indent=1), encoding="utf-8")
+
+    return {
+        "ok": True,
+        "count": len(items),
+        "sheet": name,
+        "blank": blank,
+        "dup": dup,
+        "skippedSheets": skipped_sheets,
+        "file": up["filename"],
+    }
+
+
 def _parse_multipart(raw: bytes, ctype: str) -> dict:
     """multipart/form-data 최소 파서 → {files:[{field,filename,data}], fields:{}}."""
     out = {"files": [], "fields": {}}
@@ -1248,6 +1448,8 @@ def api_oral_upload(raw: bytes, ctype: str) -> dict:
                     "sex": rec["sex"], "birth": rec["birth"],
                     "investigator": rec.get("investigator", ""),
                     "transcriber": rec.get("transcriber", ""),
+                    # 제보자가 2명 이상인지는 이 목록으로만 알 수 있다
+                    "speakers": rec.get("speakers", []),
                 },
             })
         elif ext == "wav":
@@ -3990,10 +4192,12 @@ def api_board_post_list(qs: dict) -> dict:
         total = con.execute(f"SELECT COUNT(*) FROM tb_board_post p WHERE {wh}", params).fetchone()[0]
         rows = con.execute(
             f"""SELECT p.post_id, p.post_title, p.view_count, p.public_yn, p.use_yn,
-                       p.category_code, p.create_id, p.create_dt,
+                       p.fix_yn, p.category_code, p.create_id, p.create_dt,
                        (SELECT u.username FROM pt_user u WHERE u.usid = p.create_id LIMIT 1) AS username,
                        (SELECT COUNT(*) FROM tb_board_answer a
-                         WHERE a.post_id = p.post_id AND IFNULL(a.use_yn,'Y') <> 'N') AS answer_cnt
+                         WHERE a.post_id = p.post_id AND IFNULL(a.use_yn,'Y') <> 'N') AS answer_cnt,
+                       (SELECT COUNT(*) FROM tb_board_file f
+                         WHERE f.post_id = p.post_id AND IFNULL(f.use_yn,'Y') <> 'N') AS file_cnt
                 FROM tb_board_post p WHERE {wh}
                 ORDER BY CAST(p.post_id AS INTEGER) DESC
                 LIMIT ? OFFSET ?""",
@@ -4016,6 +4220,8 @@ def api_board_post_list(qs: dict) -> dict:
             "createDt": _fmt_user_dt(r["create_dt"]),
             "viewCount": str(r["view_count"] or "0"),
             "publicYn": r["public_yn"] or "",
+            "fixYn": (r["fix_yn"] or "N"),
+            "fileCount": int(r["file_cnt"] or 0),
             "deleted": str(r["use_yn"] or "Y") == "N",
             "answered": int(r["answer_cnt"] or 0) > 0,
         })
@@ -5033,6 +5239,963 @@ def api_literature_delete(body: dict) -> dict:
     return {"ok": True, "message": f"{deleted}건 삭제되었습니다.", "deleted": deleted}
 
 
+# ────────────────────────────────────────────────────────────────────────────
+# 세대별 지역어 변화(단어 카드) 관리 — data/processed/word_stories.json 직접 편집
+#   · 프론트(dialect_wordcard.html)가 읽는 그 파일이 곧 원본이다. DB를 쓰지 않는다.
+#   · 저장할 때 알 수 없는 필드(callTable·related·lineage 등)는 그대로 보존한다.
+#   · 쓰기는 임시파일 → os.replace 로 원자적으로, 직전 내용은 .bak 으로 남긴다.
+# ────────────────────────────────────────────────────────────────────────────
+WORDCARD_JSON = USER_MAP_ROOT / "data" / "processed" / "word_stories.json"
+
+WC_GROUPS = ["20M", "20F", "50M", "50F", "70M", "70F"]
+
+
+def _wc_load() -> dict:
+    if not WORDCARD_JSON.is_file():
+        raise FileNotFoundError(f"단어 카드 자료를 찾을 수 없습니다: {WORDCARD_JSON}")
+    with WORDCARD_JSON.open("r", encoding="utf-8") as f:
+        db = json.load(f)
+    db.setdefault("words", [])
+    db.setdefault("types", {})
+    db.setdefault("coding", [])
+    db.setdefault("meta", {})
+    return db
+
+
+def _wc_write(db: dict) -> None:
+    text = json.dumps(db, ensure_ascii=False, indent=1) + "\n"
+    if WORDCARD_JSON.is_file():
+        try:
+            bak = WORDCARD_JSON.with_suffix(WORDCARD_JSON.suffix + ".bak")
+            bak.write_bytes(WORDCARD_JSON.read_bytes())
+        except Exception:
+            pass  # 백업 실패로 저장 자체를 막지는 않는다
+    tmp = WORDCARD_JSON.with_name(WORDCARD_JSON.name + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    os.replace(str(tmp), str(WORDCARD_JSON))
+
+
+def _wc_ct_total(word: dict) -> int:
+    ct = word.get("ct") or {}
+    n = 0
+    for g in WC_GROUPS:
+        for v in (ct.get(g) or []):
+            try:
+                n += int(v)
+            except Exception:
+                pass
+    return n
+
+
+def _wc_row(word: dict, types: dict) -> dict:
+    """목록 한 줄 — 무거운 교차표는 합계만 보낸다."""
+    t = types.get(word.get("type")) or {}
+    return {
+        "id": str(word.get("id") or ""),
+        "word": word.get("word") or "",
+        "cat": word.get("cat") or "",
+        "type": word.get("type") or "",
+        "typeLabel": t.get("label") or word.get("type") or "",
+        "typeColor": t.get("color") or "#64748b",
+        "typeBg": t.get("bg") or "#f1f5f9",
+        "hook": word.get("hook") or "",
+        "page": word.get("page"),
+        "section": word.get("section") or "",
+        "hasCT": bool(word.get("hasCT")),
+        "ctTotal": _wc_ct_total(word),
+        "factCnt": len(word.get("facts") or []),
+        "variantCnt": len(word.get("variants") or []),
+    }
+
+
+def api_wordcard_meta(qs: dict) -> dict:
+    """유형·코딩 범주·기존 분류(cat) 목록 — 등록/수정 폼의 선택지."""
+    db = _wc_load()
+    cats = sorted({(w.get("cat") or "").strip() for w in db["words"] if (w.get("cat") or "").strip()})
+    return {
+        "ok": True,
+        "types": db["types"],
+        "coding": db["coding"],
+        "cats": cats,
+        "groups": WC_GROUPS,
+        "meta": db["meta"],
+        "path": str(WORDCARD_JSON),
+        "total": len(db["words"]),
+    }
+
+
+def api_wordcard_list(qs: dict) -> dict:
+    def q1(k, d=""):
+        v = qs.get(k)
+        return (v[0] if isinstance(v, list) else v) or d
+
+    kw = str(q1("searchValue")).strip()
+    wtype = str(q1("searchType")).strip()
+    expose = str(q1("searchExpose")).strip()  # Y: 교차표 있음(프론트 노출), N: 없음
+    try:
+        page = max(1, int(q1("page", "1")))
+    except Exception:
+        page = 1
+    try:
+        page_size = int(q1("pageSize", "10"))
+    except Exception:
+        page_size = 10
+    page_size = min(max(page_size, 1), 500)
+
+    db = _wc_load()
+    rows = [_wc_row(w, db["types"]) for w in db["words"]]
+
+    if kw:
+        def hit(r):
+            hay = " ".join([r["id"], r["word"], r["cat"], r["hook"]])
+            return kw in hay
+        rows = [r for r in rows if hit(r)]
+    if wtype:
+        rows = [r for r in rows if r["type"] == wtype]
+    if expose == "Y":
+        rows = [r for r in rows if r["hasCT"]]
+    elif expose == "N":
+        rows = [r for r in rows if not r["hasCT"]]
+
+    total = len(rows)
+    # 앞단에 실제로 뜨는 건수 — 목록 총건수(파일 전체)와 헷갈리지 않게 함께 보낸다
+    exposed = sum(1 for r in rows if r["hasCT"])
+    total_pages = max(1, (total + page_size - 1) // page_size)
+    page = min(page, total_pages)
+    start = (page - 1) * page_size
+    return {
+        "ok": True,
+        "total": total,
+        "exposed": exposed,
+        "hidden": total - exposed,
+        "page": page,
+        "pageSize": page_size,
+        "totalPages": total_pages,
+        "list": rows[start:start + page_size],
+    }
+
+
+def api_wordcard_detail(qs: dict) -> dict:
+    def q1(k, d=""):
+        v = qs.get(k)
+        return (v[0] if isinstance(v, list) else v) or d
+
+    wid = str(q1("id")).strip()
+    if not wid:
+        return {"ok": False, "message": "항목 ID가 없습니다."}
+    db = _wc_load()
+    for w in db["words"]:
+        if str(w.get("id")) == wid:
+            return {"ok": True, "item": w, "types": db["types"], "coding": db["coding"]}
+    return {"ok": False, "message": f"항목을 찾을 수 없습니다: {wid}"}
+
+
+def _wc_clean_ct(raw) -> dict:
+    """교차표 정리 — 6집단 × 4범주 정수. 전부 0인 집단은 버린다."""
+    out = {}
+    if not isinstance(raw, dict):
+        return out
+    for g in WC_GROUPS:
+        cells = raw.get(g)
+        if not isinstance(cells, list):
+            continue
+        vals = []
+        for i in range(4):
+            try:
+                vals.append(max(0, int(cells[i])))
+            except Exception:
+                vals.append(0)
+        if sum(vals) > 0:
+            out[g] = vals
+    return out
+
+
+def api_wordcard_save(body: dict) -> dict:
+    mode = str(body.get("mode") or "").upper()
+    wid = str(body.get("id") or "").strip()
+    old_id = str(body.get("oldId") or "").strip()
+    word = str(body.get("word") or "").strip()
+
+    if not wid:
+        return {"ok": False, "message": "항목번호(ID)를 입력해주세요."}
+    if not word:
+        return {"ok": False, "message": "단어를 입력해주세요."}
+
+    db = _wc_load()
+    words = db["words"]
+    if body.get("type") and body["type"] not in db["types"]:
+        return {"ok": False, "message": f"없는 변화 유형입니다: {body['type']}"}
+
+    idx = {str(w.get("id")): i for i, w in enumerate(words)}
+    if mode == "M":
+        target = old_id or wid
+        if target not in idx:
+            return {"ok": False, "message": f"수정할 항목을 찾을 수 없습니다: {target}"}
+        if wid != target and wid in idx:
+            return {"ok": False, "message": f"이미 쓰고 있는 항목번호입니다: {wid}"}
+        base = dict(words[idx[target]])
+        pos = idx[target]
+    else:
+        if wid in idx:
+            return {"ok": False, "message": f"이미 쓰고 있는 항목번호입니다: {wid}"}
+        base = {}
+        pos = None
+
+    facts = [str(s).strip() for s in (body.get("facts") or []) if str(s).strip()]
+    variants = []
+    for v in (body.get("variants") or []):
+        form = str((v or {}).get("form") or "").strip()
+        if not form:
+            continue
+        item = {"form": form}
+        if str(v.get("tag") or "").strip():
+            item["tag"] = str(v["tag"]).strip()
+        if str(v.get("note") or "").strip():
+            item["note"] = str(v["note"]).strip()
+        regions = [str(r).strip() for r in (v.get("regions") or []) if str(r).strip()]
+        if regions:
+            item["regions"] = regions
+        variants.append(item)
+
+    ct = _wc_clean_ct(body.get("ct"))
+
+    base["id"] = wid
+    base["word"] = word
+    base["cat"] = str(body.get("cat") or "").strip()
+    base["type"] = str(body.get("type") or "qualitative").strip()
+    base["hook"] = str(body.get("hook") or "").strip()
+    base["story"] = str(body.get("story") or "").strip()
+    base["facts"] = facts
+    base["section"] = str(body.get("section") or "4.1").strip()
+    try:
+        base["page"] = int(body.get("page"))
+    except Exception:
+        base["page"] = base.get("page") or 0
+
+    if variants:
+        base["variants"] = variants
+    else:
+        base.pop("variants", None)
+
+    stats_in = body.get("stats") or {}
+    chi = str(stats_in.get("chiSq") or "").strip()
+    if chi:
+        try:
+            stats = {"chiSq": float(chi)}
+        except Exception:
+            return {"ok": False, "message": "카이제곱 값은 숫자로 입력해주세요."}
+        try:
+            stats["df"] = int(str(stats_in.get("df") or "").strip())
+        except Exception:
+            pass
+        if str(stats_in.get("p") or "").strip():
+            stats["p"] = str(stats_in["p"]).strip()
+        base["stats"] = stats
+    else:
+        base.pop("stats", None)
+
+    # 교차표가 있는 항목만 프론트 차트에 노출된다 → hasCT 는 입력값이 아니라 결과다
+    if ct:
+        base["ct"] = ct
+        base["hasCT"] = True
+    else:
+        base.pop("ct", None)
+        base["hasCT"] = False
+
+    link = str(body.get("link") or "").strip()
+    if link:
+        base["link"] = link
+    else:
+        base.pop("link", None)
+
+    if pos is None:
+        words.append(base)
+    else:
+        words[pos] = base
+
+    _wc_write(db)
+    return {
+        "ok": True,
+        "id": wid,
+        "hasCT": base["hasCT"],
+        "message": ("등록되었습니다." if pos is None else "수정되었습니다.")
+        + ("" if base["hasCT"] else " 교차표가 없어 앞단 화면에는 노출되지 않습니다."),
+    }
+
+
+def api_wordcard_delete(body: dict) -> dict:
+    ids = body.get("ids") or []
+    if not ids:
+        one = body.get("id")
+        if one:
+            ids = [one]
+    ids = [str(x).strip() for x in ids if str(x).strip()]
+    if not ids:
+        return {"ok": False, "message": "삭제할 항목을 선택해주세요."}
+
+    db = _wc_load()
+    before = len(db["words"])
+    db["words"] = [w for w in db["words"] if str(w.get("id")) not in set(ids)]
+    deleted = before - len(db["words"])
+    if not deleted:
+        return {"ok": False, "message": "삭제할 항목을 찾지 못했습니다."}
+    _wc_write(db)
+    return {"ok": True, "deleted": deleted, "message": f"{deleted}건 삭제되었습니다."}
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# 지역어 기상도 — 전용 테이블 (wb_weather_*)
+#   · 원자료 파일 1개 = 제보자 1명. 지역·연차·세대·성별은 파일명에서 읽는다.
+#       {지역2}{연차2}{세대2}{성별1}VE.xlsx  예) CB2420FVE = 충북·2024·20대·여
+#   · 첫 시트가 정본이다. 12개 파일이 항목범위별 분할 시트를 함께 갖고 있고
+#     그중 GB2450MVE 는 저장 당시 마지막 시트가 활성이라 '활성 시트'를 쓰면 517행이 유실된다.
+#   · 열은 위치가 아니라 헤더 이름으로 찾는다. 원본 서식이 15가지로 흔들려서다.
+#     정리 양식(5열)과 옛 원본(14열·열순서 뒤바뀜)을 모두 받는다.
+#   · 판정 임계값은 scripts/etl_awareness_region.py 와 같아야 한다(w1 ≥.6 · w2 ≥.3 · w3 ≥.1).
+#
+# 운영에서는 이 표들이 CUBRID 같은 스키마에 들어간다. 로컬 프로토타입에서는
+# 운영 미러(dialect_local.db)를 건드리지 않으려고 별도 파일에 둔다.
+# ────────────────────────────────────────────────────────────────────────────
+WEATHER_DB = Path(
+    os.environ.get("WEATHER_DB", str(USER_MAP_ROOT / "data" / "gisangdo.db"))
+)
+WEATHER_ALLOW = USER_MAP_ROOT / "data" / "processed" / "standard_forms_allowlist.json"
+
+WB_REGION_NAMES = {"GG": "경기", "GW": "강원", "CB": "충북", "CN": "충남", "JB": "전북",
+                   "JN": "전남", "GB": "경북", "GN": "경남", "JJ": "제주"}
+WB_REGION_ORDER = ["GG", "GW", "CB", "CN", "JB", "JN", "GB", "GN", "JJ"]
+WB_VALID_GRADE = {"1", "2", "3", "4"}
+
+WEATHER_DDL = """
+CREATE TABLE IF NOT EXISTS wb_weather_file (
+  weather_file_id INTEGER PRIMARY KEY AUTOINCREMENT, file_nm TEXT NOT NULL UNIQUE,
+  region_cd TEXT NOT NULL, region_nm TEXT, research_year INTEGER,
+  research_degree TEXT, generation INTEGER, sex TEXT,
+  row_cnt INTEGER DEFAULT 0, item_cnt INTEGER DEFAULT 0, src_layout TEXT,
+  use_yn TEXT DEFAULT 'Y', reg_id TEXT, reg_dt TEXT, upt_id TEXT, upt_dt TEXT);
+CREATE INDEX IF NOT EXISTS ix_wwf_region ON wb_weather_file (region_cd, generation, sex);
+
+CREATE TABLE IF NOT EXISTS wb_weather_response (
+  response_id INTEGER PRIMARY KEY AUTOINCREMENT, weather_file_id INTEGER NOT NULL,
+  line_no INTEGER NOT NULL, serial_no TEXT, item_cd TEXT NOT NULL, item_base TEXT,
+  headword TEXT, dialect_form TEXT, grade TEXT, grade_valid_yn TEXT DEFAULT 'N',
+  use_yn TEXT DEFAULT 'Y', reg_dt TEXT,
+  FOREIGN KEY (weather_file_id) REFERENCES wb_weather_file (weather_file_id));
+CREATE INDEX IF NOT EXISTS ix_wwr_file ON wb_weather_response (weather_file_id, line_no);
+CREATE INDEX IF NOT EXISTS ix_wwr_item ON wb_weather_response (item_base, grade_valid_yn);
+CREATE INDEX IF NOT EXISTS ix_wwr_head ON wb_weather_response (headword);
+
+CREATE TABLE IF NOT EXISTS wb_weather_region_stat (
+  region_cd TEXT NOT NULL, item_base TEXT NOT NULL, headword TEXT,
+  state TEXT NOT NULL, use_rate REAL, informant_cnt INTEGER DEFAULT 0,
+  dialect_cnt INTEGER DEFAULT 0, std_only_yn TEXT DEFAULT 'N', core_yn TEXT DEFAULT 'N',
+  note TEXT, calc_dt TEXT, PRIMARY KEY (region_cd, item_base));
+CREATE INDEX IF NOT EXISTS ix_wwrs_state ON wb_weather_region_stat (item_base, state);
+
+CREATE TABLE IF NOT EXISTS wb_weather_std_form (
+  std_form_id INTEGER PRIMARY KEY AUTOINCREMENT, item_base TEXT NOT NULL,
+  std_form TEXT NOT NULL, memo TEXT, use_yn TEXT DEFAULT 'Y', reg_id TEXT, reg_dt TEXT,
+  UNIQUE (item_base, std_form));
+"""
+
+
+def weather_db():
+    WEATHER_DB.parent.mkdir(parents=True, exist_ok=True)
+    con = sqlite3.connect(str(WEATHER_DB))
+    con.row_factory = sqlite3.Row
+    con.executescript(WEATHER_DDL)
+    return con
+
+
+def _wb_norm_header(h) -> str:
+    """표기 흔들림을 표준 이름으로 모은다."""
+    s = re.sub(r"\s+", "", str(h or ""))
+    if s.startswith("시작시간"):
+        return "시작시간"
+    if s.startswith("종료시간"):
+        return "종료시간"
+    if s.startswith("지속시간"):
+        return "지속시간"
+    alias = {"표제어": "표제어형", "표제어형": "표제어형", "표준어형": "표제어형",
+             "인지도/사용도": "사용도/인지도", "사용도/인지도": "사용도/인지도"}
+    return alias.get(s, s)
+
+
+def _wb_parse_filename(fname: str):
+    m = re.match(r"^([A-Z]{2})(\d{2})(\d{2})([MF])VE", os.path.basename(fname))
+    if not m:
+        return None
+    rg, yy, gen, sx = m.groups()
+    return {"region_cd": rg, "region_nm": WB_REGION_NAMES.get(rg, rg),
+            "research_year": 2000 + int(yy), "research_degree": yy,
+            "generation": int(gen), "sex": sx}
+
+
+def _wb_item_base(code) -> str | None:
+    m = re.match(r"^(\d{5})", str(code or "").strip())
+    return m.group(1) if m else None
+
+
+def _wb_read_sheet(data: bytes):
+    """업로드된 xlsx → (레이아웃, [행dict]). 첫 시트만 읽는다."""
+    sheets = _read_xlsx(data)
+    if not sheets:
+        return "UNKNOWN", []
+    _name, grid = sheets[0]
+    if not grid:
+        return "UNKNOWN", []
+    hdr = [_wb_norm_header(x) for x in grid[0]]
+    idx = {}
+    for i, name in enumerate(hdr):
+        if name and name not in idx:
+            idx[name] = i
+    layout = "V5" if len(hdr) <= 6 else "RAW"
+
+    def g(row, key):
+        i = idx.get(key)
+        if i is None or i >= len(row):
+            return ""
+        v = row[i]
+        return "" if v is None else str(v).strip()
+
+    out, n = [], 0
+    for row in grid[1:]:
+        if not row or all(v is None or str(v).strip() == "" for v in row):
+            continue
+        n += 1
+        out.append({"line_no": n, "serial_no": g(row, "일련번호") or None,
+                    "item_cd": g(row, "항목번호"), "headword": g(row, "표제어형"),
+                    "dialect_form": g(row, "방언형(기저형)"), "grade": g(row, "사용도/인지도")})
+    return layout, out
+
+
+def api_weather_upload(raw: bytes, ctype: str) -> dict:
+    """기상도 원자료 업로드 — 파일 1개 = 제보자 1명. 같은 파일명은 덮어쓴다."""
+    mp = _parse_multipart(raw, ctype)
+    if not mp["files"]:
+        return {"ok": False, "message": "업로드된 파일이 없습니다."}
+    results, issues = [], []
+    con = weather_db()
+    for f in mp["files"]:
+        fname = f["filename"]
+        meta = _wb_parse_filename(fname)
+        if not meta:
+            results.append({"ok": False, "fileName": fname,
+                            "message": "파일명 규약 불일치 ({지역2}{연차2}{세대2}{성별1}VE.xlsx)"})
+            continue
+        try:
+            layout, rows = _wb_read_sheet(f["data"])
+        except Exception as e:
+            results.append({"ok": False, "fileName": fname, "message": f"엑셀 읽기 실패: {e}"})
+            continue
+        kept = [r for r in rows if r["item_cd"]]
+        dropped = len(rows) - len(kept)
+        if not kept:
+            results.append({"ok": False, "fileName": fname,
+                            "message": "항목번호가 있는 행이 없습니다. 첫 시트를 확인해 주세요."})
+            continue
+
+        # 같은 파일명은 재업로드로 보고 기존 행을 지운다
+        old = con.execute("SELECT weather_file_id FROM wb_weather_file WHERE file_nm=?",
+                          (fname,)).fetchone()
+        replaced = bool(old)
+        if old:
+            con.execute("DELETE FROM wb_weather_response WHERE weather_file_id=?",
+                        (old["weather_file_id"],))
+            con.execute("DELETE FROM wb_weather_file WHERE weather_file_id=?",
+                        (old["weather_file_id"],))
+        cur = con.execute(
+            """INSERT INTO wb_weather_file
+               (file_nm,region_cd,region_nm,research_year,research_degree,generation,sex,
+                row_cnt,item_cnt,src_layout,use_yn,reg_id,reg_dt)
+               VALUES (?,?,?,?,?,?,?,?,?,?,'Y','admin',datetime('now'))""",
+            (fname, meta["region_cd"], meta["region_nm"], meta["research_year"],
+             meta["research_degree"], meta["generation"], meta["sex"], len(kept),
+             len({_wb_item_base(r["item_cd"]) for r in kept} - {None}), layout))
+        fid = cur.lastrowid
+        bad = 0
+        batch = []
+        for r in kept:
+            gv = "Y" if r["grade"] in WB_VALID_GRADE else "N"
+            if r["grade"] and gv == "N" and r["grade"] != "*":
+                bad += 1
+                issues.append({"fileName": fname, "serialNo": r["serial_no"],
+                               "itemCd": r["item_cd"], "grade": r["grade"]})
+            batch.append((fid, r["line_no"], r["serial_no"], r["item_cd"],
+                          _wb_item_base(r["item_cd"]), r["headword"], r["dialect_form"],
+                          r["grade"] or None, gv))
+        con.executemany(
+            """INSERT INTO wb_weather_response
+               (weather_file_id,line_no,serial_no,item_cd,item_base,headword,
+                dialect_form,grade,grade_valid_yn,use_yn,reg_dt)
+               VALUES (?,?,?,?,?,?,?,?,?,'Y',datetime('now'))""", batch)
+        results.append({
+            "ok": True, "fileName": fname, "region": meta["region_nm"],
+            "year": meta["research_year"], "generation": f'{meta["generation"]}대',
+            "sex": "여" if meta["sex"] == "F" else "남", "layout": layout,
+            "rows": len(kept), "dropped": dropped, "gradeBad": bad, "replaced": replaced,
+        })
+    con.commit()
+    con.close()
+    okn = sum(1 for r in results if r.get("ok"))
+    msg = f"{okn}개 파일 적재" + (f" · 실패 {len(results)-okn}개" if okn < len(results) else "")
+    if issues:
+        msg += f" · 등급 이상값 {len(issues)}건"
+    return {"ok": True, "message": msg, "results": results, "issues": issues[:100]}
+
+
+def _wb_norm_form(s: str) -> str:
+    """etl_awareness_region.norm 과 같은 규칙 — 괄호 안 제거 후 공백·콜론 제거."""
+    return re.sub(r"[:\s]", "", re.sub(r"\([^)]*\)", "", s or ""))
+
+
+def _wb_head_forms(headword: str) -> set:
+    """표제어의 표준형 집합. '서 되/세 되' → {서되, 세되}."""
+    out = set()
+    for part in re.split(r"[/,]", headword or ""):
+        f = _wb_norm_form(part)
+        if f:
+            out.add(f)
+    return out
+
+
+def _wb_load_allow() -> set:
+    if not WEATHER_ALLOW.is_file():
+        return set()
+    d = json.loads(WEATHER_ALLOW.read_text(encoding="utf-8"))
+    out = set()
+    for it, v in (d.get("items") or {}).items():
+        for a in v.get("allow", []):
+            f = _wb_norm_form(a.get("form") or a.get("std") or "")
+            if f:
+                out.add((it, f))
+    return out
+
+
+def _wb_weather_of(rate):
+    """dialect_gisangdo.html weatherOf() 와 동일 임계값."""
+    if rate is None:
+        return "w0"
+    if rate >= 0.6:
+        return "w1"
+    if rate >= 0.3:
+        return "w2"
+    if rate >= 0.1:
+        return "w3"
+    return "w4"
+
+
+def api_weather_recalc(body: dict) -> dict:
+    """wb_weather_response → wb_weather_region_stat 재계산."""
+    con = weather_db()
+    rows = con.execute(
+        """SELECT f.region_cd rg, f.research_degree yr, f.generation age, f.sex sx,
+                  r.item_base it, r.headword pres, r.dialect_form base, r.grade g
+           FROM wb_weather_response r
+           JOIN wb_weather_file f ON f.weather_file_id=r.weather_file_id
+           WHERE r.item_base IS NOT NULL AND f.use_yn='Y' AND r.use_yn='Y'"""
+    ).fetchall()
+    if not rows:
+        con.close()
+        return {"ok": False, "message": "적재된 응답이 없습니다. 먼저 원자료를 올려주세요."}
+
+    recs = []
+    for r in rows:
+        pres = (r["pres"] or "").strip()
+        base = (r["base"] or "").strip()
+        g = (r["g"] or "").strip()
+        recs.append({"rg": r["rg"], "yr": r["yr"], "age": int(r["age"]), "sx": r["sx"],
+                     "it": r["it"], "pres": pres,
+                     "form": base if base and base != "*" else pres,
+                     "g": g if g in WB_VALID_GRADE else None})
+
+    allow = _wb_load_allow()
+    seen = {}
+    pres_cnt = {}
+    for r in recs:
+        if r["g"]:
+            seen.setdefault(r["it"], set()).add(r["rg"])
+        if r["pres"]:
+            pres_cnt.setdefault(r["it"], {}).setdefault(r["pres"], 0)
+            pres_cnt[r["it"]][r["pres"]] += 1
+    core = {it for it, s in seen.items() if len(s) == len(WB_REGION_ORDER)}
+    headword = {it: max(c.items(), key=lambda kv: kv[1])[0] for it, c in pres_cnt.items()}
+
+    by = {}
+    for r in recs:
+        by.setdefault((r["it"], r["rg"]), []).append(r)
+
+    def is_dialect(it, form):
+        f = _wb_norm_form(form)
+        return bool(f) and f not in _wb_head_forms(headword.get(it, "")) and (it, f) not in allow
+
+    out, tally = [], {}
+    items = sorted(set(r["it"] for r in recs))
+    for it in items:
+        for rg in WB_REGION_ORDER:
+            rs = by.get((it, rg), [])
+            informants = sorted({(r["yr"], r["age"], r["sx"]) for r in rs})
+            best = {}
+            for key in informants:
+                mine = [int(r["g"]) for r in rs
+                        if r["g"] and is_dialect(it, r["form"])
+                        and (r["yr"], r["age"], r["sx"]) == key]
+                if mine:
+                    best[key] = min(mine)
+            dial = [r for r in rs if is_dialect(it, r["form"])]
+            n = len(best)
+            if n:
+                rate = round(sum(1 for v in best.values() if v == 1) / n, 4)
+                state, note, std_only = _wb_weather_of(rate), None, "N"
+            elif rs and not dial:
+                rate, state, std_only = 0.0, "std", "Y"
+                note = f"조사된 {len(informants)}명 모두 표준어형만 응답"
+            else:
+                rate, state, std_only = None, "w0", "N"
+                note = "지역어형은 나왔으나 사용도/인지도 미기입" if dial else "해당 항목 응답 없음"
+            tally[state] = tally.get(state, 0) + 1
+            out.append((rg, it, headword.get(it, ""), state,
+                        None if rate is None else round(rate * 100, 2),
+                        n, len(dial), std_only, "Y" if it in core else "N", note))
+
+    con.execute("DELETE FROM wb_weather_region_stat")
+    con.executemany(
+        """INSERT INTO wb_weather_region_stat
+           (region_cd,item_base,headword,state,use_rate,informant_cnt,dialect_cnt,
+            std_only_yn,core_yn,note,calc_dt)
+           VALUES (?,?,?,?,?,?,?,?,?,?,datetime('now'))""", out)
+
+    con.execute("DELETE FROM wb_weather_std_form")
+    if WEATHER_ALLOW.is_file():
+        d = json.loads(WEATHER_ALLOW.read_text(encoding="utf-8"))
+        batch = []
+        for it, v in (d.get("items") or {}).items():
+            for a in v.get("allow", []):
+                batch.append((it, a.get("form") or a.get("std") or "",
+                              "검토필요" if a.get("review") else None))
+        con.executemany(
+            """INSERT OR IGNORE INTO wb_weather_std_form
+               (item_base,std_form,memo,use_yn,reg_id,reg_dt)
+               VALUES (?,?,?,'Y','admin',datetime('now'))""", batch)
+    con.commit()
+    con.close()
+    return {"ok": True, "cells": len(out), "items": len(items), "core": len(core),
+            "tally": tally,
+            "message": f"집계 {len(out):,}칸 재계산 (항목 {len(items)}개 · 전지역관측 {len(core)}개)"}
+
+
+WEATHER_HIST_DDL = """
+CREATE TABLE IF NOT EXISTS wh_weather_response (
+  hist_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  response_id INTEGER, weather_file_id INTEGER, item_base TEXT,
+  before_form TEXT, before_grade TEXT, after_form TEXT, after_grade TEXT,
+  action TEXT, editor TEXT, edit_dt TEXT);
+CREATE INDEX IF NOT EXISTS ix_whwr_item ON wh_weather_response (item_base, weather_file_id);
+"""
+
+
+def _weather_etl():
+    """ETL 모듈 — 구조 조립·판정·DB 로더가 모두 거기 한 곳에 있다."""
+    import importlib.util
+    path = USER_MAP_ROOT / "scripts" / "etl_awareness_region.py"
+    if not path.is_file():
+        raise FileNotFoundError(f"ETL 스크립트를 찾을 수 없습니다: {path}")
+    spec = importlib.util.spec_from_file_location("etl_awareness_region", str(path))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+_WEATHER_AWARE_CACHE = {"sig": None, "data": None}
+
+
+def _weather_sig(con):
+    n = con.execute("SELECT COUNT(*) FROM wb_weather_response").fetchone()[0]
+    d = con.execute("SELECT MAX(reg_dt) FROM wb_weather_file").fetchone()[0]
+    e = con.execute("SELECT MAX(edit_dt) FROM wh_weather_response").fetchone()[0]
+    return (n, d, e)
+
+
+def api_weather_awareness(qs: dict) -> dict:
+    """관리자 목록·응답관리가 읽는 자료 — 전용 테이블 기준.
+
+    프론트(server.py)와 같은 구조를 돌려준다. 목록이 정적 JSON 을 직접 읽던 것을
+    이 API 로 바꾸면, 업로드 직후 내보내기를 하지 않아도 화면이 최신 상태가 된다.
+    """
+    con = weather_db()
+    con.executescript(WEATHER_HIST_DDL)
+    try:
+        sig = _weather_sig(con)
+    finally:
+        con.close()
+    if _WEATHER_AWARE_CACHE["sig"] == sig and _WEATHER_AWARE_CACHE["data"] is not None:
+        return _WEATHER_AWARE_CACHE["data"]
+    etl = _weather_etl()
+    recs, nfiles = etl.load_records_from_db(str(WEATHER_DB))
+    out = etl.build_output(recs, nfiles)
+    etl.fill_db_qc(out, str(WEATHER_DB))
+    _WEATHER_AWARE_CACHE["sig"] = sig
+    _WEATHER_AWARE_CACHE["data"] = out
+    return out
+
+
+def _weather_file_by_panel_id(con, panel_id: str):
+    """명부 id (GW2420M = 지역2+연차2+세대2+성별1) → wb_weather_file 한 건."""
+    m = re.match(r"^([A-Z]{2})(\d{2})(\d{2})([MF])$", str(panel_id or "").strip())
+    if not m:
+        return None
+    rg, yy, gen, sx = m.groups()
+    return con.execute(
+        """SELECT * FROM wb_weather_file
+           WHERE region_cd=? AND research_degree=? AND generation=? AND sex=? AND use_yn='Y'""",
+        (rg, yy, int(gen), sx)).fetchone()
+
+
+def api_weather_response_save(body: dict) -> dict:
+    """응답 관리(2단) 저장 — 화면의 칸 하나 = wb_weather_response 한 행.
+
+    제보자 한 명·한 항목에 행이 여러 개다(표준어형 응답 + 지역어형 제시). 그래서
+    **어느 행을 고칠지는 화면이 실어 보낸 rid(response_id)로만 정한다.**
+    추정으로 행을 고르면 엉뚱한 응답의 등급을 지운다 — 실제로 그렇게 망가뜨려 봤다.
+    rid 가 없는 칸(화면에서 새로 추가한 제보자, 등급이 없던 칸)은 저장하지 않고 이유를 돌려준다.
+
+    화면(wrPanel)은 등급을 st 에 담는다: '1'~'4' | 's'(표준어형만) | 'x'(등급 미기입).
+    집계 산출(build_output)의 panel 은 st='d' + grade 를 쓴다. 둘 다 받는다.
+    """
+    item = str(body.get("itemBase") or body.get("code") or "").strip()
+    rg = str(body.get("regionCd") or body.get("region") or "").strip()
+    panel = body.get("panel") or []
+    if not item or not rg:
+        return {"ok": False, "message": "항목번호와 지역이 필요합니다."}
+    if not isinstance(panel, list):
+        return {"ok": False, "message": "panel 형식이 올바르지 않습니다."}
+
+    con = weather_db()
+    con.executescript(WEATHER_HIST_DDL)
+    saved, skipped, hist = 0, [], 0
+    try:
+        for c in panel:
+            c = c or {}
+            pid = str(c.get("id") or "").strip()
+            st = str(c.get("st") or "").strip()
+            form = str(c.get("form") or "").strip()
+            grade = c.get("grade")
+            grade = "" if grade in (None, "") else str(grade).strip()
+            rid = c.get("rid")
+
+            if st in ("1", "2", "3", "4"):
+                grade, st = st, "d"
+            elif st == "x":
+                grade, st = "", "x"
+
+            f = _weather_file_by_panel_id(con, pid)
+            if not f:
+                skipped.append({"id": pid,
+                                "reason": "제보자 원자료 파일이 없습니다 (원자료를 먼저 올려주세요)"})
+                continue
+
+            if rid in (None, ""):
+                skipped.append({"id": pid,
+                                "reason": "고칠 행을 알 수 없습니다 (등급이 없던 칸은 아직 편집할 수 없습니다)"})
+                continue
+
+            row = con.execute(
+                """SELECT response_id, weather_file_id, dialect_form, headword, grade
+                   FROM wb_weather_response WHERE response_id=? AND use_yn='Y'""",
+                (int(rid),)).fetchone()
+            if not row:
+                skipped.append({"id": pid, "reason": f"행을 찾지 못했습니다 (rid={rid})"})
+                continue
+            if row["weather_file_id"] != f["weather_file_id"]:
+                # 화면이 보낸 제보자와 행의 주인이 다르면 손대지 않는다
+                skipped.append({"id": pid, "reason": "제보자와 행이 맞지 않습니다"})
+                continue
+
+            # 이 행의 '유효 어형' — 기저형이 비었거나 '*' 면 표제어형을 쓴다 (ETL 과 같은 규칙)
+            base = (row["dialect_form"] or "").strip()
+            eff_form = base if base and base != "*" else (row["headword"] or "").strip()
+            cur_grade = (row["grade"] or "").strip()
+
+            if st == "s":
+                new_grade, action = None, "clear-grade"
+            elif st == "x":
+                new_grade, action = None, "clear-grade"
+            else:
+                new_grade, action = (grade or None), "update"
+
+            form_changed = bool(form) and form != eff_form
+            grade_changed = (new_grade or "") != cur_grade
+            if not form_changed and not grade_changed:
+                continue                       # 값이 그대로면 건드리지 않는다 (멱등)
+
+            # 어형은 원본이 기저형에 들어 있던 경우에만 고친다.
+            # 기저형이 '*' 인 행(지역어형 제시)은 표제어형이 어형이므로 그쪽을 고친다.
+            if form_changed:
+                if base and base != "*":
+                    con.execute(
+                        "UPDATE wb_weather_response SET dialect_form=? WHERE response_id=?",
+                        (form, row["response_id"]))
+                else:
+                    con.execute(
+                        "UPDATE wb_weather_response SET headword=? WHERE response_id=?",
+                        (form, row["response_id"]))
+            if grade_changed:
+                con.execute(
+                    "UPDATE wb_weather_response SET grade=?, grade_valid_yn=? WHERE response_id=?",
+                    (new_grade, "Y" if (new_grade or "") in ("1", "2", "3", "4") else "N",
+                     row["response_id"]))
+
+            con.execute(
+                """INSERT INTO wh_weather_response
+                   (response_id,weather_file_id,item_base,before_form,before_grade,
+                    after_form,after_grade,action,editor,edit_dt)
+                   VALUES (?,?,?,?,?,?,?,?,'admin',datetime('now'))""",
+                (row["response_id"], f["weather_file_id"], item, eff_form, cur_grade or None,
+                 form if form_changed else eff_form, new_grade, action))
+            hist += 1
+            saved += 1
+        con.commit()
+    finally:
+        con.close()
+
+    _WEATHER_AWARE_CACHE["sig"] = None
+    res = api_weather_recalc({})
+    msg = f"{saved}칸 저장 · 집계 재계산 완료" if saved else "바뀐 내용이 없습니다"
+    if skipped:
+        msg += f" · 저장 못 한 칸 {len(skipped)}개"
+    return {"ok": True, "saved": saved, "history": hist, "skipped": skipped,
+            "recalc": res.get("message"), "message": msg}
+
+
+def api_weather_response_history(qs: dict) -> dict:
+    """응답 수정 이력."""
+    def q1(k, d=""):
+        v = qs.get(k)
+        return (v[0] if isinstance(v, list) else v) or d
+
+    item = str(q1("itemBase")).strip()
+    con = weather_db()
+    con.executescript(WEATHER_HIST_DDL)
+    where, params = [], []
+    if item:
+        where.append("h.item_base=?")
+        params.append(item)
+    wh = ("WHERE " + " AND ".join(where)) if where else ""
+    rows = [dict(r) for r in con.execute(
+        f"""SELECT h.hist_id,h.item_base,h.before_form,h.before_grade,h.after_form,
+                   h.after_grade,h.action,h.editor,h.edit_dt,
+                   f.region_nm,f.generation,f.sex,f.file_nm
+            FROM wh_weather_response h
+            LEFT JOIN wb_weather_file f ON f.weather_file_id=h.weather_file_id
+            {wh} ORDER BY h.hist_id DESC LIMIT 200""", params)]
+    con.close()
+    return {"ok": True, "total": len(rows), "list": rows}
+
+
+def api_weather_export(body: dict) -> dict:
+    """전용 테이블 → 정적 JSON(data/processed/awareness_by_region.json) 다시 뽑기.
+
+    정적 호스팅(GitHub Pages)에는 API 가 없어 프론트가 이 파일로 되돌아간다.
+    관리자에서 원자료를 올린 뒤 이걸 눌러야 정적 배포본에도 반영된다.
+    구조 조립은 scripts/etl_awareness_region.py 의 build_output() 한 곳에서만 한다.
+    """
+    import importlib.util
+
+    etl_path = USER_MAP_ROOT / "scripts" / "etl_awareness_region.py"
+    if not etl_path.is_file():
+        return {"ok": False, "message": f"ETL 스크립트를 찾을 수 없습니다: {etl_path}"}
+    spec = importlib.util.spec_from_file_location("etl_awareness_region", str(etl_path))
+    etl = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(etl)
+
+    out_path = USER_MAP_ROOT / "data" / "processed" / "awareness_by_region.json"
+    # 직전 내용을 .bak 으로 남긴다 — 되돌릴 수 있게
+    if out_path.is_file():
+        try:
+            out_path.with_suffix(out_path.suffix + ".bak").write_bytes(out_path.read_bytes())
+        except Exception:
+            pass
+
+    recs, nfiles = etl.load_records_from_db(str(WEATHER_DB))
+    out = etl.build_output(recs, nfiles)
+    etl.fill_db_qc(out, str(WEATHER_DB))
+    text = json.dumps(out, ensure_ascii=False, indent=1)
+    tmp = out_path.with_name(out_path.name + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    os.replace(str(tmp), str(out_path))
+
+    qc = out["meta"]["qc"]
+    return {"ok": True, "path": str(out_path), "bytes": len(text.encode("utf-8")),
+            "informants": nfiles, "items": len(out["items"]),
+            "cells": qc.get("cells"), "states": qc.get("states"),
+            "message": (f"정적 JSON 내보냄 — 제보자 {nfiles}명 · 항목 {len(out['items'])}개 · "
+                        f"{len(text.encode('utf-8'))/1024:.0f} KB")}
+
+
+def api_weather_files(qs: dict) -> dict:
+    """적재된 원자료 파일 목록."""
+    con = weather_db()
+    rows = [dict(r) for r in con.execute(
+        """SELECT weather_file_id,file_nm,region_cd,region_nm,research_year,generation,
+                  sex,row_cnt,item_cnt,src_layout,use_yn,reg_dt
+           FROM wb_weather_file ORDER BY region_cd, generation, sex""")]
+    stat = con.execute("SELECT COUNT(*) c, MAX(calc_dt) d FROM wb_weather_region_stat").fetchone()
+    resp = con.execute("SELECT COUNT(*) c FROM wb_weather_response").fetchone()
+    bad = con.execute(
+        """SELECT COUNT(*) c FROM wb_weather_response
+           WHERE grade IS NOT NULL AND grade<>'*' AND grade_valid_yn='N'""").fetchone()
+    con.close()
+    for r in rows:
+        r["sexNm"] = "여" if r["sex"] == "F" else "남"
+        r["genNm"] = f'{r["generation"]}대'
+    return {"ok": True, "total": len(rows), "list": rows,
+            "responseCnt": resp["c"], "statCnt": stat["c"], "statCalcDt": stat["d"],
+            "gradeBadCnt": bad["c"]}
+
+
+def api_weather_stat(qs: dict) -> dict:
+    """지역 단위 집계 조회 — 화면이 읽는 결과."""
+    def q1(k, d=""):
+        v = qs.get(k)
+        return (v[0] if isinstance(v, list) else v) or d
+
+    core_only = str(q1("coreOnly", "Y")).upper() != "N"
+    item = str(q1("itemBase")).strip()
+    con = weather_db()
+    where, params = [], []
+    if core_only:
+        where.append("core_yn='Y'")
+    if item:
+        where.append("item_base=?")
+        params.append(item)
+    wh = ("WHERE " + " AND ".join(where)) if where else ""
+    rows = [dict(r) for r in con.execute(
+        f"""SELECT region_cd,item_base,headword,state,use_rate,informant_cnt,
+                   dialect_cnt,std_only_yn,core_yn,note
+            FROM wb_weather_region_stat {wh}
+            ORDER BY item_base, region_cd""", params)]
+    con.close()
+    return {"ok": True, "total": len(rows), "list": rows,
+            "regionOrder": WB_REGION_ORDER, "regionNames": WB_REGION_NAMES}
+
+
+def api_weather_delete(body: dict) -> dict:
+    """적재 파일 삭제 (응답 행까지)."""
+    ids = body.get("ids") or ([body.get("id")] if body.get("id") else [])
+    ids = [str(x).strip() for x in ids if str(x).strip()]
+    if not ids:
+        return {"ok": False, "message": "삭제할 파일을 선택해주세요."}
+    con = weather_db()
+    ph = ",".join("?" * len(ids))
+    con.execute(f"DELETE FROM wb_weather_response WHERE weather_file_id IN ({ph})", ids)
+    cur = con.execute(f"DELETE FROM wb_weather_file WHERE weather_file_id IN ({ph})", ids)
+    n = cur.rowcount
+    con.commit()
+    con.close()
+    return {"ok": True, "deleted": n,
+            "message": f"{n}건 삭제되었습니다. 집계 재계산이 필요합니다."}
+
+
 class Handler(http.server.SimpleHTTPRequestHandler):
     def translate_path(self, path):
         # strip query for file mapping
@@ -5113,6 +6276,26 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ctype = self.headers.get("Content-Type", "")
 
         # 멀티파트 업로드(등록 ①)는 JSON 파싱 전에 처리
+        if path in (
+            "/mariadb/neibis-api/survey/std-vocab/bulk",
+            "/mariadb/neibis-api/std-vocab/bulk",
+        ):
+            try:
+                self._send_json(api_std_vocab_bulk(raw, ctype))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/weather/upload",
+            "/mariadb/neibis-api/v1/weather/upload",
+        ):
+            try:
+                self._send_json(api_weather_upload(raw, ctype))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
         if path in (
             "/mariadb/neibis-api/oral/upload",
             "/mariadb/neibis-api/v1/oral/upload",
@@ -5211,6 +6394,66 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 self._send_json(api_user_reset_pw(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/weather/response/save",
+            "/mariadb/neibis-api/v1/weather/response/save",
+        ):
+            try:
+                self._send_json(api_weather_response_save(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/weather/export",
+            "/mariadb/neibis-api/v1/weather/export",
+        ):
+            try:
+                self._send_json(api_weather_export(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/weather/recalc",
+            "/mariadb/neibis-api/v1/weather/recalc",
+        ):
+            try:
+                self._send_json(api_weather_recalc(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/weather/delete",
+            "/mariadb/neibis-api/v1/weather/delete",
+        ):
+            try:
+                self._send_json(api_weather_delete(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/wordcard/save",
+            "/mariadb/neibis-api/v1/wordcard/save",
+        ):
+            try:
+                self._send_json(api_wordcard_save(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/wordcard/delete",
+            "/mariadb/neibis-api/v1/wordcard/delete",
+        ):
+            try:
+                self._send_json(api_wordcard_delete(body))
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return
@@ -5431,6 +6674,76 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 self._send_json(api_user_detail(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/weather/awareness",
+            "/mariadb/neibis-api/v1/weather/awareness",
+        ):
+            try:
+                self._send_json(api_weather_awareness(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/weather/response/history",
+            "/mariadb/neibis-api/v1/weather/response/history",
+        ):
+            try:
+                self._send_json(api_weather_response_history(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/weather/files",
+            "/mariadb/neibis-api/v1/weather/files",
+        ):
+            try:
+                self._send_json(api_weather_files(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/weather/stat",
+            "/mariadb/neibis-api/v1/weather/stat",
+        ):
+            try:
+                self._send_json(api_weather_stat(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/wordcard/list",
+            "/mariadb/neibis-api/v1/wordcard/list",
+        ):
+            try:
+                self._send_json(api_wordcard_list(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/wordcard/detail",
+            "/mariadb/neibis-api/v1/wordcard/detail",
+        ):
+            try:
+                self._send_json(api_wordcard_detail(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/wordcard/meta",
+            "/mariadb/neibis-api/v1/wordcard/meta",
+        ):
+            try:
+                self._send_json(api_wordcard_meta(qs))
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return
