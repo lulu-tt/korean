@@ -180,11 +180,6 @@ body{ background:#ffffff; }
 #jiyeoeo-gisangdo-root .gs-map-legend-acc__body .row{ display:grid; grid-template-columns:11px 1fr; align-items:start; column-gap:7px; font-size:11.5px; padding:3px 0; color:#334155; line-height:1.45; }
 #jiyeoeo-gisangdo-root .gs-map-legend-acc__body .sw{ width:11px; height:11px; border-radius:3px; flex-shrink:0; margin-top:3px; }
 #jiyeoeo-gisangdo-root .gs-map-legend-acc__body .row.is-muted{ color:#94a3b8; font-weight:500; }
-/* 색 견본이 없는 안내 줄 — 격자 두 칸을 다 쓰게 한다.
-   첫 칸(11px)에 들어가면 글자가 한 자씩 세로로 흐른다. */
-#jiyeoeo-gisangdo-root .gs-map-legend-acc__body .row.note{ display:block; }
-#jiyeoeo-gisangdo-root .gs-map-legend-acc__body .row.note span{ display:block; font-size:11.5px;
-  color:#64748b; line-height:1.6; }
 /* 범례 — 뜻을 굵게, 숫자/날씨이름은 뒤로 물린다 */
 #jiyeoeo-gisangdo-root .gs-map-legend-acc__body .row b{ font-weight:700; color:#1e293b; }
 #jiyeoeo-gisangdo-root .gs-map-legend-acc__body .row em{ display:block; font-style:normal; color:#94a3b8; font-weight:500; font-size:10px; }
@@ -653,12 +648,10 @@ body{ background:#ffffff; }
           <i class="ti ti-chevron-down chev" aria-hidden="true"></i>
         </button>
         <div class="gs-map-legend-acc__body">
-          <div class="row"><span class="sw" style="background:${HEXVAR.w1}"></span><span>${EMOJI.w1} <b>대체로 지금도 쓴다</b><em>맑음 · 87.5점 이상</em></span></div>
-          <div class="row"><span class="sw" style="background:${HEXVAR.w2}"></span><span>${EMOJI.w2} <b>쓰거나 써 본 사람이 많다</b><em>구름조금 · 62.5~87.4점</em></span></div>
-          <div class="row"><span class="sw" style="background:${HEXVAR.w3}"></span><span>${EMOJI.w3} <b>들어는 본 정도가 많다</b><em>흐리고 비 · 37.5~62.4점</em></span></div>
-          <div class="row"><span class="sw" style="background:${HEXVAR.w4}"></span><span>${EMOJI.w4} <b>대체로 처음 듣는다</b><em>천둥번개 · 37.5점 미만</em></span></div>
-          <div class="row note" style="border-top:1px solid #e2e8f0;padding-top:6px;margin-top:2px">
-            <span>점수 = 제보자 등급의 평균</span></div>
+          <div class="row"><span class="sw" style="background:${HEXVAR.w1}"></span><span>${EMOJI.w1} <b>대체로 지금도 쓴다</b><em>맑음 · 88점 이상</em></span></div>
+          <div class="row"><span class="sw" style="background:${HEXVAR.w2}"></span><span>${EMOJI.w2} <b>쓰거나 써 본 사람이 많다</b><em>구름조금 · 63~87점</em></span></div>
+          <div class="row"><span class="sw" style="background:${HEXVAR.w3}"></span><span>${EMOJI.w3} <b>들어는 본 정도가 많다</b><em>흐리고 비 · 38~62점</em></span></div>
+          <div class="row"><span class="sw" style="background:${HEXVAR.w4}"></span><span>${EMOJI.w4} <b>대체로 처음 듣는다</b><em>천둥번개 · 37점 이하</em></span></div>
           <div class="row is-muted"><span class="sw" style="background:${HEXVAR.std}"></span><span><b>지역어형 없음</b></span></div>
           <div class="row is-muted"><span class="sw" style="background:${HEXVAR.w0}"></span><span><b>관측 없음</b></span></div>
         </div>
