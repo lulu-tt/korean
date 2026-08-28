@@ -881,7 +881,7 @@
 											<caption class="sr-only">적재된 원자료 파일</caption>
 											<colgroup>
 												<col style="width:56px" /><col /><col style="width:88px" /><col style="width:78px" />
-												<col style="width:78px" /><col style="width:96px" /><col style="width:104px" /><col style="width:92px" />
+												<col style="width:78px" /><col style="width:96px" /><col style="width:152px" /><col style="width:92px" />
 											</colgroup>
 											<thead>
 												<tr>
@@ -891,7 +891,7 @@
 													<th scope="col">세대</th>
 													<th scope="col">성별</th>
 													<th scope="col">응답 행</th>
-													<th scope="col">관리자 수정</th>
+													<th scope="col">업로드 일시</th>
 													<th scope="col">관리</th>
 												</tr>
 											</thead>
@@ -1662,7 +1662,8 @@ const getMngrFail = function (xhr, status, error) {
         + '<td>'+esc(f.region_nm||RNM[f.region_cd]||f.region_cd)+'</td>'
         + '<td>'+esc(f.genNm||'')+'</td><td>'+esc(f.sexNm||'')+'</td>'
         + '<td>'+(f.row_cnt||0).toLocaleString()+'</td>'
-        + '<td>'+(f.editedCnt ? '<b style="color:#7c3aed">'+f.editedCnt+'건</b>' : '<span class="pt-dash">—</span>')+'</td>'
+        + '<td class="pt-sn">'+esc(f.reg_dt||'—')
+        +   (f.editedCnt ? ' <b style="color:#7c3aed" title="관리자가 고친 응답 '+f.editedCnt+'건">✎'+f.editedCnt+'</b>' : '')+'</td>'
         + '<td><button type="button" class="btn btn-xs btn-outline-gray pf-del" data-id="'+f.weather_file_id+'" '
         +   'data-nm="'+esc(f.file_nm)+'" data-ed="'+(f.editedCnt||0)+'">삭제</button></td></tr>';
     }).join('');
