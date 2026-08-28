@@ -762,7 +762,6 @@
 													<td colspan="3">
 														<label class="check-item"><input type="radio" name="prState" value="" checked /><span class="label">전체</span></label>
 														<label class="check-item"><input type="radio" name="prState" value="blank" /><span class="label">등급 미기입</span></label>
-														<label class="check-item"><input type="radio" name="prState" value="pres" /><span class="label">조사자 제시형</span></label>
 														<label class="check-item"><input type="radio" name="prState" value="edit" /><span class="label">관리자가 고침</span></label>
 													</td>
 												</tr>
@@ -789,7 +788,6 @@
 										<p class="total" id="prCount">총 <strong class="text-primary">0</strong>건</p>
 										<span class="pt-legend">
 											<span><em class="lg-sub">한 줄 = 엑셀 한 행</em></span>
-											<span><i class="lg-pres"></i>조사자 제시형</span>
 											<span><i class="lg-none"></i>등급 미기입</span>
 										</span>
 									</div>
@@ -1369,7 +1367,6 @@ const getMngrFail = function (xhr, status, error) {
 .pt-rtitle{ font-size:16px; font-weight:800; color:#1f3864; margin:0; }
 .pt-rmeta{ font-size:12.5px; color:#94a3b8; }
 .pt-rlink{ margin-left:auto; font-size:12.5px; color:#2563eb; font-weight:700; }
-.pt-legend i.lg-pres{ background:#e9d5ff; }
 
 /* 제보자가 바뀌는 줄에만 이름을 쓰고, 거기서 선을 긋는다 — 83행이 덩어리로 읽힌다 */
 .pt-rr > td{ border-top:0 !important; padding-top:5px !important; padding-bottom:5px !important; }
@@ -1389,7 +1386,6 @@ const getMngrFail = function (xhr, status, error) {
 .pt-gi.is-blank{ background:#fef3c7; color:#92400e; }
 .pt-tag{ display:inline-block; font-size:10.5px; font-weight:700; border-radius:20px;
 	padding:2px 8px; margin-left:7px; vertical-align:1px; }
-.pt-tag.pres{ background:#f3e8ff; color:#6b21a8; border:1px solid #e9d5ff; }
 .pt-savebar{ position:sticky; bottom:0; z-index:5; display:flex; align-items:center; gap:10px;
 	background:#fff; border:1px solid #dbeafe; border-top:2px solid #2563eb; border-radius:10px 10px 0 0;
 	padding:11px 16px; margin-top:10px; box-shadow:0 -3px 14px rgba(15,23,42,.07); }
@@ -1916,7 +1912,6 @@ const getMngrFail = function (xhr, status, error) {
       if(F.sex && r.sex!==F.sex) return false;
       var d=DIRTY[r.rid];
       if(F.st==='blank' && (d?d.grade:r.grade)) return false;
-      if(F.st==='pres'  && !r.presented) return false;
       if(F.st==='edit'  && !d && !r.edited) return false;   /* 저장 전 수정 + 저장된 수정 둘 다 */
       if(F.q && (r.shown||'').toLowerCase().indexOf(F.q)<0
              && (r.serialNo||'').toLowerCase().indexOf(F.q)<0) return false;
@@ -1950,7 +1945,7 @@ const getMngrFail = function (xhr, status, error) {
         + '<td>'+(head?esc(r.regionNm):'')+'</td>'
         + '<td>'+(head?esc(who):'')+'</td>'
         + '<td><input type="text" class="pt-fi" value="'+esc(f)+'" />'
-        +   (r.presented ? '<span class="pt-tag pres" title="방언형 칸이 비어 있고 표제어형 칸에 어형이 적힌 행입니다">제시형</span>' : '')+'</td>'
+        + '</td>'
         + '<td><select class="pt-gi'+(g?'':' is-blank')+'">'
         +     '<option value=""'+(g?'':' selected')+'>— 미기입</option>'
         +     GRADE.map(function(o){ return '<option value="'+o[0]+'"'+(g===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('')

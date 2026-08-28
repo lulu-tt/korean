@@ -5961,9 +5961,8 @@ def api_weather_responses(qs: dict) -> dict:
             "sex": r["sex"],
             "headword": pres,
             "form": form,
-            # 방언형 칸이 비면 표제어형 칸의 값이 조사자 제시형이다 (ETL 과 같은 규칙)
+            # 방언형 칸이 비면 표제어형 칸의 값을 쓴다 (ETL 과 같은 규칙)
             "shown": form if form and form != "*" else pres,
-            "presented": not (form and form != "*"),
             "grade": (r["grade"] or "") if r["grade_valid_yn"] == "Y" else "",
             "gradeRaw": r["grade"] or "",
             # 관리자가 고친 행. 화면의 '관리자가 고침' 검색이 저장된 것까지 찾으려면 필요하다
