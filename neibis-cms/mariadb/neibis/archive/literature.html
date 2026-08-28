@@ -39,10 +39,10 @@
 		<!-- I.N.UIX NEIBIS -->
 		<script>
 			window.CONTEXT_ROOT = "mariadb"; // 컨텍스트 루트
-	        window.ACCEPTED_FILES = ".gif,.bmp,.jpg,.png,.jpeg,.svg,.mp4,.wmv,.avi,.hwp,.hwpx,.htmlc,.htmlcx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //전체 허용확장자
+	        window.ACCEPTED_FILES = ".gif,.bmp,.jpg,.png,.jpeg,.svg,.mp4,.wmv,.avi,.hwp,.hwpx,.doc,.docx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //전체 허용확장자
 	        window.ACCEPTED_IMAGES = ".gif,.bmp,.jpg,.png,.jpeg,.jfif,.svg";             //이미지 허용확장자
 	        window.ACCEPTED_MOVIES = ".mp4,.wmv,.avi";             //동영상 허용확장자
-	        window.ACCEPTED_DOCUMENT = ".hwp,.hwpx,.htmlc,.htmlcx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //문서 허용확장자
+	        window.ACCEPTED_DOCUMENT = ".hwp,.hwpx,.doc,.docx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //문서 허용확장자
 	        window.UPLOAD_MAX_FILE_SIZE = "50";             //최대 용량
 		</script>
 
@@ -1041,7 +1041,7 @@
   function load(){
     $('#lit-list-body').html('<tr><td colspan="12" class="text-center" style="padding:24px;color:#888">목록을 불러오는 중…</td></tr>');
     $.getJSON(API + '/list', currentParams())
-      .htmlne(function(res){
+      .done(function(res){
         if(res && res.ok){ render(res); }
         else { toast((res && res.message) || '목록 조회 실패', 'error'); }
       })
@@ -1056,7 +1056,7 @@
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({ ids: ids })
-      }).htmlne(function(res){
+      }).done(function(res){
         if(res && res.ok){ toast(res.message || '삭제되었습니다.', 'success'); load(); }
         else { toast((res && res.message) || '삭제 실패', 'error'); }
       }).fail(function(){ toast('삭제 요청 실패', 'error'); });

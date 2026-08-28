@@ -161,8 +161,8 @@
 					window.opener.setChildValue(name, id, regionId);
 				} else if (typeof window.opener.applySourceFind === 'function') {
 					window.opener.applySourceFind(target, name, id, regionId);
-				} else if (target && window.opener.htmlcument) {
-					var el = window.opener.htmlcument.getElementById(target);
+				} else if (target && window.opener.document) {
+					var el = window.opener.document.getElementById(target);
 					if (el) {
 						el.value = name;
 						el.setAttribute('data-source-id', id);

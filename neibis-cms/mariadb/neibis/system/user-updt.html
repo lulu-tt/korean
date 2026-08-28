@@ -18,10 +18,10 @@
 		<!-- I.N.UIX NEIBIS -->
 		<script>
 			window.CONTEXT_ROOT = "mariadb"; // 컨텍스트 루트
-	        window.ACCEPTED_FILES = ".gif,.bmp,.jpg,.png,.jpeg,.svg,.mp4,.wmv,.avi,.hwp,.hwpx,.htmlc,.htmlcx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //전체 허용확장자
+	        window.ACCEPTED_FILES = ".gif,.bmp,.jpg,.png,.jpeg,.svg,.mp4,.wmv,.avi,.hwp,.hwpx,.doc,.docx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //전체 허용확장자
 	        window.ACCEPTED_IMAGES = ".gif,.bmp,.jpg,.png,.jpeg,.jfif,.svg";             //이미지 허용확장자
 	        window.ACCEPTED_MOVIES = ".mp4,.wmv,.avi";             //동영상 허용확장자
-	        window.ACCEPTED_DOCUMENT = ".hwp,.hwpx,.htmlc,.htmlcx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //문서 허용확장자
+	        window.ACCEPTED_DOCUMENT = ".hwp,.hwpx,.doc,.docx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //문서 허용확장자
 	        window.UPLOAD_MAX_FILE_SIZE = "50";             //최대 용량
 		</script>
 
@@ -797,7 +797,7 @@
         url: '/mariadb/neibis-api/system/user/auth', type:'post', dataType:'json',
         contentType:'application/json',
         data: JSON.stringify({ userId: currentUserId, auth: v })
-      }).htmlne(function(r){
+      }).done(function(r){
         toast((r&&r.message) || '변경했습니다.', r&&r.ok ? 'success' : 'warning');
         loadDetail();
       }).fail(function(){ toast('변경에 실패했습니다.', 'error'); });
@@ -848,7 +848,7 @@
   function loadDetail(){
     if(!currentUserId){ toast('userId가 없습니다.','warning'); return; }
     $.getJSON(API+'/detail', {userId: currentUserId})
-      .htmlne(function(res){ if(res && res.ok){ fillUser(res.user); } else { toast((res&&res.message)||'조회 실패','error'); } })
+      .done(function(res){ if(res && res.ok){ fillUser(res.user); } else { toast((res&&res.message)||'조회 실패','error'); } })
       .fail(function(){ toast('상세 정보를 불러오지 못했습니다.','error'); });
   }
 
@@ -857,7 +857,7 @@
     ask("'"+($('#usid').val())+"' 계정의 잠금을 해제할까요? (승인=정상, 실패횟수 0)", function(){
       $.ajax({url:API+'/unlock', method:'POST', contentType:'application/json',
         data: JSON.stringify({userId: currentUserId})})
-        .htmlne(function(res){ if(res&&res.ok){ toast(res.message,'success'); loadDetail(); } else { toast((res&&res.message)||'해제 실패','error'); } })
+        .done(function(res){ if(res&&res.ok){ toast(res.message,'success'); loadDetail(); } else { toast((res&&res.message)||'해제 실패','error'); } })
         .fail(function(){ toast('잠금 해제 요청 실패','error'); });
     });
   };

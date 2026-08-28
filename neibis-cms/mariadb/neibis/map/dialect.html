@@ -18,10 +18,10 @@
 		<!-- I.N.UIX NEIBIS -->
 		<script>
 			window.CONTEXT_ROOT = "mariadb"; // 컨텍스트 루트
-	        window.ACCEPTED_FILES = ".gif,.bmp,.jpg,.png,.jpeg,.svg,.mp4,.wmv,.avi,.hwp,.hwpx,.htmlc,.htmlcx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //전체 허용확장자
+	        window.ACCEPTED_FILES = ".gif,.bmp,.jpg,.png,.jpeg,.svg,.mp4,.wmv,.avi,.hwp,.hwpx,.doc,.docx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //전체 허용확장자
 	        window.ACCEPTED_IMAGES = ".gif,.bmp,.jpg,.png,.jpeg,.jfif,.svg";             //이미지 허용확장자
 	        window.ACCEPTED_MOVIES = ".mp4,.wmv,.avi";             //동영상 허용확장자
-	        window.ACCEPTED_DOCUMENT = ".hwp,.hwpx,.htmlc,.htmlcx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //문서 허용확장자
+	        window.ACCEPTED_DOCUMENT = ".hwp,.hwpx,.doc,.docx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //문서 허용확장자
 	        window.UPLOAD_MAX_FILE_SIZE = "50";             //최대 용량
 		</script>
 
@@ -857,7 +857,7 @@ function changeStatus(action, nos){
       method: 'POST',
       contentType: 'application/json; charset=utf-8',
       data: JSON.stringify({ action: action, headwordNos: nos })
-    }).htmlne(function(res){
+    }).done(function(res){
       if(res && res.ok){
         if(window.Message){ Message.alert({icon:'success', message: actLabel+' 처리되었습니다. ('+res.updated+'건)'}); }
         searchList(hwState.page);
@@ -1010,7 +1010,7 @@ function searchList(page){
     url: '/mariadb/neibis-api/headword/list?' + q,
     method: 'GET',
     dataType: 'json'
-  }).htmlne(function(res){
+  }).done(function(res){
     if(!res || !res.ok){
       var msg = (res && res.message) ? res.message : '목록을 불러오지 못했습니다.';
       $('#headword-list-body').html('<tr><td colspan="13" class="text-center" style="padding:24px;color:#b91c1c">'+escHtml(msg)+'</td></tr>');

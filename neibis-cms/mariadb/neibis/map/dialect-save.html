@@ -18,10 +18,10 @@
 		<!-- I.N.UIX NEIBIS -->
 		<script>
 			window.CONTEXT_ROOT = "mariadb"; // 컨텍스트 루트
-	        window.ACCEPTED_FILES = ".gif,.bmp,.jpg,.png,.jpeg,.svg,.mp4,.wmv,.avi,.hwp,.hwpx,.htmlc,.htmlcx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //전체 허용확장자
+	        window.ACCEPTED_FILES = ".gif,.bmp,.jpg,.png,.jpeg,.svg,.mp4,.wmv,.avi,.hwp,.hwpx,.doc,.docx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //전체 허용확장자
 	        window.ACCEPTED_IMAGES = ".gif,.bmp,.jpg,.png,.jpeg,.jfif,.svg";             //이미지 허용확장자
 	        window.ACCEPTED_MOVIES = ".mp4,.wmv,.avi";             //동영상 허용확장자
-	        window.ACCEPTED_DOCUMENT = ".hwp,.hwpx,.htmlc,.htmlcx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //문서 허용확장자
+	        window.ACCEPTED_DOCUMENT = ".hwp,.hwpx,.doc,.docx,.xls,.xlsx,.pptx,.jpg,.jpeg,.png,.zip,.pdf,.txt,.jfif";             //문서 허용확장자
 	        window.UPLOAD_MAX_FILE_SIZE = "50";             //최대 용량
 		</script>
 
@@ -947,7 +947,7 @@ function headwordSearchFill(){
   var hw = ($('#headword').val()||'').trim();
   if(!hw) return;
   $.ajax({ url:'/mariadb/neibis-api/headword/search', data:{headword:hw}, dataType:'json' })
-  .htmlne(function(res){
+  .done(function(res){
     if(!res||!res.ok||!res.list||!res.list.length) return;
     var row = res.list[0];
     if(row.wordClass && !$('#wordClass').val()) $('#wordClass').val(row.wordClass);
@@ -988,7 +988,7 @@ function saveHeadword(opts){
       url:'/mariadb/neibis-api/headword/save', method:'POST',
       contentType:'application/json; charset=utf-8',
       data: JSON.stringify(payload), dataType:'json'
-    }).htmlne(function(res){
+    }).done(function(res){
       if(!res||!res.ok){ alertMsg((res&&res.message)||'저장 실패'); return; }
       if(res.headwordNo){
         $('#headwordNo').val(res.headwordNo);
@@ -1038,7 +1038,7 @@ function loadDialects(){
     url:'/mariadb/neibis-api/dialect/list',
     data:{ headwordNo: hn, full: 1 },
     dataType:'json'
-  }).htmlne(function(res){
+  }).done(function(res){
     if(!res||!res.ok){
       $('#df-list').html('<div class="df-empty" style="color:#b91c1c">' + escHtml((res&&res.message)||'목록 실패') + '</div>');
       return;
@@ -1152,7 +1152,7 @@ function addDialect(){
     url:'/mariadb/neibis-api/dialect/save', method:'POST',
     contentType:'application/json; charset=utf-8',
     data: JSON.stringify(payload), dataType:'json'
-  }).htmlne(function(res){
+  }).done(function(res){
     if(!res||!res.ok){ alertMsg((res&&res.message)||'추가 실패'); return; }
     $('#df-word').val('');
     loadDialects();
@@ -1165,7 +1165,7 @@ function deleteDialect(hdId){
       url:'/mariadb/neibis-api/dialect/save', method:'POST',
       contentType:'application/json; charset=utf-8',
       data: JSON.stringify({ mode:'D', hdId: hdId }), dataType:'json'
-    }).htmlne(function(res){
+    }).done(function(res){
       if(!res||!res.ok){ alertMsg((res&&res.message)||'삭제 실패'); return; }
       loadDialects();
     }).fail(function(){ alertMsg('삭제 API 실패','error'); });
@@ -1220,7 +1220,7 @@ function saveDialectEdit(){
     url:'/mariadb/neibis-api/dialect/save', method:'POST',
     contentType:'application/json; charset=utf-8',
     data: JSON.stringify(payload), dataType:'json'
-  }).htmlne(function(res){
+  }).done(function(res){
     if(!res||!res.ok){ alertMsg((res&&res.message)||'저장 실패'); return; }
     closeDialectEdit();
     loadDialects();
@@ -1236,7 +1236,7 @@ function addRegionToDialect(){
     contentType:'application/json; charset=utf-8',
     data: JSON.stringify({ mode:'C', hdId: hdId, headwordNo: getHeadwordNo(), word: ($('#ed-word').val()||'').trim(), regionNm: nm }),
     dataType:'json'
-  }).htmlne(function(res){
+  }).done(function(res){
     if(!res||!res.ok){ alertMsg((res&&res.message)||'지역 추가 실패'); return; }
     $('#ed-region').val('');
     editingRegions.push({ regionNm: nm });
@@ -1273,7 +1273,7 @@ function onMapRegionPick(hdId, ref){
       regionId: ref.regionId || ''
     }),
     dataType:'json'
-  }).htmlne(function(res){
+  }).done(function(res){
     if(!res||!res.ok){ alertMsg((res&&res.message)||'지역 추가 실패'); return; }
     loadDialects();
     if(window.Message){ /* quiet */ }
@@ -1299,7 +1299,7 @@ function loadHeadwordIfEdit(){
     PAGE_MODE = 'M';
     $.ajax({
       url:'/mariadb/neibis-api/headword/detail', data:{ headwordNo: hn }, dataType:'json'
-    }).htmlne(function(res){
+    }).done(function(res){
       if(!res||!res.ok||!res.data){ alertMsg((res&&res.message)||'표제어 로드 실패'); return; }
       var d = res.data;
       $('#headwordId').val(d.headwordId||'');
