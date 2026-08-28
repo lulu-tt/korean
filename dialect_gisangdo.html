@@ -203,31 +203,85 @@ body{ background:#ffffff; }
 #jiyeoeo-gisangdo-root .gs-mapbar__sub{ margin-top:4px; font-size:13px; color:#475569; line-height:1.5; }
 #jiyeoeo-gisangdo-root .gs-mapbar__desc{ margin-top:4px; font-size:12.5px; color:#64748b; line-height:1.55; }
 #jiyeoeo-gisangdo-root .gs-mapbar__sub b{ color:#BA7517; font-weight:800; }
-/* ── 상단 인트로 ─────────────────────────────────────────── */
+/* ── 상단 인트로 ── 왼쪽 그림 · 가운데 말 · 오른쪽 숫자 카드 4장.
+   .gs-hero 는 기존 클래스와 충돌하므로 쓰지 않는다(과거 사고). gs-intro 로 통일. */
 #jiyeoeo-gisangdo-root .gs-intro{
-  display:grid; grid-template-columns:minmax(0,1fr) 330px; gap:28px; align-items:start;
-  background:var(--gs-surface); border:1px solid var(--gs-line); border-radius:16px;
-  padding:26px 28px; margin-bottom:14px;
+  display:grid; grid-template-columns:150px minmax(0,1fr) 372px; gap:30px; align-items:center;
+  background:linear-gradient(135deg,#fbfcfe 0%,#f6f9fd 100%);
+  border:1px solid #e8eef6; border-radius:20px; padding:30px 32px; margin-bottom:14px;
 }
-#jiyeoeo-gisangdo-root .gs-intro__msg{ min-width:0; }
-#jiyeoeo-gisangdo-root .gs-intro__how{
-  margin-top:14px !important; padding:10px 13px; background:var(--gs-surface-2);
-  border-radius:10px; font-size:13px !important; color:#475569 !important;
+#jiyeoeo-gisangdo-root .gs-intro__art{ align-self:center; }
+#jiyeoeo-gisangdo-root .gs-intro__art svg{ width:100%; height:auto; display:block; }
+#jiyeoeo-gisangdo-root .gs-intro__pin{ transform-origin:center; animation:gsPinFloat 3.4s ease-in-out infinite; }
+#jiyeoeo-gisangdo-root .gs-intro__pin:nth-of-type(2){ animation-delay:.5s; }
+#jiyeoeo-gisangdo-root .gs-intro__pin:nth-of-type(3){ animation-delay:1s; }
+#jiyeoeo-gisangdo-root .gs-intro__pin:nth-of-type(4){ animation-delay:1.5s; }
+@keyframes gsPinFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-4px); } }
+@media (prefers-reduced-motion: reduce){
+  #jiyeoeo-gisangdo-root .gs-intro__pin{ animation:none; }
 }
-#jiyeoeo-gisangdo-root .gs-intro__how b{ color:#0f172a; }
-#jiyeoeo-gisangdo-root .gs-intro__meta{ margin:0; padding:0; border-left:1px solid var(--gs-line); padding-left:26px; }
-#jiyeoeo-gisangdo-root .gs-intro__meta > div{ display:grid; grid-template-columns:74px 1fr; gap:10px; padding:7px 0; }
-#jiyeoeo-gisangdo-root .gs-intro__meta > div + div{ border-top:1px solid #f1f5f9; }
-#jiyeoeo-gisangdo-root .gs-intro__meta dt{ font-size:12.5px; font-weight:600; color:#475569; }
-#jiyeoeo-gisangdo-root .gs-intro__meta dd{ margin:0; font-size:13.5px; font-weight:800; color:#0f172a; letter-spacing:-.01em; }
-#jiyeoeo-gisangdo-root .gs-intro__meta dd span{ display:block; font-size:11.5px; font-weight:500; color:#475569; margin-top:2px; line-height:1.5; letter-spacing:0; }
-@media (max-width:1200px){ #jiyeoeo-gisangdo-root .gs-intro{ grid-template-columns:1fr; gap:18px; }
-  #jiyeoeo-gisangdo-root .gs-intro__meta{ border-left:0; padding-left:0; border-top:1px solid var(--gs-line); padding-top:8px; } }
 
-#jiyeoeo-gisangdo-root .gs-intro h2{ margin:0 0 9px; font-size:21px; font-weight:800; letter-spacing:-.03em; color:#0f172a; }
-#jiyeoeo-gisangdo-root .gs-intro p{ margin:0; font-size:14px; line-height:1.8; color:#475569; max-width:64em; }
+#jiyeoeo-gisangdo-root .gs-intro__msg{ min-width:0; }
+#jiyeoeo-gisangdo-root .gs-intro__badge{
+  display:inline-flex; align-items:center; gap:6px; background:#fff; border:1px solid #dbe6f5;
+  border-radius:20px; padding:5px 14px; font-size:12.5px; font-weight:800; color:#2563eb;
+  box-shadow:0 1px 3px rgba(15,23,42,.05); margin-bottom:13px;
+}
+#jiyeoeo-gisangdo-root .gs-intro__badge i{ font-size:14px; }
+#jiyeoeo-gisangdo-root .gs-intro h2{
+  margin:0 0 12px; font-size:34px; font-weight:800; letter-spacing:-.04em; color:#0f172a; line-height:1.25;
+}
+#jiyeoeo-gisangdo-root .gs-intro h2 em{ font-style:normal; font-weight:500; color:#334155; }
+#jiyeoeo-gisangdo-root .gs-intro p{ margin:0 0 4px; font-size:14.5px; line-height:1.75; color:#475569; max-width:64em; }
 #jiyeoeo-gisangdo-root .gs-intro p b{ color:#0f172a; font-weight:700; }
-#jiyeoeo-gisangdo-root .gs-intro__how{ margin-top:12px; padding-top:12px; border-top:1px dashed #dbeafe; font-size:13px; color:#64748b; }
+#jiyeoeo-gisangdo-root .gs-intro__how{
+  display:grid; grid-template-columns:28px 1fr; gap:11px; align-items:start;
+  margin-top:15px !important; padding:13px 15px; background:#eef4ff; border-radius:12px;
+  font-size:13.5px !important; color:#475569 !important; line-height:1.7;
+}
+#jiyeoeo-gisangdo-root .gs-intro__how i{
+  width:28px; height:28px; border-radius:50%; background:#2563eb; color:#fff;
+  display:grid; place-items:center; font-size:15px;
+}
+#jiyeoeo-gisangdo-root .gs-intro__how b{ color:#2563eb; font-weight:700; }
+
+/* 숫자 카드 4장 */
+#jiyeoeo-gisangdo-root .gs-intro__meta{
+  margin:0; padding:0 0 0 30px; border-left:1px solid #e3eaf3;
+  display:grid; grid-template-columns:1fr 1fr; gap:14px;
+}
+#jiyeoeo-gisangdo-root .gs-stat{
+  background:#fff; border:1px solid #e8eef6; border-radius:14px; padding:18px 14px;
+  text-align:center; box-shadow:0 1px 3px rgba(15,23,42,.04);
+}
+#jiyeoeo-gisangdo-root .gs-stat__ico{
+  width:44px; height:44px; border-radius:13px; display:grid; place-items:center;
+  margin:0 auto 11px; font-size:21px;
+}
+#jiyeoeo-gisangdo-root .gs-stat dd{ margin:0; font-size:15px; font-weight:700; letter-spacing:-.02em; }
+#jiyeoeo-gisangdo-root .gs-stat dd b{ font-size:25px; font-weight:800; }
+#jiyeoeo-gisangdo-root .gs-stat dt{ margin-top:5px; font-size:12.5px; font-weight:600; color:#64748b; }
+#jiyeoeo-gisangdo-root .gs-stat.is-green  .gs-stat__ico{ background:#dcfce7; color:#10b981; }
+#jiyeoeo-gisangdo-root .gs-stat.is-green  dd{ color:#0f9b6c; }
+#jiyeoeo-gisangdo-root .gs-stat.is-blue   .gs-stat__ico{ background:#dbeafe; color:#3b82f6; }
+#jiyeoeo-gisangdo-root .gs-stat.is-blue   dd{ color:#2563eb; }
+#jiyeoeo-gisangdo-root .gs-stat.is-purple .gs-stat__ico{ background:#ede9fe; color:#8b5cf6; }
+#jiyeoeo-gisangdo-root .gs-stat.is-purple dd{ color:#7c3aed; }
+#jiyeoeo-gisangdo-root .gs-stat.is-amber  .gs-stat__ico{ background:#fef3c7; color:#f59e0b; }
+#jiyeoeo-gisangdo-root .gs-stat.is-amber  dd{ color:#d97706; }
+
+@media (max-width:1200px){
+  #jiyeoeo-gisangdo-root .gs-intro{ grid-template-columns:1fr; gap:20px; padding:24px 22px; }
+  #jiyeoeo-gisangdo-root .gs-intro__art{ display:none; }
+  #jiyeoeo-gisangdo-root .gs-intro__meta{ border-left:0; padding-left:0;
+    border-top:1px solid #e3eaf3; padding-top:20px; grid-template-columns:repeat(4,1fr); }
+  #jiyeoeo-gisangdo-root .gs-intro h2{ font-size:27px; }
+}
+@media (max-width:640px){
+  #jiyeoeo-gisangdo-root .gs-intro__meta{ grid-template-columns:1fr 1fr; }
+  #jiyeoeo-gisangdo-root .gs-intro h2{ font-size:23px; }
+}
+
 #jiyeoeo-gisangdo-root .gs-note{ font-size:11px; color:var(--gs-muted); line-height:1.5; }
 
 /* 성별로 나눠 보기 토글 — 세대 목록 아래 */
@@ -1298,18 +1352,45 @@ body{ background:#ffffff; }
       const initHTML=inits.map(c=>`<button type="button" class="gs-initial ${c===pickInitial?'is-active':''}" data-ini="${c}">${c}</button>`).join('');
       return `
       <section class="gs-intro">
-        <div class="gs-intro__msg">
-          <h2>이 말, 아직 쓰시나요?</h2>
-          <p>표준어 ‘부추’를 어디선 <b>정구지</b>, 어디선 <b>솔</b>이라 부릅니다.
-             그렇게 <b>지역에서만 쓰는 말</b>이 세대마다 얼마나 남아 있는지를 단어별로 지도에 그렸습니다.</p>
-          <p class="gs-intro__how">단어를 고르면 그 말을 <b>지금도 쓰는지 · 들어만 봤는지 · 처음 듣는지</b>를 지역별로 볼 수 있습니다.</p>
+        <div class="gs-intro__art" aria-hidden="true">
+          <svg viewBox="0 0 150 210" role="presentation">
+            <defs><pattern id="gsDot" width="6" height="6" patternUnits="userSpaceOnUse">
+              <circle cx="2.4" cy="2.4" r="1.9" fill="#c7d5e8"/></pattern></defs>
+            <path fill="url(#gsDot)" d="M135 116L136 111L137 107L139 103L139 98L136 101L134 97L132 94L132 89L134 85L134 81L134 77L136 73L134 69L134 64L132 60L128 61L124 63L119 63L115 63L110 62L106 63L102 64L98 67L97 71L93 72L89 71L85 72L81 75L78 76L74 79L76 83L75 87L74 91L78 93L82 95L79 98L76 101L77 105L81 108L85 109L88 112L90 116L94 116L98 114L97 110L98 106L102 104L106 103L109 106L106 111L102 113L103 118L107 119L112 118L116 117L121 116L124 113L128 116L133 116ZM131 58L130 54L127 51L125 47L122 44L120 41L118 37L114 33L111 30L108 27L106 24L103 20L101 17L100 13L97 9L95 5L92 9L89 12L86 15L82 15L77 15L72 14L68 15L62 16L58 14L54 15L50 16L45 17L44 21L48 23L52 23L56 24L61 24L62 28L66 30L65 34L63 38L65 42L70 44L74 44L73 49L72 53L72 57L75 60L79 56L84 58L87 57L91 58L95 60L99 61L103 62L107 64L111 62L115 63L120 63L124 63L128 60ZM22 123L20 127L17 130L20 133L22 137L19 135L19 140L21 143L21 147L25 149L27 152L23 152L19 152L18 148L16 152L20 155L23 157L25 161L25 165L29 163L32 160L35 155L35 159L40 159L43 156L46 151L50 150L54 148L51 152L48 155L52 156L55 159L59 157L62 154L59 151L58 147L61 145L65 148L65 152L68 148L71 147L68 145L65 141L69 142L73 139L70 136L68 132L65 128L61 126L56 128L52 127L47 127L46 123L42 124L37 122L35 125L31 127L27 128L24 125ZM43 20L39 23L36 27L32 29L31 33L28 36L26 40L29 43L34 43L39 43L43 40L47 40L48 44L48 48L44 48L39 48L36 45L34 49L30 52L26 54L30 56L29 52L33 53L38 54L33 55L31 58L35 58L34 62L37 65L41 68L46 68L50 68L54 68L58 66L63 65L67 62L70 59L73 55L73 50L74 45L70 44L66 42L63 39L63 35L66 32L62 29L61 24L56 25L54 22L50 24L47 21L43 20ZM96 117L92 116L88 115L87 111L83 108L79 107L74 108L71 111L68 114L67 119L69 124L67 128L67 132L70 135L73 139L77 140L81 139L85 142L89 141L93 141L95 145L97 141L99 138L95 137L99 135L103 137L102 132L106 134L110 135L114 133L118 131L122 127L127 125L123 121L119 120L115 117L110 119L106 118L102 117L97 118ZM22 123L25 126L29 127L33 127L36 123L39 122L43 124L48 125L52 127L56 128L61 126L65 128L69 125L68 121L68 117L69 113L72 109L76 107L77 103L72 102L68 101L64 102L60 101L55 97L51 98L47 99L43 96L39 97L36 100L33 102L27 102L29 106L34 105L35 109L30 109L27 113L23 115L27 117L31 117L27 118L23 121ZM40 68L36 67L32 64L28 63L23 63L19 64L21 68L18 70L18 66L13 68L11 72L14 75L17 77L21 78L24 82L24 86L25 90L26 94L29 98L32 101L36 100L39 97L43 96L47 99L51 98L55 97L58 101L62 102L66 102L65 98L64 94L59 95L56 92L52 91L54 87L56 83L53 80L54 75L58 74L54 71L51 68L47 67L43 68ZM105 63L101 62L97 62L93 60L90 57L85 57L81 56L78 60L73 59L69 60L66 63L62 64L58 67L54 69L56 72L54 76L53 80L56 84L60 85L63 88L61 92L64 95L66 99L71 101L75 101L79 100L79 96L77 92L75 88L75 84L73 80L77 80L79 76L83 76L85 73L89 71L93 73L97 70L99 67L103 64ZM26 194L21 195L17 197L14 200L14 204L18 204L23 204L27 205L31 203L35 202L38 200L41 196L38 193L34 192L29 193ZM106 112L109 108L108 104L104 103L100 106L96 107L99 110L98 114L101 116L105 114ZM123 113L120 116L121 120L125 123L129 124L132 121L135 118L131 115L127 115L123 113ZM119 135L123 133L126 130L128 127L124 126L120 128L117 131L113 133L116 137ZM38 47L42 48L46 49L50 45L48 41L44 39L40 41L36 43L38 47Z"/>
+            <g class="gs-intro__pin"><circle cx="76" cy="38" r="7.5" fill="#10b981"/><circle cx="76" cy="38" r="2.8" fill="#fff"/></g>
+            <g class="gs-intro__pin"><circle cx="35" cy="45" r="7.5" fill="#3b82f6"/><circle cx="35" cy="45" r="2.8" fill="#fff"/></g>
+            <g class="gs-intro__pin"><circle cx="38" cy="117" r="7.5" fill="#8b5cf6"/><circle cx="38" cy="117" r="2.8" fill="#fff"/></g>
+            <g class="gs-intro__pin"><circle cx="27" cy="196" r="7.5" fill="#f59e0b"/><circle cx="27" cy="196" r="2.8" fill="#fff"/></g>
+          </svg>
         </div>
+
+        <div class="gs-intro__msg">
+          <span class="gs-intro__badge"><i class="ti ti-map-pin" aria-hidden="true"></i> 지역어 기상도</span>
+          <h2>이 말, <em>아직 쓰시나요?</em></h2>
+          <p>같은 뜻의 말도 지역마다 다르게 불립니다.</p>
+          <p>101개 단어가 전국에서 어떻게 쓰이고 있는지 지도로 만나 보세요.</p>
+          <p class="gs-intro__how"><i class="ti ti-dots" aria-hidden="true"></i>
+            <span>단어를 고르면 <b>어디서 쓰는지 · 누가 쓰는지 · 얼마나 남아 있는지</b>를
+            한눈에 확인할 수 있어요.</span></p>
+        </div>
+
         <dl class="gs-intro__meta">
-          <div><dt>수록 단어</dt><dd>101개</dd></div>
-          <div><dt>조사 지역</dt><dd>전국 ${REGION_ORDER.length}개 도
-            <span>${REGION_ORDER.map(c=>REGION_NAMES[c]).join(' · ')}</span></dd></div>
-          <div><dt>제보자</dt><dd>46명 <span>지역별 20·50·70대 남녀</span></dd></div>
-          <div><dt>조사 시기</dt><dd>2024년</dd></div>
+          <div class="gs-stat is-green">
+            <span class="gs-stat__ico"><i class="ti ti-book" aria-hidden="true"></i></span>
+            <dd><b>101</b>개</dd><dt>수록 단어</dt>
+          </div>
+          <div class="gs-stat is-blue">
+            <span class="gs-stat__ico"><i class="ti ti-map-pin" aria-hidden="true"></i></span>
+            <dd>전국 <b>${REGION_ORDER.length}</b>개 도</dd><dt>조사 지역</dt>
+          </div>
+          <div class="gs-stat is-purple">
+            <span class="gs-stat__ico"><i class="ti ti-users" aria-hidden="true"></i></span>
+            <dd><b>46</b>명</dd><dt>제보자</dt>
+          </div>
+          <div class="gs-stat is-amber">
+            <span class="gs-stat__ico"><i class="ti ti-calendar" aria-hidden="true"></i></span>
+            <dd><b>2024</b>년</dd><dt>조사 시기</dt>
+          </div>
         </dl>
       </section>
       <div class="gs-pick ${pickCollapsed?'is-collapsed':''}" id="gsPick">
