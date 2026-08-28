@@ -1324,7 +1324,7 @@ body{ background:#ffffff; }
       <div class="gs-pick ${pickCollapsed?'is-collapsed':''}" id="gsPick">
         <div class="gs-pick__head">
           <p class="gs-pick__label"><i class="ti ti-vocabulary" aria-hidden="true"></i> 단어 고르기
-            <span class="gs-pick__count">${WORDS.length}개</span></p>
+            <span class="gs-pick__count">${WORDS.filter(x=>x.itemId!=='__ALL__').length}개</span></p>
           <button type="button" class="gs-pick__toggle" id="gsPickToggle" aria-expanded="${!pickCollapsed}">
             <span id="gsPickToggleLabel">${pickCollapsed?'목록 펼치기':'목록 접기'}</span>
             <i class="ti ti-chevron-down gs-pick__chev" aria-hidden="true"></i>
