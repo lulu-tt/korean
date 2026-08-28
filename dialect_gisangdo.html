@@ -145,7 +145,17 @@ body{ background:#ffffff; }
 #jiyeoeo-gisangdo-root .gs-mapreset:hover{ border-color:var(--blue); color:var(--blue); }
 #jiyeoeo-gisangdo-root .gs-mapreset i{ font-size:18px; }
 #jiyeoeo-gisangdo-root .gs-map-fallback{ position:absolute; inset:0; display:none; align-items:center; justify-content:center; text-align:center; color:var(--gs-muted); font-size:13px; padding:24px; }
-#jiyeoeo-gisangdo-root .gs-mapside{ display:flex; flex-direction:column; gap:12px; }
+/* 우측 칸은 지도 높이에 맞춘다.
+   안쪽을 absolute 로 띄워 내용이 행 높이를 밀어올리지 못하게 하는 게 요점이다.
+   그렇게 해야 행 높이가 지도(aspect-ratio)로 정해지고, 넘치는 목록은 안에서 스크롤된다. */
+#jiyeoeo-gisangdo-root .gs-mapside{ position:relative; min-height:480px; }
+#jiyeoeo-gisangdo-root .gs-mapside__in{ position:absolute; inset:0;
+  display:flex; flex-direction:column; gap:12px; }
+@media (max-width:768px){
+  #jiyeoeo-gisangdo-root .gs-mapside{ min-height:0; }
+  #jiyeoeo-gisangdo-root .gs-mapside__in{ position:static; }
+  #jiyeoeo-gisangdo-root .gs-rlist__body{ max-height:420px; }
+}
 /* 세대 예보 세로 행 (지도 우측) — 지도 세대 전환 겸용 */
 #jiyeoeo-gisangdo-root .gs-genrows{ display:flex; flex-direction:column; gap:6px; }
 #jiyeoeo-gisangdo-root .gs-genrow{ display:flex; align-items:center; gap:10px; width:100%; border:1px solid var(--gs-line); background:#fff; border-radius:10px; padding:8px 10px; cursor:pointer; font-family:inherit; transition:.12s; }
@@ -241,11 +251,17 @@ body{ background:#ffffff; }
 #jiyeoeo-gisangdo-root .gs-playbtn.is-playing{ border-color:#0f172a; background:#0f172a; color:#fff; }
 
 /* 지도 우측 · 지역별 세대 기상도 (한 지역 한 줄) */
-#jiyeoeo-gisangdo-root .gs-rlist{ padding:14px 15px; flex:1; display:flex; flex-direction:column; min-height:0; }
+#jiyeoeo-gisangdo-root .gs-rlist{ padding:14px 15px 10px; flex:1; display:flex; flex-direction:column; min-height:0; }
+#jiyeoeo-gisangdo-root .gs-rlist__body{ flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain;
+  margin-right:-6px; padding-right:6px; }
+#jiyeoeo-gisangdo-root .gs-rlist__body::-webkit-scrollbar{ width:7px; }
+#jiyeoeo-gisangdo-root .gs-rlist__body::-webkit-scrollbar-thumb{ background:#e2e8f0; border-radius:4px; }
+#jiyeoeo-gisangdo-root .gs-rlist__body::-webkit-scrollbar-thumb:hover{ background:#cbd5e1; }
 #jiyeoeo-gisangdo-root #gsRegionList{ flex:1; display:flex; flex-direction:column; }
 #jiyeoeo-gisangdo-root .gs-rlist__head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:9px; }
 #jiyeoeo-gisangdo-root .gs-rlist__head em{ font-style:normal; font-size:12px; color:#475569; font-weight:600; }
-#jiyeoeo-gisangdo-root .gs-rl{ flex:1; min-height:0; display:grid; grid-template-columns:1fr auto; column-gap:10px; align-content:center; padding:4px 2px; border-bottom:1px solid #f1f5f9; }
+#jiyeoeo-gisangdo-root .gs-rl:last-child{ border-bottom:0; }
+#jiyeoeo-gisangdo-root .gs-rl{ flex:none; display:grid; grid-template-columns:1fr auto; column-gap:10px; align-content:center; padding:4px 2px; border-bottom:1px solid #f1f5f9; }
 #jiyeoeo-gisangdo-root .gs-rl:last-child{ border-bottom:0; }
 #jiyeoeo-gisangdo-root .gs-rl b{ grid-column:1; grid-row:1; font-size:15px; font-weight:800; color:#0f172a; letter-spacing:-.01em; align-self:center; }
 #jiyeoeo-gisangdo-root .gs-rl b em{ font-style:normal; font-weight:600; font-size:12px; color:#475569; margin-left:5px; }
@@ -774,6 +790,7 @@ body{ background:#ffffff; }
           ${legendHTML()}
         </div>
         <div class="gs-mapside">
+          <div class="gs-mapside__in">
           <div class="gs-card" style="padding:14px">
             <div class="gs-genhead">
               <span class="gs-sectitle">세대별로 보기</span>
@@ -807,9 +824,10 @@ body{ background:#ffffff; }
             <div class="gs-rlist__head">
               <span class="gs-sectitle">지역별 조사된 말</span><em id="gsRegionHead">표준어형 · 방언형(기저형)</em>
             </div>
-            <div id="gsRegionList"></div>
+            <div id="gsRegionList" class="gs-rlist__body"></div>
           </div>
 
+          </div>
         </div>
       </div>`;
     }
