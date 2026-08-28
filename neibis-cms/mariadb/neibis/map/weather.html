@@ -1688,7 +1688,13 @@ const getMngrFail = function (xhr, status, error) {
       if(HAVE[f.name]) exist.push(f.name);
       if(EDITED[f.name]) edited.push(f.name+' ('+EDITED[f.name]+'건)');
     });
-    var miss=Object.keys(RNm).filter(function(r){ return !seenRg[r]; });
+    /* 적재는 덧붙이기다. 막아야 할 것은 '이번 파일에 빠진 지역' 이 아니라
+       '적재를 마쳤을 때도 여전히 자료가 없는 지역' 이다. */
+    var after={};
+    Object.keys(HAVE).forEach(function(nm){ if(HAVE[nm].region_cd) after[HAVE[nm].region_cd]=1; });
+    Object.keys(seenRg).forEach(function(r){ after[r]=1; });
+    var miss=Object.keys(RNm).filter(function(r){ return !after[r]; });
+    var notInThis=Object.keys(RNm).filter(function(r){ return !seenRg[r]; });
 
     $('ptVStats').innerHTML = [['올린 파일',files.length+'개'],['제보자',ok.length+'명'],
       ['지역',Object.keys(seenRg).length+'곳'],['이미 있는 파일',exist.length+'개']].map(function(s){
@@ -1704,11 +1710,15 @@ const getMngrFail = function (xhr, status, error) {
     if(dup.length) items.push({t:'warn', b:'같은 제보자 파일이 '+dup.length+'개 겹칩니다',
       s:'지역·연차·세대·성별이 같은 파일이 둘 이상입니다. 뒤엣것은 올리지 않습니다.', d:dup.join(', ')});
 
-    /* 한 지역이라도 빠지면 표출 항목이 101개에서 0개가 된다 — 지금 관리자에 없던 방어 */
+    /* 적재를 마쳐도 자료가 없는 지역이 남으면 표출 항목이 101개에서 0개가 된다 */
     if(miss.length && files.length){ stop=true;
-      items.push({t:'stop', b:'반영할 수 없습니다 — 빠진 지역 '+miss.length+'곳',
-        s:'표출 항목은 <b>9개 지역 전부에서 등급이 매겨진 것</b>만 대상입니다. 한 지역이라도 빠지면 기상도가 빈 화면이 됩니다.',
+      items.push({t:'stop', b:'반영할 수 없습니다 — 자료가 없는 지역 '+miss.length+'곳',
+        s:'표출 항목은 <b>9개 지역 전부에서 등급이 매겨진 것</b>만 대상입니다. 적재를 마쳐도 이 지역들이 비어 있어 기상도가 빈 화면이 됩니다.',
         d: miss.map(function(r){ return RNm[r]; }).join(', ')}); }
+    else if(notInThis.length && notInThis.length<9)
+      items.push({t:'info', b:'이번 파일에 없는 지역 '+notInThis.length+'곳',
+        s:'적재는 <b>덧붙이기</b>입니다. 이미 올라가 있는 자료는 그대로 남습니다.',
+        d: notInThis.map(function(r){ return RNm[r]; }).join(', ')});
 
     if(exist.length) items.push({t:'warn', b:'이미 올라가 있는 파일 '+exist.length+'개',
       s:'교체하면 그 제보자의 응답이 <b>지워지고 엑셀 내용으로 다시 채워집니다</b>.', d:exist.join(', ')});
