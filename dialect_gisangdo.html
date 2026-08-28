@@ -632,6 +632,20 @@ body{ background:#ffffff; }
     const SEXKO = {M:'남', F:'여'};
     /* 이 단어가 지역에서 실제로 불리는 말들 — 많이 나온 순 */
     /* 그 세대 제보자 중 지역어형을 '지금도 쓴다(1)'고 답한 사람 수 — 실측 */
+    /* 전 지역 합계 — '전체' 줄이 세대 줄과 같은 표기(점수 · 명수)를 쓰게 한다.
+       지역 칸의 dist(등급별 사람 수)를 모아 같은 식으로 평균한다. */
+    function allTally(w){
+      const it=AWARE_BY_WORD[w.standard];
+      if(!it) return {n:0, used:0, score:null};
+      let n=0, used=0, sum=0, ppl=0, agg=false;
+      REGION_ORDER.forEach(rg=>{
+        const c=it.regions[rg]||{}, d=c.dist||{};
+        [1,2,3,4].forEach(k=>{ const q=d[String(k)]||0; n+=q; used+=(k===1?q:0); sum+=q*GRADE_SCORE[k]; });
+        ppl += c.n||0;
+        if(c.answers!=null) agg=true;   // 통합 — dist 의 단위가 '명' 이 아니라 '응답'
+      });
+      return {n, used, score: n?sum/n:null, agg, people: ppl};
+    }
     function genTally(w, g, sex){
       const it=AWARE_BY_WORD[w.standard];
       if(!it) return {n:0, used:0, best:0};
@@ -764,13 +778,17 @@ body{ background:#ffffff; }
             </div>
             <div class="gs-genrows" id="gsGenSwitch">
               ${ hasAware(w) ? `
+                ${(()=>{ const a=allTally(w); const ak=(a.n&&a.score!=null)?weatherOf(a.score).key:'w0'; return `
                 <button type="button" class="gs-genrow ${currentGen===0?'is-active':''}" data-gen="0" data-sex=""
-                        title="지역 평균 점수 — 사용100·이해75·인지50·무지25">
-                  <span class="gr-emoji">🗺️</span>
+                        title="${a.n?(a.agg?`제보자 ${a.people}명의 응답 ${a.n}건 중 ${a.used}건이 '지금도 씀'`
+                                          :`전 지역 ${a.n}명 중 ${a.used}명이 지금도 쓴다고 답함`)
+                                    :'등급이 매겨진 응답이 없습니다'}">
+                  <span class="gr-emoji">${a.n?EMOJI[ak]:'🗺️'}</span>
                   <span class="gr-gen">전체</span>
-                  <span class="gr-bar"><span style="width:100%;background:#e2e8f0"></span></span>
-                  <span class="gr-rate" style="color:#64748b">지역 단위</span>
-                </button>` : '' }
+                  <span class="gr-bar"><span style="width:${a.score!=null?Math.round(a.score):0}%;background:${CSSVAR[ak]}"></span></span>
+                  <span class="gr-rate" style="color:${a.n?CSSVAR[ak]:'#94a3b8'};font-size:12px">${
+                    a.n ? `${Math.round(a.score)}점 <em class="gr-n">${a.agg?`${a.people}명`:`${a.used}/${a.n}명`}</em>` : '—'}</span>
+                </button>`; })()}` : '' }
               ${genRowsHTML(w)}
             </div>
             <label class="gs-sexsplit">
