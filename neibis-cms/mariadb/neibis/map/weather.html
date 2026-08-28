@@ -1714,7 +1714,7 @@ const getMngrFail = function (xhr, status, error) {
       s:'교체하면 그 제보자의 응답이 <b>지워지고 엑셀 내용으로 다시 채워집니다</b>', d:exist.join(', ')});
     if(edited.length){
       items.push({t:'stop', b:'관리자에서 고친 파일 '+edited.length+'개',
-        s:'DB 가 기준입니다. 교체하면 <b>고친 값이 엑셀 값으로 되돌아갑니다</b>. 그래도 올리려면 아래를 확인해 주세요.',
+        s:'DB 가 기준입니다. 교체하면 <b>고친 값이 엑셀 값으로 되돌아갑니다</b> — 그래도 올리려면 아래를 확인해 주세요.',
         d:edited.join(', ')});
       $('ptForceWrap').style.display=''; $('ptForce').checked=false;
     } else { $('ptForceWrap').style.display='none'; }
