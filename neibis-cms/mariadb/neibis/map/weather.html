@@ -841,7 +841,7 @@
 									<input type="file" id="ptFile" multiple accept=".xlsx,.xls" style="display:none" />
 									<div class="pt-picked" id="ptPicked">선택된 파일 없음</div>
 								</div>
-								<div class="btn-group-center mt-md-4">
+								<div class="pt-actions">
 									<button type="button" class="btn btn-md btn-primary" id="ptVerify"><span>다음 — 검수</span></button>
 								</div>
 							</div>
@@ -1389,6 +1389,8 @@ const getMngrFail = function (xhr, status, error) {
 .pt-h3s{ font-size:12.5px; font-weight:500; color:#64748b; margin-left:8px; }
 .pt-note{ font-size:12.5px; color:#475569; line-height:1.75; margin:0 0 13px; }
 .pt-note code{ background:#f1f5f9; border-radius:4px; padding:1px 6px; font-size:11.5px; white-space:nowrap; }
+/* 적재 버튼 — 파일 상자와 충분히 띄우고 오른쪽 끝에 둔다 */
+.pt-actions{ display:flex; justify-content:flex-end; margin-top:22px; }
 .pt-drop{ border:2px dashed #cbd5e1; border-radius:10px; padding:26px 14px; text-align:center; background:#f8fafc; }
 .pt-drop.is-over{ border-color:#2563eb; background:#eff6ff; }
 .pt-drop p{ font-size:13px; color:#475569; margin:0 0 9px; }
