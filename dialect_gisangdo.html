@@ -476,12 +476,6 @@ body{ background:#ffffff; }
     const wLabel  = k => (EMOJI[k] ? EMOJI[k]+' ' : '') + WEATHERS[k].label;
     const pct = r => (r==null||isNaN(r)) ? '—' : Math.round(r*100);
     const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-    /* 조사 자동 선택 — 괄호 병기 '새끼(繩)', 슬래시 '다르다/틀리다'는 앞부분 기준 */
-    function eulReul(w){
-      const t=String(w||'').replace(/\(.*?\)/g,'').split('/')[0].trim();
-      const c=t.charCodeAt(t.length-1)-0xAC00;
-      return (c>=0 && c<=11171 && c%28!==0) ? '을' : '를';
-    }
 
     /* ── 지역 상수 §5.2 ────────────────────────────────────────── */
     const REGION_NAMES = {CB:'충북',CN:'충남',GB:'경북',GG:'경기',GN:'경남',GW:'강원',JB:'전북',JN:'전남',JJ:'제주'};
@@ -714,12 +708,9 @@ body{ background:#ffffff; }
         <div class="gs-mapbar__titles">
           <div class="gs-mapbar__title">${ isAll(w)
             ? `조사된 <b>101개 단어</b>를 한 장으로`
-            : `‘<b>${w.standard}</b>’${eulReul(w.standard)} 지역에서는 뭐라고 할까` }</div>
-          <div class="gs-mapbar__sub">${ isAll(w)
-            ? `지역 점수 = 그 지역 제보자가 <b>101개 단어의 지역어형</b>에 준 등급의 평균`
-            : (topForms(w,5).length
-                ? `조사에서 나온 말 — <b>${topForms(w,5).join(' · ')}</b>`
-                : '이 단어는 전국이 표준어형을 씁니다') }</div>
+            : `‘<b>${w.standard}</b>’의 지역별 인지도/사용도` }</div>
+          ${ isAll(w) ? `<div class="gs-mapbar__sub">지역 점수 = 그 지역 제보자가
+            <b>101개 단어의 지역어형</b>에 준 등급의 평균</div>` : '' }
           ${ w.desc ? `<div class="gs-mapbar__desc">${esc(w.desc)}</div>` : '' }
         </div>
         <div class="gs-mapbar__actions">
