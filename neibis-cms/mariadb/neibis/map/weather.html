@@ -651,13 +651,6 @@
 													</td>
 												</tr>
 												<tr>
-													<th scope="row">조사 지역</th>
-													<td colspan="3">
-														<label class="check-item"><input type="checkbox" id="ptRgAll" checked /><span class="label">전체</span></label>
-														<span id="ptRgChecks"></span>
-													</td>
-												</tr>
-												<tr>
 													<th scope="row">자료 상태</th>
 													<td colspan="3">
 														<label class="check-item"><input type="radio" name="ptState" value="" checked /><span class="label">전체</span></label>
@@ -1434,7 +1427,7 @@ const getMngrFail = function (xhr, status, error) {
              return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
 
   var DB=null, RO=[], RN={}, SITES={}, ROSTER={};
-  var rows=[], filter='', q='', RGSEL={}, YEAR='', PAGE=1, SIZE=20;
+  var rows=[], filter='', q='', YEAR='', PAGE=1, SIZE=20;
 
   /* 등급 = 조사표의 4단계 그대로. 숫자 대신 말로 고른다. */
   var GRADE = [ ['1','지금도 씀'], ['2','써봤으나 안 씀'], ['3','들어는 봄'], ['4','처음 들음'] ];
@@ -1487,11 +1480,6 @@ const getMngrFail = function (xhr, status, error) {
   /* 검색영역은 테마 표준(table-form-basic)을 그대로 쓴다.
      지역 체크박스와 연차 선택지는 실데이터에서 만든다. */
   function fillSearch(){
-    if(!$('ptRgChecks').innerHTML){
-      $('ptRgChecks').innerHTML = RO.map(function(rg){
-        return '<label class="check-item"><input type="checkbox" class="pt-rgck" value="'+rg+'" />'
-             + '<span class="label">'+esc(RN[rg]||rg)+'</span></label>'; }).join('');
-    }
     var ys=((DB.meta&&DB.meta.years)||[]);
     if(ys.length && $('ptYear').options.length<=1){
       ys.forEach(function(y){
@@ -1516,11 +1504,7 @@ const getMngrFail = function (xhr, status, error) {
   /* ── 목록 ── */
   function visible(){
     var kw=q.trim().toLowerCase();
-    var rgs=Object.keys(RGSEL).filter(function(k){ return RGSEL[k]; });
     return rows.filter(function(r){
-      /* 지역을 고르면 그 지역에 손볼 게 있는 항목만 남긴다 */
-      if(rgs.length && filter==='miss'
-         && !rgs.some(function(rg){ return (r.regions[rg]||{}).state==='w0'; })) return false;
       if(filter==='miss' && !r.miss) return false;
       if(filter==='edit' && !r.edited) return false;
       if(filter==='std'){
@@ -1612,10 +1596,6 @@ const getMngrFail = function (xhr, status, error) {
       q = $('ptQ').value;
       var st=document.querySelector('input[name=ptState]:checked');
       filter = st ? st.value : '';
-      RGSEL={};
-      if(!$('ptRgAll').checked){
-        [].forEach.call(document.querySelectorAll('.pt-rgck:checked'), function(c){ RGSEL[c.value]=1; });
-      }
       YEAR = $('ptYear').value;
       PAGE=1; render();
     }
@@ -1628,19 +1608,8 @@ const getMngrFail = function (xhr, status, error) {
     $('ptQ').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); doSearch(); } });
     $('ptReset').addEventListener('click', function(){
       $('ptQ').value=''; $('ptYear').value='';
-      $('ptRgAll').checked=true;
-      [].forEach.call(document.querySelectorAll('.pt-rgck'), function(c){ c.checked=false; });
       var a=document.querySelector('input[name=ptState][value=""]'); if(a) a.checked=true;
-      q=''; filter=''; RGSEL={}; YEAR=''; PAGE=1; render();
-    });
-    /* '전체'와 개별 지역은 서로를 끈다 — 표준 검색영역의 나이 체크박스와 같은 규약 */
-    $('ptRgAll').addEventListener('change', function(){
-      if(this.checked) [].forEach.call(document.querySelectorAll('.pt-rgck'), function(c){ c.checked=false; });
-    });
-    document.addEventListener('change', function(e){
-      if(!e.target.classList || !e.target.classList.contains('pt-rgck')) return;
-      if(document.querySelectorAll('.pt-rgck:checked').length) $('ptRgAll').checked=false;
-      else $('ptRgAll').checked=true;
+      q=''; filter=''; YEAR=''; PAGE=1; render();
     });
     $('ptExcel').addEventListener('click', function(){
       if(window.Message) Message.alert({icon:'info',
