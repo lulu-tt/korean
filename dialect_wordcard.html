@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>세대별 지역어 변화 — 국립국어원</title>
+
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="./styles.css">
+
+<script src="./gnb.js" defer></script>
+<script src="./footer.js" defer></script>
+<script src="./share.js" defer></script>
+
+<!--
+  ============================================================================
+  세대별 지역어 변화 — 모듈 전용 스타일
+  · 전역 리셋 금지, 모든 규칙을 #wordcard-root 하위로 스코프 (dialect_gisangdo.html 규약 계승)
+  · 클래스 프리픽스 wc- 사용
+  ============================================================================
+-->
+<style>
+body{ background:#ffffff; }
+
+#wordcard-root{
+  /* 코딩 4범주 색 — 보고서 §4.2 코딩 기준(1 표준어 / 2 지역어 / 3 혼용 / 0 모름) */
+  --wc-std:#185FA5;  --wc-std-bg:#E7F0FA;
+  --wc-dia:#BA7517;  --wc-dia-bg:#FBF3E4;
+  --wc-mix:#5F5E5A;  --wc-mix-bg:#F0F0EE;
+  --wc-non:#C0BDB6;  --wc-non-bg:#F5F4F2;
+
+  --wc-surface:#ffffff; --wc-surface-2:#f8fafc; --wc-line:#e2e8f0;
+  --wc-text:#111827; --wc-muted:#64748b; --wc-radius:12px;
+
+  max-width:1440px; margin:0 auto; padding:8px 20px 80px;
+  color:var(--wc-text);
+}
+
+/* ── 인트로 ─────────────────────────────────────────────── */
+#wordcard-root .wc-intro{ background:var(--wc-surface); border:1px solid var(--wc-line); border-radius:18px; padding:28px 32px 26px; margin-bottom:18px; }
+#wordcard-root .wc-intro__head{ display:flex; align-items:center; gap:16px; }
+#wordcard-root .wc-intro__badge{ flex:0 0 auto; width:46px; height:46px; border-radius:50%; background:#eff6ff;
+  display:flex; align-items:center; justify-content:center; color:#2563eb; font-size:22px; }
+#wordcard-root .wc-intro h2{ font-size:25px; font-weight:800; margin:0; letter-spacing:-.03em; line-height:1.25; }
+/* 본문·칩은 제목 글자에 맞춰 들여쓴다 — 배지 너비 + 간격 */
+#wordcard-root .wc-intro__body{ padding-left:62px; }
+#wordcard-root .wc-intro p{ margin:14px 0 0; font-size:14px; line-height:1.75; color:#475569; }
+#wordcard-root .wc-intro p b{ color:#334155; font-weight:700; }
+#wordcard-root .wc-intro .wc-meta{ display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+#wordcard-root .wc-metachip{ display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:700; color:#334155;
+  background:var(--wc-surface); border:1px solid var(--wc-line); padding:9px 18px; border-radius:99px; }
+#wordcard-root .wc-metachip i{ color:#2563eb; font-size:16px; }
+@media (max-width:640px){
+  #wordcard-root .wc-intro{ padding:22px 20px; }
+  #wordcard-root .wc-intro h2{ font-size:20px; }
+  #wordcard-root .wc-intro__body{ padding-left:0; }
+}
+
+/* ── 유형 탭 (검색 박스 안) ───────────────────────────────── */
+
+/* ── 단어 선택 패널 (기상도 .gs-pick 계승) ─────────────────── */
+#wordcard-root .wc-pick{ border:1px solid var(--wc-line); border-radius:16px; padding:14px 18px 12px; margin-bottom:22px; background:#fff; }
+#wordcard-root .wc-pick__head{ display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+#wordcard-root .wc-pick__label{ font-size:14px; font-weight:800; color:#0f172a; display:inline-flex; align-items:center; gap:6px; margin:0; }
+#wordcard-root .wc-pick__label i{ color:#2563eb; }
+#wordcard-root .wc-pick__count{ font-size:11px; font-weight:700; color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; padding:3px 9px; border-radius:99px; }
+#wordcard-root .wc-pick__reset{ margin-left:auto; border:1px solid var(--wc-line); background:#fff; border-radius:9px; padding:5px 11px; font-family:inherit; font-size:11.5px; font-weight:700; color:#64748b; cursor:pointer; }
+#wordcard-root .wc-pick__reset:hover{ border-color:#93c5fd; color:#2563eb; }
+#wordcard-root .wc-search{ position:relative; margin:0 0 14px; padding-bottom:14px; border-bottom:1px solid #f1f5f9; }
+#wordcard-root .wc-search input{ width:100%; height:40px; padding:0 14px 0 36px; border:1px solid var(--wc-line); border-radius:11px; background:#fff; font-size:13px; font-weight:600; color:#0f172a; font-family:inherit; outline:none; box-sizing:border-box; transition:.15s; }
+#wordcard-root .wc-search input:focus{ border-color:#93c5fd; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+#wordcard-root .wc-search i{ position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#94a3b8; font-size:16px; pointer-events:none; }
+#wordcard-root .wc-grid{ display:block; max-height:none; padding-right:2px; }
+#wordcard-root .wc-empty{ width:100%; text-align:center; padding:18px 8px; font-size:13px; font-weight:600; color:#94a3b8; }
+
+/* ── 한눈에 보기 ─────────────────────────────────────────── */
+#wordcard-root .wc-shift{ background:linear-gradient(180deg,#f8fbff 0%,#fff 70%); }
+#wordcard-root .wc-sh{ display:grid; grid-template-columns:minmax(0,1fr) 220px; gap:24px; align-items:center; }
+@media (max-width:900px){ #wordcard-root .wc-sh{ grid-template-columns:1fr; gap:16px; } }
+#wordcard-root .wc-sh__bars{ display:flex; flex-direction:column; gap:12px; }
+#wordcard-root .wc-sh__row{ display:grid; grid-template-columns:66px 1fr 64px; align-items:center; gap:12px; }
+#wordcard-root .wc-sh__g{ font-size:15px; font-weight:800; color:#0f172a; }
+#wordcard-root .wc-sh__g small{ display:block; font-size:11px; font-weight:600; color:#64748b; margin-top:1px; }
+#wordcard-root .wc-sh__track{ height:26px; border-radius:8px; background:#eef2f7; overflow:hidden; }
+#wordcard-root .wc-sh__fill{ display:block; height:100%; border-radius:8px;
+  background:linear-gradient(90deg,#D9922B,#BA7517); transition:width .5s cubic-bezier(.22,1,.36,1); }
+#wordcard-root .wc-sh__v{ font-size:20px; font-weight:800; color:#BA7517; text-align:right; letter-spacing:-.02em; }
+#wordcard-root .wc-sh__v i{ font-style:normal; font-size:12px; margin-left:1px; }
+#wordcard-root .wc-sh__drop{ text-align:center; border-left:1px solid #e2e8f0; padding:6px 0 6px 24px; }
+@media (max-width:900px){ #wordcard-root .wc-sh__drop{ border-left:0; border-top:1px solid #e2e8f0; padding:14px 0 0; } }
+#wordcard-root .wc-sh__drop em{ display:block; font-style:normal; font-size:12px; font-weight:700; color:#64748b; }
+#wordcard-root .wc-sh__drop b{ display:block; font-size:42px; font-weight:800; line-height:1.1; color:#A32D2D; letter-spacing:-.04em; margin:2px 0 0; }
+#wordcard-root .wc-sh__drop b i{ font-style:normal; font-size:17px; margin-left:2px; }
+
+
+/* ── 세대별 상세 · 도넛 ───────────────────────────────────── */
+#wordcard-root .wc-dn{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+@media (max-width:1000px){ #wordcard-root .wc-dn{ grid-template-columns:1fr; gap:24px; } }
+#wordcard-root .wc-dn__panel{ display:flex; flex-direction:column; align-items:center; min-width:0; }
+#wordcard-root .wc-dn__svg{ width:168px; height:168px; transform:rotate(-90deg); }
+#wordcard-root .wc-dn__bg{ fill:none; stroke:#eef2f7; stroke-width:24; }
+#wordcard-root .wc-dn__arc{ fill:none; stroke-width:24; transition:stroke-dasharray .5s cubic-bezier(.22,1,.36,1); }
+#wordcard-root .wc-dn__svg text{ transform:rotate(90deg); transform-origin:70px 70px; text-anchor:middle; }
+#wordcard-root .wc-dn__c1{ font-size:19px; font-weight:800; fill:#0f172a; letter-spacing:-.02em; }
+#wordcard-root .wc-dn__c2{ font-size:11.5px; font-weight:600; fill:#94a3b8; }
+#wordcard-root .wc-dn__legend{ display:flex; flex-direction:column; gap:5px; margin-top:14px; width:100%; max-width:210px; }
+#wordcard-root .wc-dn__legend span{ display:flex; align-items:center; gap:7px; font-size:12.5px; color:#475569; }
+#wordcard-root .wc-dn__legend i{ width:11px; height:11px; border-radius:3px; flex:none; }
+#wordcard-root .wc-dn__legend b{ margin-left:auto; font-size:13px; font-weight:800; color:#0f172a; }
+
+/* ── 남녀 차이 · 사람 실루엣 게이지 ───────────────────────── */
+#wordcard-root .wc-fg{ display:flex; justify-content:space-around; align-items:flex-end; padding:6px 8px 0; flex-wrap:wrap; gap:18px 0; }
+#wordcard-root .wc-fg__grp{ display:flex; flex-direction:column; align-items:center; flex:1; min-width:190px; }
+#wordcard-root .wc-fg__pair{ display:flex; align-items:flex-end; justify-content:center; gap:22px; }
+#wordcard-root .wc-fg__col{ display:flex; flex-direction:column; align-items:center; }
+#wordcard-root .wc-fg__val{ font-size:19px; font-weight:800; letter-spacing:-.02em; margin-bottom:6px; }
+#wordcard-root .wc-fg__val i{ font-style:normal; font-size:12px; margin-left:1px; }
+#wordcard-root .wc-fg__val.is-m{ color:#2563eb; }
+#wordcard-root .wc-fg__val.is-f{ color:#be185d; }
+#wordcard-root .wc-fig{ width:58px; height:145px; display:block; }
+#wordcard-root .wc-fig rect{ transition:y .5s cubic-bezier(.22,1,.36,1), height .5s cubic-bezier(.22,1,.36,1); }
+#wordcard-root .wc-fg__n{ margin-top:8px; font-size:11px; color:#64748b; white-space:nowrap; }
+#wordcard-root .wc-fg__g{ margin-top:12px; font-size:15px; font-weight:800; color:#0f172a; }
+
+/* ── 단어 버튼 (기상도와 동일 규격) ──────────────────────── */
+#wordcard-root .wc-grid{ display:flex; flex-wrap:wrap; gap:6px; }
+#wordcard-root .wc-chip{ appearance:none; flex:0 0 auto; white-space:nowrap; min-width:74px; height:36px;
+  justify-content:center; border:1px solid var(--wc-line); background:#fff; border-radius:9px; padding:0 14px;
+  font-size:13.5px; font-weight:700; color:#334155; cursor:pointer; font-family:inherit; transition:.12s;
+  display:inline-flex; align-items:center; }
+#wordcard-root .wc-chip:hover{ border-color:#93c5fd; background:#eff6ff; color:#1d4ed8; }
+#wordcard-root .wc-chip.is-active{ border-color:#2563eb; background:#2563eb; color:#fff; box-shadow:0 2px 8px rgba(37,99,235,.3); }
+
+/* ── 상세: 히어로 ────────────────────────────────────────── */
+#wordcard-root .wc-hero{ border:1px solid var(--wc-line); border-radius:16px; padding:24px 26px; margin-bottom:14px; background:var(--wc-surface); }
+#wordcard-root .wc-hero__word{ font-size:38px; font-weight:800; letter-spacing:-.03em; line-height:1.15; margin:0 0 14px; }
+#wordcard-root .wc-hero__hook{ font-size:18px; font-weight:700; line-height:1.55; letter-spacing:-.02em; color:#0f172a; margin:0 0 10px; }
+#wordcard-root .wc-hero__story{ font-size:14.5px; line-height:1.85; color:#334155; margin:0; max-width:66em; }
+
+/* ── 섹션 공통 ───────────────────────────────────────────── */
+#wordcard-root .wc-sec{ border:1px solid var(--wc-line); border-radius:14px; padding:18px 20px 20px; margin-bottom:14px; background:var(--wc-surface); }
+#wordcard-root .wc-sec__head{ display:flex; align-items:baseline; gap:9px; margin-bottom:14px; flex-wrap:wrap; }
+#wordcard-root .wc-sec__head h3{ font-size:16px; font-weight:800; margin:0; letter-spacing:-.02em; }
+#wordcard-root .wc-sec__head span{ font-size:12px; color:var(--wc-muted); }
+
+/* ── 세대 온도계 (100% 스택) ─────────────────────────────── */
+#wordcard-root .wc-legend{ display:flex; flex-wrap:wrap; gap:14px; margin-bottom:14px; }
+#wordcard-root .wc-legend b{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:#475569; }
+#wordcard-root .wc-legend i.sw{ width:11px; height:11px; border-radius:3px; display:inline-block; }
+#wordcard-root .wc-gen{ display:grid; grid-template-columns:56px 1fr; align-items:center; gap:12px; margin-bottom:9px; }
+#wordcard-root .wc-gen__label{ font-size:14px; font-weight:800; color:#0f172a; text-align:right; }
+#wordcard-root .wc-gen__label small{ display:block; font-size:10.5px; font-weight:600; color:#94a3b8; }
+#wordcard-root .wc-bar{ display:flex; height:34px; border-radius:8px; overflow:hidden; background:#f1f5f9; }
+#wordcard-root .wc-bar span{ display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:800; color:#fff; min-width:0; transition:.2s; }
+#wordcard-root .wc-bar span.is-dark{ color:#fff; }
+#wordcard-root .wc-bar span.is-light{ color:#57534e; }
+#wordcard-root .wc-genkey{ margin-top:12px; background:var(--wc-surface-2); border-radius:9px; padding:10px 12px; font-size:12.5px; line-height:1.65; color:#475569; }
+#wordcard-root .wc-genkey b{ color:#0f172a; }
+
+/* ── 성별 격차 ───────────────────────────────────────────── */
+#wordcard-root .wc-sex{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+#wordcard-root .wc-sexcol{ border:1px solid var(--wc-line); border-radius:11px; padding:12px 13px; }
+#wordcard-root .wc-sexcol h4{ font-size:13px; font-weight:800; margin:0 0 9px; color:#0f172a; }
+#wordcard-root .wc-sexrow{ display:grid; grid-template-columns:26px 1fr; align-items:center; gap:8px; margin-bottom:6px; }
+#wordcard-root .wc-sexrow b{ font-size:11.5px; font-weight:700; color:#64748b; }
+#wordcard-root .wc-sexrow .wc-bar{ height:22px; }
+#wordcard-root .wc-sexrow .wc-bar span{ font-size:10px; }
+
+/* ── 이형태 칩 ───────────────────────────────────────────── */
+
+/* ── 사실 목록 ───────────────────────────────────────────── */
+
+/* ── 호칭 표 ─────────────────────────────────────────────── */
+#wordcard-root .wc-tblwrap{ overflow-x:auto; }
+#wordcard-root table.wc-tbl{ width:100%; border-collapse:collapse; font-size:12.5px; min-width:520px; }
+#wordcard-root table.wc-tbl th, #wordcard-root table.wc-tbl td{ border:1px solid var(--wc-line); padding:7px 10px; text-align:center; }
+#wordcard-root table.wc-tbl th{ background:var(--wc-surface-2); font-weight:800; color:#334155; }
+#wordcard-root table.wc-tbl td.k{ background:var(--wc-surface-2); font-weight:800; }
+#wordcard-root table.wc-tbl td.hi{ background:#eff6ff; font-weight:800; color:#1d4ed8; }
+
+/* ── 근거 (접기) ─────────────────────────────────────────── */
+
+@media (max-width:900px){
+  #wordcard-root .wc-sex{ grid-template-columns:1fr; }
+  #wordcard-root .wc-hero__word{ font-size:30px; }
+}
+</style>
+</head>
+<body>
+
+  <!-- 공통 GNB (gnb.js) -->
+  <div id="gnb-common"></div>
+
+  <!-- ===== 공통 서브 비주얼 ===== -->
+  <div class="sub-visual">
+    <div class="wrap">
+      <h1 class="sv-title">세대별 지역어 변화</h1>
+      <div class="location-bar">
+        <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer;" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
+        <i class="ti ti-chevron-right loc-sep" aria-hidden="true"></i>
+        <div class="loc-item">
+          <select aria-label="상위 메뉴 이동" onchange="if(this.value) location.href=this.value;">
+            <option value="./dialect_map.html" selected>지역어 지도</option>
+            <option value="./dialect_search_prototype.html">지역어 검색</option>
+            <option value="./region_culture.html">지역어 자료관</option>
+            <option value="./notice.html">알림마당</option>
+            <option value="./about_intro.html">누리집 소개</option>
+          </select>
+        </div>
+        <i class="ti ti-chevron-right loc-sep" aria-hidden="true"></i>
+        <div class="loc-item">
+          <select aria-label="하위 메뉴 이동" onchange="if(this.value) location.href=this.value;">
+            <option value="./dialect_wordcard.html" selected>세대별 지역어 변화</option>
+            <option value="./dialect_gisangdo.html">지역어 기상도</option>
+            <option value="./dialect_map.html">지역어 지도</option>
+            <option value="./dialect_our_town.html">지역어 지도 비교</option>
+            <option value="./dialect_my_map.html">나만의 지도 제작</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <div id="wordcard-root" data-wordcard>
+      <div id="wc-view" aria-live="polite">
+        <div class="wc-empty" style="padding:80px 0">자료를 불러오는 중입니다…</div>
+      </div>
+    </div>
+  </main>
+
+  <div id="footer-common"></div>
+
+  <script>
+  (function(){
+    'use strict';
+
+    const DATA_URL = './data/processed/word_stories.json';
+    let DB = null, CODING = null;
+    let keyword = '', currentId = null;
+
+    const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    const sum = a => a.reduce((x,y)=>x+y,0);
+    const pct = (v,t) => t>0 ? Math.round(v/t*100) : 0;
+
+    const GEN = [
+      {g:20, label:'20대', sub:'청년'},
+      {g:50, label:'50대', sub:'중년'},
+      {g:70, label:'70대', sub:'노년'}
+    ];
+    const CKEY = ['std','dia','mix','none'];
+
+    /* 세대별 합계 (남+여) */
+    /* 교차표에서 파생 — 조사값을 고치지 않고 합·비율만 계산한다.
+       '지역어를 쓰는 사람' = 지역어 사용(2) + 혼용(3). 혼용도 그 말을 쓰는 사람이다. */
+    function computeShift(w){
+      const by = {};
+      [70,50,20].forEach(g=>{
+        const t = genTotals(w.ct, g), n = sum(t);
+        by[g] = { n, std:t[0]/n, dia:t[1]/n, mix:t[2]/n, non:t[3]/n, live:(t[1]+t[2])/n };
+      });
+      w.shift = { by, drop: by[70].live - by[20].live };
+    }
+
+    function genTotals(ct, g){
+      const m = ct[g+'M']||[0,0,0,0], f = ct[g+'F']||[0,0,0,0];
+      return m.map((v,i)=>v+f[i]);
+    }
+
+    /* ── 100% 스택 막대 ─────────────────────────────── */
+    function barHTML(cells, opts){
+      opts = opts||{};
+      const total = sum(cells);
+      if(!total) return '<div class="wc-bar"></div>';
+      const html = cells.map((v,i)=>{
+        if(!v) return '';
+        const p = v/total*100;
+        const c = CODING[i];
+        const light = c.k==='none';
+        const showNum = p >= (opts.minLabel||9);
+        return `<span class="${light?'is-light':'is-dark'}" style="width:${p.toFixed(2)}%;background:${c.color}"
+                 title="${esc(c.label)} ${Math.round(p)}% (${v}명)">${showNum?Math.round(p)+'%':''}</span>`;
+      }).join('');
+      return `<div class="wc-bar">${html}</div>`;
+    }
+
+    function legendHTML(){
+      return `<div class="wc-legend">${CODING.map(c=>
+        `<b><i class="sw" style="background:${c.color}"></i>${esc(c.label)}</b>`).join('')}</div>`;
+    }
+
+    /* ── 세대 온도계 ────────────────────────────────── */
+    /* 한눈에 — 이 단어의 핵심은 '지역어를 쓰는 사람이 세대마다 얼마나 줄었나' 하나다 */
+    function shiftHTML(w){
+      const b=w.shift.by, max=Math.max(b[70].live,b[50].live,b[20].live,0.01);
+      const row=(g,label)=>{
+        const v=b[g].live, pctv=Math.round(v*100);
+        return `<div class="wc-sh__row">
+          <span class="wc-sh__g">${g}대<small>${label}</small></span>
+          <span class="wc-sh__track"><span class="wc-sh__fill" style="width:${Math.round(v/max*100)}%"></span></span>
+          <b class="wc-sh__v">${pctv}<i>%</i></b>
+        </div>`;
+      };
+      const drop=Math.round(w.shift.drop*100);
+      return `<section class="wc-sec wc-shift">
+        <div class="wc-sec__head"><h3>한눈에 보기</h3>
+          <span>이 지역어를 <b>지금 쓰는 사람</b>의 비율 — 지역어만 쓰거나, 표준어와 섞어 쓰는 사람</span></div>
+        <div class="wc-sh">
+          <div class="wc-sh__bars">${row(70,'노년')}${row(50,'중년')}${row(20,'청년')}</div>
+          <div class="wc-sh__drop">
+            <em>70대 → 20대</em>
+            <b>${drop>=0?'−':'+'}${Math.abs(drop)}<i>%p</i></b>
+          </div>
+        </div>
+      </section>`;
+    }
+
+    /* 네 범주 상세 — 세대별 도넛. 한 세대의 구성이 한 덩어리로 보인다 */
+    function donutHTML(cells, center){
+      const R=54, C=2*Math.PI*R;
+      let acc=0;
+      const arcs = cells.map((v,i)=>{
+        if(!v) return '';
+        const len=v/100*C, seg=`<circle class="wc-dn__arc" r="${R}" cx="70" cy="70"
+          stroke="${CODING[i].color}" stroke-dasharray="${len.toFixed(2)} ${(C-len).toFixed(2)}"
+          stroke-dashoffset="${(-acc).toFixed(2)}"><title>${esc(CODING[i].label)} ${v}%</title></circle>`;
+        acc+=len; return seg;
+      }).join('');
+      return `<svg class="wc-dn__svg" viewBox="0 0 140 140" role="img">
+        <circle r="${R}" cx="70" cy="70" class="wc-dn__bg"/>
+        ${arcs}
+        <text x="70" y="66" class="wc-dn__c1">${center.top}</text>
+        <text x="70" y="86" class="wc-dn__c2">${center.sub}</text>
+      </svg>`;
+    }
+    function genSectionHTML(w){
+      const panels = GEN.map(x=>{
+        const t = genTotals(w.ct, x.g), n = sum(t);
+        let cells = t.map(v => Math.round(v/n*100));
+        const gap = 100 - cells.reduce((a,b)=>a+b,0);
+        if(gap) cells[cells.indexOf(Math.max(...cells))] += gap;
+        const legend = CODING.map((c,i)=> cells[i]
+          ? `<span><i style="background:${c.color}"></i>${esc(c.label)}<b>${cells[i]}%</b></span>` : '').join('');
+        return `<div class="wc-dn__panel">
+          ${donutHTML(cells, {top:x.label, sub:`${n}명`})}
+          <div class="wc-dn__legend">${legend}</div>
+        </div>`;
+      }).join('');
+      return `<section class="wc-sec">
+        <div class="wc-sec__head"><h3>세대별로 자세히</h3>
+          <span>한 세대를 100%로 봤을 때의 구성 · 보고서 교차표 실측값</span></div>
+        <div class="wc-dn">${panels}</div>
+      </section>`;
+    }
+
+    /* 남녀 — 사람 실루엣이 비율만큼 차오른다. 막대 자체가 성별을 나타낸다 */
+    const FIG = {
+      m:'<circle cx="20" cy="12" r="9"/><path d="M6,25 h28 l2,30 h-8 v41 h-6 v-35 h-4 v35 h-6 v-41 h-8 z"/>',
+      f:'<circle cx="20" cy="12" r="9"/><path d="M20,25 c-8,0 -11,7 -13,21 l-3,16 h8 v34 h6 v-28 h4 v28 h6 v-34 h8 l-3,-16 c-2,-14 -5,-21 -13,-21 z"/>'
+    };
+    let figSeq = 0;
+    function figureHTML(v, sex){
+      const id = 'wcFig'+(++figSeq);
+      const fill = Math.max(v*100, 0);
+      const color = sex==='m' ? '#2563eb' : '#be185d';
+      return `<svg class="wc-fig" viewBox="0 0 40 100" role="img" aria-label="${sex==='m'?'남성':'여성'} ${Math.round(fill)}%">
+        <defs><clipPath id="${id}">${FIG[sex]}</clipPath></defs>
+        <g clip-path="url(#${id})">
+          <rect x="0" y="0" width="40" height="100" fill="#e8edf3"/>
+          <rect x="0" y="${100-fill}" width="40" height="${fill}" fill="${color}"/>
+        </g>
+      </svg>`;
+    }
+
+    function sexSectionHTML(w){
+      const live = k => { const r=w.ct[k]; if(!r) return null; const t=sum(r); return t?(r[1]+r[2])/t:0; };
+      const cnt  = k => { const r=w.ct[k]; return r?sum(r):0; };
+      const data = GEN.map(x=>({ g:x.g, m:live(x.g+'M'), f:live(x.g+'F'), mn:cnt(x.g+'M'), fn:cnt(x.g+'F') }))
+                      .filter(d=>d.m!=null && d.f!=null);
+      if(!data.length) return '';
+      const col=(v,n,sex)=>`
+        <div class="wc-fg__col">
+          <b class="wc-fg__val is-${sex}">${Math.round(v*100)}<i>%</i></b>
+          ${figureHTML(v,sex)}
+          <small class="wc-fg__n">${n}명 중 ${Math.round(v*n)}명</small>
+        </div>`;
+      const groups = data.map(d=>`
+        <div class="wc-fg__grp">
+          <div class="wc-fg__pair">${col(d.m,d.mn,'m')}${col(d.f,d.fn,'f')}</div>
+          <div class="wc-fg__g">${d.g}대</div>
+        </div>`).join('');
+      return `<section class="wc-sec">
+        <div class="wc-sec__head"><h3>남녀 차이</h3>
+          <span>같은 세대 안에서 이 지역어를 쓰는 사람의 비율 — 채워진 만큼이 쓰는 사람</span></div>
+        <div class="wc-fg">${groups}</div>
+      </section>`;
+    }
+
+
+    /* ── 호칭 표 (20902 전용) ───────────────────────── */
+    function callTableHTML(w){
+      const t = w.callTable; if(!t) return '';
+      const head = `<tr><th>세대·성별</th>${t.cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr>`;
+      const body = t.rows.map(r=>{
+        const max = Math.max.apply(null, r.v);
+        return `<tr><td class="k">${esc(r.g)}</td>${r.v.map(v=>`<td class="${v===max&&v>0?'hi':''}">${v||'·'}</td>`).join('')}</tr>`;
+      }).join('');
+      return `<section class="wc-sec">
+        <div class="wc-sec__head"><h3>실제로 뭐라고 부르나</h3><span>‘여기요/저기요’로 유도한 항목의 응답 수 · 파란 칸이 그 집단의 최다 응답</span></div>
+        <div class="wc-tblwrap"><table class="wc-tbl"><thead>${head}</thead><tbody>${body}</tbody></table></div>
+      </section>`;
+    }
+
+    /* ── 사실 목록 ──────────────────────────────────── */
+
+    /* ── 근거 (접기) ────────────────────────────────── */
+
+    /* ── 상세 카드 ──────────────────────────────────── */
+    function detailHTML(w){
+      return `
+      <section class="wc-hero">
+        <h2 class="wc-hero__word">${esc(w.word)}</h2>
+        <p class="wc-hero__hook">${esc(w.hook)}</p>
+        <p class="wc-hero__story">${esc(w.story)}</p>
+      </section>
+      ${shiftHTML(w)}
+      ${genSectionHTML(w)}
+      ${sexSectionHTML(w)}
+      ${callTableHTML(w)}`;
+    }
+
+    /* ── 목록/필터 ──────────────────────────────────── */
+    function filtered(){
+      return DB.words.filter(w=>{
+        if(keyword){
+          const hay = w.word + ' ' + (w.hook||'');
+          if(hay.indexOf(keyword)<0) return false;
+        }
+        return true;
+      });
+    }
+
+    function gridHTML(){
+      const list = filtered();
+      if(!list.length) return `<div class="wc-empty">조건에 맞는 단어가 없습니다.</div>`;
+      return list.map(w=>
+        `<button type="button" class="wc-chip${w.id===currentId?' is-active':''}"
+                 data-id="${esc(w.id)}" role="tab" aria-selected="${w.id===currentId}">${esc(w.word)}</button>`
+      ).join('');
+    }
+
+    function render(){
+      const m = DB.meta;
+      const view = document.getElementById('wc-view');
+      const w = DB.words.find(x=>x.id===currentId) || DB.words[0];
+      view.innerHTML = `
+        <div class="wc-intro">
+          <div class="wc-intro__head">
+            <span class="wc-intro__badge"><i class="ti ti-zoom-question" aria-hidden="true"></i></span>
+            <h2>이 말, 한 세대 만에 얼마나 사라졌나</h2>
+          </div>
+          <div class="wc-intro__body">
+            <p>2021년부터 2025년까지 전국 ${m.informants}명에게 같은 물건·같은 뜻을 물었습니다.
+               70대·50대·20대가 각각 <b>지역어를 쓰는지, 표준어를 쓰는지, 아예 모르는지</b>를 단어별로 보여 줍니다.</p>
+            <div class="wc-meta">
+              <span class="wc-metachip"><i class="ti ti-calendar" aria-hidden="true"></i>조사 ${esc(m.surveyYears)}</span>
+              <span class="wc-metachip"><i class="ti ti-users" aria-hidden="true"></i>제보자 ${m.informants}명</span>
+              <span class="wc-metachip"><i class="ti ti-book" aria-hidden="true"></i>단어 ${DB.words.length}개</span>
+              <span class="wc-metachip"><i class="ti ti-chart-bar" aria-hidden="true"></i>세대×성별 교차표 실측</span>
+            </div>
+          </div>
+        </div>
+        <div class="wc-pick">
+          <div class="wc-pick__head">
+            <p class="wc-pick__label"><i class="ti ti-list-search" aria-hidden="true"></i>단어 고르기</p>
+            <span class="wc-pick__count" id="wcCount">${filtered().length}개</span>
+            <button class="wc-pick__reset" id="wcReset">전체 보기</button>
+          </div>
+          <div class="wc-search"><i class="ti ti-search" aria-hidden="true"></i>
+            <input id="wcSearch" type="search" placeholder="단어로 찾기 (예: 부추)" value="${esc(keyword)}">
+          </div>
+          <div class="wc-grid" id="wcGrid" role="tablist">${gridHTML()}</div>
+        </div>
+        <div id="wcDetail">${w?detailHTML(w):''}</div>`;
+      bind();
+    }
+
+    function rerenderList(){
+      const grid = document.getElementById('wcGrid');
+      const cnt = document.getElementById('wcCount');
+      if(grid) grid.innerHTML = gridHTML();
+      if(cnt) cnt.textContent = filtered().length + '개';
+    }
+
+    function bind(){
+      const root = document.getElementById('wordcard-root');
+
+      const reset = document.getElementById('wcReset');
+      if(reset) reset.addEventListener('click',()=>{
+        keyword='';
+        const s=document.getElementById('wcSearch'); if(s) s.value='';
+        rerenderList();
+      });
+
+      const search = document.getElementById('wcSearch');
+      if(search) search.addEventListener('input',e=>{ keyword=e.target.value.trim(); rerenderList(); });
+
+      const grid = document.getElementById('wcGrid');
+      if(grid) grid.addEventListener('click',e=>{
+        const b = e.target.closest('.wc-chip'); if(!b) return;
+        currentId = b.dataset.id;
+        location.hash = '#/word/' + encodeURIComponent(currentId);
+      });
+    }
+
+    function route(){
+      const h = (location.hash||'').replace(/^#/,'');
+      const m = h.match(/^\/word\/(.+)$/);
+      const id = m ? decodeURIComponent(m[1]) : null;
+      if(id && DB.words.some(w=>w.id===id)) currentId = id;
+      else if(!currentId) currentId = DB.words[0].id;
+
+      const detail = document.getElementById('wcDetail');
+      if(detail){
+        const w = DB.words.find(x=>x.id===currentId);
+        detail.innerHTML = w ? detailHTML(w) : '';
+        rerenderList();
+        if(m) detail.scrollIntoView({behavior:'smooth',block:'start'});
+      } else {
+        render();
+      }
+    }
+
+    fetch(DATA_URL)
+      .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(json=>{
+        DB = json; CODING = json.coding;
+        // 보고서 4.2 교차표가 있는 항목만 — 나머지는 차트를 그릴 근거가 없다
+        DB.words = DB.words.filter(w => w.hasCT);
+        DB.words.forEach(computeShift);
+        DB.words.sort((a,b) => b.shift.drop - a.shift.drop);
+        render();
+        window.addEventListener('hashchange', route);
+        route();
+      })
+      .catch(err=>{
+        document.getElementById('wc-view').innerHTML =
+          `<div class="wc-empty" style="padding:60px 0">자료를 불러오지 못했습니다. (${esc(err.message)})<br>
+           <small style="color:#94a3b8">${esc(DATA_URL)}</small></div>`;
+      });
+  })();
+  </script>
+</body>
+</html>

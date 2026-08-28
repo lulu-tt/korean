@@ -477,6 +477,9 @@
 										<li data-level="3">
 													<a href="../../../mariadb/neibis/map/weather.html" >지역어 기상도</a>
 										</li>
+										<li data-level="3">
+													<a href="../../../mariadb/neibis/map/wordcard.html" >세대별 지역어 변화</a>
+										</li>
 										<li data-level="3" >
 													<a href="../../../mariadb/neibis/map/symbol.html" >상징 부호 관리</a>
 										</li>
@@ -1311,8 +1314,30 @@ const getMngrFail = function (xhr, status, error) {
 				return;
 			}
 			var doneMsg = function(){
-				if(window.Message){ Message.alert({icon:'info', message:'정적 프로토타입입니다. 실제 업로드는 수행되지 않습니다.'}); }
-				else { alert('정적 프로토타입: 업로드 미수행'); }
+				var fd = new FormData();
+				fd.append('excelFile', xls.files[0]);
+				fetch('/mariadb/neibis-api/survey/std-vocab/bulk', { method: 'POST', body: fd })
+					.then(function(r){ return r.json(); })
+					.then(function(res){
+						if(!res.ok){ throw new Error(res.message || '업로드에 실패했습니다.'); }
+						var msg = '[' + res.sheet + '] 시트에서 ' + res.count + '건을 등록했습니다.';
+						if(res.dup){ msg += ' 중복 ' + res.dup + '건 제외.'; }
+						if(res.blank){ msg += ' 빈 행 ' + res.blank + '건 무시.'; }
+						if(res.skippedSheets && res.skippedSheets.length){
+							msg += ' 처리하지 않은 시트: ' + res.skippedSheets.join(', ') + '.';
+						}
+						if(window.reloadStdVocabSeed){ window.reloadStdVocabSeed(); }
+						if(window.closeBulk){ window.closeBulk(); }
+						xls.value = '';
+						bulkFileName(xls, 'bulkExcelNameStd');
+						if(window.Message){ Message.alert({icon:'info', message: msg}); }
+						else { alert(msg); }
+					})
+					.catch(function(err){
+						var m = '업로드 실패: ' + (err && err.message ? err.message : err);
+						if(window.Message){ Message.alert({icon:'warning', message: m}); }
+						else { alert(m); }
+					});
 			};
 			if(window.Message){
 				Message.confirm({icon:'warning', title:'일괄 등록하시겠어요?', message:'등록하시려면 ‘확인’을 눌러주세요.'}, doneMsg);
@@ -1376,6 +1401,7 @@ const getMngrFail = function (xhr, status, error) {
           useYn: it.useYn === 'N' ? 'N' : 'Y',
           sortOrdr: Number(it.sortOrdr) || (i + 1),
           rmrk: it.rmrk || '',
+          itemNo: it.itemNo || '',
           regDt: it.regDt || today(),
           updDt: it.updDt || today()
         };
@@ -1520,6 +1546,7 @@ const getMngrFail = function (xhr, status, error) {
     $('#layer-vocab-form').addClass('hide');
     state.editId = null;
   };
+  window.reloadStdVocabSeed = function () { return loadSeed(true); };
   window.closeBulk = function () {
     $('#layer-std-bulk').addClass('hide').removeClass('show');
     var f = document.getElementById('bulkExcelFileStd');

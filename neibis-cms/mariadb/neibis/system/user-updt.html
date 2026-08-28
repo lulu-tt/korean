@@ -477,6 +477,9 @@
 										<li data-level="3">
 													<a href="../../../mariadb/neibis/map/weather.html" >지역어 기상도</a>
 										</li>
+										<li data-level="3">
+													<a href="../../../mariadb/neibis/map/wordcard.html" >세대별 지역어 변화</a>
+										</li>
 										<li data-level="3" >
 													<a href="../../../mariadb/neibis/map/symbol.html" >상징 부호 관리</a>
 										</li>
@@ -786,7 +789,7 @@
   var currentUserId = qp('userId') || $('#userId').val() || '';
 
   /* 승인상태 직접 지정 — 탈퇴('5') 선택 시 물리삭제 없이 상태만 전환하고 탈퇴일시를 기록한다. */
-  window.htmlApplyAuth = function(){
+  window.doApplyAuth = function(){
     var v = $('#authSel').val();
     var label = $('#authSel option:selected').text();
     var msg = (v==='5')
@@ -853,7 +856,7 @@
   }
 
   // 잠금 해제
-  window.htmlUnlock = function(){
+  window.doUnlock = function(){
     ask("'"+($('#usid').val())+"' 계정의 잠금을 해제할까요? (승인=정상, 실패횟수 0)", function(){
       $.ajax({url:API+'/unlock', method:'POST', contentType:'application/json',
         data: JSON.stringify({userId: currentUserId})})
@@ -864,7 +867,7 @@
 
   // 비밀번호 재설정
   // 비밀번호 재설정 — 공통 팝업(PwReset). 성공 시 상세 새로고침
-  window.htmlResetPw = function(){
+  window.doResetPw = function(){
     if(!window.PwReset){ toast('비밀번호 재설정 모듈을 불러오지 못했습니다.','error'); return; }
     window.PwReset.open(currentUserId, $('#usid').val(), loadDetail);
   };

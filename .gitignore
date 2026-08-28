@@ -14,3 +14,8 @@ data/dialect_phonology_compare/
 *.xlsx
 *.zip
 
+
+# serve.py 가 저장할 때 남기는 런타임 백업
+*.json.bak
+.DS_Store
+sm_*_big.png

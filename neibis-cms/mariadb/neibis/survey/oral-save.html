@@ -477,6 +477,9 @@
 										<li data-level="3">
 													<a href="../../../mariadb/neibis/map/weather.html" >지역어 기상도</a>
 										</li>
+										<li data-level="3">
+													<a href="../../../mariadb/neibis/map/wordcard.html" >세대별 지역어 변화</a>
+										</li>
 										<li data-level="3" >
 													<a href="../../../mariadb/neibis/map/symbol.html" >상징 부호 관리</a>
 										</li>
@@ -950,7 +953,8 @@ function ensureUploadModal(){
 function openUploadConfirm(order, eafs, wavs){
 	var m=ensureUploadModal();
 	var firstEaf = null; for(var i=0;i<order.length;i++){ if(eafs[order[i]]){ firstEaf=eafs[order[i]]; break; } }
-	window._pendingUpload = {order:order, eafs:eafs, wavs:wavs, meta:firstEaf?firstEaf.meta:null, firstEafName:firstEaf?firstEaf.fileName:'', candidates:[], pick:'new'};
+	window._pendingUpload = {order:order, eafs:eafs, wavs:wavs, meta:firstEaf?firstEaf.meta:null, firstEafName:firstEaf?firstEaf.fileName:'', rows:[]};
+	window._pendingUpload.rows = ucBuildRows(firstEaf?firstEaf.meta:null);
 	var meta = window._pendingUpload.meta || {};
 	var age = (meta.year && meta.birth) ? (Number(meta.year)-Number(meta.birth)+1) : '';
 	// 파일 표
@@ -974,99 +978,316 @@ function openUploadConfirm(order, eafs, wavs){
 		+'<div id="ucSrc" style="border:1px solid #eef2f7;border-radius:10px;padding:14px 16px;color:#64748b">제보자 관리에서 검색 중…</div>';
 	document.getElementById('ucBody').innerHTML=html;
 	m.style.display='flex';
-	// 제보자 매칭 검색
-	if(meta.informant){
-		var qs='name='+encodeURIComponent(meta.informant)+(meta.sex?('&sex='+encodeURIComponent(meta.sex)):'');
-		fetch('/mariadb/neibis-api/oral/source/search?'+qs).then(function(r){return r.json();}).then(function(d){
-			window._pendingUpload.candidates = (d&&d.list)||[];
-			renderUcSources(meta);
-		}).catch(function(){ document.getElementById('ucSrc').innerHTML='<span style="color:#dc2626">제보자 검색 실패 — 신규로 등록됩니다.</span>'; });
+	ucRenderSection(meta, meta.informant?'':'전사자료에 제보자 이름이 없습니다. 아래에서 검색해 연결하거나 신규 등록하세요.');
+}
+
+/* ── 화자별 제보자 배정 ──────────────────────────────────────────────
+   EAF 에는 누가 주제보자고 누가 부제보자인지 적을 자리가 없다. 계층 이름(제보자1·제보자2…)과
+   발화 행수만 있고, 이름은 메타데이터에 주제보자 몫으로 한 줄 적힐 뿐이다.
+   그래서 역할은 사람이 정하게 하되, 기본값을 최대한 맞춰 둔다.
+     · 메타데이터 이름이 n명이면 앞의 n개 화자를 주제보자로
+     · 나머지는 부제보자
+   ─────────────────────────────────────────────────────────────── */
+var UC_ROLE_LABEL = {main:'주제보자', sub:'부제보자', skip:'제외'};
+
+function ucSplitNames(s){
+	return String(s||'').split(/[,、·/]/).map(function(x){return x.trim();}).filter(Boolean);
+}
+
+function ucBuildRows(meta){
+	var names = ucSplitNames(meta&&meta.informant);
+	var infs = ((meta&&meta.speakers)||[]).filter(function(sp){ return /^제보자/.test(sp.name||''); });
+	if(!infs.length) infs=[{name:'제보자1', lines:0}];
+	var mainCnt = Math.max(1, Math.min(names.length||1, infs.length));
+	return infs.map(function(sp,i){
+		return { speaker:sp.name, lines:sp.lines, name:names[i]||'',
+		         role:(i<mainCnt?'main':'sub'), mode:'link', pick:null, cands:[] };
+	});
+}
+
+function ucInvestigatorLine(meta){
+	var inv=((meta&&meta.speakers)||[]).filter(function(sp){ return !/^제보자/.test(sp.name||''); });
+	if(!inv.length) return '';
+	return '<span style="color:#94a3b8;font-size:13px">'
+		+inv.map(function(x){ return esc(x.name)+' '+x.lines+'행'; }).join(' · ')+' (제보자 아님)</span>';
+}
+
+function ucSectionHtml(meta){
+	var rows=window._pendingUpload.rows;
+	var mains=rows.filter(function(r){return r.role==='main';}).length;
+	var subs=rows.filter(function(r){return r.role==='sub';}).length;
+	return '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:10px;padding:10px 14px;background:#f8fafc;border:1px solid #eef2f7;border-radius:10px;font-size:14px">'
+			+'<span style="color:#94a3b8">전사자료에서 찾은 화자</span>'
+			+'<span style="font-weight:700;color:#334155">제보자 '+rows.length+'명</span>'
+			+ucInvestigatorLine(meta)
+			+'<span id="ucRoleTally" style="margin-left:auto;font-size:12px;font-weight:800;color:#1d4ed8;background:#eff6ff;border:1px solid #bfdbfe;border-radius:999px;padding:3px 10px">주 '+mains+' · 부 '+subs+'</span>'
+		+'</div>'
+		+'<div style="color:#94a3b8;font-size:13px;margin-bottom:8px">'
+			+'전사자료에는 주·부 구분이 없어 <b>제보자1부터 순서대로</b> 배정해 뒀습니다. 다르면 역할을 바꿔 주세요. '
+			+'이름이 없는 화자는 검색해 연결하거나 <b>신규 등록</b>할 수 있습니다.'
+		+'</div>'
+		+ rows.map(ucRowHtml).join('');
+}
+
+function ucRowHtml(r, i){
+	var opt=function(v){ return '<option value="'+v+'"'+(r.role===v?' selected':'')+'>'+UC_ROLE_LABEL[v]+'</option>'; };
+	return '<div class="uc-row" data-i="'+i+'" style="padding:10px 0;border-top:1px dashed #e2e8f0">'
+		+'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+			+'<span style="font-weight:700;color:#334155;flex:0 0 auto;min-width:64px">'+esc(r.speaker)+'</span>'
+			+'<span style="color:#94a3b8;font-size:13px;flex:0 0 auto;min-width:46px">'+r.lines+'행</span>'
+			+'<select class="uc-role" style="flex:0 0 auto;width:104px;border:1px solid #cbd5e1;border-radius:8px;padding:7px 8px;font-size:13px;font-family:inherit;background:#fff">'
+				+opt('main')+opt('sub')+opt('skip')+'</select>'
+			+'<input type="text" class="uc-q" placeholder="제보자 이름으로 찾기" autocomplete="off" value="'+esc(r.name)+'" style="flex:1 1 180px;min-width:150px;border:1px solid #cbd5e1;border-radius:8px;padding:8px 12px;font-size:14px;font-family:inherit">'
+			+'<button type="button" class="uc-newbtn btn btn-xs btn-outline-gray" style="flex:0 0 auto">신규 등록</button>'
+		+'</div>'
+		+'<div class="uc-hit" style="margin-top:6px"></div>'
+		+ucRowFormHtml(r)
+	+'</div>';
+}
+
+/* 인라인 신규 등록 폼. 주제보자는 상세 칸까지, 부제보자는 필수 칸만 보여 준다
+   (같은 제보자 명부에 저장되므로 나머지는 「제보자 관리」에서 이어서 입력). */
+function ucRowFormHtml(r){
+	var F='style="width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;background:#fff"';
+	var L='style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:5px"';
+	var meta=window._pendingUpload.meta||{};
+	var age=(meta.year&&meta.birth)?(Number(meta.year)-Number(meta.birth)+1):'';
+	var sexSel=(meta.sex==='여')?'0':(meta.sex==='남'?'1':'');
+	var sexOpt=function(v,t){ return '<option value="'+v+'"'+(r.name&&sexSel===v?' selected':'')+'>'+t+'</option>'; };
+	return '<div class="uc-new" style="display:none;margin-top:8px;padding:14px 16px 12px;border:1px dashed #cbd5e1;border-radius:10px;background:#f8fafc">'
+		+'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 14px">'
+		+'<div><label '+L+'>이름 <span style="color:#ef4444">*</span></label><input class="uc-f-name" '+F+' value="'+esc(r.name)+'" placeholder="제보자 이름"></div>'
+		+'<div><label '+L+'>성별</label><select class="uc-f-sex" '+F+'>'+sexOpt('','선택')+sexOpt('1','남성')+sexOpt('0','여성')+'</select></div>'
+		+'<div><label '+L+'>출생연도</label><input class="uc-f-birth" '+F+' value="'+esc(r.name?(meta.birth||''):'')+'" placeholder="예: 1950"></div>'
+		+'<div class="uc-f-more"><label '+L+'>조사 당시 연령</label><input class="uc-f-age" '+F+' value="'+esc(r.name?String(age||''):'')+'"></div>'
+		+'<div class="uc-f-more"><label '+L+'>출생지</label><input class="uc-f-birthPlace" '+F+' placeholder="출생지"></div>'
+		+'<div class="uc-f-more"><label '+L+'>거주지</label><input class="uc-f-residence" '+F+' placeholder="조사 당시 거주지"></div>'
+		+'<div class="uc-f-more"><label '+L+'>직업</label><input class="uc-f-job" '+F+' placeholder="직업"></div>'
+		+'<div class="uc-f-more"><label '+L+'>교육수준</label><input class="uc-f-education" '+F+' placeholder="교육수준"></div>'
+		+'<div style="grid-column:1/-1"><label '+L+'>제보 장소 <span style="color:#ef4444">*</span></label><input class="uc-f-place" '+F+' placeholder="녹취한 장소"></div>'
+		+'</div>'
+		+'<div style="display:flex;gap:8px;align-items:flex-start;font-size:12px;color:#475569;margin-top:10px;padding:8px 10px;background:#eff6ff;border:1px solid #dbeafe;border-radius:8px;line-height:1.6">'
+			+'<span style="flex:0 0 auto">ℹ️</span>'
+			+'<span><b>목록에 추가</b>를 누르면 <b>제보자 관리</b>에 등록되고 이 칸에 연결됩니다. 주제보자·부제보자는 <b>같은 제보자 명부</b>에서 함께 관리되니, 이미 있는 사람이면 신규 등록 대신 <b>검색해서 연결</b>하세요. 나머지 상세 항목은 「기타관리 &gt; 제보자 관리」에서 이어서 입력합니다.</span>'
+		+'</div>'
+	+'</div>';
+}
+
+function ucRenderSection(meta, notice){
+	var box=document.getElementById('ucSrc'); if(!box) return;
+	box.innerHTML=(notice?'<div style="color:#b45309;margin-bottom:8px">'+esc(notice)+'</div>':'')+ucSectionHtml(meta);
+	ucBindRows();
+	// 이름이 있는 화자는 열자마자 후보를 찾아 준다
+	window._pendingUpload.rows.forEach(function(r,i){
+		if(r.name) ucSearch(document.querySelector('#ucSrc .uc-row[data-i="'+i+'"]'), r.name, true);
+	});
+	ucUpdateTally();
+}
+
+function ucRow(i){ return window._pendingUpload.rows[Number(i)]; }
+function ucRowEl(el){ return el.closest('.uc-row'); }
+
+function ucBindRows(){
+	[].forEach.call(document.querySelectorAll('#ucSrc .uc-row'), function(row){
+		var r=ucRow(row.getAttribute('data-i'));
+		var q=row.querySelector('.uc-q'), hit=row.querySelector('.uc-hit'), timer=null;
+		row.querySelector('.uc-role').addEventListener('change', function(){
+			r.role=this.value;
+			row.style.opacity=(r.role==='skip')?'.45':'';
+			ucToggleMore(row);
+			ucUpdateTally();
+		});
+		q.addEventListener('input', function(){
+			clearTimeout(timer);
+			var kw=q.value.trim();
+			r.pick=null;
+			if(!kw){ hit.innerHTML=''; return; }
+			timer=setTimeout(function(){ ucSearch(row, kw); }, 250);
+		});
+		row.querySelector('.uc-newbtn').addEventListener('click', function(){
+			ucToggleNew(row, r.mode!=='new', q.value.trim());
+		});
+		ucToggleMore(row);
+	});
+}
+
+/* 주제보자일 때만 상세 칸을 보여 준다 */
+function ucToggleMore(row){
+	var r=ucRow(row.getAttribute('data-i'));
+	[].forEach.call(row.querySelectorAll('.uc-f-more'), function(d){
+		d.style.display=(r.role==='main')?'':'none';
+	});
+}
+
+function ucUpdateTally(){
+	var rows=window._pendingUpload.rows;
+	var t=document.getElementById('ucRoleTally'); if(!t) return;
+	t.textContent='주 '+rows.filter(function(r){return r.role==='main';}).length
+	            +' · 부 '+rows.filter(function(r){return r.role==='sub';}).length;
+}
+
+function ucToggleNew(row, on, prefillName){
+	var r=ucRow(row.getAttribute('data-i'));
+	var form=row.querySelector('.uc-new'), btn=row.querySelector('.uc-newbtn'),
+	    q=row.querySelector('.uc-q'), hit=row.querySelector('.uc-hit');
+	if(on){
+		r.mode='new'; r.pick=null;
+		form.style.display='block'; btn.textContent='신규 등록 취소';
+		hit.innerHTML=''; q.style.display='none';
+		ucToggleMore(row);
+		var nm=row.querySelector('.uc-f-name');
+		if(prefillName && !nm.value) nm.value=prefillName;
+		nm.focus();
 	} else {
-		document.getElementById('ucSrc').innerHTML='<span>전사자료에 제보자 정보가 없습니다. 아래에서 직접 연결하거나 신규 등록할 수 있습니다.</span>';
+		r.mode='link';
+		form.style.display='none'; btn.textContent='신규 등록'; q.style.display='';
 	}
 }
 
-function renderUcSources(meta){
-	var box=document.getElementById('ucSrc'); if(!box) return;
-	var cs=window._pendingUpload.candidates||[];
-	var defIdx = -1;
-	for(var i=0;i<cs.length;i++){ if(String(cs[i].birth)===String(meta.birth)){ defIdx=i; break; } }
-	var age=(meta.year&&meta.birth)?(Number(meta.year)-Number(meta.birth)+1):'';
-	var sexSel=(meta.sex==='여')?'0':'1';
-	var html='';
-	if(cs.length){
-		html+='<div style="color:#475569;margin-bottom:8px">일치 후보 '+cs.length+'건 — 연결할 제보자를 선택하세요:</div>';
-		cs.forEach(function(c,i){
-			var mark=(String(c.birth)===String(meta.birth))?' <span style="color:#16a34a;font-weight:700">·생년일치</span>':'';
-			html+='<label style="display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer"><input type="radio" name="ucSrcPick" value="'+i+'"'+((i===defIdx)?' checked':'')+' style="width:17px;height:17px;flex:0 0 auto">'
-				+'<span>'+esc(c.name)+' ('+esc(c.sex)+', '+esc(c.birth)+'생) · '+esc(c.residence||c.regionNm||'')+' · 참여 '+c.surveyCount+'건'+(c.job?(' · '+esc(c.job)):'')+mark+'</span></label>';
-		});
-	} else {
-		html+='<div style="color:#94a3b8;margin-bottom:6px">제보자 관리에 일치하는 제보자가 없습니다.</div>';
-	}
-	html+='<label style="display:flex;align-items:center;gap:10px;padding:10px 0 6px;border-top:1px solid #eef2f7;margin-top:6px;cursor:pointer"><input type="radio" name="ucSrcPick" value="new"'+((defIdx<0)?' checked':'')+' style="width:17px;height:17px;flex:0 0 auto"><span style="font-weight:600">신규 제보자로 등록 <span style="font-weight:400;color:#94a3b8">(아래 정보 입력 → 제보자 관리에 저장)</span></span></label>';
-	// 인라인 신규 제보자 등록 폼 (EAF 프리필 + 추가 입력) — 모달을 벗어나지 않고 등록
-	var F='style="width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:10px;padding:12px 14px;font-size:15px;font-family:inherit;background:#fff"';
-	var L='style="display:block;font-size:13px;font-weight:700;color:#475569;margin-bottom:7px"';
-	html+='<div id="ucNewForm" style="display:none;margin-top:12px;padding:18px 18px 16px;border:1px dashed #cbd5e1;border-radius:12px;background:#f8fafc">'
-		+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 20px">'
-		+'<div><label '+L+'>이름 <span style="color:#ef4444">*</span></label><input id="uc-name" '+F+' value="'+esc(meta.informant||'')+'"></div>'
-		+'<div><label '+L+'>성별</label><select id="uc-sex" '+F+'><option value="1"'+(sexSel==='1'?' selected':'')+'>남성</option><option value="0"'+(sexSel==='0'?' selected':'')+'>여성</option></select></div>'
-		+'<div><label '+L+'>조사 당시 연령</label><input id="uc-age" type="number" '+F+' value="'+esc(String(age||''))+'"></div>'
-		+'<div><label '+L+'>출생연도</label><input id="uc-birth" '+F+' value="'+esc(meta.birth||'')+'"></div>'
-		+'<div><label '+L+'>출생지</label><input id="uc-birthPlace" '+F+' placeholder="출생지"></div>'
-		+'<div><label '+L+'>거주지</label><input id="uc-residence" '+F+' placeholder="조사 당시 거주지"></div>'
-		+'<div><label '+L+'>직업</label><input id="uc-job" '+F+' placeholder="직업"></div>'
-		+'<div><label '+L+'>교육수준</label><input id="uc-education" '+F+' placeholder="교육수준"></div>'
-		+'<div style="grid-column:1/-1"><label '+L+'>제보 장소 <span style="color:#ef4444">*</span></label><input id="uc-sourcePlace" '+F+' placeholder="녹취한 장소"></div>'
-		+'</div>'
-		+'<div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;color:#475569;margin-top:14px;padding:10px 12px;background:#eff6ff;border:1px solid #dbeafe;border-radius:8px;line-height:1.6">'
-			+'<span style="flex:0 0 auto">ℹ️</span>'
-			+'<span><b>이름·제보 장소</b>는 필수입니다. 여기서 입력한 건 <b>기본 정보</b>이며, <b>출생지·거주지·선대 거주지·학력·직업·소개 과정·음성 특징·동의서</b> 등 상세 항목은 <b>「기타관리 &gt; 제보자 관리」</b>에서 추가로 입력·수정할 수 있습니다.</span>'
-			+'</div>'
-		+'</div>';
-	box.innerHTML=html;
-	[].forEach.call(box.querySelectorAll('input[name=ucSrcPick]'), function(r){ r.addEventListener('change', ucToggleNewForm); });
-	ucToggleNewForm();
+/* auto=true 는 EAF 이름으로 자동 조회한 경우 — 생년이 맞는 후보를 바로 골라 준다 */
+function ucSearch(row, kw, auto){
+	var r=ucRow(row.getAttribute('data-i'));
+	var hit=row.querySelector('.uc-hit');
+	var meta=window._pendingUpload.meta||{};
+	hit.innerHTML='<span style="color:#94a3b8;font-size:13px">찾는 중…</span>';
+	return fetch('/mariadb/neibis-api/oral/source/search?name='+encodeURIComponent(kw))
+		.then(function(res){return res.json();})
+		.then(function(d){
+			var list=((d&&d.list)||[]).slice(0,5);
+			r.cands=list;
+			if(!list.length){
+				hit.innerHTML='<span style="color:#94a3b8;font-size:13px">제보자 관리에 ‘'+esc(kw)+'’이(가) 없습니다. </span>'
+					+'<button type="button" class="uc-mknew" style="background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;border-radius:8px;padding:5px 12px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">‘'+esc(kw)+'’ 신규 등록</button>';
+				hit.querySelector('.uc-mknew').addEventListener('click', function(){ ucToggleNew(row, true, kw); });
+				return;
+			}
+			hit.innerHTML=list.map(function(c,k){
+				var mark=(auto&&String(c.birth)===String(meta.birth))?' <span style="color:#16a34a;font-weight:700">·생년일치</span>':'';
+				return '<button type="button" class="uc-hit-btn" data-k="'+k+'" style="display:block;width:100%;text-align:left;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;margin-bottom:4px;font-size:14px;font-family:inherit;cursor:pointer">'
+					+esc(c.name)+' ('+esc(c.sex)+', '+esc(c.birth)+'생) · '+esc(c.residence||c.regionNm||'')+' · 참여 '+c.surveyCount+'건'+mark+'</button>';
+			}).join('');
+			[].forEach.call(hit.querySelectorAll('.uc-hit-btn'), function(b){
+				b.addEventListener('click', function(){ ucSetPick(row, r.cands[Number(b.getAttribute('data-k'))]); });
+			});
+			if(auto){
+				var m=null;
+				for(var k=0;k<list.length;k++){ if(String(list[k].birth)===String(meta.birth)){ m=list[k]; break; } }
+				if(m) ucSetPick(row, m, true);
+			}
+		})
+		.catch(function(){ hit.innerHTML='<span style="color:#dc2626;font-size:13px">제보자 검색 실패</span>'; });
 }
-function ucToggleNewForm(){
-	var f=document.getElementById('ucNewForm'); if(!f) return;
-	var p=document.querySelector('input[name=ucSrcPick]:checked');
-	f.style.display=(p&&p.value==='new')?'block':'none';
+
+function ucSetPick(row, c, isAuto){
+	var r=ucRow(row.getAttribute('data-i'));
+	var hit=row.querySelector('.uc-hit'), q=row.querySelector('.uc-q');
+	if(!c){ r.pick=null; hit.innerHTML=''; return; }
+	r.pick={name:c.name,sex:c.sex,age:c.age||'',birth:c.birth,sourceId:c.sourceId,
+	        residence:c.residence,birthPlace:c.birthPlace,job:c.job,education:c.education};
+	q.value=c.name;
+	hit.innerHTML='<span style="display:inline-flex;align-items:center;gap:8px;background:#ecfdf5;border:1px solid #a7f3d0;color:#047857;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700">'
+		+esc(c.name)+' ('+esc(c.sex)+', '+esc(c.birth)+'생) 연결'+(isAuto?' <span style="font-weight:400">·생년일치로 자동 선택</span>':'')
+		+'<button type="button" class="uc-clear" style="background:none;border:none;color:#047857;cursor:pointer;font-size:15px;line-height:1;padding:0">×</button></span>';
+	hit.querySelector('.uc-clear').addEventListener('click', function(){
+		q.value=''; ucSetPick(row, null);
+	});
+}
+
+/* ── 저장 ─────────────────────────────────────────────────────── */
+function ucCollectNewPayload(row){
+	var g=function(cls){ var e=row.querySelector(cls); return e?(e.value||'').trim():''; };
+	var meta=window._pendingUpload.meta||{};
+	var p={ mode:'C', name:g('.uc-f-name'), sex:g('.uc-f-sex'), birth:g('.uc-f-birth'),
+	        age:g('.uc-f-age'), birthPlace:g('.uc-f-birthPlace'), residence:g('.uc-f-residence'),
+	        job:g('.uc-f-job'), education:g('.uc-f-education'), sourcePlace:g('.uc-f-place'),
+	        regionNm:meta.region||'' };
+	if(!p.age && p.birth && meta.year && /^\d{4}$/.test(p.birth)) p.age=String(Number(meta.year)-Number(p.birth)+1);
+	return p;
+}
+
+/* 주제보자·부제보자가 같은 명부를 쓰므로 이름+생년이 겹치면 새로 만들지 않는다 */
+function ucAssertNotDuplicate(row, payload){
+	if(!payload.birth) return Promise.resolve();
+	return fetch('/mariadb/neibis-api/oral/source/search?name='+encodeURIComponent(payload.name)+'&birth='+encodeURIComponent(payload.birth))
+		.then(function(res){return res.json();})
+		.then(function(d){
+			var dup=((d&&d.list)||[]).filter(function(c){ return String(c.name)===payload.name && String(c.birth)===payload.birth; });
+			if(!dup.length) return;
+			ucToggleNew(row, false);
+			row.querySelector('.uc-q').value=payload.name;
+			ucSearch(row, payload.name);
+			throw {msg:'‘'+payload.name+' ('+dup[0].sex+', '+payload.birth+'생)’은(는) 이미 제보자 관리에 있습니다.\n같은 명부라 새로 만들지 않고 검색 결과에서 연결해 주세요.'};
+		});
+}
+
+function ucRegisterNews(){
+	var els=[].filter.call(document.querySelectorAll('#ucSrc .uc-row'), function(row){
+		var r=ucRow(row.getAttribute('data-i'));
+		return r.mode==='new' && r.role!=='skip';
+	});
+	if(!els.length) return Promise.resolve();
+	for(var i=0;i<els.length;i++){   // 절반만 등록되는 상황을 만들지 않으려고 먼저 전부 검증
+		var nm=els[i].querySelector('.uc-f-name'), pl=els[i].querySelector('.uc-f-place');
+		if(!nm.value.trim()) return Promise.reject({el:nm, msg:'제보자 이름을 입력하세요.'});
+		if(!pl.value.trim()) return Promise.reject({el:pl, msg:'제보 장소를 입력하세요.'});
+	}
+	var chain=Promise.resolve();
+	els.forEach(function(row){
+		chain=chain.then(function(){
+			var payload=ucCollectNewPayload(row);
+			return ucAssertNotDuplicate(row, payload).then(function(){
+				return fetch('/mariadb/neibis-api/source/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+					.then(function(res){return res.json();})
+					.then(function(d){
+						if(!d||!d.ok) throw {msg:(d&&d.message)||'제보자 저장 실패'};
+						var sexKo=(payload.sex==='1'?'남':(payload.sex==='0'?'여':''));
+						ucRow(row.getAttribute('data-i')).pick={name:payload.name,sex:sexKo,age:payload.age||'',
+							birth:payload.birth,sourceId:d.sourceId,residence:payload.residence,
+							birthPlace:payload.birthPlace,job:payload.job,education:payload.education,isNew:true};
+					});
+			});
+		});
+	});
+	return chain;
 }
 
 function applyUploadConfirm(){
 	var pu=window._pendingUpload; if(!pu) return;
-	var picked=document.querySelector('input[name="ucSrcPick"]:checked');
-	// 신규 제보자 → 모달을 벗어나지 않고 인라인 폼으로 제보자 관리에 저장 후 마무리
-	if(picked && picked.value==='new'){ registerNewSourceInline(pu); return; }
-	// 기존 제보자 연결
-	var c=(picked && picked.value!=='new')?pu.candidates[Number(picked.value)]:null;
-	var linked = c ? {name:c.name,sex:c.sex,age:c.age||'',birth:c.birth,sourceId:c.sourceId,residence:c.residence,birthPlace:c.birthPlace,job:c.job,education:c.education} : null;
-	finalizeUploadConfirm(pu, linked);
+	var btn=document.getElementById('ucApply');
+	var mains=pu.rows.filter(function(r){return r.role==='main';});
+	if(!mains.length){
+		var m='주제보자를 최소 1명 지정해 주세요.';
+		(window.Message&&Message.alert)?Message.alert({icon:'warning',message:m}):alert(m);
+		return;
+	}
+	if(btn){ btn.disabled=true; btn.textContent='등록 중…'; }
+	ucRegisterNews().then(function(){
+		if(btn){ btn.disabled=false; btn.textContent='목록에 추가'; }
+		finalizeUploadConfirm(pu);
+	}).catch(function(err){
+		if(btn){ btn.disabled=false; btn.textContent='목록에 추가'; }
+		var msg=(err&&err.msg)||'제보자 등록에 실패했습니다.';
+		(window.Message&&Message.alert)?Message.alert({icon:'warning',message:msg}):alert(msg);
+		if(err&&err.el&&err.el.focus) err.el.focus();
+	});
 }
 
-// 인라인 폼 값을 모아 wb_source 에 등록(C) 후, 성공하면 그대로 목록 마무리
-function registerNewSourceInline(pu){
-	var g=function(id){ var e=document.getElementById(id); return e?(e.value||'').trim():''; };
-	var name=g('uc-name'); if(!name){ (window.Message&&Message.alert)?Message.alert({icon:'warning',message:'제보자 이름을 입력하세요.'}):alert('제보자 이름을 입력하세요.'); var n=document.getElementById('uc-name'); if(n)n.focus(); return; }
-	var place=g('uc-sourcePlace'); if(!place){ (window.Message&&Message.alert)?Message.alert({icon:'warning',message:'제보 장소를 입력하세요.'}):alert('제보 장소를 입력하세요.'); var s=document.getElementById('uc-sourcePlace'); if(s)s.focus(); return; }
-	var payload={ mode:'C', name:name, sex:g('uc-sex'), age:g('uc-age'), birth:g('uc-birth'),
-		birthPlace:g('uc-birthPlace'), residence:g('uc-residence'), job:g('uc-job'), education:g('uc-education'),
-		sourcePlace:place, regionNm:(pu.meta&&pu.meta.region)||'' };
-	var btn=document.getElementById('ucApply'); if(btn){ btn.disabled=true; btn.textContent='등록 중…'; }
-	fetch('/mariadb/neibis-api/source/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-		.then(function(r){return r.json();}).then(function(d){
-			if(btn){ btn.disabled=false; btn.textContent='목록에 추가'; }
-			if(!d||!d.ok){ (window.Message&&Message.alert)?Message.alert({icon:'error',message:(d&&d.message)||'제보자 저장 실패'}):alert((d&&d.message)||'제보자 저장 실패'); return; }
-			var sexKo=(payload.sex==='1'?'남':(payload.sex==='0'?'여':payload.sex));
-			finalizeUploadConfirm(pu, {name:name,sex:sexKo,age:payload.age,birth:payload.birth,sourceId:d.sourceId,
-				residence:payload.residence,birthPlace:payload.birthPlace,job:payload.job,education:payload.education}, true);
-		}).catch(function(){ if(btn){ btn.disabled=false; btn.textContent='목록에 추가'; } (window.Message&&Message.alert)?Message.alert({icon:'error',message:'제보자 저장 API 호출 실패'}):alert('제보자 저장 API 호출 실패'); });
+/* 배정 결과를 본 폼 주제보자1~3 · 부제보자1~5 칸에 순서대로 넣는다 */
+function ucApplyPicks(pu){
+	var slots={main:{prefix:'mainsource', max:3, n:1}, sub:{prefix:'subsource', max:5, n:1}};
+	var over=[];
+	pu.rows.forEach(function(r){
+		if(r.role==='skip' || !r.pick) return;
+		var sl=slots[r.role];
+		if(sl.n>sl.max){ over.push(r.pick.name); return; }
+		var sexKo=(r.pick.sex==='1'?'남':(r.pick.sex==='0'?'여':(r.pick.sex||'')));
+		applySourceFind(sl.prefix+sl.n, r.pick.name+' ( '+sexKo+(r.pick.age?(' '+r.pick.age):'')+' )', r.pick.sourceId);
+		sl.n++;
+	});
+	return over;
 }
-
 // 목록 채우기 + 자동 채움 + 제보자 연결 반영 후 모달 닫기
-function finalizeUploadConfirm(pu, linked, isNew){
+function finalizeUploadConfirm(pu){
 	var body=document.getElementById('trsListBody'); var html='';
 	pu.order.forEach(function(b){ var e=pu.eafs[b], w=pu.wavs[b];
 		html+='<tr><td class="text-left">'+esc(e?e.fileName:'-')+'</td><td>'+esc(e?e.durationHms:'-')+'</td><td class="text-left">'+esc(w?w.fileName:'-')+'</td><td>'+esc(w?w.waveTimeHms:'-')+'</td><td>'+esc(e?'1 (신규)':'-')+'</td></tr>';
@@ -1075,17 +1296,24 @@ function finalizeUploadConfirm(pu, linked, isNew){
 	window._uploadedEafs = pu.order.filter(function(b){return pu.eafs[b];}).map(function(b){return pu.eafs[b].fileName;});
 	var ns=document.getElementById('trsFilesName'); ns.textContent=window._uploadedEafs.length>1?(window._uploadedEafs[0]+' 외 '+(window._uploadedEafs.length-1)+'건'):(window._uploadedEafs[0]||'선택된 파일 없음'); ns.classList.add('has-file');
 	autofillFromMeta(pu.meta, pu.firstEafName); // _autoSource 를 EAF 기준으로 세팅
-	if(linked){ // 마지막에 연결 제보자로 덮어써 sourceId 유지
-		var sexKo=(linked.sex==='1'?'남':(linked.sex==='0'?'여':(linked.sex||'')));
-		var el=document.getElementById('mainsource1');
-		if(el){ el.value=linked.name+' ( '+sexKo+(linked.age?(' '+linked.age):'')+' )'; el.setAttribute('data-source-id', linked.sourceId||''); }
-		window._autoSource={name:linked.name,sex:sexKo,age:linked.age||'',birth:linked.birth||'',sourceId:linked.sourceId,
-			residence:linked.residence,birthPlace:linked.birthPlace,job:linked.job,education:linked.education};
+	var over=ucApplyPicks(pu);                  // 배정 결과를 주제보자·부제보자 칸에 넣는다
+	// 첫 주제보자는 _autoSource 로도 잡아 둔다 (뒤따르는 자동 채움이 sourceId 를 잃지 않게)
+	var first=pu.rows.filter(function(r){ return r.role==='main' && r.pick; })[0];
+	if(first){
+		var f=first.pick, sexKo=(f.sex==='1'?'남':(f.sex==='0'?'여':(f.sex||'')));
+		window._autoSource={name:f.name,sex:sexKo,age:f.age||'',birth:f.birth||'',sourceId:f.sourceId,
+			residence:f.residence,birthPlace:f.birthPlace,job:f.job,education:f.education};
 	}
 	document.getElementById('uploadConfirmModal').style.display='none';
+	var news=pu.rows.filter(function(r){ return r.pick&&r.pick.isNew; }).length;
 	window._pendingUpload=null;
-	if(isNew && window.Message && Message.alert){ Message.alert({icon:'success', message:'제보자가 제보자 관리에 등록·연결되었습니다.'}); }
+	if(over.length && window.Message && Message.alert){
+		Message.alert({icon:'warning', message:'본 화면의 칸 수를 넘어 '+over.join(', ')+' 은(는) 연결하지 못했습니다.'});
+	} else if(news && window.Message && Message.alert){
+		Message.alert({icon:'success', message:news+'명이 제보자 관리에 등록·연결되었습니다.'});
+	}
 }
+
 
 function cancelUploadConfirm(){
 	var m=document.getElementById('uploadConfirmModal'); if(m) m.style.display='none';

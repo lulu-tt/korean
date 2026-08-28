@@ -146,18 +146,12 @@
   td.cell.filled:hover .mark { background: #eff6ff; box-shadow: inset 0 0 0 2px rgba(37,99,235,0.25); }
   td.cell.empty { background: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(15,23,42,0.02) 5px, rgba(15,23,42,0.02) 6px); }
   td.cell.miss .mark { color: #94a3b8; font-weight: 600; font-size: 12px; }
-  td.cell .note-dot {
-    display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #f59e0b;
-    margin-right: 5px; vertical-align: middle;
-  }
 
   .legend-box { margin-bottom: 14px; padding: 16px 18px; background: #f8fafc; border: 1px solid var(--line); border-radius: 16px; font-size: 12.5px; color: var(--muted); box-shadow: var(--shadow2); }
   .legend-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
   .legend-item { display: flex; align-items: center; gap: 6px; font-weight: 600; }
   .legend-swatch { width: 16px; height: 16px; border-radius: 4px; border: 1px solid #cbd5e1; }
   .legend-swatch.empty { background: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(15,23,42,0.02) 5px, rgba(15,23,42,0.02) 6px); }
-  .legend-swatch.note { background: #fffbeb; border-color: #fcd34d; position: relative; }
-  .legend-swatch.note::after { content:''; position:absolute; width:6px; height:6px; border-radius:50%; background:#f59e0b; top:4px; left:4px; }
 
   .overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 100; display: none; padding: 40px 20px; overflow-y: auto; }
   .overlay.show { display: flex; align-items: center; justify-content: center; animation: ph-fadein 0.2s ease; }
@@ -359,10 +353,6 @@
     return t.slice(0, n) + '…';
   }
 
-  function hasNote(raw) {
-    return /\(\+[^)]+\)/.test(raw || '');
-  }
-
   // 변이형(조사 원문) 검색 정규화. scripts/etl_phonology.py normalize_variant_text()와 규칙 동일 유지.
   const VARIANT_MARK_RE = /[\s'’‘＇ʹ:*#/、·．。,\-]+/g;
   function normalizeVariant(s) {
@@ -527,7 +517,6 @@
         <b style="color:var(--text)">표시</b>
         <div class="legend-item"><div class="legend-swatch" style="background:#fff"></div><span>조사 원문 (엑셀 셀)</span></div>
         <div class="legend-item"><div class="legend-swatch empty"></div><span>빈칸 또는 * (결측)</span></div>
-        <div class="legend-item"><div class="legend-swatch note"></div><span>원문에 조사 메모 (+…) 포함</span></div>
       </div>`;
 
     let html = `<thead><tr>
@@ -560,7 +549,6 @@
           if (!r) display = '—';
           else if (miss) display = raw === '*' ? '*' : '(빈칸)';
           else display = shortText(raw, 40);
-          const note = !miss && hasNote(raw);
           html += `<td class="cell ${miss || !r ? 'empty miss' : 'filled'}"
               data-raw="${esc(raw)}"
               data-place="${esc(place)}"
@@ -571,7 +559,7 @@
               data-envlabel="${esc(env.label)}"
               data-std="${esc(state.selected.standard_form || '')}"
               data-miss="${miss || !r ? 1 : 0}">
-            <div class="mark">${note ? '<span class="note-dot" title="조사 메모"></span>' : ''}${esc(display)}</div>
+            <div class="mark">${esc(display)}</div>
           </td>`;
         });
         html += `</tr>`;

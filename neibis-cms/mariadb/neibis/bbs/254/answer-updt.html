@@ -424,6 +424,9 @@
 										<li data-level="3">
 													<a href="../../../../mariadb/neibis/map/weather.html" >지역어 기상도</a>
 										</li>
+										<li data-level="3">
+													<a href="../../../../mariadb/neibis/map/wordcard.html" >세대별 지역어 변화</a>
+										</li>
 										<li data-level="3" >
 													<a href="../../../../mariadb/neibis/map/symbol.html" >상징 부호 관리</a>
 										</li>
@@ -626,7 +629,7 @@
 /* 정적 프로토타입 웹에디터 (실제 neibis 리치에디터 형태 재현) */
 .html-editor-body{ position:static !important; height:auto !important; min-height:0 !important; }
 .html-editor-body .codes-area, .html-editor-body .webeditor-area{ position:static !important; visibility:visible !important; height:auto !important; }
-.html-editor-body .form-code.html-code{ visibility:visible !important; display:block !important; width:100%; min-height:300px; border:1px solid #cbd5e1; border-radius:10px; padding:14px; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; line-height:1.6; }
+.html-editor-body .form-code.html-code{ visibility:visible !important; display:block !important; width:100%; min-height:210px; border:1px solid #cbd5e1; border-radius:10px; padding:14px; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; line-height:1.6; }
 .we-wrap{ border:1px solid #cbd5e1; border-radius:10px; overflow:hidden; background:#fff; }
 .we-toolbar{ display:flex; flex-wrap:wrap; align-items:center; gap:2px; padding:8px 10px; background:#f1f5f9; border-bottom:1px solid #e2e8f0; }
 .we-toolbar .we-btn{ min-width:30px; height:30px; padding:0 6px; border:none; background:transparent; border-radius:6px; color:#334155; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:15px; line-height:1; }
@@ -635,7 +638,7 @@
 .we-toolbar .we-sep{ width:1px; height:20px; background:#cbd5e1; margin:0 4px; }
 .we-toolbar .we-right{ margin-left:auto; }
 .we-toolbar .we-preview{ display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border:1px solid #cbd5e1; border-radius:8px; background:#fff; font-size:13px; color:#475569; cursor:pointer; }
-.we-body{ min-height:320px; max-height:600px; overflow:auto; padding:18px 20px; line-height:1.8; color:#111827; outline:none; }
+.we-body{ min-height:224px; max-height:420px; overflow:auto; padding:18px 20px; line-height:1.8; color:#111827; outline:none; }
 .we-body p{ margin:0 0 10px; }
 </style>
 <div class="html-editor-area">
@@ -687,7 +690,7 @@
 					<tr>
 						<th scope="row"><label for="ansCn">답변 내용 <i class="req">필수입력</i></label></th>
 						<td colspan="3">
-							<textarea id="ansCn" class="form-control" style="width:100%;min-height:320px;padding:12px;line-height:1.8" placeholder="답변 내용을 입력하세요."></textarea>
+							<textarea id="ansCn" class="form-control" style="width:100%;min-height:224px;padding:12px;line-height:1.8" placeholder="답변 내용을 입력하세요."></textarea>
 						</td>
 					</tr>
 				</tbody>

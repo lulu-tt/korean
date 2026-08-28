@@ -5295,10 +5295,23 @@
   flex-direction: row;
   align-items: flex-start;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.article-nav > li {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 .article-nav .item {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   padding: 20px;
   background: #fff;
   border-radius: 16px;
@@ -5315,7 +5328,9 @@
   display: block;
   margin-top: 8px;
   font-weight: 500;
+  width: 100%;
   max-width: 100%;
+  min-width: 0;
   white-space: nowrap;
   max-height: 1.3em;
   line-height: 1.3em;

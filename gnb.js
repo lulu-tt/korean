@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="mega-menu__item"><a href="./dialect_our_town.html" class="mega-menu__link">지역어 지도 비교</a></div>
                 <div class="mega-menu__item"><a href="./dialect_my_map.html" class="mega-menu__link">나만의 지도 제작</a></div>
                 <div class="mega-menu__item"><a href="./dialect_gisangdo.html" class="mega-menu__link">지역어 기상도</a></div>
+                <div class="mega-menu__item"><a href="./dialect_wordcard.html" class="mega-menu__link">세대별 지역어 변화</a></div>
               </div>
             </div>
           </div>

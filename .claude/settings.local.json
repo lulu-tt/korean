@@ -276,7 +276,14 @@
       "Bash(cp surveyList.html survey-save.html)",
       "Bash(cp surveyList.html survey-detail.html)",
       "Bash(curl -s -X POST \"http://localhost:8877/mariadb/neibis-api/survey/save\" -H 'Content-Type: application/json' -d '{\"mode\":\"M\",\"surveyNo\":\"4\",\"surveyTitle\":\"__Q빌더테스트__\",\"startDate\":\"2026-01-01\",\"endDate\":\"2026-06-30\",\"prsnlInputYn\":\"N\",\"questions\":[{\"questionNo\":\"20\",\"questionTitle\":\"매우 만족하십니까?\\(수정\\)\",\"examples\":[{\"exampleNo\":\"93\",\"exampleTitle\":\"매우\"},{\"exampleNo\":\"94\",\"exampleTitle\":\"보통\"}]},{\"questionNo\":\"21\",\"questionTitle\":\"추천하시겠습니까?\",\"examples\":[{\"exampleNo\":\"96\",\"exampleTitle\":\"예\"},{\"exampleNo\":\"97\",\"exampleTitle\":\"아니오\"}]},{\"questionNo\":\"\",\"questionTitle\":\"신규 문항\",\"examples\":[{\"exampleTitle\":\"A\"},{\"exampleTitle\":\"B\"}]}]}')",
-      "Bash(curl -s -X POST \"http://localhost:8877/mariadb/neibis-api/survey/delete\" -H 'Content-Type: application/json' -d '{\"surveyNo\":\"4\"}')"
+      "Bash(curl -s -X POST \"http://localhost:8877/mariadb/neibis-api/survey/delete\" -H 'Content-Type: application/json' -d '{\"surveyNo\":\"4\"}')",
+      "Bash(awk 'NR>=1020 && NR<=1120 && \\(/src-scroll|<\\\\/div>[[:space:]]*$/ || /src-item|src-talk|src-line/\\)' oral_dialect.html)",
+      "Bash(pkill -f \"http.server 8791\")",
+      "Bash(node -e ' *)",
+      "Bash(grep -n \"mapId:\\\\|Ctx = {\\\\|Ctx={\\\\|hoverRegion\\\\|updateMapWithSearchResults\\\\|lastRegionData =\\\\|inlineMapCtx\\\\|vocabMapCtx\\\\|= {\\\\s*$\" vocab_dialect.html)",
+      "Bash(grep -rEn \"pk\\\\.[A-Za-z0-9_-]{10,}\" .)",
+      "Bash(curl -k -s --max-time 25 \"https://dialect.inseq.co.kr:9443/dialect/map/dialect\" -o /tmp/dialect_map_live.html -w \"HTTP %{http_code} | size %{size_download} bytes | %{url_effective}\\\\n\")",
+      "Bash(grep -oEn \"access_token=[A-Za-z0-9._-]*|pk\\\\.[A-Za-z0-9._-]{20,}|sk\\\\.[A-Za-z0-9._-]{20,}|apikey[=\\\\\"': ]+[A-Za-z0-9._-]+|apiKey[=\\\\\"': ]+[A-Za-z0-9._-]+|key[=\\\\\"': ]+[A-Za-z0-9._-]{15,}|vworld[^\\\\\"'<> ]*|ncpKeyId[^\\\\\"'<> ]*|X-NCP-APIGW[^\\\\\"'<> ]*|dawul[^\\\\\"'<> ]*\" dialect_map_live.html)"
     ]
   }
 }

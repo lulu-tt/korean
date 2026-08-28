@@ -5242,7 +5242,8 @@ def api_literature_delete(body: dict) -> dict:
 # ────────────────────────────────────────────────────────────────────────────
 # 세대별 지역어 변화(단어 카드) 관리 — data/processed/word_stories.json 직접 편집
 #   · 프론트(dialect_wordcard.html)가 읽는 그 파일이 곧 원본이다. DB를 쓰지 않는다.
-#   · 저장할 때 알 수 없는 필드(callTable·related·lineage 등)는 그대로 보존한다.
+#   · 프론트가 읽는 필드는 word·hook·story·ct 뿐이다(hasCT 는 ct 유무의 결과).
+#   · 저장할 때 알 수 없는 필드는 그대로 보존한다.
 #   · 쓰기는 임시파일 → os.replace 로 원자적으로, 직전 내용은 .bak 으로 남긴다.
 # ────────────────────────────────────────────────────────────────────────────
 WORDCARD_JSON = USER_MAP_ROOT / "data" / "processed" / "word_stories.json"
@@ -5256,7 +5257,6 @@ def _wc_load() -> dict:
     with WORDCARD_JSON.open("r", encoding="utf-8") as f:
         db = json.load(f)
     db.setdefault("words", [])
-    db.setdefault("types", {})
     db.setdefault("coding", [])
     db.setdefault("meta", {})
     return db
@@ -5287,36 +5287,23 @@ def _wc_ct_total(word: dict) -> int:
     return n
 
 
-def _wc_row(word: dict, types: dict) -> dict:
+def _wc_row(word: dict) -> dict:
     """목록 한 줄 — 무거운 교차표는 합계만 보낸다."""
-    t = types.get(word.get("type")) or {}
     return {
         "id": str(word.get("id") or ""),
         "word": word.get("word") or "",
-        "cat": word.get("cat") or "",
-        "type": word.get("type") or "",
-        "typeLabel": t.get("label") or word.get("type") or "",
-        "typeColor": t.get("color") or "#64748b",
-        "typeBg": t.get("bg") or "#f1f5f9",
         "hook": word.get("hook") or "",
-        "page": word.get("page"),
-        "section": word.get("section") or "",
         "hasCT": bool(word.get("hasCT")),
         "ctTotal": _wc_ct_total(word),
-        "factCnt": len(word.get("facts") or []),
-        "variantCnt": len(word.get("variants") or []),
     }
 
 
 def api_wordcard_meta(qs: dict) -> dict:
-    """유형·코딩 범주·기존 분류(cat) 목록 — 등록/수정 폼의 선택지."""
+    """교차표 코딩 범주 — 등록/수정 폼의 열 이름·색."""
     db = _wc_load()
-    cats = sorted({(w.get("cat") or "").strip() for w in db["words"] if (w.get("cat") or "").strip()})
     return {
         "ok": True,
-        "types": db["types"],
         "coding": db["coding"],
-        "cats": cats,
         "groups": WC_GROUPS,
         "meta": db["meta"],
         "path": str(WORDCARD_JSON),
@@ -5330,7 +5317,6 @@ def api_wordcard_list(qs: dict) -> dict:
         return (v[0] if isinstance(v, list) else v) or d
 
     kw = str(q1("searchValue")).strip()
-    wtype = str(q1("searchType")).strip()
     expose = str(q1("searchExpose")).strip()  # Y: 교차표 있음(프론트 노출), N: 없음
     try:
         page = max(1, int(q1("page", "1")))
@@ -5343,15 +5329,13 @@ def api_wordcard_list(qs: dict) -> dict:
     page_size = min(max(page_size, 1), 500)
 
     db = _wc_load()
-    rows = [_wc_row(w, db["types"]) for w in db["words"]]
+    rows = [_wc_row(w) for w in db["words"]]
 
     if kw:
         def hit(r):
-            hay = " ".join([r["id"], r["word"], r["cat"], r["hook"]])
+            hay = " ".join([r["id"], r["word"], r["hook"]])
             return kw in hay
         rows = [r for r in rows if hit(r)]
-    if wtype:
-        rows = [r for r in rows if r["type"] == wtype]
     if expose == "Y":
         rows = [r for r in rows if r["hasCT"]]
     elif expose == "N":
@@ -5386,7 +5370,7 @@ def api_wordcard_detail(qs: dict) -> dict:
     db = _wc_load()
     for w in db["words"]:
         if str(w.get("id")) == wid:
-            return {"ok": True, "item": w, "types": db["types"], "coding": db["coding"]}
+            return {"ok": True, "item": w, "coding": db["coding"]}
     return {"ok": False, "message": f"항목을 찾을 수 없습니다: {wid}"}
 
 
@@ -5417,14 +5401,12 @@ def api_wordcard_save(body: dict) -> dict:
     word = str(body.get("word") or "").strip()
 
     if not wid:
-        return {"ok": False, "message": "항목번호(ID)를 입력해주세요."}
+        return {"ok": False, "message": "항목코드를 입력해주세요."}
     if not word:
-        return {"ok": False, "message": "단어를 입력해주세요."}
+        return {"ok": False, "message": "표준어를 입력해주세요."}
 
     db = _wc_load()
     words = db["words"]
-    if body.get("type") and body["type"] not in db["types"]:
-        return {"ok": False, "message": f"없는 변화 유형입니다: {body['type']}"}
 
     idx = {str(w.get("id")): i for i, w in enumerate(words)}
     if mode == "M":
@@ -5432,67 +5414,21 @@ def api_wordcard_save(body: dict) -> dict:
         if target not in idx:
             return {"ok": False, "message": f"수정할 항목을 찾을 수 없습니다: {target}"}
         if wid != target and wid in idx:
-            return {"ok": False, "message": f"이미 쓰고 있는 항목번호입니다: {wid}"}
+            return {"ok": False, "message": f"이미 쓰고 있는 항목코드입니다: {wid}"}
         base = dict(words[idx[target]])
         pos = idx[target]
     else:
         if wid in idx:
-            return {"ok": False, "message": f"이미 쓰고 있는 항목번호입니다: {wid}"}
+            return {"ok": False, "message": f"이미 쓰고 있는 항목코드입니다: {wid}"}
         base = {}
         pos = None
-
-    facts = [str(s).strip() for s in (body.get("facts") or []) if str(s).strip()]
-    variants = []
-    for v in (body.get("variants") or []):
-        form = str((v or {}).get("form") or "").strip()
-        if not form:
-            continue
-        item = {"form": form}
-        if str(v.get("tag") or "").strip():
-            item["tag"] = str(v["tag"]).strip()
-        if str(v.get("note") or "").strip():
-            item["note"] = str(v["note"]).strip()
-        regions = [str(r).strip() for r in (v.get("regions") or []) if str(r).strip()]
-        if regions:
-            item["regions"] = regions
-        variants.append(item)
 
     ct = _wc_clean_ct(body.get("ct"))
 
     base["id"] = wid
     base["word"] = word
-    base["cat"] = str(body.get("cat") or "").strip()
-    base["type"] = str(body.get("type") or "qualitative").strip()
     base["hook"] = str(body.get("hook") or "").strip()
     base["story"] = str(body.get("story") or "").strip()
-    base["facts"] = facts
-    base["section"] = str(body.get("section") or "4.1").strip()
-    try:
-        base["page"] = int(body.get("page"))
-    except Exception:
-        base["page"] = base.get("page") or 0
-
-    if variants:
-        base["variants"] = variants
-    else:
-        base.pop("variants", None)
-
-    stats_in = body.get("stats") or {}
-    chi = str(stats_in.get("chiSq") or "").strip()
-    if chi:
-        try:
-            stats = {"chiSq": float(chi)}
-        except Exception:
-            return {"ok": False, "message": "카이제곱 값은 숫자로 입력해주세요."}
-        try:
-            stats["df"] = int(str(stats_in.get("df") or "").strip())
-        except Exception:
-            pass
-        if str(stats_in.get("p") or "").strip():
-            stats["p"] = str(stats_in["p"]).strip()
-        base["stats"] = stats
-    else:
-        base.pop("stats", None)
 
     # 교차표가 있는 항목만 프론트 차트에 노출된다 → hasCT 는 입력값이 아니라 결과다
     if ct:
@@ -5501,12 +5437,6 @@ def api_wordcard_save(body: dict) -> dict:
     else:
         base.pop("ct", None)
         base["hasCT"] = False
-
-    link = str(body.get("link") or "").strip()
-    if link:
-        base["link"] = link
-    else:
-        base.pop("link", None)
 
     if pos is None:
         words.append(base)

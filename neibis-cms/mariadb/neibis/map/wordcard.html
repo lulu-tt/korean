@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 		<meta name="format-detection" content="telephone=no" />
-		<title id="neibisTopTitle">사이트별 운영관리 | 지역어 종합 정보 | Open API관리 | 호출 단어 순위</title>
+		<title id="neibisTopTitle">사이트별 운영관리 | 지역어 종합 정보 | 지역어 지도 | 세대별 지역어 변화</title>
 		<link rel="shortcut icon" href="../../../mariadb/assets/neibis/images/favicon.png" />
 		<link rel="stylesheet" href="../../../mariadb/assets/neibis/css/style.css" />
 		<link rel="stylesheet" href="../../../mariadb/assets/neibis/css/board-attach-ext.css" />
@@ -458,7 +458,7 @@
 										<li data-level="3">
 													<a href="../../../mariadb/neibis/survey/oral.html" >구술발화조사자료</a>
 										</li>
-<li data-level="3">
+										<li data-level="3">
 													<a href="../../../mariadb/neibis/survey/variant.html" >지역별 이형태 관리</a>
 										</li>
 										<li data-level="3">
@@ -468,19 +468,19 @@
 													<a href="../../../mariadb/neibis/survey/search-topic.html" >검색 주제 분류 관리</a>
 										</li>
 										</ul></li>
-										<li data-level="2" >
+										<li data-level="2" class="on">
 													<a href="javascript:void(0)">지역어 지도</a>
-										<ul style="display:none;">
-										<li data-level="3">
+										<ul style="display:block;">
+										<li data-level="3" >
 													<a href="../../../mariadb/neibis/map/dialect.html" >지역어 지도</a>
 										</li>
 										<li data-level="3">
 													<a href="../../../mariadb/neibis/map/weather.html" >지역어 기상도</a>
 										</li>
-										<li data-level="3">
+										<li data-level="3" class="on">
 													<a href="../../../mariadb/neibis/map/wordcard.html" >세대별 지역어 변화</a>
 										</li>
-										<li data-level="3" >
+										<li data-level="3">
 													<a href="../../../mariadb/neibis/map/symbol.html" >상징 부호 관리</a>
 										</li>
 										</ul></li>
@@ -502,24 +502,24 @@
 										<ul style="display:none;">
 										<li data-level="3">
 													<a href="../../../mariadb/neibis/archive/literature.html" >문학 속 지역어</a>
-												</li>
-<li data-level="3">
+										</li>
+										<li data-level="3">
 													<a href="../../../mariadb/neibis/archive/region-photo.html" >사진으로 보는 생활어</a>
 										</li>
 										<li data-level="3">
 													<a href="../../../mariadb/neibis/archive/data-room.html" >자료실</a>
 										</li>
 										</ul></li>
-																				<li data-level="2" class="on">
+																				<li data-level="2" >
 													<a href="javascript:void(0)">Open API관리</a>
-										<ul style="display:block;">
-										<li data-level="3">
+										<ul style="display:none;">
+										<li data-level="3" >
 													<a href="../../../mariadb/neibis/stats/api.html" >Open API사용현황</a>
 										</li>
-										<li data-level="3" class="on">
+										<li data-level="3" >
 													<a href="../../../mariadb/neibis/stats/searchAPI.html" >호출 단어 순위</a>
 										</li>
-										<li data-level="3">
+										<li data-level="3" >
 													<a href="../../../mariadb/neibis/stats/searchAPI2.html" >호출 URL 순위</a>
 										</li>
 									</ul></li></ul></li>
@@ -597,123 +597,320 @@
 				<article id="content">
 					<div class="content-header">
 						<a href="#;" class="btn-tile btn-back list-button" onclick="history.back(); return false;">
-							<i class="ico ico-back"></i><span class="sr-only">뒤로가기</span>
+							<i class="ico ico-back"></i>
+							<span class="sr-only">뒤로가기</span>
 						</a>
 						<div class="tile">
 							<div class="location">
-								<button type="button" class="btn btn-icon btn-copy"><i class="ico ico-copy-gray-sm"></i><span class="sr-only">복사</span></button>
+								<button type="button" class="btn btn-icon btn-copy">
+									<i class="ico ico-copy-gray-sm"></i>
+									<span class="sr-only">복사</span>
+								</button>
 								<ol class="breadcrumb-list">
 <li>사이트별 운영관리</li>
 <li>지역어 종합 정보</li>
-<li>Open API관리</li>
-<li>호출 단어 순위</li>
+<li>지역어 지도</li>
+<li>세대별 지역어 변화</li>
 </ol>
 							</div>
 							<div class="content-title">
 								<div class="tooltip" id="tooltip_area"><p id="tooltip_p"></p><div class='btn-group' id="tooltip_btn"></div></div>
-								<h2 class="title">호출 단어 순위</h2>
-								<button type="button" id="favorit-add-button" class="btn-favorit"><i class="ico ico-favorit"></i><span class="sr-only">즐겨찾기</span></button>
+								<h2 class="title">세대별 지역어 변화</h2>
+								<button type="button" id="favorit-add-button" class="btn-favorit">
+									<i class="ico ico-favorit"></i>
+									<span class="sr-only">즐겨찾기</span>
+								</button>
 							</div>
 						</div>
-						<a href="#;" class="btn-tile btn-allmenu-open"><i class="ico ico-allmenu"></i><span class="sr-only">메뉴</span></a>
+						<a href="#;" class="btn-tile btn-allmenu-open">
+							<i class="ico ico-allmenu"></i>
+							<span class="sr-only">메뉴</span>
+						</a>
 					</div>
-
-										<div class="content-body">
+					<div class="content-body">
 
 <!-- 본문 영역 -->
 
+<style>
+/* 세대별 지역어 변화 목록 전용 (wcm- 접두사로 공통 CSS 와 분리) */
+.wcm-note{display:flex;gap:10px;align-items:flex-start;margin:0 0 14px;padding:12px 14px;border:1px solid #dbeafe;background:#f8fbff;border-radius:8px;font-size:13px;line-height:1.6;color:#334155}
+.wcm-note b{color:#1d4ed8}
+.wcm-note code{font-size:12px;color:#475569;background:#eef2f7;border-radius:4px;padding:1px 5px}
+.wcm-word{font-size:15px;font-weight:800;color:#0f172a}
+.wcm-id{font-size:13px;color:#475569;font-variant-numeric:tabular-nums}
+.wcm-hook{display:block;color:#475569;font-size:13px;line-height:1.5;text-align:left;
+  overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.wcm-act{white-space:nowrap}
+.wcm-act .btn{margin:0 2px}
+.wcm-sub{display:block;font-size:11px;color:#94a3b8;margin-top:3px}
+</style>
+
+<form id="search-form" class="search-form" onsubmit="return false;">
+
+<div class="wcm-note">
+  <i class="ico ico-info-lg" aria-hidden="true"></i>
+  <div>
+    앞단 <b>지역어 지도 &gt; 세대별 지역어 변화</b> 화면의 단어 카드를 관리합니다.
+    저장하면 곧바로 앞단에 반영됩니다. <span id="wcmPath" style="color:#94a3b8"></span>
+  </div>
+</div>
+
+<h3 class="title1 text-primary mt-md-4 ml-md-4">세대별 지역어 변화 검색영역</h3>
 <div class="card">
-<div class="list-control">
-<div class="left">
-<p class="total">총 <strong class="text-primary">10</strong>건</p>
-</div>
-<div class="right">
-<button type="button" class="btn btn-sm" style="background:#217346;border-color:#217346;color:#fff" onclick="stub('엑셀 다운')"><i class="ico ico-fileexcel-white-md"></i><span class="text">엑셀 다운</span></button>
-</div>
-</div>
-<div class="table table-list">
+<div class="table table-form-basic">
 <div class="table-inner">
-<table style="min-width:720px">
-<caption class="sr-only">호출 단어 순위 목록</caption>
+<table>
+<caption class="sr-only">세대별 지역어 변화 검색조건</caption>
 <colgroup>
-<col style="width:120px" />
-<col />
-<col style="width:160px" />
+<col style="width:190px" /><col />
 </colgroup>
-<thead>
+<tbody>
 <tr>
-<th scope="col">순위</th>
-<th scope="col">호출 단어</th>
-<th scope="col">호출 횟수</th>
-</tr>
-</thead>
-<tbody id="tBodyList">
-<tr>
-<td>1</td>
-<td class="text-left">가위</td>
-<td class="text-right">1,842</td>
-</tr>
-<tr>
-<td>2</td>
-<td class="text-left">옥수수</td>
-<td class="text-right">1,560</td>
-</tr>
-<tr>
-<td>3</td>
-<td class="text-left">강낭이</td>
-<td class="text-right">1,321</td>
-</tr>
-<tr>
-<td>4</td>
-<td class="text-left">가새</td>
-<td class="text-right">1,104</td>
-</tr>
-<tr>
-<td>5</td>
-<td class="text-left">건더기</td>
-<td class="text-right">987</td>
-</tr>
-<tr>
-<td>6</td>
-<td class="text-left">가생이</td>
-<td class="text-right">865</td>
-</tr>
-<tr>
-<td>7</td>
-<td class="text-left">부추</td>
-<td class="text-right">742</td>
-</tr>
-<tr>
-<td>8</td>
-<td class="text-left">고추</td>
-<td class="text-right">691</td>
-</tr>
-<tr>
-<td>9</td>
-<td class="text-left">메밀</td>
-<td class="text-right">558</td>
-</tr>
-<tr>
-<td>10</td>
-<td class="text-left">호박</td>
-<td class="text-right">430</td>
+<th scope="row"><label for="searchValue">검색어</label></th>
+<td>
+<input type="text" id="searchValue" name="searchValue" class="form-control" style="max-width:320px"
+       placeholder="표준어, 항목코드, 한 줄 요약으로 찾기" title="검색어를 입력해주세요."
+       onkeydown="if(event.keyCode===13){searchList(1);}" />
+</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
+<div class="btn-group-center">
+<button type="button" class="btn btn-md btn-outline-gray" onclick="btnInit()"><i class="ico ico-undo-darkgray-md"></i><span class="text">초기화</span></button>
+<button type="button" class="btn btn-md btn-primary" onclick="searchList(1)"><i class="ico ico-search-white-md"></i><span class="text">검색</span></button>
 </div>
+</div>
+
+<div class="card">
+<div class="list-control">
+<div class="left">
+<p class="total">총 <strong class="text-primary" id="totalCnt">0</strong>건 <span id="pageInfo" style="color:#64748b;font-size:13px"></span></p>
+<button type="button" class="btn btn-xs btn-outline-gray" id="btnDeselect">선택해제</button>
+<button type="button" class="btn btn-xs btn-gray btn-delete" onclick="deleteList()"><i class="ico ico-close-white-sm mr-0"></i> 선택 삭제</button>
+</div>
+<div class="right">
+<select class="form-control-sm" style="min-width:100px" title="목록 수" id="pageItm">
+<option value="10">10</option>
+<option value="50" selected>50</option>
+<option value="100">100</option>
+<option value="300">300</option>
+</select>
+<button type="button" class="btn btn-sm btn-outline-gray ml-1" onclick="searchList(1)">적용</button>
+</div>
+</div>
+<div class="table table-list">
+<div class="table-inner">
+<table style="min-width:1000px">
+<caption class="sr-only">세대별 지역어 변화 목록</caption>
+<colgroup>
+<col style="width:52px" />
+<col style="width:60px" />
+<col style="width:110px" />
+<col style="width:160px" />
+<col />
+<col style="width:170px" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col"><label class="check-item"><input type="checkbox" id="chkAll" /><span class="label sr-only">전체선택</span></label></th>
+<th scope="col">번호</th>
+<th scope="col">항목코드</th>
+<th scope="col">표준어</th>
+<th scope="col">한 줄 요약</th>
+<th scope="col">관리</th>
+</tr>
+</thead>
+<tbody id="wordcard-list-body">
+<tr><td colspan="6" class="text-center" style="padding:24px;color:#64748b">불러오는 중…</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="pagination" id="wordcard-pagination"></div>
+</div>
+
+<div class="btn-group-between">
+<div class="left"></div>
+<div class="right">
+<button type="button" class="btn btn-lg btn-primary" onclick="wcmReg()"><i class="ico ico-plus-white-md"></i><span>단어 카드 등록</span></button>
+</div>
+</div>
+</form>
 
 <!-- // 본문 영역 -->
 <script>
-function stub(nm){
-  if(window.Message){ Message.alert({icon:'info', message:'['+nm+'] 정적 프로토타입 버튼입니다.'}); }
-  else { alert(nm); }
+var wcmState = { page: 1, pageSize: 50, total: 0, totalPages: 1 };
+
+function escHtml(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
 }
+
+function wcmAlert(icon, msg, cb){
+  if(window.Message){ Message.alert({ icon:icon, message:msg }, cb || function(){}); }
+  else { alert(msg); if(cb) cb(); }
+}
+
+function wcmConfirm(msg, cb){
+  if(window.Message){ Message.confirm({ icon:'warning', message:msg }, cb); }
+  else if(confirm(msg)){ cb(); }
+}
+
+function wcmQuery(){
+  return {
+    searchValue: $('#searchValue').val() || ''
+  };
+}
+
+function btnInit(){
+  $('#searchValue').val('');
+  searchList(1);
+}
+
+function wcmReg(){ location.href = 'wordcard-save.html'; }
+function wcmUpdt(id){ location.href = 'wordcard-updt.html?id=' + encodeURIComponent(id); }
+
+function deleteList(){
+  var ids = $('input[name=chk]:checked').map(function(){ return this.value; }).get();
+  if(ids.length < 1){
+    wcmAlert('warning', '삭제할 단어 카드를 선택해주세요.');
+    return;
+  }
+  wcmConfirm('선택하신 ' + ids.length + '건을 삭제하시겠습니까?\n삭제하면 앞단 화면에서도 바로 사라집니다.', function(){
+    wcmDelete(ids);
+  });
+}
+
+function wcmDelete(ids){
+  $.ajax({
+    url: '/mariadb/neibis-api/wordcard/delete',
+    method: 'POST',
+    contentType: 'application/json; charset=utf-8',
+    data: JSON.stringify({ ids: ids })
+  }).done(function(res){
+    if(!res || !res.ok){
+      wcmAlert('error', (res && res.message) || '삭제에 실패했습니다.');
+      return;
+    }
+    wcmAlert('success', res.message || '삭제되었습니다.', function(){ searchList(1); });
+  }).fail(function(xhr){
+    wcmAlert('error', '삭제 API 호출 실패 (HTTP ' + xhr.status + ')');
+  });
+}
+
+function deleteOne(id){
+  wcmConfirm('‘' + id + '’ 단어 카드를 삭제하시겠습니까?\n삭제하면 앞단 화면에서도 바로 사라집니다.', function(){
+    wcmDelete([id]);
+  });
+}
+
+function renderRows(list, page, pageSize){
+  var $tb = $('#wordcard-list-body').empty();
+  if(!list || !list.length){
+    $tb.append('<tr><td colspan="6" class="text-center" style="padding:24px;color:#64748b">검색 결과가 없습니다.</td></tr>');
+    return;
+  }
+  var startNo = (page - 1) * pageSize;
+  list.forEach(function(row, i){
+    var tr = $('<tr class="wordcard-row" style="cursor:pointer"></tr>')
+      .attr('data-id', row.id)
+      .attr('title', '클릭하면 수정 화면으로 이동합니다.');
+    tr.append('<td><label class="check-item"><input type="checkbox" name="chk" value="' + escHtml(row.id) + '" onclick="event.stopPropagation()" /><span class="label sr-only">선택</span></label></td>');
+    tr.append('<td>' + (startNo + i + 1) + '</td>');
+    tr.append('<td><span class="wcm-id">' + escHtml(row.id) + '</span></td>');
+    tr.append('<td class="text-left"><span class="wcm-word">' + escHtml(row.word) + '</span></td>');
+    tr.append('<td class="text-left"><span class="wcm-hook">' + escHtml(row.hook || '-') + '</span></td>');
+    tr.append('<td class="wcm-act">'
+      + '<button type="button" class="btn btn-xs btn-outline-gray" onclick="event.stopPropagation();wcmUpdt(\'' + escHtml(row.id) + '\')">'
+      +   '<i class="ico ico-pen-darkgary-sm"></i><span>수정</span></button>'
+      + '<button type="button" class="btn btn-xs btn-gray btn-delete" onclick="event.stopPropagation();deleteOne(\'' + escHtml(row.id) + '\')">'
+      +   '<i class="ico ico-trash-white-sm"></i><span>삭제</span></button></td>');
+    $tb.append(tr);
+  });
+}
+
+function renderPager(page, totalPages){
+  var $p = $('#wordcard-pagination').empty();
+  if(totalPages <= 1){ $p.append('<strong>1</strong>'); return; }
+  var start = Math.max(1, page - 4);
+  var end = Math.min(totalPages, start + 9);
+  start = Math.max(1, end - 9);
+  if(page > 1) $p.append('<a href="#;" class="page-link" data-page="' + (page-1) + '">이전</a> ');
+  for(var i = start; i <= end; i++){
+    if(i === page) $p.append('<strong>' + i + '</strong> ');
+    else $p.append('<a href="#;" class="page-link" data-page="' + i + '">' + i + '</a> ');
+  }
+  if(page < totalPages) $p.append('<a href="#;" class="page-link" data-page="' + (page+1) + '">다음</a>');
+}
+
+function searchList(page){
+  if(page) wcmState.page = page;
+  wcmState.pageSize = parseInt($('#pageItm').val(), 10) || 50;
+  var q = wcmQuery();
+  q.page = wcmState.page;
+  q.pageSize = wcmState.pageSize;
+  $('#wordcard-list-body').html('<tr><td colspan="6" class="text-center" style="padding:24px;color:#64748b">불러오는 중…</td></tr>');
+  $.ajax({
+    url: '/mariadb/neibis-api/wordcard/list?' + $.param(q),
+    method: 'GET',
+    dataType: 'json'
+  }).done(function(res){
+    if(!res || !res.ok){
+      var msg = (res && res.message) ? res.message : '목록을 불러오지 못했습니다.';
+      $('#wordcard-list-body').html('<tr><td colspan="6" class="text-center" style="padding:24px;color:#b91c1c">' + escHtml(msg) + '</td></tr>');
+      return;
+    }
+    wcmState.total = res.total;
+    wcmState.page = res.page;
+    wcmState.pageSize = res.pageSize;
+    wcmState.totalPages = res.totalPages;
+    $('#totalCnt').text(res.total.toLocaleString());
+    $('#pageInfo').text('(' + res.page + '/' + res.totalPages + ' page)');
+    renderRows(res.list, res.page, res.pageSize);
+    renderPager(res.page, res.totalPages);
+    $('#chkAll').prop('checked', false);
+  }).fail(function(xhr){
+    var msg = '단어 카드 API 호출 실패';
+    if(xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+    else if(xhr.status) msg += ' (HTTP ' + xhr.status + ')';
+    $('#wordcard-list-body').html('<tr><td colspan="6" class="text-center" style="padding:24px;color:#b91c1c">' + escHtml(msg)
+      + '<br><span style="font-size:12px;color:#64748b">serve.py 를 재시작했는지 확인해 주세요.</span></td></tr>');
+  });
+}
+
+/* 자료 파일 경로를 안내문에 적어 준다 */
+function loadMeta(){
+  return $.ajax({ url:'/mariadb/neibis-api/wordcard/meta', method:'GET', dataType:'json' })
+    .done(function(res){
+      if(!res || !res.ok) return;
+      if(res.path) $('#wcmPath').text('(' + res.path + ')');
+    });
+}
+
+$(function(){
+  $('#chkAll').on('change', function(){ $('input[name=chk]').prop('checked', this.checked); });
+  $('#btnDeselect').on('click', function(){ $('input[name=chk], #chkAll').prop('checked', false); });
+  $('#wordcard-list-body').on('click', 'tr.wordcard-row', function(e){
+    if($(e.target).closest('td').index() === 0) return;   // 선택 칸 클릭은 이동으로 보지 않는다
+    wcmUpdt($(this).data('id'));
+  });
+  $('#wordcard-pagination').on('click', 'a.page-link', function(e){
+    e.preventDefault();
+    var pg = parseInt($(this).data('page'), 10);
+    if(pg) searchList(pg);
+  });
+  $('#pageItm').on('change', function(){ searchList(1); });
+  loadMeta().always(function(){ searchList(1); });
+});
 </script>
 
-					</div>
 
+
+					</div>
 				</article>
 			</div>
 		</div>
@@ -851,6 +1048,7 @@ function stub(nm){
 				<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
 			</form>
 		</div>
+
 
 <!-- login.html 빼고사용 -->
 <script>
