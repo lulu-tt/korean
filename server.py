@@ -383,26 +383,28 @@ def _load_etl():
 _WEATHER_CACHE = {'sig': None, 'data': None}
 
 
-def api_weather_awareness():
+def api_weather_awareness(year=None):
     """기상도 화면 자료 — 전용 테이블 기준. 적재 상태가 그대로면 캐시를 쓴다."""
+    import re as _re
     import sqlite3
 
+    year = _re.sub(r'\D', '', str(year or ''))[-2:]
     sig = None
     if os.path.exists(WEATHER_DB_PATH):
         con = sqlite3.connect(WEATHER_DB_PATH)
         try:
             n = con.execute('SELECT COUNT(*) FROM wb_weather_response').fetchone()[0]
             d = con.execute('SELECT MAX(reg_dt) FROM wb_weather_file').fetchone()[0]
-            sig = (n, d, os.path.getmtime(WEATHER_DB_PATH))
+            sig = (n, d, os.path.getmtime(WEATHER_DB_PATH), year)
         finally:
             con.close()
     if sig and _WEATHER_CACHE['sig'] == sig and _WEATHER_CACHE['data'] is not None:
         return _WEATHER_CACHE['data']
 
     etl = _load_etl()
-    recs, nfiles = etl.load_records_from_db(WEATHER_DB_PATH)
+    recs, nfiles = etl.load_records_from_db(WEATHER_DB_PATH, year)
     out = etl.build_output(recs, nfiles)
-    etl.fill_db_qc(out, WEATHER_DB_PATH)
+    etl.fill_db_qc(out, WEATHER_DB_PATH, year)
     _WEATHER_CACHE['sig'] = sig
     _WEATHER_CACHE['data'] = out
     return out
@@ -1233,7 +1235,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Cache-Control', 'no-cache')
             self.end_headers()
             try:
-                res = api_weather_awareness()
+                res = api_weather_awareness(
+                    (urllib.parse.parse_qs(parsed_url.query).get('year') or [''])[0])
             except Exception as e:
                 res = {"status": "error", "message": str(e)}
             self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))

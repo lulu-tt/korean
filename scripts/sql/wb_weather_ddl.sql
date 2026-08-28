@@ -7,6 +7,9 @@
 --   · 한 행 = (제보자, 항목, 어형) 하나. 같은 항목에 어형이 여러 개면 행이 늘어난다.
 --   · 추가 어형 행은 일련번호를 비워 두는 관행이 있다(전체의 6.8%) → serial_no NULL 허용.
 --   · 등급(사용도/인지도) 1 사용 / 2 이해 / 3 인지 / 4 무지. '*' 는 조사자 제시·제보자 미발화.
+--   · 지역 점수 = 그 지역 제보자가 지역어형에 준 등급의 점수 평균
+--       ① 사용 100 · ② 이해 75 · ③ 인지 50 · ④ 무지 25
+--     상태 경계는 등급 사이의 중간값(87.5/62.5/37.5)이다. 별도 임계값을 두지 않는다.
 --
 --  기존 표와 겹치지 않는 이유
 --   · wb_trs_file 계열은 전사파일(.trs/.eaf) 단위이고 타임코드·화자 구조를 갖는다.
@@ -54,6 +57,7 @@ CREATE TABLE wb_weather_response (
   grade_valid_yn    CHAR(1)       DEFAULT 'N',        -- 집계 대상 여부 (grade in 1~4)
   use_yn            CHAR(1)       DEFAULT 'Y',
   reg_dt            DATETIME      DEFAULT SYSDATETIME,
+  upt_dt            DATETIME,                         -- 관리자가 고친 행. 재업로드 경고의 근거
   CONSTRAINT pk_wb_weather_response PRIMARY KEY (response_id),
   CONSTRAINT fk_wwr_file FOREIGN KEY (weather_file_id)
     REFERENCES wb_weather_file (weather_file_id)
@@ -61,38 +65,3 @@ CREATE TABLE wb_weather_response (
 CREATE INDEX ix_wwr_file   ON wb_weather_response (weather_file_id, line_no);
 CREATE INDEX ix_wwr_item   ON wb_weather_response (item_base, grade_valid_yn);
 CREATE INDEX ix_wwr_head   ON wb_weather_response (headword);
-
--- ── 3. 지역 단위 집계 (화면이 읽는 결과) ────────────────────────────────
---  세대(20/50/70)별 집계 표는 두지 않는다. 세대별 제보자가 1~2명이라
---  비율로 쓸 수 없고 사례로만 인용해야 하기 때문이다. 필요하면 2번 표를 직접 조회한다.
-DROP TABLE IF EXISTS wb_weather_region_stat;
-CREATE TABLE wb_weather_region_stat (
-  region_cd         CHAR(2)       NOT NULL,
-  item_base         VARCHAR(5)    NOT NULL,
-  headword          VARCHAR(100),
-  state             VARCHAR(4)    NOT NULL,           -- w1 w2 w3 w4 / std / w0
-  use_rate          DECIMAL(5,2),                     -- 등급1 비율 (%)
-  informant_cnt     INTEGER       DEFAULT 0,          -- 조사된 제보자 수
-  dialect_cnt       INTEGER       DEFAULT 0,          -- 지역어형 응답 수
-  std_only_yn       CHAR(1)       DEFAULT 'N',        -- 전원 표준어형만 응답
-  core_yn           CHAR(1)       DEFAULT 'N',        -- 9개 지역 전부에서 등급 관측(서비스 대상)
-  note              VARCHAR(500),
-  calc_dt           DATETIME      DEFAULT SYSDATETIME,
-  CONSTRAINT pk_wb_weather_region_stat PRIMARY KEY (region_cd, item_base)
-);
-CREATE INDEX ix_wwrs_state ON wb_weather_region_stat (item_base, state);
-
--- ── 4. 표준어 허용형 (표준어권 판정용) ──────────────────────────────────
---  지금 data/processed/standard_forms_allowlist.json 이 하는 일. 표로 옮겨 관리자가 편집한다.
-DROP TABLE IF EXISTS wb_weather_std_form;
-CREATE TABLE wb_weather_std_form (
-  std_form_id       INTEGER       NOT NULL,
-  item_base         VARCHAR(5)    NOT NULL,
-  std_form          VARCHAR(200)  NOT NULL,           -- 표준어로 처리할 어형
-  memo              VARCHAR(300),
-  use_yn            CHAR(1)       DEFAULT 'Y',
-  reg_id            VARCHAR(50),
-  reg_dt            DATETIME      DEFAULT SYSDATETIME,
-  CONSTRAINT pk_wb_weather_std_form PRIMARY KEY (std_form_id),
-  CONSTRAINT uq_wwsf UNIQUE (item_base, std_form)
-);

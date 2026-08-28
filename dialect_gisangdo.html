@@ -25,7 +25,7 @@
   지역어 기상도 — 모듈 전용 스타일 (사양서 §2.2 CSS 격리)
   · 전역 리셋(* / body / a) 금지, 모든 규칙을 #jiyeoeo-gisangdo-root 하위로 스코프
   · 클래스 프리픽스 gs- 사용, 기존 사이트 타이포·기본색은 상속
-  · 모듈 고유 토큰: 날씨 색 4종 + 결측(사양서 §4.1)만 새로 정의
+  · 모듈 고유 토큰: 상태 색 4종 + 지역어형없음 + 관측없음
   ============================================================================
 -->
 <style>
@@ -33,7 +33,7 @@
 body{ background:#ffffff; }
 
 #jiyeoeo-gisangdo-root{
-  /* §4.1 날씨 상태 색 (라이트) — 데이터 의미(사용도) 인코딩용 모듈 고유 토큰 */
+  /* 상태 색 (라이트) — 지역 평균 점수 구간을 나타내는 모듈 고유 토큰 */
   --gs-w1:#BA7517;  --gs-w1-bg:#FBF3E4;   /* 맑음   · 사용   */
   --gs-w2:#5F5E5A;  --gs-w2-bg:#F0F0EE;   /* 구름조금 · 이해   */
   --gs-w3:#185FA5;  --gs-w3-bg:#E7F0FA;   /* 흐리고 비 · 인지 */
@@ -422,7 +422,7 @@ body{ background:#ffffff; }
   <!--
     ==========================================================================
     지역어 기상도 — 모듈 스크립트 (바닐라, 격리)
-    데이터는 사양서 §5.6 스키마를 따르는 정규화 JSON을 인라인으로 둔다.
+    데이터는 scripts/etl_awareness_region.py 가 만든 정규화 JSON 을 쓴다.
     (실서비스에선 빌드 타임 전처리 스크립트가 엑셀/보고서 → JSON 생성. §5.6)
     ==========================================================================
   -->
@@ -430,22 +430,36 @@ body{ background:#ffffff; }
   (function(){
     'use strict';
 
-    /* ── 날씨 상수 §4.1 (사용도 밴드 → 날씨) ───────────────────── */
+    /* ── 상태 상수 ─────────────────────────────────────────────────
+       조사표의 사용도/인지도 4등급을 점수로 환산해 지역 평균을 낸다.
+         ① 사용 100 · ② 이해 75 · ③ 인지 50 · ④ 무지 25
+       상태 경계는 등급 사이의 중간값(87.5 / 62.5 / 37.5)이다 —
+       별도로 정한 임계값이 아니라 등급 척도에서 그대로 나온다.
+       설명 문구는 '지역 평균'을 말한다. 개인 등급 문구(사용/이해/인지/무지)는
+       제보자 한 명을 가리키는 말이므로 지역 색에 붙이지 않는다. */
+    const GRADE_SCORE = {1:100, 2:75, 3:50, 4:25};
     const WEATHERS = {
-      w1:{ key:'w1', label:'맑음',      icon:'ti-sun',         desc:'현재 일상에서 씀' },
-      w2:{ key:'w2', label:'구름조금',  icon:'ti-cloud',       desc:'써봤으나 지금은 안 씀' },
-      w3:{ key:'w3', label:'흐리고 비', icon:'ti-cloud-rain',  desc:'들어는 봄' },
-      w4:{ key:'w4', label:'천둥번개',  icon:'ti-cloud-bolt',  desc:'처음 들음' },
-      w0:{ key:'w0', label:'관측 없음', icon:'ti-cloud-off',   desc:'자료 없음' },
-      // 제5상태 — 조사는 됐으나 지역어형이 나오지 않은 지역(경기 등). 결측이 아니다.
+      w1:{ key:'w1', label:'맑음',      icon:'ti-sun',         desc:'평균 87.5점 이상 — 대체로 지금도 씀' },
+      w2:{ key:'w2', label:'구름조금',  icon:'ti-cloud',       desc:'평균 62.5~87.4점 — 쓰거나 써 본 사람이 많음' },
+      w3:{ key:'w3', label:'흐리고 비', icon:'ti-cloud-rain',  desc:'평균 37.5~62.4점 — 들어는 본 정도가 많음' },
+      w4:{ key:'w4', label:'천둥번개',  icon:'ti-cloud-bolt',  desc:'평균 37.5점 미만 — 대체로 처음 들음' },
+      w0:{ key:'w0', label:'관측 없음', icon:'ti-cloud-off',   desc:'등급이 적히지 않아 판단할 수 없음' },
+      // 제5상태 — 조사는 됐으나 지역어형이 나오지 않은 지역. 결측이 아니라 조사 결과다.
       std:{ key:'std', label:'지역어형 없음', icon:'ti-circle-check', desc:'조사됐으나 지역어형이 나오지 않음' }
     };
-    // §5.4 weatherOf(rate)
-    function weatherOf(rate){
-      if(rate==null||isNaN(rate)) return WEATHERS.w0;
-      if(rate>=0.6) return WEATHERS.w1;
-      if(rate>=0.3) return WEATHERS.w2;
-      if(rate>=0.1) return WEATHERS.w3;
+    // 개인 등급 문구 — 조사표 정의 그대로. 제보자 한 명을 설명할 때만 쓴다.
+    const GRADE_DESC = {
+      1:'현재 일상생활에서도 쓰고 있다',
+      2:'써본 적은 있지만 현재 일상생활에서는 쓰지 않는다',
+      3:'써본 적은 없지만 들어본 적은 있다',
+      4:'써본 적도 없고 처음 들어보는 말이다'
+    };
+    /* 점수 → 상태. scripts/etl_awareness_region.py weather_of() 와 같아야 한다. */
+    function weatherOf(score){
+      if(score==null||isNaN(score)) return WEATHERS.w0;
+      if(score>=87.5) return WEATHERS.w1;
+      if(score>=62.5) return WEATHERS.w2;
+      if(score>=37.5) return WEATHERS.w3;
       return WEATHERS.w4;
     }
     const CSSVAR = { w1:'var(--gs-w1)', w2:'var(--gs-w2)', w3:'var(--gs-w3)', w4:'var(--gs-w4)', w0:'var(--gs-w0)', std:'#5B7FA6' };
@@ -559,25 +573,25 @@ body{ background:#ffffff; }
         .catch(()=>{ AWARE_BY_WORD={}; AWARE_ORIGIN=null; });
     }
     function hasAware(w){ return !!AWARE_BY_WORD[w.standard]; }
-    /* gen: 0=전체(지역 단위 사용률) · 20|50|70=그 세대 제보자의 사례 */
+    /* gen: 0=전체(지역 평균 점수) · 20|50|70=그 세대 제보자의 사례 */
     function cellOf(w, gen, code){
       const it = AWARE_BY_WORD[w.standard];
       if(it){
         const rc = it.regions[code] || {};
         if(!gen){
           return { state: rc.state||'w0', n: rc.n||0,
-                   rate: (rc.useRate!=null && rc.n) ? rc.useRate : null,
+                   score: (rc.score!=null && rc.n) ? rc.score : null,
                    forms: rc.forms||[], cases: rc.cases||[], note: rc.note||'' };
         }
         const g = (rc.gens||{})[String(gen)];
-        if(g) return { state:g.state, n:g.n||0, rate:null, forms:rc.forms||[], cases:g.cases||[], note:rc.note||'' };
-        return { state: rc.state==='std' ? 'std' : 'w0', n:0, rate:null, forms:[], cases:[], note:rc.note||'' };
+        if(g) return { state:g.state, n:g.n||0, score:null, forms:rc.forms||[], cases:g.cases||[], note:rc.note||'' };
+        return { state: rc.state==='std' ? 'std' : 'w0', n:0, score:null, forms:[], cases:[], note:rc.note||'' };
       }
-      return { state:'w0', n:0, rate:null, forms:[], cases:[], note:'실측 자료를 불러오지 못했습니다' };
+      return { state:'w0', n:0, score:null, forms:[], cases:[], note:'실측 자료를 불러오지 못했습니다' };
     }
-    /* 지도 마커·표에 쓸 짧은 라벨 — 세대별은 비율이 아니라 제보자 수 */
+    /* 지도 마커·표에 쓸 짧은 라벨 — 세대별은 점수가 아니라 제보자 수 */
     function cellLabel(c){                                 // 좁은 칸용 짧은 라벨
-      if(c.rate!=null) return pct(c.rate)+'%';
+      if(c.score!=null) return Math.round(c.score)+'점';
       if(c.state==='std') return '없음';
       if(c.state==='w0')  return '—';
       return (c.n||0) + '명';
@@ -609,7 +623,7 @@ body{ background:#ffffff; }
     }
     function casesText(c){
       if(!c.cases || !c.cases.length) return '';
-      return c.cases.map(x=>`${x.age?x.age+'대 ':''}${SEXKO[x.sex]||''} ${WEATHERS['w'+x.grade].desc}`).join(' · ');
+      return c.cases.map(x=>`${x.age?x.age+'대 ':''}${SEXKO[x.sex]||''} ${GRADE_DESC[x.grade]||''}`).join(' · ');
     }
 
     const WORDS = RAW.map(buildWord);
@@ -634,10 +648,12 @@ body{ background:#ffffff; }
           <i class="ti ti-chevron-down chev" aria-hidden="true"></i>
         </button>
         <div class="gs-map-legend-acc__body">
-          <div class="row"><span class="sw" style="background:${HEXVAR.w1}"></span><span>${EMOJI.w1} <b>지금도 쓴다</b><em>맑음 · 60% 이상</em></span></div>
-          <div class="row"><span class="sw" style="background:${HEXVAR.w2}"></span><span>${EMOJI.w2} <b>써 봤지만 요즘은 안 쓴다</b><em>구름조금 · 30–59%</em></span></div>
-          <div class="row"><span class="sw" style="background:${HEXVAR.w3}"></span><span>${EMOJI.w3} <b>들어는 봤다</b><em>흐리고 비 · 10–29%</em></span></div>
-          <div class="row"><span class="sw" style="background:${HEXVAR.w4}"></span><span>${EMOJI.w4} <b>처음 듣는다</b><em>천둥번개 · 10% 미만</em></span></div>
+          <div class="row"><span class="sw" style="background:${HEXVAR.w1}"></span><span>${EMOJI.w1} <b>대체로 지금도 쓴다</b><em>맑음 · 87.5점 이상</em></span></div>
+          <div class="row"><span class="sw" style="background:${HEXVAR.w2}"></span><span>${EMOJI.w2} <b>쓰거나 써 본 사람이 많다</b><em>구름조금 · 62.5~87.4점</em></span></div>
+          <div class="row"><span class="sw" style="background:${HEXVAR.w3}"></span><span>${EMOJI.w3} <b>들어는 본 정도가 많다</b><em>흐리고 비 · 37.5~62.4점</em></span></div>
+          <div class="row"><span class="sw" style="background:${HEXVAR.w4}"></span><span>${EMOJI.w4} <b>대체로 처음 듣는다</b><em>천둥번개 · 37.5점 미만</em></span></div>
+          <div class="row" style="border-top:1px solid #e2e8f0;padding-top:6px;margin-top:2px">
+            <span style="font-size:11.5px;color:#64748b;line-height:1.6">점수 = 제보자 등급의 평균<br>① 사용 100 · ② 이해 75 · ③ 인지 50 · ④ 무지 25</span></div>
           <div class="row is-muted"><span class="sw" style="background:${HEXVAR.std}"></span><span><b>지역어형 없음</b><em>물었지만 그 지역 말이 안 나옴</em></span></div>
           <div class="row is-muted"><span class="sw" style="background:${HEXVAR.w0}"></span><span><b>관측 없음</b><em>자료 없음</em></span></div>
         </div>
@@ -675,7 +691,7 @@ body{ background:#ffffff; }
               <div class="gs-popmenu__sec">
                 <div class="gs-popmenu__label">표시 요소</div>
                 <label class="gs-mschk"><input type="checkbox" id="gsHideIcon"> 날씨 아이콘 숨기기</label>
-                <label class="gs-mschk"><input type="checkbox" id="gsHideArea"> 면색(사용률) 숨기기</label>
+                <label class="gs-mschk"><input type="checkbox" id="gsHideArea"> 면색(점수) 숨기기</label>
               </div>
             </div>
           </div>
@@ -691,7 +707,7 @@ body{ background:#ffffff; }
       </div>
       <div class="gs-mapwrap">
         <div class="gs-card gs-mappanel">
-          <div id="gs-map" role="img" aria-label="지역별 사용률 기상도"></div>
+          <div id="gs-map" role="img" aria-label="지역별 점수 기상도"></div>
           <button type="button" class="gs-mapreset" id="gsMapReset" title="처음 위치로" aria-label="지도 위치 초기화"><i class="ti ti-refresh" aria-hidden="true"></i></button>
           <div class="gs-map-fallback" id="gsMapFallback"></div>
           <div class="gs-popover" id="gsMapPop"></div>
@@ -709,7 +725,7 @@ body{ background:#ffffff; }
             <div class="gs-genrows" id="gsGenSwitch">
               ${ hasAware(w) ? `
                 <button type="button" class="gs-genrow ${currentGen===0?'is-active':''}" data-gen="0"
-                        title="지역 단위 사용률 — 제보자 2~6명">
+                        title="지역 평균 점수 — 사용100·이해75·인지50·무지25">
                   <span class="gr-emoji">🗺️</span>
                   <span class="gr-gen">전체</span>
                   <span class="gr-bar"><span style="width:100%;background:#e2e8f0"></span></span>
@@ -775,7 +791,7 @@ body{ background:#ffffff; }
     /* ── 화면 1: 홈 §6.1 ──────────────────────────────────────── */
     // 첫 화면 기본 단어 — 초성 필터 기본값(ㄱ)에서 맨 앞에 오는 '귀청'
     let currentWordId = (WORDS.find(w=>w.standard==='귀청') || WORDS[0]).itemId;
-    let currentGen = 0;   // 0 = 전체(지역 단위 사용률) · 20|50|70 = 그 세대 제보자 사례
+    let currentGen = 0;   // 0 = 전체(지역 평균 점수) · 20|50|70 = 그 세대 제보자 사례
 
     function renderHome(){
       const view = document.getElementById('gs-view');
@@ -1063,7 +1079,7 @@ body{ background:#ffffff; }
           ctx.drawImage(cv,0,0);
         });
         ctx.setTransform(1,0,0,1,0,0); ctx.globalAlpha=1;
-        // 날씨 이모지 + 사용률
+        // 날씨 이모지 + 점수
         const hideIcon=document.getElementById('gsHideIcon');
         if(!(hideIcon&&hideIcon.checked)){
           ctx.textAlign='center'; ctx.textBaseline='middle';

@@ -5559,12 +5559,13 @@ def api_wordcard_delete(body: dict) -> dict:
 WEATHER_DB = Path(
     os.environ.get("WEATHER_DB", str(USER_MAP_ROOT / "data" / "gisangdo.db"))
 )
-WEATHER_ALLOW = USER_MAP_ROOT / "data" / "processed" / "standard_forms_allowlist.json"
 
 WB_REGION_NAMES = {"GG": "경기", "GW": "강원", "CB": "충북", "CN": "충남", "JB": "전북",
                    "JN": "전남", "GB": "경북", "GN": "경남", "JJ": "제주"}
 WB_REGION_ORDER = ["GG", "GW", "CB", "CN", "JB", "JN", "GB", "GN", "JJ"]
 WB_VALID_GRADE = {"1", "2", "3", "4"}
+# 전각 숫자('１')만 반각으로 맞춘다. 판정 규칙은 etl_awareness_region.grade_of 와 같아야 한다.
+WB_FULLWIDTH = str.maketrans("１２３４", "1234")
 
 WEATHER_DDL = """
 CREATE TABLE IF NOT EXISTS wb_weather_file (
@@ -5579,23 +5580,13 @@ CREATE TABLE IF NOT EXISTS wb_weather_response (
   response_id INTEGER PRIMARY KEY AUTOINCREMENT, weather_file_id INTEGER NOT NULL,
   line_no INTEGER NOT NULL, serial_no TEXT, item_cd TEXT NOT NULL, item_base TEXT,
   headword TEXT, dialect_form TEXT, grade TEXT, grade_valid_yn TEXT DEFAULT 'N',
+  upt_dt TEXT,          -- 관리자가 고친 행. 재업로드 경고와 캐시 무효화에 쓴다
   use_yn TEXT DEFAULT 'Y', reg_dt TEXT,
   FOREIGN KEY (weather_file_id) REFERENCES wb_weather_file (weather_file_id));
 CREATE INDEX IF NOT EXISTS ix_wwr_file ON wb_weather_response (weather_file_id, line_no);
 CREATE INDEX IF NOT EXISTS ix_wwr_item ON wb_weather_response (item_base, grade_valid_yn);
 CREATE INDEX IF NOT EXISTS ix_wwr_head ON wb_weather_response (headword);
 
-CREATE TABLE IF NOT EXISTS wb_weather_region_stat (
-  region_cd TEXT NOT NULL, item_base TEXT NOT NULL, headword TEXT,
-  state TEXT NOT NULL, use_rate REAL, informant_cnt INTEGER DEFAULT 0,
-  dialect_cnt INTEGER DEFAULT 0, std_only_yn TEXT DEFAULT 'N', core_yn TEXT DEFAULT 'N',
-  note TEXT, calc_dt TEXT, PRIMARY KEY (region_cd, item_base));
-CREATE INDEX IF NOT EXISTS ix_wwrs_state ON wb_weather_region_stat (item_base, state);
-
-CREATE TABLE IF NOT EXISTS wb_weather_std_form (
-  std_form_id INTEGER PRIMARY KEY AUTOINCREMENT, item_base TEXT NOT NULL,
-  std_form TEXT NOT NULL, memo TEXT, use_yn TEXT DEFAULT 'Y', reg_id TEXT, reg_dt TEXT,
-  UNIQUE (item_base, std_form));
 """
 
 
@@ -5604,8 +5595,12 @@ def weather_db():
     con = sqlite3.connect(str(WEATHER_DB))
     con.row_factory = sqlite3.Row
     con.executescript(WEATHER_DDL)
+    # 이미 만들어진 DB 에 칸이 없으면 더한다 (이력표를 없애며 생긴 칸)
+    cols = [r[1] for r in con.execute("PRAGMA table_info(wb_weather_response)")]
+    if "upt_dt" not in cols:
+        con.execute("ALTER TABLE wb_weather_response ADD COLUMN upt_dt TEXT")
+        con.commit()
     return con
-
 
 def _wb_norm_header(h) -> str:
     """표기 흔들림을 표준 이름으로 모은다."""
@@ -5716,6 +5711,8 @@ def api_weather_upload(raw: bytes, ctype: str) -> dict:
         bad = 0
         batch = []
         for r in kept:
+            if r["grade"]:
+                r["grade"] = str(r["grade"]).strip().translate(WB_FULLWIDTH)
             gv = "Y" if r["grade"] in WB_VALID_GRADE else "N"
             if r["grade"] and gv == "N" and r["grade"] != "*":
                 bad += 1
@@ -5744,156 +5741,6 @@ def api_weather_upload(raw: bytes, ctype: str) -> dict:
     return {"ok": True, "message": msg, "results": results, "issues": issues[:100]}
 
 
-def _wb_norm_form(s: str) -> str:
-    """etl_awareness_region.norm 과 같은 규칙 — 괄호 안 제거 후 공백·콜론 제거."""
-    return re.sub(r"[:\s]", "", re.sub(r"\([^)]*\)", "", s or ""))
-
-
-def _wb_head_forms(headword: str) -> set:
-    """표제어의 표준형 집합. '서 되/세 되' → {서되, 세되}."""
-    out = set()
-    for part in re.split(r"[/,]", headword or ""):
-        f = _wb_norm_form(part)
-        if f:
-            out.add(f)
-    return out
-
-
-def _wb_load_allow() -> set:
-    if not WEATHER_ALLOW.is_file():
-        return set()
-    d = json.loads(WEATHER_ALLOW.read_text(encoding="utf-8"))
-    out = set()
-    for it, v in (d.get("items") or {}).items():
-        for a in v.get("allow", []):
-            f = _wb_norm_form(a.get("form") or a.get("std") or "")
-            if f:
-                out.add((it, f))
-    return out
-
-
-def _wb_weather_of(rate):
-    """dialect_gisangdo.html weatherOf() 와 동일 임계값."""
-    if rate is None:
-        return "w0"
-    if rate >= 0.6:
-        return "w1"
-    if rate >= 0.3:
-        return "w2"
-    if rate >= 0.1:
-        return "w3"
-    return "w4"
-
-
-def api_weather_recalc(body: dict) -> dict:
-    """wb_weather_response → wb_weather_region_stat 재계산."""
-    con = weather_db()
-    rows = con.execute(
-        """SELECT f.region_cd rg, f.research_degree yr, f.generation age, f.sex sx,
-                  r.item_base it, r.headword pres, r.dialect_form base, r.grade g
-           FROM wb_weather_response r
-           JOIN wb_weather_file f ON f.weather_file_id=r.weather_file_id
-           WHERE r.item_base IS NOT NULL AND f.use_yn='Y' AND r.use_yn='Y'"""
-    ).fetchall()
-    if not rows:
-        con.close()
-        return {"ok": False, "message": "적재된 응답이 없습니다. 먼저 원자료를 올려주세요."}
-
-    recs = []
-    for r in rows:
-        pres = (r["pres"] or "").strip()
-        base = (r["base"] or "").strip()
-        g = (r["g"] or "").strip()
-        recs.append({"rg": r["rg"], "yr": r["yr"], "age": int(r["age"]), "sx": r["sx"],
-                     "it": r["it"], "pres": pres,
-                     "form": base if base and base != "*" else pres,
-                     "g": g if g in WB_VALID_GRADE else None})
-
-    allow = _wb_load_allow()
-    seen = {}
-    pres_cnt = {}
-    for r in recs:
-        if r["g"]:
-            seen.setdefault(r["it"], set()).add(r["rg"])
-        if r["pres"]:
-            pres_cnt.setdefault(r["it"], {}).setdefault(r["pres"], 0)
-            pres_cnt[r["it"]][r["pres"]] += 1
-    core = {it for it, s in seen.items() if len(s) == len(WB_REGION_ORDER)}
-    headword = {it: max(c.items(), key=lambda kv: kv[1])[0] for it, c in pres_cnt.items()}
-
-    by = {}
-    for r in recs:
-        by.setdefault((r["it"], r["rg"]), []).append(r)
-
-    def is_dialect(it, form):
-        f = _wb_norm_form(form)
-        return bool(f) and f not in _wb_head_forms(headword.get(it, "")) and (it, f) not in allow
-
-    out, tally = [], {}
-    items = sorted(set(r["it"] for r in recs))
-    for it in items:
-        for rg in WB_REGION_ORDER:
-            rs = by.get((it, rg), [])
-            informants = sorted({(r["yr"], r["age"], r["sx"]) for r in rs})
-            best = {}
-            for key in informants:
-                mine = [int(r["g"]) for r in rs
-                        if r["g"] and is_dialect(it, r["form"])
-                        and (r["yr"], r["age"], r["sx"]) == key]
-                if mine:
-                    best[key] = min(mine)
-            dial = [r for r in rs if is_dialect(it, r["form"])]
-            n = len(best)
-            if n:
-                rate = round(sum(1 for v in best.values() if v == 1) / n, 4)
-                state, note, std_only = _wb_weather_of(rate), None, "N"
-            elif rs and not dial:
-                rate, state, std_only = 0.0, "std", "Y"
-                note = f"조사된 {len(informants)}명 모두 표준어형만 응답"
-            else:
-                rate, state, std_only = None, "w0", "N"
-                note = "지역어형은 나왔으나 사용도/인지도 미기입" if dial else "해당 항목 응답 없음"
-            tally[state] = tally.get(state, 0) + 1
-            out.append((rg, it, headword.get(it, ""), state,
-                        None if rate is None else round(rate * 100, 2),
-                        n, len(dial), std_only, "Y" if it in core else "N", note))
-
-    con.execute("DELETE FROM wb_weather_region_stat")
-    con.executemany(
-        """INSERT INTO wb_weather_region_stat
-           (region_cd,item_base,headword,state,use_rate,informant_cnt,dialect_cnt,
-            std_only_yn,core_yn,note,calc_dt)
-           VALUES (?,?,?,?,?,?,?,?,?,?,datetime('now'))""", out)
-
-    con.execute("DELETE FROM wb_weather_std_form")
-    if WEATHER_ALLOW.is_file():
-        d = json.loads(WEATHER_ALLOW.read_text(encoding="utf-8"))
-        batch = []
-        for it, v in (d.get("items") or {}).items():
-            for a in v.get("allow", []):
-                batch.append((it, a.get("form") or a.get("std") or "",
-                              "검토필요" if a.get("review") else None))
-        con.executemany(
-            """INSERT OR IGNORE INTO wb_weather_std_form
-               (item_base,std_form,memo,use_yn,reg_id,reg_dt)
-               VALUES (?,?,?,'Y','admin',datetime('now'))""", batch)
-    con.commit()
-    con.close()
-    return {"ok": True, "cells": len(out), "items": len(items), "core": len(core),
-            "tally": tally,
-            "message": f"집계 {len(out):,}칸 재계산 (항목 {len(items)}개 · 전지역관측 {len(core)}개)"}
-
-
-WEATHER_HIST_DDL = """
-CREATE TABLE IF NOT EXISTS wh_weather_response (
-  hist_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  response_id INTEGER, weather_file_id INTEGER, item_base TEXT,
-  before_form TEXT, before_grade TEXT, after_form TEXT, after_grade TEXT,
-  action TEXT, editor TEXT, edit_dt TEXT);
-CREATE INDEX IF NOT EXISTS ix_whwr_item ON wh_weather_response (item_base, weather_file_id);
-"""
-
-
 def _weather_etl():
     """ETL 모듈 — 구조 조립·판정·DB 로더가 모두 거기 한 곳에 있다."""
     import importlib.util
@@ -5906,13 +5753,13 @@ def _weather_etl():
     return m
 
 
-_WEATHER_AWARE_CACHE = {"sig": None, "data": None}
+_WEATHER_AWARE_CACHE = {}
 
 
 def _weather_sig(con):
     n = con.execute("SELECT COUNT(*) FROM wb_weather_response").fetchone()[0]
     d = con.execute("SELECT MAX(reg_dt) FROM wb_weather_file").fetchone()[0]
-    e = con.execute("SELECT MAX(edit_dt) FROM wh_weather_response").fetchone()[0]
+    e = con.execute("SELECT MAX(upt_dt) FROM wb_weather_response").fetchone()[0]
     return (n, d, e)
 
 
@@ -5921,21 +5768,28 @@ def api_weather_awareness(qs: dict) -> dict:
 
     프론트(server.py)와 같은 구조를 돌려준다. 목록이 정적 JSON 을 직접 읽던 것을
     이 API 로 바꾸면, 업로드 직후 내보내기를 하지 않아도 화면이 최신 상태가 된다.
+
+    year: 조사 연차. 연차가 섞이면 '제보자 38명' 같은 수치가 서로 다른 조사의 합이 되므로
+          화면 필터가 아니라 원천을 가르는 조건으로 다룬다.
     """
+    def q1(k, d=""):
+        v = qs.get(k)
+        return (v[0] if isinstance(v, list) else v) or d
+
+    year = re.sub(r"\D", "", str(q1("year")))[-2:]
     con = weather_db()
-    con.executescript(WEATHER_HIST_DDL)
     try:
-        sig = _weather_sig(con)
+        sig = _weather_sig(con) + (year,)
     finally:
         con.close()
-    if _WEATHER_AWARE_CACHE["sig"] == sig and _WEATHER_AWARE_CACHE["data"] is not None:
-        return _WEATHER_AWARE_CACHE["data"]
+    if _WEATHER_AWARE_CACHE.get(sig) is not None:
+        return _WEATHER_AWARE_CACHE[sig]
     etl = _weather_etl()
-    recs, nfiles = etl.load_records_from_db(str(WEATHER_DB))
+    recs, nfiles = etl.load_records_from_db(str(WEATHER_DB), year)
     out = etl.build_output(recs, nfiles)
-    etl.fill_db_qc(out, str(WEATHER_DB))
-    _WEATHER_AWARE_CACHE["sig"] = sig
-    _WEATHER_AWARE_CACHE["data"] = out
+    etl.fill_db_qc(out, str(WEATHER_DB), year)
+    _WEATHER_AWARE_CACHE.clear()
+    _WEATHER_AWARE_CACHE[sig] = out
     return out
 
 
@@ -5949,147 +5803,6 @@ def _weather_file_by_panel_id(con, panel_id: str):
         """SELECT * FROM wb_weather_file
            WHERE region_cd=? AND research_degree=? AND generation=? AND sex=? AND use_yn='Y'""",
         (rg, yy, int(gen), sx)).fetchone()
-
-
-def api_weather_response_save(body: dict) -> dict:
-    """응답 관리(2단) 저장 — 화면의 칸 하나 = wb_weather_response 한 행.
-
-    제보자 한 명·한 항목에 행이 여러 개다(표준어형 응답 + 지역어형 제시). 그래서
-    **어느 행을 고칠지는 화면이 실어 보낸 rid(response_id)로만 정한다.**
-    추정으로 행을 고르면 엉뚱한 응답의 등급을 지운다 — 실제로 그렇게 망가뜨려 봤다.
-    rid 가 없는 칸(화면에서 새로 추가한 제보자, 등급이 없던 칸)은 저장하지 않고 이유를 돌려준다.
-
-    화면(wrPanel)은 등급을 st 에 담는다: '1'~'4' | 's'(표준어형만) | 'x'(등급 미기입).
-    집계 산출(build_output)의 panel 은 st='d' + grade 를 쓴다. 둘 다 받는다.
-    """
-    item = str(body.get("itemBase") or body.get("code") or "").strip()
-    rg = str(body.get("regionCd") or body.get("region") or "").strip()
-    panel = body.get("panel") or []
-    if not item or not rg:
-        return {"ok": False, "message": "항목번호와 지역이 필요합니다."}
-    if not isinstance(panel, list):
-        return {"ok": False, "message": "panel 형식이 올바르지 않습니다."}
-
-    con = weather_db()
-    con.executescript(WEATHER_HIST_DDL)
-    saved, skipped, hist = 0, [], 0
-    try:
-        for c in panel:
-            c = c or {}
-            pid = str(c.get("id") or "").strip()
-            st = str(c.get("st") or "").strip()
-            form = str(c.get("form") or "").strip()
-            grade = c.get("grade")
-            grade = "" if grade in (None, "") else str(grade).strip()
-            rid = c.get("rid")
-
-            if st in ("1", "2", "3", "4"):
-                grade, st = st, "d"
-            elif st == "x":
-                grade, st = "", "x"
-
-            f = _weather_file_by_panel_id(con, pid)
-            if not f:
-                skipped.append({"id": pid,
-                                "reason": "제보자 원자료 파일이 없습니다 (원자료를 먼저 올려주세요)"})
-                continue
-
-            if rid in (None, ""):
-                skipped.append({"id": pid,
-                                "reason": "고칠 행을 알 수 없습니다 (등급이 없던 칸은 아직 편집할 수 없습니다)"})
-                continue
-
-            row = con.execute(
-                """SELECT response_id, weather_file_id, dialect_form, headword, grade
-                   FROM wb_weather_response WHERE response_id=? AND use_yn='Y'""",
-                (int(rid),)).fetchone()
-            if not row:
-                skipped.append({"id": pid, "reason": f"행을 찾지 못했습니다 (rid={rid})"})
-                continue
-            if row["weather_file_id"] != f["weather_file_id"]:
-                # 화면이 보낸 제보자와 행의 주인이 다르면 손대지 않는다
-                skipped.append({"id": pid, "reason": "제보자와 행이 맞지 않습니다"})
-                continue
-
-            # 이 행의 '유효 어형' — 기저형이 비었거나 '*' 면 표제어형을 쓴다 (ETL 과 같은 규칙)
-            base = (row["dialect_form"] or "").strip()
-            eff_form = base if base and base != "*" else (row["headword"] or "").strip()
-            cur_grade = (row["grade"] or "").strip()
-
-            if st == "s":
-                new_grade, action = None, "clear-grade"
-            elif st == "x":
-                new_grade, action = None, "clear-grade"
-            else:
-                new_grade, action = (grade or None), "update"
-
-            form_changed = bool(form) and form != eff_form
-            grade_changed = (new_grade or "") != cur_grade
-            if not form_changed and not grade_changed:
-                continue                       # 값이 그대로면 건드리지 않는다 (멱등)
-
-            # 어형은 원본이 기저형에 들어 있던 경우에만 고친다.
-            # 기저형이 '*' 인 행(지역어형 제시)은 표제어형이 어형이므로 그쪽을 고친다.
-            if form_changed:
-                if base and base != "*":
-                    con.execute(
-                        "UPDATE wb_weather_response SET dialect_form=? WHERE response_id=?",
-                        (form, row["response_id"]))
-                else:
-                    con.execute(
-                        "UPDATE wb_weather_response SET headword=? WHERE response_id=?",
-                        (form, row["response_id"]))
-            if grade_changed:
-                con.execute(
-                    "UPDATE wb_weather_response SET grade=?, grade_valid_yn=? WHERE response_id=?",
-                    (new_grade, "Y" if (new_grade or "") in ("1", "2", "3", "4") else "N",
-                     row["response_id"]))
-
-            con.execute(
-                """INSERT INTO wh_weather_response
-                   (response_id,weather_file_id,item_base,before_form,before_grade,
-                    after_form,after_grade,action,editor,edit_dt)
-                   VALUES (?,?,?,?,?,?,?,?,'admin',datetime('now'))""",
-                (row["response_id"], f["weather_file_id"], item, eff_form, cur_grade or None,
-                 form if form_changed else eff_form, new_grade, action))
-            hist += 1
-            saved += 1
-        con.commit()
-    finally:
-        con.close()
-
-    _WEATHER_AWARE_CACHE["sig"] = None
-    res = api_weather_recalc({})
-    msg = f"{saved}칸 저장 · 집계 재계산 완료" if saved else "바뀐 내용이 없습니다"
-    if skipped:
-        msg += f" · 저장 못 한 칸 {len(skipped)}개"
-    return {"ok": True, "saved": saved, "history": hist, "skipped": skipped,
-            "recalc": res.get("message"), "message": msg}
-
-
-def api_weather_response_history(qs: dict) -> dict:
-    """응답 수정 이력."""
-    def q1(k, d=""):
-        v = qs.get(k)
-        return (v[0] if isinstance(v, list) else v) or d
-
-    item = str(q1("itemBase")).strip()
-    con = weather_db()
-    con.executescript(WEATHER_HIST_DDL)
-    where, params = [], []
-    if item:
-        where.append("h.item_base=?")
-        params.append(item)
-    wh = ("WHERE " + " AND ".join(where)) if where else ""
-    rows = [dict(r) for r in con.execute(
-        f"""SELECT h.hist_id,h.item_base,h.before_form,h.before_grade,h.after_form,
-                   h.after_grade,h.action,h.editor,h.edit_dt,
-                   f.region_nm,f.generation,f.sex,f.file_nm
-            FROM wh_weather_response h
-            LEFT JOIN wb_weather_file f ON f.weather_file_id=h.weather_file_id
-            {wh} ORDER BY h.hist_id DESC LIMIT 200""", params)]
-    con.close()
-    return {"ok": True, "total": len(rows), "list": rows}
 
 
 def api_weather_export(body: dict) -> dict:
@@ -6132,6 +5845,133 @@ def api_weather_export(body: dict) -> dict:
                         f"{len(text.encode('utf-8'))/1024:.0f} KB")}
 
 
+def api_weather_responses_save(body: dict) -> dict:
+    """응답 목록 저장 — 화면 한 줄 = wb_weather_response 한 행. 고친 줄만 한 번에 받는다.
+
+    화면이 자료를 읽은 뒤 누군가 재업로드를 하면 response_id 가 다른 행을 가리키게 된다.
+    그래서 rid 만 믿지 않고 (파일명, 행번호)를 함께 받아 서로 맞는지 확인한 뒤에만 고친다.
+    어긋난 줄은 고치지 않고 이유를 돌려준다 — 엉뚱한 응답의 등급을 덮어쓰는 사고가 실제로 있었다.
+    """
+    rows = body.get("rows") or []
+    editor = str(body.get("editor") or "관리자").strip() or "관리자"
+    if not isinstance(rows, list) or not rows:
+        return {"ok": False, "message": "저장할 내용이 없습니다."}
+
+    con = weather_db()
+    saved, skipped = 0, []
+    now = time.strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        for r in rows:
+            r = r or {}
+            rid = r.get("rid")
+            try:
+                rid = int(rid)
+            except (TypeError, ValueError):
+                skipped.append({"rid": r.get("rid"), "why": "행 번호가 없습니다."})
+                continue
+
+            cur = con.execute(
+                """SELECT r.response_id, r.line_no, r.dialect_form, r.headword, r.grade,
+                          r.item_base, r.weather_file_id, f.file_nm
+                   FROM wb_weather_response r JOIN wb_weather_file f USING(weather_file_id)
+                   WHERE r.response_id=?""", (rid,)).fetchone()
+            if not cur:
+                skipped.append({"rid": rid, "why": "그 응답이 더는 없습니다. 새로 고침 뒤 다시 시도해 주세요."})
+                continue
+            # 화면이 읽은 자리와 지금 자리가 같은지 — 재업로드로 어긋났으면 여기서 걸린다
+            if str(r.get("file") or "") and (r.get("file") != cur["file_nm"]
+                                             or int(r.get("lineNo") or -1) != cur["line_no"]):
+                skipped.append({"rid": rid, "why": "자료가 바뀌었습니다(재업로드). 새로 고침 뒤 다시 시도해 주세요."})
+                continue
+
+            grade = r.get("grade")
+            grade = "" if grade in (None, "") else str(grade).strip().translate(WB_FULLWIDTH)
+            if grade and grade not in WB_VALID_GRADE:
+                skipped.append({"rid": rid, "why": "사용도/인지도는 1~4 여야 합니다."})
+                continue
+            form = str(r.get("form") or "").strip()
+
+            before_form = (cur["dialect_form"] or "").strip() or (cur["headword"] or "").strip()
+            before_grade = (cur["grade"] or "").strip()
+            if form == before_form and grade == before_grade:
+                continue                                    # 바뀐 게 없다
+
+            # 원자료가 '방언형 칸은 비고 표제어형 칸에 어형'인 행(조사자 제시형)이면
+            # 그 칸을 그대로 고쳐야 화면과 엑셀의 대응이 유지된다.
+            col = "dialect_form" if (cur["dialect_form"] or "").strip() else "headword"
+            con.execute(
+                "UPDATE wb_weather_response SET %s=?, grade=?, grade_valid_yn=?, upt_dt=? "
+                "WHERE response_id=?" % col,
+                (form or None, grade or None, "Y" if grade in WB_VALID_GRADE else "N", now, rid))
+            saved += 1
+        con.commit()
+    finally:
+        con.close()
+
+    _WEATHER_AWARE_CACHE.clear()
+    msg = "%d건 저장" % saved
+    if skipped:
+        msg += " · %d건 건너뜀" % len(skipped)
+    return {"ok": True, "saved": saved, "skipped": skipped, "message": msg}
+
+
+def api_weather_responses(qs: dict) -> dict:
+    """항목 하나의 응답 행을 원자료 그대로 내려준다 — 관리자 응답 목록 화면용.
+
+    집계(build_output)는 제보자 단위로 '최선 등급' 하나만 남기므로 어형이 여럿인 응답이
+    가려진다. 편집은 엑셀 한 행 = 화면 한 행이어야 하므로 여기서는 접지 않는다.
+    정렬은 일련번호가 아니라 지역·세대·성별·행번호 순 — 일련번호는 15%가 비어 있고
+    중복도 있어 정렬 키로 쓸 수 없다."""
+    import sqlite3
+
+    item = re.sub(r"[^0-9]", "", str(qs.get("item", [""])[0] if isinstance(qs.get("item"), list) else qs.get("item") or ""))
+    if not item:
+        return {"ok": False, "message": "항목코드가 필요합니다."}
+    if not WEATHER_DB.exists():
+        return {"ok": False, "message": "적재된 자료가 없습니다."}
+
+    order = {c: i for i, c in enumerate(WB_REGION_ORDER)}
+    con = sqlite3.connect(str(WEATHER_DB))
+    con.row_factory = sqlite3.Row
+    try:
+        rows = con.execute(
+            """SELECT r.response_id, r.line_no, r.serial_no, r.item_cd, r.headword,
+                      r.dialect_form, r.grade, r.grade_valid_yn,
+                      f.file_nm, f.region_cd, f.region_nm, f.research_degree,
+                      f.generation, f.sex
+               FROM wb_weather_response r JOIN wb_weather_file f USING(weather_file_id)
+               WHERE r.item_base=? AND r.use_yn='Y' AND f.use_yn='Y'""", (item,)).fetchall()
+    finally:
+        con.close()
+
+    out = []
+    for r in rows:
+        form = (r["dialect_form"] or "").strip()
+        pres = (r["headword"] or "").strip()
+        out.append({
+            "rid": r["response_id"],
+            "file": r["file_nm"],
+            "lineNo": r["line_no"],           # (file, lineNo) 가 편집 열쇠
+            "serialNo": r["serial_no"] or "",
+            "itemCd": r["item_cd"] or "",
+            "region": r["region_cd"],
+            "regionNm": r["region_nm"] or WB_REGION_NAMES.get(r["region_cd"], r["region_cd"]),
+            "year": r["research_degree"] or "",
+            "age": r["generation"],
+            "sex": r["sex"],
+            "headword": pres,
+            "form": form,
+            # 방언형 칸이 비면 표제어형 칸의 값이 조사자 제시형이다 (ETL 과 같은 규칙)
+            "shown": form if form and form != "*" else pres,
+            "presented": not (form and form != "*"),
+            "grade": (r["grade"] or "") if r["grade_valid_yn"] == "Y" else "",
+            "gradeRaw": r["grade"] or "",
+        })
+    out.sort(key=lambda x: (order.get(x["region"], 99), x["age"] or 0,
+                            x["sex"] or "", x["file"], x["lineNo"]))
+    return {"ok": True, "item": item, "total": len(out), "rows": out}
+
+
 def api_weather_files(qs: dict) -> dict:
     """적재된 원자료 파일 목록."""
     con = weather_db()
@@ -6139,7 +5979,10 @@ def api_weather_files(qs: dict) -> dict:
         """SELECT weather_file_id,file_nm,region_cd,region_nm,research_year,generation,
                   sex,row_cnt,item_cnt,src_layout,use_yn,reg_dt
            FROM wb_weather_file ORDER BY region_cd, generation, sex""")]
-    stat = con.execute("SELECT COUNT(*) c, MAX(calc_dt) d FROM wb_weather_region_stat").fetchone()
+    # 관리자가 고친 행 — 재업로드하면 엑셀 값으로 되돌아가므로 화면이 미리 경고해야 한다
+    edited = dict(con.execute(
+        """SELECT weather_file_id, COUNT(*) FROM wb_weather_response
+           WHERE upt_dt IS NOT NULL GROUP BY weather_file_id"""))
     resp = con.execute("SELECT COUNT(*) c FROM wb_weather_response").fetchone()
     bad = con.execute(
         """SELECT COUNT(*) c FROM wb_weather_response
@@ -6148,35 +5991,9 @@ def api_weather_files(qs: dict) -> dict:
     for r in rows:
         r["sexNm"] = "여" if r["sex"] == "F" else "남"
         r["genNm"] = f'{r["generation"]}대'
+        r["editedCnt"] = edited.get(r["weather_file_id"], 0)
     return {"ok": True, "total": len(rows), "list": rows,
-            "responseCnt": resp["c"], "statCnt": stat["c"], "statCalcDt": stat["d"],
-            "gradeBadCnt": bad["c"]}
-
-
-def api_weather_stat(qs: dict) -> dict:
-    """지역 단위 집계 조회 — 화면이 읽는 결과."""
-    def q1(k, d=""):
-        v = qs.get(k)
-        return (v[0] if isinstance(v, list) else v) or d
-
-    core_only = str(q1("coreOnly", "Y")).upper() != "N"
-    item = str(q1("itemBase")).strip()
-    con = weather_db()
-    where, params = [], []
-    if core_only:
-        where.append("core_yn='Y'")
-    if item:
-        where.append("item_base=?")
-        params.append(item)
-    wh = ("WHERE " + " AND ".join(where)) if where else ""
-    rows = [dict(r) for r in con.execute(
-        f"""SELECT region_cd,item_base,headword,state,use_rate,informant_cnt,
-                   dialect_cnt,std_only_yn,core_yn,note
-            FROM wb_weather_region_stat {wh}
-            ORDER BY item_base, region_cd""", params)]
-    con.close()
-    return {"ok": True, "total": len(rows), "list": rows,
-            "regionOrder": WB_REGION_ORDER, "regionNames": WB_REGION_NAMES}
+            "responseCnt": resp["c"], "gradeBadCnt": bad["c"]}
 
 
 def api_weather_delete(body: dict) -> dict:
@@ -6399,11 +6216,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return
 
         if path in (
-            "/mariadb/neibis-api/weather/response/save",
-            "/mariadb/neibis-api/v1/weather/response/save",
+            "/mariadb/neibis-api/weather/responses/save",
+            "/mariadb/neibis-api/v1/weather/responses/save",
         ):
             try:
-                self._send_json(api_weather_response_save(body))
+                self._send_json(api_weather_responses_save(body))
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return
@@ -6414,16 +6231,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 self._send_json(api_weather_export(body))
-            except Exception as e:
-                self._send_json({"ok": False, "message": str(e)}, 500)
-            return
-
-        if path in (
-            "/mariadb/neibis-api/weather/recalc",
-            "/mariadb/neibis-api/v1/weather/recalc",
-        ):
-            try:
-                self._send_json(api_weather_recalc(body))
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return
@@ -6689,11 +6496,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return
 
         if path in (
-            "/mariadb/neibis-api/weather/response/history",
-            "/mariadb/neibis-api/v1/weather/response/history",
+            "/mariadb/neibis-api/weather/responses",
+            "/mariadb/neibis-api/v1/weather/responses",
         ):
             try:
-                self._send_json(api_weather_response_history(qs))
+                self._send_json(api_weather_responses(qs))
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return
@@ -6704,16 +6511,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 self._send_json(api_weather_files(qs))
-            except Exception as e:
-                self._send_json({"ok": False, "message": str(e)}, 500)
-            return
-
-        if path in (
-            "/mariadb/neibis-api/weather/stat",
-            "/mariadb/neibis-api/v1/weather/stat",
-        ):
-            try:
-                self._send_json(api_weather_stat(qs))
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return

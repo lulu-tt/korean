@@ -25,12 +25,25 @@ import collections, glob, io, json, os, re, sys
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC  = os.path.join(BASE, 'data', 'dialect_gisangdo')
 OUT  = os.path.join(BASE, 'data', 'processed', 'awareness_by_region.json')
-ALLOW = os.path.join(BASE, 'data', 'processed', 'standard_forms_allowlist.json')
 
 REGION_ORDER = ['GG', 'GW', 'CB', 'CN', 'JB', 'JN', 'GB', 'GN', 'JJ']
 REGION_NAMES = {'GG': '경기', 'GW': '강원', 'CB': '충북', 'CN': '충남', 'JB': '전북',
                 'JN': '전남', 'GB': '경북', 'GN': '경남', 'JJ': '제주'}
 VALID = {'1', '2', '3', '4'}
+
+# 원자료에 전각 숫자('１')로 찍힌 칸이 있다. 같은 숫자의 다른 코드포인트일 뿐이라
+# 반각으로 맞추는 것은 값의 재해석이 아니다. 그 밖의 값(빈칸·'*'·'1,4' 같은 복수기입)은
+# 손대지 않고 '등급 없음'으로 남긴다 — 어느 등급인지는 사람이 원본을 고쳐야 한다.
+_FULLWIDTH = str.maketrans('１２３４', '1234')
+
+
+def grade_of(v):
+    """엑셀 칸 값 → 등급 문자열('1'~'4') 또는 None. 정규화 규칙의 유일한 출처."""
+    if v in (None, ''):
+        return None
+    g = str(v).strip().translate(_FULLWIDTH)
+    return g if g in VALID else None
+
 
 # 표제어 → dialect_gisangdo.html WORDLIST 표기 (동음이의 구분 괄호)
 WORD_ALIAS = {'가': '가(邊)', '새끼': '새끼(繩)', '아우 타다': '아우타다', '키': '키(箕)'}
@@ -43,19 +56,7 @@ def head_forms(hw):
     return {norm(p) for p in re.split(r'[/·]', hw or '') if norm(p)}
 
 
-def load_allowlist():
-    """표준어로 처리할 어형 집합 {(항목코드, 정규화어형)}. 없으면 빈 집합."""
-    if not os.path.exists(ALLOW):
-        print('  경고: 표준어 허용형 목록이 없어 표제어 일치만으로 판정합니다')
-        return set()
-    d = json.load(io.open(ALLOW, encoding='utf-8'))
-    out = {(code, norm(a['form'])) for code, v in d['items'].items() for a in v['allow']}
-    print('표준어 허용형 %d건 적용 (%s)' % (len(out), os.path.basename(ALLOW)))
-    return out
-
-
 QC = {'files': 0, 'rowsTotal': 0, 'rowsBadCode': 0, 'gradeFilled': 0, 'skipped': []}
-
 
 
 def _norm(h):
@@ -131,13 +132,11 @@ def load_records():
             pres = str(cell(row, col['head'])).strip() if cell(row, col['head']) else ''
             base = str(cell(row, col['base'])).strip() if cell(row, col['base']) else ''
             form = base if base and base != '*' else pres
-            _g = cell(row, col['grade'])
-            g = str(_g).strip() if _g not in (None, '') else None
-            if g in VALID:
+            g = grade_of(cell(row, col['grade']))
+            if g:
                 QC['gradeFilled'] += 1
             recs.append({'rg': rg, 'year': yr, 'age': int(age), 'sx': sx,
-                         'it': mm.group(1), 'pres': pres, 'form': form,
-                         'g': g if g in VALID else None})
+                         'it': mm.group(1), 'pres': pres, 'form': form, 'g': g})
         wb.close()
     QC['files'] = len(files)
     # 원자료 서식이 제각각이라 열 위치를 헤더로 찾는다. 몇 가지였는지 검수 화면에 알린다.
@@ -147,83 +146,131 @@ def load_records():
     return recs, len(files)
 
 
-def weather_of(rate):
-    """dialect_gisangdo.html weatherOf()와 동일한 임계값."""
-    if rate is None:
+# 사용도/인지도 등급 → 점수. 조사표의 4등급이 그대로 척도가 된다.
+#   ① 사용 100 · ② 이해 75 · ③ 인지 50 · ④ 무지 25
+GRADE_SCORE = {1: 100, 2: 75, 3: 50, 4: 25}
+
+# 상태 경계 = 등급 사이의 중간값. 임의로 정한 값이 아니라 등급 척도에서 나온다.
+#   w1 등급1~1.5 · w2 1.5~2.5 · w3 2.5~3.5 · w4 3.5~4
+SCORE_BANDS = [(87.5, 'w1'), (62.5, 'w2'), (37.5, 'w3')]
+
+
+def region_score(grades):
+    """제보자별 등급 → 지역 점수(0~100). 등급이 없으면 None."""
+    g = [int(x) for x in grades if int(x) in GRADE_SCORE]
+    if not g:
+        return None
+    return round(sum(GRADE_SCORE[x] for x in g) / len(g), 2)
+
+
+def weather_of(score):
+    """점수 → 상태. dialect_gisangdo.html weatherOf() 와 같아야 한다."""
+    if score is None:
         return 'w0'
-    if rate >= 0.6: return 'w1'
-    if rate >= 0.3: return 'w2'
-    if rate >= 0.1: return 'w3'
+    for lo, st in SCORE_BANDS:
+        if score >= lo:
+            return st
     return 'w4'
 
 
 WEATHER_DB = os.path.join(BASE, 'data', 'gisangdo.db')
 
 
-def load_records_from_db(db_path=None):
+def load_records_from_db(db_path=None, year=None):
     """전용 테이블(wb_weather_response) → build_output 이 받는 레코드 형태.
 
     엑셀을 다시 읽지 않고 DB 를 원천으로 삼는 경로. 관리자에서 원자료를 올린 뒤
     정적 JSON 을 다시 뽑을 때(--from-db) 와 프론트 API(server.py) 가 함께 쓴다.
+
+    year: 조사 연차(파일명 2자리, 예 '24'). 주면 그 연차만 읽는다.
+      연차를 섞으면 '제보자 38명' 같은 수치가 서로 다른 조사의 합이 되어 뜻을 잃는다.
+      그래서 연차는 화면 필터가 아니라 원천을 가르는 조건으로 다룬다.
     """
     import sqlite3
     path = db_path or WEATHER_DB
     if not os.path.exists(path):
         raise FileNotFoundError('기상도 DB가 없습니다: %s' % path)
+    yr = re.sub(r'\D', '', str(year or ''))[-2:]        # '2024' · '24' 모두 받는다
     con = sqlite3.connect(path)
     con.row_factory = sqlite3.Row
     try:
+        where = "r.item_base IS NOT NULL AND f.use_yn = 'Y' AND r.use_yn = 'Y'"
+        params = []
+        if yr:
+            where += ' AND f.research_degree = ?'
+            params.append(yr)
         rows = con.execute(
             """SELECT r.response_id rid,
                       f.region_cd rg, f.research_degree yr, f.generation age, f.sex sx,
-                      r.item_base it, r.headword pres, r.dialect_form base, r.grade g
+                      r.item_base it, r.headword pres, r.dialect_form base, r.grade g,
+                      r.upt_dt upt
                FROM wb_weather_response r
                JOIN wb_weather_file f ON f.weather_file_id = r.weather_file_id
-               WHERE r.item_base IS NOT NULL AND f.use_yn = 'Y' AND r.use_yn = 'Y'"""
+               WHERE """ + where, params
         ).fetchall()
-        nfiles = con.execute(
-            "SELECT COUNT(*) FROM wb_weather_file WHERE use_yn='Y'").fetchone()[0]
+        q = "SELECT COUNT(*) FROM wb_weather_file WHERE use_yn='Y'"
+        if yr:
+            q += ' AND research_degree=?'
+            nfiles = con.execute(q, (yr,)).fetchone()[0]
+        else:
+            nfiles = con.execute(q).fetchone()[0]
     finally:
         con.close()
     recs = []
     for r in rows:
         pres = (r['pres'] or '').strip()
         base = (r['base'] or '').strip()
-        g = (r['g'] or '').strip()
+        g = grade_of(r['g'])
         recs.append({'rg': r['rg'], 'year': r['yr'], 'age': int(r['age']), 'sx': r['sx'],
                      'it': r['it'], 'pres': pres,
                      'form': base if base and base != '*' else pres,
-                     'g': g if g in VALID else None,
+                     'g': g,
                      # 관리자 편집이 '어느 행을 고칠지' 알 수 있게 행 id 를 함께 싣는다.
                      # 제보자 한 명·한 항목에 행이 여러 개라(표준어형 응답 + 지역어형 제시)
                      # 이게 없으면 어느 행을 고쳐야 하는지 알 수 없다.
-                     'rid': r['rid']})
+                     'rid': r['rid'],
+                     # 관리자가 고친 행. 목록의 '관리자가 고침' 검색이 이걸 센다.
+                     'upt': r['upt'] if 'upt' in r.keys() else None})
     return recs, nfiles
 
 
-def fill_db_qc(out, db_path=None):
-    """QC 는 엑셀을 읽을 때만 채워지는 값이라, DB 원천일 때 다시 채운다."""
+def fill_db_qc(out, db_path=None, year=None):
+    """QC 는 엑셀을 읽을 때만 채워지는 값이라, DB 원천일 때 다시 채운다.
+       year 를 주면 그 연차 기준으로 센다. 화면의 연차 선택지도 함께 실어 준다."""
     import sqlite3
     path = db_path or WEATHER_DB
+    yr = re.sub(r'\D', '', str(year or ''))[-2:]
     out['meta']['source'] = 'wb_weather_response (전용 테이블)'
     out['meta']['origin'] = 'db'
+    out['meta']['year'] = yr or ''
     if not os.path.exists(path):
         return out
     con = sqlite3.connect(path)
     try:
+        fw = "use_yn='Y'" + (' AND research_degree=?' if yr else '')
+        fp = (yr,) if yr else ()
+        rw = ("WHERE weather_file_id IN (SELECT weather_file_id FROM wb_weather_file WHERE %s)" % fw) if yr else ''
         qc = out['meta']['qc']
-        qc['files'] = con.execute(
-            "SELECT COUNT(*) FROM wb_weather_file WHERE use_yn='Y'").fetchone()[0]
-        qc['rowsTotal'] = con.execute('SELECT COUNT(*) FROM wb_weather_response').fetchone()[0]
+        qc['files'] = con.execute('SELECT COUNT(*) FROM wb_weather_file WHERE ' + fw, fp).fetchone()[0]
+        qc['rowsTotal'] = con.execute(
+            'SELECT COUNT(*) FROM wb_weather_response ' + rw, fp).fetchone()[0]
         qc['gradeFilled'] = con.execute(
-            "SELECT COUNT(*) FROM wb_weather_response WHERE grade_valid_yn='Y'").fetchone()[0]
+            "SELECT COUNT(*) FROM wb_weather_response " + (rw + " AND " if rw else "WHERE ")
+            + "grade_valid_yn='Y'", fp).fetchone()[0]
         qc['gradeBad'] = con.execute(
-            """SELECT COUNT(*) FROM wb_weather_response
-               WHERE grade IS NOT NULL AND grade<>'*' AND grade_valid_yn='N'""").fetchone()[0]
+            "SELECT COUNT(*) FROM wb_weather_response " + (rw + " AND " if rw else "WHERE ")
+            + "grade IS NOT NULL AND grade<>'*' AND grade_valid_yn='N'", fp).fetchone()[0]
         qc['layouts'] = con.execute(
-            'SELECT COUNT(DISTINCT src_layout) FROM wb_weather_file').fetchone()[0]
+            'SELECT COUNT(DISTINCT src_layout) FROM wb_weather_file WHERE ' + fw, fp).fetchone()[0]
         qc['calcDt'] = con.execute('SELECT MAX(reg_dt) FROM wb_weather_file').fetchone()[0]
         qc.pop('layoutOdd', None)
+        # 화면 셀렉트를 하드코딩하지 않도록 실제 있는 연차를 알려 준다
+        out['meta']['years'] = [
+            {'degree': r[0], 'year': r[1], 'files': r[2]}
+            for r in con.execute(
+                """SELECT research_degree, MAX(research_year), COUNT(*)
+                   FROM wb_weather_file WHERE use_yn='Y'
+                   GROUP BY research_degree ORDER BY research_degree""")]
     finally:
         con.close()
     return out
@@ -234,7 +281,6 @@ def build_output(recs, nfiles):
 
     원자료 엑셀(load_records)에서도, DB(wb_weather_response)에서도 같은 함수를 쓴다.
     구조와 판정이 두 곳으로 갈라지면 화면이 달라지므로 조립은 반드시 여기 한 곳에서만 한다."""
-    allow = load_allowlist()
     print('제보자 파일 %d개 / 레코드 %d건' % (nfiles, len(recs)))
 
     # 9개 지역 전부에서 등급이 관측된 항목만 서비스 대상으로 삼는다 (=101개)
@@ -255,11 +301,6 @@ def build_output(recs, nfiles):
         if r['it'] in set(core):
             by_item[r['it']].append(r)
 
-    allow_review = 0
-    if os.path.exists(ALLOW):
-        _d = json.load(io.open(ALLOW, encoding='utf-8'))
-        allow_review = sum(1 for v in _d['items'].values() for a in v['allow'] if a.get('review'))
-
     # 제보자 명부 — 한 세대·성별에 여러 명이 올 수 있으므로 (연차,세대,성별)로 식별한다.
     # 식별자는 원자료 파일명 어간과 같다: GG2420F = 경기·24년차·20대·여
     _seen = collections.defaultdict(set)
@@ -271,9 +312,12 @@ def build_output(recs, nfiles):
 
     items, tally = [], collections.Counter()
     def is_dialect(it, form):
-        """그 어형을 지역어형으로 볼지. 표제어 일치와 허용형은 표준어로 처리한다."""
+        """그 어형을 지역어형으로 볼지 — 엑셀의 표제어와 다르면 지역어형이다.
+
+        판정 근거를 원자료 안에서만 찾는다. 엑셀 밖의 판정 목록은 쓰지 않는다.
+        """
         f = norm(form)
-        return bool(f) and f not in head_forms(headword[it]) and (it, f) not in allow
+        return bool(f) and f not in head_forms(headword[it])
 
     for it in core:
         H = norm(headword[it])
@@ -320,10 +364,9 @@ def build_output(recs, nfiles):
             dial_rows = [r for r in rows if is_dialect(it, r['form'])]
             n = len(best)
             if n:
-                use = sum(1 for v in best.values() if v == 1)
-                rate = round(use / n, 4)
-                state = weather_of(rate)
-                cell = {'state': state, 'n': n, 'useRate': rate,
+                score = region_score(best.values())
+                state = weather_of(score)
+                cell = {'state': state, 'n': n, 'score': score,
                         'dist': {str(k): sum(1 for v in best.values() if v == k) for k in (1, 2, 3, 4)},
                         'forms': [{'form': f, 'n': c} for f, c in forms.most_common()],
                         'cases': [{'id': '%s%s%02d%s' % (rg, y, a, s), 'age': a, 'sex': s,
@@ -345,7 +388,7 @@ def build_output(recs, nfiles):
             elif rows and not dial_rows:
                 # 조사됐고 응답이 전부 표준어형 → 표준어권(확정)
                 state = 'std'
-                cell = {'state': state, 'n': 0, 'useRate': 0.0,
+                cell = {'state': state, 'n': 0, 'score': None,
                         'respondents': len(informants),
                         'note': '조사된 %d명 모두 표준어형만 응답' % len(informants)}
             else:
@@ -353,6 +396,12 @@ def build_output(recs, nfiles):
                 cell = {'state': state, 'n': 0,
                         'note': ('지역어형은 나왔으나 사용도/인지도 미기입'
                                  if dial_rows else '해당 항목 응답 없음')}
+            # 관리 목록이 '어디에 얼마나 쌓였나'를 보여주려면 원자료 행수가 필요하다.
+            # 세는 곳이 갈라지면 화면끼리 숫자가 달라지므로 여기서만 센다.
+            cell['rows'] = len(rows)                                   # 그 지역의 응답 행
+            cell['graded'] = sum(1 for r in rows if r['g'])            # 그중 등급이 적힌 행
+            cell['people'] = len(informants)                           # 조사된 제보자
+            cell['edited'] = sum(1 for r in rows if r.get('upt'))      # 관리자가 고친 행
             cell['panel'] = panel
             entry['regions'][rg] = cell
             tally[state] += 1
@@ -366,15 +415,15 @@ def build_output(recs, nfiles):
             'source': 'data/dialect_gisangdo/*.xlsx (2024년 차 어휘 조사 원자료)',
             'informants': nfiles,
             'items': len(items),
-            'scale': '1 사용 · 2 이해 · 3 인지 · 4 무지 (어형 단위 부여)',
-            'metric': '지역어형 사용률 = 그 지역 제보자 중 지역어형에 등급 1을 준 비율',
-            'thresholds': 'w1 ≥0.6 · w2 ≥0.3 · w3 ≥0.1 · w4 <0.1 (dialect_gisangdo.html weatherOf와 동일)',
+            'scale': '① 사용 100 · ② 이해 75 · ③ 인지 50 · ④ 무지 25 (어형 단위 부여)',
+            'metric': '지역 점수 = 그 지역 제보자가 지역어형에 준 등급의 점수 평균 (0~100)',
+            'thresholds': ('w1 ≥87.5 · w2 ≥62.5 · w3 ≥37.5 · w4 <37.5 '
+                           '— 경계는 등급 사이의 중간값이며 별도로 정한 임계값이 아니다'),
             'qc': dict(QC, coreItems=len(core),
                        cells=len(REGION_ORDER) * len(core),
-                       states=dict(tally),
-                       allowForms=len(allow),
-                       allowReview=allow_review),
-            'caveat': ('셀당 제보자 2~6명. 지역×세대 셀은 1~2명이므로 비율이 아닌 사례(cases)로만 제공. '
+                       states=dict(tally)),
+            'caveat': ('셀당 제보자 1~6명. 제보자가 1~2명인 칸이 전체의 약 1/4이므로 점수를 '
+                       '단독으로 읽지 말고 n을 함께 볼 것. 지역×세대 셀은 1~2명이라 사례(cases)로만 제공. '
                        '등급 기입률이 조사자별 63~100%로 달라 지역 간 절대 비교는 피할 것. '
                        '서울은 조사 지역에 포함되지 않음.'),
         },
@@ -403,14 +452,16 @@ def main(argv=None):
     ap.add_argument('--from-db', action='store_true',
                     help='엑셀 대신 전용 테이블(wb_weather_response)에서 읽는다')
     ap.add_argument('--db', default=None, help='기상도 DB 경로 (기본 data/gisangdo.db)')
+    ap.add_argument('--year', default=None, help="조사 연차만 추림 (예: 24 또는 2024)")
     ap.add_argument('--out', default=OUT, help='산출 JSON 경로')
     a = ap.parse_args(argv)
 
     if a.from_db:
-        recs, nfiles = load_records_from_db(a.db)
-        print('DB 원천 — 제보자 %d명 / 레코드 %d건' % (nfiles, len(recs)))
+        recs, nfiles = load_records_from_db(a.db, a.year)
+        print('DB 원천%s — 제보자 %d명 / 레코드 %d건'
+              % ((' (연차 %s)' % a.year) if a.year else '', nfiles, len(recs)))
         out = build_output(recs, nfiles)
-        fill_db_qc(out, a.db)
+        fill_db_qc(out, a.db, a.year)
     else:
         recs, nfiles = load_records()
         out = build_output(recs, nfiles)
