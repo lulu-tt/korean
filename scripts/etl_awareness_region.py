@@ -136,7 +136,10 @@ def load_records():
             if g:
                 QC['gradeFilled'] += 1
             recs.append({'rg': rg, 'year': yr, 'age': int(age), 'sx': sx,
-                         'it': mm.group(1), 'pres': pres, 'form': form, 'g': g})
+                         'it': mm.group(1), 'pres': pres, 'form': form, 'g': g,
+                         # 화면이 '그 지역에서 조사된 표준어형·방언형' 을 그대로 보여줄 수 있게
+                         # 두 칸을 원문대로 싣는다. form 은 둘을 합친 파생값이라 대신 못 쓴다.
+                         'base': base})
         wb.close()
     QC['files'] = len(files)
     # 원자료 서식이 제각각이라 열 위치를 헤더로 찾는다. 몇 가지였는지 검수 화면에 알린다.
@@ -222,7 +225,7 @@ def load_records_from_db(db_path=None, year=None):
         base = (r['base'] or '').strip()
         g = grade_of(r['g'])
         recs.append({'rg': r['rg'], 'year': r['yr'], 'age': int(r['age']), 'sx': r['sx'],
-                     'it': r['it'], 'pres': pres,
+                     'it': r['it'], 'pres': pres, 'base': base,
                      'form': base if base and base != '*' else pres,
                      'g': g,
                      # 관리자 편집이 '어느 행을 고칠지' 알 수 있게 행 id 를 함께 싣는다.
@@ -361,6 +364,16 @@ def build_output(recs, nfiles):
                     base.update({'st': 'x', 'form': d[0]['form'] if d else None})
                 panel.append(base)
 
+            # 그 지역에서 실제로 적힌 표준어형·방언형(기저형). 등급 유무와 무관하게 원문 그대로.
+            heads, bases = collections.Counter(), collections.Counter()
+            for r in rows:
+                pv = (r.get('pres') or '').strip()
+                bv = (r.get('base') or '').strip()
+                if pv and pv != '*':
+                    heads[pv] += 1
+                if bv and bv != '*':
+                    bases[bv] += 1
+
             dial_rows = [r for r in rows if is_dialect(it, r['form'])]
             n = len(best)
             if n:
@@ -409,6 +422,11 @@ def build_output(recs, nfiles):
                                  if dial_rows else '해당 항목 응답 없음')}
             # 관리 목록이 '어디에 얼마나 쌓였나'를 보여주려면 원자료 행수가 필요하다.
             # 세는 곳이 갈라지면 화면끼리 숫자가 달라지므로 여기서만 센다.
+            # 집계가 아니라 '그 지역에서 조사된 것' 을 원문대로 모은 목록.
+            # forms 는 제보자별 최선 등급 어형만 담아 조사된 전부를 보여주지 못한다.
+            # 지역어형이 안 나온 칸(std)에도 표준어형은 적혀 있으므로 모든 칸에 붙인다.
+            cell['heads'] = [{'form': f, 'n': c} for f, c in heads.most_common()]
+            cell['bases'] = [{'form': f, 'n': c} for f, c in bases.most_common()]
             cell['rows'] = len(rows)                                   # 그 지역의 응답 행
             cell['graded'] = sum(1 for r in rows if r['g'])            # 그중 등급이 적힌 행
             cell['people'] = len(informants)                           # 조사된 제보자

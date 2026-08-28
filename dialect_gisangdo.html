@@ -249,11 +249,16 @@ body{ background:#ffffff; }
 #jiyeoeo-gisangdo-root .gs-rl:last-child{ border-bottom:0; }
 #jiyeoeo-gisangdo-root .gs-rl b{ grid-column:1; grid-row:1; font-size:15px; font-weight:800; color:#0f172a; letter-spacing:-.01em; align-self:center; }
 #jiyeoeo-gisangdo-root .gs-rl b em{ font-style:normal; font-weight:600; font-size:12px; color:#475569; margin-left:5px; }
-#jiyeoeo-gisangdo-root .gs-rl__cells{ grid-column:2; grid-row:1/3; display:inline-flex; gap:2px; align-self:center; }
-#jiyeoeo-gisangdo-root .gs-rl__c{ width:30px; height:30px; display:grid; place-items:center; font-size:21px; font-style:normal; line-height:1; }
-#jiyeoeo-gisangdo-root .gs-rl__c.is-solo{ width:42px; height:42px; font-size:30px; }
-#jiyeoeo-gisangdo-root .gs-rl__f{ grid-column:1; grid-row:2; margin-top:3px; font-size:13px; color:#475569; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-#jiyeoeo-gisangdo-root .gs-rl__f u{ text-decoration:none; color:#64748b; }
+#jiyeoeo-gisangdo-root .gs-rl__row{ grid-column:1/3; display:grid; grid-template-columns:56px 1fr;
+  column-gap:8px; align-items:start; margin-top:4px; }
+#jiyeoeo-gisangdo-root .gs-rl__k{ font-size:11.5px; color:#94a3b8; font-weight:700; padding-top:3px; }
+#jiyeoeo-gisangdo-root .gs-rl__v{ display:flex; flex-wrap:wrap; gap:4px; }
+#jiyeoeo-gisangdo-root .gs-rl__v u{ text-decoration:none; color:#cbd5e1; font-size:12.5px; padding-top:2px; }
+#jiyeoeo-gisangdo-root .gs-rl__w{ font-style:normal; font-size:12.5px; font-weight:600; border-radius:6px;
+  padding:2px 7px; line-height:1.5; }
+#jiyeoeo-gisangdo-root .gs-rl__w.is-head{ background:#f1f5f9; color:#475569; }
+#jiyeoeo-gisangdo-root .gs-rl__w.is-base{ background:#eff6ff; color:#1d4ed8; }
+#jiyeoeo-gisangdo-root .gs-rl__w u{ text-decoration:none; font-size:10.5px; opacity:.65; margin-left:3px; }
 #jiyeoeo-gisangdo-root .gs-rl__none{ font-size:12px; color:#94a3b8; padding:14px 2px; }
 /* 지도 날씨 이모지 마커 — 버블(링) 없이 아이콘만 */
 #jiyeoeo-gisangdo-root .gs-olmarker{ transform:translate(-50%,-50%); pointer-events:none; user-select:none; }
@@ -606,6 +611,7 @@ body{ background:#ffffff; }
           return { state: rc.state||'w0', n: rc.n||0,
                    score: (rc.score!=null && rc.n) ? rc.score : null,
                    forms: rc.forms||[], cases: rc.cases||[], note: rc.note||'',
+                   heads: rc.heads||[], bases: rc.bases||[],  // 그 지역에서 조사된 말 (원문 그대로)
                    items: rc.items, answers: rc.answers };   // 통합 보기에서만 있다
         }
         // 성별을 고르면 (세대×성별) 칸, 아니면 세대 칸
@@ -799,7 +805,7 @@ body{ background:#ffffff; }
 
           <div class="gs-card gs-rlist">
             <div class="gs-rlist__head">
-              <span class="gs-sectitle">지역별 세대 기상도</span><em id="gsRegionHead">70 · 50 · 20대</em>
+              <span class="gs-sectitle">지역별 조사된 말</span><em id="gsRegionHead">표준어형 · 방언형(기저형)</em>
             </div>
             <div id="gsRegionList"></div>
           </div>
@@ -809,29 +815,23 @@ body{ background:#ffffff; }
     }
 
     /* 지도 옆 지역별 세대 기상도 — 한 지역이 한 줄. 세대 세 칸 + 그 지역에서 조사된 말 */
+    /* 지역별로 '실제 조사된 말'을 그대로 보여준다.
+       세대 아이콘 세 칸은 지도와 같은 것을 두 번 말하고 있어 걷어냈다. */
     function regionListHTML(w){
       if(!hasAware(w)) return '<div class="gs-rl__none">실측 자료를 불러오지 못했습니다.</div>';
+      if(isAll(w)) return '<div class="gs-rl__none">단어를 하나 고르면 그 지역에서 조사된 말이 나옵니다.</div>';
       return REGION_ORDER.map(code=>{
         const head = cellOf(w, 0, code);
-        const gens = currentGen ? [currentGen] : [70,50,20];
-        const cells = gens.map(g=>{
-          const c = cellOf(w, g, code);
-          const none = !hasInformant(code, g, currentSex);
-          const st = none ? 'w0' : c.state;
-          const sxNm = currentSex ? (currentSex==='M'?' 남':' 여') : '';
-          const tip = none ? `${REGION_NAMES[code]}에서는 ${g}대${sxNm}를 조사하지 않았습니다`
-                           : `${REGION_NAMES[code]} ${g}대${sxNm} · ${WEATHERS[st].label}` + (casesText(c)?` · ${casesText(c)}`:'');
-          return `<i class="gs-rl__c${currentGen?' is-solo':''}" title="${esc(tip)}"
-                     style="color:${HEXVAR[st]}"
-                  >${ none ? '·' : (isPlain(st) ? '–' : EMOJI[st]) }</i>`;
-        }).join('');
-        const forms=(head.forms||[]).map(f=>f.form);
+        const chips = (list, cls) => (list||[]).map(f=>
+          `<i class="gs-rl__w ${cls}" title="${esc(f.form)} — ${f.n}회">${esc(f.form)}${
+            f.n>1?`<u>${f.n}</u>`:''}</i>`).join('');
+        const heads = head.heads||[], bases = head.bases||[];
         return `<div class="gs-rl">
           <b>${esc(REGION_NAMES[code])}<em>${esc(SITE_NAMES[code]||'')}</em></b>
-          <span class="gs-rl__cells">${cells}</span>
-          <span class="gs-rl__f">${ isAll(w)
-            ? `<u>지역어형이 나온 항목 ${head.items||0}개 · 응답 ${head.answers||0}건</u>`
-            : (forms.length?esc(forms.slice(0,3).join(', ')):'<u>지역어형 없음</u>') }</span>
+          <span class="gs-rl__row"><span class="gs-rl__k">표준어형</span>
+            <span class="gs-rl__v">${heads.length?chips(heads,'is-head'):'<u>—</u>'}</span></span>
+          <span class="gs-rl__row"><span class="gs-rl__k">방언형</span>
+            <span class="gs-rl__v">${bases.length?chips(bases,'is-base'):'<u>조사된 방언형 없음</u>'}</span></span>
         </div>`;
       }).join('');
     }
@@ -839,9 +839,7 @@ body{ background:#ffffff; }
       const el=document.getElementById('gsRegionList');
       if(el) el.innerHTML=regionListHTML(w);
       const hd=document.getElementById('gsRegionHead');
-      if(hd) hd.textContent = currentGen
-        ? (currentGen+'대'+(currentSex?(currentSex==='M'?' 남':' 여'):'')+'만 보기')
-        : '70 · 50 · 20대';
+      if(hd) hd.textContent = '표준어형 · 방언형(기저형)';
     }
 
 
