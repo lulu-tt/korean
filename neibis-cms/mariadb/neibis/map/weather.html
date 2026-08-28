@@ -686,7 +686,6 @@
 							<div class="card">
 							<div class="list-control">
 								<div class="left">
-									<a href="javascript:void(0)" class="btn btn-icon btn-settings-xs" id="ptCog"><i class="ico ico-cog-darkgray-sm"></i><span class="sr-only">설정</span></a>
 									<p class="total" id="ptCount">총 <strong class="text-primary">0</strong>건</p>
 									<span class="pt-legend" id="ptLegend"></span>
 								</div>
@@ -787,7 +786,6 @@
 							<div class="card">
 								<div class="list-control">
 									<div class="left">
-										<a href="javascript:void(0)" class="btn btn-icon btn-settings-xs" id="prCog"><i class="ico ico-cog-darkgray-sm"></i><span class="sr-only">설정</span></a>
 										<p class="total" id="prCount">총 <strong class="text-primary">0</strong>건</p>
 										<span class="pt-legend">
 											<span><em class="lg-sub">한 줄 = 엑셀 한 행</em></span>
@@ -1629,9 +1627,6 @@ const getMngrFail = function (xhr, status, error) {
       PAGE=+a.dataset.p; render(); window.scrollTo(0,0);
     });
     $('ptApply').addEventListener('click', function(){ SIZE=+$('ptSize').value; PAGE=1; render(); });
-    $('ptCog').addEventListener('click', function(){
-      if(window.Message) Message.alert({icon:'info', message:'프로토타입입니다 — 목록 설정은 아직 붙이지 않았습니다.'});
-    });
     $('ptQ').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); doSearch(); } });
     $('ptReset').addEventListener('click', function(){
       $('ptQ').value=''; $('ptYear').value='';
@@ -2041,8 +2036,6 @@ const getMngrFail = function (xhr, status, error) {
       var a=e.target.closest('[data-p]'); if(!a) return;
       PAGE=+a.dataset.p; renderResp(); window.scrollTo(0,0);
     });
-    $('prCog').addEventListener('click', function(){
-      if(window.Message) Message.alert({icon:'info', message:'프로토타입입니다 — 목록 설정은 아직 붙이지 않았습니다.'}); });
     $('prExcel').addEventListener('click', function(){
       if(window.Message) Message.alert({icon:'info', message:'프로토타입입니다 — 엑셀 내려받기는 아직 붙이지 않았습니다.'}); });
     /* '전체'와 개별 항목이 서로를 끄는 규약 — 표준 검색영역과 같다 */
