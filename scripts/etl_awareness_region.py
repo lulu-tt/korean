@@ -372,19 +372,30 @@ def build_output(recs, nfiles):
                         'cases': [{'id': '%s%s%02d%s' % (rg, y, a, s), 'age': a, 'sex': s,
                                    'grade': best[(y, a, s)], 'form': bestform[(y, a, s)]}
                                   for (y, a, s) in sorted(best)]}
-                cell['gens'] = {}
-                for g in (20, 50, 70):
-                    mine = {k: v for k, v in best.items() if k[1] == g}
-                    if mine:
-                        cell['gens'][str(g)] = {'state': 'w%d' % min(mine.values()),
-                                                'n': len(mine),
-                                                'cases': [{'sex': s, 'grade': mine[(y, a, s)]}
-                                                          for (y, a, s) in sorted(mine)]}
-                    else:
-                        gen_rows = [r for r in rows if r['age'] == g]
-                        cell['gens'][str(g)] = {
-                            'state': 'std' if gen_rows and not [r for r in gen_rows if is_dialect(it, r['form'])] else 'w0',
+                # 세대 칸, 그리고 세대×성별 칸.
+                # 담당자가 '70대 남 / 70대 여' 를 나눠 보길 원해서 성별 축을 함께 낸다.
+                # 판정 규칙은 둘이 같아야 한다 — 여기 한 곳에서만 만든다.
+                def gen_cell(sel_rows, sel_best):
+                    if sel_best:
+                        return {'state': 'w%d' % min(sel_best.values()),
+                                'n': len(sel_best),
+                                'cases': [{'sex': sx, 'grade': sel_best[(y, a, sx)]}
+                                          for (y, a, sx) in sorted(sel_best)]}
+                    # 등급 있는 지역어형이 없다 → 조사는 됐는데 표준어형만이면 std, 아니면 관측 없음
+                    return {'state': 'std' if sel_rows and not [r for r in sel_rows
+                                                               if is_dialect(it, r['form'])] else 'w0',
                             'n': 0}
+
+                cell['gens'] = {}
+                cell['gensex'] = {}
+                for g in (20, 50, 70):
+                    cell['gens'][str(g)] = gen_cell(
+                        [r for r in rows if r['age'] == g],
+                        {k: v for k, v in best.items() if k[1] == g})
+                    for sx in ('M', 'F'):
+                        cell['gensex']['%d%s' % (g, sx)] = gen_cell(
+                            [r for r in rows if r['age'] == g and r['sx'] == sx],
+                            {k: v for k, v in best.items() if k[1] == g and k[2] == sx})
             elif rows and not dial_rows:
                 # 조사됐고 응답이 전부 표준어형 → 표준어권(확정)
                 state = 'std'

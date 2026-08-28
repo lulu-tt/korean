@@ -218,6 +218,17 @@ body{ background:#ffffff; }
 #jiyeoeo-gisangdo-root .gs-intro__how{ margin-top:12px; padding-top:12px; border-top:1px dashed #dbeafe; font-size:13px; color:#64748b; }
 #jiyeoeo-gisangdo-root .gs-note{ font-size:11px; color:var(--gs-muted); line-height:1.5; }
 
+/* 성별로 나눠 보기 토글 — 세대 목록 아래 */
+#jiyeoeo-gisangdo-root .gs-sexsplit{ display:grid; grid-template-columns:16px 1fr; column-gap:8px;
+  align-items:center; margin-top:9px; padding-top:9px; border-top:1px solid #f1f5f9; cursor:pointer; }
+#jiyeoeo-gisangdo-root .gs-sexsplit input{ width:15px; height:15px; margin:0; }
+#jiyeoeo-gisangdo-root .gs-sexsplit span{ font-size:12.5px; font-weight:700; color:#334155; }
+#jiyeoeo-gisangdo-root .gs-sexsplit em{ grid-column:2; font-style:normal; font-size:11px; color:#94a3b8;
+  line-height:1.5; margin-top:1px; }
+#jiyeoeo-gisangdo-root .gr-sex{ font-style:normal; font-size:11px; font-weight:700; color:#64748b;
+  background:#f1f5f9; border-radius:9px; padding:1px 6px; margin-left:5px; }
+#jiyeoeo-gisangdo-root .gs-genrow.is-active .gr-sex{ background:#e0e7ff; color:#3730a3; }
+
 /* 세대별로 보기 — 제목 줄 오른쪽에 재생/정지 아이콘 버튼 */
 #jiyeoeo-gisangdo-root .gs-genhead{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
 #jiyeoeo-gisangdo-root .gs-sectitle{ font-size:16px; font-weight:800; color:#0f172a; letter-spacing:-.02em; }
@@ -483,7 +494,10 @@ body{ background:#ffffff; }
     const REGION_ORDER = ['GG','GW','CB','CN','JB','JN','GB','GN','JJ'];
     // 실제 조사 지점 · 제보자 구성 — awareness_by_region.json에서 채운다
     let SITE_NAMES = {}, ROSTER = {};
-    const hasInformant = (code,g) => (ROSTER[code]||[]).some(x=>x.age===g);
+    // 명부에 그 조건의 제보자가 있나. 성별을 주면 (세대,성별)까지 본다 —
+    // '조사 안 함(·)' 과 '조사했는데 지역어형 없음(–)' 을 가르는 기준이다.
+    const hasInformant = (code,g,sex) => (ROSTER[code]||[])
+      .some(x=>x.age===g && (!sex || x.sex===sex));
     const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
 
 
@@ -583,7 +597,10 @@ body{ background:#ffffff; }
                    score: (rc.score!=null && rc.n) ? rc.score : null,
                    forms: rc.forms||[], cases: rc.cases||[], note: rc.note||'' };
         }
-        const g = (rc.gens||{})[String(gen)];
+        // 성별을 고르면 (세대×성별) 칸, 아니면 세대 칸
+        const g = currentSex
+          ? (rc.gensex||{})[String(gen)+currentSex]
+          : (rc.gens||{})[String(gen)];
         if(g) return { state:g.state, n:g.n||0, score:null, forms:rc.forms||[], cases:g.cases||[], note:rc.note||'' };
         return { state: rc.state==='std' ? 'std' : 'w0', n:0, score:null, forms:[], cases:[], note:rc.note||'' };
       }
@@ -604,12 +621,14 @@ body{ background:#ffffff; }
     const SEXKO = {M:'남', F:'여'};
     /* 이 단어가 지역에서 실제로 불리는 말들 — 많이 나온 순 */
     /* 그 세대 제보자 중 지역어형을 '지금도 쓴다(1)'고 답한 사람 수 — 실측 */
-    function genTally(w, g){
+    function genTally(w, g, sex){
       const it=AWARE_BY_WORD[w.standard];
       if(!it) return {n:0, used:0, best:0};
+      const sx = (sex===undefined) ? currentSex : sex;
       let n=0, used=0, best=4;
       REGION_ORDER.forEach(rg=>{
-        const gg=((it.regions[rg]||{}).gens||{})[String(g)];
+        const rc=it.regions[rg]||{};
+        const gg = sx ? (rc.gensex||{})[String(g)+sx] : (rc.gens||{})[String(g)];
         if(!gg || !gg.cases) return;
         gg.cases.forEach(c=>{ n++; if(c.grade===1) used++; best=Math.min(best,c.grade); });
       });
@@ -722,22 +741,20 @@ body{ background:#ffffff; }
             </div>
             <div class="gs-genrows" id="gsGenSwitch">
               ${ hasAware(w) ? `
-                <button type="button" class="gs-genrow ${currentGen===0?'is-active':''}" data-gen="0"
+                <button type="button" class="gs-genrow ${currentGen===0?'is-active':''}" data-gen="0" data-sex=""
                         title="지역 평균 점수 — 사용100·이해75·인지50·무지25">
                   <span class="gr-emoji">🗺️</span>
                   <span class="gr-gen">전체</span>
                   <span class="gr-bar"><span style="width:100%;background:#e2e8f0"></span></span>
                   <span class="gr-rate" style="color:#64748b">지역 단위</span>
                 </button>` : '' }
-              ${[70,50,20].map(g=>{ const t=genTally(w,g); const wk=t.n?weatherOf(t.used/t.n).key:'w0'; return `
-                <button type="button" class="gs-genrow ${g===currentGen?'is-active':''}" data-gen="${g}"
-                        title="${t.n?`${t.n}명 중 ${t.used}명이 지금도 쓴다고 답함`:'이 세대에서는 지역어형이 조사되지 않았습니다'}">
-                  <span class="gr-emoji">${t.n?EMOJI[wk]:''}</span>
-                  <span class="gr-gen">${g}대</span>
-                  <span class="gr-bar"><span style="width:${t.n?Math.round(t.used/t.n*100):0}%;background:${CSSVAR[wk]}"></span></span>
-                  <span class="gr-rate" style="color:${t.n?CSSVAR[wk]:'#94a3b8'};font-size:12px">${t.n?`${t.used}/${t.n}명`:'—'}</span>
-                </button>`; }).join('')}
+              ${genRowsHTML(w)}
             </div>
+            <label class="gs-sexsplit">
+              <input type="checkbox" id="gsSexSplit" ${splitSex?'checked':''} />
+              <span>성별로 나눠 보기</span>
+              <em>세대별 제보자가 지역당 1~2명이라, 성별로 나누면 칸마다 1명입니다</em>
+            </label>
           </div>
 
           <div class="gs-card gs-rlist">
@@ -759,10 +776,11 @@ body{ background:#ffffff; }
         const gens = currentGen ? [currentGen] : [70,50,20];
         const cells = gens.map(g=>{
           const c = cellOf(w, g, code);
-          const none = !hasInformant(code, g);
+          const none = !hasInformant(code, g, currentSex);
           const st = none ? 'w0' : c.state;
-          const tip = none ? `${REGION_NAMES[code]}에서는 ${g}대를 조사하지 않았습니다`
-                           : `${REGION_NAMES[code]} ${g}대 · ${WEATHERS[st].label}` + (casesText(c)?` · ${casesText(c)}`:'');
+          const sxNm = currentSex ? (currentSex==='M'?' 남':' 여') : '';
+          const tip = none ? `${REGION_NAMES[code]}에서는 ${g}대${sxNm}를 조사하지 않았습니다`
+                           : `${REGION_NAMES[code]} ${g}대${sxNm} · ${WEATHERS[st].label}` + (casesText(c)?` · ${casesText(c)}`:'');
           return `<i class="gs-rl__c${currentGen?' is-solo':''}" title="${esc(tip)}"
                      style="color:${HEXVAR[st]}"
                   >${ none ? '·' : (isPlain(st) ? '–' : EMOJI[st]) }</i>`;
@@ -779,7 +797,9 @@ body{ background:#ffffff; }
       const el=document.getElementById('gsRegionList');
       if(el) el.innerHTML=regionListHTML(w);
       const hd=document.getElementById('gsRegionHead');
-      if(hd) hd.textContent = currentGen ? (currentGen+'대만 보기') : '70 · 50 · 20대';
+      if(hd) hd.textContent = currentGen
+        ? (currentGen+'대'+(currentSex?(currentSex==='M'?' 남':' 여'):'')+'만 보기')
+        : '70 · 50 · 20대';
     }
 
 
@@ -790,6 +810,10 @@ body{ background:#ffffff; }
     // 첫 화면 기본 단어 — 초성 필터 기본값(ㄱ)에서 맨 앞에 오는 '귀청'
     let currentWordId = (WORDS.find(w=>w.standard==='귀청') || WORDS[0]).itemId;
     let currentGen = 0;   // 0 = 전체(지역 평균 점수) · 20|50|70 = 그 세대 제보자 사례
+    // '' = 남녀 합쳐 봄 · 'M'|'F' = 그 성별만. 세대를 고른 상태에서만 뜻이 있다.
+    // 2024 자료는 (지역,세대,성별)당 1명이라 성별을 고르면 칸마다 0명 아니면 1명이다.
+    let currentSex = '';
+    let splitSex = false;   // 세대 목록을 남·여로 쪼개 보여줄지
 
     function renderHome(){
       const view = document.getElementById('gs-view');
@@ -996,25 +1020,35 @@ body{ background:#ffffff; }
 
       // 세대 스위치
       const sw=document.getElementById('gsGenSwitch');
-      if(sw) sw.querySelectorAll('button').forEach(b=>{
-        b.classList.toggle('is-active', +b.dataset.gen===currentGen);
+      bindGenRows = (box)=> box.querySelectorAll('button').forEach(b=>{
         b.addEventListener('click',()=>{
           currentGen=+b.dataset.gen;
-          sw.querySelectorAll('button').forEach(x=>x.classList.toggle('is-active',x===b));
-          paintMap(adapter,w,currentGen); hidePopover();
+          currentSex=b.dataset.sex||'';
+          box.querySelectorAll('button').forEach(x=>x.classList.toggle('is-active',x===b));
+          paintMap(adapter,w,currentGen); hidePopover(); syncRegionList(w);
         });
+      });
+      if(sw) bindGenRows(sw);
+      // 성별로 나눠 보기 — 목록을 3줄/6줄로 바꾸고, 끄면 성별 선택도 푼다
+      const sxToggle=document.getElementById('gsSexSplit');
+      if(sxToggle) sxToggle.addEventListener('change',function(){
+        splitSex=this.checked;
+        if(!splitSex) currentSex='';
+        else if(currentGen===0) currentGen=70;      // 전체 보기에는 성별 축이 없다
+        if(splitSex && !currentSex) currentSex='M';
+        syncGenRows(w); paintMap(adapter,w,currentGen); hidePopover(); syncRegionList(w);
       });
       // 전선 남하 재생 (70→50→20) — prefers-reduced-motion 존중
       const play=document.getElementById('gsPlay');
       const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if(play) play.addEventListener('click',()=>{
         if(playTimer){ stopPlay(); return; }
-        if(reduce){ currentGen=20; syncGenSwitch(); paintMap(adapter,w,20); return; }
+        if(reduce){ currentGen=20; syncGenSwitch(); paintMap(adapter,w,20); syncRegionList(w); return; }
         const seq=[70,50,20]; let i=0;
         play.innerHTML='<i class="ti ti-player-stop" aria-hidden="true"></i>';
         play.classList.add('is-playing');
         play.title='정지'; play.setAttribute('aria-label','정지');
-        const step=()=>{ currentGen=seq[i]; syncGenSwitch(); paintMap(adapter,w,currentGen); hidePopover();
+        const step=()=>{ currentGen=seq[i]; syncGenSwitch(); paintMap(adapter,w,currentGen); hidePopover(); syncRegionList(w);
           i=(i+1)%seq.length; playTimer=setTimeout(step, i===0?1700:1100); };
         step();
       });
@@ -1049,7 +1083,7 @@ body{ background:#ffffff; }
 
       // 다운로드 — PNG / 인쇄용
       const dlImage=$('gsDlImage');
-      if(dlImage) dlImage.addEventListener('click',()=>{ closeAllPop(); withMapCanvas(adapter, w, cv=>triggerDownload(cv.toDataURL('image/png'), `지역어기상도_${w.standard}_${currentGen}대.png`)); });
+      if(dlImage) dlImage.addEventListener('click',()=>{ closeAllPop(); withMapCanvas(adapter, w, cv=>triggerDownload(cv.toDataURL('image/png'), `지역어기상도_${w.standard}_${currentGen}대${currentSex==='M'?'남':currentSex==='F'?'여':''}.png`)); });
       const dlPdf=$('gsDlPdf');
       if(dlPdf) dlPdf.addEventListener('click',()=>{ closeAllPop(); withMapCanvas(adapter, w, cv=>{
         const url=cv.toDataURL('image/png'); const win=window.open('','_blank');
@@ -1095,7 +1129,7 @@ body{ background:#ffffff; }
         // 제목 · 출처
         ctx.textAlign='left'; ctx.textBaseline='alphabetic';
         ctx.fillStyle='#0f172a'; ctx.font='bold 18px sans-serif';
-        ctx.fillText(`'${w.standard}' 방언 기상도 · ${currentGen?currentGen+'대':'전 세대'}`, 16, 28);
+        ctx.fillText(`'${w.standard}' 방언 기상도 · ${currentGen?currentGen+'대'+(currentSex?(currentSex==='M'?' 남':' 여'):''):'전 세대'}`, 16, 28);
         ctx.fillStyle='#64748b'; ctx.font='12px sans-serif';
         ctx.fillText('국립국어원 · 지역어 기상도', 16, size[1]-14);
         cb(out);
@@ -1114,9 +1148,34 @@ body{ background:#ffffff; }
       _toast.classList.add('is-show');
       clearTimeout(showToast._t); showToast._t=setTimeout(()=>_toast.classList.remove('is-show'),2400);
     }
+    /* 세대 줄 마크업 — 처음 그릴 때(cardHTML)와 성별 토글 시(syncGenRows)가 같은 것을 쓴다 */
+    function genRowsHTML(w){
+      const rows = [70,50,20].flatMap(g => (splitSex ? [[g,'M'],[g,'F']] : [[g,'']]));
+      return rows.map(([g,sx])=>{
+        const t=genTally(w,g,sx); const wk=t.n?weatherOf(t.used/t.n).key:'w0';
+        const on=(g===currentGen && sx===currentSex);
+        return `<button type="button" class="gs-genrow ${on?'is-active':''}" data-gen="${g}" data-sex="${sx}"
+                  title="${t.n?`${t.n}명 중 ${t.used}명이 지금도 쓴다고 답함`:'이 조건에서는 지역어형이 조사되지 않았습니다'}">
+          <span class="gr-emoji">${t.n?EMOJI[wk]:''}</span>
+          <span class="gr-gen">${g}대${sx?`<em class="gr-sex">${sx==='M'?'남':'여'}</em>`:''}</span>
+          <span class="gr-bar"><span style="width:${t.n?Math.round(t.used/t.n*100):0}%;background:${CSSVAR[wk]}"></span></span>
+          <span class="gr-rate" style="color:${t.n?CSSVAR[wk]:'#94a3b8'};font-size:12px">${t.n?`${t.used}/${t.n}명`:'—'}</span>
+        </button>`;
+      }).join('');
+    }
+    /* 성별 토글 뒤 세대 줄만 다시 그린다. 다시 그리면 이벤트가 날아가니 함께 붙인다. */
+    let bindGenRows = null;
+    function syncGenRows(w){
+      const sw=document.getElementById('gsGenSwitch'); if(!sw) return;
+      const first = sw.querySelector('[data-gen="0"]');
+      if(first) first.classList.toggle('is-active', currentGen===0);   // 활성 표시가 남지 않게
+      sw.innerHTML = (first ? first.outerHTML : '') + genRowsHTML(w);
+      if(bindGenRows) bindGenRows(sw);
+    }
     function syncGenSwitch(){
       const sw=document.getElementById('gsGenSwitch'); if(!sw) return;
-      sw.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',+b.dataset.gen===currentGen));
+      sw.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',
+        +b.dataset.gen===currentGen && (b.dataset.sex||'')===currentSex));
     }
     function stopPlay(){ if(playTimer){ clearTimeout(playTimer); playTimer=null; }
       const play=document.getElementById('gsPlay'); if(!play) return;
