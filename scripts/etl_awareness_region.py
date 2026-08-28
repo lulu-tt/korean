@@ -390,7 +390,11 @@ def build_output(recs, nfiles):
                 # 판정 규칙은 둘이 같아야 한다 — 여기 한 곳에서만 만든다.
                 def gen_cell(sel_rows, sel_best):
                     if sel_best:
-                        return {'state': 'w%d' % min(sel_best.values()),
+                        # 지역 칸·전체·범례와 같은 식(등급 점수 평균)을 쓴다.
+                        # 예전에는 세대 칸만 '최선 등급'(min)이라, 등급 1·4 두 명이면
+                        # 맑음으로 칠해져 범례의 점수 구간과 어긋났다.
+                        sc = region_score(sel_best.values())
+                        return {'state': weather_of(sc), 'score': sc,
                                 'n': len(sel_best),
                                 'cases': [{'sex': sx, 'grade': sel_best[(y, a, sx)]}
                                           for (y, a, sx) in sorted(sel_best)]}

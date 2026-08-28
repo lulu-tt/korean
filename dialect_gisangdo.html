@@ -607,7 +607,8 @@ body{ background:#ffffff; }
         const g = currentSex
           ? (rc.gensex||{})[String(gen)+currentSex]
           : (rc.gens||{})[String(gen)];
-        if(g) return { state:g.state, n:g.n||0, score:null, forms:rc.forms||[], cases:g.cases||[], note:rc.note||'' };
+        if(g) return { state:g.state, n:g.n||0, score:(g.score!=null?g.score:null),
+                       forms:rc.forms||[], cases:g.cases||[], note:rc.note||'' };
         return { state: rc.state==='std' ? 'std' : 'w0', n:0, score:null, forms:[], cases:[], note:rc.note||'' };
       }
       return { state:'w0', n:0, score:null, forms:[], cases:[], note:'실측 자료를 불러오지 못했습니다' };
