@@ -5936,7 +5936,7 @@ def api_weather_responses(qs: dict) -> dict:
     try:
         rows = con.execute(
             """SELECT r.response_id, r.line_no, r.serial_no, r.item_cd, r.headword,
-                      r.dialect_form, r.grade, r.grade_valid_yn,
+                      r.dialect_form, r.grade, r.grade_valid_yn, r.upt_dt,
                       f.file_nm, f.region_cd, f.region_nm, f.research_degree,
                       f.generation, f.sex
                FROM wb_weather_response r JOIN wb_weather_file f USING(weather_file_id)
@@ -5966,6 +5966,8 @@ def api_weather_responses(qs: dict) -> dict:
             "presented": not (form and form != "*"),
             "grade": (r["grade"] or "") if r["grade_valid_yn"] == "Y" else "",
             "gradeRaw": r["grade"] or "",
+            # 관리자가 고친 행. 화면의 '관리자가 고침' 검색이 저장된 것까지 찾으려면 필요하다
+            "edited": bool(r["upt_dt"]),
         })
     out.sort(key=lambda x: (order.get(x["region"], 99), x["age"] or 0,
                             x["sex"] or "", x["file"], x["lineNo"]))

@@ -1376,6 +1376,8 @@ const getMngrFail = function (xhr, status, error) {
 .pt-rr.is-head > td{ border-top:1px solid #e2e8f0 !important; padding-top:9px !important; }
 .pt-rr:hover{ background:#f8fbff; }
 .pt-rr.is-dirty{ background:#faf5ff; }
+/* 저장까지 끝난 수정 — 원자료가 아니라 사람이 고친 값임을 계속 보여준다 */
+.pt-rr.is-edited > td:first-child{ box-shadow:inset 3px 0 0 #7c3aed; }
 .pt-sn{ font-size:11.5px; color:#64748b; letter-spacing:-.2px; }
 .pt-nosn{ color:#cbd5e1; }
 .pt-dash{ color:#cbd5e1; }
@@ -1915,7 +1917,7 @@ const getMngrFail = function (xhr, status, error) {
       var d=DIRTY[r.rid];
       if(F.st==='blank' && (d?d.grade:r.grade)) return false;
       if(F.st==='pres'  && !r.presented) return false;
-      if(F.st==='edit'  && !d) return false;
+      if(F.st==='edit'  && !d && !r.edited) return false;   /* 저장 전 수정 + 저장된 수정 둘 다 */
       if(F.q && (r.shown||'').toLowerCase().indexOf(F.q)<0
              && (r.serialNo||'').toLowerCase().indexOf(F.q)<0) return false;
       return true;
@@ -1942,7 +1944,7 @@ const getMngrFail = function (xhr, status, error) {
       var d = DIRTY[r.rid];
       var g = d ? d.grade : r.grade;
       var f = d ? d.form  : r.shown;
-      return '<tr class="pt-rr'+(head?' is-head':'')+(d?' is-dirty':'')+'" data-rid="'+r.rid+'">'
+      return '<tr class="pt-rr'+(head?' is-head':'')+(d?' is-dirty':'')+(r.edited?' is-edited':'')+'" data-rid="'+r.rid+'">'
         + '<td class="pt-sn">'+(r.serialNo ? esc(r.serialNo)
               : '<span class="pt-nosn" title="원자료에 일련번호가 비어 있습니다">번호 없음</span>')+'</td>'
         + '<td>'+(head?esc(r.regionNm):'')+'</td>'
