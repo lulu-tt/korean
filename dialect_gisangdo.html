@@ -265,6 +265,10 @@ body{ background:#ffffff; }
 #jiyeoeo-gisangdo-root .gs-rl:last-child{ border-bottom:0; }
 #jiyeoeo-gisangdo-root .gs-rl b{ grid-column:1; grid-row:1; font-size:15px; font-weight:800; color:#0f172a; letter-spacing:-.01em; align-self:center; }
 #jiyeoeo-gisangdo-root .gs-rl b em{ font-style:normal; font-weight:600; font-size:12px; color:#475569; margin-left:5px; }
+#jiyeoeo-gisangdo-root .gs-poprow{ display:grid; grid-template-columns:56px 1fr; column-gap:8px;
+  align-items:start; margin-bottom:7px; }
+#jiyeoeo-gisangdo-root .gs-poprow:last-child{ margin-bottom:0; }
+#jiyeoeo-gisangdo-root .gs-popnote{ font-size:12.5px; color:#94a3b8; line-height:1.6; }
 #jiyeoeo-gisangdo-root .gs-rl__row{ grid-column:1/3; display:grid; grid-template-columns:56px 1fr;
   column-gap:8px; align-items:start; margin-top:4px; }
 #jiyeoeo-gisangdo-root .gs-rl__k{ font-size:11.5px; color:#94a3b8; font-weight:700; padding-top:3px; }
@@ -321,39 +325,11 @@ body{ background:#ffffff; }
 }
 #jiyeoeo-gisangdo-root .gs-popclose:hover{ color:#475569; }
 #jiyeoeo-gisangdo-root .gs-popbody{ padding:16px; }
-#jiyeoeo-gisangdo-root .gs-popbody__title{ font-size:14px; font-weight:800; color:#1e293b; margin-bottom:10px; }
-#jiyeoeo-gisangdo-root .gs-popbody__title span{ color:#ef4444; }
-#jiyeoeo-gisangdo-root .gs-poptable{ width:100%; border-collapse:collapse; font-size:13px; }
-#jiyeoeo-gisangdo-root .gs-poptable th{
-  background:#f1f5f9; color:#475569; font-weight:700; padding:8px;
-  border-bottom:1px solid #e2e8f0; text-align:center;
-}
-#jiyeoeo-gisangdo-root .gs-poptable td{
-  padding:10px 8px; border-bottom:1px solid #f1f5f9; text-align:center; color:#334155; font-weight:600;
-}
-#jiyeoeo-gisangdo-root .gs-poptable tr:last-child td{ border-bottom:none; }
-#jiyeoeo-gisangdo-root .gs-poptable tr.is-current td{ background:#fffbeb; }
 #jiyeoeo-gisangdo-root .gs-popweather{ display:inline-flex; align-items:center; gap:5px; font-weight:700; }
-#jiyeoeo-gisangdo-root .gs-poptable .gs-popweather{ display:inline-flex; align-items:center; gap:5px; font-weight:700; }
-#jiyeoeo-gisangdo-root .gs-popspeaker{
-  background:#fee2e2; color:#dc2626; border:none; width:26px; height:26px; border-radius:50%;
-  font-size:13px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
-  transition:all .2s; vertical-align:middle;
-}
-#jiyeoeo-gisangdo-root .gs-popspeaker:hover{ background:#fca5a5; transform:scale(1.1); }
-#jiyeoeo-gisangdo-root .gs-popspeaker.is-playing{ animation:gsPopPulse 1s infinite; }
-@keyframes gsPopPulse{
-  0%{ transform:scale(1); }
-  50%{ transform:scale(1.15); box-shadow:0 0 0 4px rgba(239,68,68,.2); }
-  100%{ transform:scale(1); }
-}
 @media (max-width:640px){
   #jiyeoeo-gisangdo-root .gs-popover{ min-width:min(300px,84vw); max-width:84vw; }
   #jiyeoeo-gisangdo-root .gs-pophead{ padding:8px 12px; }
   #jiyeoeo-gisangdo-root .gs-popbody{ padding:12px; }
-  #jiyeoeo-gisangdo-root .gs-poptable{ font-size:12px; }
-  #jiyeoeo-gisangdo-root .gs-poptable th,
-  #jiyeoeo-gisangdo-root .gs-poptable td{ padding:6px 4px; }
 }
 #jiyeoeo-gisangdo-root .gs-backlink{ display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:var(--gs-muted); cursor:pointer; margin-bottom:14px; }
 #jiyeoeo-gisangdo-root .gs-mt{ margin-top:14px; }
@@ -386,8 +362,6 @@ body{ background:#ffffff; }
 #jiyeoeo-gisangdo-root .gs-fc-gen--std{ background:var(--gs-std-bg); }
 /* 지역 카드 하단 어형 목록 · 팝오버 어형 줄 */
 #jiyeoeo-gisangdo-root .gs-fc-forms{ margin-top:9px; padding-top:8px; border-top:1px dashed #e2e8f0; font-size:11.5px; font-weight:700; color:#475569; line-height:1.5; }
-#jiyeoeo-gisangdo-root .gs-popforms{ margin-top:10px; padding:9px 11px; background:#f8fafc; border-radius:9px; font-size:12px; line-height:1.6; color:#475569; }
-#jiyeoeo-gisangdo-root .gs-popforms b{ color:#0f172a; }
 #jiyeoeo-gisangdo-root .gs-fc-gen__label{ font-size:12px; font-weight:800; color:var(--gs-muted); }
 #jiyeoeo-gisangdo-root .gs-fc-gen__icon{ font-size:28px; line-height:1; }
 #jiyeoeo-gisangdo-root .gs-fc-gen__pct{ font-size:17px; font-weight:800; letter-spacing:-.02em; }
@@ -1242,65 +1216,35 @@ body{ background:#ffffff; }
       play.classList.remove('is-playing');
       play.title='70 → 20대 순서로 넘겨 보기'; play.setAttribute('aria-label','세대별로 넘겨 보기'); }
 
-    let popAudioCtx=null;
-    function popBeep(freq, btn){
-      try{
-        if(!popAudioCtx) popAudioCtx=new (window.AudioContext||window.webkitAudioContext)();
-        const ctx=popAudioCtx;
-        const osc=ctx.createOscillator(), gain=ctx.createGain();
-        osc.type='sine'; osc.frequency.value=freq;
-        gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime+0.03);
-        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.5);
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(); osc.stop(ctx.currentTime+0.5);
-        if(btn){ btn.classList.add('is-playing'); setTimeout(()=>btn.classList.remove('is-playing'), 550); }
-      }catch(e){}
-    }
-
+    /* 지역을 누르면 그 지역에서 조사된 말을 보여준다.
+       세대별 표는 지도 색·우측 패널과 같은 것을 세 번째로 말하고 있어 걷어냈다. */
     function showPopover(w, code, evt){
       const pop=document.getElementById('gsMapPop'); if(!pop) return;
       const panel=document.querySelector('#jiyeoeo-gisangdo-root .gs-mappanel');
       const rect=panel.getBoundingClientRect();
-      const forms=(cellOf(w,0,code).forms||[]).map(f=>f.form);
-      const word = forms.length ? forms.slice(0,2).join(' · ') : w.standard;
-      const GEN_FREQ={70:300,50:400,20:520};
       const all=cellOf(w,0,code);
-      const rows=[0,70,50,20].map(g=>{
-        if(g===0 && !hasAware(w)) return '';
-        const cel=cellOf(w,g,code); const wk=cel.state;
-        return `<tr class="${g===currentGen?'is-current':''}">
-          <td>${g?g+'대':'전체'}</td>
-          <td><span class="gs-popweather" style="color:${isPlain(wk)?'#94a3b8':HEXVAR[wk]}">${isPlain(wk)?'':`<i class="ti ${WEATHERS[wk].icon}"></i> `}${WEATHERS[wk].label}</span></td>
-          <td><button type="button" class="gs-popspeaker" data-freq="${GEN_FREQ[g]||300}" aria-label="${g?g+'대':'전체'} 음성 듣기"><i class="ti ti-volume"></i></button></td>
-        </tr>`;
-      }).join('');
-      const formsHTML = (all.forms&&all.forms.length)
-        ? `<div class="gs-popforms">이 지역에서 조사된 어형: <b>${all.forms.map(f=>f.form).join(', ')}</b></div>`
-        : (all.state==='std' ? `<div class="gs-popforms">${all.note||'지역어형이 조사되지 않았습니다'}</div>` : '');
+      const chips=(list,cls)=>(list||[]).map(f=>
+        `<i class="gs-rl__w ${cls}">${esc(f.form)}</i>`).join('');
+      const heads=all.heads||[], bases=all.bases||[];
+      const body = isAll(w)
+        ? `<div class="gs-popnote">단어를 하나 고르면 그 지역에서 조사된 말이 나옵니다.</div>`
+        : `<div class="gs-poprow"><span class="gs-rl__k">표준어형</span>
+             <span class="gs-rl__v">${heads.length?chips(heads,'is-head'):'<u>—</u>'}</span></div>
+           <div class="gs-poprow"><span class="gs-rl__k">방언형</span>
+             <span class="gs-rl__v">${bases.length?chips(bases,'is-base'):'<u>조사된 방언형 없음</u>'}</span></div>`;
       pop.innerHTML=`
         <div class="gs-pophead">
           <div class="gs-pophead__title">
             <span class="gs-pophead__region">${REGION_NAMES[code]}</span>
-            <span>${SITE_NAMES[code]?SITE_NAMES[code]+' 조사':'세대별 기상도'}</span>
+            <span>${SITE_NAMES[code]||''}</span>
           </div>
           <button type="button" class="gs-popclose" id="gsPopClose" aria-label="닫기"><i class="ti ti-x"></i></button>
         </div>
-        <div class="gs-popbody">
-          <div class="gs-popbody__title"><span>${word}</span> · 세대별 사용 현황</div>
-          <table class="gs-poptable">
-            <thead><tr><th>세대</th><th>날씨</th><th>듣기</th></tr></thead>
-            <tbody>${rows}</tbody>
-          </table>
-          ${formsHTML}
-        </div>`;
+        <div class="gs-popbody">${body}</div>`;
       pop.classList.remove('gs-pop--below');
       pop.classList.add('is-open');
       const closer=document.getElementById('gsPopClose');
       if(closer) closer.onclick=(e)=>{ e.stopPropagation(); hidePopover(); };
-      pop.querySelectorAll('.gs-popspeaker').forEach(btn=>{
-        btn.onclick=(e)=>{ e.stopPropagation(); popBeep(+btn.dataset.freq, btn); };
-      });
 
       // 말풍선을 클릭 지점 위에 가로 중앙 정렬, 공간이 없으면 아래로 뒤집음
       const pw=pop.offsetWidth, ph=pop.offsetHeight;
