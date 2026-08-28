@@ -819,10 +819,10 @@
 
 								<div class="pagination" id="prPager"></div>
 
-								<div class="pt-savebar" id="ptSaveBar" style="display:none">
+								<div class="pt-savebar" id="ptSaveBar">
 									<span class="msg" id="ptSaveMsg"></span>
-									<button type="button" class="pt-btn-sm" id="ptRevert">되돌리기</button>
-									<button type="button" class="btn btn-sm btn-primary" id="ptSaveAll"><span>저장</span></button>
+									<button type="button" class="pt-btn-sm" id="ptRevert" disabled>되돌리기</button>
+									<button type="button" class="btn btn-sm btn-primary" id="ptSaveAll" disabled><span>저장</span></button>
 								</div>
 							</div>
 						</div>
@@ -1380,10 +1380,14 @@ const getMngrFail = function (xhr, status, error) {
 .pt-tag{ display:inline-block; font-size:10.5px; font-weight:700; border-radius:20px;
 	padding:2px 8px; margin-left:7px; vertical-align:1px; }
 .pt-savebar{ position:sticky; bottom:0; z-index:5; display:flex; align-items:center; gap:10px;
-	background:#fff; border:1px solid #dbeafe; border-top:2px solid #2563eb; border-radius:10px 10px 0 0;
-	padding:11px 16px; margin-top:10px; box-shadow:0 -3px 14px rgba(15,23,42,.07); }
-.pt-savebar .msg{ flex:1; font-size:12.5px; color:#475569; }
+	background:#fff; border:1px solid #e2e8f0; border-top:2px solid #cbd5e1; border-radius:10px 10px 0 0;
+	padding:11px 16px; margin-top:10px; box-shadow:0 -3px 14px rgba(15,23,42,.06); }
+.pt-savebar.is-dirty{ border-color:#dbeafe; border-top-color:#2563eb;
+	box-shadow:0 -3px 14px rgba(15,23,42,.09); }
+.pt-savebar .msg{ flex:1; font-size:12.5px; color:#94a3b8; }
+.pt-savebar.is-dirty .msg{ color:#475569; }
 .pt-savebar .msg b{ color:#1d4ed8; }
+.pt-savebar .btn[disabled]{ opacity:.45; cursor:default; }
 .pt-card{ border:1px solid #e8edf3; border-radius:12px; padding:20px 22px; margin-bottom:14px; background:#fff; }
 .pt-h3{ font-size:15px; font-weight:800; color:#1f3864; margin:0 0 12px; }
 .pt-h3s{ font-size:12.5px; font-weight:500; color:#64748b; margin-left:8px; }
@@ -1951,10 +1955,16 @@ const getMngrFail = function (xhr, status, error) {
 
   /* 저장은 줄마다가 아니라 화면 전체로 한 번. 83행을 오가며 고치므로
      아래 고정 바에 '몇 건 고쳤는지'를 계속 띄운다. */
+  /* 저장 바는 늘 보인다. 고친 게 없으면 버튼만 비활성 —
+     안 보이면 이 화면이 고칠 수 있는 화면인지 알 수 없다. */
   function syncSaveBar(){
-    var n=Object.keys(DIRTY).length;
-    $('ptSaveBar').style.display = n ? '' : 'none';
-    $('ptSaveMsg').innerHTML = n ? '<b>'+n+'건</b> 고쳤습니다 — 저장하지 않으면 사라집니다.' : '';
+    var n=Object.keys(DIRTY).length, bar=$('ptSaveBar');
+    bar.classList.toggle('is-dirty', !!n);
+    $('ptSaveMsg').innerHTML = n
+      ? '<b>'+n+'건</b> 고쳤습니다 — 저장하지 않으면 사라집니다.'
+      : '지역어형과 사용도/인지도를 고친 뒤 저장하세요.';
+    $('ptSaveAll').disabled = !n;
+    $('ptRevert').disabled = !n;
   }
 
   /* 고친 줄만 한 번에 보낸다. rid 와 함께 (파일명, 행번호)도 보내
