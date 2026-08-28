@@ -91,6 +91,8 @@ body{ background:#ffffff; }
 #jiyeoeo-gisangdo-root .gs-wbtn{ appearance:none; flex:0 0 auto; white-space:nowrap; min-width:74px; height:36px; justify-content:center; border:1px solid var(--gs-line); background:#fff; border-radius:9px; padding:0 14px; font-size:13.5px; font-weight:700; color:#334155; cursor:pointer; font-family:inherit; transition:.12s; display:inline-flex; align-items:center; gap:7px; }
 #jiyeoeo-gisangdo-root .gs-wbtn small{ color:#94a3b8; font-weight:600; font-size:11px; margin-left:auto; }
 #jiyeoeo-gisangdo-root .gs-wbtn:hover{ border-color:#93c5fd; background:#eff6ff; color:#1d4ed8; }
+#jiyeoeo-gisangdo-root .gs-wbtn.is-all{ border-color:#c7d2fe; background:#eef2ff; color:#3730a3; }
+#jiyeoeo-gisangdo-root .gs-wbtn.is-all:hover{ border-color:#818cf8; background:#e0e7ff; }
 #jiyeoeo-gisangdo-root .gs-wbtn.is-active{ border-color:#2563eb; background:#2563eb; color:#fff; box-shadow:0 2px 8px rgba(37,99,235,.3); }
 #jiyeoeo-gisangdo-root .gs-wbtn.is-active small{ color:rgba(255,255,255,.78); }
 #jiyeoeo-gisangdo-root .gs-wgrid-empty{ grid-column:1/-1; text-align:center; padding:18px 8px; font-size:13px; font-weight:600; color:#94a3b8; }
@@ -223,6 +225,7 @@ body{ background:#ffffff; }
   align-items:center; margin-top:9px; padding-top:9px; border-top:1px solid #f1f5f9; cursor:pointer; }
 #jiyeoeo-gisangdo-root .gs-sexsplit input{ width:15px; height:15px; margin:0; }
 #jiyeoeo-gisangdo-root .gs-sexsplit span{ font-size:12.5px; font-weight:700; color:#334155; }
+#jiyeoeo-gisangdo-root .gr-n{ font-style:normal; font-size:11px; color:#94a3b8; font-weight:600; margin-left:3px; }
 #jiyeoeo-gisangdo-root .gr-sex{ font-style:normal; font-size:11px; font-weight:700; color:#64748b;
   background:#f1f5f9; border-radius:9px; padding:1px 6px; margin-left:5px; }
 #jiyeoeo-gisangdo-root .gs-genrow.is-active .gr-sex{ background:#e0e7ff; color:#3730a3; }
@@ -565,6 +568,14 @@ body{ background:#ffffff; }
         window.__AWARE_ORIGIN = origin;   // 진단용 — DB(db) / 정적파일(file) 어느 쪽을 썼는지
         SITE_NAMES = j.regionSites || {};
         ROSTER = j.regionRoster || {};
+        // 전 항목 통합 — '전체' 라는 단어 하나로 취급하면 지도·세대·성별 경로가 그대로 돈다
+        if(j.overall){
+          AWARE_BY_WORD['전체'] = j.overall;
+          if(!WORDS.some(x=>x.itemId==='__ALL__')){
+            WORDS.unshift({ itemId:'__ALL__', standard:'전체', category:'전체', desc:null });
+            BY_ID['__ALL__'] = WORDS[0];
+          }
+        }
         (j.items||[]).forEach(it=>{
           AWARE_BY_WORD[it.word]=it;
           // 실측 항목번호로도 딥링크가 되도록 BY_ID에 별칭을 건다 (#/word/20606 등)
@@ -585,6 +596,7 @@ body{ background:#ffffff; }
         .catch(()=>{ AWARE_BY_WORD={}; AWARE_ORIGIN=null; });
     }
     function hasAware(w){ return !!AWARE_BY_WORD[w.standard]; }
+    const isAll = w => !!w && w.itemId==='__ALL__';   // 전 항목 통합 보기인가
     /* gen: 0=전체(지역 평균 점수) · 20|50|70=그 세대 제보자의 사례 */
     function cellOf(w, gen, code){
       const it = AWARE_BY_WORD[w.standard];
@@ -593,7 +605,8 @@ body{ background:#ffffff; }
         if(!gen){
           return { state: rc.state||'w0', n: rc.n||0,
                    score: (rc.score!=null && rc.n) ? rc.score : null,
-                   forms: rc.forms||[], cases: rc.cases||[], note: rc.note||'' };
+                   forms: rc.forms||[], cases: rc.cases||[], note: rc.note||'',
+                   items: rc.items, answers: rc.answers };   // 통합 보기에서만 있다
         }
         // 성별을 고르면 (세대×성별) 칸, 아니면 세대 칸
         const g = currentSex
@@ -623,14 +636,23 @@ body{ background:#ffffff; }
       const it=AWARE_BY_WORD[w.standard];
       if(!it) return {n:0, used:0, best:0};
       const sx = (sex===undefined) ? currentSex : sex;
-      let n=0, used=0, best=4;
+      let n=0, used=0, best=4, ppl=0, agg=false, sum=0, cnt=0;
       REGION_ORDER.forEach(rg=>{
         const rc=it.regions[rg]||{};
         const gg = sx ? (rc.gensex||{})[String(g)+sx] : (rc.gens||{})[String(g)];
-        if(!gg || !gg.cases) return;
-        gg.cases.forEach(c=>{ n++; if(c.grade===1) used++; best=Math.min(best,c.grade); });
+        if(!gg) return;
+        if(gg.answers!=null){            // 통합(전체 101개) — 사례 대신 집계 수치를 쓴다
+          agg=true; n+=gg.answers; used+=gg.used||0; ppl+=gg.n||0;
+          if(gg.score!=null){ sum+=gg.score*gg.answers; cnt+=gg.answers; }
+        } else if(gg.cases){
+          gg.cases.forEach(c=>{ n++; if(c.grade===1) used++; best=Math.min(best,c.grade);
+                                sum+=GRADE_SCORE[c.grade]||0; cnt++; });
+          ppl+=gg.n||0;
+        }
       });
-      return {n, used, best: n?best:0};
+      // 점수는 지도와 같은 식(등급 점수 평균). 예전에는 used/n(0~1 비율)을 weatherOf 에
+      // 그대로 넣어 세대 줄 이모지가 늘 천둥번개였다.
+      return {n, used, best: n?best:0, agg, people: ppl, score: cnt?sum/cnt:null};
     }
     function topForms(w, n){
       const it=AWARE_BY_WORD[w.standard]; if(!it) return [];
@@ -680,11 +702,14 @@ body{ background:#ffffff; }
       return `
       <div class="gs-mapbar">
         <div class="gs-mapbar__titles">
-          <div class="gs-mapbar__title">‘<b>${w.standard}</b>’${eulReul(w.standard)} 지역에서는 뭐라고 할까</div>
-          <div class="gs-mapbar__sub">${
-            topForms(w,5).length
-              ? `조사에서 나온 말 — <b>${topForms(w,5).join(' · ')}</b>`
-              : '이 단어는 전국이 표준어형을 씁니다' }</div>
+          <div class="gs-mapbar__title">${ isAll(w)
+            ? `조사된 <b>101개 단어</b>를 한 장으로`
+            : `‘<b>${w.standard}</b>’${eulReul(w.standard)} 지역에서는 뭐라고 할까` }</div>
+          <div class="gs-mapbar__sub">${ isAll(w)
+            ? `지역 점수 = 그 지역 제보자가 <b>101개 단어의 지역어형</b>에 준 등급의 평균`
+            : (topForms(w,5).length
+                ? `조사에서 나온 말 — <b>${topForms(w,5).join(' · ')}</b>`
+                : '이 단어는 전국이 표준어형을 씁니다') }</div>
           ${ w.desc ? `<div class="gs-mapbar__desc">${esc(w.desc)}</div>` : '' }
         </div>
         <div class="gs-mapbar__actions">
@@ -786,7 +811,9 @@ body{ background:#ffffff; }
         return `<div class="gs-rl">
           <b>${esc(REGION_NAMES[code])}<em>${esc(SITE_NAMES[code]||'')}</em></b>
           <span class="gs-rl__cells">${cells}</span>
-          <span class="gs-rl__f">${forms.length?esc(forms.slice(0,3).join(', ')):'<u>지역어형 없음</u>'}</span>
+          <span class="gs-rl__f">${ isAll(w)
+            ? `<u>지역어형이 나온 항목 ${head.items||0}개 · 응답 ${head.answers||0}건</u>`
+            : (forms.length?esc(forms.slice(0,3).join(', ')):'<u>지역어형 없음</u>') }</span>
         </div>`;
       }).join('');
     }
@@ -1149,14 +1176,17 @@ body{ background:#ffffff; }
     function genRowsHTML(w){
       const rows = [70,50,20].flatMap(g => (splitSex ? [[g,'M'],[g,'F']] : [[g,'']]));
       return rows.map(([g,sx])=>{
-        const t=genTally(w,g,sx); const wk=t.n?weatherOf(t.used/t.n).key:'w0';
+        const t=genTally(w,g,sx); const wk=(t.n && t.score!=null)?weatherOf(t.score).key:'w0';
         const on=(g===currentGen && sx===currentSex);
         return `<button type="button" class="gs-genrow ${on?'is-active':''}" data-gen="${g}" data-sex="${sx}"
-                  title="${t.n?`${t.n}명 중 ${t.used}명이 지금도 쓴다고 답함`:'이 조건에서는 지역어형이 조사되지 않았습니다'}">
+                  title="${t.n?(t.agg?`제보자 ${t.people}명의 응답 ${t.n}건 중 ${t.used}건이 '지금도 씀'`
+                                     :`${t.n}명 중 ${t.used}명이 지금도 쓴다고 답함`)
+                              :'이 조건에서는 지역어형이 조사되지 않았습니다'}">
           <span class="gr-emoji">${t.n?EMOJI[wk]:''}</span>
           <span class="gr-gen">${g}대${sx?`<em class="gr-sex">${sx==='M'?'남':'여'}</em>`:''}</span>
-          <span class="gr-bar"><span style="width:${t.n?Math.round(t.used/t.n*100):0}%;background:${CSSVAR[wk]}"></span></span>
-          <span class="gr-rate" style="color:${t.n?CSSVAR[wk]:'#94a3b8'};font-size:12px">${t.n?`${t.used}/${t.n}명`:'—'}</span>
+          <span class="gr-bar"><span style="width:${t.score!=null?Math.round(t.score):0}%;background:${CSSVAR[wk]}"></span></span>
+          <span class="gr-rate" style="color:${t.n?CSSVAR[wk]:'#94a3b8'};font-size:12px">${
+            t.n ? `${Math.round(t.score)}점 <em class="gr-n">${t.agg?`${t.people}명`:`${t.used}/${t.n}명`}</em>` : '—'}</span>
         </button>`;
       }).join('');
     }
@@ -1280,17 +1310,19 @@ body{ background:#ffffff; }
     function filterWords(){
       const q=pickQuery.trim();
       return WORDS.filter(w=>{
+        // '전체'(통합)는 자모 분류가 없다 — 자모를 고르거나 검색 중이면 숨긴다
+        if(w.itemId==='__ALL__') return pickInitial==='전체' && !q;
         if(pickInitial!=='전체' && choseong(w.standard)!==pickInitial) return false;
         if(!q) return true;
         if(w.standard.includes(q)) return true;
         return topForms(w, 99).some(f=>f.includes(q));   // 실측 어형으로도 찾기
-        
       });
     }
     function gridHTML(list){
       if(!list.length) return `<div class="gs-wgrid-empty">검색 결과가 없습니다</div>`;
       return list.map(w=>{
-        return `<button type="button" class="gs-wbtn ${w.itemId===currentWordId?'is-active':''}" data-id="${w.itemId}" role="option" aria-selected="${w.itemId===currentWordId}">${w.standard}</button>`;
+        const all = w.itemId==='__ALL__';
+        return `<button type="button" class="gs-wbtn${all?' is-all':''} ${w.itemId===currentWordId?'is-active':''}" data-id="${w.itemId}" role="option" aria-selected="${w.itemId===currentWordId}"${all?' title="조사된 101개 단어를 한 장으로 — 지역별 평균 점수"':''}>${all?'전체 101개':w.standard}</button>`;
       }).join('');
     }
     function pickPanelHTML(){

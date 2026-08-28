@@ -153514,5 +153514,732 @@
     }
    }
   }
- ]
+ ],
+ "overall": {
+  "code": "__ALL__",
+  "word": "전체",
+  "headword": "전체",
+  "regions": {
+   "GG": {
+    "state": "w2",
+    "n": 4,
+    "score": 81.08,
+    "answers": 144,
+    "items": 57,
+    "dist": {
+     "1": 87,
+     "2": 21,
+     "3": 20,
+     "4": 16
+    },
+    "gens": {
+     "20": {
+      "state": "w1",
+      "score": 96.43,
+      "n": 1,
+      "answers": 7,
+      "used": 6
+     },
+     "50": {
+      "state": "w2",
+      "score": 75.96,
+      "n": 2,
+      "answers": 104,
+      "used": 56
+     },
+     "70": {
+      "state": "w1",
+      "score": 93.94,
+      "n": 1,
+      "answers": 33,
+      "used": 25
+     }
+    },
+    "gensex": {
+     "20M": {
+      "state": "w0",
+      "score": null,
+      "n": 0,
+      "answers": 0,
+      "used": 0
+     },
+     "20F": {
+      "state": "w1",
+      "score": 96.43,
+      "n": 1,
+      "answers": 7,
+      "used": 6
+     },
+     "50M": {
+      "state": "w2",
+      "score": 76.96,
+      "n": 1,
+      "answers": 51,
+      "used": 26
+     },
+     "50F": {
+      "state": "w2",
+      "score": 75.0,
+      "n": 1,
+      "answers": 53,
+      "used": 30
+     },
+     "70M": {
+      "state": "w0",
+      "score": null,
+      "n": 0,
+      "answers": 0,
+      "used": 0
+     },
+     "70F": {
+      "state": "w1",
+      "score": 93.94,
+      "n": 1,
+      "answers": 33,
+      "used": 25
+     }
+    }
+   },
+   "GW": {
+    "state": "w2",
+    "n": 6,
+    "score": 69.87,
+    "answers": 424,
+    "items": 91,
+    "dist": {
+     "1": 218,
+     "2": 30,
+     "3": 47,
+     "4": 129
+    },
+    "gens": {
+     "20": {
+      "state": "w3",
+      "score": 45.91,
+      "n": 2,
+      "answers": 159,
+      "used": 27
+     },
+     "50": {
+      "state": "w2",
+      "score": 78.91,
+      "n": 2,
+      "answers": 115,
+      "used": 78
+     },
+     "70": {
+      "state": "w1",
+      "score": 88.33,
+      "n": 2,
+      "answers": 150,
+      "used": 113
+     }
+    },
+    "gensex": {
+     "20M": {
+      "state": "w3",
+      "score": 51.58,
+      "n": 1,
+      "answers": 79,
+      "used": 21
+     },
+     "20F": {
+      "state": "w3",
+      "score": 40.31,
+      "n": 1,
+      "answers": 80,
+      "used": 6
+     },
+     "50M": {
+      "state": "w2",
+      "score": 77.5,
+      "n": 1,
+      "answers": 30,
+      "used": 20
+     },
+     "50F": {
+      "state": "w2",
+      "score": 79.41,
+      "n": 1,
+      "answers": 85,
+      "used": 58
+     },
+     "70M": {
+      "state": "w1",
+      "score": 92.25,
+      "n": 1,
+      "answers": 71,
+      "used": 61
+     },
+     "70F": {
+      "state": "w2",
+      "score": 84.81,
+      "n": 1,
+      "answers": 79,
+      "used": 52
+     }
+    }
+   },
+   "CB": {
+    "state": "w2",
+    "n": 6,
+    "score": 73.14,
+    "answers": 404,
+    "items": 82,
+    "dist": {
+     "1": 224,
+     "2": 28,
+     "3": 50,
+     "4": 102
+    },
+    "gens": {
+     "20": {
+      "state": "w3",
+      "score": 51.43,
+      "n": 2,
+      "answers": 140,
+      "used": 33
+     },
+     "50": {
+      "state": "w2",
+      "score": 83.65,
+      "n": 2,
+      "answers": 156,
+      "used": 111
+     },
+     "70": {
+      "state": "w2",
+      "score": 86.11,
+      "n": 2,
+      "answers": 108,
+      "used": 80
+     }
+    },
+    "gensex": {
+     "20M": {
+      "state": "w3",
+      "score": 39.55,
+      "n": 1,
+      "answers": 67,
+      "used": 5
+     },
+     "20F": {
+      "state": "w3",
+      "score": 62.33,
+      "n": 1,
+      "answers": 73,
+      "used": 28
+     },
+     "50M": {
+      "state": "w2",
+      "score": 86.04,
+      "n": 1,
+      "answers": 77,
+      "used": 58
+     },
+     "50F": {
+      "state": "w2",
+      "score": 81.33,
+      "n": 1,
+      "answers": 79,
+      "used": 53
+     },
+     "70M": {
+      "state": "w1",
+      "score": 88.71,
+      "n": 1,
+      "answers": 62,
+      "used": 49
+     },
+     "70F": {
+      "state": "w2",
+      "score": 82.61,
+      "n": 1,
+      "answers": 46,
+      "used": 31
+     }
+    }
+   },
+   "CN": {
+    "state": "w2",
+    "n": 6,
+    "score": 78.14,
+    "answers": 303,
+    "items": 79,
+    "dist": {
+     "1": 188,
+     "2": 27,
+     "3": 26,
+     "4": 62
+    },
+    "gens": {
+     "20": {
+      "state": "w3",
+      "score": 51.43,
+      "n": 2,
+      "answers": 70,
+      "used": 18
+     },
+     "50": {
+      "state": "w1",
+      "score": 87.8,
+      "n": 2,
+      "answers": 123,
+      "used": 91
+     },
+     "70": {
+      "state": "w2",
+      "score": 84.32,
+      "n": 2,
+      "answers": 110,
+      "used": 79
+     }
+    },
+    "gensex": {
+     "20M": {
+      "state": "w3",
+      "score": 41.67,
+      "n": 1,
+      "answers": 57,
+      "used": 6
+     },
+     "20F": {
+      "state": "w1",
+      "score": 94.23,
+      "n": 1,
+      "answers": 13,
+      "used": 12
+     },
+     "50M": {
+      "state": "w1",
+      "score": 93.36,
+      "n": 1,
+      "answers": 64,
+      "used": 57
+     },
+     "50F": {
+      "state": "w2",
+      "score": 81.78,
+      "n": 1,
+      "answers": 59,
+      "used": 34
+     },
+     "70M": {
+      "state": "w2",
+      "score": 72.62,
+      "n": 1,
+      "answers": 63,
+      "used": 32
+     },
+     "70F": {
+      "state": "w1",
+      "score": 100.0,
+      "n": 1,
+      "answers": 47,
+      "used": 47
+     }
+    }
+   },
+   "JB": {
+    "state": "w3",
+    "n": 6,
+    "score": 58.92,
+    "answers": 530,
+    "items": 93,
+    "dist": {
+     "1": 185,
+     "2": 49,
+     "3": 66,
+     "4": 230
+    },
+    "gens": {
+     "20": {
+      "state": "w3",
+      "score": 41.85,
+      "n": 2,
+      "answers": 181,
+      "used": 28
+     },
+     "50": {
+      "state": "w2",
+      "score": 63.1,
+      "n": 2,
+      "answers": 168,
+      "used": 69
+     },
+     "70": {
+      "state": "w2",
+      "score": 72.1,
+      "n": 2,
+      "answers": 181,
+      "used": 88
+     }
+    },
+    "gensex": {
+     "20M": {
+      "state": "w3",
+      "score": 46.47,
+      "n": 1,
+      "answers": 92,
+      "used": 19
+     },
+     "20F": {
+      "state": "w4",
+      "score": 37.08,
+      "n": 1,
+      "answers": 89,
+      "used": 9
+     },
+     "50M": {
+      "state": "w2",
+      "score": 65.7,
+      "n": 1,
+      "answers": 86,
+      "used": 42
+     },
+     "50F": {
+      "state": "w3",
+      "score": 60.37,
+      "n": 1,
+      "answers": 82,
+      "used": 27
+     },
+     "70M": {
+      "state": "w2",
+      "score": 85.75,
+      "n": 1,
+      "answers": 93,
+      "used": 63
+     },
+     "70F": {
+      "state": "w3",
+      "score": 57.67,
+      "n": 1,
+      "answers": 88,
+      "used": 25
+     }
+    }
+   },
+   "JN": {
+    "state": "w3",
+    "n": 4,
+    "score": 60.86,
+    "answers": 359,
+    "items": 95,
+    "dist": {
+     "1": 133,
+     "2": 25,
+     "3": 66,
+     "4": 135
+    },
+    "gens": {
+     "20": {
+      "state": "w3",
+      "score": 41.3,
+      "n": 1,
+      "answers": 92,
+      "used": 16
+     },
+     "50": {
+      "state": "w3",
+      "score": 54.97,
+      "n": 2,
+      "answers": 181,
+      "used": 41
+     },
+     "70": {
+      "state": "w1",
+      "score": 94.19,
+      "n": 1,
+      "answers": 86,
+      "used": 76
+     }
+    },
+    "gensex": {
+     "20M": {
+      "state": "w0",
+      "score": null,
+      "n": 0,
+      "answers": 0,
+      "used": 0
+     },
+     "20F": {
+      "state": "w3",
+      "score": 41.3,
+      "n": 1,
+      "answers": 92,
+      "used": 16
+     },
+     "50M": {
+      "state": "w3",
+      "score": 60.71,
+      "n": 1,
+      "answers": 91,
+      "used": 25
+     },
+     "50F": {
+      "state": "w3",
+      "score": 49.17,
+      "n": 1,
+      "answers": 90,
+      "used": 16
+     },
+     "70M": {
+      "state": "w0",
+      "score": null,
+      "n": 0,
+      "answers": 0,
+      "used": 0
+     },
+     "70F": {
+      "state": "w1",
+      "score": 94.19,
+      "n": 1,
+      "answers": 86,
+      "used": 76
+     }
+    }
+   },
+   "GB": {
+    "state": "w2",
+    "n": 6,
+    "score": 81.31,
+    "answers": 412,
+    "items": 96,
+    "dist": {
+     "1": 255,
+     "2": 74,
+     "3": 15,
+     "4": 68
+    },
+    "gens": {
+     "20": {
+      "state": "w1",
+      "score": 87.99,
+      "n": 2,
+      "answers": 102,
+      "used": 68
+     },
+     "50": {
+      "state": "w3",
+      "score": 61.2,
+      "n": 2,
+      "answers": 163,
+      "used": 46
+     },
+     "70": {
+      "state": "w1",
+      "score": 98.98,
+      "n": 2,
+      "answers": 147,
+      "used": 141
+     }
+    },
+    "gensex": {
+     "20M": {
+      "state": "w2",
+      "score": 75.0,
+      "n": 1,
+      "answers": 34,
+      "used": 15
+     },
+     "20F": {
+      "state": "w1",
+      "score": 94.49,
+      "n": 1,
+      "answers": 68,
+      "used": 53
+     },
+     "50M": {
+      "state": "w3",
+      "score": 61.88,
+      "n": 1,
+      "answers": 80,
+      "used": 22
+     },
+     "50F": {
+      "state": "w3",
+      "score": 60.54,
+      "n": 1,
+      "answers": 83,
+      "used": 24
+     },
+     "70M": {
+      "state": "w1",
+      "score": 98.79,
+      "n": 1,
+      "answers": 62,
+      "used": 59
+     },
+     "70F": {
+      "state": "w1",
+      "score": 99.12,
+      "n": 1,
+      "answers": 85,
+      "used": 82
+     }
+    }
+   },
+   "GN": {
+    "state": "w2",
+    "n": 6,
+    "score": 64.81,
+    "answers": 513,
+    "items": 93,
+    "dist": {
+     "1": 233,
+     "2": 44,
+     "3": 30,
+     "4": 206
+    },
+    "gens": {
+     "20": {
+      "state": "w3",
+      "score": 44.38,
+      "n": 2,
+      "answers": 169,
+      "used": 33
+     },
+     "50": {
+      "state": "w3",
+      "score": 59.56,
+      "n": 2,
+      "answers": 170,
+      "used": 56
+     },
+     "70": {
+      "state": "w1",
+      "score": 89.8,
+      "n": 2,
+      "answers": 174,
+      "used": 144
+     }
+    },
+    "gensex": {
+     "20M": {
+      "state": "w3",
+      "score": 41.37,
+      "n": 1,
+      "answers": 84,
+      "used": 14
+     },
+     "20F": {
+      "state": "w3",
+      "score": 47.35,
+      "n": 1,
+      "answers": 85,
+      "used": 19
+     },
+     "50M": {
+      "state": "w2",
+      "score": 62.65,
+      "n": 1,
+      "answers": 85,
+      "used": 39
+     },
+     "50F": {
+      "state": "w3",
+      "score": 56.47,
+      "n": 1,
+      "answers": 85,
+      "used": 17
+     },
+     "70M": {
+      "state": "w2",
+      "score": 83.14,
+      "n": 1,
+      "answers": 86,
+      "used": 61
+     },
+     "70F": {
+      "state": "w1",
+      "score": 96.31,
+      "n": 1,
+      "answers": 88,
+      "used": 83
+     }
+    }
+   },
+   "JJ": {
+    "state": "w3",
+    "n": 2,
+    "score": 46.15,
+    "answers": 182,
+    "items": 91,
+    "dist": {
+     "1": 31,
+     "2": 8,
+     "3": 45,
+     "4": 98
+    },
+    "gens": {
+     "20": {
+      "state": "w3",
+      "score": 38.46,
+      "n": 1,
+      "answers": 91,
+      "used": 11
+     },
+     "50": {
+      "state": "w3",
+      "score": 53.85,
+      "n": 1,
+      "answers": 91,
+      "used": 20
+     },
+     "70": {
+      "state": "w0",
+      "score": null,
+      "n": 0,
+      "answers": 0,
+      "used": 0
+     }
+    },
+    "gensex": {
+     "20M": {
+      "state": "w3",
+      "score": 38.46,
+      "n": 1,
+      "answers": 91,
+      "used": 11
+     },
+     "20F": {
+      "state": "w0",
+      "score": null,
+      "n": 0,
+      "answers": 0,
+      "used": 0
+     },
+     "50M": {
+      "state": "w0",
+      "score": null,
+      "n": 0,
+      "answers": 0,
+      "used": 0
+     },
+     "50F": {
+      "state": "w3",
+      "score": 53.85,
+      "n": 1,
+      "answers": 91,
+      "used": 20
+     },
+     "70M": {
+      "state": "w0",
+      "score": null,
+      "n": 0,
+      "answers": 0,
+      "used": 0
+     },
+     "70F": {
+      "state": "w0",
+      "score": null,
+      "n": 0,
+      "answers": 0,
+      "used": 0
+     }
+    }
+   }
+  }
+ }
 }

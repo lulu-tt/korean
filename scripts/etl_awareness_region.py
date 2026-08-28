@@ -418,6 +418,44 @@ def build_output(recs, nfiles):
             tally[state] += 1
         items.append(entry)
 
+    # ── 전 항목 통합 기상도 ──
+    # 규칙은 항목별 칸과 똑같다: '그 지역 제보자가 지역어형에 준 등급의 점수 평균'.
+    # 항목 하나가 아니라 101개 전부의 등급을 모아 같은 식에 넣을 뿐이라 새 해석이 아니다.
+    # 제보자마다 항목 수가 다르므로 (제보자, 항목)마다 최선 등급 하나씩을 모은다.
+    overall = {'code': '__ALL__', 'word': '전체', 'headword': '전체', 'regions': {}}
+    for rg in REGION_ORDER:
+        grades, per_key = [], collections.defaultdict(list)
+        for it in core:
+            for r in by_item[it]:
+                if r['rg'] != rg or not r['g'] or not is_dialect(it, r['form']):
+                    continue
+                per_key[(it, r['year'], r['age'], r['sx'])].append(int(r['g']))
+        for (it, y, a, sx), gs in per_key.items():
+            grades.append(min(gs))                       # 제보자 한 명의 그 항목 최선 등급
+        people = sorted({(k[1], k[2], k[3]) for k in per_key})
+        score = region_score(grades) if grades else None
+        cell = {'state': weather_of(score), 'n': len(people), 'score': score,
+                'answers': len(grades),                  # 평균에 들어간 (제보자,항목) 수
+                'items': len({k[0] for k in per_key}),   # 지역어형이 나온 항목 수
+                'dist': {str(k): sum(1 for g in grades if g == k) for k in (1, 2, 3, 4)}}
+        for axis, keys in (('gens', [(g, None) for g in (20, 50, 70)]),
+                           ('gensex', [(g, sx) for g in (20, 50, 70) for sx in ('M', 'F')])):
+            cell[axis] = {}
+            for g, sx in keys:
+                sel = [min(v) for k, v in per_key.items()
+                       if k[2] == g and (sx is None or k[3] == sx)]
+                key = str(g) if sx is None else '%d%s' % (g, sx)
+                sc = region_score(sel) if sel else None
+                # cases 는 싣지 않는다 — 통합은 (제보자,항목) 조합이 수백 개라
+                # 사례 나열이 뜻을 갖지 않고, 화면이 그 길이를 '명 수'로 잘못 읽는다.
+                cell[axis][key] = {
+                    'state': weather_of(sc), 'score': sc,
+                    'n': len({(k[1], k[3]) for k in per_key
+                              if k[2] == g and (sx is None or k[3] == sx)}),   # 제보자 수
+                    'answers': len(sel),                                       # 평균에 들어간 응답 수
+                    'used': sum(1 for x in sel if x == 1)}                     # 그중 '지금도 씀'
+        overall['regions'][rg] = cell
+
     # 지역별로 실제 조사된 제보자 구성 — '조사 안 함'과 '지역어형 안 나옴'을 구분하기 위해
 
     out = {
@@ -453,6 +491,8 @@ def build_output(recs, nfiles):
             'w0':  {'label': '관측 없음', 'icon': 'ti-cloud-off', 'emoji': '🌫️', 'desc': '자료 없음'},
         },
         'items': items,
+        # 단어를 고르지 않고 전 항목을 한 장으로 볼 때 쓴다 (items 와 같은 모양)
+        'overall': overall,
     }
     return out
 
