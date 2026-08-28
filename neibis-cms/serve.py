@@ -5608,6 +5608,13 @@ def api_weather_upload(raw: bytes, ctype: str) -> dict:
             results.append({"ok": False, "fileName": fname,
                             "message": "파일명 규약 불일치 ({지역2}{연차2}{세대2}{성별1}VE.xlsx)"})
             continue
+        # 등록되지 않은 지역코드를 받으면 그 파일이 10번째 지역으로 세어져
+        # 표출 항목(등급이 매겨진 지역 수 == 9)이 조용히 깎인다. 화면 검수와 같은 규칙.
+        if meta["region_cd"] not in WB_REGION_NAMES:
+            results.append({"ok": False, "fileName": fname,
+                            "message": "지역코드 '%s' 는 조사 지역이 아닙니다 (%s)"
+                                       % (meta["region_cd"], " ".join(WB_REGION_ORDER))})
+            continue
         try:
             layout, rows = _wb_read_sheet(f["data"])
         except Exception as e:

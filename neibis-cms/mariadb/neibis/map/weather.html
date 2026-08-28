@@ -1677,11 +1677,13 @@ const getMngrFail = function (xhr, status, error) {
 
   function verify(files){
     var RNm={CB:'충북',CN:'충남',GB:'경북',GG:'경기',GN:'경남',GW:'강원',JB:'전북',JJ:'제주',JN:'전남'};
-    var ok=[],bad=[],lock=[],dup=[],seenKey={},seenRg={},exist=[],edited=[];
+    var ok=[],bad=[],badRg=[],lock=[],dup=[],seenKey={},seenRg={},exist=[],edited=[];
     files.forEach(function(f){
       if(/^~\$/.test(f.name)){ lock.push(f.name); return; }
       var m=/^([A-Z]{2})(\d{2})(\d{2})([MF])VE/.exec(f.name);
       if(!m){ bad.push(f.name); return; }
+      /* 등록되지 않은 지역코드는 10번째 지역으로 세어져 표출 항목을 깎는다 */
+      if(!RNm[m[1]]){ badRg.push(f.name+' ('+m[1]+')'); return; }
       var k=m[1]+m[2]+m[3]+m[4];              /* 연차 포함 — 빼면 23·24년이 중복으로 잡힌다 */
       if(seenKey[k]){ dup.push(f.name); return; }
       seenKey[k]=1; seenRg[m[1]]=1; ok.push({name:f.name, rg:m[1]});
@@ -1701,6 +1703,9 @@ const getMngrFail = function (xhr, status, error) {
       s:'엑셀에서 파일을 열어 둔 채 올리면 ~$ 로 시작하는 임시 파일이 함께 선택됩니다.', d:lock.join(', ')});
     if(bad.length){ stop=true; items.push({t:'stop', b:'이름 규약과 다른 파일 '+bad.length+'개',
       s:'{지역2}{연차2}{세대2}{성별1}VE.xlsx 형식이어야 합니다. 예: GG2450MVE.xlsx', d:bad.join(', ')}); }
+    if(badRg.length){ stop=true; items.push({t:'stop', b:'조사 지역이 아닌 코드 '+badRg.length+'개',
+      s:'지역코드는 <b>'+Object.keys(RNm).join(' · ')+'</b> 중 하나여야 합니다. '
+       +'다른 코드가 섞이면 표출 항목이 조용히 줄어듭니다.', d:badRg.join(', ')}); }
     if(dup.length) items.push({t:'warn', b:'같은 제보자 파일이 '+dup.length+'개 겹칩니다',
       s:'지역·연차·세대·성별이 같은 파일이 둘 이상입니다. 뒤엣것은 올리지 않습니다.', d:dup.join(', ')});
 
