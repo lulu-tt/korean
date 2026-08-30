@@ -1632,6 +1632,16 @@ const getMngrFail = function (xhr, status, error) {
 
   var RNM={CB:'충북',CN:'충남',GB:'경북',GG:'경기',GN:'경남',GW:'강원',JB:'전북',JJ:'제주',JN:'전남'};
 
+  /* 테마(jquery.inuix.neibis)가 window.confirm 을 콜백식으로 덮어써서 불리언을 돌려주지 않는다.
+     if(!confirm(...)) return; 은 항상 참이 되어 그 자리에서 멈춘다. 반드시 이 도우미를 쓸 것. */
+  function ptAsk(title, msg, onYes){
+    if(window.Message && Message.confirm){
+      Message.confirm({icon:'warning', title:title, message:msg}, onYes);
+      return;
+    }
+    if(window.confirm(msg)) onYes();
+  }
+
   function loadHave(){
     fetch('/mariadb/neibis-api/weather/files').then(function(r){ return r.json(); })
       .then(function(j){
@@ -1779,14 +1789,15 @@ const getMngrFail = function (xhr, status, error) {
       var ed=+b.dataset.ed;
       var msg = b.dataset.nm + ' 을(를) 삭제합니다.\n그 제보자의 응답이 모두 사라집니다.';
       if(ed) msg += '\n\n관리자가 고친 값 ' + ed + '건도 함께 사라집니다.';
-      if(!confirm(msg)) return;
-      fetch('/mariadb/neibis-api/weather/delete', {method:'POST',
-          headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:b.dataset.id})})
-        .then(function(r){ return r.json(); })
-        .then(function(k){
-          if(window.Message) Message.alert({icon:k.ok?'success':'error', message:k.message});
-          loadHave(); if(window.__ptReload) window.__ptReload();
-        });
+      ptAsk('이 파일을 삭제할까요?', msg, function(){
+        fetch('/mariadb/neibis-api/weather/delete', {method:'POST',
+            headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:b.dataset.id})})
+          .then(function(r){ return r.json(); })
+          .then(function(k){
+            if(window.Message) Message.alert({icon:k.ok?'success':'error', message:k.message});
+            loadHave(); if(window.__ptReload) window.__ptReload();
+          });
+      });
     });
     $('pfExport').addEventListener('click', function(){
       var b=this, label=b.innerHTML;
@@ -1812,8 +1823,7 @@ const getMngrFail = function (xhr, status, error) {
       verify(picked);
     });
     $('ptVApply').addEventListener('click', function(){
-      if(!confirm('파일 '+picked.length+'개를 적재합니다. 계속할까요?')) return;
-      apply();
+      ptAsk('이대로 반영할까요?', '파일 '+picked.length+'개를 적재합니다.', apply);
     });
   });
 
@@ -1998,10 +2008,12 @@ const getMngrFail = function (xhr, status, error) {
 
   document.addEventListener('DOMContentLoaded', function(){
     $('ptBack').addEventListener('click', function(){
-      if(Object.keys(DIRTY).length && !confirm('저장하지 않은 수정 '
-          + Object.keys(DIRTY).length + '건이 있습니다. 목록으로 돌아갈까요?')) return;
-      DIRTY={}; syncSaveBar();
-      $('ptResp').style.display='none'; $('ptList').style.display=''; window.scrollTo(0,0); });
+      var go=function(){ DIRTY={}; syncSaveBar();
+        $('ptResp').style.display='none'; $('ptList').style.display=''; window.scrollTo(0,0); };
+      var n=Object.keys(DIRTY).length;
+      if(!n) return go();
+      ptAsk('목록으로 돌아갈까요?', '저장하지 않은 수정 '+n+'건이 사라집니다.', go);
+    });
     $('ptRevert').addEventListener('click', function(){
       DIRTY={}; renderResp(); syncSaveBar(); });
     $('ptSaveAll').addEventListener('click', save);
