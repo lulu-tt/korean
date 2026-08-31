@@ -142,26 +142,33 @@ def build():
 
 
 def file_list():
-    files, recs = load_records()
-    edited = {}
-    for r in recs:
-        if r.get("upt"):
-            edited[r["rg"]] = edited.get(r["rg"], 0)
+    """적재 현황 — serve.py 의 api_weather_files 와 같은 질의를 그대로 쓴다.
+
+    30,043행을 다 끌어오지 않고 개수는 DB 에서 센다. editedCnt·gradeBadCnt 는
+    화면이 재업로드 경고와 자료 오류를 띄우는 근거라 비워 두면 안 된다.
+    """
+    rows, edited, resp, bad = turso([
+        "SELECT weather_file_id, file_nm, region_cd, region_nm, research_year,"
+        " generation, sex, row_cnt, item_cnt, src_layout, use_yn, reg_dt"
+        " FROM wb_weather_file ORDER BY region_cd, generation, sex",
+        "SELECT weather_file_id, COUNT(*) FROM wb_weather_response"
+        " WHERE upt_dt IS NOT NULL GROUP BY weather_file_id",
+        "SELECT COUNT(*) FROM wb_weather_response",
+        "SELECT COUNT(*) FROM wb_weather_response"
+        " WHERE grade IS NOT NULL AND grade<>'*' AND grade_valid_yn='N'",
+    ])
+    ed = {cell(r[0]): cell(r[1]) for r in edited}
+    cols = ["weather_file_id", "file_nm", "region_cd", "region_nm", "research_year",
+            "generation", "sex", "row_cnt", "item_cnt", "src_layout", "use_yn", "reg_dt"]
     lst = []
-    for x in files:
-        lst.append({
-            "weather_file_id": cell(x[0]), "file_nm": cell(x[1]),
-            "region_cd": cell(x[2]), "region_nm": cell(x[10]) or cell(x[2]),
-            "research_year": 2000 + int(cell(x[3]) or 0),
-            "generation": cell(x[4]), "sex": cell(x[5]),
-            "row_cnt": cell(x[6]), "item_cnt": cell(x[7]),
-            "src_layout": cell(x[8]), "use_yn": "Y", "reg_dt": cell(x[9]),
-            "sexNm": "여" if cell(x[5]) == "F" else "남",
-            "genNm": "%s대" % cell(x[4]),
-            "editedCnt": 0,
-        })
+    for r in rows:
+        x = {c: cell(r[i]) for i, c in enumerate(cols)}
+        x["sexNm"] = "여" if x["sex"] == "F" else "남"
+        x["genNm"] = "%s대" % x["generation"]
+        x["editedCnt"] = ed.get(x["weather_file_id"], 0)
+        lst.append(x)
     return {"ok": True, "total": len(lst), "list": lst,
-            "responseCnt": len(recs), "gradeBadCnt": 0}
+            "responseCnt": cell(resp[0][0]), "gradeBadCnt": cell(bad[0][0])}
 
 
 def responses(item):
