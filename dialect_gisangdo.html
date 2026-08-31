@@ -644,12 +644,13 @@ body{ background:#ffffff; }
           body: JSON.stringify({
             requests: [
               { type: 'execute', stmt: { sql: 'SELECT weather_file_id, region_cd FROM wb_weather_file' } },
-              { type: 'execute', stmt: { sql: 'SELECT item_cd, standard_word, dialect_word, usage_grade, region_cd FROM wb_weather_response' } }
+              { type: 'execute', stmt: { sql: 'SELECT r.item_cd, r.headword, r.dialect_form, r.grade, f.region_cd FROM wb_weather_response r JOIN wb_weather_file f ON r.weather_file_id = f.weather_file_id' } }
             ]
           })
         })
         .then(r=> r.ok ? r.json() : Promise.reject(new Error(r.status)))
         .then(res=>{
+          if(!res.results || !res.results[0].response || !res.results[1].response) throw new Error('Turso query error');
           const fileRows = res.results[0].response.result.rows;
           const respRows = res.results[1].response.result.rows;
           const itemsDict = {};
