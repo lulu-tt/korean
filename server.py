@@ -1045,11 +1045,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 conn.close()
 
                 def sex_label(v):
+                    # tb_dialect_region.sex 는 0=여 · 1=남 이다 (wb_source 와 같은 규약).
+                    # 예) 문경시 2016 sex='0' 83세 = 김옥현(여) — wb_source 로 대조 확인.
+                    # oral_api.py 는 파일명 규약(FUT/MUT)과 337건 전수 대조로 같은 결론.
                     s = str(v or '').strip()
-                    if s in ('0', '남', '남성'):
-                        return '남'
-                    if s in ('1', '여', '여성'):
+                    if s in ('0', '여', '여성'):
                         return '여'
+                    if s in ('1', '남', '남성'):
+                        return '남'
                     return s or ''
 
                 data = []
