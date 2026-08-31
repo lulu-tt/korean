@@ -63,6 +63,14 @@ def _norm(h):
     return re.sub(r'\s+', '', str(h or ''))
 
 
+def _hdr(h):
+    """열 찾기용 머리글 — 2022·2023 자료는 '(수정)' 같은 꼬리가 붙는다.
+
+    _norm 은 서식 종류를 세는 데도 쓰므로 그대로 두고, 열을 찾을 때만 꼬리를 뗀다.
+    """
+    return re.sub(r'\((수정|보충|최종|검수)\)$', '', _norm(h))
+
+
 def resolve_columns(ws):
     """원자료 서식이 13가지로 제각각이라 열 위치를 헤더에서 찾는다.
        (충남 20대 여·70대 여 파일은 타임코드 열이 없어 항목번호가 1번째에 온다.)"""
@@ -70,7 +78,7 @@ def resolve_columns(ws):
         hdr = next(ws.iter_rows(min_row=1, max_row=1, values_only=True))
     except StopIteration:
         return None
-    idx = {_norm(h): i for i, h in enumerate(hdr) if h}
+    idx = {_hdr(h): i for i, h in enumerate(hdr) if h}
 
     def find(*names):
         for n in names:
@@ -80,7 +88,7 @@ def resolve_columns(ws):
 
     col = {
         'code':  find('항목번호'),
-        'head':  find('표제어', '표준어형', '표제어형'),
+        'head':  find('표제어', '표준어형', '표제어형', '대응표준어'),
         'base':  find('방언형(기저형)'),
         'grade': find('인지도/사용도', '사용도/인지도'),
     }

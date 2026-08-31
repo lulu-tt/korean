@@ -5240,138 +5240,132 @@ def api_literature_delete(body: dict) -> dict:
 
 
 # ────────────────────────────────────────────────────────────────────────────
-# 세대별 지역어 변화(단어 카드) 관리 — data/processed/word_stories.json 직접 편집
-#   · 프론트(dialect_wordcard.html)가 읽는 그 파일이 곧 원본이다. DB를 쓰지 않는다.
-#   · 프론트가 읽는 필드는 word·hook·story·ct 뿐이다(hasCT 는 ct 유무의 결과).
-#   · 저장할 때 알 수 없는 필드는 그대로 보존한다.
-#   · 쓰기는 임시파일 → os.replace 로 원자적으로, 직전 내용은 .bak 으로 남긴다.
+# 세대별 지역어 변화(단어 카드) 관리 — 전용 테이블 (wb_wordcard_*)
+#   · 원본은 DB다. 관리자 CRUD 는 전부 이 표에 하고,
+#     저장·삭제할 때마다 프론트가 읽는 word_stories.json 을 다시 내보낸다.
+#     → 프론트(dialect_wordcard.html)는 고칠 것이 없고, serve.py 가 꺼져 있어도 뜬다.
+#   · 운영에서는 이 표들이 CUBRID 같은 스키마에 들어간다. 로컬 프로토타입에서는
+#     운영 미러(dialect_local.db)를 건드리지 않으려고 별도 파일에 둔다(기상도와 같은 방식).
+#   · 표를 처음 만들 때 기존 word_stories.json 을 그대로 적재한다(1회, 자동).
+#   · 교차표는 6집단 × 4범주라 칸이 고정이다 → 세로가 아니라 한 줄에 네 칸으로 둔다.
+#   · JSON 쓰기는 임시파일 → os.replace 로 원자적으로, 직전 내용은 .bak 으로 남긴다.
 # ────────────────────────────────────────────────────────────────────────────
 WORDCARD_JSON = USER_MAP_ROOT / "data" / "processed" / "word_stories.json"
+WORDCARD_DB = Path(
+    os.environ.get("WORDCARD_DB", str(USER_MAP_ROOT / "data" / "wordcard.db"))
+)
 
 WC_GROUPS = ["20M", "20F", "50M", "50F", "70M", "70F"]
 
+# 앞단 그래프의 4범주. 배열 순서 = ct 배열 인덱스 = 관리자 교차표 열 순서.
+WC_CODING_DEFAULT = [
+    {"k": "std", "label": "표준어를 씀", "color": "#185FA5"},
+    {"k": "dia", "label": "지역어를 씀", "color": "#BA7517"},
+    {"k": "mix", "label": "둘 다 씀", "color": "#5F5E5A"},
+    {"k": "none", "label": "모름·안 씀", "color": "#C0BDB6"},
+]
 
-def _wc_load() -> dict:
+WORDCARD_DDL = """
+CREATE TABLE IF NOT EXISTS wb_wordcard (
+  item_cd  TEXT PRIMARY KEY,              -- 항목코드 (조사 항목번호, 조사표에 없으면 x-매미)
+  word     TEXT NOT NULL,                 -- 표준어 표제어
+  hook     TEXT NOT NULL DEFAULT '',      -- 한 줄 요약
+  story    TEXT NOT NULL DEFAULT '',      -- 설명
+  has_ct   INTEGER NOT NULL DEFAULT 0,    -- 교차표 유무 = 앞단 노출 여부 (파생값)
+  sort_no  INTEGER NOT NULL DEFAULT 0,    -- 내보내기 순서 (등록 순)
+  reg_dt   TEXT,
+  upt_dt   TEXT
+);
+
+CREATE TABLE IF NOT EXISTS wb_wordcard_ct (
+  item_cd  TEXT NOT NULL,                 -- wb_wordcard.item_cd
+  grp      TEXT NOT NULL,                 -- 20M 20F 50M 50F 70M 70F
+  cnt_std  INTEGER NOT NULL DEFAULT 0,
+  cnt_dia  INTEGER NOT NULL DEFAULT 0,
+  cnt_mix  INTEGER NOT NULL DEFAULT 0,
+  cnt_non  INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (item_cd, grp)
+);
+
+-- 앞단 상단 안내(meta)와 4범주 정의(coding). 내보낼 JSON 을 그대로 복원하려고 둔다.
+CREATE TABLE IF NOT EXISTS wb_wordcard_meta (
+  cfg_key  TEXT PRIMARY KEY,
+  cfg_val  TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS ix_wc_word ON wb_wordcard (word);
+CREATE INDEX IF NOT EXISTS ix_wc_sort ON wb_wordcard (sort_no);
+"""
+
+
+def _wc_now() -> str:
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def wordcard_db():
+    WORDCARD_DB.parent.mkdir(parents=True, exist_ok=True)
+    con = sqlite3.connect(str(WORDCARD_DB))
+    con.row_factory = sqlite3.Row
+    con.executescript(WORDCARD_DDL)
+    _wc_seed_if_empty(con)
+    return con
+
+
+def _wc_seed_if_empty(con) -> None:
+    """표가 비어 있으면 기존 word_stories.json 을 1회 적재한다."""
+    if con.execute("SELECT 1 FROM wb_wordcard LIMIT 1").fetchone():
+        return
     if not WORDCARD_JSON.is_file():
-        raise FileNotFoundError(f"단어 카드 자료를 찾을 수 없습니다: {WORDCARD_JSON}")
-    with WORDCARD_JSON.open("r", encoding="utf-8") as f:
-        db = json.load(f)
-    db.setdefault("words", [])
-    db.setdefault("coding", [])
-    db.setdefault("meta", {})
-    return db
-
-
-def _wc_write(db: dict) -> None:
-    text = json.dumps(db, ensure_ascii=False, indent=1) + "\n"
-    if WORDCARD_JSON.is_file():
-        try:
-            bak = WORDCARD_JSON.with_suffix(WORDCARD_JSON.suffix + ".bak")
-            bak.write_bytes(WORDCARD_JSON.read_bytes())
-        except Exception:
-            pass  # 백업 실패로 저장 자체를 막지는 않는다
-    tmp = WORDCARD_JSON.with_name(WORDCARD_JSON.name + ".tmp")
-    tmp.write_text(text, encoding="utf-8")
-    os.replace(str(tmp), str(WORDCARD_JSON))
-
-
-def _wc_ct_total(word: dict) -> int:
-    ct = word.get("ct") or {}
-    n = 0
-    for g in WC_GROUPS:
-        for v in (ct.get(g) or []):
-            try:
-                n += int(v)
-            except Exception:
-                pass
-    return n
-
-
-def _wc_row(word: dict) -> dict:
-    """목록 한 줄 — 무거운 교차표는 합계만 보낸다."""
-    return {
-        "id": str(word.get("id") or ""),
-        "word": word.get("word") or "",
-        "hook": word.get("hook") or "",
-        "hasCT": bool(word.get("hasCT")),
-        "ctTotal": _wc_ct_total(word),
-    }
-
-
-def api_wordcard_meta(qs: dict) -> dict:
-    """교차표 코딩 범주 — 등록/수정 폼의 열 이름·색."""
-    db = _wc_load()
-    return {
-        "ok": True,
-        "coding": db["coding"],
-        "groups": WC_GROUPS,
-        "meta": db["meta"],
-        "path": str(WORDCARD_JSON),
-        "total": len(db["words"]),
-    }
-
-
-def api_wordcard_list(qs: dict) -> dict:
-    def q1(k, d=""):
-        v = qs.get(k)
-        return (v[0] if isinstance(v, list) else v) or d
-
-    kw = str(q1("searchValue")).strip()
-    expose = str(q1("searchExpose")).strip()  # Y: 교차표 있음(프론트 노출), N: 없음
+        con.execute(
+            "INSERT OR REPLACE INTO wb_wordcard_meta (cfg_key, cfg_val) VALUES ('coding', ?)",
+            (json.dumps(WC_CODING_DEFAULT, ensure_ascii=False),),
+        )
+        con.commit()
+        return
     try:
-        page = max(1, int(q1("page", "1")))
+        with WORDCARD_JSON.open("r", encoding="utf-8") as f:
+            src = json.load(f)
     except Exception:
-        page = 1
+        return
+
+    coding = src.get("coding") or WC_CODING_DEFAULT
+    con.execute(
+        "INSERT OR REPLACE INTO wb_wordcard_meta (cfg_key, cfg_val) VALUES ('coding', ?)",
+        (json.dumps(coding, ensure_ascii=False),),
+    )
+    if src.get("meta"):
+        con.execute(
+            "INSERT OR REPLACE INTO wb_wordcard_meta (cfg_key, cfg_val) VALUES ('meta', ?)",
+            (json.dumps(src["meta"], ensure_ascii=False),),
+        )
+
+    now = _wc_now()
+    for i, w in enumerate(src.get("words") or []):
+        wid = str(w.get("id") or "").strip()
+        if not wid:
+            continue
+        ct = _wc_clean_ct(w.get("ct"))
+        con.execute(
+            "INSERT OR REPLACE INTO wb_wordcard"
+            " (item_cd, word, hook, story, has_ct, sort_no, reg_dt, upt_dt)"
+            " VALUES (?,?,?,?,?,?,?,?)",
+            (wid, str(w.get("word") or ""), str(w.get("hook") or ""),
+             str(w.get("story") or ""), 1 if ct else 0, i, now, now),
+        )
+        _wc_save_ct(con, wid, ct)
+    con.commit()
+
+
+def _wc_meta(con, key: str, default):
+    row = con.execute(
+        "SELECT cfg_val FROM wb_wordcard_meta WHERE cfg_key = ?", (key,)
+    ).fetchone()
+    if not row:
+        return default
     try:
-        page_size = int(q1("pageSize", "10"))
+        return json.loads(row["cfg_val"])
     except Exception:
-        page_size = 10
-    page_size = min(max(page_size, 1), 500)
-
-    db = _wc_load()
-    rows = [_wc_row(w) for w in db["words"]]
-
-    if kw:
-        def hit(r):
-            hay = " ".join([r["id"], r["word"], r["hook"]])
-            return kw in hay
-        rows = [r for r in rows if hit(r)]
-    if expose == "Y":
-        rows = [r for r in rows if r["hasCT"]]
-    elif expose == "N":
-        rows = [r for r in rows if not r["hasCT"]]
-
-    total = len(rows)
-    # 앞단에 실제로 뜨는 건수 — 목록 총건수(파일 전체)와 헷갈리지 않게 함께 보낸다
-    exposed = sum(1 for r in rows if r["hasCT"])
-    total_pages = max(1, (total + page_size - 1) // page_size)
-    page = min(page, total_pages)
-    start = (page - 1) * page_size
-    return {
-        "ok": True,
-        "total": total,
-        "exposed": exposed,
-        "hidden": total - exposed,
-        "page": page,
-        "pageSize": page_size,
-        "totalPages": total_pages,
-        "list": rows[start:start + page_size],
-    }
-
-
-def api_wordcard_detail(qs: dict) -> dict:
-    def q1(k, d=""):
-        v = qs.get(k)
-        return (v[0] if isinstance(v, list) else v) or d
-
-    wid = str(q1("id")).strip()
-    if not wid:
-        return {"ok": False, "message": "항목 ID가 없습니다."}
-    db = _wc_load()
-    for w in db["words"]:
-        if str(w.get("id")) == wid:
-            return {"ok": True, "item": w, "coding": db["coding"]}
-    return {"ok": False, "message": f"항목을 찾을 수 없습니다: {wid}"}
+        return default
 
 
 def _wc_clean_ct(raw) -> dict:
@@ -5394,6 +5388,189 @@ def _wc_clean_ct(raw) -> dict:
     return out
 
 
+def _wc_save_ct(con, item_cd: str, ct: dict) -> None:
+    con.execute("DELETE FROM wb_wordcard_ct WHERE item_cd = ?", (item_cd,))
+    for g, v in ct.items():
+        con.execute(
+            "INSERT INTO wb_wordcard_ct (item_cd, grp, cnt_std, cnt_dia, cnt_mix, cnt_non)"
+            " VALUES (?,?,?,?,?,?)",
+            (item_cd, g, v[0], v[1], v[2], v[3]),
+        )
+
+
+def _wc_load_ct(con, item_cds) -> dict:
+    """{항목코드: {집단: [4칸]}} — 목록·내보내기에서 한 번에 읽는다."""
+    ids = [str(x) for x in item_cds]
+    if not ids:
+        return {}
+    out = {}
+    for i in range(0, len(ids), 400):          # SQLite 변수 개수 한도를 넘지 않게
+        chunk = ids[i:i + 400]
+        ph = ",".join("?" * len(chunk))
+        rows = con.execute(
+            f"SELECT item_cd, grp, cnt_std, cnt_dia, cnt_mix, cnt_non"
+            f"  FROM wb_wordcard_ct WHERE item_cd IN ({ph})", chunk
+        ).fetchall()
+        for r in rows:
+            out.setdefault(r["item_cd"], {})[r["grp"]] = [
+                r["cnt_std"], r["cnt_dia"], r["cnt_mix"], r["cnt_non"]
+            ]
+    return out
+
+
+def _wc_word_obj(row, ct: dict) -> dict:
+    """프론트가 읽는 단어 객체 — 필드 이름·순서를 JSON 스키마에 맞춘다."""
+    obj = {
+        "id": row["item_cd"],
+        "word": row["word"],
+        "hook": row["hook"] or "",
+        "story": row["story"] or "",
+    }
+    ordered = {g: ct[g] for g in WC_GROUPS if g in ct}
+    if ordered:
+        obj["ct"] = ordered
+    obj["hasCT"] = bool(ordered)
+    return obj
+
+
+def _wc_export_json(con) -> None:
+    """DB → word_stories.json. 프론트가 읽는 파일이라 저장·삭제 때마다 다시 쓴다."""
+    rows = con.execute(
+        "SELECT * FROM wb_wordcard ORDER BY sort_no, item_cd"
+    ).fetchall()
+    ct_all = _wc_load_ct(con, [r["item_cd"] for r in rows])
+    db = {
+        "meta": _wc_meta(con, "meta", {}),
+        "coding": _wc_meta(con, "coding", WC_CODING_DEFAULT),
+        "words": [_wc_word_obj(r, ct_all.get(r["item_cd"], {})) for r in rows],
+    }
+    text = json.dumps(db, ensure_ascii=False, indent=1) + "\n"
+    WORDCARD_JSON.parent.mkdir(parents=True, exist_ok=True)
+    if WORDCARD_JSON.is_file():
+        try:
+            bak = WORDCARD_JSON.with_suffix(WORDCARD_JSON.suffix + ".bak")
+            bak.write_bytes(WORDCARD_JSON.read_bytes())
+        except Exception:
+            pass  # 백업 실패로 저장 자체를 막지는 않는다
+    tmp = WORDCARD_JSON.with_name(WORDCARD_JSON.name + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    os.replace(str(tmp), str(WORDCARD_JSON))
+
+
+def _wc_ct_total(ct: dict) -> int:
+    return sum(sum(v) for v in (ct or {}).values())
+
+
+def api_wordcard_meta(qs: dict) -> dict:
+    """교차표 코딩 범주 — 등록/수정 폼의 열 이름·색."""
+    con = wordcard_db()
+    try:
+        total = con.execute("SELECT COUNT(*) AS n FROM wb_wordcard").fetchone()["n"]
+        return {
+            "ok": True,
+            "coding": _wc_meta(con, "coding", WC_CODING_DEFAULT),
+            "groups": WC_GROUPS,
+            "meta": _wc_meta(con, "meta", {}),
+            "path": str(WORDCARD_DB),
+            "exportPath": str(WORDCARD_JSON),
+            "total": total,
+        }
+    finally:
+        con.close()
+
+
+def api_wordcard_list(qs: dict) -> dict:
+    def q1(k, d=""):
+        v = qs.get(k)
+        return (v[0] if isinstance(v, list) else v) or d
+
+    kw = str(q1("searchValue")).strip()
+    expose = str(q1("searchExpose")).strip()  # Y: 교차표 있음(프론트 노출), N: 없음
+    try:
+        page = max(1, int(q1("page", "1")))
+    except Exception:
+        page = 1
+    try:
+        page_size = int(q1("pageSize", "10"))
+    except Exception:
+        page_size = 10
+    page_size = min(max(page_size, 1), 500)
+
+    where, params = [], []
+    if kw:
+        where.append("(item_cd LIKE ? OR word LIKE ? OR hook LIKE ?)")
+        like = f"%{kw}%"
+        params += [like, like, like]
+    if expose == "Y":
+        where.append("has_ct = 1")
+    elif expose == "N":
+        where.append("has_ct = 0")
+    cond = (" WHERE " + " AND ".join(where)) if where else ""
+
+    con = wordcard_db()
+    try:
+        total = con.execute(
+            f"SELECT COUNT(*) AS n FROM wb_wordcard{cond}", params
+        ).fetchone()["n"]
+        exposed = con.execute(
+            f"SELECT COUNT(*) AS n FROM wb_wordcard{cond}"
+            f"{' AND' if cond else ' WHERE'} has_ct = 1", params
+        ).fetchone()["n"]
+
+        total_pages = max(1, (total + page_size - 1) // page_size)
+        page = min(page, total_pages)
+        rows = con.execute(
+            f"SELECT item_cd, word, hook, has_ct FROM wb_wordcard{cond}"
+            f" ORDER BY sort_no, item_cd LIMIT ? OFFSET ?",
+            params + [page_size, (page - 1) * page_size]
+        ).fetchall()
+        ct_all = _wc_load_ct(con, [r["item_cd"] for r in rows])
+        lst = [{
+            "id": r["item_cd"],
+            "word": r["word"],
+            "hook": r["hook"] or "",
+            "hasCT": bool(r["has_ct"]),
+            "ctTotal": _wc_ct_total(ct_all.get(r["item_cd"], {})),
+        } for r in rows]
+    finally:
+        con.close()
+
+    return {
+        "ok": True,
+        "total": total,
+        "exposed": exposed,
+        "hidden": total - exposed,
+        "page": page,
+        "pageSize": page_size,
+        "totalPages": total_pages,
+        "list": lst,
+    }
+
+
+def api_wordcard_detail(qs: dict) -> dict:
+    def q1(k, d=""):
+        v = qs.get(k)
+        return (v[0] if isinstance(v, list) else v) or d
+
+    wid = str(q1("id")).strip()
+    if not wid:
+        return {"ok": False, "message": "항목 ID가 없습니다."}
+    con = wordcard_db()
+    try:
+        row = con.execute(
+            "SELECT * FROM wb_wordcard WHERE item_cd = ?", (wid,)
+        ).fetchone()
+        if not row:
+            return {"ok": False, "message": f"항목을 찾을 수 없습니다: {wid}"}
+        item = _wc_word_obj(row, _wc_load_ct(con, [wid]).get(wid, {}))
+        item["regDt"] = row["reg_dt"] or ""
+        item["uptDt"] = row["upt_dt"] or ""
+        return {"ok": True, "item": item,
+                "coding": _wc_meta(con, "coding", WC_CODING_DEFAULT)}
+    finally:
+        con.close()
+
+
 def api_wordcard_save(body: dict) -> dict:
     mode = str(body.get("mode") or "").upper()
     wid = str(body.get("id") or "").strip()
@@ -5405,51 +5582,58 @@ def api_wordcard_save(body: dict) -> dict:
     if not word:
         return {"ok": False, "message": "표준어를 입력해주세요."}
 
-    db = _wc_load()
-    words = db["words"]
-
-    idx = {str(w.get("id")): i for i, w in enumerate(words)}
-    if mode == "M":
-        target = old_id or wid
-        if target not in idx:
-            return {"ok": False, "message": f"수정할 항목을 찾을 수 없습니다: {target}"}
-        if wid != target and wid in idx:
-            return {"ok": False, "message": f"이미 쓰고 있는 항목코드입니다: {wid}"}
-        base = dict(words[idx[target]])
-        pos = idx[target]
-    else:
-        if wid in idx:
-            return {"ok": False, "message": f"이미 쓰고 있는 항목코드입니다: {wid}"}
-        base = {}
-        pos = None
-
     ct = _wc_clean_ct(body.get("ct"))
+    hook = str(body.get("hook") or "").strip()
+    story = str(body.get("story") or "").strip()
+    now = _wc_now()
 
-    base["id"] = wid
-    base["word"] = word
-    base["hook"] = str(body.get("hook") or "").strip()
-    base["story"] = str(body.get("story") or "").strip()
+    con = wordcard_db()
+    try:
+        exists = lambda k: con.execute(                       # noqa: E731
+            "SELECT 1 FROM wb_wordcard WHERE item_cd = ?", (k,)
+        ).fetchone() is not None
 
-    # 교차표가 있는 항목만 프론트 차트에 노출된다 → hasCT 는 입력값이 아니라 결과다
-    if ct:
-        base["ct"] = ct
-        base["hasCT"] = True
-    else:
-        base.pop("ct", None)
-        base["hasCT"] = False
+        if mode == "M":
+            target = old_id or wid
+            if not exists(target):
+                return {"ok": False, "message": f"수정할 항목을 찾을 수 없습니다: {target}"}
+            if wid != target and exists(wid):
+                return {"ok": False, "message": f"이미 쓰고 있는 항목코드입니다: {wid}"}
+            # 항목코드가 바뀌어도 등록 순서를 지킨다 → sort_no 를 물려받는다
+            base = con.execute(
+                "SELECT sort_no, reg_dt FROM wb_wordcard WHERE item_cd = ?", (target,)
+            ).fetchone()
+            con.execute("DELETE FROM wb_wordcard_ct WHERE item_cd = ?", (target,))
+            con.execute("DELETE FROM wb_wordcard WHERE item_cd = ?", (target,))
+            sort_no, reg_dt = base["sort_no"], (base["reg_dt"] or now)
+            created = False
+        else:
+            if exists(wid):
+                return {"ok": False, "message": f"이미 쓰고 있는 항목코드입니다: {wid}"}
+            nxt = con.execute(
+                "SELECT COALESCE(MAX(sort_no), -1) + 1 AS n FROM wb_wordcard"
+            ).fetchone()["n"]
+            sort_no, reg_dt = nxt, now
+            created = True
 
-    if pos is None:
-        words.append(base)
-    else:
-        words[pos] = base
+        con.execute(
+            "INSERT INTO wb_wordcard"
+            " (item_cd, word, hook, story, has_ct, sort_no, reg_dt, upt_dt)"
+            " VALUES (?,?,?,?,?,?,?,?)",
+            (wid, word, hook, story, 1 if ct else 0, sort_no, reg_dt, now),
+        )
+        _wc_save_ct(con, wid, ct)
+        con.commit()
+        _wc_export_json(con)                                  # 프론트 자료 갱신
+    finally:
+        con.close()
 
-    _wc_write(db)
     return {
         "ok": True,
         "id": wid,
-        "hasCT": base["hasCT"],
-        "message": ("등록되었습니다." if pos is None else "수정되었습니다.")
-        + ("" if base["hasCT"] else " 교차표가 없어 앞단 화면에는 노출되지 않습니다."),
+        "hasCT": bool(ct),
+        "message": ("등록되었습니다." if created else "수정되었습니다.")
+        + ("" if ct else " 교차표가 없어 앞단 화면에는 노출되지 않습니다."),
     }
 
 
@@ -5463,13 +5647,18 @@ def api_wordcard_delete(body: dict) -> dict:
     if not ids:
         return {"ok": False, "message": "삭제할 항목을 선택해주세요."}
 
-    db = _wc_load()
-    before = len(db["words"])
-    db["words"] = [w for w in db["words"] if str(w.get("id")) not in set(ids)]
-    deleted = before - len(db["words"])
-    if not deleted:
-        return {"ok": False, "message": "삭제할 항목을 찾지 못했습니다."}
-    _wc_write(db)
+    con = wordcard_db()
+    try:
+        ph = ",".join("?" * len(ids))
+        cur = con.execute(f"DELETE FROM wb_wordcard WHERE item_cd IN ({ph})", ids)
+        deleted = cur.rowcount or 0
+        if not deleted:
+            return {"ok": False, "message": "삭제할 항목을 찾지 못했습니다."}
+        con.execute(f"DELETE FROM wb_wordcard_ct WHERE item_cd IN ({ph})", ids)
+        con.commit()
+        _wc_export_json(con)                                  # 프론트 자료 갱신
+    finally:
+        con.close()
     return {"ok": True, "deleted": deleted, "message": f"{deleted}건 삭제되었습니다."}
 
 
@@ -5541,7 +5730,11 @@ def _wb_norm_header(h) -> str:
         return "종료시간"
     if s.startswith("지속시간"):
         return "지속시간"
+    # 2022·2023 자료는 '표준어형(수정)', '인지도/사용도(수정)' 처럼 꼬리가 붙는다.
+    # 떼지 않으면 별칭에 걸리지 않아 그 칸이 통째로 빈 값으로 적재된다.
+    s = re.sub(r"\((수정|보충|최종|검수)\)$", "", s)
     alias = {"표제어": "표제어형", "표제어형": "표제어형", "표준어형": "표제어형",
+             "대응표준어": "표제어형",
              "인지도/사용도": "사용도/인지도", "사용도/인지도": "사용도/인지도"}
     return alias.get(s, s)
 
