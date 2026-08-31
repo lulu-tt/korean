@@ -1913,14 +1913,53 @@ const getMngrFail = function (xhr, status, error) {
     $('ptList').style.display='none'; $('ptResp').style.display='';
     $('ptRTitle').textContent = word + ' · 응답 목록';
     $('ptRMeta').textContent = '항목코드 ' + code;
-    $('ptRFront').href = 'http://127.0.0.1:8765/dialect_gisangdo.html#/word/' + encodeURIComponent(word);
+    $('ptRFront').href = './dialect_gisangdo.html#/word/' + encodeURIComponent(word);
     $('ptRespRows').innerHTML = '<tr><td colspan="5" class="pt-empty">불러오는 중…</td></tr>';
     window.scrollTo(0,0);
-    fetch('/mariadb/neibis-api/weather/responses?item=' + encodeURIComponent(code))
-      .then(function(r){ return r.json(); })
-      .then(function(j){
-        if(!j.ok) throw new Error(j.message||'불러오기 실패');
-        ROWS=j.rows||[]; fillRgChecks(); renderResp();
+
+    var fromTursoResp = function(){
+      var url = 'https://korean-weather-lulu-tt.aws-ap-northeast-1.turso.io/v2/pipeline';
+      var token = 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3ODgxNDA2MDUsImlkIjoiMDFhMDU1N2MtMzUwMS03ZWI1LTlkNTctZjI0NzJmZjQzOTRkIiwia2lkIjoiNm1PSEd1b2NjdG4tN2I5SHBDOTZnQW5XNVZuN29PZU10cnBHZWVUdEo3NCIsInJpZCI6Ijc0YzdjODIzLWI1MDQtNDRlMS1hZDNhLWUxZmIzODdiNWE2MSJ9.T_f31BvhLdd4CV8pb_UNmsP5YKo0jvKmYuMN6u1rE_oTmEcVzNWp1xt0BhLKZF9gj1rL0UaqVg9JXGbDEfABBw';
+      var REGION_NAMES = {'GG': '경기', 'GW': '강원', 'CB': '충북', 'CN': '충남', 'JB': '전북', 'JN': '전남', 'GB': '경북', 'GN': '경남', 'JJ': '제주'};
+      
+      var sql = "SELECT r.response_id, r.serial_no, f.region_cd, f.gen_cd, f.sex_cd, r.dialect_form, r.grade "
+              + "FROM wb_weather_response r JOIN wb_weather_file f ON r.weather_file_id = f.weather_file_id "
+              + "WHERE r.item_cd = '" + code.replace(/'/g, "''") + "'";
+
+      return fetch(url, {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ requests: [{ type: 'execute', stmt: { sql: sql } }] })
+      })
+      .then(function(res){ return res.ok ? res.json() : Promise.reject(new Error(res.status)); })
+      .then(function(res){
+        var rows = res.results[0].response.result.rows;
+        ROWS = rows.map(function(r){
+          var rg = r[2].value;
+          return {
+            rid: r[0].value,
+            serialNo: r[1].value,
+            region: rg,
+            regionNm: REGION_NAMES[rg] || rg,
+            age: r[3].value || '20',
+            sex: r[4].value || 'M',
+            shown: r[5].value || '',
+            grade: r[6].value || '',
+            edited: 0
+          };
+        });
+        fillRgChecks(); renderResp();
+      });
+    };
+
+    fromTursoResp()
+      .catch(function(){
+        return fetch('/mariadb/neibis-api/weather/responses?item=' + encodeURIComponent(code))
+          .then(function(r){ return r.json(); })
+          .then(function(j){
+            if(!j.ok) throw new Error(j.message||'불러오기 실패');
+            ROWS=j.rows||[]; fillRgChecks(); renderResp();
+          });
       })
       .catch(function(e){ $('ptRespRows').innerHTML =
         '<tr><td colspan="5" class="pt-empty">'+esc(e.message)+'</td></tr>'; });
