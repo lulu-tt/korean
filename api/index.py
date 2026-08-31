@@ -299,10 +299,54 @@ def wordcard_list(qs):
             "page": page, "pageSize": page_size, "totalPages": total_pages, "list": lst}
 
 
+def _wc_cfg(rows):
+    """wb_wordcard_meta → {key: 값}. 값은 JSON 문자열로 들어 있다."""
+    out = {}
+    for r in rows:
+        try:
+            out[cell(r[0])] = json.loads(cell(r[1]) or "null")
+        except Exception:
+            pass
+    return out
+
+
 def wordcard_meta():
-    n, = turso(["SELECT COUNT(*) FROM wb_wordcard"])
-    return {"ok": True, "coding": WC_CODING_DEFAULT, "groups": WC_GROUPS,
-            "meta": {}, "total": int(cell(n[0][0]) or 0)}
+    n, cfg = turso(["SELECT COUNT(*) FROM wb_wordcard",
+                    "SELECT cfg_key, cfg_val FROM wb_wordcard_meta"])
+    c = _wc_cfg(cfg)
+    return {"ok": True,
+            "coding": c.get("coding") or WC_CODING_DEFAULT,
+            "groups": WC_GROUPS,
+            "meta": c.get("meta") or {},
+            "total": cell(n[0][0])}
+
+
+def wordcard_detail(qs):
+    """수정 화면이 읽는 한 장. serve.py 의 api_wordcard_detail 과 같은 모양이다."""
+    wid = (qs.get("id") or [""])[0].strip()
+    if not wid:
+        return {"ok": False, "message": "항목 ID가 없습니다."}
+    rows, cts, cfg = turso([
+        "SELECT item_cd, word, hook, story, reg_dt, upt_dt FROM wb_wordcard"
+        " WHERE item_cd = " + _sq(wid),
+        "SELECT grp, cnt_std, cnt_dia, cnt_mix, cnt_non FROM wb_wordcard_ct"
+        " WHERE item_cd = " + _sq(wid),
+        "SELECT cfg_key, cfg_val FROM wb_wordcard_meta",
+    ])
+    if not rows:
+        return {"ok": False, "message": "항목을 찾을 수 없습니다: " + wid}
+    r = rows[0]
+    ct = {cell(x[0]): [cell(x[i]) for i in range(1, 5)] for x in cts}
+    ordered = {g: ct[g] for g in WC_GROUPS if g in ct}   # 화면 표 순서를 고정한다
+    item = {"id": cell(r[0]), "word": cell(r[1]), "hook": cell(r[2]) or "",
+            "story": cell(r[3]) or ""}
+    if ordered:
+        item["ct"] = ordered
+    item["hasCT"] = bool(ordered)
+    item["regDt"] = cell(r[4]) or ""
+    item["uptDt"] = cell(r[5]) or ""
+    return {"ok": True, "item": item,
+            "coding": _wc_cfg(cfg).get("coding") or WC_CODING_DEFAULT}
 
 
 class handler(BaseHTTPRequestHandler):
@@ -341,6 +385,8 @@ class handler(BaseHTTPRequestHandler):
                 return self._json(wordcard_list(qs))
             if act in ("wordcard-meta", "meta"):
                 return self._json(wordcard_meta())
+            if act in ("wordcard-detail", "detail"):
+                return self._json(wordcard_detail(qs))
         except Exception as e:
             return self._json({"ok": False, "message": str(e)}, 500)
         self._json({"ok": False, "message": "알 수 없는 경로: " + self.path}, 404)
