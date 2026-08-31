@@ -2662,7 +2662,7 @@ window.addEventListener('resize', function(){
 
   var pop = document.getElementById('surveyPop');
   if (!pop) return;
-  var state = { survey: null };
+  var state = { survey: null, isStatic: false };
 
   function closePop() {
     pop.classList.remove('is-open');
@@ -2717,7 +2717,9 @@ window.addEventListener('resize', function(){
       html += '</ul></li>';
     });
 
-    if ((d.prsnlInputYn || 'N') === 'Y') {
+    // GitHub Pages 같은 정적 배포에는 저장 API 가 없다.
+    // 작동하지 않는 개인정보(휴대전화) 수집 칸을 띄우면 안 되므로 정적 모드에서는 만들지 않는다.
+    if (!state.isStatic && (d.prsnlInputYn || 'N') === 'Y') {
       var consent = (d.prsnlInfoCntnts || '').trim() || DEFAULT_PRSNL;
       html += '<li><div class="q-consent">' + esc(consent) + '</div><ul>'
         + '<li><input type="radio" name="personalInfoAgree" id="personal-info-agree1" value="N" checked>'
@@ -2726,6 +2728,10 @@ window.addEventListener('resize', function(){
         + '<label for="personal-info-agree2">개인정보 수집 동의 함</label></li>'
         + '<li><input type="text" placeholder="전화번호 입력" name="personalContAgree" id="personal-cont-agree" class="input-tel" disabled></li>'
         + '</ul></li>';
+    }
+    if (state.isStatic) {
+      html = '<li><div class="q-consent">이 페이지는 <b>정적 시연본</b>입니다. 화면 구성을 보여 주기 위한 것이라'
+        + ' 응답은 저장되지 않고, 개인정보(휴대전화) 입력 칸도 만들지 않았습니다.</div></li>' + html;
     }
     document.getElementById('surveyList').innerHTML = html;
     bindPersonalToggle();
@@ -2759,6 +2765,11 @@ window.addEventListener('resize', function(){
       }
       answers.push({ questionNo: picked.getAttribute('data-qno'), exampleNo: picked.value });
     }
+    if (state.isStatic) {
+      alert('정적 시연본이라 응답이 저장되지 않습니다.\n실제 설문은 운영 누리집에서 참여하실 수 있습니다.');
+      closePop();
+      return;
+    }
     var agreeEl = pop.querySelector('input[name="personalInfoAgree"]:checked');
     var telEl = document.getElementById('personal-cont-agree');
     btn.disabled = true;
@@ -2785,13 +2796,28 @@ window.addEventListener('resize', function(){
     });
   });
 
-  fetch('/api/survey/active').then(function (r) { return r.json(); }).then(function (res) {
+  /* 진행 중인 설문 조회 — API 가 있으면 그것을, 없으면 정적 대체본을 쓴다.
+     (GitHub Pages 에는 server.py 가 없어 /api/survey/active 가 404 다.
+      정적 대체본은 scripts/export_survey_active.py 가 DB에서 만들며 설문 정의만 담는다.) */
+  function showSurvey(res, isStatic) {
     var d = res && res.data;
-    if (!d || !d.surveyNo) return;
-    if (getCookie(COOKIE_PREFIX + d.surveyNo) === 'done') return;
-    if (!(d.questions || []).length) return;
+    if (!d || !d.surveyNo) return false;
+    if (!(d.questions || []).length) return false;
+    if (getCookie(COOKIE_PREFIX + d.surveyNo) === 'done') return true;   // 숨김은 정상 동작
+    state.isStatic = !!isStatic;
     render(d);
-  }).catch(function () {});
+    return true;
+  }
+  function loadStaticSurvey() {
+    fetch('./data/processed/survey_active.json', { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (res) { showSurvey(res, true); })
+      .catch(function () {});
+  }
+  fetch('/api/survey/active')
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (res) { if (!showSurvey(res, false)) loadStaticSurvey(); })
+    .catch(loadStaticSurvey);
 })();
 </script>
 
