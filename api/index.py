@@ -79,8 +79,27 @@ def turso(sqls):
 
 
 def cell(c):
-    """Turso 셀 → 파이썬 값. NULL 은 value 키 자체가 없다."""
-    return c.get("value")
+    """Turso 셀 → 파이썬 값.
+
+    NULL 은 value 키 자체가 없다. 정수·실수도 JSON 에는 문자열로 실려 오므로
+    type 을 보고 되돌린다 — 그냥 두면 rid 가 '22420' 처럼 문자열이 되어
+    로컬(server.py)이 내려주는 값과 달라진다.
+    """
+    if "value" not in c:
+        return None
+    v = c["value"]
+    t = c.get("type")
+    if t == "integer":
+        try:
+            return int(v)
+        except (TypeError, ValueError):
+            return v
+    if t == "float":
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return v
+    return v
 
 
 def load_records():
