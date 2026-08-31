@@ -136,6 +136,23 @@ def build():
     q["files"] = len(files)
     q["rowsTotal"] = len(recs)
     q["gradeFilled"] = sum(1 for r in recs if r["g"])
+    # 로컬은 fill_db_qc(sqlite) 가 채우는 자리다. 여기서 같은 값을 Turso 로 채운다.
+    # meta.years 는 관리자 검색의 연차 선택지를 만드는 근거라 비면 그 칸이 빈다.
+    bad, lay, cdt, yrs = turso([
+        "SELECT COUNT(*) FROM wb_weather_response"
+        " WHERE grade IS NOT NULL AND grade<>'*' AND grade_valid_yn='N'",
+        "SELECT COUNT(DISTINCT src_layout) FROM wb_weather_file WHERE use_yn='Y'",
+        "SELECT MAX(reg_dt) FROM wb_weather_file",
+        "SELECT research_degree, MAX(research_year), COUNT(*) FROM wb_weather_file"
+        " WHERE use_yn='Y' GROUP BY research_degree ORDER BY research_degree",
+    ])
+    q["gradeBad"] = cell(bad[0][0])
+    q["layouts"] = cell(lay[0][0])
+    q["calcDt"] = cell(cdt[0][0])
+    q.pop("layoutOdd", None)
+    out["meta"]["year"] = ""
+    out["meta"]["years"] = [{"degree": cell(r[0]), "year": cell(r[1]), "files": cell(r[2])}
+                            for r in yrs]
     out["meta"]["source"] = "Turso (wb_weather_*)"
     out["meta"]["origin"] = "turso"
     return out, files, recs
