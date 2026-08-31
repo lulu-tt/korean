@@ -1659,6 +1659,15 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
   white-space: pre-wrap;
   font-weight: 500;
 }
+
+/* 시연본 안내 — 경품 동의문(q-consent)과 헷갈리지 않게 색을 나눈다 */
+.survey-pop .survey-list > li > .q-consent.q-demo {
+  color: #1E3A8A;
+  background: #EFF6FF;
+  border-color: rgba(37, 99, 235, 0.28);
+  white-space: normal;
+}
+.survey-pop .survey-list > li > .q-consent.q-demo b { color: #1D4ED8; font-weight: 700; }
 .survey-pop .text-center { text-align: center; padding-top: 8px; }
 .survey-pop .btn-survey-send {
   display: inline-flex;
@@ -2664,7 +2673,16 @@ window.addEventListener('resize', function(){
   if (!pop) return;
   var state = { survey: null, isStatic: false };
 
+  /* 입력한 휴대전화 번호를 화면에서 지운다.
+     정적 시연본에서는 전송할 곳이 없으므로 창을 닫는 순간 남기지 않는다. */
+  function wipePersonal() {
+    var tel = document.getElementById('personal-cont-agree');
+    if (tel) { tel.value = ''; }
+    var no = pop.querySelector('input[name="personalInfoAgree"][value="N"]');
+    if (no) { no.checked = true; }
+  }
   function closePop() {
+    if (state.isStatic) wipePersonal();
     pop.classList.remove('is-open');
     pop.hidden = true;
     document.body.style.overflow = '';
@@ -2717,21 +2735,23 @@ window.addEventListener('resize', function(){
       html += '</ul></li>';
     });
 
-    // GitHub Pages 같은 정적 배포에는 저장 API 가 없다.
-    // 작동하지 않는 개인정보(휴대전화) 수집 칸을 띄우면 안 되므로 정적 모드에서는 만들지 않는다.
-    if (!state.isStatic && (d.prsnlInputYn || 'N') === 'Y') {
+    if ((d.prsnlInputYn || 'N') === 'Y') {
       var consent = (d.prsnlInfoCntnts || '').trim() || DEFAULT_PRSNL;
       html += '<li><div class="q-consent">' + esc(consent) + '</div><ul>'
         + '<li><input type="radio" name="personalInfoAgree" id="personal-info-agree1" value="N" checked>'
         + '<label for="personal-info-agree1">개인정보 수집 동의 안 함</label></li>'
         + '<li><input type="radio" name="personalInfoAgree" id="personal-info-agree2" value="Y">'
         + '<label for="personal-info-agree2">개인정보 수집 동의 함</label></li>'
-        + '<li><input type="text" placeholder="전화번호 입력" name="personalContAgree" id="personal-cont-agree" class="input-tel" disabled></li>'
+        + '<li><input type="text" placeholder="전화번호 입력" name="personalContAgree" id="personal-cont-agree" class="input-tel" autocomplete="off" disabled></li>'
         + '</ul></li>';
     }
+    // 정적 배포(GitHub Pages)에는 저장 API 가 없다. 화면 구성을 그대로 보여 주되,
+    // 휴대전화 번호가 어디로도 나가지 않는다는 사실을 먼저 알린다.
     if (state.isStatic) {
-      html = '<li><div class="q-consent">이 페이지는 <b>정적 시연본</b>입니다. 화면 구성을 보여 주기 위한 것이라'
-        + ' 응답은 저장되지 않고, 개인정보(휴대전화) 입력 칸도 만들지 않았습니다.</div></li>' + html;
+      html = '<li><div class="q-consent q-demo">이 페이지는 <b>화면 확인용 시연본</b>입니다.'
+        + ' 선택한 답과 <b>휴대전화 번호는 어디에도 전송·저장되지 않습니다</b> —'
+        + ' 저장 서버가 연결되어 있지 않고, 창을 닫으면 입력한 내용은 사라집니다.'
+        + ' 실제 설문은 운영 누리집에서 참여해 주세요.</div></li>' + html;
     }
     document.getElementById('surveyList').innerHTML = html;
     bindPersonalToggle();
@@ -2766,7 +2786,8 @@ window.addEventListener('resize', function(){
       answers.push({ questionNo: picked.getAttribute('data-qno'), exampleNo: picked.value });
     }
     if (state.isStatic) {
-      alert('정적 시연본이라 응답이 저장되지 않습니다.\n실제 설문은 운영 누리집에서 참여하실 수 있습니다.');
+      wipePersonal();
+      alert('화면 확인용 시연본이라 응답이 저장되지 않습니다.\n입력하신 휴대전화 번호도 전송되지 않고 지워졌습니다.\n\n실제 설문은 운영 누리집에서 참여하실 수 있습니다.');
       closePop();
       return;
     }
