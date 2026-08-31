@@ -559,8 +559,10 @@ body{ background:#ffffff; }
     function catOf(id){ return CATEGORY[id.slice(0,3)] || CATEGORY[id[0]] || '기타'; }
 
     /* ── 데이터 §5, §5.6 ──────────────────────────────────────────
-       서비스 대상 101개 표준어 항목. 실측/큐레이션 단어는 CURATED에 두고,
-       나머지는 항목명 해시로 안정적인 시연용 사용률을 생성한다(원자료 확보 시 교체). */
+       서비스 대상은 API 가 정한다 — '9개 지역 전부에서 등급이 관측된 항목'.
+       예전에는 아래 배열이 곧 목록이어서, 자료를 더 올려 대상이 늘어도 화면은 그대로였다.
+       지금 이 배열은 목록이 아니라 큐레이션 표다 — 처음 101개의 차례와 의미 범주를
+       기억해 두는 용도. 여기 없는 새 단어는 항목번호 앞3자리로 범주를 정하고 뒤에 붙는다. */
     const WORDLIST = ['흰자위','눈두덩','귀청','귀지','귀이개','구레나룻','입술','휘파람','콧구멍','겨드랑','무릎','복사뼈','배꼽','딸꾹질','졸음','기지개','혓바늘','미꾸라지','벌레','구더기','매미','모기','벌','파리','쉬슬다','메뚜기','지렁이','회충','고양이','모이','노루','여우','갈치','강아지','뱀','누에','번데기','억새','벼','오디','바위','모래','가을','겨울','글피','그저께','그끄저께','우박','노을','언제','새벽','회오리바람','아우타다','계집아이','눕히다','할머니(호칭)','형(호칭)','사위(호칭)','호미','거지','서 되/세 되','꾸러미','짚신','가위','다리미','건더기','메밀','엿기름','고춧가루','달걀','간장','콩나물','시루','뚜껑','오이','무','부추','시래기','가(邊)','아궁이','구멍','그을음','마루','장독대','변소','벽','새끼(繩)','똬리','갈퀴','키(箕)','부지깽이','반짇고리','다듬잇돌','꽹과리','자치기','곤지곤지','그네','목말','소꿉놀이','쥐불놀이','다르다/틀리다'];
 
     // 목록 순서 기준 의미 범주 (구간 시작 인덱스)
@@ -581,23 +583,26 @@ body{ background:#ffffff; }
       '겨드랑':{ itemId:'20124' }
     };
 
-    /* 단어 목록. 지역·세대 수치는 전부 인지도 API(실측)에서 온다.
-       여기에는 식별자와 해설처럼 데이터로 계산할 수 없는 것만 둔다. */
-    const RAW = WORDLIST.map((std,i)=>{
-      const cur = CURATED[std] || {};
-      const e = {
-        itemId: cur.itemId || ('W'+String(i+1).padStart(3,'0')),
-        standard: std,
-        desc: cur.desc || null,
-        category: catByIndex(i)
-      };
-      if(cur.ct){ e.ct = cur.ct; e.stats = cur.stats; }   // 보고서 교차표가 있는 항목만
-      return e;
-    });
+    /* 큐레이션 표 — 단어 → {차례, 의미 범주}. 목록 자체는 아니다. */
+    const CURATED_POS = {}, CURATED_CAT = {};
+    WORDLIST.forEach((std,i)=>{ CURATED_POS[std]=i; CURATED_CAT[std]=catByIndex(i); });
 
-    function buildWord(r){
-      const w = Object.assign({}, r);
-      w.category = r.category || catOf(r.itemId);
+    /* API 항목 하나 → 화면이 쓰는 단어 객체.
+       식별자는 항목번호다. 단어 이름으로 잡으면 표제어가 같은 두 항목
+       (20544·20545 '회오리바람') 중 하나가 다른 하나를 말없이 덮어쓴다. */
+    function wordFromItem(it, dup){
+      const std = it.word;
+      const cur = CURATED[std] || {};
+      const w = {
+        itemId: it.code,
+        standard: std,
+        // 표제어가 겹치면 항목번호를 달아 구분한다 — 안 그러면 목록에 같은 이름이 둘
+        label: dup[std] ? std + ' (' + it.code + ')' : std,
+        desc: cur.desc || null,
+        category: CURATED_CAT[std] || catOf(it.code),
+        order: CURATED_POS[std] != null ? CURATED_POS[std] : 1000 + Number(it.code || 0)
+      };
+      if(cur.ct){ w.ct = cur.ct; w.stats = cur.stats; }   // 보고서 교차표가 있는 항목만
       return w;
     }
 
@@ -607,7 +612,7 @@ body{ background:#ffffff; }
        실패하면 모든 지역이 '관측 없음'으로 표시된다 — 추정값으로도, 예전에 받아 둔
        정적 파일로도 채우지 않는다. 낡은 지도를 말없이 보여 주는 쪽이 더 나쁘다.
        두 경로의 구조와 판정은 etl_awareness_region.build_output() 한 곳에서 나온다. */
-    let AWARE_BY_WORD = {};
+    let AWARE_BY_ID = {};      // 항목번호 → API 항목
     let AWARE_ORIGIN = null;   // 'db' | null
     function loadAware(){
       const apply = (j, origin)=>{
@@ -615,20 +620,35 @@ body{ background:#ffffff; }
         window.__AWARE_ORIGIN = origin;   // 진단용
         SITE_NAMES = j.regionSites || {};
         ROSTER = j.regionRoster || {};
-        // 전 항목 통합 — '전체' 라는 단어 하나로 취급하면 지도·세대·성별 경로가 그대로 돈다
+        AWARE_META = j.meta || {};
+        const items = j.items || [];
+
+        // 표제어가 겹치는 단어를 먼저 찾아 둔다 (목록에 이름표를 달기 위해)
+        const cnt = {}, dup = {};
+        items.forEach(it=>{ cnt[it.word] = (cnt[it.word]||0) + 1; });
+        Object.keys(cnt).forEach(k=>{ if(cnt[k] > 1) dup[k] = true; });
+
+        AWARE_BY_ID = {};
+        WORDS.length = 0;
+        Object.keys(BY_ID).forEach(k=>{ delete BY_ID[k]; });
+
+        // 전 항목 통합 — '전체' 를 단어 하나로 취급하면 지도·세대·성별 경로가 그대로 돈다
         if(j.overall){
-          AWARE_BY_WORD['전체'] = j.overall;
-          if(!WORDS.some(x=>x.itemId==='__ALL__')){
-            WORDS.unshift({ itemId:'__ALL__', standard:'전체', category:'전체', desc:null });
-            BY_ID['__ALL__'] = WORDS[0];
-          }
+          const all = { itemId:'__ALL__', standard:'전체', label:'전체',
+                        category:'전체', desc:null, order:-1 };
+          AWARE_BY_ID['__ALL__'] = j.overall;
+          WORDS.push(all); BY_ID['__ALL__'] = all;
         }
-        (j.items||[]).forEach(it=>{
-          AWARE_BY_WORD[it.word]=it;
-          // 실측 항목번호로도 딥링크가 되도록 BY_ID에 별칭을 건다 (#/word/20606 등)
-          const w = WORDS.find(x=>x.standard===it.word);
-          if(w && !BY_ID[it.code]) BY_ID[it.code]=w;
-        });
+        items.map(it=>{ AWARE_BY_ID[it.code] = it; return wordFromItem(it, dup); })
+             .sort((a,b)=> a.order - b.order)
+             .forEach(w=>{ WORDS.push(w); BY_ID[w.itemId] = w; });
+
+        // 첫 화면 기본 단어 — 초성 필터 기본값(ㄱ)에서 맨 앞에 오는 '귀청'
+        if(!currentWordId || !BY_ID[currentWordId]){
+          const first = WORDS.find(w=>w.standard==='귀청')
+                     || WORDS.find(w=>w.itemId!=='__ALL__') || WORDS[0];
+          currentWordId = first ? first.itemId : null;
+        }
       };
       /* 서버가 계산해 준 것만 쓴다. Vercel 배포에서는 /api/index.py 가 Turso 를 읽어
          로컬 server.py 와 같은 결과를 돌려준다. 판정을 화면에서 다시 하지 않는다. */
@@ -636,13 +656,13 @@ body{ background:#ffffff; }
         .then(r=> r.ok ? r.json() : Promise.reject(new Error(r.status)))
         .then(j=>{ if(!j || j.status==='error' || !(j.items||[]).length) throw new Error('빈 응답');
                    apply(j,'db'); })
-        .catch(()=>{ AWARE_BY_WORD={}; AWARE_ORIGIN=null; });
+        .catch(()=>{ AWARE_BY_ID={}; WORDS.length=0; AWARE_ORIGIN=null; });
     }
-    function hasAware(w){ return !!AWARE_BY_WORD[w.standard]; }
+    function hasAware(w){ return !!AWARE_BY_ID[w.itemId]; }
     const isAll = w => !!w && w.itemId==='__ALL__';   // 전 항목 통합 보기인가
     /* gen: 0=전체(지역 평균 점수) · 20|50|70=그 세대 제보자의 사례 */
     function cellOf(w, gen, code){
-      const it = AWARE_BY_WORD[w.standard];
+      const it = AWARE_BY_ID[w.itemId];
       if(it){
         const rc = it.regions[code] || {};
         if(!gen){
@@ -680,7 +700,7 @@ body{ background:#ffffff; }
     /* 전 지역 합계 — '전체' 줄이 세대 줄과 같은 표기(점수 · 명수)를 쓰게 한다.
        지역 칸의 dist(등급별 사람 수)를 모아 같은 식으로 평균한다. */
     function allTally(w){
-      const it=AWARE_BY_WORD[w.standard];
+      const it=AWARE_BY_ID[w.itemId];
       if(!it) return {n:0, used:0, score:null};
       let n=0, used=0, sum=0, ppl=0, agg=false;
       REGION_ORDER.forEach(rg=>{
@@ -692,7 +712,7 @@ body{ background:#ffffff; }
       return {n, used, score: n?sum/n:null, agg, people: ppl};
     }
     function genTally(w, g, sex){
-      const it=AWARE_BY_WORD[w.standard];
+      const it=AWARE_BY_ID[w.itemId];
       if(!it) return {n:0, used:0, best:0};
       const sx = (sex===undefined) ? currentSex : sex;
       let n=0, used=0, best=4, ppl=0, agg=false, sum=0, cnt=0;
@@ -700,7 +720,7 @@ body{ background:#ffffff; }
         const rc=it.regions[rg]||{};
         const gg = sx ? (rc.gensex||{})[String(g)+sx] : (rc.gens||{})[String(g)];
         if(!gg) return;
-        if(gg.answers!=null){            // 통합(전체 101개) — 사례 대신 집계 수치를 쓴다
+        if(gg.answers!=null){            // 통합(전체 항목) — 사례 대신 집계 수치를 쓴다
           agg=true; n+=gg.answers; used+=gg.used||0; ppl+=gg.n||0;
           if(gg.score!=null){ sum+=gg.score*gg.answers; cnt+=gg.answers; }
         } else if(gg.cases){
@@ -714,7 +734,7 @@ body{ background:#ffffff; }
       return {n, used, best: n?best:0, agg, people: ppl, score: cnt?sum/cnt:null};
     }
     function topForms(w, n){
-      const it=AWARE_BY_WORD[w.standard]; if(!it) return [];
+      const it=AWARE_BY_ID[w.itemId]; if(!it) return [];
       const c={};
       REGION_ORDER.forEach(rg=>((it.regions[rg]||{}).forms||[]).forEach(f=>{ c[f.form]=(c[f.form]||0)+f.n; }));
       return Object.keys(c).sort((a,b)=>c[b]-c[a]).slice(0, n||5);
@@ -724,8 +744,20 @@ body{ background:#ffffff; }
       return c.cases.map(x=>`${x.age?x.age+'대 ':''}${SEXKO[x.sex]||''} ${GRADE_DESC[x.grade]||''}`).join(' · ');
     }
 
-    const WORDS = RAW.map(buildWord);
-    const BY_ID = {}; WORDS.forEach(w=>BY_ID[w.itemId]=w);
+    /* 목록은 비어 있다가 loadAware() 가 API 자료로 채운다.
+       const 인 채로 내용만 갈아 끼워, 이 배열을 참조하는 렌더러들이 그대로 돈다. */
+    const WORDS = [];
+    const BY_ID = {};
+    const wordCount = ()=> WORDS.filter(x=>x.itemId!=='__ALL__').length;
+    /* 첫 화면 수치는 전부 자료에서 뽑는다 — 예전에는 '46명·2024년' 이 박혀 있어
+       연차를 더한 순간 조용히 틀린 값이 되었다. */
+    let AWARE_META = {};
+    const informantCount = ()=> Object.values(ROSTER).reduce((n,v)=>n+v.length, 0);
+    const surveyYears = ()=>{
+      const ys = (AWARE_META.years||[]).map(y=>y.year).sort();
+      if(!ys.length) return '—';
+      return ys.length === 1 ? ys[0]+'년' : ys[0]+'–'+ys[ys.length-1]+'년';
+    };
 
     /* ── 배지 헬퍼 §8 (실측/추정 배지 노출 비활성 — 요청에 따라 숨김) ── */
 
@@ -762,10 +794,10 @@ body{ background:#ffffff; }
       <div class="gs-mapbar">
         <div class="gs-mapbar__titles">
           <div class="gs-mapbar__title">${ isAll(w)
-            ? `조사된 <b>101개 단어</b>를 한 장으로`
-            : `‘<b>${w.standard}</b>’의 지역별 인지도/사용도` }</div>
+            ? `조사된 <b>${wordCount()}개 단어</b>를 한 장으로`
+            : `‘<b>${esc(w.label||w.standard)}</b>’의 지역별 인지도/사용도` }</div>
           ${ isAll(w) ? `<div class="gs-mapbar__sub">지역 점수 = 그 지역 제보자가
-            <b>101개 단어의 지역어형</b>에 준 등급의 평균</div>` : '' }
+            <b>${wordCount()}개 단어의 지역어형</b>에 준 등급의 평균</div>` : '' }
           ${ w.desc ? `<div class="gs-mapbar__desc">${esc(w.desc)}</div>` : '' }
         </div>
         <div class="gs-mapbar__actions">
@@ -885,7 +917,7 @@ body{ background:#ffffff; }
 
     /* ── 화면 1: 홈 §6.1 ──────────────────────────────────────── */
     // 첫 화면 기본 단어 — 초성 필터 기본값(ㄱ)에서 맨 앞에 오는 '귀청'
-    let currentWordId = (WORDS.find(w=>w.standard==='귀청') || WORDS[0]).itemId;
+    let currentWordId = null;   // apply() 가 목록을 채운 뒤 정한다
     let currentGen = 0;   // 0 = 전체(지역 평균 점수) · 20|50|70 = 그 세대 제보자 사례
     // '' = 남녀 합쳐 봄 · 'M'|'F' = 그 성별만. 세대를 고른 상태에서만 뜻이 있다.
     // 2024 자료는 (지역,세대,성별)당 1명이라 성별을 고르면 칸마다 0명 아니면 1명이다.
@@ -1345,7 +1377,7 @@ body{ background:#ffffff; }
       if(!list.length) return `<div class="gs-wgrid-empty">검색 결과가 없습니다</div>`;
       return list.map(w=>{
         const all = w.itemId==='__ALL__';
-        return `<button type="button" class="gs-wbtn${all?' is-all':''} ${w.itemId===currentWordId?'is-active':''}" data-id="${w.itemId}" role="option" aria-selected="${w.itemId===currentWordId}"${all?' title="조사된 101개 단어를 한 장으로 — 지역별 평균 점수"':''}>${all?'전체 101개':w.standard}</button>`;
+        return `<button type="button" class="gs-wbtn${all?' is-all':''} ${w.itemId===currentWordId?'is-active':''}" data-id="${w.itemId}" role="option" aria-selected="${w.itemId===currentWordId}"${all?` title="조사된 ${wordCount()}개 단어를 한 장으로 — 지역별 평균 점수"`:''}>${all?`전체 ${wordCount()}개`:esc(w.label||w.standard)}</button>`;
       }).join('');
     }
     function pickPanelHTML(){
@@ -1369,7 +1401,7 @@ body{ background:#ffffff; }
           <span class="gs-intro__badge"><i class="ti ti-map-pin" aria-hidden="true"></i> 지역어 기상도</span>
           <h2>이 말, <em>아직 쓰시나요?</em></h2>
           <p>같은 뜻의 말도 지역마다 다르게 불립니다.</p>
-          <p>101개 단어가 전국에서 어떻게 쓰이고 있는지 지도로 만나 보세요.</p>
+          <p>${wordCount()}개 단어가 전국에서 어떻게 쓰이고 있는지 지도로 만나 보세요.</p>
           <p class="gs-intro__how"><i class="ti ti-dots" aria-hidden="true"></i>
             <span>단어를 고르면 <b>어디서 쓰는지 · 누가 쓰는지 · 얼마나 남아 있는지</b>를
             한눈에 확인할 수 있어요.</span></p>
@@ -1378,7 +1410,7 @@ body{ background:#ffffff; }
         <dl class="gs-intro__meta">
           <div class="gs-stat is-green">
             <span class="gs-stat__ico"><i class="ti ti-book" aria-hidden="true"></i></span>
-            <dd><b>101</b>개</dd><dt>수록 단어</dt>
+            <dd><b>${wordCount()}</b>개</dd><dt>수록 단어</dt>
           </div>
           <div class="gs-stat is-blue">
             <span class="gs-stat__ico"><i class="ti ti-map-pin" aria-hidden="true"></i></span>
@@ -1386,11 +1418,11 @@ body{ background:#ffffff; }
           </div>
           <div class="gs-stat is-purple">
             <span class="gs-stat__ico"><i class="ti ti-users" aria-hidden="true"></i></span>
-            <dd><b>46</b>명</dd><dt>제보자</dt>
+            <dd><b>${informantCount()}</b>명</dd><dt>제보자</dt>
           </div>
           <div class="gs-stat is-amber">
             <span class="gs-stat__ico"><i class="ti ti-calendar" aria-hidden="true"></i></span>
-            <dd><b>2024</b>년</dd><dt>조사 시기</dt>
+            <dd><b>${surveyYears()}</b></dd><dt>조사 시기</dt>
           </div>
         </dl>
       </section>
