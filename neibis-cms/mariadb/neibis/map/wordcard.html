@@ -854,6 +854,29 @@ function searchList(page){
   q.page = wcmState.page;
   q.pageSize = wcmState.pageSize;
   $('#wordcard-list-body').html('<tr><td colspan="6" class="text-center" style="padding:24px;color:#64748b">불러오는 중…</td></tr>');
+  
+  var processItems = function(items, total, curPage, pSize){
+    var filtered = items.filter(function(row){
+      if(q.w && (row.word || '').indexOf(q.w) === -1) return false;
+      if(q.q && (row.word || '').indexOf(q.q) === -1 && (row.hook || '').indexOf(q.q) === -1) return false;
+      return true;
+    });
+    var tot = filtered.length;
+    var totalPages = Math.max(1, Math.ceil(tot / pSize));
+    var start = (curPage - 1) * pSize;
+    var paged = filtered.slice(start, start + pSize);
+    
+    wcmState.total = tot;
+    wcmState.page = curPage;
+    wcmState.pageSize = pSize;
+    wcmState.totalPages = totalPages;
+    $('#totalCnt').text(tot.toLocaleString());
+    $('#pageInfo').text('(' + curPage + '/' + totalPages + ' page)');
+    renderRows(paged, curPage, pSize);
+    renderPager(curPage, totalPages);
+    $('#chkAll').prop('checked', false);
+  };
+
   $.ajax({
     url: '/mariadb/neibis-api/wordcard/list?' + $.param(q),
     method: 'GET',
@@ -873,12 +896,27 @@ function searchList(page){
     renderRows(res.list, res.page, res.pageSize);
     renderPager(res.page, res.totalPages);
     $('#chkAll').prop('checked', false);
-  }).fail(function(xhr){
-    var msg = '단어 카드 API 호출 실패';
-    if(xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
-    else if(xhr.status) msg += ' (HTTP ' + xhr.status + ')';
-    $('#wordcard-list-body').html('<tr><td colspan="6" class="text-center" style="padding:24px;color:#b91c1c">' + escHtml(msg)
-      + '<br><span style="font-size:12px;color:#64748b">serve.py 를 재시작했는지 확인해 주세요.</span></td></tr>');
+  }).fail(function(){
+    /* Vercel 정적 Fallback */
+    $.ajax({
+      url: './data/processed/word_stories.json',
+      method: 'GET',
+      dataType: 'json'
+    }).done(function(res){
+      var rawItems = (res && res.stories) ? res.stories : (Array.isArray(res) ? res : []);
+      var items = rawItems.map(function(s, idx){
+        return {
+          id: s.id || ('WC_' + (idx + 1)),
+          word: s.standard_form || s.word || '',
+          hook: s.hook_sentence || s.hook || ''
+        };
+      });
+      processItems(items, items.length, wcmState.page, wcmState.pageSize);
+    }).fail(function(xhr){
+      var msg = '단어 카드 정적 데이터 호출 실패';
+      if(xhr.status) msg += ' (HTTP ' + xhr.status + ')';
+      $('#wordcard-list-body').html('<tr><td colspan="6" class="text-center" style="padding:24px;color:#b91c1c">' + escHtml(msg) + '</td></tr>');
+    });
   });
 }
 
