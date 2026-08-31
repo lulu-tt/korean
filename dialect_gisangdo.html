@@ -631,59 +631,16 @@ body{ background:#ffffff; }
           if(w && !BY_ID[it.code]) BY_ID[it.code]=w;
         });
       };
-      const fromTurso = ()=> {
-        const url = 'https://korean-weather-lulu-tt.aws-ap-northeast-1.turso.io/v2/pipeline';
-        const token = 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3ODgxNDA2MDUsImlkIjoiMDFhMDU1N2MtMzUwMS03ZWI1LTlkNTctZjI0NzJmZjQzOTRkIiwia2lkIjoiNm1PSEd1b2NjdG4tN2I5SHBDOTZnQW5XNVZuN29PZU10cnBHZWVUdEo3NCIsInJpZCI6Ijc0YzdjODIzLWI1MDQtNDRlMS1hZDNhLWUxZmIzODdiNWE2MSJ9.T_f31BvhLdd4CV8pb_UNmsP5YKo0jvKmYuMN6u1rE_oTmEcVzNWp1xt0BhLKZF9gj1rL0UaqVg9JXGbDEfABBw';
-        const REGION_ORDER = ['GG', 'GW', 'CB', 'CN', 'JB', 'JN', 'GB', 'GN', 'JJ'];
-        const REGION_NAMES = {'GG': '경기', 'GW': '강원', 'CB': '충북', 'CN': '충남', 'JB': '전북', 'JN': '전남', 'GB': '경북', 'GN': '경남', 'JJ': '제주'};
-        const SITE_NAMES = {'GG': '경기 파주', 'GW': '강원 강릉', 'CB': '충북 청주', 'CN': '충남 부여', 'JB': '전북 전주', 'JN': '전남 나주', 'GB': '경북 안동', 'GN': '경남 창원', 'JJ': '제주 서귀포'};
-        
-        return fetch(url, {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            requests: [
-              { type: 'execute', stmt: { sql: 'SELECT weather_file_id, region_cd FROM wb_weather_file' } },
-              { type: 'execute', stmt: { sql: 'SELECT r.item_cd, r.headword, r.dialect_form, r.grade, f.region_cd FROM wb_weather_response r JOIN wb_weather_file f ON r.weather_file_id = f.weather_file_id' } }
-            ]
-          })
-        })
-        .then(r=> r.ok ? r.json() : Promise.reject(new Error(r.status)))
-        .then(res=>{
-          if(!res.results || !res.results[0].response || !res.results[1].response) throw new Error('Turso query error');
-          const fileRows = res.results[0].response.result.rows;
-          const respRows = res.results[1].response.result.rows;
-          const itemsDict = {};
-          
-          respRows.forEach(r=>{
-            const code = r[0].value, word = r[1].value, usage = r[3].value, rg = r[4].value;
-            if(!code || !word) return;
-            if(!itemsDict[code]) itemsDict[code] = { code: code, word: word, regions: {} };
-            if(rg && REGION_ORDER.includes(rg)){
-              if(!itemsDict[code].regions[rg]) itemsDict[code].regions[rg] = { rows: 0, graded: 0, people: 0, state: 'w1' };
-              itemsDict[code].regions[rg].rows++;
-              if(usage) itemsDict[code].regions[rg].graded++;
-            }
-          });
-          
-          const data = {
-            status: 'success',
-            regionOrder: REGION_ORDER,
-            regionNames: REGION_NAMES,
-            regionSites: SITE_NAMES,
-            meta: { qc: { files: fileRows.length, rowsTotal: respRows.length, coreItems: Object.keys(itemsDict).length } },
-            items: Object.values(itemsDict)
-          };
-          apply(data, 'db');
-        });
-      };
-
       const fromFile = ()=> fetch('./data/processed/awareness_by_region.json')
         .then(r=> r.ok ? r.json() : Promise.reject(new Error(r.status)))
         .then(j=> apply(j, 'file'));
 
-      return fromTurso()
-        .catch(()=> fetch('/api/weather/awareness').then(r=>r.json()).then(j=>apply(j,'db')))
+      /* 서버가 계산해 준 것만 쓴다. Vercel 배포에서는 /api/index.py 가 Turso 를 읽어
+         로컬 server.py 와 같은 결과를 돌려준다. 판정을 화면에서 다시 하지 않는다. */
+      return fetch('/api/weather/awareness')
+        .then(r=> r.ok ? r.json() : Promise.reject(new Error(r.status)))
+        .then(j=>{ if(!j || j.status==='error' || !(j.items||[]).length) throw new Error('빈 응답');
+                   apply(j,'db'); })
         .catch(()=> fromFile())
         .catch(()=>{ AWARE_BY_WORD={}; AWARE_ORIGIN=null; });
     }

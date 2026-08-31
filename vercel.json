@@ -1,1 +1,15 @@
-{}
+{
+  "functions": {
+    "api/index.py": { "includeFiles": "scripts/**" }
+  },
+  "rewrites": [
+    { "source": "/api/weather/:act",  "destination": "/api/index?action=weather-:act" },
+    { "source": "/api/wordcard/:act", "destination": "/api/index?action=wordcard-:act" },
+
+    { "source": "/mariadb/neibis-api/weather/:act",  "destination": "/api/index?action=weather-:act" },
+    { "source": "/mariadb/neibis-api/wordcard/:act", "destination": "/api/index?action=wordcard-:act" },
+
+    { "source": "/neibis-cms/mariadb/neibis-api/weather/:act",  "destination": "/api/index?action=weather-:act" },
+    { "source": "/neibis-cms/mariadb/neibis-api/wordcard/:act", "destination": "/api/index?action=wordcard-:act" }
+  ]
+}
