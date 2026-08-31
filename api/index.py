@@ -22,9 +22,25 @@ import os
 import urllib.parse
 import urllib.request
 
-TURSO_URL = os.environ.get(
+def _pipeline_url(u):
+    """Turso 주소를 HTTP 파이프라인 주소로 맞춘다.
+
+    대시보드가 알려주는 주소는 libsql://<host> 인데 urllib 은 그 스킴을 모른다.
+    끝의 /v2/pipeline 도 붙었다 안 붙었다 하므로 여기서 한 번에 정리한다.
+    """
+    u = (u or "").strip().rstrip("/")
+    if u.startswith("libsql://"):
+        u = "https://" + u[len("libsql://"):]
+    elif not u.startswith(("http://", "https://")):
+        u = "https://" + u
+    if not u.endswith("/v2/pipeline"):
+        u += "/v2/pipeline"
+    return u
+
+
+TURSO_URL = _pipeline_url(os.environ.get(
     "TURSO_DATABASE_URL",
-    "https://korean-weather-lulu-tt.aws-ap-northeast-1.turso.io/v2/pipeline")
+    "https://korean-weather-lulu-tt.aws-ap-northeast-1.turso.io/v2/pipeline"))
 TURSO_TOKEN = os.environ.get("TURSO_AUTH_TOKEN", "")
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
