@@ -134,7 +134,10 @@ def build():
     out = E.build_output(recs, len(files))
     q = out["meta"]["qc"]
     q["files"] = len(files)
-    q["rowsTotal"] = len(recs)
+    # 로컬 fill_db_qc 와 같은 값이어야 한다 — 그쪽은 표의 전체 행을 센다.
+    # 항목번호가 5자리가 아닌 행(item_base NULL)이 판정에서는 빠지지만 행수에는 든다.
+    nrows, = turso(["SELECT COUNT(*) FROM wb_weather_response"])
+    q["rowsTotal"] = cell(nrows[0][0])
     q["gradeFilled"] = sum(1 for r in recs if r["g"])
     # 로컬은 fill_db_qc(sqlite) 가 채우는 자리다. 여기서 같은 값을 Turso 로 채운다.
     # meta.years 는 관리자 검색의 연차 선택지를 만드는 근거라 비면 그 칸이 빈다.
@@ -167,7 +170,8 @@ def file_list():
     rows, edited, resp, bad = turso([
         "SELECT weather_file_id, file_nm, region_cd, region_nm, research_year,"
         " generation, sex, row_cnt, item_cnt, src_layout, use_yn, reg_dt"
-        " FROM wb_weather_file ORDER BY region_cd, generation, sex",
+        " FROM wb_weather_file"
+        " ORDER BY reg_dt DESC, region_cd, generation, sex",   # 최근에 올린 것이 위로
         "SELECT weather_file_id, COUNT(*) FROM wb_weather_response"
         " WHERE upt_dt IS NOT NULL GROUP BY weather_file_id",
         "SELECT COUNT(*) FROM wb_weather_response",
