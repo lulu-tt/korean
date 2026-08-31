@@ -1418,6 +1418,21 @@ const getMngrFail = function (xhr, status, error) {
 </style>
 
 <script>
+/* 아래 두 블록이 함께 쓰는 도우미. 각 블록이 IIFE 라 안에 두면 서로 못 본다.
+
+   응답이 정말 JSON 인지 먼저 본다. 경로가 없으면 서버(로컬·Vercel 모두)가
+   HTML 오류쪽을 주는데, 그대로 .json() 하면 "Unexpected token 'T'" 처럼
+   원인을 가리는 오류가 난다. */
+function asJson(r){
+  var ct = r.headers.get('content-type') || '';
+  if(ct.indexOf('json') < 0)
+    return Promise.reject(new Error('API 응답이 JSON 이 아닙니다 (HTTP '+r.status+') — '
+      + '배포에 기상도 API 가 없거나 경로가 다릅니다'));
+  return r.json();
+}
+</script>
+
+<script>
 /* ══════════ 기상도 관리자 프로토타입 ══════════
    실데이터(/mariadb/neibis-api/weather/awareness)로 동작한다. 화면 구성 확인용이라
    저장은 아직 서버로 보내지 않고 '수정됨' 표시까지만 한다. */
@@ -1654,7 +1669,7 @@ const getMngrFail = function (xhr, status, error) {
   }
 
   function loadHave(){
-    fetch('/mariadb/neibis-api/weather/files').then(function(r){ return r.json(); })
+    fetch('/mariadb/neibis-api/weather/files').then(asJson)
       .then(function(j){
         HAVE={}; EDITED={};
         var L=(j.list||[]);
@@ -1770,7 +1785,7 @@ const getMngrFail = function (xhr, status, error) {
     var fd=new FormData();
     files.forEach(function(f){ fd.append('files', f); });
     fetch('/mariadb/neibis-api/weather/upload', {method:'POST', body:fd})
-      .then(function(r){ return r.json(); })
+      .then(asJson)
       .then(function(d){
         btn.disabled=false; btn.innerHTML=label;
         if(!d || !d.ok) throw new Error((d&&d.message)||'적재 실패');
@@ -1803,7 +1818,7 @@ const getMngrFail = function (xhr, status, error) {
       ptAsk('이 파일을 삭제할까요?', msg, function(){
         fetch('/mariadb/neibis-api/weather/delete', {method:'POST',
             headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:b.dataset.id})})
-          .then(function(r){ return r.json(); })
+          .then(asJson)
           .then(function(k){
             if(window.Message) Message.alert({icon:k.ok?'success':'error', message:k.message});
             loadHave(); if(window.__ptReload) window.__ptReload();
@@ -1815,7 +1830,7 @@ const getMngrFail = function (xhr, status, error) {
       b.disabled=true; b.innerHTML='<span>갱신 중…</span>';
       fetch('/mariadb/neibis-api/weather/export', {method:'POST',
           headers:{'Content-Type':'application/json'}, body:'{}'})
-        .then(function(r){ return r.json(); })
+        .then(asJson)
         .then(function(k){ b.disabled=false; b.innerHTML=label;
           if(window.Message) Message.alert({icon:k.ok?'success':'error', message:k.message}); })
         .catch(function(err){ b.disabled=false; b.innerHTML=label;
@@ -1868,7 +1883,7 @@ const getMngrFail = function (xhr, status, error) {
     window.scrollTo(0,0);
 
     fetch('/mariadb/neibis-api/weather/responses?item=' + encodeURIComponent(code))
-      .then(function(r){ return r.json(); })
+      .then(asJson)
       .then(function(j){
         if(!j.ok) throw new Error(j.message||'불러오기 실패');
         ROWS=j.rows||[]; fillRgChecks(); renderResp();
@@ -1995,7 +2010,7 @@ const getMngrFail = function (xhr, status, error) {
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ rows: payload })
       })
-      .then(function(r){ return r.json(); })
+      .then(asJson)
       .then(function(j){
         btn.disabled=false; btn.innerHTML=label;
         if(!j.ok) throw new Error(j.message||'저장 실패');
@@ -2008,7 +2023,7 @@ const getMngrFail = function (xhr, status, error) {
         DIRTY={};
         /* 저장한 값이 실제로 들어갔는지 다시 읽어 확인한다 */
         return fetch('/mariadb/neibis-api/weather/responses?item=' + encodeURIComponent(ITEM.code))
-          .then(function(r){ return r.json(); })
+          .then(asJson)
           .then(function(k){ if(k.ok){ ROWS=k.rows||[]; fillRgChecks(); } renderResp(); syncSaveBar();
                              if(window.__ptReload) window.__ptReload(); });
       })

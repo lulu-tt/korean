@@ -878,30 +878,6 @@ function searchList(page){
     $('#chkAll').prop('checked', false);
   };
 
-  var fromTursoWordcard = function(){
-    var url = 'https://korean-weather-lulu-tt.aws-ap-northeast-1.turso.io/v2/pipeline';
-    var token = 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3ODgxNDA2MDUsImlkIjoiMDFhMDU1N2MtMzUwMS03ZWI1LTlkNTctZjI0NzJmZjQzOTRkIiwia2lkIjoiNm1PSEd1b2NjdG4tN2I5SHBDOTZnQW5XNVZuN29PZU10cnBHZWVUdEo3NCIsInJpZCI6Ijc0YzdjODIzLWI1MDQtNDRlMS1hZDNhLWUxZmIzODdiNWE2MSJ9.T_f31BvhLdd4CV8pb_UNmsP5YKo0jvKmYuMN6u1rE_oTmEcVzNWp1xt0BhLKZF9gj1rL0UaqVg9JXGbDEfABBw';
-    var sql = "SELECT item_cd, word, hook FROM wb_wordcard ORDER BY sort_no ASC, item_cd ASC";
-    
-    return $.ajax({
-      url: url,
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-      data: JSON.stringify({ requests: [{ type: 'execute', stmt: { sql: sql } }] }),
-      dataType: 'json'
-    }).then(function(res){
-      if(!res.results || !res.results[0].response) throw new Error('Turso error');
-      var rows = res.results[0].response.result.rows;
-      var items = rows.map(function(r){
-        return {
-          id: r[0].value,
-          word: r[1].value || '',
-          hook: r[2].value || ''
-        };
-      });
-      processItems(items, items.length, wcmState.page, wcmState.pageSize);
-    });
-  };
 
   $.ajax({
     url: '/mariadb/neibis-api/wordcard/list?' + $.param(q),
@@ -923,8 +899,10 @@ function searchList(page){
     renderPager(res.page, res.totalPages);
     $('#chkAll').prop('checked', false);
   }).fail(function(){
-    fromTursoWordcard().fail(function(){
-      /* Vercel 정적 Fallback */
+    /* 서버 API 가 없거나 죽었을 때만 정적 JSON 으로 물러난다.
+       Turso 를 화면에서 직접 읽지 않는다 — 토큰이 노출되고, 목록 규칙이
+       serve.py / api/index.py 와 갈라진다. */
+    (function(){
       $.ajax({
         url: './data/processed/word_stories.json',
         method: 'GET',
@@ -944,7 +922,7 @@ function searchList(page){
         if(xhr.status) msg += ' (HTTP ' + xhr.status + ')';
         $('#wordcard-list-body').html('<tr><td colspan="6" class="text-center" style="padding:24px;color:#b91c1c">' + escHtml(msg) + '</td></tr>');
       });
-    });
+    })();
   });
 }
 

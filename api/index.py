@@ -162,6 +162,90 @@ READONLY = {"ok": False, "message":
             "이 배포는 읽기 전용입니다. 자료 수정·업로드는 관리자 서버에서 해 주세요."}
 
 
+
+# ── 단어 카드(wb_wordcard) — 관리자 목록 화면이 읽는 두 API의 읽기 전용 판 ─────
+#   serve.py 의 api_wordcard_list / api_wordcard_meta 와 응답 모양을 맞춘다.
+#   맞추지 않으면 화면이 필드를 못 찾아 빈 표가 된다.
+WC_GROUPS = ["20M", "20F", "50M", "50F", "70M", "70F"]
+WC_CODING_DEFAULT = [
+    {"k": "std", "label": "표준어를 씀", "color": "#185FA5"},
+    {"k": "dia", "label": "지역어를 씀", "color": "#BA7517"},
+    {"k": "mix", "label": "둘 다 씀", "color": "#5F5E5A"},
+    {"k": "none", "label": "모름·안 씀", "color": "#C0BDB6"},
+]
+
+
+def _sq(v):
+    """SQL 문자열 리터럴. Turso 파이프라인에 값을 따로 못 실어 직접 만든다."""
+    return "'" + str(v).replace("'", "''") + "'"
+
+
+def wordcard_list(qs):
+    def q1(k, d=""):
+        return (qs.get(k) or [d])[0] or d
+
+    kw = str(q1("searchValue")).strip()
+    expose = str(q1("searchExpose")).strip()
+    try:
+        page = max(1, int(q1("page", "1")))
+    except Exception:
+        page = 1
+    try:
+        page_size = int(q1("pageSize", "10"))
+    except Exception:
+        page_size = 10
+    page_size = min(max(page_size, 1), 500)
+
+    where = []
+    if kw:
+        like = _sq("%" + kw + "%")
+        where.append("(item_cd LIKE %s OR word LIKE %s OR hook LIKE %s)" % (like, like, like))
+    if expose == "Y":
+        where.append("has_ct = 1")
+    elif expose == "N":
+        where.append("has_ct = 0")
+    cond = (" WHERE " + " AND ".join(where)) if where else ""
+
+    cnt, exp, rows = turso([
+        "SELECT COUNT(*) FROM wb_wordcard" + cond,
+        "SELECT COUNT(*) FROM wb_wordcard" + cond + (" AND" if cond else " WHERE") + " has_ct = 1",
+        "SELECT item_cd, word, hook, has_ct FROM wb_wordcard" + cond
+        + " ORDER BY sort_no, item_cd",
+    ])
+    total = int(cell(cnt[0][0]) or 0)
+    exposed = int(cell(exp[0][0]) or 0)
+    total_pages = max(1, (total + page_size - 1) // page_size)
+    page = min(page, total_pages)
+    page_rows = rows[(page - 1) * page_size: page * page_size]
+
+    ids = [cell(r[0]) for r in page_rows]
+    ct = {}
+    if ids:
+        cts, = turso([
+            "SELECT item_cd, cnt_std, cnt_dia, cnt_mix, cnt_non FROM wb_wordcard_ct"
+            " WHERE item_cd IN (" + ",".join(_sq(i) for i in ids) + ")"])
+        for r in cts:
+            n = sum(int(cell(r[i]) or 0) for i in range(1, 5))
+            ct[cell(r[0])] = ct.get(cell(r[0]), 0) + n
+
+    lst = [{
+        "id": cell(r[0]),
+        "word": cell(r[1]) or "",
+        "hook": cell(r[2]) or "",
+        "hasCT": bool(int(cell(r[3]) or 0)),
+        "ctTotal": ct.get(cell(r[0]), 0),
+    } for r in page_rows]
+
+    return {"ok": True, "total": total, "exposed": exposed, "hidden": total - exposed,
+            "page": page, "pageSize": page_size, "totalPages": total_pages, "list": lst}
+
+
+def wordcard_meta():
+    n, = turso(["SELECT COUNT(*) FROM wb_wordcard"])
+    return {"ok": True, "coding": WC_CODING_DEFAULT, "groups": WC_GROUPS,
+            "meta": {}, "total": int(cell(n[0][0]) or 0)}
+
+
 class handler(BaseHTTPRequestHandler):
     def _json(self, obj, code=200):
         body = json.dumps(obj, ensure_ascii=False).encode("utf-8")
@@ -174,22 +258,33 @@ class handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         u = urllib.parse.urlparse(self.path)
-        p = u.path
         qs = urllib.parse.parse_qs(u.query)
+        # Vercel rewrite 는 목적지 경로로 갈아치우므로 self.path 에 원래 경로가 없다.
+        # vercel.json 이 넘겨주는 action 을 먼저 보고, 없으면 경로 끝으로 판단한다
+        # (로컬에서 이 파일을 직접 띄워 볼 때를 위한 길).
+        act = (qs.get("action") or [""])[0]
+        if not act:
+            seg = [x for x in u.path.split("/") if x]
+            if len(seg) >= 2:
+                act = seg[-2] + "-" + seg[-1]
         try:
-            if p.endswith("/weather/awareness"):
+            if act in ("weather-awareness", "awareness"):
                 out, _, _ = build()
                 return self._json(out)
-            if p.endswith("/weather/files"):
+            if act in ("weather-files", "files"):
                 return self._json(file_list())
-            if p.endswith("/weather/responses"):
+            if act in ("weather-responses", "responses"):
                 item = (qs.get("item") or [""])[0]
                 if not item:
                     return self._json({"ok": False, "message": "항목코드가 필요합니다."}, 400)
                 return self._json(responses(item))
+            if act in ("wordcard-list", "list"):
+                return self._json(wordcard_list(qs))
+            if act in ("wordcard-meta", "meta"):
+                return self._json(wordcard_meta())
         except Exception as e:
             return self._json({"ok": False, "message": str(e)}, 500)
-        self._json({"ok": False, "message": "알 수 없는 경로: " + p}, 404)
+        self._json({"ok": False, "message": "알 수 없는 경로: " + self.path}, 404)
 
     def do_POST(self):
         # 인증이 없는 배포라 쓰기를 열지 않는다.
