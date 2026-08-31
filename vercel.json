@@ -1,6 +1,9 @@
 {
   "functions": {
-    "api/index.py": { "includeFiles": "scripts/**" }
+    "api/index.py": {
+      "includeFiles": "scripts/etl_awareness_region.py",
+      "excludeFiles": "{symbol,symbol_mask,data,image,assets,ChatGPT,figma-node-20-1275,neibis-cms,docs,변이형,.claude,.agents}/**"
+    }
   },
   "rewrites": [
     { "source": "/api/weather/:act",  "destination": "/api/index?action=weather-:act" },
