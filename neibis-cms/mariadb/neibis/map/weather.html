@@ -1439,16 +1439,27 @@ const getMngrFail = function (xhr, status, error) {
   /* ── 자료 읽기 ── */
   window.__ptReload = function(){ load(); };
   function load(){
+    var applyData = function(j){
+      DB=j; RO=j.regionOrder||[]; RN=j.regionNames||{};
+      SITES=j.regionSites||{}; ROSTER=j.regionRoster||{};
+      rows = (j.items||[]).map(function(it,i){ return build(it,i); });
+      var qc=(j.meta&&j.meta.qc)||{};
+      $('ptDbLine').innerHTML = '제보자 <b>'+(qc.files||0)+'명</b> · 응답 <b>'
+        + (qc.rowsTotal||0).toLocaleString() + '행</b> · 표출 항목 <b>'+(qc.coreItems||0)+'개</b>';
+      headHTML(); fillSearch(); render();
+    };
+
     fetch('/mariadb/neibis-api/weather/awareness')
-      .then(function(r){ return r.json(); })
+      .then(function(r){ return r.ok ? r.json() : Promise.reject(new Error(r.status)); })
       .then(function(j){
-        DB=j; RO=j.regionOrder||[]; RN=j.regionNames||{};
-        SITES=j.regionSites||{}; ROSTER=j.regionRoster||{};
-        rows = (j.items||[]).map(function(it,i){ return build(it,i); });
-        var qc=(j.meta&&j.meta.qc)||{};
-        $('ptDbLine').innerHTML = '제보자 <b>'+(qc.files||0)+'명</b> · 응답 <b>'
-          + (qc.rowsTotal||0).toLocaleString() + '행</b> · 표출 항목 <b>'+(qc.coreItems||0)+'개</b>';
-        headHTML(); fillSearch(); render();
+        if(!j || !(j.items||[]).length) throw new Error('empty');
+        applyData(j);
+      })
+      .catch(function(){
+        /* Vercel 정적 호스팅 Fallback */
+        return fetch('/data/processed/awareness_by_region.json')
+          .then(function(r){ return r.ok ? r.json() : Promise.reject(new Error(r.status)); })
+          .then(function(j){ applyData(j); });
       })
       .catch(function(e){ $('ptRows').innerHTML =
         '<tr><td colspan="12" class="pt-empty">자료를 불러오지 못했습니다 — '+esc(e.message)+'</td></tr>'; });
