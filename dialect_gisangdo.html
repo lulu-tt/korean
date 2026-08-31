@@ -541,7 +541,7 @@ body{ background:#ffffff; }
     const REGION_NAMES = {CB:'충북',CN:'충남',GB:'경북',GG:'경기',GN:'경남',GW:'강원',JB:'전북',JN:'전남',JJ:'제주'};
     // 행정구역 표준 순서: 경기 → 강원 → 충북 → 충남 → 전북 → 전남 → 경북 → 경남 → 제주
     const REGION_ORDER = ['GG','GW','CB','CN','JB','JN','GB','GN','JJ'];
-    // 실제 조사 지점 · 제보자 구성 — awareness_by_region.json에서 채운다
+    // 실제 조사 지점 · 제보자 구성 — 인지도 API(/api/weather/awareness)에서 채운다
     let SITE_NAMES = {}, ROSTER = {};
     // 명부에 그 조건의 제보자가 있나. 성별을 주면 (세대,성별)까지 본다 —
     // '조사 안 함(·)' 과 '조사했는데 지역어형 없음(–)' 을 가르는 기준이다.
@@ -569,7 +569,7 @@ body{ background:#ffffff; }
 
     // 큐레이션(실측/보고서 기반) 단어 — 나머지는 자동 생성
     /* 데이터로 계산할 수 없는 것만 둔다 — 항목번호, 해설, 보고서에 실린 교차표.
-       지역·세대 수치는 전부 awareness_by_region.json(실측)에서 온다. */
+       지역·세대 수치는 전부 인지도 API(실측)에서 온다. */
     const CURATED = {
       '벼':{ itemId:'20415',
         desc:'‘벼’의 방언형은 크게 ‘벼’계(벼, 베)와 ‘나락’(나락, 나록)계로 나뉨' },
@@ -581,7 +581,7 @@ body{ background:#ffffff; }
       '겨드랑':{ itemId:'20124' }
     };
 
-    /* 단어 목록. 지역·세대 수치는 전부 awareness_by_region.json(실측)에서 온다.
+    /* 단어 목록. 지역·세대 수치는 전부 인지도 API(실측)에서 온다.
        여기에는 식별자와 해설처럼 데이터로 계산할 수 없는 것만 둔다. */
     const RAW = WORDLIST.map((std,i)=>{
       const cur = CURATED[std] || {};
@@ -604,16 +604,15 @@ body{ background:#ffffff; }
     /* ── 지역별 인지도 실측 데이터 ─────────────────────────────────────────
        1순위: /api/weather/awareness — 전용 테이블 wb_weather_* 에서 만든 결과.
               관리자에서 원자료를 올리면 곧바로 반영된다.
-       2순위: ./data/processed/awareness_by_region.json — 정적 호스팅(GitHub Pages)용.
-              서버가 없으면 API 가 404 이므로 파일로 되돌아간다.
-       둘 다 실패하면 모든 지역이 '관측 없음'으로 표시된다(추정값으로 채우지 않는다).
+       실패하면 모든 지역이 '관측 없음'으로 표시된다 — 추정값으로도, 예전에 받아 둔
+       정적 파일로도 채우지 않는다. 낡은 지도를 말없이 보여 주는 쪽이 더 나쁘다.
        두 경로의 구조와 판정은 etl_awareness_region.build_output() 한 곳에서 나온다. */
     let AWARE_BY_WORD = {};
-    let AWARE_ORIGIN = null;   // 'db' | 'file' | null
+    let AWARE_ORIGIN = null;   // 'db' | null
     function loadAware(){
       const apply = (j, origin)=>{
         AWARE_ORIGIN = origin;
-        window.__AWARE_ORIGIN = origin;   // 진단용 — DB(db) / 정적파일(file) 어느 쪽을 썼는지
+        window.__AWARE_ORIGIN = origin;   // 진단용
         SITE_NAMES = j.regionSites || {};
         ROSTER = j.regionRoster || {};
         // 전 항목 통합 — '전체' 라는 단어 하나로 취급하면 지도·세대·성별 경로가 그대로 돈다
@@ -631,17 +630,12 @@ body{ background:#ffffff; }
           if(w && !BY_ID[it.code]) BY_ID[it.code]=w;
         });
       };
-      const fromFile = ()=> fetch('./data/processed/awareness_by_region.json')
-        .then(r=> r.ok ? r.json() : Promise.reject(new Error(r.status)))
-        .then(j=> apply(j, 'file'));
-
       /* 서버가 계산해 준 것만 쓴다. Vercel 배포에서는 /api/index.py 가 Turso 를 읽어
          로컬 server.py 와 같은 결과를 돌려준다. 판정을 화면에서 다시 하지 않는다. */
       return fetch('/api/weather/awareness')
         .then(r=> r.ok ? r.json() : Promise.reject(new Error(r.status)))
         .then(j=>{ if(!j || j.status==='error' || !(j.items||[]).length) throw new Error('빈 응답');
                    apply(j,'db'); })
-        .catch(()=> fromFile())
         .catch(()=>{ AWARE_BY_WORD={}; AWARE_ORIGIN=null; });
     }
     function hasAware(w){ return !!AWARE_BY_WORD[w.standard]; }

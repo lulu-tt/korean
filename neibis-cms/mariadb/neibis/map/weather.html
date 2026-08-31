@@ -865,15 +865,7 @@
 										<p class="total" id="pfCount">적재 현황</p>
 										<span class="pt-legend" id="pfWarn"></span>
 									</div>
-									<div class="right">
-										<button type="button" class="btn btn-sm btn-outline-gray" id="pfExport">
-											<i class="ico ico-save-white-md"></i><span>정적 배포본 갱신</span></button>
-									</div>
 								</div>
-								<p class="pt-note" style="margin:-4px 0 12px">
-									정적 배포본(GitHub Pages)에는 API가 없어 이용자 화면이 <code>awareness_by_region.json</code>으로 되돌아갑니다.
-									자료를 고친 뒤 <b>[정적 배포본 갱신]</b>을 눌러야 그쪽에도 반영됩니다.
-								</p>
 								<div class="table table-list">
 									<div class="table-inner">
 										<table>
@@ -1470,12 +1462,6 @@ function asJson(r){
     fetch('/mariadb/neibis-api/weather/awareness')
       .then(function(r){ return r.ok ? r.json() : Promise.reject(new Error(r.status)); })
       .then(function(j){ applyData(j); })
-      .catch(function(){
-        /* 서버가 없는 정적 배포용 폴백 */
-        return fetch('/data/processed/awareness_by_region.json')
-          .then(function(r){ return r.ok ? r.json() : Promise.reject(new Error(r.status)); })
-          .then(function(j){ applyData(j); });
-      })
       .catch(function(e){ $('ptRows').innerHTML =
         '<tr><td colspan="12" class="pt-empty">자료를 불러오지 못했습니다 — '+esc(e.message)+'</td></tr>'; });
   }
@@ -1824,17 +1810,6 @@ function asJson(r){
             loadHave(); if(window.__ptReload) window.__ptReload();
           });
       });
-    });
-    $('pfExport').addEventListener('click', function(){
-      var b=this, label=b.innerHTML;
-      b.disabled=true; b.innerHTML='<span>갱신 중…</span>';
-      fetch('/mariadb/neibis-api/weather/export', {method:'POST',
-          headers:{'Content-Type':'application/json'}, body:'{}'})
-        .then(asJson)
-        .then(function(k){ b.disabled=false; b.innerHTML=label;
-          if(window.Message) Message.alert({icon:k.ok?'success':'error', message:k.message}); })
-        .catch(function(err){ b.disabled=false; b.innerHTML=label;
-          if(window.Message) Message.alert({icon:'error', message:'갱신 실패: '+err.message}); });
     });
     $('ptPick').addEventListener('click', function(){ $('ptFile').click(); });
     $('ptFile').addEventListener('change', function(){ picked=[].slice.call(this.files); showFiles(); });

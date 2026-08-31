@@ -5935,44 +5935,6 @@ def _weather_file_by_panel_id(con, panel_id: str):
         (rg, yy, int(gen), sx)).fetchone()
 
 
-def api_weather_export(body: dict) -> dict:
-    """전용 테이블 → 정적 JSON(data/processed/awareness_by_region.json) 다시 뽑기.
-
-    정적 호스팅(GitHub Pages)에는 API 가 없어 프론트가 이 파일로 되돌아간다.
-    관리자에서 원자료를 올린 뒤 이걸 눌러야 정적 배포본에도 반영된다.
-    구조 조립은 scripts/etl_awareness_region.py 의 build_output() 한 곳에서만 한다.
-    """
-    import importlib.util
-
-    etl_path = USER_MAP_ROOT / "scripts" / "etl_awareness_region.py"
-    if not etl_path.is_file():
-        return {"ok": False, "message": f"ETL 스크립트를 찾을 수 없습니다: {etl_path}"}
-    spec = importlib.util.spec_from_file_location("etl_awareness_region", str(etl_path))
-    etl = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(etl)
-
-    out_path = USER_MAP_ROOT / "data" / "processed" / "awareness_by_region.json"
-    # 직전 내용을 .bak 으로 남긴다 — 되돌릴 수 있게
-    if out_path.is_file():
-        try:
-            out_path.with_suffix(out_path.suffix + ".bak").write_bytes(out_path.read_bytes())
-        except Exception:
-            pass
-
-    recs, nfiles = etl.load_records_from_db(str(WEATHER_DB))
-    out = etl.build_output(recs, nfiles)
-    etl.fill_db_qc(out, str(WEATHER_DB))
-    text = json.dumps(out, ensure_ascii=False, indent=1)
-    tmp = out_path.with_name(out_path.name + ".tmp")
-    tmp.write_text(text, encoding="utf-8")
-    os.replace(str(tmp), str(out_path))
-
-    qc = out["meta"]["qc"]
-    return {"ok": True, "path": str(out_path), "bytes": len(text.encode("utf-8")),
-            "informants": nfiles, "items": len(out["items"]),
-            "cells": qc.get("cells"), "states": qc.get("states"),
-            "message": (f"정적 JSON 내보냄 — 제보자 {nfiles}명 · 항목 {len(out['items'])}개 · "
-                        f"{len(text.encode('utf-8'))/1024:.0f} KB")}
 
 
 def api_weather_responses_save(body: dict) -> dict:
@@ -6106,10 +6068,14 @@ def api_weather_responses(qs: dict) -> dict:
 def api_weather_files(qs: dict) -> dict:
     """적재된 원자료 파일 목록."""
     con = weather_db()
+    # 최근에 올린 것이 위로. 재업로드는 행을 지우고 다시 넣어 reg_dt 가 갱신되므로
+    # 방금 올린 파일이 항상 맨 위에 온다. 같은 묶음(초 단위가 같은 것) 안에서는
+    # 지역·세대·성별 차례를 지켜 읽기 쉽게 둔다.
     rows = [dict(r) for r in con.execute(
         """SELECT weather_file_id,file_nm,region_cd,region_nm,research_year,generation,
                   sex,row_cnt,item_cnt,src_layout,use_yn,reg_dt
-           FROM wb_weather_file ORDER BY region_cd, generation, sex""")]
+           FROM wb_weather_file
+           ORDER BY reg_dt DESC, region_cd, generation, sex""")]
     # 관리자가 고친 행 — 재업로드하면 엑셀 값으로 되돌아가므로 화면이 미리 경고해야 한다
     edited = dict(con.execute(
         """SELECT weather_file_id, COUNT(*) FROM wb_weather_response
@@ -6352,16 +6318,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 self._send_json(api_weather_responses_save(body))
-            except Exception as e:
-                self._send_json({"ok": False, "message": str(e)}, 500)
-            return
-
-        if path in (
-            "/mariadb/neibis-api/weather/export",
-            "/mariadb/neibis-api/v1/weather/export",
-        ):
-            try:
-                self._send_json(api_weather_export(body))
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return

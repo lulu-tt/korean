@@ -359,12 +359,11 @@ def api_openapi_issue(body: dict) -> dict:
 # ────────────────────────────────────────────────────────────────────────────
 # 기상도 — 전용 테이블(wb_weather_*)에서 화면 구조를 만들어 준다
 #
-# awareness_by_region.json 과 **같은 구조**를 돌려준다. 구조 조립과 상태 판정은
-# scripts/etl_awareness_region.py 의 build_output() 한 곳에서만 한다 —
-# 두 곳으로 갈라지면 API 로 바꾼 순간 지도 색이 달라진다.
+# 구조 조립과 상태 판정은 scripts/etl_awareness_region.py 의 build_output() 한 곳에서만
+# 한다 — 두 곳으로 갈라지면 지도 색이 달라진다.
 #
-# 정적 호스팅(GitHub Pages)에는 서버가 없으므로 프론트는 이 API 를 먼저 부르고
-# 실패하면 data/processed/awareness_by_region.json 으로 되돌아간다.
+# 이 API 가 유일한 자료 경로다. 예전에는 실패하면 정적 JSON 으로 되돌아갔는데,
+# 그러면 자료를 새로 올려도 낡은 지도가 말없이 계속 보였다. 지금은 실패를 드러낸다.
 # ────────────────────────────────────────────────────────────────────────────
 WEATHER_DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'gisangdo.db')
 
