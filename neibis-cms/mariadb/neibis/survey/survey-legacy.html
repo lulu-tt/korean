@@ -696,7 +696,7 @@ function loadLegacy(){
 			/* 정적 배포에는 CMS API 가 없다 — 내보내 둔 사본으로 물러난다 */
 			CmsStatic.load({ url:'../data/cms/survey_legacy.json', page:1, pageSize:9999 }, function(res){
 			if(!res){ tb.innerHTML='<tr><td colspan="7" class="text-center" style="color:#b91c1c">API 호출 실패</td></tr>'; return; }
-			lgRender(res); CmsStatic.notice('#legacy-list-body', res);
+			lgRender(res);
 		});
 		});
 }

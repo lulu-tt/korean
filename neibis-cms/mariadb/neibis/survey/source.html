@@ -1056,7 +1056,6 @@ function searchList(){
 		CmsStatic.load({ url:'../data/cms/source_list.json', page:1, pageSize:(ps?ps.value:10) }, function(res){
 			if(!res){ if(tb) tb.innerHTML='<tr><td colspan="8" class="text-center" style="color:#b91c1c">API 호출 실패</td></tr>'; return; }
 			renderSourceRows(res);
-			CmsStatic.notice('#source-list-body', res);
 		});
 	});
 }

@@ -904,7 +904,6 @@ function searchList(page){
       renderRows(res.list, res.page, res.pageSize);
       renderPager(res.page, res.totalPages);
       $('#chkAll').prop('checked', false);
-      symStaticNotice();
     });
   });
 }
@@ -938,14 +937,6 @@ function symStaticSlice(){
            list: rows.slice((page - 1) * size, page * size) };
 }
 
-function symStaticNotice(){
-  if($('#symStaticNote').length) return;
-  $('#symbol-list-body').closest('.table').before(
-    '<p id="symStaticNote" style="margin:0 0 10px;padding:9px 12px;border-radius:8px;'
-    + 'background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;font-size:12.5px">'
-    + '자료를 <b>내려받은 사본</b>으로 보고 있습니다 — 이 배포에는 관리 API 가 없어'
-    + ' 등록·수정·삭제는 되지 않습니다.</p>');
-}
 
 $(function(){
   $('#chkAll').on('change', function(){ $('input[name=chk]').prop('checked', this.checked); });

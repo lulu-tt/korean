@@ -55,25 +55,5 @@
     x.send();
   }
 
-  /* 목록 위에 '사본으로 보고 있음' 띠를 한 번만 붙인다 */
-  function notice(anchorSel, res, extra) {
-    if (document.getElementById('cmsStaticNote')) return;
-    var el = document.querySelector(anchorSel);
-    if (!el) return;
-    var msg = '자료를 <b>내려받은 사본</b>으로 보고 있습니다 — 이 배포에는 관리 API 가 없어'
-            + ' 등록·수정·삭제는 되지 않습니다.';
-    if (res && res.truncated) {
-      msg += ' 또한 전체 ' + Number(res.sourceTotal).toLocaleString()
-           + '건 가운데 <b>앞쪽 일부만</b> 담겨 있습니다.';
-    }
-    if (extra) msg += ' ' + extra;
-    var p = document.createElement('p');
-    p.id = 'cmsStaticNote';
-    p.style.cssText = 'margin:0 0 10px;padding:9px 12px;border-radius:8px;'
-      + 'background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;font-size:12.5px';
-    p.innerHTML = msg;
-    el.parentNode.insertBefore(p, el);
-  }
-
-  global.CmsStatic = { load: load, notice: notice };
+  global.CmsStatic = { load: load };
 })(window);

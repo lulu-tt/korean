@@ -756,7 +756,6 @@ function searchSurvey(){
 		CmsStatic.load({ url:'../data/cms/survey_list.json', page:1, pageSize:(ps?ps.value:10) }, function(res){
 			if(!res){ if(tb) tb.innerHTML='<tr><td colspan="7" class="text-center" style="color:#b91c1c">API 호출 실패</td></tr>'; return; }
 			renderSurveyRows(res);
-			CmsStatic.notice('#survey-list-body', res);
 		});
 	});
 }

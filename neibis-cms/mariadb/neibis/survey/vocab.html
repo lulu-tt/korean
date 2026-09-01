@@ -1048,7 +1048,6 @@ function searchList(page){
 				renderRows(res.list, res.page, res.pageSize);
 				renderPager(res.page, res.totalPages);
 				$('#chkAll').prop('checked', false);
-				CmsStatic.notice('#vocab-list-body', res);
 				return;
 			}
 			vocabFail(xhr);

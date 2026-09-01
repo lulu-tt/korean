@@ -1099,7 +1099,6 @@ const myslfCertPopup = function(nextUrl) {
         $('#notice-list-body').html(
           res.rows.map(function (r, i) { return rowHtml(r, res.total - base - i); }).join(''));
         renderPager(res);
-        CmsStatic.notice('#notice-list-body', res);
       });
     });
   }

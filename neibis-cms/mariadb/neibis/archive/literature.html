@@ -1053,7 +1053,7 @@
         CmsStatic.load({ url:'../data/cms/literature_list.json',
                          page: state.page, pageSize: state.size || 10 }, function(res){
           if(!res){ toast('목록을 불러오지 못했습니다. (서버·DB 확인)', 'error'); return; }
-          render(res); CmsStatic.notice('#lit-list-body', res);
+          render(res);
         });
       });
   }
