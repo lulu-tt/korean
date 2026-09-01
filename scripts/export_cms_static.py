@@ -100,7 +100,10 @@ SPECS = [
     ('stats_openapi.json',   'api_openapi_usage_list',      None,                100,  None),
     ('vocab_list.json',      'api_vocab_list',         None,                100,  2000),
 ]
-BBS_IDS = ['246', '251', '252', '253', '254', '256']
+# 목록을 API 로 불러오는 게시판만. 251·252·253·256 은 정적 마크업이라 사본이 필요 없다.
+# 거르는 열쇠는 bbsId 가 아니라 boardId 다(api_board_post_list 기본값 'qna').
+# 화면이 주는 값과 같은 값을 줘야 건수가 맞는다 — bbsId 로 뽑으면 다른 게시판 글이 섞인다.
+BBS = [('246', 'notice'), ('254', 'qna')]
 
 
 def export_map_previews(m):
@@ -174,9 +177,9 @@ def main():
 
     fn = getattr(m, 'api_board_post_list', None)
     if fn is not None:
-        for b in BBS_IDS:
+        for b, board_id in BBS:
             try:
-                write('bbs_%s.json' % b, collect(fn, {'bbsId': b}, 100))
+                write('bbs_%s.json' % b, collect(fn, {'boardId': board_id}, 100))
             except Exception as e:
                 print('  bbs_%-17s 실패 — %s' % (b + '.json', e))
     print('저장 위치:', OUT)
