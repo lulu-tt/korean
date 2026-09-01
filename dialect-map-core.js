@@ -1045,24 +1045,56 @@
       return null;
     }
 
-    function buildPopupRows(baseRows, detail) {
-      var rows = baseRows.slice();
-      if (detail) {
-        if (detail.basisYear) rows.push(['조사 연도', detail.basisYear + '년']);
-        var informant = [detail.sex, detail.age ? (detail.age + '세') : ''].filter(Boolean).join(' · ');
-        if (informant) rows.push(['제보자', informant]);
-        if (detail.fileMemo) rows.push(['파일 메모', detail.fileMemo]);
-      }
+    function buildPopupRows(baseRows) {
       // 중복 키 제거 (앞쪽 우선)
       var seen = {};
       var out = [];
-      rows.forEach(function (r) {
+      baseRows.forEach(function (r) {
         if (seen[r[0]]) return;
         seen[r[0]] = 1;
         if (r[1] == null || String(r[1]).trim() === '') return;
         out.push(r);
       });
       return out;
+    }
+
+    /* 한 지점을 여러 제보자가 답한 경우가 8.8% 다 (수원 '가을' = 2020 여75 · 2023 여20 · 2023 남20).
+       예전에는 그중 하나만 골라 보여 줘 나머지가 통째로 가려졌다. 이제 전부 나열한다. */
+    function informantList(details) {
+      // 묶는 단위는 '제보자' 다 — 조사연도·성별·나이.
+      // 한 사람이 같은 말을 표기만 달리해 여러 줄로 들어 있다
+      // (산청 2007 남76: '가을' / '가을(=가을'')' — 일련번호도 다르다).
+      // 그대로 나열하면 같은 사람이 세 명처럼 보인다.
+      var byKey = {};
+      var order = [];
+      (details || []).forEach(function (d) {
+        var sex = d.sex || '';
+        var age = d.age ? (d.age + '세') : '';
+        var who = [sex, age].filter(Boolean).join(' · ');
+        if (!d.basisYear && !who) return;
+        var key = [d.basisYear || '', sex, age].join('│');
+        if (!byKey[key]) {
+          byKey[key] = {
+            year: d.basisYear ? d.basisYear + '년' : '',
+            who: who || '정보 없음',
+            memos: [],
+            forms: []
+          };
+          order.push(key);
+        }
+        var it = byKey[key];
+        var memo = (d.fileMemo || '').trim();
+        if (memo && it.memos.indexOf(memo) < 0) it.memos.push(memo);
+        var form = (d.dltTp || '').trim();
+        if (form && it.forms.indexOf(form) < 0) it.forms.push(form);
+      });
+      var list = order.map(function (k) {
+        var it = byKey[k];
+        return { year: it.year, who: it.who, memo: it.memos.join(' · ') };
+      });
+      // 최근 조사부터
+      list.sort(function (a, b) { return (b.year || '').localeCompare(a.year || ''); });
+      return list;
     }
 
     function renderPopupHtml(v, g, placeLabel, rows, optsExtra) {
@@ -1072,14 +1104,35 @@
         return '<tr><th scope="row">' + escHtml(r[0]) + '</th><td>' + escHtml(r[1]) + '</td></tr>';
       }).join('');
       var audioCell = '';
+      var speaker =
+        '<button type="button" class="popup-speaker-btn" disabled title="준비 중" aria-label="음성 듣기 (준비 중)">' +
+          '<i class="ti ti-volume" aria-hidden="true"></i>' +
+        '</button>';
       // 음성 파일 연동 전: 아이콘만 있는 심플 버튼 (비활성)
-      if (extra.showAudioPlaceholder) {
-        audioCell =
-          '<tr><th scope="row">음성</th><td style="text-align:left;">' +
-            '<button type="button" class="popup-speaker-btn" disabled title="준비 중" aria-label="음성 듣기 (준비 중)">' +
-              '<i class="ti ti-volume" aria-hidden="true"></i>' +
-            '</button>' +
-          '</td></tr>';
+      if (extra.showAudioPlaceholder && !(extra.informants && extra.informants.length)) {
+        audioCell = '<tr><th scope="row">음성</th><td style="text-align:left;">' + speaker + '</td></tr>';
+      }
+
+      // 제보자가 여럿이면 표로 나열한다 (조사시기 · 제보자 · 음성)
+      var infBlock = '';
+      var infs = extra.informants || [];
+      if (infs.length) {
+        infBlock =
+          '<div class="popup-informants">' +
+            '<div class="popup-informants__cap">이 지점에서 조사된 제보자 <b>' + infs.length + '명</b></div>' +
+            '<table class="popup-inftable"><thead><tr>' +
+              '<th scope="col">조사시기</th><th scope="col">제보자</th><th scope="col">음성</th>' +
+            '</tr></thead><tbody>' +
+            infs.map(function (x) {
+              return '<tr>' +
+                '<td>' + escHtml(x.year) + '</td>' +
+                '<td>' + escHtml(x.who) +
+                  (x.memo ? '<small>' + escHtml(x.memo) + '</small>' : '') + '</td>' +
+                '<td>' + speaker + '</td>' +
+              '</tr>';
+            }).join('') +
+            '</tbody></table>' +
+          '</div>';
       }
       return '' +
         '<div class="popup-header">' +
@@ -1091,8 +1144,10 @@
           '<button type="button" class="popup-close" id="popup-closer" aria-label="닫기"><i class="ti ti-x"></i></button>' +
         '</div>' +
         '<div class="popup-body">' +
-          '<div class="popup-body__title"><span style="color:' + color + '">' + escHtml(v.word) + '</span> · ' + escHtml(placeLabel) + '</div>' +
-          '<table class="popup-table"><tbody>' + table + audioCell + '</tbody></table>' +
+          ((table || audioCell)
+            ? '<table class="popup-table"><tbody>' + table + audioCell + '</tbody></table>'
+            : (extra.note ? '<p class="popup-note">' + escHtml(extra.note) + '</p>' : '')) +
+          infBlock +
         '</div>';
     }
 
@@ -1114,15 +1169,18 @@
       }
 
       var payload = currentPayload || {};
-      var baseRows = [
-        ['지역', placeLabel]
-      ];
+      // '지역' 은 팝업 머리글과 제목에 이미 있어 세 번 반복된다 — 표에서는 뺀다
+      var baseRows = [];
 
-      var rows = buildPopupRows(baseRows, null);
-      popupContent.innerHTML = renderPopupHtml(v, g, placeLabel, rows, {});
+      var rows = buildPopupRows(baseRows);
+      popupContent.innerHTML = renderPopupHtml(v, g, placeLabel, rows,
+        { note: '제보자 정보를 불러오는 중…' });
       popupOverlay.setPosition(coord);
-      var closer = document.getElementById('popup-closer');
-      if (closer) closer.onclick = function () { popupOverlay.setPosition(undefined); return false; };
+      function bindCloser() {
+        var c = document.getElementById('popup-closer');
+        if (c) c.onclick = function () { popupOverlay.setPosition(undefined); return false; };
+      }
+      bindCloser();
 
       // DB에서 제보자·연도·일련번호 보강
       var reqId = ++popupReqSeq;
@@ -1137,19 +1195,30 @@
         .then(function (r) { return r.json(); })
         .then(function (res) {
           if (reqId !== popupReqSeq) return;
-          if (!res || res.status !== 'success' || !res.data || !res.data.length) return;
-          // 방언형 일치 우선
-          var detail = res.data.find(function (d) {
+          if (!res || res.status !== 'success' || !res.data || !res.data.length) {
+            popupContent.innerHTML = renderPopupHtml(v, g, placeLabel, buildPopupRows(baseRows),
+              { note: '이 지점의 제보자 정보가 없습니다.' });
+            bindCloser();
+            return;
+          }
+          // 방언형이 일치하는 것만 추린다. 하나도 없으면 지점 전체를 보여 준다.
+          var matched = res.data.filter(function (d) {
             return d.dltTp === v.word || (d.dltTp && d.dltTp.indexOf(v.word) === 0);
-          }) || res.data[0];
-          var enriched = buildPopupRows(baseRows, detail);
-          popupContent.innerHTML = renderPopupHtml(v, g, placeLabel, enriched, {
-            showAudioPlaceholder: true
           });
-          var closer2 = document.getElementById('popup-closer');
-          if (closer2) closer2.onclick = function () { popupOverlay.setPosition(undefined); return false; };
+          var picked = matched.length ? matched : res.data;
+          var enriched = buildPopupRows(baseRows);
+          popupContent.innerHTML = renderPopupHtml(v, g, placeLabel, enriched, {
+            showAudioPlaceholder: true,
+            informants: informantList(picked)
+          });
+          bindCloser();
         })
-        .catch(function () { /* 보강 실패 시 기본 팝업 유지 */ });
+        .catch(function () {
+          if (reqId !== popupReqSeq) return;
+          popupContent.innerHTML = renderPopupHtml(v, g, placeLabel, buildPopupRows(baseRows),
+            { note: '제보자 정보를 불러오지 못했습니다.' });
+          bindCloser();
+        });
     }
 
     // 원본 심볼 PNG 아이콘 스타일 (symbolFile 있을 때 사용). 크기는 운영과 동일(~13px)로 정규화.

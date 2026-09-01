@@ -241,15 +241,6 @@ body { background: #ffffff; }
 .popup-body {
   padding: 16px;
 }
-.popup-body__title {
-  font-size: 15px;
-  font-weight: 800;
-  color: #1e293b;
-  margin-bottom: 10px;
-}
-.popup-body__title span {
-  color: #ef4444;
-}
 .popup-table {
   width: 100%;
   border-collapse: collapse;
@@ -270,6 +261,62 @@ body { background: #ffffff; }
   color: #334155;
   font-weight: 600;
 }
+.popup-note {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  color: #94a3b8;
+  text-align: center;
+  padding: 10px 0;
+}
+/* 제보자 목록 — 한 지점을 여러 사람이 답한 경우가 8.8% 다.
+   예전에는 그중 한 명만 보였다. 어휘조사자료 화면과 같은 표로 전부 나열한다. */
+.popup-informants {
+  margin-top: 12px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 10px;
+}
+.popup-informants:first-child {
+  margin-top: 0;
+  border-top: 0;
+  padding-top: 0;
+}
+.popup-informants__cap {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+.popup-informants__cap b { color: #334155; }
+.popup-inftable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.popup-inftable th {
+  background: #f8fafc;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 11.5px;
+  padding: 6px 8px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: center;
+  white-space: nowrap;
+}
+.popup-inftable td {
+  padding: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  text-align: center;
+  color: #334155;
+  font-weight: 600;
+}
+.popup-inftable tr:last-child td { border-bottom: none; }
+.popup-inftable td small {
+  display: block;
+  font-weight: 400;
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+.popup-inftable .popup-speaker-btn { margin-left: 0; }
 .popup-speaker-btn {
   background: #fee2e2;
   color: #dc2626;
