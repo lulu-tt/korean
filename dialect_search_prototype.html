@@ -11,9 +11,15 @@
 <script src="./skorea-provinces.js"></script>
 <script src="./korea-map.js"></script>
 <link rel="stylesheet" href="./styles.css">
-<script src="./gnb.js" defer></script>
+<!-- 퍼블리싱 디자인 CSS.
+     순서가 중요하다: styles.css 뒤, 아래 인라인 <style> 앞이다.
+     - styles.css 보다 뒤라서 공통 영역(GNB/footer/타이틀/브레드크럼)은 디자인이 이긴다.
+     - 인라인 <style> 보다 앞이라서 본문 검색 UI(.tab/.search-panel/.pagination 등
+       이름이 겹치는 것들)는 기존 프로토타입이 그대로 이긴다.
+     이 페이지에서만 쓰는 중이며, 공통 gnb.js/footer.js 는 아래에서 뺐다. -->
+<link rel="stylesheet" href="./publishing/assets/ko/css/style.css">
+<script src="./publishing/assets/_common/js/ui-global.js" defer></script>
 <script src="./share.js" defer></script>
-<script src="./footer.js" defer></script>
 <style>
   @font-face {
     font-family: 'NanumBarunGothicYetHangul';
@@ -848,38 +854,331 @@
     .ok-input { width: 100%; box-sizing: border-box; }
   }
 </style>
+
+<style>
+  /* 퍼블리싱 공통 영역으로 새는 styles.css 규칙 되돌리기.
+     디자인 CSS 가 styles.css 보다 뒤에 오지만, 디자인이 "다시 정의하지 않는 속성"은
+     그대로 남는다. 그 남은 것들만 골라 끈다. 여기 있는 이름은 이 페이지 본문에서는
+     쓰지 않으므로(교체 전 확인함) 본문에 영향이 없다. */
+
+  /* .wrap — 프로토타입에서는 본문 폭 제한자(max-width:1440/padding:0 20px)였지만
+     퍼블리싱에서는 masthead·header·container·footer 를 감싸는 페이지 최외곽이다.
+     폭 제한이 남으면 헤더와 푸터가 화면 전체 폭을 쓰지 못한다. */
+  .wrap { max-width: none; margin: 0; padding: 0; }
+
+  /* .container — 프로토타입에서는 본문 폭 제한자(max-width:1440 / padding:40px 20px 80px,
+     모바일 24px 16px 60px)였지만 퍼블리싱에서는 #container 자체다. 가로 패딩이 남으면
+     안쪽 .inner 의 패딩과 겹쳐 여백이 이중으로 들어간다(모바일에서 .inner 폭 458 vs 원본 490).
+     #container.container 로 특정성을 올려 미디어쿼리 안의 규칙까지 덮고,
+     디자인이 의도한 세로 패딩만 되살린다. */
+  #container.container { max-width: none; margin: 0; padding: 2.4rem 0 6.4rem; }
+  @media (max-width: 1023px) {
+    #container.container { padding: 1.6rem 0 4rem; }
+  }
+
+  /* .footer — 디자인이 background 와 padding 은 덮지만 margin-top(60px)과
+     color(#999999)는 덮지 않아 그대로 새어 들어온다. */
+  .footer { margin-top: 0; color: inherit; }
+
+  /* 폰트 — 위 인라인 <style> 의 body 규칙이 디자인 CSS 보다 뒤에 와서
+     공통 영역까지 'Pretendard' 로 덮어 버린다. 디자인 폰트(Pretendard GOV)와
+     자간이 달라 헤더 유틸 메뉴의 닉네임이 두 줄로 감긴다.
+     본문은 프로토타입 폰트를 유지해야 하므로 공통 영역만 되돌린다. */
+  .masthead,
+  .header,
+  .footer,
+  .breadcrumb,
+  .content-header {
+    font-family: "Pretendard GOV", "Noto Sans KR", sans-serif;
+  }
+</style>
 </head>
 <body>
+<!-- 공통 영역은 퍼블리싱 산출물(publishing/html/ko/_include/)의 마크업을 그대로 옮겨 왔다.
+     원본은 w3-include-html 로 불러오지만 여기서는 인라인해 두었다. 인클루드는 페이지
+     기준으로 경로가 풀려서 원본의 ../../../assets/ 가 깨지기 때문이다. -->
+<div class="wrap">
 
-<div id="gnb-common"></div>
-
-<div class="sub-visual">
-  <div class="wrap">
-    <h1 class="sv-title">통합 자료 검색</h1>
-    <div class="location-bar">
-      <div class="loc-item home" onclick="location.href='./index.html'" style="cursor:pointer;" aria-label="처음으로"><i class="ti ti-home" aria-hidden="true"></i></div>
-      <i class="ti ti-chevron-right loc-sep"></i>
-      <div class="loc-item">
-        <select onchange="if(this.value) location.href=this.value;">
-          <option value="./dialect_search_prototype.html" selected>조사 자료 검색</option>
-          <option value="./index.html">누리집 안내</option>
-          <option value="./dialect_map.html">지역어 지도</option>
-          <option value="#">문학 속 지역어</option>
-          <option value="#">사진으로 보는 생활어</option>
-        </select>
-      </div>
-      <i class="ti ti-chevron-right loc-sep"></i>
-      <div class="loc-item">
-        <select>
-          <option selected>통합 자료 검색</option>
-          <option>상세 검색</option>
-        </select>
-      </div>
+  <!-- inc-masthead.html -->
+  <div class="masthead">
+    <div class="inner">
+      <i class="svg-icon ico-flag ico-xl" aria-hidden="true"></i>
+      이 누리집은 대한민국 공식 전자정부 누리집입니다.
     </div>
   </div>
-</div>
 
-<div class="wrap container">
+  <!-- inc-header.html : 활성 표시는 이 페이지(지역어 검색 > 통합자료검색)에 맞춰 옮겼다 -->
+  <header class="header">
+    <div class="inner">
+      <div class="header-nav">
+        <div class="branding">
+          <a href="./index.html" class="logo logo-korean">
+            <img src="./publishing/assets/_common/images/logo-korean@2x.png" alt="문화체육관광부 국립국어원 로고" />
+          </a>
+          <a href="./index.html" class="logo logo-dialect">
+            <img src="./publishing/assets/_common/images/logo-dialect@2x.png" alt="지역어 종합 정보 로고" />
+          </a>
+        </div>
+      </div>
+
+      <nav class="gnb" id="gnb" aria-label="주 메뉴">
+        <ul class="gnb-list">
+          <li class="gnb-item">
+            <button type="button" class="gnb-toggle active" aria-current="page" aria-expanded="false" aria-haspopup="true" aria-controls="gnb-panel-1">
+              지역어 검색
+              <i class="svg-icon ico-chevron-gray ico-sm" aria-hidden="true"></i>
+            </button>
+            <div class="gnb-panel" id="gnb-panel-1" hidden>
+              <div class="inner">
+                <strong class="gnb-panel-tit">지역어 검색</strong>
+                <ul class="gnb-panel-list">
+                  <li><a href="./dialect_search_prototype.html" class="gnb-panel-link active">통합자료검색<i class="svg-icon ico-chevron-gray ico-sm ico-right" aria-hidden="true"></i></a></li>
+                  <li><a href="./vocab_dialect.html" class="gnb-panel-link">어휘조사자료<i class="svg-icon ico-chevron-gray ico-sm ico-right" aria-hidden="true"></i></a></li>
+                  <li><a href="./oral_dialect.html" class="gnb-panel-link">구술발화조사자료<i class="svg-icon ico-chevron-gray ico-sm ico-right" aria-hidden="true"></i></a></li>
+                  <li><a href="./dialect_phonology_compare.html" class="gnb-panel-link">지역어 변이형 비교<i class="svg-icon ico-chevron-gray ico-sm ico-right" aria-hidden="true"></i></a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="gnb-item">
+            <button type="button" class="gnb-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="gnb-panel-2">
+              지역어 지도
+              <i class="svg-icon ico-chevron-gray ico-sm" aria-hidden="true"></i>
+            </button>
+            <div class="gnb-panel" id="gnb-panel-2" hidden>
+              <div class="inner">
+                <strong class="gnb-panel-tit">지역어 지도</strong>
+                <ul class="gnb-panel-list">
+                  <li><a href="./dialect_map.html" class="gnb-panel-link">지역어 지도<i class="svg-icon ico-chevron-gray ico-sm ico-right" aria-hidden="true"></i></a></li>
+                  <li><a href="./dialect_our_town.html" class="gnb-panel-link">지역어 지도 비교<i class="svg-icon ico-chevron-gray ico-sm ico-right" aria-hidden="true"></i></a></li>
+                  <li><a href="./dialect_my_map.html" class="gnb-panel-link">나만의 지도 제작<i class="svg-icon ico-chevron-gray ico-sm ico-right" aria-hidden="true"></i></a></li>
+                  <li><a href="./dialect_gisangdo.html" class="gnb-panel-link">지역어 현황(기상도)<i class="svg-icon ico-chevron-gray ico-sm ico-right" aria-hidden="true"></i></a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="gnb-item">
+            <button type="button" class="gnb-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="gnb-panel-3">
+              지역어 자료관
+              <i class="svg-icon ico-chevron-gray ico-sm" aria-hidden="true"></i>
+            </button>
+            <div class="gnb-panel" id="gnb-panel-3" hidden>
+              <div class="inner">
+                <strong class="gnb-panel-tit">지역어 자료관</strong>
+                <ul class="gnb-panel-list">
+                  <li><a href="./literature_dialect.html" class="gnb-panel-link">문학 속 지역어<i class="svg-icon ico-chevron-gray ico-sm ico-right" aria-hidden="true"></i></a></li>
+                  <li><a href="./region_culture.html" class="gnb-panel-link">사진으로 보는 생활어<i class="svg-icon ico-chevron-gray ico-sm ico-right" aria-hidden="true"></i></a></li>
+                  <li><a href="./data_room.html" class="gnb-panel-link">자료실<i class="svg-icon ico-chevron-gray ico-sm ico-right" aria-hidden="true"></i></a></li>
+                  <li><a href="./openapi_intro.html" class="gnb-panel-link">Open API<i class="svg-icon ico-chevron-gray ico-sm ico-right" aria-hidden="true"></i></a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="gnb-item">
+            <button type="button" class="gnb-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="gnb-panel-4">
+              알림마당
+              <i class="svg-icon ico-chevron-gray ico-sm" aria-hidden="true"></i>
+            </button>
+            <div class="gnb-panel" id="gnb-panel-4" hidden>
+              <div class="inner">
+                <strong class="gnb-panel-tit">알림마당</strong>
+                <ul class="gnb-panel-list">
+                  <li><a href="./notice.html" class="gnb-panel-link">공지사항<i class="svg-icon ico-chevron-gray ico-sm ico-right" aria-hidden="true"></i></a></li>
+                  <li><a href="./faq.html" class="gnb-panel-link">도움말<i class="svg-icon ico-chevron-gray ico-sm ico-right" aria-hidden="true"></i></a></li>
+                  <li><a href="./mypage_opinion_write.html" class="gnb-panel-link">의견제시<i class="svg-icon ico-chevron-gray ico-sm ico-right" aria-hidden="true"></i></a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="gnb-item">
+            <button type="button" class="gnb-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="gnb-panel-5">
+              누리집소개
+              <i class="svg-icon ico-chevron-gray ico-sm" aria-hidden="true"></i>
+            </button>
+            <div class="gnb-panel" id="gnb-panel-5" hidden>
+              <div class="inner">
+                <strong class="gnb-panel-tit">누리집소개</strong>
+                <ul class="gnb-panel-list">
+                  <li><a href="./about_intro.html" class="gnb-panel-link">사업소개<i class="svg-icon ico-chevron-gray ico-sm ico-right" aria-hidden="true"></i></a></li>
+                  <li><a href="./about_history.html" class="gnb-panel-link">사업연혁<i class="svg-icon ico-chevron-gray ico-sm ico-right" aria-hidden="true"></i></a></li>
+                  <li><a href="./about_coverage.html" class="gnb-panel-link">조사현황<i class="svg-icon ico-chevron-gray ico-sm ico-right" aria-hidden="true"></i></a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <ul class="util-menu">
+        <li>
+          <strong class="util-nickname">
+            <i class="svg-icon ico-user" aria-hidden="true"></i>
+            닉네임은홍길동입니다
+          </strong>
+        </li>
+        <li class="util-mypage">
+          <button type="button" class="util-link util-mypage-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="util-mypage-panel">
+            내 정보
+            <i class="svg-icon ico-chevron-gray ico-sm" aria-hidden="true"></i>
+          </button>
+          <div class="util-mypage-pop" id="util-mypage-panel" role="menu" aria-label="내 정보 메뉴" hidden>
+            <a href="./mypage_edit.html" class="util-mypage-link" role="menuitem">나의 정보 수정</a>
+            <a href="./mypage_opinion.html" class="util-mypage-link" role="menuitem">나의 의견 제시</a>
+            <a href="./mypage_map.html" class="util-mypage-link" role="menuitem">나의 지도</a>
+            <a href="#" class="util-mypage-link" role="menuitem">회원탈퇴</a>
+          </div>
+        </li>
+        <li>
+          <a href="./login.html" class="util-link">
+            <i class="svg-icon ico-logout ico-sm" aria-hidden="true"></i>
+            나가기
+          </a>
+        </li>
+      </ul>
+
+      <button type="button" class="menu-toggle" aria-expanded="false" aria-controls="mobile-menu" aria-label="전체메뉴 열기">
+        <span class="sr-only">전체메뉴 열기</span>
+      </button>
+    </div>
+
+    <!-- 모바일 전체메뉴 -->
+    <div class="mobile-menu" id="mobile-menu">
+      <div class="mobile-menu-head">
+        <div class="branding">
+          <a href="./index.html" class="logo logo-korean">
+            <img src="./publishing/assets/_common/images/logo-korean@2x.png" alt="문화체육관광부 국립국어원 로고" />
+          </a>
+          <a href="./index.html" class="logo logo-dialect">
+            <img src="./publishing/assets/_common/images/logo-dialect@2x.png" alt="지역어 종합 정보 로고" />
+          </a>
+        </div>
+        <button type="button" class="mobile-menu-close" aria-label="메뉴 닫기">
+          <span class="sr-only">메뉴 닫기</span>
+        </button>
+      </div>
+
+      <div class="mobile-menu-util">
+        <span class="util-link util-nickname">
+          <i class="svg-icon ico-user" aria-hidden="true"></i>
+          닉네임은홍길동입니다
+        </span>
+        <span class="util-divider" aria-hidden="true"></span>
+        <a href="./login.html" class="util-link">
+          <i class="svg-icon ico-logout ico-sm" aria-hidden="true"></i>
+          나가기
+        </a>
+      </div>
+
+      <ul class="mobile-menu-list">
+        <li class="mobile-menu-item">
+          <button type="button" class="mobile-menu-toggle active" aria-expanded="true" aria-controls="mobile-panel-1">
+            지역어 검색
+            <i class="svg-icon ico-chevron-gray" aria-hidden="true"></i>
+          </button>
+          <ul class="mobile-menu-panel" id="mobile-panel-1">
+            <li><a href="./dialect_search_prototype.html" class="mobile-menu-sub-link active" aria-current="page">통합자료검색</a></li>
+            <li><a href="./vocab_dialect.html" class="mobile-menu-sub-link">어휘조사자료</a></li>
+            <li><a href="./oral_dialect.html" class="mobile-menu-sub-link">구술발화조사자료</a></li>
+            <li><a href="./dialect_phonology_compare.html" class="mobile-menu-sub-link">지역어 변이형 비교</a></li>
+          </ul>
+        </li>
+        <li class="mobile-menu-item">
+          <button type="button" class="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-panel-2">
+            지역어 지도
+            <i class="svg-icon ico-chevron-gray" aria-hidden="true"></i>
+          </button>
+          <ul class="mobile-menu-panel" id="mobile-panel-2" hidden>
+            <li><a href="./dialect_map.html" class="mobile-menu-sub-link">지역어 지도</a></li>
+            <li><a href="./dialect_our_town.html" class="mobile-menu-sub-link">지역어 지도 비교</a></li>
+            <li><a href="./dialect_my_map.html" class="mobile-menu-sub-link">나만의 지도 제작</a></li>
+            <li><a href="./dialect_gisangdo.html" class="mobile-menu-sub-link">지역어 현황(기상도)</a></li>
+          </ul>
+        </li>
+        <li class="mobile-menu-item">
+          <button type="button" class="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-panel-3">
+            지역어 자료관
+            <i class="svg-icon ico-chevron-gray" aria-hidden="true"></i>
+          </button>
+          <ul class="mobile-menu-panel" id="mobile-panel-3" hidden>
+            <li><a href="./literature_dialect.html" class="mobile-menu-sub-link">문학 속 지역어</a></li>
+            <li><a href="./region_culture.html" class="mobile-menu-sub-link">사진으로 보는 생활어</a></li>
+            <li><a href="./data_room.html" class="mobile-menu-sub-link">자료실</a></li>
+            <li><a href="./openapi_intro.html" class="mobile-menu-sub-link">Open API</a></li>
+          </ul>
+        </li>
+        <li class="mobile-menu-item">
+          <button type="button" class="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-panel-4">
+            알림마당
+            <i class="svg-icon ico-chevron-gray" aria-hidden="true"></i>
+          </button>
+          <ul class="mobile-menu-panel" id="mobile-panel-4" hidden>
+            <li><a href="./notice.html" class="mobile-menu-sub-link">공지사항</a></li>
+            <li><a href="./faq.html" class="mobile-menu-sub-link">도움말</a></li>
+            <li><a href="./mypage_opinion_write.html" class="mobile-menu-sub-link">의견제시</a></li>
+          </ul>
+        </li>
+        <li class="mobile-menu-item">
+          <button type="button" class="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-panel-5">
+            누리집소개
+            <i class="svg-icon ico-chevron-gray" aria-hidden="true"></i>
+          </button>
+          <ul class="mobile-menu-panel" id="mobile-panel-5" hidden>
+            <li><a href="./about_intro.html" class="mobile-menu-sub-link">사업소개</a></li>
+            <li><a href="./about_history.html" class="mobile-menu-sub-link">사업연혁</a></li>
+            <li><a href="./about_coverage.html" class="mobile-menu-sub-link">조사현황</a></li>
+          </ul>
+        </li>
+        <li class="mobile-menu-item">
+          <button type="button" class="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-panel-6">
+            내 정보
+            <i class="svg-icon ico-chevron-gray" aria-hidden="true"></i>
+          </button>
+          <ul class="mobile-menu-panel" id="mobile-panel-6" hidden>
+            <li><a href="./mypage_edit.html" class="mobile-menu-sub-link">나의 정보 수정</a></li>
+            <li><a href="./mypage_opinion.html" class="mobile-menu-sub-link">나의 의견 제시</a></li>
+            <li><a href="./mypage_map.html" class="mobile-menu-sub-link">나의 지도</a></li>
+            <li><a href="#" class="mobile-menu-sub-link">회원탈퇴</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <div id="container" class="container">
+    <div class="inner" id="contents">
+
+      <!-- location : 기존 .location-bar(셀렉트 2단)를 퍼블리싱 브레드크럼으로 교체 -->
+      <nav class="breadcrumb">
+        <ol class="breadcrumb-list">
+          <li class="breadcrumb-item home">
+            <a href="./index.html"><i class="svg-icon ico-bread-home ico-sm" aria-hidden="true"></i>홈</a>
+          </li>
+          <li class="breadcrumb-item"><a href="#">지역어 검색</a></li>
+          <li class="breadcrumb-item"><a href="./dialect_search_prototype.html" aria-current="page">통합 자료 검색</a></li>
+        </ol>
+      </nav>
+
+      <!-- 본문 상단 메뉴타이틀 : 기존 .sub-visual > .sv-title 을 교체 -->
+      <div class="content-header">
+        <h1 class="content-title">통합 자료 검색</h1>
+        <div class="content-actions">
+          <div class="tooltip">
+            <button type="button" class="btn btn-icon btn-gray"><i class="svg-icon ico-share ico-md" aria-hidden="true"></i></button>
+            <span class="tooltip-text">SNS 공유</span>
+          </div>
+          <div class="tooltip">
+            <button type="button" class="btn btn-icon btn-gray"><i class="svg-icon ico-link ico-md" aria-hidden="true"></i></button>
+            <span class="tooltip-text">링크 복사</span>
+          </div>
+          <div class="tooltip">
+            <button type="button" class="btn btn-icon btn-gray" onclick="window.print()"><i class="svg-icon ico-print ico-md" aria-hidden="true"></i></button>
+            <span class="tooltip-text">인쇄하기</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 본문: 기존 프로토타입 검색 UI 를 그대로 둔다 -->
+      <div class="content-body">
   <!-- Search panel -->
   <div class="search-panel">
     <div class="search-mode-row">
@@ -1905,7 +2204,14 @@
     <button class="page-btn" aria-label="다음 페이지"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
   </div>
 
-</div>
+      </div><!-- //.content-body -->
+    </div><!-- //.inner#contents -->
+
+    <button type="button" class="page-top-button">
+      <i class="svg-icon ico-go-top" aria-hidden="true"></i>
+      <span class="sr-only">맨 위로</span>
+    </button>
+  </div><!-- //#container -->
 
 <!-- VOCAB MODAL -->
 <div class="modal-overlay" id="vocabModalOverlay" onclick="handleVocabOverlayClick(event)">
@@ -2211,7 +2517,58 @@
   </div>
 </div>
 
-<div id="footer-common"></div>
+  <!-- inc-footer.html -->
+  <footer class="footer">
+    <div class="inner" id="footer">
+      <div class="footer-main">
+        <div class="footer-left">
+          <div class="footer-branding">
+            <a href="./index.html" class="logo logo-korean">
+              <img src="./publishing/assets/_common/images/logo-korean@2x.png" alt="문화체육관광부 국립국어원 로고" />
+            </a>
+            <a href="./index.html" class="logo logo-dialect">
+              <img src="./publishing/assets/_common/images/logo-dialect@2x.png" alt="지역어 종합 정보 로고" />
+            </a>
+          </div>
+
+          <address class="footer-info">
+            <span class="footer-info-location">(07511) 서울특별시 강서구 금낭화로 154(방화동 827) 국립국어원</span>
+            <dl>
+              <div class="footer-info-row">
+                <dt>대표전화</dt>
+                <dd>02-2669-9775</dd>
+              </div>
+              <div class="footer-info-row">
+                <dt>일반문의</dt>
+                <dd>홈페이지 &gt; 기관소개 &gt; 찾아오시는 길 참조</dd>
+              </div>
+            </dl>
+          </address>
+        </div>
+
+        <div class="footer-family">
+          <select class="select select-md" aria-label="Family site 선택" onchange="if(this.value) window.open(this.value);">
+            <option value="">Family site</option>
+            <option value="https://www.korean.go.kr/">국립국어원</option>
+            <option value="https://stdict.korean.go.kr/">표준국어대사전</option>
+            <option value="https://opendict.korean.go.kr/">우리말샘</option>
+          </select>
+          <button type="button" class="btn btn-md btn-fit btn-outline-gray">이동</button>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="footer-links">
+          <a href="https://korean.go.kr/front/nuri/pageView.do?page_id=P000186&amp;mkn=2" class="text-primary" target="_blank" rel="noopener"><strong>개인정보처리방침</strong></a>
+          <a href="./copyright.html">저작권정책</a>
+          <a href="./terms.html">서비스 이용약관</a>
+        </div>
+        <p class="footer-copyright">COPYRIGHT © National Institute of Korean Language ALL RIGHTS RESERVED.</p>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- //.wrap -->
 
 <script>
 
