@@ -11,6 +11,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap">
 <link rel="stylesheet" href="./styles.css">
+<!-- 퍼블리싱 디자인 CSS + 브리지.
+     순서가 중요하다: styles.css 뒤, 페이지 인라인 <style> 앞이다.
+     공통 셸(GNB/푸터)은 디자인이 이기고, 이름이 겹치는 본문 쪽은 인라인 <style> 이 이긴다.
+     디자인이 본문까지 덮어 버리는 것들(.wrap/.container/body 기본값 등)은 브리지에서 되돌린다. -->
+<link rel="stylesheet" href="./publishing/assets/ko/css/style.css">
+<link rel="stylesheet" href="./design-bridge.css">
 <link rel="stylesheet" href="./about.css">
 <script src="./gnb.js" defer></script>
 <script src="./share.js" defer></script>
@@ -28,18 +34,18 @@
   .loc-sep{color:#cbd5e1;font-size:12px;}
 
   /* ===== 조사 현황 페이지 전용 : 너무 작은 폰트 키우기 (about.css 뒤에서 override) ===== */
-  .lore .eyebrow{font-size:.98rem;font-weight:700;letter-spacing:.1em;color:var(--jade);}
-  .lore .sec-head p{font-size:1.1rem;line-height:1.9;font-weight:400;}
-  .lore .region .rn b{font-size:1.35rem;}
-  .lore .region .rn .c{font-size:1.05rem;}
-  .lore .region .ex{font-size:.92rem;}
-  .lore .abroad h3{font-size:1.3rem;}
-  .lore .abroad p{font-size:1.02rem;}
-  .lore .chip{font-size:.82rem;}
-  .lore .tbl{font-size:1.02rem;}
-  .lore .tbl thead th{font-size:.82rem;}
-  .lore .tbl .grp td:first-child{font-size:1.15rem;}
-  .lore .foot-note{font-size:1.02rem;max-width:none;white-space:nowrap;}
+  .lore .eyebrow{font-size:15.68px;font-weight:700;letter-spacing:.1em;color:var(--jade);}
+  .lore .sec-head p{font-size:17.6px;line-height:1.9;font-weight:400;}
+  .lore .region .rn b{font-size:21.6px;}
+  .lore .region .rn .c{font-size:16.8px;}
+  .lore .region .ex{font-size:14.72px;}
+  .lore .abroad h3{font-size:20.8px;}
+  .lore .abroad p{font-size:16.32px;}
+  .lore .chip{font-size:13.12px;}
+  .lore .tbl{font-size:16.32px;}
+  .lore .tbl thead th{font-size:13.12px;}
+  .lore .tbl .grp td:first-child{font-size:18.4px;}
+  .lore .foot-note{font-size:16.32px;max-width:none;white-space:nowrap;}
 
   /* ===== 국외 이주 한민족 지역어 박스 : 밝은 재이드/민트 톤으로 리디자인 (붉은색·누런색 미사용) ===== */
   .lore .abroad{margin-top:28px;padding:28px 30px;border:1px solid #CFE3E1;border-radius:14px;background:linear-gradient(180deg,#F5FAF9 0%,#EAF4F3 100%);box-shadow:0 4px 18px rgba(21,84,92,.07);}
@@ -58,24 +64,24 @@
   .lore .cov-map-block{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:26px;align-items:stretch;}
   .lore .cov-map-panel{position:relative;background:#ffffff;border:1px solid var(--l-line);border-radius:5px;overflow:hidden;}
   .lore #cov-map{width:100%;height:640px;}
-  .lore .cov-legend{position:absolute;left:16px;bottom:14px;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.92);border:1px solid var(--l-line);border-radius:99px;padding:6px 14px;font-family:var(--l-mono);font-size:.72rem;color:var(--ink-soft);box-shadow:0 2px 10px rgba(15,23,42,.06);}
+  .lore .cov-legend{position:absolute;left:16px;bottom:14px;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.92);border:1px solid var(--l-line);border-radius:99px;padding:6px 14px;font-family:var(--l-mono);font-size:11.52px;color:var(--ink-soft);box-shadow:0 2px 10px rgba(15,23,42,.06);}
   .lore .cov-legend .cl-label{color:var(--jade);font-weight:600;margin-right:2px;}
   .lore .cov-legend .cl-bar{width:120px;height:8px;border-radius:99px;background:linear-gradient(90deg,rgba(21,84,92,.30),rgba(21,84,92,.82));}
-  .lore .cov-map-fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center;margin:0;padding:24px;text-align:center;color:var(--ink-soft);font-size:.95rem;}
+  .lore .cov-map-fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center;margin:0;padding:24px;text-align:center;color:var(--ink-soft);font-size:15.2px;}
   .lore .cov-map-fallback:not([hidden]){display:flex;}
-  .lore .cov-reset{position:absolute;left:16px;top:14px;z-index:3;display:none;align-items:center;gap:6px;background:rgba(255,255,255,.95);border:1px solid var(--l-line);border-radius:99px;padding:7px 15px 7px 12px;font-family:var(--l-sans);font-size:.85rem;font-weight:500;color:var(--jade-deep);cursor:pointer;box-shadow:0 2px 10px rgba(15,23,42,.1);transition:background .15s,border-color .15s;}
+  .lore .cov-reset{position:absolute;left:16px;top:14px;z-index:3;display:none;align-items:center;gap:6px;background:rgba(255,255,255,.95);border:1px solid var(--l-line);border-radius:99px;padding:7px 15px 7px 12px;font-family:var(--l-sans);font-size:13.6px;font-weight:500;color:var(--jade-deep);cursor:pointer;box-shadow:0 2px 10px rgba(15,23,42,.1);transition:background .15s,border-color .15s;}
   .lore .cov-reset:not([hidden]){display:inline-flex;}
   .lore .cov-reset:hover{background:#fff;border-color:var(--jade);}
-  .lore .cov-reset i{font-size:1.05rem;}
+  .lore .cov-reset i{font-size:16.8px;}
   .lore .cov-list{display:flex;flex-direction:column;border:1px solid var(--l-line);border-radius:5px;background:#fff;overflow:hidden;}
-  .lore .cov-list-head{display:flex;justify-content:space-between;padding:13px 18px;font-family:var(--l-sans);font-size:.9rem;font-weight:700;letter-spacing:.04em;color:var(--jade-deep);border-bottom:1px solid var(--ink);background:var(--panel);}
+  .lore .cov-list-head{display:flex;justify-content:space-between;padding:13px 18px;font-family:var(--l-sans);font-size:14.4px;font-weight:700;letter-spacing:.04em;color:var(--jade-deep);border-bottom:1px solid var(--ink);background:var(--panel);}
   .lore .cov-row{-webkit-appearance:none;appearance:none;text-align:left;font:inherit;color:inherit;background:transparent;cursor:pointer;display:grid;grid-template-columns:2.6em minmax(0,1fr) auto;column-gap:14px;row-gap:7px;align-items:center;padding:13px 18px;border:none;border-bottom:1px solid var(--l-line);border-left:3px solid transparent;transition:background .15s,border-color .15s;flex:1;}
   .lore .cov-row:last-child{border-bottom:none;}
   .lore .cov-row:hover,.lore .cov-row.is-active{background:var(--panel);border-left-color:var(--jade);}
   .lore .cov-row:focus-visible{outline:2px solid var(--jade);outline-offset:-2px;}
-  .lore .cov-row .nm{grid-column:1;font-family:var(--l-serif);font-size:1.3rem;color:var(--ink);}
-  .lore .cov-row .ex{grid-column:2;font-size:.84rem;color:var(--ink-soft);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .lore .cov-row .cnt{grid-column:3;font-family:var(--l-mono);font-size:1.02rem;font-weight:600;color:var(--jade);white-space:nowrap;}
+  .lore .cov-row .nm{grid-column:1;font-family:var(--l-serif);font-size:20.8px;color:var(--ink);}
+  .lore .cov-row .ex{grid-column:2;font-size:13.44px;color:var(--ink-soft);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .lore .cov-row .cnt{grid-column:3;font-family:var(--l-mono);font-size:16.32px;font-weight:600;color:var(--jade);white-space:nowrap;}
   .lore .cov-row .cnt small{font-size:.7em;color:var(--ink-soft);font-weight:400;margin-left:2px;}
   .lore .cov-row .bar{grid-column:1/-1;height:5px;border-radius:99px;background:var(--paper-2);position:relative;overflow:hidden;}
   .lore .cov-row .bar::after{content:"";position:absolute;left:0;top:0;bottom:0;width:calc(var(--v,0)*100%);background:var(--jade);opacity:.55;border-radius:99px;}
@@ -110,9 +116,9 @@
   .lore .cov-hero-bg{position:absolute;inset:-22% 0;background-size:cover;background-position:center 40%;will-change:transform;}
   .lore .cov-hero-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,30,33,.55) 0%,rgba(10,30,33,.40) 40%,rgba(15,20,16,.88) 100%);}
   .lore .cov-hero-inner{position:relative;z-index:2;width:100%;max-width:1280px;margin:0 auto;padding:0 28px 74px;color:#fff;}
-  .lore .cov-hero-eyebrow{display:block;font-family:var(--l-mono);font-size:.8rem;letter-spacing:.32em;text-transform:uppercase;color:rgba(255,255,255,.82);}
-  .lore .cov-hero-title{font-family:var(--l-serif);font-weight:400;font-size:clamp(2.8rem,6vw,5rem);line-height:1.12;letter-spacing:-.01em;margin:16px 0 24px;text-shadow:0 2px 30px rgba(0,0,0,.28);}
-  .lore .cov-hero-sub{font-size:clamp(1.05rem,2vw,1.35rem);color:rgba(255,255,255,.9);max-width:40ch;line-height:1.6;font-weight:500;margin:0;}
+  .lore .cov-hero-eyebrow{display:block;font-family:var(--l-mono);font-size:12.8px;letter-spacing:.32em;text-transform:uppercase;color:rgba(255,255,255,.82);}
+  .lore .cov-hero-title{font-family:var(--l-serif);font-weight:400;font-size:clamp(44.8px,6vw,80px);line-height:1.12;letter-spacing:-.01em;margin:16px 0 24px;text-shadow:0 2px 30px rgba(0,0,0,.28);}
+  .lore .cov-hero-sub{font-size:clamp(16.8px,2vw,21.6px);color:rgba(255,255,255,.9);max-width:40ch;line-height:1.6;font-weight:500;margin:0;}
   .lore .cov-hero-scroll{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:2;width:26px;height:42px;border:2px solid rgba(255,255,255,.55);border-radius:16px;}
   .lore .cov-hero-scroll span{position:absolute;left:50%;top:8px;width:4px;height:8px;border-radius:2px;background:#fff;transform:translateX(-50%);animation:covScroll 1.8s infinite;}
   @keyframes covScroll{0%{opacity:0;transform:translate(-50%,0)}30%{opacity:1}70%{opacity:1}100%{opacity:0;transform:translate(-50%,14px)}}
@@ -127,24 +133,24 @@
   /* 핵심 수치(카운트업) */
   .lore .cov-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:28px 48px;margin-top:0;}
   .lore .cov-kpi{padding:0;text-align:center;}
-  .lore .cov-kpi .cov-kv{font-family:var(--l-serif);font-weight:400;font-size:clamp(2.4rem,4.2vw,3.5rem);line-height:1;color:var(--jade);letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+  .lore .cov-kpi .cov-kv{font-family:var(--l-serif);font-weight:400;font-size:clamp(38.4px,4.2vw,56px);line-height:1;color:var(--jade);letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
   .lore .cov-kpi .cov-kv small{font-size:.4em;color:var(--ink-soft);margin-left:5px;letter-spacing:0;}
-  .lore .cov-kpi .cov-kl{margin-top:14px;font-size:1rem;font-weight:500;color:var(--ink);}
-  .lore .cov-lede{margin:0 0 34px;font-size:1.1rem;line-height:1.9;color:var(--ink-soft);max-width:none;font-weight:400;}
+  .lore .cov-kpi .cov-kl{margin-top:14px;font-size:16px;font-weight:500;color:var(--ink);}
+  .lore .cov-lede{margin:0 0 34px;font-size:17.6px;line-height:1.9;color:var(--ink-soft);max-width:none;font-weight:400;}
 
   /* 자료 구성 인포그래픽 */
   .lore .cov-comp{margin:4px 0 32px;}
   .lore .cov-stack{display:flex;height:60px;border-radius:7px;overflow:hidden;border:1px solid var(--l-line);background:var(--panel);}
   .lore .cov-seg{height:100%;width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0 4px;color:#fff;font-family:var(--l-sans);white-space:nowrap;overflow:hidden;transition:width 1.9s cubic-bezier(.22,1,.36,1) .1s;}
-  .lore .cov-seg .sn{font-size:.78rem;font-weight:600;line-height:1.1;}
-  .lore .cov-seg .sp{font-size:.74rem;font-weight:400;opacity:.9;line-height:1.1;}
+  .lore .cov-seg .sn{font-size:12.48px;font-weight:600;line-height:1.1;}
+  .lore .cov-seg .sp{font-size:11.84px;font-weight:400;opacity:.9;line-height:1.1;}
   .lore .cov-comp.in .cov-seg{width:var(--w);}
   .lore .cov-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--l-line);border:1px solid var(--l-line);margin-top:2px;}
   .lore .cov-tile{background:var(--panel);padding:22px 22px 24px;border-top:3px solid var(--tc,var(--jade));}
-  .lore .cov-tile .tn{display:flex;align-items:center;gap:9px;font-family:var(--l-serif);font-size:1.22rem;color:var(--ink);}
+  .lore .cov-tile .tn{display:flex;align-items:center;gap:9px;font-family:var(--l-serif);font-size:19.52px;color:var(--ink);}
   .lore .cov-tile .tn i{width:11px;height:11px;border-radius:2px;background:var(--tc,var(--jade));display:inline-block;flex:0 0 auto;}
-  .lore .cov-tile .tv{margin-top:12px;font-family:var(--l-mono);font-size:1.55rem;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;}
-  .lore .cov-tile .tp{font-family:var(--l-mono);font-size:.82rem;color:var(--ink-soft);margin-top:3px;}
+  .lore .cov-tile .tv{margin-top:12px;font-family:var(--l-mono);font-size:24.8px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .lore .cov-tile .tp{font-family:var(--l-mono);font-size:13.12px;color:var(--ink-soft);margin-top:3px;}
 
   @media(max-width:960px){
     .lore .cov-map-block{grid-template-columns:1fr;}
@@ -154,6 +160,10 @@
     .lore .cov-tiles{grid-template-columns:1fr 1fr;}
   }
 </style>
+<!-- 공통 셸 동작(GNB 드롭다운, 모바일 전체메뉴, 내 정보 팝업).
+     gnb.js/footer.js 가 마크업을 넣은 뒤 초기화돼야 하므로 반드시 그 뒤에 둔다.
+     (셋 다 defer 라 문서 순서대로 실행되고, 셋 다 DOMContentLoaded 에서 동작한다.) -->
+<script src="./publishing/assets/_common/js/ui-global.js" defer></script>
 </head>
 <body>
 

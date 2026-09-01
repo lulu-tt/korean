@@ -11,6 +11,12 @@
 
 <!-- 공통 스타일시트 -->
 <link rel="stylesheet" href="./styles.css">
+<!-- 퍼블리싱 디자인 CSS + 브리지.
+     순서가 중요하다: styles.css 뒤, 페이지 인라인 <style> 앞이다.
+     공통 셸(GNB/푸터)은 디자인이 이기고, 이름이 겹치는 본문 쪽은 인라인 <style> 이 이긴다.
+     디자인이 본문까지 덮어 버리는 것들(.wrap/.container/body 기본값 등)은 브리지에서 되돌린다. -->
+<link rel="stylesheet" href="./publishing/assets/ko/css/style.css">
+<link rel="stylesheet" href="./design-bridge.css">
 
 <!-- 공통 GNB / Footer 로더 -->
 <script src="./gnb.js" defer></script>
@@ -142,6 +148,10 @@ body {
   .rc-list { grid-template-columns: repeat(2, 1fr); }
 }
 </style>
+<!-- 공통 셸 동작(GNB 드롭다운, 모바일 전체메뉴, 내 정보 팝업).
+     gnb.js/footer.js 가 마크업을 넣은 뒤 초기화돼야 하므로 반드시 그 뒤에 둔다.
+     (셋 다 defer 라 문서 순서대로 실행되고, 셋 다 DOMContentLoaded 에서 동작한다.) -->
+<script src="./publishing/assets/_common/js/ui-global.js" defer></script>
 </head>
 <body>
 

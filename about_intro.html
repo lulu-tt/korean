@@ -10,6 +10,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap">
 <link rel="stylesheet" href="./styles.css">
+<!-- 퍼블리싱 디자인 CSS + 브리지.
+     순서가 중요하다: styles.css 뒤, 페이지 인라인 <style> 앞이다.
+     공통 셸(GNB/푸터)은 디자인이 이기고, 이름이 겹치는 본문 쪽은 인라인 <style> 이 이긴다.
+     디자인이 본문까지 덮어 버리는 것들(.wrap/.container/body 기본값 등)은 브리지에서 되돌린다. -->
+<link rel="stylesheet" href="./publishing/assets/ko/css/style.css">
+<link rel="stylesheet" href="./design-bridge.css">
 <link rel="stylesheet" href="./about.css">
 <script src="./gnb.js" defer></script>
 <script src="./share.js" defer></script>
@@ -50,7 +56,7 @@
   /* 좁은 텍스트 블록(철학·설명문)은 넓어진 폭에서도 가독 폭을 유지 */
   .garden .g-narrate .g-wrap{max-width:1080px;}
 
-  .garden .g-eyebrow{font-family:var(--sans);font-size:.95rem;font-weight:500;letter-spacing:.18em;color:var(--jade);}
+  .garden .g-eyebrow{font-family:var(--sans);font-size:15.2px;font-weight:500;letter-spacing:.18em;color:var(--jade);}
   .garden .g-eyebrow.light{color:rgba(255,255,255,.82);}
 
   /* ---------- 패럴렉스 공통 (background-attachment:fixed) ---------- */
@@ -61,58 +67,58 @@
   .garden .g-hero__veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,32,34,.30) 0%,rgba(14,32,34,.42) 55%,rgba(14,32,34,.72) 100%);}
   .garden .g-hero__inner{position:relative;z-index:2;padding:0 28px;color:#fff;will-change:transform;}
   .garden .g-hero__inner .g-eyebrow{display:block;margin-bottom:26px;}
-  .garden .g-hero__title{font-family:var(--serif);font-weight:400;font-size:clamp(2.8rem,6vw,5rem);line-height:1.12;letter-spacing:-.01em;margin:0 0 24px;text-shadow:0 2px 30px rgba(0,0,0,.28);}
-  .garden .g-hero__lead{font-size:clamp(1.05rem,2vw,1.35rem);color:rgba(255,255,255,.9);font-weight:500;max-width:40ch;margin:0 auto;}
-  .garden .g-scroll{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);z-index:2;font-family:var(--sans);font-size:.85rem;letter-spacing:.22em;color:rgba(255,255,255,.75);display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .garden .g-hero__title{font-family:var(--serif);font-weight:400;font-size:clamp(44.8px,6vw,80px);line-height:1.12;letter-spacing:-.01em;margin:0 0 24px;text-shadow:0 2px 30px rgba(0,0,0,.28);}
+  .garden .g-hero__lead{font-size:clamp(16.8px,2vw,21.6px);color:rgba(255,255,255,.9);font-weight:500;max-width:40ch;margin:0 auto;}
+  .garden .g-scroll{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);z-index:2;font-family:var(--sans);font-size:13.6px;letter-spacing:.22em;color:rgba(255,255,255,.75);display:flex;flex-direction:column;align-items:center;gap:10px;}
   .garden .g-scroll::after{content:"";width:1px;height:44px;background:linear-gradient(rgba(255,255,255,.75),rgba(255,255,255,0));animation:scrolldrop 2.2s ease-in-out infinite;}
   @keyframes scrolldrop{0%{opacity:0;transform:scaleY(.2);transform-origin:top;}45%{opacity:1;transform:scaleY(1);transform-origin:top;}100%{opacity:0;transform:scaleY(1);transform-origin:bottom;}}
 
   /* ---------- 내러티브(철학) ---------- */
   .garden .g-narrate{text-align:center;padding:130px 0;}
   .garden .g-narrate .g-eyebrow{display:block;margin-bottom:30px;}
-  .garden .g-narrate__h{font-family:var(--serif);font-weight:400;font-size:clamp(1.9rem,4vw,3rem);line-height:1.35;letter-spacing:-.01em;color:var(--ink);margin:0 auto 34px;max-width:24ch;}
+  .garden .g-narrate__h{font-family:var(--serif);font-weight:400;font-size:clamp(30.4px,4vw,48px);line-height:1.35;letter-spacing:-.01em;color:var(--ink);margin:0 auto 34px;max-width:24ch;}
   .garden .g-narrate__h em{font-style:normal;color:var(--jade);}
-  .garden .g-narrate__p{font-size:1.05rem;color:var(--ink-soft);max-width:72ch;margin:0 auto;word-break:keep-all;}
+  .garden .g-narrate__p{font-size:16.8px;color:var(--ink-soft);max-width:72ch;margin:0 auto;word-break:keep-all;}
   .garden .g-rule{width:44px;height:1px;background:var(--ochre);margin:0 auto 30px;}
 
   /* ---------- 가치 카드 01–04 ---------- */
   .garden .g-values{padding:40px 0 130px;}
   .garden .g-values__head{text-align:center;margin-bottom:70px;}
   .garden .g-values__head .g-eyebrow{display:block;margin-bottom:20px;}
-  .garden .g-values__head h3{font-family:var(--serif);font-weight:400;font-size:clamp(1.7rem,3.4vw,2.4rem);color:var(--ink);margin:0;}
+  .garden .g-values__head h3{font-family:var(--serif);font-weight:400;font-size:clamp(27.2px,3.4vw,38.4px);color:var(--ink);margin:0;}
   .garden .g-values__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--line);border-left:1px solid var(--line);}
   .garden .g-val{padding:44px 30px 50px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);position:relative;transition:background .3s ease;}
   .garden .g-val:hover{background:var(--panel);}
-  .garden .g-val__num{font-family:var(--mono);font-size:.95rem;letter-spacing:.14em;color:var(--ochre);}
-  .garden .g-val__ic{margin:22px 0 20px;font-size:2rem;color:var(--jade);line-height:1;}
-  .garden .g-val h4{font-family:var(--serif);font-weight:400;font-size:1.4rem;color:var(--ink);margin:0 0 14px;}
-  .garden .g-val p{font-size:1rem;color:var(--ink-soft);margin:0;}
+  .garden .g-val__num{font-family:var(--mono);font-size:15.2px;letter-spacing:.14em;color:var(--ochre);}
+  .garden .g-val__ic{margin:22px 0 20px;font-size:32px;color:var(--jade);line-height:1;}
+  .garden .g-val h4{font-family:var(--serif);font-weight:400;font-size:22.4px;color:var(--ink);margin:0 0 14px;}
+  .garden .g-val p{font-size:16px;color:var(--ink-soft);margin:0;}
 
   /* ---------- 패럴렉스 통계 밴드 ---------- */
   .garden .g-band{position:relative;padding:130px 0;color:#fff;}
   .garden .g-band__veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,32,34,.62),rgba(14,32,34,.78));}
   .garden .g-band__inner{position:relative;z-index:2;text-align:center;}
   .garden .g-band__inner .g-eyebrow{display:block;margin-bottom:16px;}
-  .garden .g-band__inner h3{font-family:var(--serif);font-weight:400;font-size:clamp(1.8rem,3.6vw,2.6rem);margin:0 0 64px;letter-spacing:-.01em;}
+  .garden .g-band__inner h3{font-family:var(--serif);font-weight:400;font-size:clamp(28.8px,3.6vw,41.6px);margin:0 0 64px;letter-spacing:-.01em;}
   .garden .g-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;max-width:1100px;margin:0 auto;}
   .garden .g-stat{padding:0 18px;border-right:1px solid rgba(255,255,255,.18);}
   .garden .g-stat:last-child{border-right:none;}
-  .garden .g-stat .n{font-family:var(--serif);font-weight:400;font-size:clamp(2.2rem,4.4vw,3.2rem);line-height:1;letter-spacing:-.02em;}
-  .garden .g-stat .n small{font-size:1rem;font-family:var(--sans);}
-  .garden .g-stat .l{margin-top:16px;font-size:.92rem;color:rgba(255,255,255,.82);line-height:1.55;}
+  .garden .g-stat .n{font-family:var(--serif);font-weight:400;font-size:clamp(35.2px,4.4vw,51.2px);line-height:1;letter-spacing:-.02em;}
+  .garden .g-stat .n small{font-size:16px;font-family:var(--sans);}
+  .garden .g-stat .l{margin-top:16px;font-size:14.72px;color:rgba(255,255,255,.82);line-height:1.55;}
 
   /* ---------- 더 살펴보기 카드 ---------- */
   .garden .g-explore{padding:130px 0;}
   .garden .g-explore__head{text-align:center;margin-bottom:60px;}
   .garden .g-explore__head .g-eyebrow{display:block;margin-bottom:20px;}
-  .garden .g-explore__head h3{font-family:var(--serif);font-weight:400;font-size:clamp(1.7rem,3.4vw,2.4rem);color:var(--ink);margin:0;}
+  .garden .g-explore__head h3{font-family:var(--serif);font-weight:400;font-size:clamp(27.2px,3.4vw,38.4px);color:var(--ink);margin:0;}
   .garden .g-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:840px;margin:0 auto;}
   .garden .g-card{display:flex;flex-direction:column;text-decoration:none;color:inherit;padding:38px 32px 34px;border:1px solid var(--line);background:#fff;transition:transform .35s ease,box-shadow .35s ease,border-color .35s ease;}
   .garden .g-card:hover{transform:translateY(-6px);box-shadow:0 24px 50px -28px rgba(14,32,34,.45);border-color:var(--jade);}
-  .garden .g-card .k{font-family:var(--sans);font-size:.88rem;font-weight:500;letter-spacing:.1em;color:var(--ochre);}
-  .garden .g-card h4{font-family:var(--serif);font-weight:400;font-size:1.55rem;color:var(--ink);margin:16px 0 12px;}
-  .garden .g-card p{font-size:1rem;color:var(--ink-soft);flex:1;margin:0;}
-  .garden .g-card .go{margin-top:24px;font-family:var(--sans);font-size:.92rem;font-weight:500;letter-spacing:.04em;color:var(--jade);display:inline-flex;align-items:center;gap:8px;}
+  .garden .g-card .k{font-family:var(--sans);font-size:14.08px;font-weight:500;letter-spacing:.1em;color:var(--ochre);}
+  .garden .g-card h4{font-family:var(--serif);font-weight:400;font-size:24.8px;color:var(--ink);margin:16px 0 12px;}
+  .garden .g-card p{font-size:16px;color:var(--ink-soft);flex:1;margin:0;}
+  .garden .g-card .go{margin-top:24px;font-family:var(--sans);font-size:14.72px;font-weight:500;letter-spacing:.04em;color:var(--jade);display:inline-flex;align-items:center;gap:8px;}
   .garden .g-card:hover .go i{transform:translateX(5px);}
   .garden .g-card .go i{transition:transform .3s ease;}
 
@@ -134,6 +140,10 @@
     .garden .g-scroll::after{animation:none;}
   }
 </style>
+<!-- 공통 셸 동작(GNB 드롭다운, 모바일 전체메뉴, 내 정보 팝업).
+     gnb.js/footer.js 가 마크업을 넣은 뒤 초기화돼야 하므로 반드시 그 뒤에 둔다.
+     (셋 다 defer 라 문서 순서대로 실행되고, 셋 다 DOMContentLoaded 에서 동작한다.) -->
+<script src="./publishing/assets/_common/js/ui-global.js" defer></script>
 </head>
 <body>
 
