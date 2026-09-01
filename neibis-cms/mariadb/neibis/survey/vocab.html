@@ -165,6 +165,7 @@
 			});
 			;
 		</script>
+			<script src="../cms-static-fallback.js"></script>
 	</head>
 	<body class="layout-type-sub">
 	<input type="hidden" id="_setToken" value=""/>
@@ -1035,11 +1036,30 @@ function searchList(page){
 		renderPager(res.page, res.totalPages);
 		$('#chkAll').prop('checked', false);
 	}).fail(function(xhr){
+		/* 정적 배포에는 CMS API 가 없다 — 내보내 둔 사본으로 물러난다.
+		   어휘 조사 자료는 31만 행이라 앞쪽 일부만 담겨 있다(화면이 알린다). */
+		CmsStatic.load({ url:'../data/cms/vocab_list.json',
+		                 page: vocabState.page, pageSize: vocabState.pageSize }, function(res){
+			if(res){
+				vocabState.total=res.total; vocabState.page=res.page;
+				vocabState.pageSize=res.pageSize; vocabState.totalPages=res.totalPages;
+				$('#totalCnt').text(Number(res.total).toLocaleString());
+				$('#pageInfo').text('('+res.page+'/'+res.totalPages.toLocaleString()+' page)');
+				renderRows(res.list, res.page, res.pageSize);
+				renderPager(res.page, res.totalPages);
+				$('#chkAll').prop('checked', false);
+				CmsStatic.notice('#vocab-list-body', res);
+				return;
+			}
+			vocabFail(xhr);
+		});
+	});
+	function vocabFail(xhr){
 		var msg = 'DB API 호출 실패';
 		if(xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
 		else if(xhr.status) msg += ' (HTTP '+xhr.status+')';
 		$('#vocab-list-body').html('<tr><td colspan="15" class="text-center" style="padding:24px;color:#b91c1c">'+escHtml(msg)+'<br><span style="font-size:12px;color:#64748b">serve.py 를 재시작했는지 확인해 주세요.</span></td></tr>');
-	});
+	}
 }
 
 $(function(){

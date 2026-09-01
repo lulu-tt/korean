@@ -165,6 +165,7 @@
 			});
 			;
 		</script>
+			<script src="../cms-static-fallback.js"></script>
 	</head>
 	<body class="layout-type-sub">
 	<input type="hidden" id="_setToken" value=""/>
@@ -669,7 +670,7 @@ function lgEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</
 function lgStatusBadge(st){ var c=st==='진행중'?'ing':(st==='예정'?'ready':'done'); return '<span class="survey-status '+c+'">'+lgEsc(st||'-')+'</span>'; }
 function loadLegacy(){
 	var tb=document.getElementById('legacy-list-body');
-	fetch('/mariadb/neibis-api/survey/legacy-list').then(function(r){return r.json();}).then(function(d){
+	function lgRender(d){
 		if(!d||!d.ok){ tb.innerHTML='<tr><td colspan="7" class="text-center" style="color:#b91c1c">목록을 불러오지 못했습니다.</td></tr>'; return; }
 		document.getElementById('legacyTotal').textContent=d.total||0;
 		var list=d.list||[];
@@ -688,7 +689,16 @@ function loadLegacy(){
 				+'<td><a href="'+view+'" class="btn btn-xs btn-primary">상세 보기</a></td>'
 				+'</tr>');
 		});
-	}).catch(function(){ tb.innerHTML='<tr><td colspan="7" class="text-center" style="color:#b91c1c">API 호출 실패</td></tr>'; });
+	}
+	fetch('/mariadb/neibis-api/survey/legacy-list').then(function(r){return r.json();})
+		.then(lgRender)
+		.catch(function(){
+			/* 정적 배포에는 CMS API 가 없다 — 내보내 둔 사본으로 물러난다 */
+			CmsStatic.load({ url:'../data/cms/survey_legacy.json', page:1, pageSize:9999 }, function(res){
+			if(!res){ tb.innerHTML='<tr><td colspan="7" class="text-center" style="color:#b91c1c">API 호출 실패</td></tr>'; return; }
+			lgRender(res); CmsStatic.notice('#legacy-list-body', res);
+		});
+		});
 }
 $(function(){ loadLegacy(); });
 </script>
