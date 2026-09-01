@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>샘플 공공서비스 | 연혁</title>
+  <link rel="shortcut icon" href="../../../assets/sample/images/common/favicon.png" />
+  <link rel="stylesheet" href="../../../assets/sample/css/common.css" />
+  <link rel="stylesheet" href="../../../assets/sample/css/sub.css" />
+  <script src="../../../assets/sample/js/ui.js" defer></script>
+</head>
+<body>
+
+  <!-- 건너뛰기 링크 -->
+  <nav class="skip-nav" aria-label="바로가기">
+    <a href="#content">본문 바로가기</a>
+    <a href="#lnb">좌측메뉴 바로가기</a>
+    <a href="#footer">푸터 바로가기</a>
+  </nav>
+
+  <!-- 전체메뉴 -->
+  <div class="allmenu-dim" aria-hidden="true"></div>
+  <div class="allmenu-panel" role="dialog" aria-label="전체메뉴">
+    <div class="allmenu-panel__head">
+      <img class="allmenu-panel__logo" src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      <button class="allmenu-panel__close" type="button" data-allmenu-close aria-label="전체메뉴 닫기">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M2 2L14 14M14 2L2 14" stroke="rgba(255,255,255,0.65)" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="allmenu-panel__body">
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">기관소개</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./인사말.html">인사말</a></li>
+          <li><a class="allmenu-section__link" href="./연혁.html">연혁</a></li>
+          <li><a class="allmenu-section__link" href="./오시는-길.html">오시는 길</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">알림소식</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./게시판-목록.html">공지사항</a></li>
+          <li><a class="allmenu-section__link" href="./게시판-목록.html">보도자료</a></li>
+          <li><a class="allmenu-section__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+          <li><a class="allmenu-section__link" href="./FAQ.html">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">이용안내</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./개인정보처리방침.html">개인정보처리방침</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">참여마당</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./고객의소리-목록.html">고객의소리</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 롤링배너 -->
+  <div class="rolling-banner" role="region" aria-label="공지 롤링배너">
+    <div class="rolling-banner__inner">
+      <span class="rolling-banner__label">알림</span>
+      <div class="rolling-banner__content">
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">공지</span>
+          <a class="rolling-banner__title" href="#">2025년 상반기 주요사업 추진 계획 안내</a>
+          <span class="rolling-banner__date">2025.04.15</span>
+        </div>
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">사업</span>
+          <a class="rolling-banner__title" href="#">디지털 행정서비스 개선 과제 공모 결과 발표</a>
+          <span class="rolling-banner__date">2025.04.10</span>
+        </div>
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">공지</span>
+          <a class="rolling-banner__title" href="#">정보보호의 달 운영 안내 및 보안교육 일정</a>
+          <span class="rolling-banner__date">2025.04.03</span>
+        </div>
+      </div>
+      <div class="rolling-banner__controls">
+        <button class="rolling-banner__arrow" type="button" data-rolling-prev aria-label="이전 공지">‹</button>
+        <span class="rolling-banner__count" aria-live="polite">1/3</span>
+        <button class="rolling-banner__arrow" type="button" data-rolling-next aria-label="다음 공지">›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 헤더 -->
+  <header class="site-header" role="banner">
+    <div class="site-header__inner">
+      <a class="site-logo" href="./메인.html" aria-label="샘플 공공서비스 홈으로 이동">
+        <img class="site-logo__img" src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </a>
+      <nav class="site-gnb" id="gnb" aria-label="주메뉴">
+        <ul class="site-gnb__list">
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link is-active" href="#" aria-current="page">기관소개</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./인사말.html">인사말</a></li>
+                  <li><a class="gnb-dropdown__link" href="./연혁.html">연혁</a></li>
+                  <li><a class="gnb-dropdown__link" href="./오시는-길.html">오시는 길</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">알림소식</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./게시판-목록.html">공지사항</a></li>
+                  <li><a class="gnb-dropdown__link" href="./게시판-목록.html">보도자료</a></li>
+                  <li><a class="gnb-dropdown__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+                  <li><a class="gnb-dropdown__link" href="./FAQ.html">FAQ</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">이용안내</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./개인정보처리방침.html">개인정보처리방침</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">참여마당</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./고객의소리-목록.html">고객의소리</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </nav>
+      <div class="site-header__actions">
+        <a class="btn-login" href="./로그인.html">로그인</a>
+        <button class="btn-allmenu" type="button" data-allmenu-open aria-expanded="false">
+          <span class="btn-allmenu__bars" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span>전체메뉴</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 연혁 콘텐츠 -->
+  <main id="content">
+
+    <!-- 브레드크럼 -->
+    <div class="breadcrumb-bar">
+      <div class="breadcrumb-bar__inner">
+        <nav class="breadcrumb" aria-label="현재 위치">
+          <span class="breadcrumb__item">
+            <a href="./메인.html">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-label="홈" style="display:inline-block;vertical-align:middle;margin-bottom:1px;">
+                <path d="M1 5.5L6.5 1L12 5.5V12H8.5V8H4.5V12H1V5.5Z" stroke="#A0A8B8" stroke-width="1.2" stroke-linejoin="round"/>
+              </svg>
+              홈
+            </a>
+          </span>
+          <span class="breadcrumb__sep" aria-hidden="true">›</span>
+          <span class="breadcrumb__item"><a href="#">기관소개</a></span>
+          <span class="breadcrumb__sep" aria-hidden="true">›</span>
+          <span class="breadcrumb__item" aria-current="page">연혁</span>
+        </nav>
+      </div>
+    </div>
+
+    <!-- 서브 레이아웃 -->
+    <div class="sub-layout">
+      <div class="sub-layout__inner">
+
+        <!-- LNB -->
+        <aside class="lnb" id="lnb" aria-label="좌측 메뉴">
+          <div class="lnb__section-title">기관소개</div>
+          <ul class="lnb__list">
+            <li class="lnb__item"><a class="lnb__link" href="./인사말.html">인사말</a></li>
+            <li class="lnb__item"><a class="lnb__link is-active" href="./연혁.html" aria-current="page">연혁</a></li>
+            <li class="lnb__item"><a class="lnb__link" href="./오시는-길.html">오시는 길</a></li>
+          </ul>
+        </aside>
+
+        <!-- 콘텐츠 -->
+        <div class="sub-content">
+
+          <div class="sub-content__title-bar">
+            <h1 class="sub-content__title">연혁</h1>
+          </div>
+
+          <!-- ============================================================
+               운영 데이터 슬롯: HISTORY_LIST_SLOT
+               JSP Action: /orgn/intro/selectOrgnHistoryList.do
+               Model: historyGroupList (연도별 그룹 리스트)
+                 - yearGroup.year       : 연도 (String, "2024")
+                 - yearGroup.eventList  : 해당 연도 이벤트 목록 (List)
+                   - event.evntDt  : 이벤트 날짜 (String, "03.15" 또는 "03.")
+                   - event.evntNm  : 이벤트 제목 (String)
+                   - event.evntDc  : 이벤트 설명 (String, nullable)
+
+               JSP 구조:
+               <c:choose>
+                 <c:when test="${fn:length(historyGroupList) gt 0}">
+                   <div class="history-timeline">
+                     <c:forEach var="yearGroup" items="${historyGroupList}">
+                       <div class="history-group">
+                         <div class="history-group__head">
+                           <span class="history-group__year">${yearGroup.year}</span>
+                         </div>
+                         <ul class="history-group__body">
+                           <c:forEach var="event" items="${yearGroup.eventList}">
+                             <li class="history-event">
+                               <span class="history-event__date">${event.evntDt}</span>
+                               <div class="history-event__content">
+                                 <strong class="history-event__title">${fn:escapeXml(event.evntNm)}</strong>
+                                 <c:if test="${not empty event.evntDc}">
+                                   <p class="history-event__desc">${fn:escapeXml(event.evntDc)}</p>
+                                 </c:if>
+                               </div>
+                             </li>
+                           </c:forEach>
+                         </ul>
+                       </div>
+                     </c:forEach>
+                   </div>
+                 </c:when>
+                 <c:otherwise>
+                   데이터 없음 영역
+                 </c:otherwise>
+               </c:choose>
+          ============================================================ -->
+
+          <!-- CMS_CONTENT_START: 이 아래부터 콘텐츠 본문 등록 영역 -->
+          <!-- 데이터 있음 — 연도별 타임라인 -->
+          <div class="history-timeline" role="list" aria-label="연혁 타임라인">
+
+            <!-- ── 2024년 ── JSP: c:forEach -->
+            <div class="history-group" role="listitem">
+              <div class="history-group__head">
+                <!-- JSP: ${yearGroup.year} -->
+                <span class="history-group__year">2024</span>
+              </div>
+              <ul class="history-group__body">
+                <!-- JSP: c:forEach var="event" items="${yearGroup.eventList}" -->
+                <li class="history-event">
+                  <span class="history-event__date">11.</span>
+                  <div class="history-event__content">
+                    <strong class="history-event__title">디지털 행정서비스 혁신 우수기관 선정</strong>
+                    <p class="history-event__desc">행정안전부 주관 디지털 혁신 평가 우수 등급 획득</p>
+                  </div>
+                </li>
+                <li class="history-event">
+                  <span class="history-event__date">07.</span>
+                  <div class="history-event__content">
+                    <strong class="history-event__title">모바일 행정서비스 앱 출시</strong>
+                    <p class="history-event__desc">iOS·Android 양대 플랫폼 동시 출시, 출시 3개월 내 이용자 50만 명 돌파</p>
+                  </div>
+                </li>
+                <li class="history-event">
+                  <span class="history-event__date">03.</span>
+                  <div class="history-event__content">
+                    <strong class="history-event__title">공공데이터 개방 플랫폼 고도화</strong>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- ── 2023년 ── -->
+            <div class="history-group" role="listitem">
+              <div class="history-group__head">
+                <span class="history-group__year">2023</span>
+              </div>
+              <ul class="history-group__body">
+                <li class="history-event">
+                  <span class="history-event__date">09.</span>
+                  <div class="history-event__content">
+                    <strong class="history-event__title">차세대 민원 통합 시스템 오픈</strong>
+                    <p class="history-event__desc">24시간 온라인 민원처리 체계 구축 완료, 처리 시간 평균 40% 단축</p>
+                  </div>
+                </li>
+                <li class="history-event">
+                  <span class="history-event__date">05.</span>
+                  <div class="history-event__content">
+                    <strong class="history-event__title">개인정보 보호 우수기관 인증 획득</strong>
+                    <p class="history-event__desc">한국인터넷진흥원(KISA) 개인정보보호 수준 진단 '최우수' 등급</p>
+                  </div>
+                </li>
+                <li class="history-event">
+                  <span class="history-event__date">01.</span>
+                  <div class="history-event__content">
+                    <strong class="history-event__title">지역 사무소 2개소 신규 개소</strong>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- ── 2022년 ── -->
+            <div class="history-group" role="listitem">
+              <div class="history-group__head">
+                <span class="history-group__year">2022</span>
+              </div>
+              <ul class="history-group__body">
+                <li class="history-event">
+                  <span class="history-event__date">10.</span>
+                  <div class="history-event__content">
+                    <strong class="history-event__title">전자정부 표준프레임워크 적용 시스템 전면 전환</strong>
+                    <p class="history-event__desc">eGovFrame 4.0 기반 차세대 웹 시스템 전환 완료</p>
+                  </div>
+                </li>
+                <li class="history-event">
+                  <span class="history-event__date">06.</span>
+                  <div class="history-event__content">
+                    <strong class="history-event__title">국민 참여 공공서비스 만족도 조사 1위</strong>
+                  </div>
+                </li>
+                <li class="history-event">
+                  <span class="history-event__date">03.</span>
+                  <div class="history-event__content">
+                    <strong class="history-event__title">비대면 서비스 확대 — 영상 민원 창구 운영 개시</strong>
+                    <p class="history-event__desc">전국 10개 지역 사무소 화상 민원 시스템 동시 도입</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- ── 2021년 ── -->
+            <div class="history-group" role="listitem">
+              <div class="history-group__head">
+                <span class="history-group__year">2021</span>
+              </div>
+              <ul class="history-group__body">
+                <li class="history-event">
+                  <span class="history-event__date">08.</span>
+                  <div class="history-event__content">
+                    <strong class="history-event__title">클라우드 기반 통합 정보 시스템 구축</strong>
+                    <p class="history-event__desc">공공 클라우드(G-Cloud) 전환 완료, 운영 안정성 및 보안성 강화</p>
+                  </div>
+                </li>
+                <li class="history-event">
+                  <span class="history-event__date">04.</span>
+                  <div class="history-event__content">
+                    <strong class="history-event__title">사이버보안 관제센터 운영 체계 수립</strong>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- ── 2020년 ── -->
+            <div class="history-group" role="listitem">
+              <div class="history-group__head">
+                <span class="history-group__year">2020</span>
+              </div>
+              <ul class="history-group__body">
+                <li class="history-event">
+                  <span class="history-event__date">11.</span>
+                  <div class="history-event__content">
+                    <strong class="history-event__title">정보화 중장기 전략 계획 수립</strong>
+                    <p class="history-event__desc">2025년 디지털 전환 로드맵 발표</p>
+                  </div>
+                </li>
+                <li class="history-event">
+                  <span class="history-event__date">03.</span>
+                  <div class="history-event__content">
+                    <strong class="history-event__title">비대면 공공서비스 확대 운영 방침 수립</strong>
+                    <p class="history-event__desc">감염병 대응 특별조치로 온라인 서비스 채널 긴급 확대</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- ── 기관 설립 ── -->
+            <div class="history-group" role="listitem">
+              <div class="history-group__head">
+                <span class="history-group__year">2010</span>
+              </div>
+              <ul class="history-group__body">
+                <li class="history-event">
+                  <span class="history-event__date">01.</span>
+                  <div class="history-event__content">
+                    <strong class="history-event__title">샘플 공공서비스 설립</strong>
+                    <p class="history-event__desc">국민 편의 증진 및 공공서비스 혁신을 목적으로 설립, 초대 기관장 취임</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+          <!-- /history-timeline -->
+          <!-- CMS_CONTENT_END: 이 위까지 콘텐츠 본문 등록 영역 -->
+
+          <!-- 데이터 없음 참고용 (JSP c:otherwise 블록 — CMS 등록 범위 밖) -->
+          <!--
+          <div class="history-no-data" role="status">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+              <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M20 12v9M20 27v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            조회된 데이터가 없습니다.
+          </div>
+          -->
+
+        </div>
+        <!-- /sub-content -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="site-footer" id="footer" role="contentinfo">
+    <div class="site-footer__inner">
+      <div class="site-footer__logo">
+        <img src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </div>
+      <div class="site-footer__info">
+        <p class="site-footer__address">
+          (00000) 서울특별시 OO구 OO로 000 &nbsp;|&nbsp;
+          대표전화: 02-000-0000 &nbsp;|&nbsp;
+          팩스: 02-000-0001
+        </p>
+        <p class="site-footer__copy">Copyright &copy; 샘플 공공서비스. All Rights Reserved.</p>
+      </div>
+      <div class="site-footer__links">
+        <a class="site-footer__link is-point" href="./개인정보처리방침.html">개인정보처리방침</a>
+        <a class="site-footer__link" href="#">이용약관</a>
+        <a class="site-footer__link" href="#">사이트맵</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

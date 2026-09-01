@@ -1,0 +1,442 @@
+// KRDS 접근성 규칙: 네이티브 <button> 우선, 터치 타겟 44x44px 이상, 페이지당 primary 버튼 최대 1개.
+// 아이콘+텍스트 조합 시 좌/우 아이콘 위치는 마크업 순서로 결정된다.
+
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.3rem;
+	min-width: 4.4rem;
+	min-height: $spacing-10;
+	padding-inline: $spacing-3;
+	font-size: $font-size-body-small;
+	border-radius: 0.6rem;
+	border: 1px solid transparent;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+	&:disabled {
+		color: $text-disabled;
+		background-color: $bg-gray-subtle;
+		border-color: $border-gray-light;
+		cursor: not-allowed;
+	}
+
+	// Size — 기본값 medium
+	&.btn-xs {
+		min-height: $spacing-8;
+		padding-inline: 1rem;
+		font-size: $font-size-body-small;
+		min-width: 6rem;
+		border-radius: 0.4rem;
+	}
+	&.btn-sm {
+		min-height: $spacing-9;
+		padding-inline: $spacing-3;
+		font-size: $font-size-body-small;
+		min-width: 6.2rem;
+	}
+	&.btn-md {
+		min-height: $spacing-10;
+		padding-inline: $spacing-3;
+		font-size: $font-size-body-small;
+		min-width: 6.4rem;
+	}
+	&.btn-lg {
+		min-height: $spacing-12;
+		padding-inline: $spacing-4;
+		font-size: $font-size-body-medium;
+		min-width: 7.8rem;
+	}
+	&.btn-xl {
+		min-height: $spacing-13;
+		padding-inline: $spacing-5;
+		font-size: $font-size-body-large;
+		min-width: 9rem;
+	}
+	&.btn-xxl {
+		min-height: $spacing-14;
+		padding-inline: $spacing-5;
+		font-size: $font-size-body-large;
+		border-radius: 0.8rem;
+		min-width: 9.4rem;
+	}
+
+	&.btn-xxxl {
+		min-height: $spacing-16;
+		padding-inline: $spacing-6;
+		font-size: $font-size-body-large;
+		border-radius: 0.8rem;
+		min-width: 9.8rem;
+	}
+
+	&.btn-fit {
+		min-width: fit-content;
+	}
+
+	&.md-full {
+		@include mq-down(md) {
+			width: 100%;
+		}
+	}
+
+	// Type
+	&.btn-primary {
+		color: $text-inverse;
+		background-color: $color-primary-50;
+		border-color: $color-primary-50;
+
+		&:hover:not(:disabled),
+		&:focus-visible:not(:disabled) {
+			background-color: $color-primary-60;
+			border-color: $color-primary-60;
+		}
+		&:active:not(:disabled) {
+			background-color: $color-primary-70;
+			border-color: $color-primary-70;
+		}
+
+		.svg-icon {
+			filter: brightness(0) invert(1);
+		}
+	}
+
+	&.btn-secondary {
+		color: $text-primary-dark;
+		background-color: $color-primary-5;
+		border-color: $border-primary;
+
+		&:hover:not(:disabled),
+		&:focus-visible:not(:disabled) {
+			background-color: $color-primary-10;
+		}
+		&:active:not(:disabled) {
+			background-color: $color-primary-20;
+		}
+
+		.svg-icon {
+			filter: brightness(0) saturate(100%) invert(34%) sepia(91%) saturate(2636%) hue-rotate(208deg) brightness(86%)
+				contrast(96%);
+		}
+	}
+
+	&.btn-tertiary {
+		color: $text-basic;
+		background-color: $bg-white;
+		border-color: $border-gray-dark;
+
+		&:hover:not(:disabled),
+		&:focus-visible:not(:disabled) {
+			background-color: $bg-gray-subtler;
+		}
+		&:active:not(:disabled) {
+			background-color: $bg-gray-subtle;
+		}
+	}
+
+	&.btn-outline-gray {
+		color: $text-basic;
+		background-color: $bg-white;
+		border-color: $border-gray;
+
+		&:hover:not(:disabled),
+		&:focus-visible:not(:disabled) {
+			background-color: $bg-gray-subtler;
+		}
+		&:active:not(:disabled) {
+			background-color: $bg-gray-subtle;
+		}
+	}
+
+	&.btn-icon {
+		min-width: 3.6rem;
+		min-height: 3.6rem;
+		padding-inline: 0;
+		border-radius: 0.4rem;
+		// 아이콘 크기는 .svg-icon에 ico-xs~ico-xl 클래스로 직접 지정(기본 lg = 2rem)
+	}
+
+	&.btn-red {
+		color: $text-inverse;
+		background-color: $color-danger-50;
+		border-color: $color-danger-50;
+
+		&:hover:not(:disabled),
+		&:focus-visible:not(:disabled) {
+			background-color: $color-danger-60;
+			border-color: $color-danger-60;
+		}
+		&:active:not(:disabled) {
+			background-color: $color-danger-70;
+			border-color: $color-danger-70;
+		}
+
+		.svg-icon {
+			filter: brightness(0) invert(1);
+		}
+	}
+
+	&.btn-green {
+		color: $text-inverse;
+		background-color: $color-success-50;
+		border-color: $color-success-50;
+
+		&:hover:not(:disabled),
+		&:focus-visible:not(:disabled) {
+			background-color: $color-success-60;
+			border-color: $color-success-60;
+		}
+		&:active:not(:disabled) {
+			background-color: $color-success-70;
+			border-color: $color-success-70;
+		}
+
+		.svg-icon {
+			filter: brightness(0) invert(1);
+		}
+	}
+
+	&.btn-gray {
+		color: $text-basic;
+		background-color: $bg-gray-subtler;
+		border-color: $border-gray-light;
+
+		&:hover:not(:disabled),
+		&:focus-visible:not(:disabled) {
+			background-color: $bg-gray-subtle;
+			border-color: $border-gray;
+		}
+		&:active:not(:disabled) {
+			background-color: #d6d8da;
+			border-color: #969d93;
+		}
+	}
+}
+
+.btn-group {
+	display: inline-flex;
+	align-items: center;
+	gap: $spacing-2;
+	flex-wrap: wrap;
+
+	// 정렬
+	&.left {
+		display: flex;
+		width: 100%;
+		justify-content: flex-start;
+	}
+	&.center {
+		display: flex;
+		width: 100%;
+		justify-content: center;
+	}
+	&.right {
+		display: flex;
+		width: 100%;
+		justify-content: flex-end;
+	}
+
+	&.equal {
+		display: flex;
+		width: 100%;
+
+		.btn {
+			flex: 1 1 0;
+			min-width: 0;
+		}
+
+		@include mq-down(md) {
+			flex-wrap: wrap;
+			.btn {
+				&.md-full {
+					flex: 0 0 100%;
+				}
+				&.md-fit {
+				}
+			}
+		}
+	}
+
+	&:has(.btn-xxxl) {
+		gap: 1.6rem;
+	}
+}
+
+// Button_text — 배경/보더 없이 텍스트만 있는 버튼
+.btn-text {
+	display: inline-flex;
+	align-items: center;
+	gap: $spacing-1;
+	padding: 3px 2px;
+	color: $text-basic;
+	background-color: transparent;
+	border: 0;
+
+	&:hover:not(:disabled),
+	&:focus-visible:not(:disabled) {
+		color: $text-primary;
+	}
+	&:active:not(:disabled) {
+		color: $color-primary-70;
+	}
+	&:disabled {
+		color: $text-disabled;
+		cursor: not-allowed;
+	}
+
+	&.btn-xs {
+		font-size: $font-size-body-xsmall;
+	}
+	&.btn-sm {
+		font-size: $font-size-body-small;
+	}
+	&.btn-md {
+		font-size: $font-size-body-medium;
+	}
+	&.btn-lg {
+		font-size: $font-size-body-large;
+	}
+
+	&.btn-default {
+		color: $text-basic;
+
+		&:hover {
+			.svg-icon {
+				filter: brightness(0) saturate(100%) invert(34%) sepia(91%) saturate(2636%) hue-rotate(208deg) brightness(86%)
+					contrast(96%);
+			}
+		}
+	}
+}
+
+// Tooltip — 아이콘 버튼 등을 .tooltip으로 감싸면 hover 시 툴팁 노출
+.tooltip {
+	position: relative;
+	display: inline-flex;
+
+	.tooltip-text {
+		position: absolute;
+		bottom: calc(100% + #{$spacing-2});
+		left: 50%;
+		z-index: $z-tooltip;
+		padding: $spacing-1 $spacing-3;
+		font-size: $font-size-body-small;
+		color: $text-inverse;
+		white-space: nowrap;
+		background-color: $text-basic;
+		border-radius: 0.4rem;
+		opacity: 0;
+		visibility: hidden;
+		transform: translate(-50%, 4px);
+		transition: opacity 0.15s ease, transform 0.15s ease;
+		pointer-events: none;
+	}
+
+	&:hover .tooltip-text,
+	&:focus-within .tooltip-text {
+		visibility: visible;
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
+}
+
+// 안내 툴팁 버튼 — th/label 등 텍스트 옆에 붙는 20x20 아이콘 버튼. hover/focus 시 .tooltip-layer 노출
+.tooltip-btn {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	height: 2rem;
+	padding: 0;
+	vertical-align: middle;
+	background: none;
+	border: 0;
+	cursor: pointer;
+
+	.tooltip-layer {
+		position: absolute;
+		bottom: calc(100% + #{$spacing-2});
+		left: 50%;
+		z-index: $z-tooltip;
+		width: max-content;
+		max-width: 28rem;
+		padding: $spacing-3;
+		text-align: left;
+		background-color: $bg-white;
+		border: 1px solid $border-gray-light;
+		border-radius: 0.6rem;
+		box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.12);
+		opacity: 0;
+		visibility: hidden;
+		transform: translate(-50%, 4px);
+		transition: opacity 0.15s ease, transform 0.15s ease;
+		pointer-events: none;
+	}
+
+	.tooltip-title {
+		margin-bottom: $spacing-1;
+		font-size: $font-size-body-small;
+		font-weight: 700;
+		color: $text-bolder;
+	}
+
+	.tooltip-item {
+		font-size: $font-size-body-xsmall;
+		line-height: 1.5;
+		color: $text-subtle;
+
+		+ .tooltip-item {
+			margin-top: $spacing-1;
+		}
+	}
+
+	&:hover .tooltip-layer,
+	&:focus .tooltip-layer {
+		visibility: visible;
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
+
+	// 위치 방향 — 기본값은 위쪽(top). 트리거 주변 여백에 따라 아래/좌/우로 전환한다.
+	&.tooltip-bottom {
+		.tooltip-layer {
+			top: calc(100% + #{$spacing-2});
+			bottom: auto;
+			transform: translate(-50%, -4px);
+		}
+
+		&:hover .tooltip-layer,
+		&:focus .tooltip-layer {
+			transform: translate(-50%, 0);
+		}
+	}
+
+	&.tooltip-left {
+		.tooltip-layer {
+			top: 50%;
+			right: calc(100% + #{$spacing-2});
+			bottom: auto;
+			left: auto;
+			transform: translate(-4px, -50%);
+		}
+
+		&:hover .tooltip-layer,
+		&:focus .tooltip-layer {
+			transform: translate(0, -50%);
+		}
+	}
+
+	&.tooltip-right {
+		.tooltip-layer {
+			top: 50%;
+			bottom: auto;
+			left: calc(100% + #{$spacing-2});
+			transform: translate(4px, -50%);
+		}
+
+		&:hover .tooltip-layer,
+		&:focus .tooltip-layer {
+			transform: translate(0, -50%);
+		}
+	}
+}

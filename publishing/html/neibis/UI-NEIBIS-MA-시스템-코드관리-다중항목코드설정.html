@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- jquery.ui.touch-punch -->
+		<script src="../../assets/neibis/plugins/jquery.ui.touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				$(".toggle-area .font-size-xl").on("click", function () {
+					$(this).next(".codename-area1").slideToggle(300);
+
+					if (!$(this).hasClass("on")) {
+						$(this).addClass("on");
+						$(".codename-area1").hide();
+						$(".codename-area2").show();
+					} else {
+						$(this).removeClass("on");
+						$(".codename-area2").hide();
+						$(".codename-area1").show();
+					}
+				});
+
+				$("#sortableList").sortable({
+					handle: ".handle",
+					axis: "y", //중심선
+					opacity: 0.5, //투명도
+					cursor: "move"
+				});
+				$("#sortableList").disableSelection();
+
+				// zTree onClick 이벤트
+				window.zTreeOnClick = function (event, treeId, treeNode) {
+					// zTree 노드 클릭시 이벤트 사용자 정의
+					alert(treeNode ? treeNode.tId : "root");
+				};
+
+				window.zTreeBeforeRename = function (treeId, treeNode, newName, isCancel) {
+					// zTree 노드 네이밍 변경 시 기존 네임
+					// console.log(treeId, treeNode, newName, isCancel);
+				};
+
+				window.zTreeRename = function (e, treeId, treeNode, isCancel) {
+					// zTree 노드 네이밍 변경 시 사용자 정의
+					// console.log(e, treeId, treeNode, isCancel);
+				};
+
+				// zTree 노드 생성시 기준 네이밍 변경
+				window.zTreeCreateNewNode = function (zTree, treeNode, isParent) {
+					const nameFunc = function () {
+						return "이름을 입력해주세요.";
+					};
+					return createNewNode(zTree, treeNode, isParent, nameFunc);
+				};
+
+				function removeNodeId(treeNode) {
+					// zTree 삭제된 노드 확인
+					// console.log("삭제된 노드 확인: ", treeNode);
+				}
+			});
+
+			// z-tree : zNodes 추가 옵션
+			// open: true : 기본 view가 오픈상태로 노출
+			// disabled: true : 비활성화 메뉴의 경우
+			// isParent: true : 하위 메뉴가 없는 상태에서 폴더형식의 경우
+
+			// iconskin 변경
+			// ico_docu, ico-page-md : 일반페이지 (기본), 지정되지 않은 종류의 페이지
+			// ico_open, ico_close, ico-folder-md : 폴더 (기본)
+			// ico-site-md : 사용자사이트 페이지
+			// ico-editpage-md :웹콘텐츠 관리 페이지
+			// ico-pagepgm-md : pgm 페이지
+			// ico-pagebbs-md : bbs 페이지
+			// ico-newwindow-md : 새창 (target: "_blank" 속성 추가 필요)
+			// ico-code-md : 코드 페이지
+
+			var zNodes = [
+				{ id: 1, pId: 0, name: "사이트 메뉴명1", open: true },
+				{ id: 11, pId: 1, name: "사이트 메뉴명1", open: true },
+				{ id: 111, pId: 11, name: "사이트 메뉴명1", disabled: true },
+				{ id: 112, pId: 11, name: "사이트 메뉴명1" },
+				{ id: 113, pId: 11, name: "사이트 메뉴명1", target: "_blank", iconSkin: "ico-newwindow-md" },
+				{ id: 114, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-editpage-md" },
+				{ id: 115, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-pagepgm-md" },
+				{ id: 116, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-pagebbs-md" },
+				{ id: 117, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-code-md" },
+				{ id: 12, pId: 1, name: "길어질 경우 가로 스크롤이 생성됩니다. 길어질 경우 가로 스크롤이 생성됩니다." },
+				{ id: 121, pId: 12, name: "사이트 메뉴명1" },
+				{ id: 122, pId: 12, name: "사이트 메뉴명1" },
+				{ id: 13, pId: 1, name: "사이트 메뉴명1", iconSkin: "ico-site-md" },
+				{ id: 2, pId: 0, name: "사이트 메뉴명1" },
+				{ id: 21, pId: 2, name: "사이트 메뉴명1" },
+				{ id: 211, pId: 21, name: "사이트 메뉴명1" },
+				{ id: 212, pId: 21, name: "사이트 메뉴명1" },
+				{ id: 22, pId: 2, name: "사이트 메뉴명1" },
+				{ id: 221, pId: 22, name: "사이트 메뉴명1" },
+				{ id: 222, pId: 22, name: "사이트 메뉴명1" },
+				{ id: 23, pId: 2, name: "사이트 메뉴명1" },
+				{ id: 231, pId: 23, name: "사이트 메뉴명1" },
+				{ id: 232, pId: 23, name: "사이트 메뉴명1" },
+				{ id: 3, pId: 0, name: "사이트 메뉴명1" },
+				{ id: 4, pId: 0, name: "사이트 메뉴명1" }
+			];
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="다중항목코드 설정"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<div class="tree-in-wrap">
+							<!-- 트리메뉴 -->
+							<div class="tree-menu-area">
+								<div class="tree-body">
+									<div class="scroll-araa">
+										<ul id="treeMenu" class="ztree"></ul>
+									</div>
+								</div>
+								<div class="tree-footer">
+									<div class="btn-group-center gap-xs">
+										<button type="button" class="btn btn-xs btn-primary-soft" id="btnAdd">
+											<i class="ico ico-plus-primary-sm"></i>
+											<span>코드추가</span>
+										</button>
+										<button type="button" class="btn btn-xs btn-gray" id="btnDelt">
+											<i class="ico ico-minus-white-sm"></i>
+											<span>코드삭제</span>
+										</button>
+										<button type="button" class="btn btn-xs btn-outline-gray">
+											<span>순서변경</span>
+										</button>
+									</div>
+								</div>
+							</div>
+
+							<!-- 다중항목코드 설정 상세 -->
+							<div class="card-wrap">
+								<div class="card">
+									<form action="#">
+										<div class="toggle-area">
+											<h3 class="font-size-xl">
+												<i class="ico ico-folder mr-1"></i>
+												코드명 생성
+											</h3>
+											<div class="codename-toggle-content">
+												<div class="codename-area1">
+													<div class="table table-row">
+														<div class="table-inner">
+															<table>
+																<caption class="sr-only">
+																	코드명 생성
+																</caption>
+																<tbody>
+																	<tr>
+																		<th scope="row">사용여부</th>
+																		<td>
+																			<div class="input-group">
+																				<label class="check-item">
+																					<input type="radio" name="radio1_1" checked />
+																					<span class="label">사용</span>
+																				</label>
+																				<label class="check-item">
+																					<input type="radio" name="radio1_1" />
+																					<span class="label">미사용</span>
+																				</label>
+																			</div>
+																		</td>
+																	</tr>
+																	<tr>
+																		<th scope="row">
+																			<label for="input1_1">다중아이디<i class="req">필수입력</i></label>
+																		</th>
+																		<td>
+																			<div class="input-group">
+																				<input
+																					type="text"
+																					id="input1_1"
+																					class="form-control"
+																					placeholder="숫자 2자리 이하만 입력해주세요."
+																					required
+																				/>
+																				<span class="input-addon">
+																					<button type="button" class="btn btn-md btn-outline-gray">
+																						<i class="ico ico-search-gray-md"></i>
+																						<span class="text">아이디 중복</span>
+																					</button>
+																				</span>
+																			</div>
+																			<span class="text-guide text-invalid">경고문구 .text-guide.text-invalid</span>
+																		</td>
+																	</tr>
+																	<tr>
+																		<th scope="row">
+																			<label for="input1_2">다중항목명<i class="req">필수입력</i></label>
+																		</th>
+																		<td>
+																			<input
+																				type="text"
+																				id="input1_2"
+																				class="form-control full"
+																				placeholder="다중항목명을 입력해주세요."
+																				required
+																			/>
+																		</td>
+																	</tr>
+																	<tr>
+																		<th scope="row">
+																			<label for="textarea1">다중항목설명</label>
+																		</th>
+																		<td>
+																			<textarea
+																				class="form-control full"
+																				id="textarea1"
+																				placeholder="설명을 입력해주세요."
+																			></textarea>
+																		</td>
+																	</tr>
+																</tbody>
+															</table>
+														</div>
+													</div>
+
+													<div class="btn-group-between">
+														<div class="right">
+															<button type="reset" class="btn btn-lg btn-outline-gray">
+																<i class="ico ico-undo-darkgray-md"></i>
+																<span>초기화</span>
+															</button>
+															<button type="submit" class="btn btn-lg btn-primary">
+																<i class="ico ico-save-white-md"></i>
+																저장
+															</button>
+														</div>
+													</div>
+												</div>
+												<div class="codename-area2">
+													<div class="box">
+														<dl>
+															<dt>코드 아이디</dt>
+															<dd>codeid1029380codeid1029380codeid 1029380codeid1029380</dd>
+														</dl>
+														<dl>
+															<dt>코드명</dt>
+															<dd>code코드명텍스트코드명텍스트코드명텍스트</dd>
+														</dl>
+													</div>
+												</div>
+											</div>
+										</div>
+									</form>
+								</div>
+
+								<div class="card">
+									<form action="#">
+										<h3 class="font-size-xl">
+											<i class="ico ico-file mr-1"></i>
+											하위항목 생성
+										</h3>
+										<div class="table table-row">
+											<div class="table-inner">
+												<!-- 하위항목 생성 시 table .disabled 클래스 제거 -->
+												<table class="disabled">
+													<caption class="sr-only">
+														하위항목 생성
+													</caption>
+													<tbody>
+														<tr>
+															<th scope="row">
+																<span>
+																	사용여부
+																	<i class="req">필수입력</i>
+																</span>
+															</th>
+															<td colspan="3">
+																<div class="input-group">
+																	<label class="check-item">
+																		<input type="radio" name="radio2" checked required />
+																		<span class="label">사용</span>
+																	</label>
+																	<label class="check-item">
+																		<input type="radio" name="radio2" required />
+																		<span class="label">미사용</span>
+																	</label>
+																</div>
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">
+																<label for="input2_1">항목명(한글)<i class="req">필수입력</i></label>
+															</th>
+															<td>
+																<input
+																	type="text"
+																	id="input2_1"
+																	class="form-control full"
+																	placeholder="항목명을 입력해주세요."
+																	required
+																/>
+															</td>
+															<th scope="row">
+																<label for="input2_2">항목명(일본어)</label>
+															</th>
+															<td>
+																<input
+																	type="text"
+																	id="input2_2"
+																	class="form-control full"
+																	placeholder="항목명을 입력해주세요."
+																/>
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">
+																<label for="input2_3">항목명(영어)</label>
+															</th>
+															<td>
+																<input
+																	type="text"
+																	id="input2_3"
+																	class="form-control full"
+																	placeholder="항목명을 입력해주세요."
+																/>
+															</td>
+															<th scope="row">
+																<label for="input2_4">항목명(중국어)</label>
+															</th>
+															<td>
+																<input
+																	type="text"
+																	id="input2_4"
+																	class="form-control full"
+																	placeholder="항목명을 입력해주세요."
+																/>
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">항목 및 텍스트 색상</th>
+															<td colspan="3">
+																<!-- 미리보기 hex코드 -->
+																<div class="details-cell full colorpicker-view">
+																	<div class="row-item">
+																		<label for="color-sel1" class="label">항목 배경 색상</label>
+																		<div class="input-wrap">
+																			<div class="form-colorpicker">
+																				<input
+																					type="text"
+																					class="form-control-sm hex-input"
+																					id="color-sel1"
+																					title="hex코드"
+																				/>
+																				<input type="color" class="hex-color" title="hex컬러" />
+																			</div>
+																			<span class="text-guide">hex코드 값을 입력하거나, 색상을 선택해주세요.</span>
+																		</div>
+																	</div>
+																	<div class="row-item">
+																		<label for="color-sel2" class="label">항목 텍스트 색상</label>
+																		<select class="form-control font-color" id="color-sel2" style="width: 200px">
+																			<option value="white" selected>흰색</option>
+																			<option value="black">검정색</option>
+																		</select>
+																	</div>
+																	<div class="row-item">
+																		<strong class="label">미리보기</strong>
+																		<div class="color-preview">
+																			<span>배포</span>
+																		</div>
+																	</div>
+																</div>
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">
+																<label for="input2_5">항목아이디</label>
+															</th>
+															<td colspan="3">
+																<input type="text" id="input2_5" class="form-control full" value="99" disabled />
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">
+																<label for="input2_6">항목아이템</label>
+															</th>
+															<td colspan="3">
+																<input type="text" id="input2_6" class="form-control full" value="8" disabled />
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">
+																<label for="input2_7">항목순서<i class="req">필수입력</i></label>
+															</th>
+															<td colspan="3">
+																<input
+																	type="text"
+																	id="input2_7"
+																	class="form-control full"
+																	value="4"
+																	disabled
+																	required
+																/>
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">
+																<label for="input2_8">상위항목<i class="req">필수입력</i></label>
+															</th>
+															<td colspan="3">
+																<input
+																	type="text"
+																	id="input2_8"
+																	class="form-control full"
+																	value="프로젝트(1)"
+																	disabled
+																	required
+																/>
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">
+																<label for="textarea1">설명</label>
+															</th>
+															<td colspan="3">
+																<textarea
+																	class="form-control full"
+																	id="textarea2"
+																	placeholder="설명을 입력해주세요."
+																></textarea>
+															</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+
+										<div class="btn-group-between">
+											<div class="right">
+												<button type="submit" class="btn btn-lg btn-primary mt-0 mb-0">
+													<i class="ico ico-save-white-md"></i>
+													저장
+												</button>
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

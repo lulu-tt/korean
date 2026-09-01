@@ -1,0 +1,157 @@
+// KRDS 기반 디자인 토큰 변수
+
+// Color — Primary scale
+$color-primary-5: #ecf2fe;
+$color-primary-10: #d8e5fd;
+$color-primary-20: #b1cefb;
+$color-primary-30: #86aff9;
+$color-primary-40: #4c87f6;
+$color-primary-50: #256ef4;
+$color-primary-60: #0b50d0;
+$color-primary-70: #083891;
+$color-primary-80: #052561;
+$color-primary-90: #03163a;
+$color-primary-95: #020f27;
+
+// Color — Secondary scale
+$color-secondary-5: #eef2f7;
+$color-secondary-10: #d6e0eb;
+$color-secondary-20: #bacbde;
+$color-secondary-30: #90b0d5;
+$color-secondary-40: #6b96c7;
+$color-secondary-50: #346fb2;
+$color-secondary-60: #1c589c;
+$color-secondary-70: #063a74;
+$color-secondary-80: #052b57;
+$color-secondary-90: #031f3f;
+$color-secondary-95: #02162c;
+
+// Color — Gray / Neutral scale
+$color-gray-0: #ffffff;
+$color-gray-5: #f4f5f6;
+$color-gray-10: #e6e8ea;
+$color-gray-20: #cdd1d5;
+$color-gray-30: #b1b8be;
+$color-gray-40: #8a949e;
+$color-gray-50: #6d7882;
+$color-gray-60: #58616a;
+$color-gray-70: #464c53;
+$color-gray-80: #33363d;
+$color-gray-90: #1e2124;
+$color-gray-95: #131416;
+$color-gray-100: #000000;
+
+// Color — Semantic (danger / warning / success / information)
+$color-danger-5: #fdefec;
+$color-danger-50: #de3412;
+$color-danger-60: #c62e10;
+$color-danger-70: #a2250c;
+$color-danger-95: #260903;
+
+$color-warning-5: #fff3db;
+$color-warning-30: #ffb114;
+$color-warning-50: #9e6a00;
+$color-warning-60: #8a5c00;
+$color-warning-95: #241800;
+
+$color-success-5: #eaf6ec;
+$color-success-40: #3fa654;
+$color-success-50: #228738;
+$color-success-60: #267337;
+$color-success-70: #1a4122;
+$color-success-95: #0e2012;
+
+$color-info-5: #e7f4fe;
+$color-info-50: #0b78cb;
+$color-info-95: #021a2c;
+
+$color-point-5: #fceaee;
+$color-point-50: #c72c48;
+$color-point-95: #250309;
+
+// Color — Text semantic tokens
+$text-bolder: $color-gray-95;
+$text-basic: $color-gray-90;
+$text-subtle: $color-gray-70;
+$text-disabled: $color-gray-40;
+$text-disabled-on: $color-gray-50;
+$text-primary: $color-primary-50;
+$text-primary-dark: $color-primary-60;
+$text-danger: $color-danger-50;
+$text-warning: $color-warning-50;
+$text-success: $color-success-50;
+$text-information: $color-info-50;
+$text-inverse: $color-gray-0;
+
+// Color — Background semantic tokens
+$bg-white: $color-gray-0;
+$bg-inverse: $color-gray-90;
+$bg-gray-subtler: $color-gray-5;
+$bg-gray-subtle: $color-gray-10;
+$bg-primary-subtler: $color-primary-5;
+
+// Color — Border semantic tokens
+$border-gray-light: $color-gray-20;
+$border-gray: $color-gray-30;
+$border-gray-dark: $color-gray-60;
+$border-primary: $color-primary-50;
+$border-primary-light: $color-primary-10;
+
+// Typography — KRDS 기본 서체 Pretendard GOV, 기본 크기 17px, line-height 150% 이상
+$font-family-base: "Pretendard GOV", "Noto Sans KR", sans-serif;
+$font-size-base: 1.7rem; // 17px (html { font-size: 62.5% } 기준 1rem = 10px)
+$line-height-base: 1.5;
+
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-bold: 700;
+
+// Body / Label scale (PC 기준)
+$font-size-body-large: 1.9rem; // 19px
+$font-size-body-medium: 1.7rem; // 17px
+$font-size-body-small: 1.5rem; // 15px
+$font-size-body-xsmall: 1.3rem; // 13px
+
+// Heading scale (PC 기준)
+$font-size-heading-xsmall: 1.7rem; // 17px
+$font-size-heading-small: 1.9rem; // 19px
+$font-size-heading-medium: 2.4rem; // 24px
+$font-size-heading-large: 3.2rem; // 32px
+$font-size-heading-xlarge: 4rem; // 40px
+
+// Heading scale (모바일 기준 — xsmall~xxsmall은 PC와 동일해 생략)
+$font-size-heading-medium-mobile: 2.2rem; // 22px
+$font-size-heading-large-mobile: 2.4rem; // 24px
+$font-size-heading-xlarge-mobile: 2.8rem; // 28px
+
+// Spacing — 4px 배수 스케일 (rem, 1rem = 10px 기준)
+$spacing-1: 0.4rem; // 4px
+$spacing-2: 0.8rem; // 8px
+$spacing-3: 1.2rem; // 12px
+$spacing-4: 1.6rem; // 16px
+$spacing-5: 2rem; // 20px
+$spacing-6: 2.4rem; // 24px
+$spacing-7: 2.8rem; // 28px
+$spacing-8: 3.2rem; // 32px
+$spacing-9: 3.6rem; // 36px
+$spacing-10: 4rem; // 40px
+$spacing-11: 4.4rem; // 44px
+$spacing-12: 4.8rem; // 48px
+$spacing-13: 5.2rem; // 52px
+$spacing-14: 5.6rem; // 56px
+$spacing-15: 6rem; // 60px
+$spacing-16: 6.4rem; // 64px
+$spacing-17: 6.8rem; // 68px
+$spacing-18: 7.2rem; // 72px
+
+// Container widths
+$container-width: 128rem; // 표준(1280px)
+$container-width-wide: 144rem; // 와이드(일부 페이지 전용, 1440px)
+
+// Layout 치수
+$masthead-height: 3.2rem; // 32px
+$header-height: 8.4rem; // 84px
+$scrollbar-width: 8px; // 커스텀 스크롤바 두께(px 고정 — 미디어쿼리와 동일한 이유로 rem 금지)
+
+// GNB/모바일 메뉴 치수
+$gnb-panel-max-height: calc(100vh - #{$masthead-height} - #{$header-height});

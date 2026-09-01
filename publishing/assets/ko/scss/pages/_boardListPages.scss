@@ -1,0 +1,79 @@
+// 목록형 게시판 페이지
+
+.list-bar {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: $spacing-4;
+
+	@include mq-down(md) {
+		flex-direction: column;
+		align-items: stretch;
+		justify-content: flex-start;
+		gap: $spacing-3;
+	}
+}
+
+.list-count {
+	display: flex;
+	align-items: center;
+	gap: $spacing-1;
+	font-size: $font-size-body-small;
+	color: $text-subtle;
+
+	strong {
+		font-size: $font-size-body-medium;
+		font-weight: $font-weight-bold;
+		color: $text-basic;
+	}
+}
+
+.list-filter {
+	display: flex;
+	align-items: center;
+	gap: $spacing-2;
+
+	@include mq-down(md) {
+		flex-direction: column;
+		.btn {
+			width: 100%;
+		}
+	}
+}
+
+.search-select {
+	flex: 0 0 auto;
+	min-width: 10rem;
+
+	@include mq-down(md) {
+		width: 100%;
+	}
+}
+
+.search-input {
+	flex: 0 0 auto;
+	width: 26rem;
+	border-color: $border-gray;
+
+	@include mq-down(md) {
+		flex: 1 1 auto;
+		width: 100%;
+		min-width: 0;
+	}
+}
+
+// 하단 액션 버튼 영역
+.board-actions {
+	margin-top: $spacing-4;
+	@include mq-up(md) {
+		.btn-group {
+			.btn-xxxl {
+				min-width: 19.2rem;
+			}
+		}
+	}
+	@include mq-down(md) {
+		margin-top: $spacing-6;
+	}
+}

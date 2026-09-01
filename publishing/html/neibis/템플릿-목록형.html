@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				// 이곳에 정의
+				$(".btn-delete").click(function () {
+					confirm(
+						{
+							icon: "error", // info, check(기본값), warning, error, warning-gray
+							title: "삭제하면 복구할 수 없어요",
+							message: "그래도 데이터를 삭제하시겠어요?"
+						},
+						function (result) {
+							if (result) {
+								console.log("확인 버튼을 눌렀습니다.");
+								// true 로직 실행
+							} else {
+								console.log("취소 버튼을 눌렀습니다.");
+								// false 로직 실행
+							}
+						}
+					);
+				});
+
+				$(".btn-modify.disabled").click(function () {
+					alert({
+						icon: "warning",
+						title: "이 코드는 삭제되어 있어요",
+						message: "복원해야 수정을 할 수 있어요."
+					});
+				});
+			});
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="목록형 템플릿"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<div class="tabmenu-in-wrap">
+							<nav class="tabmenu tabmenu-type1">
+								<ul class="tab-list">
+									<li class="on">
+										<a href="#"><span>탭메뉴명1</span></a>
+									</li>
+									<li>
+										<a href="#"><span>탭메뉴명2</span></a>
+									</li>
+									<li>
+										<a href="#"><span>탭메뉴명3</span></a>
+									</li>
+									<li>
+										<a href="#"><span>탭메뉴명4</span></a>
+									</li>
+									<li>
+										<a href="#"><span>탭메뉴명5</span></a>
+									</li>
+								</ul>
+							</nav>
+						</div>
+
+						<!-- 검색 영역 -->
+						<h3 class="title1 text-primary mt-md-4 ml-md-4">검색폼 : form.search-form</h3>
+						<div class="card">
+							<form action="#;" class="search-form">
+								<div class="table table-form-basic">
+									<div class="table-inner">
+										<table>
+											<caption class="sr-only">
+												검색조건입력
+											</caption>
+											<tbody>
+												<tr>
+													<th scope="row">
+														<span>조회기간<i class="req">필수입력</i></span>
+													</th>
+													<td colspan="3">
+														<div class="input-group input-group-date-range">
+															<div class="radio-btn-group">
+																<span class="check-item">
+																	<input type="radio" id="radio_btn1" name="radio_date_range" value="1d" required />
+																	<label for="radio_btn1">하루전</label>
+																</span>
+																<span class="check-item">
+																	<input type="radio" id="radio_btn2" name="radio_date_range" value="7d" required />
+																	<label for="radio_btn2">1주일</label>
+																</span>
+																<span class="check-item">
+																	<input
+																		type="radio"
+																		id="radio_btn3"
+																		name="radio_date_range"
+																		value="1m"
+																		checked
+																		required
+																	/>
+																	<label for="radio_btn3">1개월</label>
+																</span>
+																<span class="check-item">
+																	<input type="radio" id="radio_btn4" name="radio_date_range" value="3m" required />
+																	<label for="radio_btn4">3개월</label>
+																</span>
+																<span class="check-item">
+																	<input type="radio" id="radio_btn5" name="radio_date_range" value="6m" required />
+																	<label for="radio_btn5">6개월</label>
+																</span>
+																<span class="check-item">
+																	<input type="radio" id="radio_btn6" name="radio_date_range" value="12m" required />
+																	<label for="radio_btn6">1년</label>
+																</span>
+															</div>
+															<div class="input-group input-group-datepicker">
+																<input
+																	type="text"
+																	class="form-control form-datepicker range-start"
+																	title="시작일 선택"
+																	placeholder="YYYY.MM.DD"
+																	required
+																/>
+																<span class="input-addon">-</span>
+																<input
+																	type="text"
+																	class="form-control form-datepicker range-end"
+																	title="종료일 선택"
+																	placeholder="YYYY.MM.DD"
+																	required
+																/>
+															</div>
+														</div>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<label for="site_name">사이트명<i class="req">필수입력</i></label>
+													</th>
+													<td>
+														<select class="form-control" id="site_name" style="width: 100%; max-width: 424px">
+															<option selected>대표 홈 국문</option>
+															<option>항목1</option>
+															<option>항목2</option>
+														</select>
+													</td>
+													<th scope="row">
+														<label for="search_word1">검색어</label>
+													</th>
+													<td>
+														<div class="input-group md-drop">
+															<select class="form-control" title="검색 구분 선택" style="width: 100%; max-width: 160px">
+																<option selected>전체</option>
+																<option>option1</option>
+																<option>option2</option>
+															</select>
+															<input
+																type="text"
+																id="search_word1"
+																class="form-control"
+																placeholder="검색어를 입력해주세요."
+															/>
+														</div>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">기간</th>
+													<td colspan="3">
+														<div class="input-group input-group-datepicker">
+															<input
+																type="text"
+																class="form-control form-datepicker"
+																title="시작일"
+																placeholder="YYYY.MM.DD"
+															/>
+															<span class="input-addon">-</span>
+															<input
+																type="text"
+																class="form-control form-datepicker"
+																title="종료일"
+																placeholder="YYYY.MM.DD"
+															/>
+														</div>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<label for="search_word">검색어</label>
+													</th>
+													<td>
+														<div class="input-group sm-drop">
+															<select class="form-control" title="검색 구분 선택" style="width: 100%; max-width: 160px">
+																<option selected>전체</option>
+																<option>option1</option>
+																<option>option2</option>
+															</select>
+															<input
+																type="text"
+																id="search_word"
+																class="form-control"
+																placeholder="검색어를 입력해주세요."
+															/>
+														</div>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">셀렉트1</th>
+													<td>
+														<select class="form-control" style="width: 100%; max-width: 424px" title="#{셀렉트명}">
+															<option selected>선택</option>
+															<option>option1</option>
+															<option>option2</option>
+															<option>option3</option>
+														</select>
+													</td>
+													<th scope="row">셀렉트2</th>
+													<td>
+														<select class="form-control" style="width: 200px" title="#{셀렉트명}">
+															<option selected>선택</option>
+															<option>option1</option>
+															<option>option2</option>
+															<option>option3</option>
+														</select>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">체크박스</th>
+													<td>
+														<label class="check-item">
+															<input type="checkbox" checked />
+															<span class="label">checkbox1</span>
+														</label>
+														<label class="check-item">
+															<input type="checkbox" />
+															<span class="label">checkbox2</span>
+														</label>
+													</td>
+													<th scope="row">라디오</th>
+													<td>
+														<label class="check-item">
+															<input type="radio" name="inputRadio1" checked />
+															<span class="label">radio1</span>
+														</label>
+														<label class="check-item">
+															<input type="radio" name="inputRadio1" />
+															<span class="label">radio2</span>
+														</label>
+														<label class="check-item">
+															<input type="radio" name="inputRadio1" />
+															<span class="label">radio3</span>
+														</label>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">스위치형 체크박스</th>
+													<td colspan="3">
+														<label class="check-switch">
+															<input type="checkbox" />
+															<span class="label">
+																<span class="text-checked">Y</span>
+																<span class="text-uncheck">N</span>
+															</span>
+														</label>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+
+								<div class="btn-group-center">
+									<button type="reset" class="btn btn-md btn-outline-gray">
+										<i class="ico ico-undo-darkgray-md"></i>
+										<span class="text">초기화</span>
+									</button>
+									<button type="submit" class="btn btn-md btn-primary">
+										<i class="ico ico-search-white-md"></i>
+										<span class="text">검색</span>
+									</button>
+								</div>
+							</form>
+						</div>
+
+						<h3 class="title1 text-primary mt-4 ml-md-4">목록 일반형</h3>
+						<div class="card">
+							<div class="list-control">
+								<div class="left">
+									<a href="#;" class="btn btn-icon btn-settings-xs">
+										<i class="ico ico-cog-darkgray-sm"></i>
+										<span class="sr-only">게시판 설정</span>
+									</a>
+									<p class="total">총 <strong class="text-primary">1</strong>건(1/1 page)</p>
+									<button type="button" class="btn btn-xs btn-outline-gray" data-deselect=".table-list">
+										선택해제
+									</button>
+									<button type="button" class="btn btn-xs btn-gray btn-delete">
+										<i class="ico ico-close-white-sm mr-0"></i> 선택삭제
+									</button>
+								</div>
+								<div class="right">
+									<a href="#;" class="btn btn-sm btn-xls mr-1" download>
+										<i class="ico ico-fileexcel-white-sm"></i>
+										<span>엑셀 다운로드</span>
+									</a>
+									<select class="form-control-sm" style="min-width: 100px" title="목록 수">
+										<option selected>10</option>
+										<option>20</option>
+										<option>50</option>
+										<option>100</option>
+									</select>
+									<button type="button" class="btn btn-sm btn-outline-gray ml-1">적용</button>
+								</div>
+							</div>
+
+							<div class="table table-list">
+								<div class="table-inner">
+									<table style="min-width: 1200px">
+										<caption class="sr-only">
+											검색결과 목록
+										</caption>
+										<colgroup>
+											<col style="width: 48px" />
+											<col />
+											<col />
+											<col />
+											<col />
+											<col />
+										</colgroup>
+										<thead>
+											<tr>
+												<th scope="col">
+													<label class="check-item">
+														<input type="checkbox" />
+														<span class="label sr-only">전체선택</span>
+													</label>
+												</th>
+												<th scope="col">항목</th>
+												<th scope="col">내용</th>
+												<th scope="col">항목</th>
+												<th scope="col">항목</th>
+												<th scope="col">항목</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>
+													<label class="check-item">
+														<input type="checkbox" />
+														<span class="label sr-only">선택</span>
+													</label>
+												</td>
+												<td class="text-left">
+													<a href="템플릿-상세형.html" class="link"
+														>링크 텍스트 text link text링크 텍스트 text link text 길어지는 경우 이렇게 나옵니다 링크
+														텍스트 text link text링크 텍스트 text link text 길어지는 경우 이렇게 나옵니다 링크 텍스트
+														text link text링크 텍스트 text link text 길어지는 경우 이렇게 나옵니다 링크 텍스트 text link
+														text링크 텍스트 text link text 길어지는 경우 이렇게 나옵니다
+													</a>
+												</td>
+												<td class="text-left text-ellipsis">
+													<span>
+														내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.내용이
+														길어집니다.내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.
+													</span>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>미리보기</span>
+													</a>
+												</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-outline-primary">
+														<i class="ico ico-restore-primary-sm"></i>
+														<span>복원</span>
+													</button>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>보기</span>
+													</a>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<label class="check-item">
+														<input type="checkbox" />
+														<span class="label sr-only">선택</span>
+													</label>
+												</td>
+												<td class="text-left">
+													<a href="#;" class="link" target="_blank" title="새창 열림"> 링크 텍스트 text link text </a>
+												</td>
+												<td class="text-left text-ellipsis">
+													내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.내용이
+													길어집니다.내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>미리보기</span>
+													</a>
+												</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-outline-primary">
+														<i class="ico ico-restore-primary-sm"></i>
+														<span>복원</span>
+													</button>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>보기</span>
+													</a>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<label class="check-item">
+														<input type="checkbox" />
+														<span class="label sr-only">선택</span>
+													</label>
+												</td>
+												<!-- [개발] 말줄임 링크의 경우 : link-ellipsis 클래스 추가, 새소식의 경우 : new 클래스 추가 -->
+												<td class="text-left link-ellipsis new">
+													<a href="#;" class="link">
+														링크 텍스트 text link 내용이 길어집니다. 링크 텍스트 text link 내용이 길어집니다.링크 텍스트
+														text link 내용이 길어집니다.링크 텍스트 text link 내용이 길어집니다.링크 텍스트 text link
+														내용이 길어집니다.링크 텍스트 text link 내용이 길어집니다.링크 텍스트 text link 내용이
+														길어집니다.
+													</a>
+													<i class="ico ico-new-sm ml-1">N</i>
+												</td>
+												<td class="text-left text-ellipsis">
+													내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.내용이
+													길어집니다.내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>미리보기</span>
+													</a>
+												</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-outline-primary">
+														<i class="ico ico-restore-primary-sm"></i>
+														<span>복원</span>
+													</button>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>보기</span>
+													</a>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<label class="check-item">
+														<input type="checkbox" />
+														<span class="label sr-only">선택</span>
+													</label>
+												</td>
+												<td class="text-left link-ellipsis">
+													<a href="#;" class="link" target="_blank" title="새창 열림">
+														링크 텍스트 text link 내용이 길어집니다. 링크 텍스트 text link 내용이 길어집니다.링크 텍스트
+														text link 내용이 길어집니다.링크 텍스트 text link 내용이 길어집니다.링크 텍스트 text link
+														내용이 길어집니다.링크 텍스트 text link 내용이 길어집니다.링크 텍스트 text link 내용이
+														길어집니다.
+													</a>
+												</td>
+												<td class="text-left text-ellipsis">
+													내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.내용이
+													길어집니다.내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>미리보기</span>
+													</a>
+												</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-outline-primary">
+														<i class="ico ico-restore-primary-sm"></i>
+														<span>복원</span>
+													</button>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>보기</span>
+													</a>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<label class="check-item">
+														<input type="checkbox" />
+														<span class="label sr-only">선택</span>
+													</label>
+												</td>
+												<td class="text-left">일반 텍스트 일반 텍스트 일반 텍스트</td>
+												<td class="text-left text-ellipsis">
+													내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.내용이
+													길어집니다.내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.내용이 길어집니다.
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>미리보기</span>
+													</a>
+												</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-outline-primary">
+														<i class="ico ico-restore-primary-sm"></i>
+														<span>복원</span>
+													</button>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>보기</span>
+													</a>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+
+							<div class="pagination">
+								<a href="#;" class="direction first disabled">처음</a>
+								<a href="#;" class="direction prev disabled">이전</a>
+								<strong>1</strong>
+								<a href="#;">2</a>
+								<a href="#;">3</a>
+								<a href="#;">4</a>
+								<a href="#;">5</a>
+								<a href="#;" class="direction next">다음</a>
+								<a href="#;" class="direction last">끝</a>
+							</div>
+						</div>
+
+						<h3 class="title1 text-primary mt-4 ml-md-4">목록 섬네일형</h3>
+						<div class="card">
+							<div class="list-control">
+								<div class="left">
+									<p class="total">총 <strong class="text-primary">1</strong>건(1/1 page)</p>
+								</div>
+								<div class="right">
+									<a href="#;" class="btn btn-sm btn-xls mr-1" download>
+										<i class="ico ico-fileexcel-white-sm"></i>
+										<span>엑셀 다운로드</span>
+									</a>
+									<select class="form-control-sm" style="min-width: 100px" title="목록 수">
+										<option selected>10</option>
+										<option>20</option>
+										<option>50</option>
+										<option>100</option>
+									</select>
+									<button type="button" class="btn btn-sm btn-outline-gray ml-1">적용</button>
+								</div>
+							</div>
+
+							<div class="table table-list">
+								<div class="table-inner">
+									<table style="min-width: 1200px">
+										<caption class="sr-only">
+											검색결과 목록
+										</caption>
+										<colgroup>
+											<col style="width: 50px" />
+											<col />
+											<col />
+											<col />
+											<col />
+											<col />
+											<col />
+											<col />
+										</colgroup>
+										<thead>
+											<tr>
+												<th scope="col">번호</th>
+												<th scope="col">썸네일</th>
+												<th scope="col">아이디</th>
+												<th scope="col">성명</th>
+												<th scope="col">담당부서</th>
+												<th scope="col">권한등급</th>
+												<th scope="col">등록일</th>
+												<th scope="col">계정잠금여부</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>
+													<i class="ico ico-notice-md"><span class="sr-only">공지</span></i>
+												</td>
+												<td>
+													<div class="thumb-preview"></div>
+												</td>
+												<td><a href="#;" class="link">inseq123inseq123</a><i class="ico ico-new-sm ml-1">N</i></td>
+												<td>홍길동</td>
+												<td>솔루션사업부</td>
+												<td>시스템관리자</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-primary-soft btn-lock">
+														<i class="ico ico-lock-primary-sm"></i>
+														<span>계정잠금해제</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>2</td>
+												<td>
+													<div class="thumb-preview">
+														<img src="/assets/neibis/images/_sample2.jpg" alt="" />
+													</div>
+												</td>
+												<td>
+													<a href="#;" class="link">inseq123inseq123</a>
+												</td>
+												<td>홍길동</td>
+												<td>솔루션사업부</td>
+												<td>시스템관리자</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-gray btn-lock">
+														<i class="ico ico-lock-white-sm"></i>
+														<span>계정잠그기</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>3</td>
+												<td>
+													<!-- .vedio 클래스 추가 시 비디오 썸네일로 변경 -->
+													<div class="thumb-preview video">
+														<img src="/assets/neibis/images/_sample2.jpg" alt="" />
+													</div>
+												</td>
+												<td>
+													<a href="#;" class="link">inseq123inseq123</a>
+												</td>
+												<td>홍길동</td>
+												<td>솔루션사업부</td>
+												<td>시스템관리자</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-gray btn-lock">
+														<i class="ico ico-lock-white-sm"></i>
+														<span>계정잠그기</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>4</td>
+												<td>
+													<div class="thumb-preview">
+														<img src="/assets/neibis/images/_sample2.jpg" alt="" />
+													</div>
+												</td>
+												<td>
+													<a href="#;" class="link">inseq123inseq123</a>
+												</td>
+												<td>홍길동</td>
+												<td>솔루션사업부</td>
+												<td>시스템관리자</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-gray btn-lock">
+														<i class="ico ico-lock-white-sm"></i>
+														<span>계정잠그기</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>5</td>
+												<td>
+													<div class="thumb-preview">
+														<img src="/assets/neibis/images/_sample2.jpg" alt="" />
+													</div>
+												</td>
+												<td>
+													<a href="#;" class="link">inseq123inseq123</a>
+												</td>
+												<td>홍길동</td>
+												<td>솔루션사업부</td>
+												<td>시스템관리자</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-gray btn-lock">
+														<i class="ico ico-lock-white-sm"></i>
+														<span>계정잠그기</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>6</td>
+												<td>
+													<div class="thumb-preview">
+														<img src="/assets/neibis/images/_sample2.jpg" alt="" />
+													</div>
+												</td>
+												<td>
+													<a href="#;" class="link">inseq123inseq123</a>
+												</td>
+												<td>홍길동</td>
+												<td>솔루션사업부</td>
+												<td>시스템관리자</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-gray btn-lock">
+														<i class="ico ico-lock-white-sm"></i>
+														<span>계정잠그기</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>7</td>
+												<td>
+													<div class="thumb-preview"></div>
+												</td>
+												<td>
+													<a href="#;" class="link">inseq123inseq123</a>
+												</td>
+												<td>홍길동</td>
+												<td>솔루션사업부</td>
+												<td>시스템관리자</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-gray btn-lock">
+														<i class="ico ico-lock-white-sm"></i>
+														<span>계정잠그기</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>8</td>
+												<td>
+													<div class="thumb-preview"></div>
+												</td>
+												<td>
+													<a href="#;" class="link">inseq123inseq123</a>
+												</td>
+												<td>홍길동</td>
+												<td>솔루션사업부</td>
+												<td>시스템관리자</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-gray btn-lock">
+														<i class="ico ico-lock-white-sm"></i>
+														<span>계정잠그기</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>9</td>
+												<td>
+													<div class="thumb-preview"></div>
+												</td>
+												<td>
+													<a href="#;" class="link">inseq123inseq123</a>
+												</td>
+												<td>홍길동</td>
+												<td>솔루션사업부</td>
+												<td>시스템관리자</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-gray btn-lock">
+														<i class="ico ico-lock-white-sm"></i>
+														<span>계정잠그기</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>10</td>
+												<td>
+													<div class="thumb-preview">
+														<img src="/assets/neibis/images/_sample2.jpg" alt="" />
+													</div>
+												</td>
+												<td>
+													<a href="#;" class="link">inseq123inseq123</a>
+												</td>
+												<td>홍길동</td>
+												<td>솔루션사업부</td>
+												<td>시스템관리자</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-gray btn-lock">
+														<i class="ico ico-lock-white-sm"></i>
+														<span>계정잠그기</span>
+													</button>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+
+							<div class="pagination">
+								<a href="#;" class="direction first">처음</a>
+								<a href="#;" class="direction prev">이전</a>
+								<strong>1</strong>
+								<a href="#;">2</a>
+								<a href="#;">3</a>
+								<a href="#;">4</a>
+								<a href="#;">5</a>
+								<a href="#;" class="direction next">다음</a>
+								<a href="#;" class="direction last">끝</a>
+							</div>
+
+							<div class="btn-group-between">
+								<div class="right">
+									<a href="#;" class="btn btn-lg btn-primary">
+										<i class="ico ico-plus-white-md"></i>
+										<span>등록</span>
+									</a>
+								</div>
+							</div>
+						</div>
+
+						<h3 class="title1 text-primary mt-4 ml-md-4">목록형 템플릿</h3>
+						<div class="card">
+							<div class="list-control">
+								<div class="left">
+									<a href="#;" class="btn btn-icon btn-settings-xs">
+										<i class="ico ico-cog-darkgray-sm"></i>
+										<span class="sr-only">게시판 설정</span>
+									</a>
+									<p class="total">총 <strong class="text-primary">1</strong>건(1/1 page)</p>
+									<button type="button" class="btn btn-xs btn-outline-gray" data-deselect=".table-list">
+										선택해제
+									</button>
+									<button type="button" class="btn btn-xs btn-gray btn-delete">
+										<i class="ico ico-close-white-sm mr-0"></i> 선택삭제
+									</button>
+								</div>
+								<div class="right">
+									<a href="#;" class="btn btn-sm btn-xls mr-1" download>
+										<i class="ico ico-fileexcel-white-sm"></i>
+										<span>엑셀 다운로드</span>
+									</a>
+									<select class="form-control-sm" style="min-width: 100px" title="목록 수">
+										<option selected>10</option>
+										<option>20</option>
+										<option>50</option>
+										<option>100</option>
+									</select>
+									<button type="button" class="btn btn-sm btn-outline-gray ml-1">적용</button>
+								</div>
+							</div>
+
+							<div class="table table-list">
+								<div class="table-inner">
+									<table style="min-width: 1700px">
+										<caption class="sr-only">
+											검색결과 목록
+										</caption>
+										<thead>
+											<tr>
+												<th scope="col">
+													<label class="check-item">
+														<input type="checkbox" />
+														<span class="label sr-only">전체선택</span>
+													</label>
+												</th>
+												<th scope="col">번호</th>
+												<th scope="col">태그</th>
+												<th scope="col">썸네일</th>
+												<th scope="col">제목</th>
+												<th scope="col">성명</th>
+												<th scope="col">
+													<button type="button" class="table-align-btn">
+														<span class="table-title">등록일</span>
+														<span class="ico-wrap">
+															<i class="ico ico-table-updown-darkgary-sm"></i>
+															<span class="sr-only">오름차순/내림차순 정렬</span>
+														</span>
+													</button>
+												</th>
+												<th scope="col">다운로드</th>
+												<th scope="col">스위치</th>
+												<th scope="col">계정잠금여부</th>
+												<th scope="col">스위치 텍스트</th>
+												<th scope="col">미리보기</th>
+												<th scope="col">관리</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>
+													<label class="check-item">
+														<input type="checkbox" />
+														<span class="label sr-only">선택</span>
+													</label>
+												</td>
+												<td>
+													<i class="ico ico-notice-md"><span class="sr-only">공지</span></i>
+												</td>
+												<td>
+													<span class="label-status label-red">매우불만족</span>
+												</td>
+												<td>
+													<div class="thumb-preview"></div>
+												</td>
+												<td class="text-left">
+													<a href="템플릿-상세형.html" class="link"
+														>링크 텍스트 text link text링크 텍스트 text link text
+													</a>
+													<a href="#layer-sample-lg" data-modal="open" class="btn btn-xs btn-outline-gray ml-1">PC</a>
+													<a href="#layer-sample-sm" data-modal="open" class="btn btn-xs btn-outline-gray">Moblie</a>
+												</td>
+												<td>홍길동</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray" download>
+														<i class="ico ico-download-darkgray-sm"></i>
+														<span>다운로드</span>
+													</a>
+												</td>
+												<td>
+													<label class="check-switch">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">Y</span>
+															<span class="text-uncheck">N</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-primary-soft btn-lock">
+														<i class="ico ico-lock-primary-sm"></i>
+														<span>계정잠금해제</span>
+													</button>
+												</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>미리보기</span>
+													</a>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-gray btn-delete">
+														<i class="ico ico-trash-white-sm"></i>
+														<span>삭제</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<label class="check-item">
+														<input type="checkbox" />
+														<span class="label sr-only">선택</span>
+													</label>
+												</td>
+												<td>9</td>
+												<td>
+													<span class="label-status label-blue">배포</span>
+												</td>
+												<td>
+													<div class="thumb-preview">
+														<img src="/assets/neibis/images/_sample2.jpg" alt="" />
+													</div>
+												</td>
+												<td class="text-left">
+													<a href="#;" class="link" target="_blank" title="새창 열림">링크 텍스트 text link text</a>
+													<i class="ico ico-new-sm ml-1">N</i>
+												</td>
+												<td>홍길동</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray" download>
+														<i class="ico ico-download-darkgray-sm"></i>
+														<span>다운로드</span>
+													</a>
+												</td>
+												<td>
+													<label class="check-switch">
+														<input type="checkbox" disabled />
+														<span class="label">
+															<span class="text-checked">Y</span>
+															<span class="text-uncheck">N</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-gray btn-lock">
+														<i class="ico ico-lock-white-sm"></i>
+														<span>계정잠그기</span>
+													</button>
+												</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>미리보기</span>
+													</a>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify disabled">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-primary-soft">
+														<i class="ico ico-restore-primary-sm"></i>
+														<span>복원</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<label class="check-item">
+														<input type="checkbox" />
+														<span class="label sr-only">선택</span>
+													</label>
+												</td>
+												<td>8</td>
+												<td>
+													<span class="label-status label-orange">수정</span>
+												</td>
+												<td>
+													<!-- .vedio 클래스 추가 시 비디오 썸네일로 변경 -->
+													<div class="thumb-preview video">
+														<img src="/assets/neibis/images/_sample2.jpg" alt="" />
+													</div>
+												</td>
+												<td class="text-left">
+													<!-- 상세 테이블 있는 경우 아이콘 추가 -->
+													<a href="#;" class="link">상세 테이블 있는 경우 아이콘 추가</a>
+													<i class="ico ico-tabledb-gray-sm ml-2">상세 테이블</i>
+												</td>
+												<td>홍길동</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray" download>
+														<i class="ico ico-download-darkgray-sm"></i>
+														<span>다운로드</span>
+													</a>
+												</td>
+												<td>
+													<label class="check-switch">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">Y</span>
+															<span class="text-uncheck">N</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-primary-soft btn-lock">
+														<i class="ico ico-lock-primary-sm"></i>
+														<span>계정잠금해제</span>
+													</button>
+												</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>미리보기</span>
+													</a>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-gray btn-delete">
+														<i class="ico ico-trash-white-sm"></i>
+														<span>삭제</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<label class="check-item">
+														<input type="checkbox" />
+														<span class="label sr-only">선택</span>
+													</label>
+												</td>
+												<td>7</td>
+												<td>
+													<span class="label-status label-on">게시중</span>
+												</td>
+												<td>
+													<div class="thumb-preview">
+														<img src="/assets/neibis/images/_sample2.jpg" alt="" />
+													</div>
+												</td>
+												<td class="text-left">일반 텍스트 일반 텍스트 일반 텍스트</td>
+												<td>홍길동</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray" download>
+														<i class="ico ico-download-darkgray-sm"></i>
+														<span>다운로드</span>
+													</a>
+												</td>
+												<td>
+													<label class="check-switch">
+														<input type="checkbox" disabled />
+														<span class="label">
+															<span class="text-checked">Y</span>
+															<span class="text-uncheck">N</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-gray btn-lock">
+														<i class="ico ico-lock-white-sm"></i>
+														<span>계정잠그기</span>
+													</button>
+												</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>미리보기</span>
+													</a>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-gray btn-delete">
+														<i class="ico ico-trash-white-sm"></i>
+														<span>삭제</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<label class="check-item">
+														<input type="checkbox" />
+														<span class="label sr-only">선택</span>
+													</label>
+												</td>
+												<td>6</td>
+												<td>
+													<span class="label-status label-off">미게시</span>
+												</td>
+												<td>
+													<div class="thumb-preview">
+														<img src="/assets/neibis/images/_sample2.jpg" alt="" />
+													</div>
+												</td>
+												<td class="text-left">
+													<a href="#;" class="link">답글 추가 될 경우 답글 cell 배경색상 gray50</a>
+													<span class="comment-num"><i class="ico ico-comment-gray-sm">댓글</i><span>(9)</span></span>
+												</td>
+												<td>홍길동</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray" download>
+														<i class="ico ico-download-darkgray-sm"></i>
+														<span>다운로드</span>
+													</a>
+												</td>
+												<td>
+													<label class="check-switch">
+														<input type="checkbox" disabled />
+														<span class="label">
+															<span class="text-checked">Y</span>
+															<span class="text-uncheck">N</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-gray btn-lock">
+														<i class="ico ico-lock-white-sm"></i>
+														<span>계정잠그기</span>
+													</button>
+												</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>미리보기</span>
+													</a>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-gray btn-delete">
+														<i class="ico ico-trash-white-sm"></i>
+														<span>삭제</span>
+													</button>
+												</td>
+											</tr>
+											<!-- 답글의 경우 .list-replay class 추가 / depth에 따라 .depth2, .depth3 추가 -->
+											<tr class="list-replay">
+												<td>
+													<label class="check-item">
+														<input type="checkbox" />
+														<span class="label sr-only">선택</span>
+													</label>
+												</td>
+												<td>5</td>
+												<td>
+													<span class="label-status label-blue">복원</span>
+												</td>
+												<td>
+													<div class="thumb-preview">
+														<img src="/assets/neibis/images/_sample2.jpg" alt="" />
+													</div>
+												</td>
+												<td class="text-left">
+													<!-- 답글의 경우 타이틀에 .replay-title class 추가 -->
+													<a href="#;" class="link replay-title">답글 추가시 left padding 8px 추가</a>
+												</td>
+												<td>홍길동</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray" download>
+														<i class="ico ico-download-darkgray-sm"></i>
+														<span>다운로드</span>
+													</a>
+												</td>
+												<td>
+													<label class="check-switch">
+														<input type="checkbox" disabled />
+														<span class="label">
+															<span class="text-checked">Y</span>
+															<span class="text-uncheck">N</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-gray btn-lock">
+														<i class="ico ico-lock-white-sm"></i>
+														<span>계정잠그기</span>
+													</button>
+												</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>미리보기</span>
+													</a>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-gray btn-delete">
+														<i class="ico ico-trash-white-sm"></i>
+														<span>삭제</span>
+													</button>
+												</td>
+											</tr>
+											<!-- 답글의 경우 .list-replay class 추가 / depth에 따라 .depth2, .depth3 추가 -->
+											<tr class="list-replay depth2">
+												<td>
+													<label class="check-item">
+														<input type="checkbox" />
+														<span class="label sr-only">선택</span>
+													</label>
+												</td>
+												<td>4</td>
+												<td>
+													<span class="label-status label-red">삭제</span>
+												</td>
+												<td>
+													<div class="thumb-preview">
+														<img src="/assets/neibis/images/_sample2.jpg" alt="" />
+													</div>
+												</td>
+												<td class="text-left">
+													<!-- 답글의 경우 타이틀에 .replay-title class 추가 -->
+													<a href="#;" class="link replay-title">일반 텍스트 일반 텍스트 일반 텍스트</a>
+												</td>
+												<td>홍길동</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray" download>
+														<i class="ico ico-download-darkgray-sm"></i>
+														<span>다운로드</span>
+													</a>
+												</td>
+												<td>
+													<label class="check-switch">
+														<input type="checkbox" disabled />
+														<span class="label">
+															<span class="text-checked">Y</span>
+															<span class="text-uncheck">N</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-gray btn-lock">
+														<i class="ico ico-lock-white-sm"></i>
+														<span>계정잠그기</span>
+													</button>
+												</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>미리보기</span>
+													</a>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-gray btn-delete">
+														<i class="ico ico-trash-white-sm"></i>
+														<span>삭제</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<label class="check-item">
+														<input type="checkbox" />
+														<span class="label sr-only">선택</span>
+													</label>
+												</td>
+												<td>3</td>
+												<td>
+													<span class="label-status label-green">등록</span>
+												</td>
+												<td>
+													<div class="thumb-preview">
+														<img src="/assets/neibis/images/_sample2.jpg" alt="" />
+													</div>
+												</td>
+												<td class="text-left">일반 텍스트 일반 텍스트 일반 텍스트</td>
+												<td>홍길동</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray" download>
+														<i class="ico ico-download-darkgray-sm"></i>
+														<span>다운로드</span>
+													</a>
+												</td>
+												<td>
+													<label class="check-switch">
+														<input type="checkbox" disabled />
+														<span class="label">
+															<span class="text-checked">Y</span>
+															<span class="text-uncheck">N</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-gray btn-lock">
+														<i class="ico ico-lock-white-sm"></i>
+														<span>계정잠그기</span>
+													</button>
+												</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>미리보기</span>
+													</a>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-gray btn-delete">
+														<i class="ico ico-trash-white-sm"></i>
+														<span>삭제</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<label class="check-item">
+														<input type="checkbox" />
+														<span class="label sr-only">선택</span>
+													</label>
+												</td>
+												<td>2</td>
+												<td>
+													<span class="label-status label-violet">불만족</span>
+												</td>
+												<td>
+													<div class="thumb-preview">
+														<img src="/assets/neibis/images/_sample2.jpg" alt="" />
+													</div>
+												</td>
+												<td class="text-left"><s class="text-delete">삭제된 게시글 입니다.</s></td>
+												<td>홍길동</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray" download>
+														<i class="ico ico-download-darkgray-sm"></i>
+														<span>다운로드</span>
+													</a>
+												</td>
+												<td>
+													<label class="check-switch">
+														<input type="checkbox" disabled />
+														<span class="label">
+															<span class="text-checked">Y</span>
+															<span class="text-uncheck">N</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-gray btn-lock">
+														<i class="ico ico-lock-white-sm"></i>
+														<span>계정잠그기</span>
+													</button>
+												</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>미리보기</span>
+													</a>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-gray btn-delete">
+														<i class="ico ico-trash-white-sm"></i>
+														<span>삭제</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<label class="check-item">
+														<input type="checkbox" />
+														<span class="label sr-only">선택</span>
+													</label>
+												</td>
+												<td>1</td>
+												<td>
+													<span class="label-status label-blue">배포</span>
+												</td>
+												<td>
+													<div class="thumb-preview">
+														<img src="/assets/neibis/images/_sample2.jpg" alt="" />
+													</div>
+												</td>
+												<td class="text-left">일반 텍스트 일반 텍스트 일반 텍스트</td>
+												<td>홍길동</td>
+												<td>2023.01.29 12:31:54</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray" download>
+														<i class="ico ico-download-darkgray-sm"></i>
+														<span>다운로드</span>
+													</a>
+												</td>
+												<td>
+													<label class="check-switch">
+														<input type="checkbox" disabled />
+														<span class="label">
+															<span class="text-checked">Y</span>
+															<span class="text-uncheck">N</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<button type="button" class="btn btn-xs btn-gray btn-lock">
+														<i class="ico ico-lock-white-sm"></i>
+														<span>계정잠그기</span>
+													</button>
+												</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray">
+														<i class="ico ico-preview-gray-sm"></i>
+														<span>미리보기</span>
+													</a>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-gray btn-delete">
+														<i class="ico ico-trash-white-sm"></i>
+														<span>삭제</span>
+													</button>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+
+							<div class="pagination">
+								<a href="#;" class="direction first disabled">처음</a>
+								<a href="#;" class="direction prev disabled">이전</a>
+								<strong>1</strong>
+								<a href="#;">2</a>
+								<a href="#;">3</a>
+								<a href="#;">4</a>
+								<a href="#;">5</a>
+								<a href="#;" class="direction next">다음</a>
+								<a href="#;" class="direction last">끝</a>
+							</div>
+
+							<div class="btn-group-between">
+								<div class="right">
+									<a href="#;" class="btn btn-lg btn-primary">
+										<i class="ico ico-plus-white-md"></i>
+										<span>등록</span>
+									</a>
+								</div>
+							</div>
+						</div>
+
+						<h3 class="title1 text-primary mt-4 ml-md-4">검색 전</h3>
+						<div class="card">
+							<div class="search-before"><p>데이터를 검색해보세요</p></div>
+						</div>
+
+						<h3 class="title1 text-primary mt-4 ml-md-4">검색결과 없을 때</h3>
+						<div class="card">
+							<div class="nodata-area"><p>데이터가 없어요</p></div>
+						</div>
+
+						<h3 class="title1 text-primary mt-4 ml-md-4">차트 데이터가 없을 때</h3>
+						<div class="card">
+							<div class="chart-nodata-area">
+								<p>
+									아직 데이터를 수집하고 있어요.<br />
+									비교 차트는 2개 이상의 데이터가 필요해요.
+								</p>
+							</div>
+						</div>
+
+						<!-- 상단 고정 액션 버튼 -->
+						<div class="btn-group-fixed">
+							<a href="#;" class="btn btn-lg btn-outline-gray">
+								<i class="ico ico-preview-gray-md"></i>
+								<span>미리보기</span>
+							</a>
+							<a href="템플릿-등록수정형.html" class="btn btn-lg btn-primary">
+								<i class="ico ico-save-white-md"></i>
+								<span>저장</span>
+							</a>
+						</div>
+
+						<!-- Modal Popup : .modal-lg  -->
+						<div class="modal-popup modal-lg hide" id="layer-sample-lg">
+							<div class="dimed"></div>
+							<div class="popup-inner">
+								<div class="popup-header">
+									<h2 class="popup-title">프로모션 이미지 보기</h2>
+								</div>
+								<div class="popup-body">
+									<div class="scroll-inner">
+										<div class="promotion-img">
+											<!-- 프로모션 이미지 영역 -->
+											<img src="/assets/neibis/images/_sample.jpg" alt="프로모션 이미지 영역" class="image" />
+										</div>
+									</div>
+								</div>
+								<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+							</div>
+						</div>
+
+						<!-- Modal Popup : .modal-sm -->
+						<div class="modal-popup modal-sm hide" id="layer-sample-sm">
+							<div class="dimed"></div>
+							<div class="popup-inner">
+								<div class="popup-header">
+									<h2 class="popup-title">프로모션 이미지 보기</h2>
+								</div>
+								<div class="popup-body">
+									<div class="scroll-inner">
+										<div class="promotion-img">
+											<!-- 프로모션 이미지 영역 -->
+											<img src="/assets/neibis/images/_sample.jpg" alt="프로모션 이미지 영역" class="image" />
+										</div>
+									</div>
+								</div>
+								<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+							</div>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

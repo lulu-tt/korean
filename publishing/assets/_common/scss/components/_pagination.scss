@@ -1,0 +1,86 @@
+// KRDS 접근성 패턴: <nav aria-label> + <ul>/<li>, 이전 → 숫자 링크 목록 → 다음 순서,
+// 현재 페이지는 aria-current="true" 부여 + href 제거.
+
+.pagination {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: $spacing-2;
+	max-width: 100%;
+	margin-top: $spacing-10;
+
+	@include mq-down(md) {
+		flex-wrap: wrap;
+		row-gap: $spacing-2;
+		margin-top: $spacing-4;
+	}
+}
+
+.pagination-list {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: $spacing-2;
+
+	@include mq-down(md) {
+		order: 1;
+		flex-basis: 100%;
+	}
+}
+
+.pagination-link,
+.pagination-nav {
+	display: flex;
+	flex: 0 0 auto;
+	align-items: center;
+	justify-content: center;
+	min-width: 4rem;
+	height: 4rem;
+	color: $text-subtle;
+	border-radius: 0.6rem;
+	line-height: 1.4rem;
+
+	&:hover,
+	&:focus-visible {
+		background-color: $bg-gray-subtler;
+	}
+}
+
+.pagination-link {
+	&.active {
+		font-weight: $font-weight-bold;
+		color: $text-primary;
+		background-color: #e4ecff;
+	}
+}
+
+.pagination-nav {
+	&.disabled {
+		color: $text-disabled;
+		pointer-events: none;
+
+		.ico-arrow-darkgray {
+			background-image: url(#{$icon-path}/ico_arrow_lightgray.svg);
+		}
+	}
+
+	&.prev {
+		padding-inline: $spacing-1 $spacing-2;
+	}
+	&.next {
+		padding-inline: $spacing-2 $spacing-1;
+	}
+}
+
+.link-dot {
+	display: flex;
+	flex: 0 0 auto;
+	align-items: center;
+	justify-content: center;
+	min-width: 4rem;
+	height: 4rem;
+	background-image: url("#{$icon-path}/ico_ellipsis.svg");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 2.4rem;
+}

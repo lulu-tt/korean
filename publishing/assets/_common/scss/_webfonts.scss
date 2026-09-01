@@ -1,0 +1,29 @@
+// Pretendard GOV — 폰트 파일은 라이선스 확인 후 별도로 assets/_common/fonts/에 배치할 것
+// (krds-uiux 패키지 리소스 그대로 복사 금지). 준비 전까지는 시스템 폴백으로 렌더링됨.
+
+@font-face {
+	font-family: "Pretendard GOV";
+	font-weight: $font-weight-regular;
+	font-style: normal;
+	font-display: swap;
+	src: url("../fonts/PretendardGOV-Regular.subset.woff2") format("woff2"),
+		url("../fonts/PretendardGOV-Regular.subset.woff") format("woff");
+}
+
+@font-face {
+	font-family: "Pretendard GOV";
+	font-weight: $font-weight-medium;
+	font-style: normal;
+	font-display: swap;
+	src: url("../fonts/PretendardGOV-Medium.subset.woff2") format("woff2"),
+		url("../fonts/PretendardGOV-Medium.subset.woff") format("woff");
+}
+
+@font-face {
+	font-family: "Pretendard GOV";
+	font-weight: $font-weight-bold;
+	font-style: normal;
+	font-display: swap;
+	src: url("../fonts/PretendardGOV-Bold.subset.woff2") format("woff2"),
+		url("../fonts/PretendardGOV-Bold.subset.woff") format("woff");
+}

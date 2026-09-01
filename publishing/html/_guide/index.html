@@ -1,0 +1,2891 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>컴포넌트 가이드 (작업 참고용)</title>
+
+		<!-- CSS -->
+		<link rel="stylesheet" href="../../assets/ko/css/style.css" />
+		<link rel="stylesheet" href="../../assets/_guide/css/guide.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/_common/js/ui-global.js" defer></script>
+
+		<!-- TODO : 퍼블용 JS, 개발시 반영 금지 -->
+		<script src="../../assets/_guide/js/ui-include.js" defer></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {
+				// 이곳에 정의
+			});
+		</script>
+	</head>
+	<body>
+		<div class="wrap">
+			<div id="container" class="container">
+				<div class="inner" id="contents">
+					<h1 class="content-title" style="margin-bottom: 0.8rem">컴포넌트 가이드</h1>
+					<p class="guide-desc">
+						작업 참고용 — 실제 페이지에는 포함하지 않는다. 클래스는 전부 <code>_common/scss/components/</code> 기준.
+					</p>
+
+					<div class="guide-layout">
+						<button type="button" class="guide-lnb-toggle" aria-expanded="false" aria-controls="guide-lnb">
+							<span class="guide-lnb-toggle-bar" aria-hidden="true"></span>
+							<span class="sr-only">목차 보기</span>
+						</button>
+						<div class="guide-lnb-backdrop"></div>
+
+						<nav class="guide-lnb" id="guide-lnb" aria-label="가이드 목차">
+							<div class="guide-lnb-head">
+								<strong>목차</strong>
+								<button type="button" class="guide-lnb-close" aria-label="목차 닫기">닫기</button>
+							</div>
+							<ul class="guide-lnb-list">
+								<li class="guide-lnb-group">컴포넌트</li>
+								<li><a href="#guide-icon">아이콘</a></li>
+								<li><a href="#guide-colors">색상</a></li>
+								<li><a href="#guide-spacing">스페이싱</a></li>
+								<li><a href="#guide-breadcrumb">브레드크럼</a></li>
+								<li><a href="#guide-button">버튼</a></li>
+								<li><a href="#guide-button-text">버튼 (텍스트)</a></li>
+								<li><a href="#guide-tooltip">툴팁</a></li>
+								<li><a href="#guide-tooltip-btn">안내 툴팁 버튼</a></li>
+								<li><a href="#guide-badge">배지</a></li>
+								<li><a href="#guide-list">리스트 (불릿)</a></li>
+								<li><a href="#guide-input">텍스트 인풋</a></li>
+								<li><a href="#guide-select">셀렉트</a></li>
+								<li><a href="#guide-input-group">인풋 그룹</a></li>
+								<li><a href="#guide-file-attach">첨부파일</a></li>
+								<li><a href="#guide-captcha">보안문자</a></li>
+								<li><a href="#guide-form">폼 공통</a></li>
+								<li><a href="#guide-content-header">콘텐츠 헤더 (제목/액션)</a></li>
+								<li><a href="#guide-list-bar">리스트 바 (검색)</a></li>
+								<li><a href="#guide-list-table">테이블 (목록)</a></li>
+								<li><a href="#guide-row-table">테이블 (작성)</a></li>
+								<li><a href="#guide-pagination">페이지네이션</a></li>
+								<li><a href="#guide-page-top-button">페이지 상단 이동</a></li>
+								<li><a href="#guide-modal">모달</a></li>
+								<li><a href="#guide-alert-confirm">얼럿 / 컨펌</a></li>
+								<li><a href="#guide-tabs">탭</a></li>
+								<li><a href="#guide-accordion">아코디언</a></li>
+								<li><a href="#guide-toggle">콘텐츠 토글 (Toggle)</a></li>
+								<li><a href="#guide-search-panel">검색 패널</a></li>
+								<li><a href="#guide-media-list">미디어 리스트</a></li>
+
+								<li class="guide-lnb-group">레이아웃</li>
+								<li>
+									<a href="../ko/_template/게시판-목록-일반형.html" target="_blank">서브 : 게시판 : 목록</a>
+								</li>
+								<li>
+									<a href="../ko/_template/게시판-상세-일반형.html" target="_blank">서브 : 게시판 : 상세</a>
+								</li>
+							</ul>
+						</nav>
+
+						<div class="guide-content">
+							<!-- ============================================================ -->
+							<!-- 아이콘 -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-icon">
+								<h2 class="guide-title">아이콘 (Icon)</h2>
+								<p class="guide-desc">
+									<code>&lt;i class="svg-icon ico-*"&gt;&lt;/i&gt;</code> 형태로 사용한다. background-image 방식이며
+									mask/색상 제어는 하지 않는다 — 색이 다른 아이콘이 필요하면 전용 svg 파일을 추가하고
+									<code>$svg-icon-map</code>에 등록한다.
+								</p>
+
+								<h3 class="guide-subtitle">크기 (기본값 = lg)</h3>
+								<div class="guide-row">
+									<div class="guide-swatch">
+										<i class="svg-icon ico-share ico-xs" aria-hidden="true"></i>
+										<code>ico-xs (1.4rem)</code>
+									</div>
+									<div class="guide-swatch">
+										<i class="svg-icon ico-share ico-sm" aria-hidden="true"></i>
+										<code>ico-sm (1.6rem)</code>
+									</div>
+									<div class="guide-swatch">
+										<i class="svg-icon ico-share ico-md" aria-hidden="true"></i>
+										<code>ico-md (1.8rem)</code>
+									</div>
+									<div class="guide-swatch">
+										<i class="svg-icon ico-share ico-lg" aria-hidden="true"></i>
+										<code>ico-lg (2rem, 기본)</code>
+									</div>
+									<div class="guide-swatch">
+										<i class="svg-icon ico-share ico-xl" aria-hidden="true"></i>
+										<code>ico-xl (2.4rem)</code>
+									</div>
+								</div>
+
+								<h3 class="guide-subtitle">방향 회전 / 비활성 (ico-angle 예시)</h3>
+								<div class="guide-row">
+									<div class="guide-swatch">
+										<i class="svg-icon ico-angle ico-lg" aria-hidden="true"></i>
+										<code>기본(down)</code>
+									</div>
+									<div class="guide-swatch">
+										<i class="svg-icon ico-angle ico-lg ico-up" aria-hidden="true"></i>
+										<code>ico-up</code>
+									</div>
+									<div class="guide-swatch">
+										<i class="svg-icon ico-angle ico-lg ico-left" aria-hidden="true"></i>
+										<code>ico-left</code>
+									</div>
+									<div class="guide-swatch">
+										<i class="svg-icon ico-angle ico-lg ico-right" aria-hidden="true"></i>
+										<code>ico-right</code>
+									</div>
+									<div class="guide-swatch">
+										<i class="svg-icon ico-angle ico-lg ico-disabled" aria-hidden="true"></i>
+										<code>ico-disabled<br />(전용 svg로 교체)</code>
+									</div>
+								</div>
+
+								<h3 class="guide-subtitle">어두운 배경 위 반전 (page-top-button 패턴)</h3>
+								<div class="guide-row">
+									<div class="guide-swatch">
+										<span class="guide-dark">
+											<i
+												class="svg-icon ico-go-top ico-lg"
+												style="filter: brightness(0) invert(1)"
+												aria-hidden="true"
+											></i>
+										</span>
+										<code>filter: brightness(0) invert(1)</code>
+									</div>
+								</div>
+
+								<details class="icon-grid-details">
+									<summary class="guide-subtitle">전체 아이콘 목록 (ico-*) — 펼쳐보기</summary>
+									<p class="guide-desc icon-grid-mobile-note">전체 아이콘 목록은 PC 화면에서 확인해주세요.</p>
+									<div class="icon-grid">
+										<div class="icon-cell">
+											<i class="svg-icon ico-all" aria-hidden="true"></i>
+											<code>ico-all</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-angle" aria-hidden="true"></i>
+											<code>ico-angle</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-arrow-dropdown" aria-hidden="true"></i>
+											<code>ico-arrow-dropdown</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-blog" aria-hidden="true"></i>
+											<code>ico-blog</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-bread-home" aria-hidden="true"></i>
+											<code>ico-bread-home</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-calendar" aria-hidden="true"></i>
+											<code>ico-calendar</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-call" aria-hidden="true"></i>
+											<code>ico-call</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-checkbox-checked" aria-hidden="true"></i>
+											<code>ico-checkbox-checked</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-close" aria-hidden="true"></i>
+											<code>ico-close</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-complete-fill" aria-hidden="true"></i>
+											<code>ico-complete-fill</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-delete" aria-hidden="true"></i>
+											<code>ico-delete</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-delete-fill" aria-hidden="true"></i>
+											<code>ico-delete-fill</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-download" aria-hidden="true"></i>
+											<code>ico-download</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-ellipsis" aria-hidden="true"></i>
+											<code>ico-ellipsis</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-email" aria-hidden="true"></i>
+											<code>ico-email</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-error-fill" aria-hidden="true"></i>
+											<code>ico-error-fill</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-expand" aria-hidden="true"></i>
+											<code>ico-expand</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-facebook" aria-hidden="true"></i>
+											<code>ico-facebook</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-faq" aria-hidden="true"></i>
+											<code>ico-faq</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-file" aria-hidden="true"></i>
+											<code>ico-file</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-file-figma" aria-hidden="true"></i>
+											<code>ico-file-figma</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-file-html" aria-hidden="true"></i>
+											<code>ico-file-html</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-file-hwp" aria-hidden="true"></i>
+											<code>ico-file-hwp</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-file-pdf" aria-hidden="true"></i>
+											<code>ico-file-pdf</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-file-sketch" aria-hidden="true"></i>
+											<code>ico-file-sketch</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-file-xd" aria-hidden="true"></i>
+											<code>ico-file-xd</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-filter" aria-hidden="true"></i>
+											<code>ico-filter</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-flag" aria-hidden="true"></i>
+											<code>ico-flag</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-flow-arrow" aria-hidden="true"></i>
+											<code>ico-flow-arrow</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-foldable" aria-hidden="true"></i>
+											<code>ico-foldable</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-global" aria-hidden="true"></i>
+											<code>ico-global</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-go" aria-hidden="true"></i>
+											<code>ico-go</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-go-top" aria-hidden="true"></i>
+											<code>ico-go-top</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-help" aria-hidden="true"></i>
+											<code>ico-help</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-help-fill" aria-hidden="true"></i>
+											<code>ico-help-fill</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-information" aria-hidden="true"></i>
+											<code>ico-information</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-information-fill" aria-hidden="true"></i>
+											<code>ico-information-fill</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-instagram" aria-hidden="true"></i>
+											<code>ico-instagram</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-join" aria-hidden="true"></i>
+											<code>ico-join</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-like" aria-hidden="true"></i>
+											<code>ico-like</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-login" aria-hidden="true"></i>
+											<code>ico-login</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-login-certify-go" aria-hidden="true"></i>
+											<code>ico-login-certify-go</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-login-certify-type-01" aria-hidden="true"></i>
+											<code>ico-login-certify-type-01</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-login-certify-type-02" aria-hidden="true"></i>
+											<code>ico-login-certify-type-02</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-login-certify-type-03" aria-hidden="true"></i>
+											<code>ico-login-certify-type-03</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-login-certify-type-04" aria-hidden="true"></i>
+											<code>ico-login-certify-type-04</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-login-certify-type-05" aria-hidden="true"></i>
+											<code>ico-login-certify-type-05</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-login-certify-type-06" aria-hidden="true"></i>
+											<code>ico-login-certify-type-06</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-logo-krds" aria-hidden="true"></i>
+											<code>ico-logo-krds</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-logout" aria-hidden="true"></i>
+											<code>ico-logout</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-more" aria-hidden="true"></i>
+											<code>ico-more</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-my" aria-hidden="true"></i>
+											<code>ico-my</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-notice-fill" aria-hidden="true"></i>
+											<code>ico-notice-fill</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-notice-fill-blue" aria-hidden="true"></i>
+											<code>ico-notice-fill-blue</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-plus" aria-hidden="true"></i>
+											<code>ico-plus</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-print" aria-hidden="true"></i>
+											<code>ico-print</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-pw-visible-off" aria-hidden="true"></i>
+											<code>ico-pw-visible-off</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-pw-visible-on" aria-hidden="true"></i>
+											<code>ico-pw-visible-on</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-reset" aria-hidden="true"></i>
+											<code>ico-reset</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-sch" aria-hidden="true"></i>
+											<code>ico-sch</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-sch-plus" aria-hidden="true"></i>
+											<code>ico-sch-plus</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-scrap" aria-hidden="true"></i>
+											<code>ico-scrap</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-setting" aria-hidden="true"></i>
+											<code>ico-setting</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-share" aria-hidden="true"></i>
+											<code>ico-share</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-sns-x" aria-hidden="true"></i>
+											<code>ico-sns-x</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-step-done" aria-hidden="true"></i>
+											<code>ico-step-done</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-success-fill" aria-hidden="true"></i>
+											<code>ico-success-fill</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-swiper-play" aria-hidden="true"></i>
+											<code>ico-swiper-play</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-swiper-stop" aria-hidden="true"></i>
+											<code>ico-swiper-stop</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-switch-off" aria-hidden="true"></i>
+											<code>ico-switch-off</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-switch-on" aria-hidden="true"></i>
+											<code>ico-switch-on</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-tooltip" aria-hidden="true"></i>
+											<code>ico-tooltip</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-upload" aria-hidden="true"></i>
+											<code>ico-upload</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-urgent-badge-danger" aria-hidden="true"></i>
+											<code>ico-urgent-badge-danger</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-urgent-badge-info" aria-hidden="true"></i>
+											<code>ico-urgent-badge-info</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-urgent-badge-ok" aria-hidden="true"></i>
+											<code>ico-urgent-badge-ok</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-view-mode" aria-hidden="true"></i>
+											<code>ico-view-mode</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-warning-fill" aria-hidden="true"></i>
+											<code>ico-warning-fill</code>
+										</div>
+										<div class="icon-cell">
+											<i class="svg-icon ico-youtube" aria-hidden="true"></i>
+											<code>ico-youtube</code>
+										</div>
+									</div>
+								</details>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 색상 -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-colors">
+								<h2 class="guide-title">색상 (Color 유틸리티)</h2>
+								<p class="guide-desc">
+									<code>utilities/_colors.scss</code>에서 생성된다. <code>_variables.scss</code>의 시맨틱 토큰(
+									<code>$text-*</code> / <code>$bg-*</code> / <code>$border-*</code>)을 그대로 클래스명에 매핑하므로,
+									팔레트가 바뀌어도 여기서 새로 만들 클래스는 없다.
+								</p>
+
+								<h3 class="guide-subtitle"><span class="guide-tag">Text</span> <code>.text-*</code> — 글자색</h3>
+								<div class="color-grid">
+									<div class="color-chip">
+										<div class="color-chip-swatch"><span class="text-bolder">Aa</span></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.text-bolder</code>
+											<code class="color-chip-hex">#131416</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch"><span class="text-basic">Aa</span></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.text-basic</code>
+											<code class="color-chip-hex">#1e2124</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch"><span class="text-subtle">Aa</span></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.text-subtle</code>
+											<code class="color-chip-hex">#464c53</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch"><span class="text-disabled">Aa</span></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.text-disabled</code>
+											<code class="color-chip-hex">#8a949e</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch"><span class="text-primary">Aa</span></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.text-primary</code>
+											<code class="color-chip-hex">#256ef4</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch"><span class="text-primary-dark">Aa</span></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.text-primary-dark</code>
+											<code class="color-chip-hex">#0b50d0</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch"><span class="text-danger">Aa</span></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.text-danger</code>
+											<code class="color-chip-hex">#de3412</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch"><span class="text-warning">Aa</span></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.text-warning</code>
+											<code class="color-chip-hex">#9e6a00</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch"><span class="text-success">Aa</span></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.text-success</code>
+											<code class="color-chip-hex">#228738</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch"><span class="text-information">Aa</span></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.text-information</code>
+											<code class="color-chip-hex">#0b78cb</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch is-bg-chip bg-inverse">
+											<span class="text-inverse">Aa</span>
+										</div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.text-inverse</code>
+											<code class="color-chip-hex">#ffffff</code>
+										</div>
+									</div>
+								</div>
+
+								<h3 class="guide-subtitle"><span class="guide-tag">Background</span> <code>.bg-*</code> — 배경색</h3>
+								<div class="color-grid">
+									<div class="color-chip">
+										<div class="color-chip-swatch is-bg-chip bg-white" style="border: 1px solid #e6e8ea"></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.bg-white</code>
+											<code class="color-chip-hex">#ffffff</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch is-bg-chip bg-inverse"></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.bg-inverse</code>
+											<code class="color-chip-hex">#1e2124</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch is-bg-chip bg-gray-subtler"></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.bg-gray-subtler</code>
+											<code class="color-chip-hex">#f4f5f6</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch is-bg-chip bg-gray-subtle"></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.bg-gray-subtle</code>
+											<code class="color-chip-hex">#e6e8ea</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch is-bg-chip bg-primary-subtler"></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.bg-primary-subtler</code>
+											<code class="color-chip-hex">#ecf2fe</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch is-bg-chip bg-danger-subtle"></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.bg-danger-subtle</code>
+											<code class="color-chip-hex">#fdefec</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch is-bg-chip bg-warning-subtle"></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.bg-warning-subtle</code>
+											<code class="color-chip-hex">#fff3db</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch is-bg-chip bg-success-subtle"></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.bg-success-subtle</code>
+											<code class="color-chip-hex">#eaf6ec</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch is-bg-chip bg-info-subtle"></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.bg-info-subtle</code>
+											<code class="color-chip-hex">#e7f4fe</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch is-bg-chip bg-point-subtle"></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.bg-point-subtle</code>
+											<code class="color-chip-hex">#fceaee</code>
+										</div>
+									</div>
+								</div>
+
+								<h3 class="guide-subtitle">
+									<span class="guide-tag">Border</span> <code>.border-*</code> — 보더색 (색상만 지정, 두께/스타일은 별도
+									필요)
+								</h3>
+								<div class="color-grid">
+									<div class="color-chip">
+										<div class="color-chip-swatch is-border-chip border-gray-light"></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.border-gray-light</code>
+											<code class="color-chip-hex">#cdd1d5</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch is-border-chip border-gray"></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.border-gray</code>
+											<code class="color-chip-hex">#b1b8be</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch is-border-chip border-gray-dark"></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.border-gray-dark</code>
+											<code class="color-chip-hex">#58616a</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch is-border-chip border-primary"></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.border-primary</code>
+											<code class="color-chip-hex">#256ef4</code>
+										</div>
+									</div>
+									<div class="color-chip">
+										<div class="color-chip-swatch is-border-chip border-primary-light"></div>
+										<div class="color-chip-meta">
+											<code class="color-chip-name">.border-primary-light</code>
+											<code class="color-chip-hex">#d8e5fd</code>
+										</div>
+									</div>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 스페이싱 -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-spacing">
+								<h2 class="guide-title">스페이싱 (Margin / Padding 유틸리티)</h2>
+								<p class="guide-desc">
+									<code>utilities/_spacing.scss</code>에서 생성된다. 클래스명은
+									<code>{속성}{방향}-{숫자}</code> 조합이다.
+								</p>
+								<dl class="spacing-key">
+									<div>
+										<dt>속성</dt>
+										<dd><code>m</code> margin · <code>p</code> padding</dd>
+									</div>
+									<div>
+										<dt>방향</dt>
+										<dd>
+											생략(4방향 전체) · <code>t</code> top · <code>b</code> bottom · <code>l</code> left ·
+											<code>r</code> right
+										</dd>
+									</div>
+									<div>
+										<dt>숫자</dt>
+										<dd>
+											<code>0</code>~<code>10</code>, <code>$spacing-{숫자}</code> 토큰과 1:1 대응 (예:
+											<code>.pt-4</code> = <code>padding-top: $spacing-4</code>, 16px)
+										</dd>
+									</div>
+								</dl>
+
+								<h3 class="guide-subtitle">숫자 스케일 (0~10 → px)</h3>
+								<div class="spacing-scale">
+									<div class="spacing-scale-row">
+										<span class="spacing-scale-label">0</span>
+										<span class="spacing-scale-bar" style="width: 1px"></span>
+										<span class="spacing-scale-px">0px</span>
+									</div>
+									<div class="spacing-scale-row">
+										<span class="spacing-scale-label">1</span>
+										<span class="spacing-scale-bar" style="width: 4px"></span>
+										<span class="spacing-scale-px">4px</span>
+									</div>
+									<div class="spacing-scale-row">
+										<span class="spacing-scale-label">2</span>
+										<span class="spacing-scale-bar" style="width: 8px"></span>
+										<span class="spacing-scale-px">8px</span>
+									</div>
+									<div class="spacing-scale-row">
+										<span class="spacing-scale-label">3</span>
+										<span class="spacing-scale-bar" style="width: 12px"></span>
+										<span class="spacing-scale-px">12px</span>
+									</div>
+									<div class="spacing-scale-row">
+										<span class="spacing-scale-label">4</span>
+										<span class="spacing-scale-bar" style="width: 16px"></span>
+										<span class="spacing-scale-px">16px</span>
+									</div>
+									<div class="spacing-scale-row">
+										<span class="spacing-scale-label">5</span>
+										<span class="spacing-scale-bar" style="width: 20px"></span>
+										<span class="spacing-scale-px">20px</span>
+									</div>
+									<div class="spacing-scale-row">
+										<span class="spacing-scale-label">6</span>
+										<span class="spacing-scale-bar" style="width: 24px"></span>
+										<span class="spacing-scale-px">24px</span>
+									</div>
+									<div class="spacing-scale-row">
+										<span class="spacing-scale-label">7</span>
+										<span class="spacing-scale-bar" style="width: 28px"></span>
+										<span class="spacing-scale-px">28px</span>
+									</div>
+									<div class="spacing-scale-row">
+										<span class="spacing-scale-label">8</span>
+										<span class="spacing-scale-bar" style="width: 32px"></span>
+										<span class="spacing-scale-px">32px</span>
+									</div>
+									<div class="spacing-scale-row">
+										<span class="spacing-scale-label">9</span>
+										<span class="spacing-scale-bar" style="width: 36px"></span>
+										<span class="spacing-scale-px">36px</span>
+									</div>
+									<div class="spacing-scale-row">
+										<span class="spacing-scale-label">10</span>
+										<span class="spacing-scale-bar" style="width: 40px"></span>
+										<span class="spacing-scale-px">40px</span>
+									</div>
+								</div>
+
+								<h3 class="guide-subtitle">Padding / Margin / 방향</h3>
+								<div class="guide-row">
+									<div class="guide-swatch">
+										<div class="spacing-demo-box p-2"><div class="spacing-demo-fill"></div></div>
+										<code>.p-2</code>
+									</div>
+									<div class="guide-swatch">
+										<div class="spacing-demo-box p-4"><div class="spacing-demo-fill"></div></div>
+										<code>.p-4</code>
+									</div>
+									<div class="guide-swatch">
+										<div class="spacing-demo-box p-8"><div class="spacing-demo-fill"></div></div>
+										<code>.p-8</code>
+									</div>
+									<div class="guide-swatch">
+										<div class="spacing-demo-row">
+											<div class="spacing-demo-fill mr-2"></div>
+											<div class="spacing-demo-fill"></div>
+										</div>
+										<code>.mr-2</code>
+									</div>
+									<div class="guide-swatch">
+										<div class="spacing-demo-row">
+											<div class="spacing-demo-fill mr-4"></div>
+											<div class="spacing-demo-fill"></div>
+										</div>
+										<code>.mr-4</code>
+									</div>
+									<div class="guide-swatch">
+										<div class="spacing-demo-row">
+											<div class="spacing-demo-fill mr-8"></div>
+											<div class="spacing-demo-fill"></div>
+										</div>
+										<code>.mr-8</code>
+									</div>
+									<div class="guide-swatch">
+										<div class="spacing-demo-box pt-6"><div class="spacing-demo-fill"></div></div>
+										<code>.pt-6</code>
+									</div>
+									<div class="guide-swatch">
+										<div class="spacing-demo-box pl-6"><div class="spacing-demo-fill"></div></div>
+										<code>.pl-6</code>
+									</div>
+								</div>
+
+								<h3 class="guide-subtitle"><span class="guide-tag">반응형</span> -lg(데스크톱) / -md(태블릿·모바일)</h3>
+								<p class="guide-desc">
+									기본 클래스 뒤에 <code>-lg</code>(1280px 이상) / <code>-md</code>(1280px 미만)가 덮어쓴다. 아래 박스는
+									<code>class="p-2 p-lg-8"</code> — 창 폭을 1280px 기준으로 조절해서 확인.
+								</p>
+								<div class="guide-row">
+									<div class="guide-swatch">
+										<div class="spacing-demo-box p-2 p-lg-8"><div class="spacing-demo-fill"></div></div>
+										<code>.p-2 .p-lg-8</code>
+									</div>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 브레드크럼 -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-breadcrumb">
+								<h2 class="guide-title">브레드크럼 (Breadcrumb)</h2>
+								<p class="guide-desc">
+									현재 위치를 안내한다. <code>layout/_breadcrumb.scss</code>에 정의돼 있다 (컴포넌트가 아닌 레이아웃
+									요소로 분류).
+								</p>
+								<nav class="breadcrumb" aria-label="현재 위치">
+									<ol class="breadcrumb-list">
+										<li class="breadcrumb-item home">
+											<a href="#;"><i class="svg-icon ico-bread-home ico-sm" aria-hidden="true"></i>홈</a>
+										</li>
+										<li class="breadcrumb-item"><a href="#;">알림마당</a></li>
+										<li class="breadcrumb-item"><a href="#;">공지사항</a></li>
+									</ol>
+								</nav>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 버튼 -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-button">
+								<h2 class="guide-title">버튼 (Button)</h2>
+
+								<h3 class="guide-subtitle">
+									<span class="guide-tag">Type</span> 사용자 과업, 플로우의 중요도에 따라 버튼 간 위계를 구분하여
+									사용한다.
+								</h3>
+								<div class="guide-row">
+									<button type="button" class="btn btn-primary">primary</button>
+									<button type="button" class="btn btn-secondary">secondary</button>
+									<button type="button" class="btn btn-tertiary">tertiary</button>
+									<button type="button" class="btn btn-outline-gray">outline-gray</button>
+									<button type="button" class="btn btn-gray">gray</button>
+									<button type="button" class="btn btn-red">red</button>
+								</div>
+
+								<h3 class="guide-subtitle">
+									<span class="guide-tag">Size</span> 콘텐츠 내에서 적합한 계층을 가진 크기로 사용한다.
+								</h3>
+								<div class="guide-row">
+									<button type="button" class="btn btn-primary btn-xxxl">xxxlarge</button>
+									<button type="button" class="btn btn-primary btn-xxl">xxlarge</button>
+									<button type="button" class="btn btn-primary btn-xl">xlarge</button>
+									<button type="button" class="btn btn-primary btn-lg">large</button>
+									<button type="button" class="btn btn-primary btn-md">medium</button>
+									<button type="button" class="btn btn-primary btn-sm">small</button>
+									<button type="button" class="btn btn-primary btn-xs">xsmall</button>
+								</div>
+
+								<h3 class="guide-subtitle">
+									<span class="guide-tag">State</span> 사용자의 상호작용 시 컬러가 변경된다 (실제로 마우스를 올리거나
+									눌러서 확인).
+								</h3>
+								<div class="guide-row">
+									<button type="button" class="btn btn-primary">default / hover / pressed</button>
+									<button type="button" class="btn btn-primary" disabled>disabled</button>
+								</div>
+
+								<h3 class="guide-subtitle">
+									<span class="guide-tag">Icon</span> 버튼 내에 시각적인 상징이 필요하다면 사용한다. 아이콘을 텍스트
+									앞/뒤 어디에 두느냐로 left/right가 정해진다.
+								</h3>
+								<div class="guide-row">
+									<button type="button" class="btn btn-primary">
+										<i class="svg-icon ico-download ico-sm" aria-hidden="true"></i>
+										left icon
+									</button>
+									<button type="button" class="btn btn-primary">
+										right icon
+										<i class="svg-icon ico-angle ico-sm ico-right" aria-hidden="true"></i>
+									</button>
+									<button type="button" class="btn btn-primary">
+										<i class="svg-icon ico-download ico-sm" aria-hidden="true"></i>
+										both icon
+										<i class="svg-icon ico-angle ico-sm ico-right" aria-hidden="true"></i>
+									</button>
+								</div>
+
+								<h3 class="guide-subtitle">아이콘 전용 버튼 (btn-icon)</h3>
+								<p class="guide-desc" style="margin-bottom: 0.8rem">
+									아이콘 자체는 색을 바꾸지 않으므로(원본 svg 색 그대로), primary에서만 흰색으로 자동 반전된다.
+								</p>
+								<div class="guide-row">
+									<button type="button" class="btn btn-icon btn-tertiary" aria-label="공유">
+										<i class="svg-icon ico-share" aria-hidden="true"></i>
+									</button>
+									<button type="button" class="btn btn-icon btn-primary" aria-label="다운로드">
+										<i class="svg-icon ico-download" aria-hidden="true"></i>
+									</button>
+									<button type="button" class="btn btn-icon btn-secondary" aria-label="다운로드">
+										<i class="svg-icon ico-download" aria-hidden="true"></i>
+									</button>
+									<button type="button" class="btn btn-icon btn-gray" aria-label="다운로드">
+										<i class="svg-icon ico-download" aria-hidden="true"></i>
+									</button>
+								</div>
+
+								<h3 class="guide-subtitle">아이콘 전용 버튼 + 툴팁 (tooltip)</h3>
+								<p class="guide-desc" style="margin-bottom: 0.8rem">
+									버튼을 <code>.tooltip</code>로 감싸고 <code>.tooltip-text</code>를 추가하면 hover/focus 시 텍스트가
+									노출된다. <code>.tooltip</code>로 감싸지 않으면 위 아이콘 전용 버튼과 동일하게 동작한다.
+								</p>
+								<div class="guide-row">
+									<div class="tooltip">
+										<button type="button" class="btn btn-icon btn-tertiary" aria-label="SNS 공유">
+											<i class="svg-icon ico-share" aria-hidden="true"></i>
+										</button>
+										<span class="tooltip-text" aria-hidden="true">SNS 공유</span>
+									</div>
+									<div class="tooltip">
+										<button type="button" class="btn btn-icon btn-primary" aria-label="다운로드">
+											<i class="svg-icon ico-download" aria-hidden="true"></i>
+										</button>
+										<span class="tooltip-text" aria-hidden="true">다운로드</span>
+									</div>
+								</div>
+
+								<h3 class="guide-subtitle">버튼 그룹 (btn-group)</h3>
+								<div class="btn-group">
+									<button type="button" class="btn btn-md btn-tertiary">이전</button>
+									<button type="button" class="btn btn-md btn-primary">다음</button>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 버튼_텍스트 -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-button-text">
+								<h2 class="guide-title">Button_text</h2>
+								<p class="guide-desc">배경/보더 없이 텍스트만 있는 버튼 — <code>btn-text</code></p>
+
+								<h3 class="guide-subtitle"><span class="guide-tag">Size</span></h3>
+								<div class="guide-row">
+									<button type="button" class="btn-text btn-lg">large</button>
+									<button type="button" class="btn-text btn-md">medium</button>
+									<button type="button" class="btn-text btn-sm">small</button>
+									<button type="button" class="btn-text btn-xs">xsmall</button>
+								</div>
+
+								<h3 class="guide-subtitle"><span class="guide-tag">State</span> (마우스를 올리거나 눌러서 확인)</h3>
+								<div class="guide-row">
+									<button type="button" class="btn-text btn-md">default / hover / pressed</button>
+									<button type="button" class="btn-text btn-md" disabled>disabled</button>
+								</div>
+
+								<h3 class="guide-subtitle"><span class="guide-tag">Icon</span></h3>
+								<div class="guide-row">
+									<button type="button" class="btn-text btn-md">
+										<i class="svg-icon ico-download ico-sm" aria-hidden="true"></i>
+										left icon
+									</button>
+									<button type="button" class="btn-text btn-md">
+										right icon
+										<i class="svg-icon ico-angle ico-sm ico-right" aria-hidden="true"></i>
+									</button>
+									<button type="button" class="btn-text btn-md">
+										<i class="svg-icon ico-download ico-sm" aria-hidden="true"></i>
+										both icon
+										<i class="svg-icon ico-angle ico-sm ico-right" aria-hidden="true"></i>
+									</button>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 툴팁 -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-tooltip">
+								<h2 class="guide-title">툴팁 (Tooltip)</h2>
+								<p class="guide-desc">
+									아이콘 버튼처럼 텍스트가 드러나지 않는 요소에 보조 설명을 제공한다. 대상 요소를
+									<code>.tooltip</code>로 감싸고 <code>.tooltip-text</code>를 추가하면 hover/focus 시 노출된다.
+								</p>
+								<div class="guide-row">
+									<div class="tooltip">
+										<button type="button" class="btn btn-icon btn-gray" aria-label="SNS 공유">
+											<i class="svg-icon ico-share ico-md" aria-hidden="true"></i>
+										</button>
+										<span class="tooltip-text" aria-hidden="true">SNS 공유</span>
+									</div>
+									<div class="tooltip">
+										<button type="button" class="btn btn-icon btn-gray" aria-label="링크 복사">
+											<i class="svg-icon ico-link ico-md" aria-hidden="true"></i>
+										</button>
+										<span class="tooltip-text" aria-hidden="true">링크 복사</span>
+									</div>
+									<div class="tooltip">
+										<button type="button" class="btn btn-icon btn-gray" aria-label="인쇄하기">
+											<i class="svg-icon ico-print ico-md" aria-hidden="true"></i>
+										</button>
+										<span class="tooltip-text" aria-hidden="true">인쇄하기</span>
+									</div>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 안내 툴팁 버튼 -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-tooltip-btn">
+								<h2 class="guide-title">안내 툴팁 버튼 (Tooltip Button)</h2>
+								<p class="guide-desc">
+									라벨이나 <code>th</code> 텍스트 옆에 붙이는 20x20 크기의 독립된 안내 버튼이다. 버튼에
+									<code>.tooltip-btn</code>을 주고 <code>ico-tooltip</code> 아이콘과 <code>.tooltip-layer</code>를 함께
+									넣으면 hover 또는 키보드 포커스 시 안내 내용이 노출된다. <code>.tooltip-layer</code> 안에는
+									<code>.tooltip-title</code>(제목)과 <code>.tooltip-item</code>(항목)을 필요한 만큼 넣을 수 있다.
+								</p>
+								<div class="guide-row">
+									<span>지역어</span>
+									<button type="button" class="tooltip-btn" aria-label="표기 안내">
+										<i class="svg-icon ico-tooltip ico-lg" aria-hidden="true"></i>
+										<div class="tooltip-layer">
+											<div class="tooltip-title">표기 안내</div>
+											<div class="tooltip-item"><strong>:</strong> — 길게 소리 나는 부분(장음)입니다. 예: 감:자</div>
+											<div class="tooltip-item">
+												<strong>'</strong> — 높은 소리(성조·악센트)를 나타냅니다. 예: 감'자
+											</div>
+										</div>
+									</button>
+								</div>
+
+								<h3 class="guide-subtitle">노출 위치</h3>
+								<p class="guide-desc">
+									기본값은 위쪽(top)이다. 화면 가장자리 등 위쪽 공간이 부족한 위치에서는
+									<code>.tooltip-bottom</code> / <code>.tooltip-left</code> / <code>.tooltip-right</code>를
+									<code>.tooltip-btn</code>에 추가로 붙여 노출 방향을 바꾼다.
+								</p>
+								<div class="guide-row">
+									<button type="button" class="tooltip-btn" aria-label="위쪽(기본)">
+										<i class="svg-icon ico-tooltip ico-lg" aria-hidden="true"></i>
+										<div class="tooltip-layer">
+											<div class="tooltip-title">top (기본값)</div>
+											<div class="tooltip-item">클래스 추가 없이 기본 노출 방향</div>
+										</div>
+									</button>
+									<button type="button" class="tooltip-btn tooltip-bottom" aria-label="아래쪽">
+										<i class="svg-icon ico-tooltip ico-lg" aria-hidden="true"></i>
+										<div class="tooltip-layer">
+											<div class="tooltip-title">bottom</div>
+											<div class="tooltip-item"><code>.tooltip-bottom</code></div>
+										</div>
+									</button>
+									<button type="button" class="tooltip-btn tooltip-left" aria-label="왼쪽">
+										<i class="svg-icon ico-tooltip ico-lg" aria-hidden="true"></i>
+										<div class="tooltip-layer">
+											<div class="tooltip-title">left</div>
+											<div class="tooltip-item"><code>.tooltip-left</code></div>
+										</div>
+									</button>
+									<button type="button" class="tooltip-btn tooltip-right" aria-label="오른쪽">
+										<i class="svg-icon ico-tooltip ico-lg" aria-hidden="true"></i>
+										<div class="tooltip-layer">
+											<div class="tooltip-title">right</div>
+											<div class="tooltip-item"><code>.tooltip-right</code></div>
+										</div>
+									</button>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 배지 -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-badge">
+								<h2 class="guide-title">배지 (Badge)</h2>
+
+								<h3 class="guide-subtitle">Color</h3>
+								<p class="guide-desc" style="margin-bottom: 0.8rem">정보의 우선순위 또는 사용처에 따라 사용한다.</p>
+								<div class="guide-row">
+									<div class="guide-swatch">
+										<span class="badge badge-md badge-primary">Label</span>
+										<code>badge-primary</code>
+									</div>
+									<div class="guide-swatch">
+										<span class="badge badge-md badge-secondary">Label</span>
+										<code>badge-secondary</code>
+									</div>
+									<div class="guide-swatch">
+										<span class="badge badge-md badge-tertiary">Label</span>
+										<code>badge-tertiary</code>
+									</div>
+									<div class="guide-swatch">
+										<span class="badge badge-md badge-point">Label</span>
+										<code>badge-point</code>
+									</div>
+									<div class="guide-swatch">
+										<span class="badge badge-md badge-danger">Label</span>
+										<code>badge-danger</code>
+									</div>
+									<div class="guide-swatch">
+										<span class="badge badge-md badge-warning">Label</span>
+										<code>badge-warning</code>
+									</div>
+									<div class="guide-swatch">
+										<span class="badge badge-md badge-success">Label</span>
+										<code>badge-success</code>
+									</div>
+									<div class="guide-swatch">
+										<span class="badge badge-md badge-info">Label</span>
+										<code>badge-info</code>
+									</div>
+								</div>
+
+								<div class="guide-row">
+									<div class="guide-swatch">
+										<span class="badge badge-md badge-state-green">Label</span>
+										<code>badge-state-green</code>
+									</div>
+									<div class="guide-swatch">
+										<span class="badge badge-md badge-state-yellow">Label</span>
+										<code>badge-state-yellow</code>
+									</div>
+									<div class="guide-swatch">
+										<span class="badge badge-md badge-state-navy">Label</span>
+										<code>badge-state-navy</code>
+									</div>
+									<div class="guide-swatch">
+										<span class="badge badge-md badge-state-blue">Label</span>
+										<code>badge-state-blue</code>
+									</div>
+								</div>
+
+								<h3 class="guide-subtitle">Size</h3>
+								<p class="guide-desc" style="margin-bottom: 0.8rem">배지의 계층구조에 맞게 사용한다.</p>
+								<div class="guide-row">
+									<div class="guide-swatch">
+										<span class="badge badge-lg badge-primary">Large</span>
+										<code>badge-lg</code>
+									</div>
+									<div class="guide-swatch">
+										<span class="badge badge-md badge-primary">Medium</span>
+										<code>badge-md</code>
+									</div>
+									<div class="guide-swatch">
+										<span class="badge badge-sm badge-primary">Small</span>
+										<code>badge-sm</code>
+									</div>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 리스트 (불릿) -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-list">
+								<h2 class="guide-title">리스트 (불릿) (List)</h2>
+								<p class="guide-desc">
+									<code>ul</code>/<code>ol</code>에 <code>.list</code>를 붙여야 목록 컴포넌트로 인식한다. 불릿 모양은
+									<code>.list1</code>/<code>.list2</code>/<code>.list3</code> 듀얼클래스로 뎁스별로 지정한다(같은
+									클래스라도 <code>ul</code>이냐 <code>ol</code>이냐에 따라 모양이 다르다). 왼쪽 여백은 별도 클래스 없이
+									<code>.list</code> 안에 <code>.list</code>가 중첩된 마크업 뎁스에 따라 자동으로 붙는다.
+								</p>
+
+								<div class="guide-row" style="align-items: flex-start; gap: 4rem">
+									<div style="flex: 1 1 32rem; min-width: 28rem">
+										<h3 class="guide-subtitle" style="margin-top: 0">Unordered</h3>
+										<ul class="list list1">
+											<li>텍스트 목록 레벨1</li>
+											<li>텍스트 목록 레벨1</li>
+											<li>
+												텍스트 목록 레벨1
+												<ul class="list list2">
+													<li>텍스트 목록 레벨2</li>
+													<li>텍스트 목록 레벨2</li>
+													<li>
+														텍스트 목록 레벨2
+														<ul class="list list3">
+															<li>텍스트 목록 레벨3</li>
+															<li>텍스트 목록 레벨3</li>
+															<li>텍스트 목록 레벨3</li>
+														</ul>
+													</li>
+												</ul>
+											</li>
+										</ul>
+									</div>
+
+									<div style="flex: 1 1 32rem; min-width: 28rem">
+										<h3 class="guide-subtitle" style="margin-top: 0">Ordered</h3>
+										<ol class="list list1">
+											<li>텍스트 목록 레벨1</li>
+											<li>텍스트 목록 레벨1</li>
+											<li>텍스트 목록 레벨1</li>
+											<li>텍스트 목록 레벨1</li>
+											<li>텍스트 목록 레벨1</li>
+											<li>텍스트 목록 레벨1</li>
+											<li>텍스트 목록 레벨1</li>
+											<li>텍스트 목록 레벨1</li>
+											<li>텍스트 목록 레벨1</li>
+											<li>
+												텍스트 목록 레벨1
+												<ol class="list list2">
+													<li>텍스트 목록 레벨2</li>
+													<li>텍스트 목록 레벨2</li>
+													<li>텍스트 목록 레벨2</li>
+													<li>
+														텍스트 목록 레벨2
+														<ol class="list list3">
+															<li>텍스트 목록 레벨3</li>
+															<li>텍스트 목록 레벨3</li>
+															<li>텍스트 목록 레벨3</li>
+															<li>텍스트 목록 레벨3</li>
+															<li>텍스트 목록 레벨3</li>
+															<li>텍스트 목록 레벨3</li>
+															<li>텍스트 목록 레벨3</li>
+															<li>텍스트 목록 레벨3</li>
+															<li>텍스트 목록 레벨3</li>
+															<li>텍스트 목록 레벨3</li>
+														</ol>
+													</li>
+												</ol>
+											</li>
+										</ol>
+									</div>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 텍스트 인풋 -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-input">
+								<h2 class="guide-title">텍스트 인풋 (Text Input)</h2>
+								<p class="guide-desc">
+									네이티브 <code>&lt;input class="input"&gt;</code>에 크기/상태 모디파이어 클래스를 조합해 사용한다.
+									셀렉트와는 별도 컴포넌트이므로 <code>components/input</code>에 독립적으로 정의돼 있다.
+								</p>
+
+								<h3 class="guide-subtitle">
+									<span class="guide-tag">Size</span> 콘텐츠 내에서 적합한 계층을 가진 크기로 사용한다.
+								</h3>
+								<div class="guide-row" style="align-items: flex-start">
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>XLarge</strong>
+										<label class="form-label">레이블</label>
+										<input type="text" class="input input-xl" placeholder="입력해주세요." style="width: 100%" />
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Large</strong>
+										<label class="form-label">레이블</label>
+										<input type="text" class="input input-lg" placeholder="입력해주세요." style="width: 100%" />
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Medium</strong>
+										<label class="form-label">레이블</label>
+										<input type="text" class="input input-md" placeholder="입력해주세요." style="width: 100%" />
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Small</strong>
+										<label class="form-label">레이블</label>
+										<input type="text" class="input input-sm" placeholder="입력해주세요." style="width: 100%" />
+									</div>
+								</div>
+
+								<h3 class="guide-subtitle">
+									<span class="guide-tag">State</span> 사용자의 상호작용 시 컬러가 변경된다.
+								</h3>
+								<div class="guide-row" style="align-items: flex-start">
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Default</strong>
+										<label class="form-label">레이블</label>
+										<input type="text" class="input input-medium" placeholder="입력해주세요." style="width: 100%" />
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Focused</strong>
+										<label class="form-label">레이블</label>
+										<input
+											type="text"
+											class="input input-medium is-focused"
+											placeholder="입력해주세요."
+											style="width: 100%"
+										/>
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Completed</strong>
+										<label class="form-label">레이블</label>
+										<input type="text" class="input input-medium is-completed" value="입력완료" style="width: 100%" />
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Error</strong>
+										<label class="form-label">레이블</label>
+										<input
+											type="text"
+											class="input input-medium is-error"
+											placeholder="입력해주세요."
+											style="width: 100%"
+										/>
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Disabled</strong>
+										<label class="form-label">레이블</label>
+										<input
+											type="text"
+											class="input input-medium"
+											placeholder="입력해주세요."
+											style="width: 100%"
+											disabled
+										/>
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>View</strong>
+										<label class="form-label">레이블</label>
+										<input
+											type="text"
+											class="input input-medium is-view"
+											value="조회 전용 값"
+											style="width: 100%"
+											readonly
+										/>
+									</div>
+								</div>
+
+								<h3 class="guide-subtitle">
+									<span class="guide-tag">Text</span> 인풋에 관한 보조 설명글 또는 얼럿을 필요시에 제공한다.
+								</h3>
+								<div class="guide-row" style="align-items: flex-start">
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Hint</strong>
+										<label class="form-label">레이블</label>
+										<p class="form-help-text" style="margin-top: 0; margin-bottom: 0.4rem">
+											입력시 필요한 정보를 입력해 주세요
+										</p>
+										<input type="text" class="input input-medium" placeholder="입력해주세요." style="width: 100%" />
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Alert</strong>
+										<label class="form-label">레이블</label>
+										<input
+											type="text"
+											class="input input-medium is-focused"
+											placeholder="입력해주세요."
+											style="width: 100%"
+										/>
+										<p class="form-alert-text">
+											<i class="svg-icon ico-information ico-xs" aria-hidden="true"></i>
+											메시지를 입력해 주세요
+										</p>
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>혼합형</strong>
+										<label class="form-label">레이블</label>
+										<p class="form-help-text" style="margin-top: 0; margin-bottom: 0.4rem">
+											입력시 필요한 정보를 입력해 주세요
+										</p>
+										<input
+											type="text"
+											class="input input-medium is-focused"
+											placeholder="입력해주세요."
+											style="width: 100%"
+										/>
+										<p class="form-alert-text">
+											<i class="svg-icon ico-information ico-xs" aria-hidden="true"></i>
+											메시지를 입력해 주세요
+										</p>
+									</div>
+								</div>
+								<h3 class="guide-subtitle">
+									<span class="guide-tag">Textarea</span> 세로 스크롤이 생겨도 스크롤바가 모서리(border-radius) 밖으로
+									삐져나오지 않도록 <code>.textarea-wrap</code>으로 감싸서 쓴다. 테두리/포커스 링은
+									<code>.textarea-wrap</code>이 담당하고 <code>.textarea</code>는 테두리 없이 안쪽을 채운다.
+								</h3>
+								<div class="guide-row" style="align-items: flex-start">
+									<div style="width: 100%; max-width: 400px">
+										<div class="textarea-wrap">
+											<textarea
+												id="opinion-content"
+												class="textarea"
+												placeholder="내용을 입력해주세요"
+												rows="6"
+											></textarea>
+										</div>
+									</div>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 셀렉트 -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-select">
+								<h2 class="guide-title">셀렉트 (Select)</h2>
+								<p class="guide-desc">
+									네이티브 <code>&lt;select class="select"&gt;</code>에 크기/상태 모디파이어 클래스를 조합해 사용한다.
+									텍스트 인풋과는 별도 컴포넌트이므로 <code>components/select</code>에 독립적으로 정의돼 있다. 모양만
+									커스텀할 뿐 실제 <code>&lt;select&gt;</code>는 그대로 유지해 키보드/스크린리더 동작을 보존한다.
+								</p>
+
+								<h3 class="guide-subtitle">
+									<span class="guide-tag">Size</span> 콘텐츠 내에서 적합한 계층을 가진 크기로 사용한다.
+								</h3>
+								<div class="guide-row" style="align-items: flex-start">
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Large</strong>
+										<label class="form-label">레이블</label>
+										<select class="select select-lg" style="width: 100%">
+											<option>선택해주세요.</option>
+										</select>
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Medium</strong>
+										<label class="form-label">레이블</label>
+										<select class="select select-md" style="width: 100%">
+											<option>선택해주세요.</option>
+										</select>
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Small</strong>
+										<label class="form-label">레이블</label>
+										<select class="select select-sm" style="width: 100%">
+											<option>선택해주세요.</option>
+										</select>
+									</div>
+								</div>
+
+								<h3 class="guide-subtitle">
+									<span class="guide-tag">State</span> 사용자의 상호작용 시 컬러가 변경된다.
+								</h3>
+								<div class="guide-row" style="align-items: flex-start">
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Default</strong>
+										<label class="form-label">레이블</label>
+										<select class="select select-md" style="width: 100%">
+											<option>선택해주세요.</option>
+										</select>
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Focused</strong>
+										<label class="form-label">레이블</label>
+										<select class="select select-md is-focused" style="width: 100%">
+											<option>선택해주세요.</option>
+										</select>
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Completed</strong>
+										<label class="form-label">레이블</label>
+										<select class="select select-md is-completed" style="width: 100%">
+											<option>선택해주세요.</option>
+										</select>
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Error</strong>
+										<label class="form-label">레이블</label>
+										<select class="select select-md is-error" style="width: 100%">
+											<option>선택해주세요.</option>
+										</select>
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Disabled</strong>
+										<label class="form-label">레이블</label>
+										<select class="select select-md" style="width: 100%" disabled>
+											<option>선택해주세요.</option>
+										</select>
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>View</strong>
+										<label class="form-label">레이블</label>
+										<select class="select select-md is-view" style="width: 100%">
+											<option>선택해주세요.</option>
+										</select>
+									</div>
+								</div>
+
+								<h3 class="guide-subtitle">
+									<span class="guide-tag">Text</span> 셀렉트에 관한 보조 설명글 또는 얼럿을 필요시에 제공한다.
+								</h3>
+								<div class="guide-row" style="align-items: flex-start">
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Hint</strong>
+										<label class="form-label">레이블</label>
+										<p class="form-help-text" style="margin-top: 0; margin-bottom: 0.4rem">
+											입력시 필요한 정보를 입력해 주세요
+										</p>
+										<select class="select select-md" style="width: 100%">
+											<option>선택해주세요.</option>
+										</select>
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>Alert</strong>
+										<label class="form-label">레이블</label>
+										<select class="select select-md is-focused" style="width: 100%">
+											<option>선택해주세요.</option>
+										</select>
+										<p class="form-alert-text">
+											<i class="svg-icon ico-information ico-xs" aria-hidden="true"></i>
+											메시지를 입력해 주세요
+										</p>
+									</div>
+									<div class="guide-swatch" style="align-items: flex-start; width: 20rem; font-size: 1.4rem">
+										<strong>혼합형</strong>
+										<label class="form-label">레이블</label>
+										<p class="form-help-text" style="margin-top: 0; margin-bottom: 0.4rem">
+											입력시 필요한 정보를 입력해 주세요
+										</p>
+										<select class="select select-md is-focused" style="width: 100%">
+											<option>선택해주세요.</option>
+										</select>
+										<p class="form-alert-text">
+											<i class="svg-icon ico-information ico-xs" aria-hidden="true"></i>
+											메시지를 입력해 주세요
+										</p>
+									</div>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 인풋 그룹 / 폼 로우 -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-input-group">
+								<h2 class="guide-title">인풋 그룹 (input-group)</h2>
+								<p class="guide-desc">
+									입력 필드 여러 개를 한 덩어리로 묶어서 배치할 때 사용한다. <code>.input</code>/<code>.select</code>는
+									수정하지 않고, 감싸는 wrapper에 <code>.input-group</code>을 붙인다.
+								</p>
+
+								<h3 class="guide-subtitle">
+									<span class="guide-tag">input-group</span> 인풋/셀렉트 + 버튼을 한 줄로 묶을 때 사용한다. 모바일에서는
+									버튼이 다음 줄로 내려간다.
+								</h3>
+								<div class="guide-row" style="align-items: flex-start">
+									<div class="input-group">
+										<input type="text" class="input input-medium" placeholder="우편번호" readonly />
+										<button type="button" class="btn btn-tertiary btn-md">우편번호 찾기</button>
+									</div>
+									<div class="input-group" style="max-width: 400px">
+										<input type="text" class="input input-medium" placeholder="우편번호" readonly />
+										<button type="button" class="btn btn-tertiary btn-md">우편번호 찾기</button>
+									</div>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 첨부파일 (File Attach) -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-file-attach">
+								<h2 class="guide-title">첨부파일 (File Attach)</h2>
+								<p class="guide-desc">
+									<code>.input-group</code>에 <code>.file-attach-group</code>을 함께 붙여 쓴다. 파일 input은
+									<code>.sr-only</code>로 숨기고, 버튼(<code>.file-attach-btn</code>)이 대신 클릭을 위임해 파일 선택창을
+									연다. 선택한 파일명은 <code>.file-attach-name</code> 표시용 인풋에 자동으로 채워진다. id 매칭이 아니라
+									<code>.file-attach-group</code> 컨테이너 기준으로 동작하므로, 이 블록을 그대로 복사해서 파일 input의
+									<code>id</code>/<code>name</code>만 겹치지 않게 바꾸면 한 페이지에 여러 개 둬도 된다.
+								</p>
+
+								<div class="guide-row" style="align-items: flex-start">
+									<div class="form-group" style="width: 100%; max-width: 480px">
+										<label class="form-label" for="guide-file-attach-input">첨부파일</label>
+										<div class="input-group file-attach-group">
+											<input
+												type="text"
+												class="input input-xl file-attach-name"
+												placeholder="선택된 파일이 없습니다."
+												readonly
+												tabindex="-1"
+											/>
+											<button type="button" class="btn btn-xxl btn-secondary file-attach-btn">파일 선택</button>
+											<input
+												type="file"
+												id="guide-file-attach-input"
+												name="guideFile"
+												class="sr-only file-attach-input"
+											/>
+										</div>
+										<p class="text-disabled-on body-small mt-2">※ 10MB 이하의 파일만 첨부할 수 있습니다.</p>
+									</div>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 보안문자 (Captcha) -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-captcha">
+								<h2 class="guide-title">보안문자 (Captcha)</h2>
+								<p class="guide-desc">
+									<code>.captcha-group</code>은 보안문자 영역의 레이아웃만 담당한다. <code>.captcha-code</code>는 실제
+									캡차 이미지/오디오 위젯이 들어갈 자리표시자(placeholder)이며, 위젯 삽입·새로고침·음성듣기·검증 로직은
+									개발팀 영역이다. 퍼블에서는 이 블록을 그대로 복사해서 텍스트 입력(<code>input</code>)의
+									<code>id</code>/<code>label for</code>만 페이지에 맞게 바꿔 쓰면 된다.
+								</p>
+
+								<div class="guide-row" style="align-items: flex-start">
+									<div class="form-group" style="width: 100%; max-width: 480px">
+										<label class="form-label" for="guide-captcha-input"> 보안문자 <span class="req">필수</span> </label>
+										<div class="captcha-group">
+											<div class="captcha-row">
+												<!-- [개발] 실제 보안문자(이미지/오디오) 위젯이 들어갈 영역 -->
+												<span class="captcha-code" aria-hidden="true"></span>
+												<div class="captcha-actions">
+													<button type="button" class="btn btn-secondary btn-xs">새로고침</button>
+													<button type="button" class="btn btn-secondary btn-xs">음성듣기</button>
+												</div>
+											</div>
+											<p class="req body-small mt-2 mb-2">보이는 순서대로 숫자 및 문자를 모두 입력해주세요</p>
+											<input
+												type="text"
+												id="guide-captcha-input"
+												class="input input-xl w-100"
+												placeholder="보안문자 입력"
+												style="max-width: 368px"
+											/>
+										</div>
+									</div>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 폼 (공통 — 체크박스/라디오) -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-form">
+								<h2 class="guide-title">폼 공통 (체크박스 / 라디오)</h2>
+								<p class="guide-desc">
+									텍스트 인풋·셀렉트는 각각 <code>components/input</code>, <code>components/select</code> 참고.
+								</p>
+								<div class="guide-row">
+									<label class="form-checkbox"><input type="checkbox" checked /> form-checkbox</label>
+									<label class="form-radio"><input type="radio" name="guide-radio" checked /> form-radio</label>
+								</div>
+								<div class="guide-row" style="flex-direction: column; align-items: flex-start">
+									<p class="form-help-text">form-help-text — 도움말 문구</p>
+									<p class="form-error-text">form-error-text — 에러 문구</p>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 콘텐츠 헤더 (제목 / 액션) -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-content-header">
+								<h2 class="guide-title">콘텐츠 헤더 (Content header)</h2>
+								<p class="guide-desc">
+									서브페이지 상단에서 <code>.content-title</code>과 우측 아이콘 액션
+									버튼(<code>.content-actions</code>)을 묶는 레이아웃. 실제 콘텐츠는 형제 요소인
+									<code>.content-body</code>에 담는다. 액션 버튼은 대부분 <a href="#guide-tooltip">툴팁</a>과 함께
+									사용한다.
+								</p>
+								<div class="content-header">
+									<h3 class="content-title" style="margin: 0">공지사항</h3>
+									<div class="content-actions">
+										<div class="tooltip">
+											<button type="button" class="btn btn-icon btn-gray" aria-label="SNS 공유">
+												<i class="svg-icon ico-share ico-md" aria-hidden="true"></i>
+											</button>
+											<span class="tooltip-text" aria-hidden="true">SNS 공유</span>
+										</div>
+										<div class="tooltip">
+											<button type="button" class="btn btn-icon btn-gray" aria-label="링크 복사">
+												<i class="svg-icon ico-link ico-md" aria-hidden="true"></i>
+											</button>
+											<span class="tooltip-text" aria-hidden="true">링크 복사</span>
+										</div>
+										<div class="tooltip">
+											<button type="button" class="btn btn-icon btn-gray" aria-label="인쇄하기">
+												<i class="svg-icon ico-print ico-md" aria-hidden="true"></i>
+											</button>
+											<span class="tooltip-text" aria-hidden="true">인쇄하기</span>
+										</div>
+									</div>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 리스트 바 (검색) -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-list-bar">
+								<h2 class="guide-title">리스트 바 (검색) (List bar)</h2>
+								<p class="guide-desc">
+									목록 페이지 상단, 표 위에서 총 건수(<code>.list-count</code>)와 검색 폼(<code>.list-filter</code>)을
+									배치하는 영역. <code>_boardListPages.scss</code>에 정의돼 있다 (페이지 전용 스타일).
+								</p>
+								<div class="list-bar">
+									<p class="list-count"><strong>16건</strong> 현재페이지 1/2</p>
+
+									<form class="list-filter" role="search" aria-label="가이드 예시 검색">
+										<label for="guide-search-select" class="sr-only">검색 조건</label>
+										<select id="guide-search-select" class="select select-lg search-select">
+											<option>전체</option>
+											<option>제목</option>
+											<option>내용</option>
+										</select>
+
+										<label for="guide-search-input" class="sr-only">검색어</label>
+										<input
+											type="text"
+											id="guide-search-input"
+											class="input input-large search-input"
+											placeholder="검색어를 입력해주세요."
+										/>
+
+										<button type="submit" class="btn btn-secondary btn-lg">
+											<i class="svg-icon ico-search"></i>검색
+										</button>
+									</form>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 테이블 (목록) -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-list-table">
+								<h2 class="guide-title">테이블 — 목록 (list-table)</h2>
+								<p class="guide-desc">
+									게시판 등 목록 페이지에서 사용한다. 헤더(<code>thead</code>)가 있는 일반적인 리스트 표.
+								</p>
+								<div class="table table-list">
+									<table>
+										<caption>
+											가이드용 예시 테이블
+										</caption>
+										<thead>
+											<tr>
+												<th scope="col">번호</th>
+												<th scope="col">제목</th>
+												<th scope="col">등록일</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr class="notice-row">
+												<td data-label="번호"><span class="badge badge-md badge-primary">공지</span></td>
+												<td data-label="제목" class="board-title-cell">
+													<a href="#;" class="board-title">notice-row 예시</a>
+												</td>
+												<td data-label="등록일">2026.08.06</td>
+											</tr>
+											<tr>
+												<td data-label="번호">1</td>
+												<td data-label="제목" class="board-title-cell">
+													<a href="#;" class="board-title">일반 게시글 예시</a>
+												</td>
+												<td data-label="등록일">2026.08.06</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 테이블 (작성) -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-row-table">
+								<h2 class="guide-title">테이블 — 작성 (row-table)</h2>
+								<p class="guide-desc">
+									글쓰기/신청서 등 작성 페이지에서 사용한다. 헤더 없이 각 행이 좌측 라벨(<code>th</code>) + 우측 입력
+									필드(<code>td</code>)로 구성된다.
+								</p>
+								<div class="table table-row">
+									<table>
+										<caption>
+											가이드용 작성 페이지 예시
+										</caption>
+										<tbody>
+											<tr>
+												<th scope="row">분류<span class="required">*</span></th>
+												<td>
+													<select class="select select-md" style="width: 30rem">
+														<option>분류를 선택해주세요</option>
+													</select>
+												</td>
+											</tr>
+											<tr>
+												<th scope="row">제목<span class="required">*</span></th>
+												<td>
+													<input
+														type="text"
+														class="input input-medium"
+														placeholder="제목을 입력해주세요"
+														style="width: 100%"
+													/>
+												</td>
+											</tr>
+											<tr>
+												<th scope="row">내용<span class="required">*</span></th>
+												<td>
+													<p class="form-help-text" style="margin-top: 0; margin-bottom: 0.8rem">
+														※ 개인정보노출 방지를 위해 개인정보(주민번호, 신용카드번호, 은행계좌번호, 법인등록번호,
+														핸드폰번호 등)가 포함되지 않도록 각별히 주의하시기 바랍니다.
+													</p>
+													<!-- 컴포넌트 상세: #guide-input 참고 -->
+													<div class="textarea-wrap">
+														<textarea class="textarea" placeholder="내용을 입력해주세요" style="width: 100%"></textarea>
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<th scope="row">첨부파일</th>
+												<td>
+													<!-- 컴포넌트 상세: #guide-file-attach 참고 -->
+													<div class="input-group file-attach-group" style="max-width: 480px">
+														<input
+															type="text"
+															class="input input-xl file-attach-name"
+															placeholder="선택된 파일이 없습니다."
+															readonly
+															tabindex="-1"
+														/>
+														<button type="button" class="btn btn-xxl btn-secondary file-attach-btn">파일 선택</button>
+														<input
+															type="file"
+															id="guide-row-table-file-input"
+															name="guideRowTableFile"
+															class="sr-only file-attach-input"
+														/>
+													</div>
+													<p class="text-disabled-on body-small mt-2">※ 10MB 이하의 파일만 첨부할 수 있습니다.</p>
+												</td>
+											</tr>
+											<tr>
+												<th scope="row">보안문자<span class="required">*</span></th>
+												<td>
+													<!-- 컴포넌트 상세: #guide-captcha 참고 -->
+													<div class="captcha-group">
+														<div class="captcha-row">
+															<!-- [개발] 실제 보안문자(이미지/오디오) 위젯이 들어갈 영역 -->
+															<span class="captcha-code" aria-hidden="true"></span>
+															<div class="captcha-actions">
+																<button type="button" class="btn btn-secondary btn-xs">새로고침</button>
+																<button type="button" class="btn btn-secondary btn-xs">음성듣기</button>
+															</div>
+														</div>
+														<p class="req body-small mt-2 mb-2">보이는 순서대로 숫자 및 문자를 모두 입력해주세요</p>
+														<input
+															type="text"
+															id="guide-row-table-captcha-input"
+															class="input input-xl w-100"
+															placeholder="보안문자 입력"
+															style="max-width: 368px"
+														/>
+													</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 페이지네이션 -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-pagination">
+								<h2 class="guide-title">페이지네이션 (Pagination)</h2>
+
+								<h3 class="guide-subtitle">현재 페이지가 앞쪽일 때</h3>
+								<!--  현재 페이지가 앞쪽일 때 -->
+								<nav class="pagination" aria-label="페이지 목록">
+									<a href="#" class="pagination-nav prev disabled"
+										><i class="svg-icon ico-arrow-darkgray ico-left"></i>이전</a
+									>
+									<ul class="pagination-list">
+										<!-- [개발] 페이지네이션: 개발 처리 필요 — li.d-up-md는 모바일 최대 개수(숫자5+…+마지막=7개) 임시 처리 -->
+										<li><a href="#" class="pagination-link active" aria-current="true">1</a></li>
+										<li><a href="#" class="pagination-link">2</a></li>
+										<li><a href="#" class="pagination-link">3</a></li>
+										<li><a href="#" class="pagination-link">4</a></li>
+										<li><a href="#" class="pagination-link">5</a></li>
+										<li class="d-up-md"><a href="#" class="pagination-link">6</a></li>
+										<li class="d-up-md"><a href="#" class="pagination-link">7</a></li>
+										<li class="d-up-md"><a href="#" class="pagination-link">8</a></li>
+										<li><span class="link-dot"></span></li>
+										<li><a href="#" class="pagination-link">99</a></li>
+									</ul>
+									<a href="#" class="pagination-nav next">다음<i class="svg-icon ico-arrow-darkgray ico-right"></i></a>
+								</nav>
+
+								<h3 class="guide-subtitle">현재 페이지가 중간일 때</h3>
+								<!--  현재 페이지가 중간일 때 -->
+								<nav class="pagination" aria-label="페이지 목록">
+									<a href="#" class="pagination-nav prev"><i class="svg-icon ico-arrow-darkgray ico-left"></i>이전</a>
+									<ul class="pagination-list">
+										<!-- [개발] 페이지네이션: 개발 처리 필요 — d-up-md는 모바일 최대 개수(첫번째+...+숫자3+...+마지막=7개) 임시 처리 -->
+										<li><a href="#" class="pagination-link" aria-current="true">1</a></li>
+										<li><span class="link-dot"></span></li>
+										<li class="d-up-md"><a href="#" class="pagination-link">12</a></li>
+										<li><a href="#" class="pagination-link">13</a></li>
+										<li><a href="#" class="pagination-link active">14</a></li>
+										<li><a href="#" class="pagination-link">15</a></li>
+										<li class="d-up-md"><a href="#" class="pagination-link">16</a></li>
+										<li><span class="link-dot"></span></li>
+										<li><a href="#" class="pagination-link">99</a></li>
+									</ul>
+									<a href="#" class="pagination-nav next">다음<i class="svg-icon ico-arrow-darkgray ico-right"></i></a>
+								</nav>
+
+								<h3 class="guide-subtitle">현재 페이지가 뒤쪽일 때</h3>
+								<!--  현재 페이지가 뒤쪽일 때 -->
+								<nav class="pagination" aria-label="페이지 목록">
+									<a href="#" class="pagination-nav prev"><i class="svg-icon ico-arrow-darkgray ico-left"></i>이전</a>
+									<ul class="pagination-list">
+										<!-- [개발] 페이지네이션: 개발 처리 필요 — d-up-md는 모바일 최대 개수(첫번째+...+숫자5=7개) 임시 처리 -->
+										<li><a href="#" class="pagination-link" aria-current="true">1</a></li>
+										<li><span class="link-dot"></span></li>
+										<li class="d-up-md"><a href="#" class="pagination-link">92</a></li>
+										<li class="d-up-md"><a href="#" class="pagination-link">93</a></li>
+										<li class="d-up-md"><a href="#" class="pagination-link">94</a></li>
+										<li><a href="#" class="pagination-link">95</a></li>
+										<li><a href="#" class="pagination-link">96</a></li>
+										<li><a href="#" class="pagination-link">97</a></li>
+										<li><a href="#" class="pagination-link">98</a></li>
+										<li><a href="#" class="pagination-link active">99</a></li>
+									</ul>
+									<a href="#" class="pagination-nav next disabled"
+										>다음<i class="svg-icon ico-arrow-darkgray ico-right"></i
+									></a>
+								</nav>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 페이지 상단 이동 -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-page-top-button">
+								<h2 class="guide-title">페이지 상단 이동 (Page top button)</h2>
+								<p class="guide-desc">
+									스크롤을 내리면 노출되는 우측 하단 고정 버튼. 동작은 <code>ui-global.js</code>의
+									<code>pageTopButton</code>에서 처리한다.
+								</p>
+								<div class="guide-row">
+									<button type="button" class="page-top-button" aria-label="맨 위로 이동" style="position: static">
+										<i class="svg-icon ico-go-top" style="filter: brightness(0) invert(1)" aria-hidden="true"></i>
+									</button>
+
+									<code>&lt;button class="page-top-button"&gt;</code>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 모달 -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-modal">
+								<h2 class="guide-title">모달 (Modal)</h2>
+								<p class="guide-desc">
+									네이티브 <code>&lt;dialog&gt;</code> 요소 기반. 호출 버튼에는 <code>data-modal-open="#대상id"</code>,
+									닫기 버튼에는 <code>data-modal-close</code> 속성을 사용한다(직접 onclick 연결 금지). 제목은
+									<code>aria-labelledby</code>로 <code>.popup-title</code>과 연결해야 한다. 열림/닫힘 포커스 이동, 배경
+									스크롤 잠금, Esc 닫기, 배경(backdrop) 클릭 닫기는 <code>ui-global.js</code>의 <code>modal</code>이
+									전부 처리한다.
+								</p>
+
+								<h3 class="guide-subtitle">
+									<span class="guide-tag">Size</span> 클래스 없음 = <code>modal-md</code>(기본값)와 동일.
+									<code>modal-sm</code> / <code>modal-md</code> / <code>modal-lg</code>로 크기를 조절한다.
+								</h3>
+								<div class="guide-row">
+									<button type="button" class="btn btn-primary" data-modal-open="#modal-guide-small">small 열기</button>
+									<button type="button" class="btn btn-primary" data-modal-open="#modal-guide-medium">
+										medium 열기
+									</button>
+									<button type="button" class="btn btn-primary" data-modal-open="#modal-guide-large">large 열기</button>
+								</div>
+
+								<dialog
+									class="modal"
+									id="modal-guide-small"
+									aria-labelledby="modal-guide-small-title"
+									aria-modal="true"
+								>
+									<div class="popup-inner modal-sm">
+										<div class="popup-header">
+											<h2 class="popup-title" id="modal-guide-small-title">Small 모달</h2>
+										</div>
+										<div class="popup-body">
+											<p>간단한 확인/알림 등 내용이 짧은 경우에 사용한다.</p>
+										</div>
+										<button type="button" class="btn-modal-close" data-modal-close>
+											<span class="sr-only">팝업 닫기</span>
+										</button>
+									</div>
+								</dialog>
+
+								<dialog
+									class="modal"
+									id="modal-guide-medium"
+									aria-labelledby="modal-guide-medium-title"
+									aria-modal="true"
+								>
+									<div class="popup-inner">
+										<div class="popup-header">
+											<h2 class="popup-title" id="modal-guide-medium-title">Medium 모달 (기본값)</h2>
+										</div>
+										<div class="popup-body">
+											<p>별도 크기 클래스가 없으면 medium이 기본값이다.</p>
+										</div>
+										<button type="button" class="btn-modal-close" data-modal-close>
+											<span class="sr-only">팝업 닫기</span>
+										</button>
+									</div>
+								</dialog>
+
+								<dialog
+									class="modal"
+									id="modal-guide-large"
+									aria-labelledby="modal-guide-large-title"
+									aria-modal="true"
+								>
+									<div class="popup-inner modal-lg">
+										<div class="popup-header">
+											<h2 class="popup-title" id="modal-guide-large-title">Large 모달</h2>
+										</div>
+										<div class="popup-body">
+											<p>표, 폼 등 내용이 많은 경우에 사용한다.</p>
+										</div>
+										<button type="button" class="btn-modal-close" data-modal-close>
+											<span class="sr-only">팝업 닫기</span>
+										</button>
+									</div>
+								</dialog>
+
+								<h3 class="guide-subtitle">
+									<span class="guide-tag">Footer</span> 확인/취소 등 액션이 필요하면 <code>popup-footer</code>에
+									<code>btn-group</code>을 넣는다.
+								</h3>
+								<div class="guide-row">
+									<button type="button" class="btn btn-primary" data-modal-open="#modal-guide-footer">
+										액션 모달 열기
+									</button>
+								</div>
+
+								<dialog
+									class="modal"
+									id="modal-guide-footer"
+									aria-labelledby="modal-guide-footer-title"
+									aria-modal="true"
+								>
+									<div class="popup-inner">
+										<div class="popup-header">
+											<h2 class="popup-title" id="modal-guide-footer-title">삭제 확인</h2>
+										</div>
+										<div class="popup-body">
+											<p>선택한 항목을 삭제하시겠습니까? 삭제한 내용은 복구할 수 없습니다.</p>
+										</div>
+										<div class="popup-footer">
+											<div class="btn-group">
+												<button type="button" class="btn btn-lg btn-tertiary" data-modal-close>취소</button>
+												<button type="button" class="btn btn-lg btn-primary" data-modal-close>삭제</button>
+											</div>
+										</div>
+										<button type="button" class="btn-modal-close" data-modal-close>
+											<span class="sr-only">팝업 닫기</span>
+										</button>
+									</div>
+								</dialog>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 얼럿 / 컨펌 -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-alert-confirm">
+								<h2 class="guide-title">얼럿 / 컨펌 (Alert / Confirm)</h2>
+								<p class="guide-desc">
+									확인이 꼭 필요한 짧은 안내/확인 메시지에는 마크업을 직접 만들지 않고
+									<code>uiAlert()</code> / <code>uiConfirm()</code> 함수를 호출한다. 일반 모달과 달리 배경(backdrop)
+									클릭이나 Esc로 닫히지 않는다 — 반드시 버튼을 눌러야 닫힌다(실수로 취소/확인되는 것을 방지하기 위함).
+									제목/아이콘 없이 메시지만 넘기면 기본형, <code>{ icon, title, message }</code> 객체를 넘기면
+									확장형이다.
+								</p>
+								<div class="guide-row">
+									<button type="button" class="btn btn-secondary" id="js-alert-basic">alert 기본형</button>
+									<button type="button" class="btn btn-secondary" id="js-alert-extended">alert 확장형</button>
+									<button type="button" class="btn btn-secondary" id="js-confirm-basic">confirm 기본형</button>
+									<button type="button" class="btn btn-secondary" id="js-confirm-extended">confirm 확장형(경고)</button>
+								</div>
+
+								<pre
+									style="
+										margin-top: 1.6rem;
+										padding: 1.6rem;
+										overflow-x: auto;
+										font-size: 1.3rem;
+										line-height: 1.6;
+										white-space: pre-wrap;
+										background-color: #f4f5f6;
+										border-radius: 0.6rem;
+									"
+								><code>// 기본형: 메시지만
+uiAlert("저장되었습니다.");
+uiConfirm("삭제하시겠습니까?", function (result) {
+  if (result) { /* 확인 */ } else { /* 취소 */ }
+});
+
+// 확장형: 제목 + 아이콘까지 (icon: info(기본값) / success / warning / error / "none")
+uiAlert({ icon: "success", title: "저장 완료", message: "정상적으로 저장되었습니다." });
+uiConfirm(
+  { icon: "warning", title: "회원 탈퇴", message: "정말 탈퇴하시겠습니까?&lt;br&gt;탈퇴 후에는 복구할 수 없습니다." },
+  function (result) { ... }
+);</code></pre>
+
+								<script>
+									document.addEventListener("DOMContentLoaded", function () {
+										document.getElementById("js-alert-basic")?.addEventListener("click", function () {
+											uiAlert("저장되었습니다.");
+										});
+										document.getElementById("js-alert-extended")?.addEventListener("click", function () {
+											uiAlert({ icon: "success", title: "저장 완료", message: "정상적으로 저장되었습니다." });
+										});
+										document.getElementById("js-confirm-basic")?.addEventListener("click", function () {
+											uiConfirm("삭제하시겠습니까?", function (result) {
+												console.log("confirm result:", result);
+											});
+										});
+										document.getElementById("js-confirm-extended")?.addEventListener("click", function () {
+											uiConfirm(
+												{
+													icon: "warning",
+													title: "회원 탈퇴",
+													message: "정말 탈퇴하시겠습니까?<br>탈퇴 후에는 복구할 수 없습니다."
+												},
+												function (result) {
+													console.log("confirm result:", result);
+												}
+											);
+										});
+									});
+								</script>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 탭 (Tab) -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-tabs">
+								<h2 class="guide-title">탭 (Tab)</h2>
+								<p class="guide-desc">
+									상단 메인 탭 및 결과 카테고리 탭용 공통 컴포넌트입니다. 라인형(<code>.tab</code>) 및
+									박스채움형(<code>.tab-fill</code>) 스타일을 제공합니다. 버튼에
+									<code>aria-controls="패널식별자"</code>를, 패널에 <code>data-tab-panel="패널식별자"</code>를 매칭하여
+									명시적이고 안전하게 콘텐츠 패널 전환을 구현합니다.<br />
+									<span style="color: #0b50d0; font-weight: 500"
+										>※ 탭 패널의 활성화(선택) 상태 제어에는 <code>.is-active</code> 클래스를 사용합니다.</span
+									>
+								</p>
+
+								<h3 class="guide-subtitle">1. 라인 형태 (.tab)</h3>
+								<div class="tab" data-tab-group>
+									<ul class="tab-list" role="tablist">
+										<li class="tab-item" role="presentation">
+											<a
+												href="#none"
+												class="tab-link is-active"
+												role="tab"
+												aria-selected="true"
+												aria-controls="guide-tab-panel-1"
+												>간단히 검색</a
+											>
+										</li>
+										<li class="tab-item" role="presentation">
+											<a
+												href="#none"
+												class="tab-link"
+												role="tab"
+												aria-selected="false"
+												aria-controls="guide-tab-panel-2"
+												>자세히 검색</a
+											>
+										</li>
+									</ul>
+								</div>
+								<!-- 탭 콘텐츠 영역 -->
+								<div class="tab-panel-wrap mt-4">
+									<div data-tab-panel="guide-tab-panel-1" class="tab-panel is-active">
+										<div class="box" style="padding: 2.4rem; background: #f4f5f6; border-radius: 0.8rem">
+											<p style="margin: 0; font-size: 1.5rem; font-weight: 500">간단히 검색 콘텐츠 영역</p>
+											<p style="margin: 0.8rem 0 0 0; color: #464c53; font-size: 1.4rem">
+												검색어만 입력하여 빠르게 찾는 간단 검색 폼이 들어갑니다.
+											</p>
+										</div>
+									</div>
+									<div data-tab-panel="guide-tab-panel-2" class="tab-panel" hidden inert style="display: none">
+										<div class="box" style="padding: 2.4rem; background: #f4f5f6; border-radius: 0.8rem">
+											<p style="margin: 0; font-size: 1.5rem; font-weight: 500">자세히 검색 콘텐츠 영역</p>
+											<p style="margin: 0.8rem 0 0 0; color: #464c53; font-size: 1.4rem">
+												상세 조건(품사, 지역 등)을 설정할 수 있는 상세 검색 폼이 들어갑니다.
+											</p>
+										</div>
+									</div>
+								</div>
+
+								<h3 class="guide-subtitle" style="margin-top: 3rem">
+									2. 박스 채움 형태 (.tab-fill) + '전체' 탭 동작 예시
+								</h3>
+								<p class="guide-desc" style="margin-top: -0.8rem; margin-bottom: 1.6rem; font-size: 1.3rem">
+									버튼의 <code>aria-controls</code> 속성에 여러 개의 패널 식별자를 띄어쓰기로 구분하여 넣으면(예:
+									<code>aria-controls="panel-1 panel-2"</code>), 클릭 시 해당 패널들이 모두 노출됩니다.
+								</p>
+								<div class="tab tab-fill" data-tab-group>
+									<ul class="tab-list" role="tablist">
+										<li class="tab-item" role="presentation">
+											<a
+												href="#none"
+												class="tab-link is-active"
+												role="tab"
+												aria-selected="true"
+												aria-controls="guide-tab-fill-1 guide-tab-fill-2"
+												>전체(1,234)</a
+											>
+										</li>
+										<li class="tab-item" role="presentation">
+											<a href="#none" class="tab-link" role="tab" aria-selected="false" aria-controls="guide-tab-fill-1"
+												>어휘 조사 (12)</a
+											>
+										</li>
+										<li class="tab-item" role="presentation">
+											<a href="#none" class="tab-link" role="tab" aria-selected="false" aria-controls="guide-tab-fill-2"
+												>구술발화 (234)</a
+											>
+										</li>
+									</ul>
+								</div>
+								<div class="tab-panel-wrap mt-4">
+									<div data-tab-panel="guide-tab-fill-1" class="tab-panel is-active" style="margin-bottom: 2rem">
+										<div
+											class="box"
+											style="padding: 2rem; background: #ecf2fe; border: 1px solid #d8e5fd; border-radius: 0.8rem"
+										>
+											<p style="margin: 0; font-size: 1.5rem; font-weight: 500; color: #0b50d0">어휘 조사 결과</p>
+										</div>
+									</div>
+									<div data-tab-panel="guide-tab-fill-2" class="tab-panel is-active">
+										<div
+											class="box"
+											style="padding: 2rem; background: #eaf6ec; border: 1px solid #c8e9cd; border-radius: 0.8rem"
+										>
+											<p style="margin: 0; font-size: 1.5rem; font-weight: 500; color: #228738">구술발화 결과</p>
+										</div>
+									</div>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 아코디언 -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-accordion">
+								<h2 class="guide-title">아코디언 (Accordion)</h2>
+								<p class="guide-desc">
+									목록을 클릭하여 하단 세부 정보를 펼치거나 닫는 컴포넌트입니다.<br />
+									<span style="color: #0b50d0; font-weight: 500"
+										>※ 아코디언 패널의 열림(펼침) 상태 제어에는 <code>.is-open</code> 클래스를 사용합니다.</span
+									>
+								</p>
+								<h3 class="guide-subtitle">
+									<span class="guide-tag">Type</span> 정보의 시각적 구분의 정도에 따라 분류하여 사용한다.
+								</h3>
+
+								<div class="guide-row" style="align-items: flex-start; gap: 3.2rem">
+									<div style="flex: 1 1 32rem; min-width: 28rem">
+										<p class="guide-desc" style="font-weight: 700; color: #33363d">기본형</p>
+										<div class="accordion">
+											<div class="accordion-item">
+												<h4 style="margin: 0">
+													<button
+														type="button"
+														class="accordion-toggle"
+														aria-expanded="true"
+														aria-controls="acc-basic-panel-1"
+													>
+														기본형 아코디언
+													</button>
+												</h4>
+												<div class="accordion-panel is-open" id="acc-basic-panel-1">
+													<div class="accordion-body">
+														<p>펼쳐진 콘텐츠 영역입니다.</p>
+													</div>
+												</div>
+											</div>
+											<div class="accordion-item">
+												<h4 style="margin: 0">
+													<button
+														type="button"
+														class="accordion-toggle"
+														aria-expanded="false"
+														aria-controls="acc-basic-panel-2"
+													>
+														기본형 아코디언
+													</button>
+												</h4>
+												<div class="accordion-panel" id="acc-basic-panel-2" inert>
+													<div class="accordion-body">
+														<p>펼쳐진 콘텐츠 영역입니다.</p>
+													</div>
+												</div>
+											</div>
+											<div class="accordion-item">
+												<h4 style="margin: 0">
+													<button
+														type="button"
+														class="accordion-toggle"
+														aria-expanded="false"
+														aria-controls="acc-basic-panel-3"
+													>
+														기본형 아코디언
+													</button>
+												</h4>
+												<div class="accordion-panel" id="acc-basic-panel-3" inert>
+													<div class="accordion-body">
+														<p>펼쳐진 콘텐츠 영역입니다.</p>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div style="flex: 1 1 32rem; min-width: 28rem">
+										<p class="guide-desc" style="font-weight: 700; color: #33363d">라인형</p>
+										<div class="accordion accordion-line">
+											<div class="accordion-item">
+												<h4 style="margin: 0">
+													<button
+														type="button"
+														class="accordion-toggle"
+														aria-expanded="true"
+														aria-controls="acc-line-panel-1"
+													>
+														라인형 아코디언
+													</button>
+												</h4>
+												<div class="accordion-panel is-open" id="acc-line-panel-1">
+													<div class="accordion-body">
+														<p>펼쳐진 콘텐츠 영역입니다.</p>
+													</div>
+												</div>
+											</div>
+											<div class="accordion-item">
+												<h4 style="margin: 0">
+													<button
+														type="button"
+														class="accordion-toggle"
+														aria-expanded="false"
+														aria-controls="acc-line-panel-2"
+													>
+														라인형 아코디언
+													</button>
+												</h4>
+												<div class="accordion-panel" id="acc-line-panel-2" inert>
+													<div class="accordion-body">
+														<p>펼쳐진 콘텐츠 영역입니다.</p>
+													</div>
+												</div>
+											</div>
+											<div class="accordion-item">
+												<h4 style="margin: 0">
+													<button
+														type="button"
+														class="accordion-toggle"
+														aria-expanded="false"
+														aria-controls="acc-line-panel-3"
+													>
+														라인형 아코디언
+													</button>
+												</h4>
+												<div class="accordion-panel" id="acc-line-panel-3" inert>
+													<div class="accordion-body">
+														<p>펼쳐진 콘텐츠 영역입니다.</p>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="guide-row">
+									<p class="guide-desc" style="font-weight: 700; color: #33363d">faq형</p>
+									<div class="accordion accordion-line accordion-faq">
+										<div class="accordion-item">
+											<h4>
+												<button
+													type="button"
+													class="accordion-toggle"
+													aria-expanded="true"
+													aria-controls="acc-line-panel-faq1"
+												>
+													<span class="accordion-badge">Q</span>
+													<span class="accordion-toggle-text">7. 지역어 종합 정보 누리집은 어떤 서비스인가요?</span>
+												</button>
+											</h4>
+											<div class="accordion-panel is-open" id="acc-line-panel-faq1">
+												<div class="accordion-body">
+													<span class="accordion-badge">A</span>
+													<p>
+														지역어 종합 정보 누리집은 국립국어원에서 주관하여 전국 각지의 다양한 방언 자료(어휘 조사,
+														구술 발화 녹취 및 원문, 사진 자료 등)를 통합적으로 제공하는 대국민 서비스입니다. 우리말의
+														소중한 문화적 유산인 지역 방언을 누구나 쉽게 찾아보고 연구에 활용할 수 있도록 돕습니다.
+													</p>
+												</div>
+											</div>
+										</div>
+										<div class="accordion-item">
+											<h4>
+												<button
+													type="button"
+													class="accordion-toggle"
+													aria-expanded="false"
+													aria-controls="acc-line-panel-faq2"
+												>
+													<span class="accordion-badge">Q</span>
+													<span class="accordion-toggle-text">6. 지역어 찾기(통합자료검색)는 어떻게 이용하나요?</span>
+												</button>
+											</h4>
+											<div class="accordion-panel" id="acc-line-panel-faq2" inert>
+												<div class="accordion-body">
+													<span class="accordion-badge">A</span>
+													<p>
+														누리집의 통합자료검색 기능을 이용하여 찾고 싶은 표준어나 방언 키워드를 입력하면, 전국의 어휘
+														조사 결과, 실제 제보자의 대화 내용이 녹음된 구술발화 예문, 그리고 문학 속 방언 데이터까지 한
+														번에 쉽고 빠르게 찾아볼 수 있습니다.
+													</p>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="guide-row" style="margin-top: 4rem">
+									<div style="flex: 1 1 100%">
+										<p class="guide-desc" style="font-weight: 700; color: #33363d">테이블형 (.accordion-table)</p>
+										<p class="guide-desc" style="margin-top: -0.8rem; margin-bottom: 1.6rem; font-size: 1.3rem">
+											<code>tr.accordion-item-row</code> 내의 버튼(<code>.accordion-toggle</code>)과 하단 행인
+											<code>tr.accordion-panel-row</code> 내의 패널(<code>.accordion-panel</code>)로 짝지어
+											구성합니다.<br />
+											(행 클릭 시 자동으로 <code>:has()</code> 선택자를 통해 선택된 행의 배경색이 업데이트됩니다.)
+										</p>
+										<div class="table table-list accordion accordion-table">
+											<table>
+												<colgroup>
+													<col style="width: 20%" />
+													<col style="width: 40%" />
+													<col style="width: 20%" />
+													<col style="width: 20%" />
+												</colgroup>
+												<thead>
+													<tr>
+														<th scope="col">번호</th>
+														<th scope="col">제목</th>
+														<th scope="col">작성자</th>
+														<th scope="col">보기</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr class="accordion-item-row">
+														<td data-label="번호">1</td>
+														<td data-label="제목" class="text-left text-bold">테이블 아코디언 예시 1</td>
+														<td data-label="작성자">관리자</td>
+														<td data-label="보기">
+															<button
+																type="button"
+																class="btn btn-icon btn-sm accordion-toggle"
+																aria-label="상세 보기"
+																aria-expanded="true"
+																aria-controls="acc-table-panel-1"
+															></button>
+														</td>
+													</tr>
+													<tr class="accordion-panel-row">
+														<td colspan="4">
+															<div class="accordion-panel is-open" id="acc-table-panel-1">
+																<div class="accordion-body" style="padding: 2.4rem; background: #f9f9f9">
+																	상세 정보가 펼쳐지는 테이블 내부 패널 영역입니다.
+																</div>
+															</div>
+														</td>
+													</tr>
+													<tr class="accordion-item-row">
+														<td data-label="번호">2</td>
+														<td data-label="제목" class="text-left text-bold">테이블 아코디언 예시 2</td>
+														<td data-label="작성자">관리자</td>
+														<td data-label="보기">
+															<button
+																type="button"
+																class="btn btn-icon btn-sm accordion-toggle"
+																aria-label="상세 보기"
+																aria-expanded="false"
+																aria-controls="acc-table-panel-2"
+															></button>
+														</td>
+													</tr>
+													<tr class="accordion-panel-row">
+														<td colspan="4">
+															<div class="accordion-panel" id="acc-table-panel-2" inert>
+																<div class="accordion-body" style="padding: 2.4rem; background: #f9f9f9">
+																	상세 정보가 펼쳐지는 테이블 내부 패널 영역입니다.
+																</div>
+															</div>
+														</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 콘텐츠 토글 (Toggle) -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-toggle">
+								<h2 class="guide-title">콘텐츠 토글 (Toggle)</h2>
+								<p class="guide-desc">
+									버튼에 <code>data-toggle-btn="키값"</code>을 부여하고, 토글할 컨테이너에
+									<code>data-toggle-content="키값"</code>을 매칭하여 사용하는 범용 토글 컴포넌트입니다.<br />
+									<span style="color: #0b50d0; font-weight: 500"
+										>※ 토글 버튼은 <code>.is-active</code>, 토글 대상 콘텐츠의 열림 상태 제어에는
+										<code>.is-open</code> 클래스를 사용합니다.</span
+									>
+								</p>
+
+								<div class="guide-row" style="flex-direction: column; align-items: flex-start; gap: 1.6rem">
+									<div>
+										<button type="button" class="btn btn-sm btn-secondary btn-xs" data-toggle-btn="sample">
+											더보기 +
+										</button>
+									</div>
+
+									<div data-toggle-content="sample" class="box" style="width: 100%; max-width: 50rem">
+										<p style="margin: 0; font-size: 1.5rem">
+											[data-toggle-content="sample"] 영역의 토글 가능한 컨텐츠입니다.
+										</p>
+									</div>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 검색 패널 (Search Panel) -->
+							<!-- ============================================================ -->
+
+							<section class="guide-section" id="guide-search-panel">
+								<h2 class="guide-title">검색 패널 (Search Panel)</h2>
+								<p class="guide-desc">
+									통합검색 및 상세검색용 멀티 라벨-입력 폼 박스입니다. 상단 <code>.search-panel-head</code>의
+									<code>.tab</code>으로 "간단히 검색"/"자세히 검색" 두 <code>.search-panel-body</code>를 전환하고, 각
+									행(<code>.search-panel-row</code>)은 <code>.search-panel-label</code> +
+									<code>.search-panel-content</code>로 구성합니다.<br />
+									<span style="color: #0b50d0; font-weight: 500"
+										>※ 조건 추가/삭제 버튼(<code>.search-panel-btn-add</code>, <code>.search-panel-btn-minus</code>,
+										<code>.search-panel-btn-close</code>)의 동적 행 추가·삭제 동작은 각 페이지의 개별 스크립트에서
+										처리하므로, 이 가이드에서는 정적 마크업만 표시됩니다.</span
+									>
+								</p>
+
+								<div class="search-panel">
+									<div class="search-panel-head">
+										<div class="tab" data-tab-group>
+											<ul class="tab-list" role="tablist">
+												<li class="tab-item" role="presentation">
+													<a
+														href="#none"
+														class="tab-link is-active"
+														role="tab"
+														aria-selected="true"
+														aria-controls="guide-tab-panel-simple"
+														>간단히 검색</a
+													>
+												</li>
+												<li class="tab-item" role="presentation">
+													<a
+														href="#none"
+														class="tab-link"
+														role="tab"
+														aria-selected="false"
+														aria-controls="guide-tab-panel-detail"
+														>자세히 검색</a
+													>
+												</li>
+											</ul>
+										</div>
+									</div>
+
+									<!-- 간단히 검색 탭 콘텐츠 -->
+									<div class="search-panel-body" data-tab-panel="guide-tab-panel-simple">
+										<!-- 검색 범위 라디오 -->
+										<div class="search-panel-row">
+											<div class="search-panel-checkbox-row">
+												<label class="form-radio">
+													<input type="radio" name="guideSearchScope" checked />
+													<span>전체</span>
+												</label>
+												<label class="form-radio">
+													<input type="radio" name="guideSearchScope" />
+													<span>지역어로 찾기</span>
+												</label>
+												<label class="form-radio">
+													<input type="radio" name="guideSearchScope" />
+													<span>표준어로 찾기</span>
+												</label>
+											</div>
+										</div>
+
+										<!-- 검색어 입력 + 추천 검색어 -->
+										<div class="search-panel-row">
+											<div class="search-panel-content">
+												<div class="input-group input-group-fit">
+													<input type="text" class="input input-lg w-100" placeholder="검색어를 입력하세요." />
+													<button type="button" class="btn btn-lg btn-tertiary">옛 한글</button>
+												</div>
+
+												<div class="search-panel-recommend">
+													<span class="recommend-title">추천 검색어</span>
+													<div class="recommend-tags">
+														<a href="#none" class="tag text-link">감자</a>
+														<a href="#none" class="tag text-link">고구마</a>
+														<a href="#none" class="tag text-link">할아버지</a>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<!-- 하단 액션 버튼 -->
+										<div class="search-panel-footer">
+											<button type="button" class="btn btn-xxl btn-primary">
+												<i class="svg-icon ico-search ico-xl"></i> 검색
+											</button>
+										</div>
+									</div>
+
+									<!-- 자세히 검색 탭 콘텐츠 -->
+									<div class="search-panel-body" data-tab-panel="guide-tab-panel-detail" hidden inert>
+										<!-- 조사 지역: 그룹 + 조건 추가/마지막 삭제 -->
+										<div class="search-panel-row">
+											<div class="search-panel-label">조사 지역</div>
+											<div class="search-panel-content">
+												<div class="search-panel-group search-panel-group-region">
+													<div class="search-panel-controls">
+														<select class="select select-lg">
+															<option value="">전체</option>
+															<option value="강원특별자치도">강원특별자치도</option>
+														</select>
+														<select class="select select-lg">
+															<option value="">전체</option>
+															<option value="평창군">평창군</option>
+														</select>
+														<div class="search-panel-controls">
+															<button type="button" class="search-panel-btn-add" title="조건 추가"></button>
+															<button type="button" class="search-panel-btn-minus" title="마지막 조건 삭제"></button>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<!-- 조사 차수: 체크박스 행 -->
+										<div class="search-panel-row">
+											<div class="search-panel-label">조사 차수</div>
+											<div class="search-panel-content">
+												<div class="search-panel-checkbox-row">
+													<label class="form-checkbox">
+														<input type="checkbox" checked />
+														<span>전체</span>
+													</label>
+													<label class="form-checkbox">
+														<input type="checkbox" />
+														<span>1차 조사 자료(2004~2020)</span>
+													</label>
+													<label class="form-checkbox">
+														<input type="checkbox" />
+														<span>2차 조사 자료(2022~)</span>
+													</label>
+												</div>
+											</div>
+										</div>
+
+										<!-- 조사 연도: 범위 구분자(~) -->
+										<div class="search-panel-row">
+											<div class="search-panel-label">조사 연도</div>
+											<div class="search-panel-content">
+												<select class="select select-lg">
+													<option>전체</option>
+												</select>
+												<span class="search-panel-range-sep">~</span>
+												<select class="select select-lg">
+													<option>전체</option>
+												</select>
+											</div>
+										</div>
+
+										<!-- 제보자 정보: 인라인 항목 + 구분선 -->
+										<div class="search-panel-row">
+											<div class="search-panel-label">제보자 정보</div>
+											<div class="search-panel-content">
+												<div class="search-panel-inline-item">
+													<span class="label-text">세대별</span>
+													<div class="form-checkbox-group search-panel-checkbox-row">
+														<label class="form-checkbox"><input type="checkbox" checked /><span>전체</span></label>
+														<label class="form-checkbox"><input type="checkbox" /><span>20대</span></label>
+														<label class="form-checkbox"><input type="checkbox" /><span>60대</span></label>
+													</div>
+												</div>
+												<div class="search-panel-divider"></div>
+												<div class="search-panel-inline-item">
+													<span class="label-text">성별</span>
+													<div class="form-checkbox-group search-panel-checkbox-row">
+														<label class="form-checkbox"><input type="checkbox" checked /><span>전체</span></label>
+														<label class="form-checkbox"><input type="checkbox" /><span>남성</span></label>
+														<label class="form-checkbox"><input type="checkbox" /><span>여성</span></label>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<!-- 검색 대상: 필수 표시(.req-point) + 다중 행(dynamic-row) + 개별 삭제(.search-panel-btn-close) -->
+										<div class="search-panel-row">
+											<div class="search-panel-label">검색 대상 <span class="req-point">필수</span></div>
+											<div class="search-panel-content">
+												<div class="search-panel-group search-panel-group-target">
+													<div class="search-panel-controls">
+														<select class="select select-lg select-w-sm">
+															<option>전체</option>
+															<option>지역어</option>
+															<option>표준어</option>
+														</select>
+														<select class="select select-lg select-w-sm">
+															<option>포함</option>
+															<option>일치</option>
+														</select>
+														<input type="text" class="input input-lg" placeholder="검색어를 입력하세요." value="감자" />
+														<button type="button" class="btn btn-lg btn-tertiary">옛 한글</button>
+														<div class="search-panel-controls">
+															<button type="button" class="search-panel-btn-add" title="조건 추가"></button>
+															<button type="button" class="search-panel-btn-minus" title="마지막 조건 삭제"></button>
+														</div>
+													</div>
+
+													<div class="search-panel-controls dynamic-row">
+														<select class="select select-lg select-w-sm">
+															<option selected>그리고</option>
+															<option>또는</option>
+														</select>
+														<select class="select select-lg select-w-sm">
+															<option>전체</option>
+														</select>
+														<input type="text" class="input input-lg" placeholder="검색어를 입력하세요." />
+														<button type="button" class="search-panel-btn-close" title="해당 조건 삭제"></button>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<!-- 하단 액션 버튼 -->
+										<div class="search-panel-footer mt-6">
+											<button type="button" class="btn btn-lg btn-tertiary btn-fit">간단히 검색</button>
+											<button type="button" class="btn btn-lg btn-primary btn-fit">
+												<i class="svg-icon ico-search ico-md"></i>
+												<span>검색</span>
+											</button>
+										</div>
+									</div>
+								</div>
+							</section>
+
+							<!-- ============================================================ -->
+							<!-- 미디어 리스트 (Media List) -->
+							<!-- ============================================================ -->
+							<section class="guide-section" id="guide-media-list">
+								<h2 class="guide-title">미디어 리스트 (Media List)</h2>
+								<p class="guide-desc">사진 생활어 등 이미지 썸네일과 설명을 결합한 목록 컴포넌트입니다.</p>
+								<div class="media-list">
+									<div class="media-list-item">
+										<div class="media-list-thumb">
+											<img src="../../assets/_common/images/component/icon/ico_file_figma.svg" alt="샘플 썸네일" />
+										</div>
+										<div class="media-list-content">
+											<h3 class="media-list-title"><a href="#none">감자때</a></h3>
+											<p class="media-list-desc">
+												김치를 담그는 재료. 주로 여름에 먹으며, 삶아서 갖은 양념에 버무려 먹는다.
+											</p>
+											<div class="media-list-meta">
+												<dl class="media-list-meta-item">
+													<dt>조사 지역:</dt>
+													<dd>전라남도</dd>
+												</dl>
+												<dl class="media-list-meta-item">
+													<dt>주제 분류:</dt>
+													<dd>김치</dd>
+												</dl>
+												<dl class="media-list-meta-item">
+													<dt>표준어:</dt>
+													<dd>고구마순</dd>
+												</dl>
+											</div>
+										</div>
+									</div>
+								</div>
+							</section>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			// LNB 스크롤 스파이 — 가이드 전용, 실제 컴포넌트와는 무관
+			(function () {
+				var links = Array.prototype.filter.call(document.querySelectorAll(".guide-lnb-list a"), function (link) {
+					return link.getAttribute("href").indexOf("#") === 0;
+				});
+				var sections = Array.prototype.map.call(links, function (link) {
+					return document.querySelector(link.getAttribute("href"));
+				});
+
+				var observer = new IntersectionObserver(
+					function (entries) {
+						entries.forEach(function (entry) {
+							if (!entry.isIntersecting) return;
+							var index = sections.indexOf(entry.target);
+							links.forEach(function (link) {
+								link.classList.remove("active");
+							});
+							if (index > -1) {
+								links[index].classList.add("active");
+							}
+						});
+					},
+					{ rootMargin: "-10% 0px -80% 0px" }
+				);
+
+				sections.forEach(function (section) {
+					if (section) observer.observe(section);
+				});
+			})();
+
+			// LNB 모바일 열기/닫기 — 가이드 전용, 실제 gnb/mobile-menu와는 무관
+			(function () {
+				var toggle = document.querySelector(".guide-lnb-toggle");
+				var lnb = document.getElementById("guide-lnb");
+				var closeButton = document.querySelector(".guide-lnb-close");
+				var backdrop = document.querySelector(".guide-lnb-backdrop");
+				if (!toggle || !lnb || !backdrop) return;
+
+				function openLnb() {
+					lnb.classList.add("is-open");
+					backdrop.classList.add("is-open");
+					toggle.setAttribute("aria-expanded", "true");
+					document.body.style.overflow = "hidden";
+				}
+
+				function closeLnb() {
+					lnb.classList.remove("is-open");
+					backdrop.classList.remove("is-open");
+					toggle.setAttribute("aria-expanded", "false");
+					document.body.style.overflow = "";
+				}
+
+				toggle.addEventListener("click", function () {
+					if (lnb.classList.contains("is-open")) {
+						closeLnb();
+					} else {
+						openLnb();
+					}
+				});
+				if (closeButton) closeButton.addEventListener("click", closeLnb);
+				backdrop.addEventListener("click", closeLnb);
+				document.addEventListener("keydown", function (event) {
+					if (event.key === "Escape") closeLnb();
+				});
+				lnb.querySelectorAll(".guide-lnb-list a").forEach(function (link) {
+					link.addEventListener("click", closeLnb);
+				});
+			})();
+		</script>
+	</body>
+</html>

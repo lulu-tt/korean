@@ -1,0 +1,480 @@
+.header {
+	position: sticky;
+	top: 0;
+	z-index: $z-header;
+	background-color: $bg-white;
+	border-bottom: 1px solid $border-gray-light;
+	transition: top 0.3s ease;
+	// transform/translate는 사용 X
+
+	> .inner {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		height: $header-height;
+		row-gap: $spacing-2;
+		max-width: none;
+		padding-inline: $spacing-8;
+
+		@include mq-down(xl) {
+			padding-inline: $spacing-4;
+		}
+
+		@include mq-down(md) {
+			height: 7.2rem;
+			padding-inline: $spacing-4;
+		}
+	}
+
+	.header-nav {
+		display: flex;
+		align-items: center;
+		gap: $spacing-8;
+		height: 100%;
+	}
+
+	.branding {
+		display: flex;
+		align-items: center;
+	}
+
+	.logo {
+		display: flex;
+		align-items: center;
+
+		&.logo-korean {
+			img {
+				width: 13.6rem;
+				@include mq-down(xl) {
+					width: 10.6rem;
+				}
+				@include mq-down(xl) {
+					width: 9.4rem;
+				}
+			}
+		}
+		&.logo-dialect {
+			img {
+				width: 10.2rem;
+
+				@include mq-down(xl) {
+					width: 9.2rem;
+				}
+				@include mq-down(xl) {
+					width: 8rem;
+				}
+			}
+		}
+
+		+ .logo {
+			position: relative;
+			margin-left: 3.2rem;
+
+			&::before {
+				content: "";
+				position: absolute;
+				left: -1.6rem;
+				top: -0.2rem;
+				display: block;
+				width: 1px;
+				height: 46px;
+				background-color: #cbd5e1;
+			}
+
+			@include mq-down(xl) {
+				margin-left: 2rem;
+				&::before {
+					height: 36px;
+					top: 0.1rem;
+					left: -1rem;
+				}
+			}
+
+			@include mq-down(md) {
+				margin-left: 2.2rem;
+				&::before {
+					height: 32px;
+					top: 0.1rem;
+					left: -1.1rem;
+				}
+			}
+		}
+	}
+}
+
+// GNB(PC 기본) — 1뎁스 메뉴 클릭 시 하위 메뉴 패널이 열리는 구조.
+.gnb {
+	display: flex;
+	height: 100%;
+
+	@include mq-down(md) {
+		display: none;
+	}
+}
+
+.gnb-list {
+	display: flex;
+	align-items: center;
+}
+
+.gnb-item {
+	height: 100%;
+}
+
+.gnb-toggle {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	height: 100%;
+	font-size: $font-size-body-medium;
+	font-weight: $font-weight-bold;
+	color: $text-basic;
+	padding-inline: $spacing-4 $spacing-3;
+
+	@include mq-down(xl) {
+		font-size: 14px;
+		padding-inline: $spacing-2 $spacing-2;
+		gap: 0.4rem;
+	}
+
+	.svg-icon {
+		transition: transform 0.2s ease;
+
+		@include mq-down(xl) {
+			width: 1.2rem;
+			height: 1.2rem;
+		}
+	}
+
+	&:hover,
+	&:focus-visible {
+		color: $text-primary;
+
+		.svg-icon.ico-chevron-gray {
+			@include icon-set(ico_chevron_primary);
+		}
+	}
+
+	// 열림 상태(임시) — 클릭할 때마다 토글된다.
+	&[aria-expanded="true"] {
+		color: $text-primary;
+
+		.svg-icon {
+			transform: rotate(180deg);
+		}
+
+		.svg-icon.ico-chevron-gray {
+			@include icon-set(ico_chevron_primary);
+		}
+
+		&::after {
+			content: "";
+			position: absolute;
+			left: 0;
+			bottom: 0;
+			width: 100%;
+			height: 3px;
+			background-color: $color-primary-50;
+		}
+	}
+
+	&.active {
+		&::after {
+			content: "";
+			position: absolute;
+			left: 0;
+			bottom: 0;
+			width: 100%;
+			height: 3px;
+			background-color: $color-primary-50;
+		}
+	}
+}
+
+.gnb-panel {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	z-index: $z-header-panel;
+	width: 100%;
+	margin-top: 0.1rem;
+	max-height: $gnb-panel-max-height;
+	overflow-y: auto;
+	background: #e5ecff;
+	background: linear-gradient(120deg, rgba(229, 236, 255, 1) 0%, rgba(251, 235, 238, 1) 100%);
+	box-shadow: 0 2rem 4rem rgba(#000, 0.05);
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+	transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+
+	> .inner {
+		display: flex;
+		flex-flow: row wrap;
+		align-items: flex-start;
+		padding-block: $spacing-12;
+		// padding-inline: $spacing-4;
+	}
+
+	&[hidden] {
+		display: block;
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(-0.4rem);
+		pointer-events: none;
+		transition: opacity 0.15s ease, transform 0.15s ease, visibility 0s 0.15s;
+	}
+}
+
+.gnb-panel-tit {
+	font-size: 32px;
+	font-weight: $font-weight-bold;
+}
+
+.gnb-panel-list {
+	gap: $spacing-4 $spacing-5;
+	position: relative;
+	display: flex;
+	flex-flow: row wrap;
+	max-width: 80%;
+	width: 100%;
+	margin-left: auto;
+
+	@include mq-down(lg) {
+		// grid-template-columns: repeat(2, 1fr);
+	}
+
+	> li {
+		width: calc(25% - $spacing-4);
+	}
+}
+
+.gnb-panel-link {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 4.8rem;
+	padding-inline: $spacing-4;
+	font-size: $font-size-body-small;
+	color: $text-basic;
+	background-color: $bg-white;
+	border-radius: 0.8rem;
+
+	.svg-icon {
+		flex-shrink: 0;
+	}
+
+	&:hover,
+	&:focus-visible {
+		color: $text-primary;
+		font-weight: $font-weight-bold;
+		text-decoration: underline;
+		text-underline-offset: 0.3rem;
+
+		.svg-icon.ico-chevron-gray {
+			@include icon-set(ico_chevron_primary);
+		}
+	}
+
+	&.active {
+		color: $text-primary;
+		font-weight: $font-weight-bold;
+	}
+}
+
+// 우측 유틸리티(PC 기본 노출, 모바일에서는 전체메뉴 오버레이 안에 배치)
+.util-menu {
+	display: flex;
+	align-items: center;
+	list-style: none;
+	font-size: $font-size-body-small;
+
+	li {
+		display: flex;
+		align-items: center;
+		position: relative;
+
+		&:not(:first-child)::before {
+			content: "";
+			display: inline-block;
+			width: 1px;
+			height: 1.6rem;
+			margin-inline: 1.4rem;
+			background-color: $border-gray-light;
+		}
+	}
+
+	@include mq-down(xl) {
+		font-size: $font-size-body-xsmall;
+		li {
+			&:not(:first-child)::before {
+				content: "";
+				display: inline-block;
+				width: 1px;
+				height: 1.6rem;
+				margin-inline: 1rem;
+				background-color: $border-gray-light;
+			}
+		}
+	}
+
+	@include mq-down(md) {
+		display: none;
+	}
+}
+
+.util-link {
+	display: flex;
+	align-items: center;
+	gap: 0.2rem;
+	padding-inline: 0.1rem;
+
+	@include mq-up(md) {
+		&:hover,
+		&:focus-visible {
+			color: $text-primary;
+
+			.svg-icon {
+				filter: brightness(0) saturate(100%) invert(34%) sepia(91%) saturate(2636%) hue-rotate(208deg) brightness(86%)
+					contrast(96%);
+			}
+		}
+	}
+}
+
+.util-nickname {
+	display: inline-flex;
+	align-items: center;
+	gap: $spacing-1;
+	color: $text-basic;
+	font-weight: $font-weight-bold;
+	max-width: 17rem;
+
+	@include mq-down(xl) {
+		max-width: 14.4rem;
+	}
+}
+
+// 내 정보(로그인 후) — 클릭 시 작은 팝업 메뉴 토글
+.util-mypage {
+	+ li:not(:first-child)::before {
+		margin-inline: 1.2rem;
+	}
+}
+
+.util-mypage-toggle {
+	.svg-icon {
+		transition: transform 0.2s ease;
+	}
+
+	&[aria-expanded="true"] {
+		color: $text-primary;
+
+		.svg-icon {
+			transform: rotate(180deg);
+		}
+
+		.svg-icon.ico-chevron-gray {
+			@include icon-set(ico_chevron_primary);
+		}
+	}
+}
+
+.util-mypage-pop {
+	position: absolute;
+	top: 100%;
+	right: 0;
+	z-index: $z-header-panel;
+	margin-top: $spacing-2;
+	min-width: 16rem;
+	padding-block: $spacing-2;
+	padding-inline: $spacing-2;
+	background-color: $bg-white;
+	border: 1px solid $border-gray-light;
+	border-radius: 0.8rem;
+	box-shadow: 0 0.8rem 1.6rem rgba($color-gray-100, 0.12);
+	display: flex;
+	flex-direction: column;
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+	transition: opacity 0.15s ease, transform 0.15s ease;
+
+	&[hidden] {
+		display: flex;
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(-0.4rem);
+		pointer-events: none;
+		transition: opacity 0.15s ease, transform 0.15s ease, visibility 0s 0.15s;
+	}
+}
+
+.util-mypage-link {
+	padding: $spacing-2 $spacing-4;
+	font-size: $font-size-body-small;
+	color: $text-basic;
+	text-align: left;
+	white-space: nowrap;
+	border-radius: 0.6rem;
+	font-weight: $font-weight-medium;
+
+	&:hover,
+	&:focus-visible {
+		color: $text-primary;
+		background-color: $bg-gray-subtler;
+	}
+}
+
+.menu-toggle {
+	display: none;
+
+	@include mq-down(md) {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 3.2rem;
+		height: 3.2rem;
+		background: url("#{$icon-path}/ico_all.svg") no-repeat center/cover;
+	}
+}
+
+// 스크롤 방향에 따라 헤더를 숨김/보임 처리(.wrap에 scroll-down/scroll-up 토글, JS에서 담당).
+.wrap {
+	&.scroll-down .header {
+		top: -#{$header-height};
+
+		@include mq-down(md) {
+			top: -7.2rem;
+		}
+	}
+
+	&.scroll-up .header {
+		top: 0;
+	}
+}
+
+.gnb-backdrop {
+	position: fixed;
+	top: 0;
+	right: 0;
+	width: 100%;
+	height: 100%;
+	z-index: $z-header-backdrop;
+	background-color: rgba(0, 0, 0, 0.2);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.15s ease;
+
+	&.active {
+		opacity: 1;
+		pointer-events: auto;
+	}
+}
+
+.pwd-confirm-wrap {
+	.input + .form-label {
+		margin-top: $spacing-4;
+	}
+}

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>공지사항 | 지역어 종합 정보</title>
+		<link rel="icon" href="../../../assets/_common/images/favicon.ico" />
+
+		<!-- CSS -->
+		<link rel="stylesheet" href="../../../assets/ko/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../../assets/_common/js/ui-global.js" defer></script>
+
+		<!-- TODO : 퍼블용 JS, 개발시 반영 금지 -->
+		<script src="../../../assets/_guide/js/ui-include.js" defer></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {
+				// 이곳에 정의
+			});
+		</script>
+	</head>
+	<body>
+		<div class="wrap">
+			<!-- [퍼블용 include]: [include] 표기 부분은 실제 서버 include로 교체 필요 -->
+
+			<!-- [include]:본문 바로가기  -->
+			<div w3-include-html="../_include/inc-skipnav.html"></div>
+			<!-- [include]:상단 배너  -->
+			<div class="masthead" w3-include-html="../_include/inc-masthead.html"></div>
+			<!-- [include]:헤더  -->
+			<header class="header" w3-include-html="../_include/inc-header.html"></header>
+
+			<div id="container" class="container">
+				<div class="inner" id="contents">
+					<!-- 페이지별 콘텐츠 -->
+				</div>
+
+				<button type="button" class="page-top-button is-near-footer" aria-label="맨 위로 이동">
+					<i class="svg-icon ico-go-top" aria-hidden="true"></i>
+				</button>
+			</div>
+
+			<!-- [include]:푸터  -->
+			<footer class="footer" w3-include-html="../_include/inc-footer.html"></footer>
+			<!-- [include]:비밀번호 확인 팝업 -->
+			<div w3-include-html="../_include/inc-modal-pwd-confirm.html"></div>
+		</div>
+	</body>
+</html>

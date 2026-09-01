@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="일반형(민원)-상세"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<!-- 상세 -->
+						<div class="card">
+							<div class="table table-row">
+								<div class="table-inner">
+									<table>
+										<caption class="sr-only">
+											${표제목} 상세
+										</caption>
+										<tbody>
+											<tr>
+												<th scope="row">게시여부</th>
+												<td colspan="3">게시</td>
+											</tr>
+											<tr>
+												<th scope="row">날짜</th>
+												<td>2023.03.15</td>
+												<th scope="row">일시</th>
+												<td>2023.03.15 01:00:00</td>
+											</tr>
+											<tr>
+												<th scope="row">
+													<span>아이디<i class="req">필수입력</i></span>
+												</th>
+												<td>inseqcms</td>
+												<th scope="row">권한등급</th>
+												<td>시스템 관리자</td>
+											</tr>
+											<tr>
+												<th scope="row">
+													<span>비밀번호<i class="req">필수입력</i></span>
+												</th>
+												<td colspan="3">inseq1234</td>
+											</tr>
+											<tr>
+												<th scope="row">
+													<span>비밀번호 확인<i class="req">필수입력</i></span>
+												</th>
+												<td colspan="3">inseq1234</td>
+											</tr>
+											<tr>
+												<th scope="row">기간</th>
+												<td>2023.03.15 ~ 2023.03.15</td>
+												<th scope="row">게시순위</th>
+												<td>5</td>
+											</tr>
+											<tr>
+												<th scope="row">
+													<span>항목<i class="req">필수입력</i></span>
+												</th>
+												<td colspan="3">카테고리</td>
+											</tr>
+											<tr>
+												<th scope="row">전화번호</th>
+												<td>02-123-5467</td>
+												<th scope="row">이메일</th>
+												<td>inseqcms@inseq.co.kr</td>
+											</tr>
+											<tr>
+												<th scope="row">휴대폰</th>
+												<td>010-1234-5678</td>
+												<th scope="row">팩스</th>
+												<td>02-123-5467</td>
+											</tr>
+											<tr>
+												<th scope="row">제목</th>
+												<td colspan="3">게시판 제목</td>
+											</tr>
+											<tr>
+												<th scope="row">설명</th>
+												<td colspan="3">
+													텍스트 테스트 내용입니다.텍스트 테스트 내용입니다.텍스트 테스트 내용입니다.텍스트 테스트
+													내용입니다.텍스트 테스트 내용입니다.텍스트 테스트 내용입니다.텍스트 테스트 내용입니다.텍스트
+													테스트 내용입니다.텍스트 테스트 내용입니다.텍스트 테스트 내용입니다.텍스트 테스트
+													내용입니다.텍스트 테스트 내용입니다.텍스트 테스트 내용입니다.텍스트 테스트 내용입니다.텍스트
+													테스트 내용입니다.텍스트 테스트 내용입니다.텍스트 테스트 내용입니다.텍스트 테스트
+													내용입니다.텍스트 테스트 내용입니다.텍스트 테스트 내용입니다.텍스트 테스트 내용입니다.텍스트
+													테스트 내용입니다.텍스트 테스트 내용입니다.텍스트 테스트 내용입니다.텍스트 테스트
+													내용입니다.텍스트 테스트 내용입니다.텍스트 테스트 내용입니다.텍스트 테스트 내용입니다.텍스트
+													테스트 내용입니다.텍스트 테스트 내용입니다.텍스트 테스트 내용입니다.텍스트 테스트
+													내용입니다.텍스트 테스트 내용입니다.텍스트 테스트 내용입니다.텍스트 테스트 내용입니다.텍스트
+													테스트 내용입니다.텍스트 테스트 내용입니다.텍스트 테스트 내용입니다.
+												</td>
+											</tr>
+											<tr>
+												<th scope="row">첨부파일</th>
+												<td colspan="3">
+													<div class="file-add-area">
+														<div class="file-list">
+															<div class="file-item">
+																<div class="preview">
+																	<!-- 이미지 미리보기 경우 -->
+																	<img
+																		src="/assets/neibis/images/img-upload-file-sample.jpg"
+																		alt=""
+																		class="preview-img"
+																	/>
+																</div>
+																<div class="info">
+																	<p class="name">
+																		ico-error-xl@2x.pngico-error-xl@2x.pngico-error-xl@2x.pngico-error-xl@2x.pngico-error-xl@2x.pngico-error-xl@2x.pngico-error-xl@2x.pngico-error-xl@2x.pngico-error-xl@2x.pngico-error-xl@2x.png
+																	</p>
+																	<p class="size">2.04 KB</p>
+																</div>
+																<div class="btn-area">
+																	<a href="#" class="btn btn-download" download>
+																		<i class="ico ico-download-md"></i> <span class="sr-only">다운로드</span>
+																	</a>
+																</div>
+															</div>
+															<div class="file-item">
+																<div class="preview">
+																	<!-- 이미지 미리보기가 없을 경우 -->
+																	<!-- <img
+																		src="/assets/neibis/images/img-upload-file-sample.jpg"
+																		alt=""
+																		class="preview-img"
+																	/> -->
+																</div>
+																<div class="info">
+																	<p class="name">ico-error-xl@2x.png</p>
+																	<p class="size">2.04 KB</p>
+																</div>
+																<div class="btn-area">
+																	<a href="#" class="btn btn-download" download>
+																		<i class="ico ico-download-md"></i> <span class="sr-only">다운로드</span>
+																	</a>
+																</div>
+															</div>
+														</div>
+													</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="info-editor-area">
+								<h3 class="title1 mt-5">내용<i class="req">필수입력</i></h3>
+								<!-- [개발][웹에디터] : 위지윅 에디터 영역 변경 -->
+								<div class="editor-wrap" style="width: 100%; min-height: 120px">
+									<h3>
+										위지윅 에디터 영역 .editor-wrap 내부에 들어가는 스타일의 경우 에디터 스타일과 동일하게 적용 됩니다.
+									</h3>
+									<p>
+										위지윅 에디터 영역 .editor-wrap 내부에 들어가는 스타일의 경우 에디터 스타일과 동일하게 적용 됩니다.
+									</p>
+								</div>
+							</div>
+
+							<!-- 상세 답글 영역 -->
+							<div class="reply-area">
+								<form action="#;">
+									<h3 class="title1">답글(관리자)</h3>
+									<div class="reply-wrap">
+										<div class="item">
+											<label for="charge_name" class="label">담당자<i class="req">필수입력</i></label>
+											<input
+												type="text"
+												class="form-control full"
+												id="charge_name"
+												placeholder="담당자를 입력해주세요."
+											/>
+										</div>
+										<div class="item">
+											<label for="reply_title" class="label">답글 제목<i class="req">필수입력</i></label>
+											<input
+												type="text"
+												class="form-control full"
+												id="reply_title"
+												placeholder="답글 제목을 입력해주세요."
+											/>
+										</div>
+										<div class="item">
+											<label for="reply_cont" class="label">답글 내용<i class="req">필수입력</i></label>
+											<!-- 에디터 영역 추가될 예정 -->
+											<textarea
+												class="form-control full"
+												id="reply_cont"
+												rows="1"
+												placeholder="에디터 영역 추가될 예정"
+												title="답글 내용 입력"
+											></textarea>
+										</div>
+									</div>
+									<div class="btn-group-center">
+										<button type="reset" class="btn btn-sm btn-gray">
+											<i class="ico ico-trash-white-sm"></i>답글 삭제
+										</button>
+										<button type="submit" class="btn btn-sm btn-primary">
+											<i class="ico ico-plus-white-md"></i>댓글등록
+										</button>
+									</div>
+								</form>
+							</div>
+
+							<!-- 액션 버튼 -->
+							<div class="btn-group-between">
+								<div class="left">
+									<a href="UI-NEIBIS-MA-인시퀀스-일반형(민원)-목록.html" class="btn btn-lg btn-outline-gray">
+										<i class="ico ico-chevron-left-gray-md"></i>
+										<span>목록</span>
+									</a>
+								</div>
+								<div class="right">
+									<a href="UI-NEIBIS-MA-인시퀀스-일반형(민원)-등록수정.html" class="btn btn-lg btn-primary-soft">
+										<i class="ico ico-pen-primary-md"></i>
+										<span>수정</span>
+									</a>
+								</div>
+							</div>
+
+							<!-- 댓글 코멘트 -->
+							<div class="comment-area">
+								<h3 class="title1">댓글 코멘트</h3>
+								<div class="comment-write">
+									<form action="#;">
+										<div class="write-wrap">
+											<div class="user-wrap">
+												<div class="user-img">
+													<!-- <img src="/assets/neibis/images/_sample.jpg" alt="" /> -->
+												</div>
+												<div class="user-info">
+													<strong class="user">작성자명 <span>(아이***디)</span></strong>
+												</div>
+											</div>
+											<div class="desc-wrap">
+												<textarea
+													class="form-control full"
+													id="input_desc"
+													rows="2"
+													placeholder="댓글을 입력해주세요."
+													title="댓글 코멘트 입력"
+												></textarea>
+											</div>
+											<div class="btn-group-center">
+												<button type="reset" class="btn btn-md btn-primary-soft">
+													<i class="ico ico-undo-primary-md"></i>초기화
+												</button>
+												<button type="submit" class="btn btn-md btn-primary">
+													<i class="ico ico-plus-white-md"></i>댓글등록
+												</button>
+											</div>
+										</div>
+									</form>
+								</div>
+								<div class="comment-cont">
+									<ul class="comment-list">
+										<li class="item">
+											<div class="user-wrap">
+												<div class="user-img">
+													<!-- <img src="/assets/neibis/images/_sample.jpg" alt="" /> -->
+												</div>
+												<div class="user-info">
+													<strong class="user">홍길* <span>(cms*******4)</span></strong>
+													<span class="date">Tue Sep 17 14:31:17 KST 2019</span>
+												</div>
+											</div>
+											<div class="desc-wrap">
+												<p class="desc-comment">
+													댓글텍스트입니다.댓글텍스트입니다.댓글텍스트입니다.댓글텍스트입니다.댓글텍스트입니다.두 줄 일
+													경우 입니다. 두 줄 일 경우 입니다. 두 줄 일 경우 입니다. 두 줄 일 경우 입니다. 두 줄 일 경우
+													입니다. 두 줄 일 경우 입니다. 두 줄 일 경우 입니다. 두 줄 일 경우 입니다.
+												</p>
+											</div>
+											<div class="btn-wrap">
+												<button type="button" class="btn btn-xs btn-gray">
+													<i class="ico ico-trash-white-sm"></i>삭제
+												</button>
+											</div>
+										</li>
+										<li class="item">
+											<div class="user-wrap">
+												<div class="user-img">
+													<img src="/assets/neibis/images/_sample.jpg" alt="" />
+												</div>
+												<div class="user-info">
+													<strong class="user">홍길* <span>(cms*******4)</span></strong>
+													<span class="date">Tue Sep 17 14:31:17 KST 2019</span>
+												</div>
+											</div>
+											<div class="desc-wrap">
+												<p class="desc-comment">댓글텍스트입니다.댓글텍스트입니다.댓글텍스트입니다.댓글텍스트입니다.</p>
+											</div>
+											<div class="btn-wrap">
+												<button type="button" class="btn btn-xs btn-gray">
+													<i class="ico ico-trash-white-sm"></i>삭제
+												</button>
+											</div>
+										</li>
+										<!-- 삭제된 댓글의 경우 .delete 클래스 추가 -->
+										<li class="item delete">
+											<s class="text-delete">삭제된 댓글 입니다.</s>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="card comment">
+							<div class="comment-area">
+								<h3 class="title1">댓글 코멘트</h3>
+								<div class="comment-write">
+									<form action="#;">
+										<div class="write-wrap">
+											<div class="user-wrap">
+												<div class="user-img">
+													<!-- <img src="/assets/neibis/images/_sample.jpg" alt="" /> -->
+												</div>
+												<div class="user-info">
+													<strong class="user">작성자명 <span>(아이***디)</span></strong>
+												</div>
+											</div>
+											<div class="desc-wrap">
+												<textarea
+													class="form-control full"
+													id="input_desc2"
+													rows="2"
+													placeholder="댓글을 입력해주세요."
+													title="댓글 코멘트 입력"
+												></textarea>
+											</div>
+											<div class="btn-group-center gap-lg">
+												<button type="reset" class="btn btn-md btn-primary-soft">
+													<i class="ico ico-undo-primary-md"></i>초기화
+												</button>
+												<button type="submit" class="btn btn-md btn-primary">
+													<i class="ico ico-plus-white-md"></i>댓글등록
+												</button>
+											</div>
+										</div>
+									</form>
+								</div>
+								<div class="comment-cont">
+									<ul class="comment-list">
+										<li class="item">
+											<div class="user-wrap">
+												<div class="user-img">
+													<!-- <img src="/assets/neibis/images/_sample.jpg" alt="" /> -->
+												</div>
+												<div class="user-info">
+													<strong class="user">홍길* <span>(cms*******4)</span></strong>
+													<span class="date">Tue Sep 17 14:31:17 KST 2019</span>
+												</div>
+											</div>
+											<div class="desc-wrap">
+												<p class="desc-comment">
+													댓글텍스트입니다.댓글텍스트입니다.댓글텍스트입니다.댓글텍스트입니다.댓글텍스트입니다.두 줄 일
+													경우 입니다. 두 줄 일 경우 입니다. 두 줄 일 경우 입니다. 두 줄 일 경우 입니다. 두 줄 일 경우
+													입니다. 두 줄 일 경우 입니다. 두 줄 일 경우 입니다. 두 줄 일 경우 입니다.
+												</p>
+											</div>
+											<div class="btn-wrap">
+												<button type="button" class="btn btn-xs btn-gray">
+													<i class="ico ico-trash-white-sm"></i>삭제
+												</button>
+											</div>
+										</li>
+										<li class="item">
+											<div class="user-wrap">
+												<div class="user-img">
+													<img src="/assets/neibis/images/_sample.jpg" alt="" />
+												</div>
+												<div class="user-info">
+													<strong class="user">홍길* <span>(cms*******4)</span></strong>
+													<span class="date">Tue Sep 17 14:31:17 KST 2019</span>
+												</div>
+											</div>
+											<div class="desc-wrap">
+												<p class="desc-comment">댓글텍스트입니다.댓글텍스트입니다.댓글텍스트입니다.댓글텍스트입니다.</p>
+											</div>
+											<div class="btn-wrap">
+												<button type="button" class="btn btn-xs btn-gray">
+													<i class="ico ico-trash-white-sm"></i>삭제
+												</button>
+											</div>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+
+						<ul class="article-nav">
+							<li class="prev">
+								<a href="#;" class="item">
+									<span><i class="ico ico-prev-gray-sm mr-1"></i>이전글</span>
+									<strong class="link-info"> PC에서의 최대 높이값은 82px 입니다.</strong>
+								</a>
+							</li>
+							<li class="next">
+								<a href="#;" class="item">
+									<span>다음글<i class="ico ico-next-gray-sm ml-1"></i></span>
+									<strong class="link-info">
+										타이틀텍스트입니다.타이틀 텍스트입니다.타이틀 텍스트입니다.타이틀 텍스트입니다.타이틀
+										텍스트입니다.타이틀 텍스트입니다.
+									</strong>
+								</a>
+							</li>
+						</ul>
+						<!-- 상단 고정 액션 버튼 -->
+						<div class="btn-group-fixed">
+							<a href="UI-NEIBIS-MA-인시퀀스-일반형(민원)-등록수정.html" class="btn btn-lg btn-primary-soft">
+								<i class="ico ico-pen-primary-md"></i>
+								<span>수정</span>
+							</a>
+						</div>
+
+						<!-- Modal Popup : .modal-lg  -->
+						<div class="modal-popup modal-lg hide" id="layer-sample-lg">
+							<div class="dimed"></div>
+							<div class="popup-inner">
+								<div class="popup-header">
+									<h2 class="popup-title">프로모션 이미지 보기</h2>
+								</div>
+								<div class="popup-body">
+									<div class="scroll-inner">
+										<div class="promotion-img">
+											<!-- 프로모션 이미지 영역 -->
+											<img src="/assets/neibis/images/_sample.jpg" alt="프로모션 이미지 영역" class="image" />
+										</div>
+									</div>
+								</div>
+								<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+							</div>
+						</div>
+
+						<!-- Modal Popup : .modal-sm -->
+						<div class="modal-popup modal-sm hide" id="layer-sample-sm">
+							<div class="dimed"></div>
+							<div class="popup-inner">
+								<div class="popup-header">
+									<h2 class="popup-title">프로모션 이미지 보기</h2>
+								</div>
+								<div class="popup-body">
+									<div class="scroll-inner">
+										<div class="promotion-img">
+											<!-- 프로모션 이미지 영역 -->
+											<img src="/assets/neibis/images/_sample.jpg" alt="프로모션 이미지 영역" class="image" />
+										</div>
+									</div>
+								</div>
+								<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+							</div>
+						</div>
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="관리자 등록관리"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<!-- 관리자 등록관리 상세 -->
+						<div class="card">
+							<div class="table table-row">
+								<div class="table-inner">
+									<table>
+										<caption class="sr-only">
+											관리자 등록관리
+										</caption>
+										<tbody>
+											<tr>
+												<th scope="row">등록일</th>
+												<td>2023.03.06 14:42:32</td>
+												<th scope="row">수정일</th>
+												<td>-</td>
+											</tr>
+											<tr>
+												<th scope="row">
+													<span>
+														아이디
+														<i class="req">필수입력</i>
+													</span>
+												</th>
+												<td>
+													<div class="input-group">
+														<input
+															type="text"
+															id="input1_1"
+															class="form-control full"
+															placeholder="영문(소문자)로 입력"
+															required
+														/>
+														<span class="input-addon">
+															<button type="button" class="btn btn-md btn-outline-gray">
+																<i class="ico ico-search-gray-md"></i>
+																<span class="text">아이디 중복</span>
+															</button>
+														</span>
+													</div>
+													<span class="text-guide text-invalid">
+														td 마지막 요소로 경고 문구 출력 .text-guide.text-invalid
+													</span>
+												</td>
+												<th scope="row">
+													<div class="tooltip">
+														<p>시스템 관리자 : 총괄 관리자로서, 모든 메뉴를 관리해요.</p>
+														<p>운영 관리자 : [운영] 메뉴 전체를 관리하고, 운영 담당자 에게 권한을 할당할 수 있어요.</p>
+														<p>운영 담당자 : 권한 할당된 [운영] 메뉴만 조회, 작업해요.</p>
+													</div>
+													<label for="permission_level">
+														권한 등급
+														<i class="req">필수입력</i>
+													</label>
+												</th>
+												<td>
+													<select class="form-control" id="permission_level" style="width: 200px" required>
+														<option value="" selected>시스템관리자</option>
+														<option value="">운영 관리자</option>
+														<option value="">운영 담당자</option>
+													</select>
+												</td>
+											</tr>
+											<tr>
+												<th scope="row">
+													<label for="input_pw">비밀번호<i class="req">필수입력</i></label>
+												</th>
+												<td colspan="3">
+													<div class="pw-group">
+														<input
+															type="password"
+															id="input_pw"
+															class="form-control form-pw"
+															placeholder="비밀번호를 입력해주세요."
+															title="비밀번호를 입력해주세요."
+															style="width: 240px"
+															autocomplete="off"
+															required
+														/>
+														<button type="button" class="btn btn-pw btn-pw-off">비밀번호 확인</button>
+													</div>
+													<span class="text-guide">
+														영어 대소문자, 숫자, 특수문자를 모두 혼합하여 10자리 이상으로 설정해주세요.
+													</span>
+												</td>
+											</tr>
+											<tr>
+												<th scope="row">
+													<label for="input_re_pw">비밀번호 확인<i class="req">필수입력</i></label>
+												</th>
+												<td colspan="3">
+													<div class="pw-group">
+														<input
+															type="password"
+															id="input_re_pw"
+															class="form-control form-pw"
+															title="비밀번호를 입력해주세요."
+															style="width: 240px"
+															autocomplete="off"
+															required
+														/>
+														<button type="button" class="btn btn-pw btn-pw-off">비밀번호 확인</button>
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<th scope="row">
+													<label for="input_name">성명<i class="req">필수입력</i></label>
+												</th>
+												<td>
+													<input
+														type="text"
+														id="input_name"
+														class="form-control full"
+														placeholder="성명을 입력해 주세요."
+														required
+													/>
+												</td>
+												<th scope="row">
+													<label for="input_1">담당부서</label>
+												</th>
+												<td>
+													<input type="text" id="input_1" class="form-control full" />
+												</td>
+											</tr>
+											<tr>
+												<th scope="row">
+													<label for="input_2">전화번호</label>
+												</th>
+												<td>
+													<input type="text" id="input_2" class="form-control full" placeholder="예시 02-000-0000" />
+												</td>
+												<th scope="row">
+													<label for="input_3">E-mail</label>
+												</th>
+												<td>
+													<input type="text" id="input_3" class="form-control full" />
+												</td>
+											</tr>
+											<tr>
+												<th scope="row">
+													<label for="input_4">휴대폰</label>
+												</th>
+												<td>
+													<input type="text" id="input_4" class="form-control full" placeholder="예시 01012345678" />
+												</td>
+												<th scope="row">
+													<label for="input_5">팩스</label>
+												</th>
+												<td>
+													<input type="text" id="input_5" class="form-control full" placeholder="예시 02-000-0000" />
+												</td>
+											</tr>
+											<tr>
+												<th scope="row">
+													<label for="textarea1">설명</label>
+												</th>
+												<td colspan="3">
+													<textarea
+														class="form-control full"
+														id="textarea1"
+														placeholder="설명을 입력해주세요."
+													></textarea>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+
+							<div class="btn-group-between">
+								<div class="left">
+									<a
+										href="UI-NEIBIS-MA-시스템-정보관리-관리자등록관리-목록.html"
+										data-confirm="leave-saver"
+										class="btn btn-lg btn-outline-gray"
+									>
+										<i class="ico ico-chevron-left-gray-md"></i>
+										<span>목록</span>
+									</a>
+								</div>
+								<div class="right">
+									<button type="submit" class="btn btn-lg btn-primary-soft">
+										<i class="ico ico-pen-primary-md"></i>
+										<span>수정</span>
+									</button>
+									<button type="submit" class="btn btn-lg btn-primary btn-save">
+										<i class="ico ico-save-white-md"></i>
+										<span>저장</span>
+									</button>
+								</div>
+							</div>
+						</div>
+
+						<!-- 상단 고정 액션 버튼 -->
+						<div class="btn-group-fixed">
+							<button type="submit" class="btn btn-lg btn-primary-soft">
+								<i class="ico ico-pen-primary-md"></i>
+								<span>수정</span>
+							</button>
+							<button type="submit" class="btn btn-lg btn-primary btn-save">
+								<i class="ico ico-save-white-md"></i>
+								<span>저장</span>
+							</button>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,111 @@
+// .list로 목록임을 표시하고, list1/list2/list3 듀얼클래스로 불릿 모양을 지정
+
+@counter-style list-circled-decimal {
+	system: fixed;
+	symbols: "①" "②" "③" "④" "⑤" "⑥" "⑦" "⑧" "⑨" "⑩";
+	suffix: " ";
+}
+
+.list {
+	font-size: $font-size-body-medium;
+	color: $text-basic;
+
+	li {
+		margin-bottom: $spacing-2;
+	}
+	li:last-child {
+		margin-bottom: 0;
+	}
+
+	.list {
+		margin-top: $spacing-2;
+		margin-left: $spacing-5;
+	}
+}
+
+// Unordered
+ul.list {
+	padding-left: 0;
+	list-style: none;
+
+	> li {
+		position: relative;
+		padding-left: $spacing-6;
+
+		&::before {
+			position: absolute;
+			left: 0;
+		}
+	}
+
+	&.list1 > li::before {
+		content: "";
+		display: block;
+		width: 0.6rem;
+		height: 0.6rem;
+		top: calc((#{$line-height-base} * 1em - 0.7rem) / 2);
+		background-color: $color-gray-70;
+		border-radius: 50%;
+	}
+	&.list2 > li::before {
+		content: "";
+		display: block;
+		width: 0.8rem;
+		height: 0.2rem;
+		top: calc((#{$line-height-base} * 1em - 0.3rem) / 2);
+		background-color: $color-gray-70;
+	}
+	&.list3 > li::before {
+		content: "";
+		display: block;
+		box-sizing: border-box;
+		width: 0.6rem;
+		height: 0.6rem;
+		top: calc((#{$line-height-base} * 1em - 0.7rem) / 2);
+		border: 1px solid $color-gray-70;
+		border-radius: 50%;
+	}
+}
+
+// Ordered
+ol.list {
+	padding-left: 0;
+	list-style: none;
+	counter-reset: list-counter;
+
+	> li {
+		position: relative;
+		counter-increment: list-counter;
+	}
+
+	&.list1 > li {
+		padding-left: $spacing-7;
+
+		&::before {
+			content: counter(list-counter) ".";
+			position: absolute;
+			left: 0;
+			text-align: left;
+		}
+	}
+	&.list2 > li {
+		padding-left: $spacing-5;
+
+		&::before {
+			content: counter(list-counter, lower-alpha) ".";
+			position: absolute;
+			left: 0;
+			text-align: left;
+		}
+	}
+	&.list3 > li {
+		padding-left: $spacing-6;
+
+		&::before {
+			content: counter(list-counter, list-circled-decimal);
+			position: absolute;
+			left: 0;
+			text-align: left;
+		}
+	}
+}

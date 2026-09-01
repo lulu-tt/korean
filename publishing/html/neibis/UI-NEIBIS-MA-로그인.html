@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				// 이곳에 정의
+				// IP 접근 차단인 경우 노출
+				// alert({
+				// 	icon: "error",
+				// 	title: "이 IP는 접근 승인을 받지 않았어요",
+				// 	message: "담당자에게 아래 IP 정보로 문의해 보시겠어요?<br> 고객님의 IP는 <span>[192.168.0.1]</span> 입니다."
+				// });
+			});
+		</script>
+	</head>
+
+	<!-- 레이아웃 유형별 body 클래스 별도 적용 -->
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<article id="content">
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<!-- 2023-05-12 수정내역 : IP 미허용 대체 화면 추가 .blocked 클래스 추가 -->
+						<div class="login-area">
+							<div class="cont-area">
+								<div class="logo-area">
+									<img src="/assets/neibis/images/logo.png" alt="neibis" />
+									<span class="text-system">관리시스템</span>
+								</div>
+								<h1 class="title">로그인</h1>
+								<p class="subject">로그인 후 콘텐츠를 손쉽게 관리해보세요.</p>
+
+								<form action="UI-NEIBIS-MA-대시보드.html">
+									<fieldset>
+										<legend class="sr-only">로그인 정보 입력</legend>
+										<div class="input-area">
+											<div class="row">
+												<label for="userId">아이디</label>
+												<input
+													type="text"
+													id="userId"
+													class="form-control"
+													placeholder="아이디를 입력해주세요."
+													title="아이디를 입력해주세요."
+												/>
+											</div>
+											<div class="row">
+												<label for="userPw">비밀번호</label>
+
+												<!-- 2023-05-12 수정내역 : 비밀번호 구조 변경 input-group pw-group 추가 -->
+												<div class="input-group pw-group">
+													<input
+														type="password"
+														id="userPw"
+														class="form-control form-pw"
+														placeholder="비밀번호를 입력해주세요."
+														title="비밀번호를 입력해주세요."
+													/>
+													<button type="button" class="btn btn-pw btn-pw-off">비밀번호 확인</button>
+												</div>
+											</div>
+											<div class="mt-lg-5 mt-md-3">
+												<span class="check-item">
+													<input type="checkbox" id="inputKeep" />
+													<label for="inputKeep">아이디 기억</label>
+												</span>
+											</div>
+											<p class="text-guide mt-5">
+												<i class="ico ico-exclamation-md"></i>
+												<span
+													>아이디 또는 비밀번호를 잘못 입력했습니다.<br class="d-down-sm" />
+													입력하신 내용을 다시 확인해주세요.</span
+												>
+											</p>
+										</div>
+
+										<div class="btn-area">
+											<button type="submit" class="btn btn-lg btn-primary btn-block">로그인</button>
+										</div>
+									</fieldset>
+								</form>
+
+								<!-- 관리자 문의 정보 있을 경우 추가 -->
+								<!-- <div class="call-guide-area">
+									<p>문제가 있을 경우 아래 번호로 관리자에게 문의해주세요.</p>
+									<strong>010-1234-5678</strong>
+								</div> -->
+
+								<!-- 2023-05-12 수정내역 : IP 미허용 대체 화면 추가 -->
+								<div class="cont-blocked">
+									<i class="ico ico-error-xl"></i>
+									<h1 class="title">
+										차단된 IP로 접속할 경우<br class="d-down-sm" />
+										로그인을 할 수 없습니다.
+									</h1>
+									<p class="message">
+										관리자에게 아래 IP 정보로 문의해주세요.<br />
+										고객님의 IP는 <strong>[192.168.0.1]</strong> 입니다.
+									</p>
+								</div>
+							</div>
+							<div class="copyright-wrap">
+								<p class="copyright">
+									COPYRIGHT SINCE 2023
+									<a href="https://inseq.co.kr/ko/index.do" class="link-text" target="_blank" title="새창 열림"
+										>INSEQUENCE Co., Ltd.</a
+									><br class="d-down-md" />
+									ALL RIGHTS RESERVED. POWERED BY
+									<a
+										href="https://inseq.co.kr/ko/cntnts/i-33/web.do"
+										class="link-text neibis"
+										target="_blank"
+										title="새창 열림"
+										>NEIBIS CMS.</a
+									>
+								</p>
+							</div>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

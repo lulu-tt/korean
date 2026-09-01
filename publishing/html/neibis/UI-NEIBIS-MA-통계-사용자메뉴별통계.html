@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			function submitFuntion(event) {
+				event.preventDefault();
+				$(".search-before").hide();
+				$(".result-area").show();
+				$(".statistics").show();
+				$(".site-name").show();
+			}
+
+			// 모달 검색
+			function modalSubmitFuntion(event) {
+				event.preventDefault();
+				$(".modal-search-before").hide();
+				$(".modal-result-area").show();
+				$(".modal-statistics").show();
+			}
+			$(function () {
+				$("form.search-form").on("submit", submitFuntion);
+				$(".modal-popup form.search-form").on("submit", modalSubmitFuntion);
+			});
+
+			window.addEventListener("DOMContentLoaded", async function () {
+				// 창의 너비를 확인
+				let windowWidth = window.innerWidth;
+
+				// 라인차트 날짜 반환
+				const dateList = Array.from({ length: 30 }, (_, i) => {
+					const date = new Date(2023, 3, i + 1);
+					const month = date.getMonth() + 1;
+					const day = date.getDate();
+
+					// MM.DD 형태로 반환
+					return `${month.toString().padStart(2, "0")}.${day.toString().padStart(2, "0")}`;
+				});
+				async function generateBarChart() {
+					let chartBar = {
+						id: "chart-bar",
+						options: {
+							// title: { text: "Bar Chart" },
+							grid: {
+								top: 0,
+								bottom: 0,
+								left: 0, // Y축 카테고리 영역 추가 확보시 수치 조절
+								right: 0, // 우측 수치 잘리지 않도록 여백 확보
+								containLabel: true
+							},
+							tooltip: {
+								trigger: "axis"
+							},
+							xAxis: {
+								axisLabel: {
+									align: "right",
+									formatter: function (value) {
+										return value >= 0 ? Math.round(value) : "";
+									}
+								},
+								splitLine: {
+									show: false // Hide vertical grid lines
+								},
+								boundaryGap: ["8%", "8%"],
+								min: 0
+							},
+							yAxis: {
+								data: [
+									"포트폴리오",
+									"온택트서포터즈 > 온택트서포터즈",
+									"사업안내",
+									"I.N.UIX",
+									"NEBIS",
+									"회사소개",
+									"오시는길",
+									"인증현황",
+									"스토리"
+								],
+								axisLine: {
+									show: false // Y축 라인 숨기기
+								},
+								axisTick: {
+									show: true, // Y축 눈금
+									length: 200,
+									lineStyle: {
+										color: "#E5E7EB"
+									}
+								},
+								splitLine: {
+									show: true,
+									lineStyle: {
+										color: "#E5E7EB"
+									}
+								},
+								axisLabel: {
+									margin: 8,
+									formatter: function (value) {
+										// 최대 길이를 초과하는 경우 '...'으로 줄이기
+										if (value.length > 10) {
+											return value.slice(0, 10) + "...";
+										}
+										// 그렇지 않은 경우 원래 값을 그대로 반환
+										else {
+											return value;
+										}
+									}
+								}
+							},
+							series: [
+								{
+									type: "bar",
+									data: [500, 2000, 3600, 1000, 1500, 2500, 3000, 3500, 4000],
+									barWidth: "16px",
+									// 그래프 우측에 값 노출
+									label: {
+										show: true,
+										position: "right",
+										formatter: function (params) {
+											var formattedValue = Number(params.value).toLocaleString("en");
+											return formattedValue;
+										},
+										color: "#374151"
+									},
+									itemStyle: {
+										color: function (params) {
+											const colorList = [
+												"#357FED",
+												"#F59E0B",
+												"#0CAE79",
+												"#F97316",
+												"#8B5CF6",
+												"#EF4444",
+												"#0EA5E9",
+												"#EC4899",
+												"#84CC16",
+												"#06B6D4"
+											];
+											// 순환 적용되는 색상 인덱스 계산
+											const colorIndex = params.dataIndex % colorList.length;
+											return colorList[colorIndex];
+										}
+									}
+								}
+							]
+						}
+					};
+
+					let chartInstances = {};
+
+					const charts = [chartBar];
+					await window.useCharts(charts);
+				}
+
+				// 모달 내부 차트
+				async function modalChart() {
+					let chartLine = {
+						id: "chart-line",
+						options: {
+							// title: {
+							// 	text: "일자별 방문자수 통계",
+							// 	left: "center"
+							// },
+							grid: {
+								top: 10,
+								bottom: 30,
+								left: 4, // Y축 카테고리 영역 추가 확보시 수치 조절
+								right: 0, // 우측 수치 잘리지 않도록 여백 확보
+								containLabel: true
+							},
+							tooltip: {
+								trigger: "axis"
+							},
+							legend: {
+								orient: "horizontal",
+								x: "center",
+								y: "bottom"
+							},
+							xAxis: {
+								data: dateList,
+								axisLabel: {
+									// align: "right"
+									rotate: 45, // 45도 각도로 회전
+									fontSize: 10,
+									color: "#A6ADB9" // X축 글자 컬러 지정
+								},
+								axisLine: {
+									lineStyle: {
+										color: "#E5E7EB" // X축 라인 색상을 #E5E7EB로 설정
+									}
+								},
+								axisTick: {
+									show: false // X축 눈금 지우기
+								}
+							},
+							yAxis: {
+								axisLabel: {
+									fontSize: 10,
+									color: "#A6ADB9"
+								}
+							},
+							series: [
+								{
+									name: "전체",
+									type: "line",
+									data: [
+										3000, 3100, 3200, 3000, 3200, 3400, 3200, 3500, 3400, 3600, 3700, 3900, 3800, 4000, 4100, 4000,
+										4200, 4400, 4300, 4500, 4600, 4800, 4700, 4800, 5000, 5100, 5200, 5300, 5400, 5500
+									],
+									itemStyle: { color: "#7E8594" },
+									symbol: "none"
+								},
+								{
+									name: "PC",
+									type: "line",
+									data: [
+										1000, 1200, 1100, 1200, 1100, 1300, 1400, 1200, 1300, 1400, 1600, 1500, 1600, 1800, 1900, 1700,
+										1900, 2000, 2200, 2000, 2200, 2300, 2400, 2300, 2400, 2600, 2500, 2700, 2600, 2800
+									],
+									itemStyle: { color: "#357FED" },
+									symbol: "none"
+								},
+								{
+									name: "Mobile",
+									type: "line",
+									data: [
+										2000, 1900, 2100, 1800, 2100, 2100, 1800, 2300, 2100, 2200, 2100, 2400, 2200, 2200, 2200, 2300,
+										2300, 2400, 2100, 2500, 2400, 2500, 2300, 2500, 2600, 2500, 2700, 2600, 2800, 2700
+									],
+									itemStyle: { color: "#F59E0B" },
+									symbol: "none"
+								}
+							]
+						}
+					};
+
+					let chartPie = {
+						id: "chart-pie",
+						options: {
+							legend: {
+								orient: "horizontal",
+								x: "center",
+								y: "bottom",
+								itemWidth: 12, // 아이콘 가로 크기
+								itemHeight: 12, // 아이콘 세로 크기
+								data: ["PC", "Mobile"]
+							},
+							// 색상 배열 순환 적용됨 : 데이터 개수가 많아져도 문제없음
+							color: [
+								"#357FED",
+								"#F59E0B",
+								"#0CAE79",
+								"#F97316",
+								"#8B5CF6",
+								"#EF4444",
+								"#0EA5E9",
+								"#EC4899",
+								"#84CC16",
+								"#06B6D4"
+							],
+							series: [
+								// 파이차트 데이터 면 내부에 흰색 글자로 표출 (두가지 정보 노출시 시리즈 2회 표출)
+								{
+									name: "게시판 사용 비율",
+									type: "pie",
+									radius: ["30%", "66%"],
+									center: ["50%", "42%"], // 차트의 중심 위치를 조절
+									data: [
+										{ value: 25, name: "PC" },
+										{ value: 75, name: "Mobile" }
+									],
+									label: {
+										color: "#ffffff", // 흰색 글자
+										position: "inside", // 라벨 내부에 위치
+										formatter: "{c}%" // 값(퍼센트)만 표시
+									}
+								}
+							]
+						}
+					};
+
+					const charts = [chartLine, chartPie];
+					await window.useCharts(charts);
+				}
+
+				// tab 구조에 차트가 들어가야할 경우 너비, 높이값 불러오기
+				$("form.search-form").on("submit", async function () {
+					await generateBarChart();
+				});
+
+				// 모달 검색
+				$(".modal-popup form.search-form").on("submit", async function () {
+					const originalDisplay = $("#tab-content2").css("display");
+					$("#tab-content2").css("display", "block");
+					await modalChart();
+					$("#tab-content2").css("display", originalDisplay);
+				});
+			});
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="사용자 메뉴별 통계"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<div class="statistics-contnet-wrap">
+							<!-- 검색 영역 -->
+							<div class="card">
+								<form action="#;" class="search-form" onsubmit="return false">
+									<div class="table table-form-basic">
+										<div class="table-inner">
+											<table>
+												<caption class="sr-only">
+													검색조건입력
+												</caption>
+												<tbody>
+													<tr>
+														<th scope="row">
+															<span>조회기간<i class="req">필수입력</i></span>
+														</th>
+														<td colspan="3">
+															<div class="input-group input-group-date-range">
+																<div class="radio-btn-group">
+																	<span class="check-item">
+																		<input type="radio" id="radio_btn1" name="radio_date_range" value="1d" required />
+																		<label for="radio_btn1">하루전</label>
+																	</span>
+																	<span class="check-item">
+																		<input type="radio" id="radio_btn2" name="radio_date_range" value="7d" required />
+																		<label for="radio_btn2">1주일</label>
+																	</span>
+																	<span class="check-item">
+																		<input
+																			type="radio"
+																			id="radio_btn3"
+																			name="radio_date_range"
+																			value="1m"
+																			checked
+																			required
+																		/>
+																		<label for="radio_btn3">1개월</label>
+																	</span>
+																	<span class="check-item">
+																		<input type="radio" id="radio_btn4" name="radio_date_range" value="3m" required />
+																		<label for="radio_btn4">3개월</label>
+																	</span>
+																	<span class="check-item">
+																		<input type="radio" id="radio_btn5" name="radio_date_range" value="6m" required />
+																		<label for="radio_btn5">6개월</label>
+																	</span>
+																	<span class="check-item">
+																		<input type="radio" id="radio_btn6" name="radio_date_range" value="12m" required />
+																		<label for="radio_btn6">1년</label>
+																	</span>
+																</div>
+																<div class="input-group input-group-datepicker">
+																	<input
+																		type="text"
+																		class="form-control form-datepicker range-start"
+																		title="시작일 선택"
+																		placeholder="YYYY.MM.DD"
+																		required
+																	/>
+																	<span class="input-addon">-</span>
+																	<input
+																		type="text"
+																		class="form-control form-datepicker range-end"
+																		title="종료일 선택"
+																		placeholder="YYYY.MM.DD"
+																		required
+																	/>
+																</div>
+															</div>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<span>사이트명<i class="req">필수입력</i></span>
+														</th>
+														<td>
+															<select class="form-control full" title="사이트명 선택">
+																<option selected>대표 홈 국문</option>
+																<option>항목1</option>
+																<option>항목2</option>
+															</select>
+														</td>
+														<th scope="row">
+															<label for="search_word">검색어</label>
+														</th>
+														<td>
+															<input
+																type="text"
+																id="search_word"
+																class="form-control full"
+																placeholder="메뉴명으로 검색해주세요."
+															/>
+														</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+									<div class="btn-group-center">
+										<button type="reset" class="btn btn-md btn-outline-gray">
+											<i class="ico ico-undo-darkgray-md"></i>
+											<span class="text">초기화</span>
+										</button>
+										<button type="submit" class="btn btn-md btn-primary">
+											<i class="ico ico-search-white-md"></i>
+											<span class="text">검색</span>
+										</button>
+									</div>
+								</form>
+							</div>
+
+							<!-- 선택한 사이트명 노출 -->
+							<div class="card site-name">
+								<h3>대표 홈 국문</h3>
+							</div>
+
+							<div class="content-row-area">
+								<!-- 목록 -->
+								<div class="card">
+									<div class="search-before"><p>데이터를 검색해보세요</p></div>
+
+									<!-- 데이터 없을 경우 -->
+									<!-- <div class="nodata-area"><p>데이터가 없어요</p></div> -->
+
+									<!-- 목록 -->
+									<div class="result-area" style="display: none">
+										<div class="list-control">
+											<div class="left">
+												<p class="total">총 <strong class="text-primary">113</strong>건(1/1 page)</p>
+											</div>
+											<div class="right">
+												<a href="#;" class="btn btn-sm btn-xls mr-1" download>
+													<i class="ico ico-fileexcel-white-sm"></i>
+													<span>엑셀 다운로드</span>
+												</a>
+												<select class="form-control-sm" style="min-width: 100px" title="목록 수">
+													<option selected>10</option>
+													<option>20</option>
+													<option>50</option>
+													<option>100</option>
+												</select>
+												<button type="button" class="btn btn-sm btn-outline-gray ml-1">적용</button>
+											</div>
+										</div>
+
+										<div class="table table-list">
+											<div class="table-inner">
+												<table style="min-width: 600px">
+													<caption class="sr-only">
+														사용자 메뉴별 통계 목록
+													</caption>
+													<colgroup>
+														<col />
+														<col />
+														<col />
+														<col />
+														<col />
+														<col />
+													</colgroup>
+													<thead>
+														<tr>
+															<th scope="col">번호</th>
+															<th scope="col">
+																<button type="button" class="table-align-btn">
+																	<span class="table-title">메뉴명</span>
+																	<span class="ico-wrap">
+																		<i class="ico ico-table-updown-darkgary-sm"></i>
+																		<span class="sr-only">오름차순/내림차순 정렬</span>
+																	</span>
+																</button>
+															</th>
+															<th scope="col">
+																<button type="button" class="table-align-btn">
+																	<span class="table-title">방문자 수</span>
+																	<span class="ico-wrap">
+																		<i class="ico ico-table-updown-darkgary-sm"></i>
+																		<span class="sr-only">오름차순/내림차순 정렬</span>
+																	</span>
+																</button>
+															</th>
+															<th scope="col">
+																<button type="button" class="table-align-btn">
+																	<span class="table-title">페이지 뷰</span>
+																	<span class="ico-wrap">
+																		<i class="ico ico-table-updown-darkgary-sm"></i>
+																		<span class="sr-only">오름차순/내림차순 정렬</span>
+																	</span>
+																</button>
+															</th>
+															<th scope="col">
+																<button type="button" class="table-align-btn">
+																	<span class="table-title">PC</span>
+																	<span class="ico-wrap">
+																		<i class="ico ico-table-updown-darkgary-sm"></i>
+																		<span class="sr-only">오름차순/내림차순 정렬</span>
+																	</span>
+																</button>
+															</th>
+															<th scope="col">
+																<button type="button" class="table-align-btn">
+																	<span class="table-title">Mobile</span>
+																	<span class="ico-wrap">
+																		<i class="ico ico-table-updown-darkgary-sm"></i>
+																		<span class="sr-only">오름차순/내림차순 정렬</span>
+																	</span>
+																</button>
+															</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td>1</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link">포트폴리오</a>
+															</td>
+															<td>45</td>
+															<td>2,540</td>
+															<td>26</td>
+															<td>15</td>
+														</tr>
+														<tr>
+															<td>2</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link">온택트서포터즈</a>
+															</td>
+															<td>45</td>
+															<td>2,540</td>
+															<td>26</td>
+															<td>15</td>
+														</tr>
+														<tr>
+															<td>3</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link"
+																	>회사소개 &gt; 사업안내</a
+																>
+															</td>
+															<td>45</td>
+															<td>2,540</td>
+															<td>26</td>
+															<td>15</td>
+														</tr>
+														<tr>
+															<td>4</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link">솔루션 &gt; I.N.UIX</a>
+															</td>
+															<td>45</td>
+															<td>2,540</td>
+															<td>26</td>
+															<td>15</td>
+														</tr>
+														<tr>
+															<td>5</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link">솔루션 &gt; NEIBIS</a>
+															</td>
+															<td>45</td>
+															<td>1,670</td>
+															<td>26</td>
+															<td>15</td>
+														</tr>
+														<tr>
+															<td>6</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link"
+																	>회사소개 &gt; 회사소개</a
+																>
+															</td>
+															<td>45</td>
+															<td>1,670</td>
+															<td>26</td>
+															<td>15</td>
+														</tr>
+														<tr>
+															<td>7</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link"
+																	>회사소개 &gt; 오시는길</a
+																>
+															</td>
+															<td>45</td>
+															<td>1,670</td>
+															<td>26</td>
+															<td>15</td>
+														</tr>
+														<tr>
+															<td>8</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link"
+																	>회사소개 &gt; 인증현황</a
+																>
+															</td>
+															<td>45</td>
+															<td>2,540</td>
+															<td>26</td>
+															<td>15</td>
+														</tr>
+														<tr>
+															<td>9</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link">스토리</a>
+															</td>
+															<td>45</td>
+															<td>2,540</td>
+															<td>26</td>
+															<td>15</td>
+														</tr>
+														<tr>
+															<td>10</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link"
+																	>회사소개 &gt; 사업안내</a
+																>
+															</td>
+															<td>45</td>
+															<td>2,540</td>
+															<td>26</td>
+															<td>15</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+
+										<div class="pagination">
+											<a href="#;" class="direction first">처음</a>
+											<a href="#;" class="direction prev">이전</a>
+											<strong>1</strong>
+											<a href="#;">2</a>
+											<a href="#;">3</a>
+											<a href="#;">4</a>
+											<a href="#;">5</a>
+											<a href="#;" class="direction next">다음</a>
+											<a href="#;" class="direction last">끝</a>
+										</div>
+									</div>
+								</div>
+
+								<!-- 통계 영역 -->
+								<!-- 통계 영역 검색으로 노출 일 경우 .card에 .statistics 클래스 추가 -->
+								<div class="card statistics">
+									<div class="statistics-wrap">
+										<div class="statistics-header">
+											<div class="tooltip mr-0">
+												<p>해당 차트는 최대 10개까지 표현할 수 있어요.</p>
+											</div>
+											<h4 class="title1">메뉴별 방문자 순위</h4>
+										</div>
+										<div class="statistics-body">
+											<div id="chart-bar" style="height: 490px"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="btn-group-between d-down-md">
+								<div class="right">
+									<a href="UI-NEIBIS-MA-로그-메뉴별로그-사용자메뉴로그.html" class="btn btn-lg btn-outline-gray">
+										<span>로그 보기</span>
+										<i class="ico ico-chevron-right-gray-md"></i>
+									</a>
+								</div>
+							</div>
+						</div>
+
+						<!-- 상단 고정 액션 버튼 -->
+						<div class="btn-group-fixed">
+							<a href="UI-NEIBIS-MA-로그-메뉴별로그-사용자메뉴로그.html" class="btn btn-lg btn-outline-gray">
+								<span>로그 보기</span>
+								<i class="ico ico-chevron-right-gray-md"></i>
+							</a>
+						</div>
+
+						<!-- Modal Popup : 메뉴 방문자 통계 상세보기 팝업 -->
+						<div class="modal-popup modal-xl hide" id="layer-statistics-popup">
+							<div class="dimed"></div>
+							<div class="popup-inner bg-gray">
+								<div class="popup-header">
+									<h2 class="popup-title"><span>포트폴리오</span> 메뉴 방문자 통계</h2>
+								</div>
+								<div class="popup-body">
+									<div class="statistics-contnet-wrap">
+										<div class="site-name-area">
+											<div class="site-name">
+												<span><i class="ico ico-site-name-md"></i>사이트명 <span>대표홈 국문</span></span>
+											</div>
+											<ol class="breadcrumb-list">
+												<li>메뉴 1뎁스명</li>
+												<li>메뉴 2뎁스명</li>
+												<li>메뉴 3뎁스명</li>
+												<li>포트폴리오</li>
+											</ol>
+										</div>
+										<div class="card">
+											<form action="#;" class="search-form">
+												<div class="table table-form-basic">
+													<div class="table-inner">
+														<table>
+															<caption class="sr-only">
+																검색조건입력
+															</caption>
+															<tbody>
+																<tr>
+																	<th scope="row">
+																		<span>조회기간<i class="req">필수입력</i></span>
+																	</th>
+																	<td>
+																		<div class="input-group input-group-date-range">
+																			<div class="radio-btn-group">
+																				<span class="check-item">
+																					<input
+																						type="radio"
+																						id="radio_btn2_1"
+																						name="radio_date_range"
+																						value="1d"
+																						required
+																					/>
+																					<label for="radio_btn2_1">하루전</label>
+																				</span>
+																				<span class="check-item">
+																					<input
+																						type="radio"
+																						id="radio_btn2_2"
+																						name="radio_date_range"
+																						value="7d"
+																						required
+																					/>
+																					<label for="radio_btn2_2">1주일</label>
+																				</span>
+																				<span class="check-item">
+																					<input
+																						type="radio"
+																						id="radio_btn2_3"
+																						name="radio_date_range"
+																						value="1m"
+																						checked
+																						required
+																					/>
+																					<label for="radio_btn2_3">1개월</label>
+																				</span>
+																				<span class="check-item">
+																					<input
+																						type="radio"
+																						id="radio_btn2_4"
+																						name="radio_date_range"
+																						value="3m"
+																						required
+																					/>
+																					<label for="radio_btn2_4">3개월</label>
+																				</span>
+																				<span class="check-item">
+																					<input
+																						type="radio"
+																						id="radio_btn2_5"
+																						name="radio_date_range"
+																						value="6m"
+																						required
+																					/>
+																					<label for="radio_btn2_5">6개월</label>
+																				</span>
+																				<span class="check-item">
+																					<input
+																						type="radio"
+																						id="radio_btn2_6"
+																						name="radio_date_range"
+																						value="12m"
+																						required
+																					/>
+																					<label for="radio_btn2_6">1년</label>
+																				</span>
+																			</div>
+																			<div class="input-group input-group-datepicker">
+																				<input
+																					type="text"
+																					class="form-control form-datepicker range-start"
+																					title="시작일 선택"
+																					placeholder="YYYY.MM.DD"
+																					required
+																				/>
+																				<span class="input-addon">-</span>
+																				<input
+																					type="text"
+																					class="form-control form-datepicker range-end"
+																					title="종료일 선택"
+																					placeholder="YYYY.MM.DD"
+																					required
+																				/>
+																			</div>
+																		</div>
+																	</td>
+																</tr>
+															</tbody>
+														</table>
+													</div>
+												</div>
+												<div class="btn-group-center">
+													<button type="reset" class="btn btn-md btn-outline-gray">
+														<i class="ico ico-undo-darkgray-md"></i>
+														<span class="text">초기화</span>
+													</button>
+													<button type="submit" class="btn btn-md btn-primary">
+														<i class="ico ico-search-white-md"></i>
+														<span class="text">검색</span>
+													</button>
+												</div>
+											</form>
+										</div>
+										<div class="content-row-area">
+											<!-- 목록 -->
+											<div class="card">
+												<div class="modal-search-before"><p>데이터를 검색해보세요</p></div>
+
+												<!-- 데이터 없을 경우 -->
+												<!-- <div class="modal-nodata-area"><p>데이터가 없어요</p></div> -->
+
+												<!-- 목록 -->
+												<div class="modal-result-area" style="display: none">
+													<div class="list-control">
+														<div class="left">
+															<p class="total">총 <strong class="text-primary">113</strong>건(1/1 page)</p>
+														</div>
+														<div class="right">
+															<a href="#;" class="btn btn-sm btn-xls mr-1" download>
+																<i class="ico ico-fileexcel-white-sm"></i>
+																<span>엑셀 다운로드</span>
+															</a>
+														</div>
+													</div>
+													<div class="table table-list">
+														<div class="table-inner">
+															<table style="min-width: 600px">
+																<caption class="sr-only">
+																	사용자 메뉴별 통계 상세 목록
+																</caption>
+																<thead>
+																	<tr>
+																		<th scope="col">번호</th>
+																		<th scope="col">
+																			<button type="button" class="table-align-btn">
+																				<span class="table-title">날짜</span>
+																				<span class="ico-wrap">
+																					<i class="ico ico-table-updown-darkgary-sm"></i>
+																					<span class="sr-only">오름차순/내림차순 정렬</span>
+																				</span>
+																			</button>
+																		</th>
+																		<th scope="col">
+																			<button type="button" class="table-align-btn">
+																				<span class="table-title">방문자 수</span>
+																				<span class="ico-wrap">
+																					<i class="ico ico-table-updown-darkgary-sm"></i>
+																					<span class="sr-only">오름차순/내림차순 정렬</span>
+																				</span>
+																			</button>
+																		</th>
+																		<th scope="col">
+																			<button type="button" class="table-align-btn">
+																				<span class="table-title">페이지 뷰</span>
+																				<span class="ico-wrap">
+																					<i class="ico ico-table-updown-darkgary-sm"></i>
+																					<span class="sr-only">오름차순/내림차순 정렬</span>
+																				</span>
+																			</button>
+																		</th>
+																		<th scope="col">
+																			<button type="button" class="table-align-btn">
+																				<span class="table-title">PC</span>
+																				<span class="ico-wrap">
+																					<i class="ico ico-table-updown-darkgary-sm"></i>
+																					<span class="sr-only">오름차순/내림차순 정렬</span>
+																				</span>
+																			</button>
+																		</th>
+																		<th scope="col">
+																			<button type="button" class="table-align-btn">
+																				<span class="table-title">Mobile</span>
+																				<span class="ico-wrap">
+																					<i class="ico ico-table-updown-darkgary-sm"></i>
+																					<span class="sr-only">오름차순/내림차순 정렬</span>
+																				</span>
+																			</button>
+																		</th>
+																	</tr>
+																</thead>
+																<tbody>
+																	<tr>
+																		<td>1</td>
+																		<td>2023.03.09</td>
+																		<td>45</td>
+																		<td>2,540</td>
+																		<td>26</td>
+																		<td>15</td>
+																	</tr>
+																	<tr>
+																		<td>2</td>
+																		<td>2023.03.09</td>
+																		<td>45</td>
+																		<td>2,540</td>
+																		<td>26</td>
+																		<td>15</td>
+																	</tr>
+																	<tr>
+																		<td>3</td>
+																		<td>2023.03.09</td>
+																		<td>45</td>
+																		<td>2,540</td>
+																		<td>26</td>
+																		<td>15</td>
+																	</tr>
+																	<tr>
+																		<td>4</td>
+																		<td>2023.03.09</td>
+																		<td>45</td>
+																		<td>2,540</td>
+																		<td>26</td>
+																		<td>15</td>
+																	</tr>
+																	<tr>
+																		<td>5</td>
+																		<td>2023.03.09</td>
+																		<td>45</td>
+																		<td>1,670</td>
+																		<td>26</td>
+																		<td>15</td>
+																	</tr>
+																	<tr>
+																		<td>6</td>
+																		<td>2023.03.09</td>
+																		<td>45</td>
+																		<td>1,670</td>
+																		<td>26</td>
+																		<td>15</td>
+																	</tr>
+																	<tr>
+																		<td>7</td>
+																		<td>2023.03.09</td>
+																		<td>45</td>
+																		<td>1,670</td>
+																		<td>26</td>
+																		<td>15</td>
+																	</tr>
+																	<tr>
+																		<td>8</td>
+																		<td>2023.03.09</td>
+																		<td>45</td>
+																		<td>2,540</td>
+																		<td>26</td>
+																		<td>15</td>
+																	</tr>
+																	<tr>
+																		<td>9</td>
+																		<td>2023.03.09</td>
+																		<td>45</td>
+																		<td>2,540</td>
+																		<td>26</td>
+																		<td>15</td>
+																	</tr>
+																	<tr>
+																		<td>10</td>
+																		<td>2023.03.09</td>
+																		<td>45</td>
+																		<td>2,540</td>
+																		<td>26</td>
+																		<td>15</td>
+																	</tr>
+																</tbody>
+															</table>
+														</div>
+													</div>
+													<div class="pagination">
+														<a href="#;" class="direction first">처음</a>
+														<a href="#;" class="direction prev">이전</a>
+														<strong>1</strong>
+														<a href="#;">2</a>
+														<a href="#;">3</a>
+														<a href="#;">4</a>
+														<a href="#;">5</a>
+														<a href="#;" class="direction next">다음</a>
+														<a href="#;" class="direction last">끝</a>
+													</div>
+												</div>
+											</div>
+											<!-- 통계 영역 -->
+											<!-- 통계 영역 검색으로 노출 일 경우 .card에 .modal-statistics 클래스 추가 -->
+											<div class="card modal-statistics">
+												<div class="statistics-wrap">
+													<div class="statistics-header">
+														<h3 class="title1">방문자 수 통계</h3>
+														<nav class="tabmenu tabmenu-custom">
+															<ul class="tab-list">
+																<li class="on">
+																	<a href="#tab-content1">
+																		<i class="ico ico-line-chart-white-sm"></i>
+																		<i class="ico ico-line-chart-primary-sm"></i>
+																		<span class="sr-only">방문자 수, 페이지 뷰 통계 차트</span>
+																	</a>
+																</li>
+																<li>
+																	<a href="#tab-content2">
+																		<i class="ico ico-donut-chart-white-sm"></i>
+																		<i class="ico ico-donut-chart-primary-sm"></i>
+																		<span class="sr-only">디바이스 비율 차트</span>
+																	</a>
+																</li>
+															</ul>
+														</nav>
+													</div>
+													<div class="statistics-body">
+														<div class="tab-content" id="tab-content1">
+															<h4 class="sr-only">방문자 수, 페이지 뷰 통계 차트</h4>
+															<div id="chart-line" style="height: 490px"></div>
+														</div>
+														<div class="tab-content" id="tab-content2">
+															<h4 class="sr-only">디바이스 비율 차트</h4>
+															<div id="chart-pie" style="height: 490px"></div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+							</div>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,101 @@
+.badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	white-space: nowrap;
+	border-radius: 0.4rem;
+	line-height: 1.2em;
+
+	// Size
+	&.badge-sm {
+		height: 2.4rem;
+		padding-inline: $spacing-2;
+		font-size: $font-size-body-small;
+		min-width: 5.4rem;
+	}
+	&.badge-md {
+		height: 2.6rem;
+		padding-inline: $spacing-2;
+		font-size: $font-size-body-small;
+	}
+	&.badge-lg {
+		height: 3.2rem;
+		padding-inline: $spacing-3;
+		font-size: $font-size-body-medium;
+	}
+
+	// Color
+	&.badge-primary {
+		color: $text-inverse;
+		background-color: $color-primary-50;
+	}
+	&.badge-secondary {
+		color: $text-inverse;
+		background-color: $color-secondary-80;
+	}
+	&.badge-tertiary {
+		color: $text-inverse;
+		background-color: $color-gray-50;
+	}
+	&.badge-point {
+		color: $text-inverse;
+		background-color: $color-point-50;
+	}
+	&.badge-danger {
+		color: $text-inverse;
+		background-color: $color-danger-50;
+	}
+	&.badge-warning {
+		color: $text-inverse;
+		background-color: $color-warning-50;
+	}
+	&.badge-success {
+		color: $text-inverse;
+		background-color: $color-success-50;
+	}
+	&.badge-info {
+		color: $text-inverse;
+		background-color: $color-info-50;
+	}
+	&.badge-info {
+		color: $text-inverse;
+		background-color: $color-info-50;
+	}
+
+	// Color-state
+	&.badge-state-yellow {
+		color: $color-warning-60;
+		background-color: $color-warning-5;
+	}
+	&.badge-state-green {
+		color: $color-success-60;
+		background-color: $color-success-5;
+	}
+	&.badge-state-navy {
+		color: $color-secondary-80;
+		background-color: $color-secondary-5;
+	}
+	&.badge-state-blue {
+		color: #096ab3;
+		background-color: $color-info-5;
+	}
+
+	// Outline
+	&.badge-outline-primary {
+		background-color: $bg-white;
+		color: $text-primary-dark;
+		border: 1px solid $border-primary;
+	}
+	&.badge-outline-navy {
+		color: $color-secondary-80;
+		border: 1px solid $color-secondary-70;
+	}
+}
+
+// badge-group
+.badge-group {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+	padding-block: 0.4rem;
+}

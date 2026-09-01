@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			function submitFuntion(event) {
+				event.preventDefault();
+				$(".search-before").hide();
+				$(".result-area").show();
+				$(".statistics").show();
+				$(".site-name").show();
+				$(".guide-list").show();
+			}
+
+			$(function () {
+				$("form.search-form").on("submit", submitFuntion);
+			});
+
+			window.addEventListener("DOMContentLoaded", async function () {
+				// 창의 너비를 확인
+				let windowWidth = window.innerWidth;
+
+				// 라인차트 날짜 반환
+				const dateList = Array.from({ length: 30 }, (_, i) => {
+					const date = new Date(2023, 3, i + 1);
+					const month = date.getMonth() + 1;
+					const day = date.getDate();
+
+					// MM.DD 형태로 반환
+					return `${month.toString().padStart(2, "0")}.${day.toString().padStart(2, "0")}`;
+				});
+				async function generateBarChart() {
+					let chartPie = {
+						id: "chart-pie",
+						options: {
+							legend: {
+								orient: "horizontal",
+								x: "center",
+								y: "bottom",
+								itemWidth: 12, // 아이콘 가로 크기
+								itemHeight: 12, // 아이콘 세로 크기
+								data: [
+									"역곡시 게시판",
+									"자유형 게시판",
+									"포토 게시판",
+									"동영상 게시판",
+									"블로그 게시판",
+									"홍보 동영상",
+									"리스트 게시판",
+									"민원 게시판",
+									"자유 게시판",
+									"질문 게시판"
+								]
+							},
+							// 색상 배열 순환 적용됨 : 데이터 개수가 많아져도 문제없음
+							color: [
+								"#357FED",
+								"#F59E0B",
+								"#0CAE79",
+								"#F97316",
+								"#8B5CF6",
+								"#EF4444",
+								"#0EA5E9",
+								"#EC4899",
+								"#84CC16",
+								"#06B6D4"
+							],
+							series: [
+								// 파이차트 데이터 라인으로 표출
+								{
+									name: "게시판 사용 비율",
+									type: "pie",
+									radius: ["30%", "75%"],
+									center: ["50%", "40%"], // 차트의 중심 위치를 조절
+									data: [
+										{ value: 45, name: "역곡시 게시판" },
+										{ value: 20, name: "자유형 게시판" },
+										{ value: 10, name: "포토 게시판" },
+										{ value: 10, name: "동영상 게시판" },
+										{ value: 10, name: "블로그 게시판" },
+										{ value: 5, name: "홍보 동영상" },
+										{ value: 5, name: "리스트 게시판" },
+										{ value: 5, name: "민원 게시판" },
+										{ value: 5, name: "자유 게시판" },
+										{ value: 5, name: "질문 게시판" }
+									],
+									label: {
+										formatter: "{b} {c}%", // 카테고리명: 값(퍼센트)
+										show: windowWidth < 768 ? false : true // 너비가 768 미만이면 'show'를 'false'로 설정, 그렇지 않으면 'true'
+									},
+									labelLine: {
+										show: windowWidth < 768 ? false : true, // 너비가 768 미만이면 'show'를 'false'로 설정, 그렇지 않으면 'true'
+										length: 16, // 라벨 선 첫번째 부분 길이
+										length2: 120, // 라벨 선 두번째 부분 길이
+										lineStyle: {
+											color: "#A6ADB9" // 라인 색상 설정
+										}
+									},
+									emphasis: {
+										itemStyle: {
+											color: "inherit"
+										}
+									},
+									z: 1
+								},
+								// 파이차트 데이터 면 내부에 흰색 글자로 표출 (두가지 정보 노출시 시리즈 2회 표출)
+								{
+									name: "게시판 사용 비율",
+									type: "pie",
+									radius: ["30%", "75%"],
+									center: ["50%", "40%"], // 차트의 중심 위치를 조절
+									data: [
+										{ value: 45, name: "역곡시 게시판" },
+										{ value: 20, name: "자유형 게시판" },
+										{ value: 10, name: "포토 게시판" },
+										{ value: 10, name: "동영상 게시판" },
+										{ value: 10, name: "블로그 게시판" },
+										{ value: 5, name: "홍보 동영상" },
+										{ value: 5, name: "리스트 게시판" },
+										{ value: 5, name: "민원 게시판" },
+										{ value: 5, name: "자유 게시판" },
+										{ value: 5, name: "질문 게시판" }
+									],
+									label: {
+										color: "#ffffff", // 흰색 글자
+										position: "inside", // 라벨 내부에 위치
+										formatter: "{c}%" // 값(퍼센트)만 표시
+									},
+									z: 2
+								}
+							]
+						}
+					};
+
+					// 각 차트 인스턴스를 저장할 객체
+					let chartInstances = {};
+
+					const charts = [chartPie];
+					await window.useCharts(charts);
+				}
+
+				// tab 구조에 차트가 들어가야할 경우 너비, 높이값 불러오기
+				$("form.search-form").on("submit", async function () {
+					const originalDisplay = $("#tab-content2").css("display");
+					$("#tab-content2").css("display", "block");
+					await generateBarChart();
+					$("#tab-content2").css("display", originalDisplay);
+				});
+			});
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="게시판 통계"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<div class="statistics-contnet-wrap">
+							<nav class="tabmenu tabmenu-type1 tabmenu-flex">
+								<ul class="tab-list">
+									<!-- 페이지 이동으로 탭메뉴 비활성화 data-allow-tabmenu="false" 추가 -->
+									<li data-allow-tabmenu="false">
+										<a href="UI-NEIBIS-MA-통계-게시판통계-조회수(탭).html"><span>조회 수</span></a>
+									</li>
+									<li class="on">
+										<a href="#" title="선택됨"><span>게시물 수</span></a>
+									</li>
+								</ul>
+							</nav>
+
+							<h3 class="sr-only">게시물 수</h3>
+							<!-- 검색 영역 -->
+							<div class="card">
+								<form action="#;" class="search-form">
+									<div class="table table-form-basic">
+										<div class="table-inner">
+											<table>
+												<caption class="sr-only">
+													검색조건입력
+												</caption>
+												<tbody>
+													<tr>
+														<th scope="row">
+															<label for="inp_date">조회연도<i class="req">필수입력</i></label>
+														</th>
+														<td colspan="3">
+															<select id="inp_date" class="form-control" style="width: 100%; max-width: 424px">
+																<option>2023</option>
+																<option>2022</option>
+																<option>2021</option>
+																<option>2020</option>
+																<option>2019</option>
+															</select>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<span>사이트명<i class="req">필수입력</i></span>
+														</th>
+														<td>
+															<select class="form-control" title="사이트명 선택" style="width: 100%; max-width: 424px">
+																<option selected>대표 홈 국문</option>
+																<option>항목1</option>
+																<option>항목2</option>
+															</select>
+														</td>
+														<th scope="row">게시판명</th>
+														<td>
+															<select class="form-control" title="게시판명 선택" style="width: 100%; max-width: 424px">
+																<option selected>전체</option>
+																<option>항목1</option>
+																<option>항목2</option>
+															</select>
+														</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+									<div class="btn-group-center">
+										<button type="reset" class="btn btn-md btn-outline-gray">
+											<i class="ico ico-undo-darkgray-md"></i>
+											<span class="text">초기화</span>
+										</button>
+										<button type="submit" class="btn btn-md btn-primary">
+											<i class="ico ico-search-white-md"></i>
+											<span class="text">검색</span>
+										</button>
+									</div>
+								</form>
+							</div>
+
+							<!-- 선택한 사이트명 노출 -->
+							<div class="card site-name">
+								<h4>대표 홈 국문</h4>
+							</div>
+
+							<!-- 목록 -->
+							<div class="card">
+								<div class="search-before"><p>데이터를 검색해보세요</p></div>
+
+								<!-- 데이터 없을 경우 -->
+								<!-- <div class="nodata-area"><p>데이터가 없어요</p></div> -->
+
+								<div class="box guide-list">
+									<ol>
+										<li>
+											1월 ~ 12월은 해당 게시판의 게시물 수의 총합을 나타내며, 총 게시물 수는 1년간의 총 게시물 수 합계를
+											나타냅니다.
+										</li>
+									</ol>
+								</div>
+
+								<!-- 목록 -->
+								<div class="result-area" style="display: none">
+									<div class="list-control">
+										<div class="left">
+											<p class="total">총 <strong class="text-primary">113</strong>건(1/1 page)</p>
+										</div>
+										<div class="right">
+											<a href="#;" class="btn btn-sm btn-xls mr-1" download>
+												<i class="ico ico-fileexcel-white-sm"></i>
+												<span>엑셀 다운로드</span>
+											</a>
+											<select class="form-control-sm" style="min-width: 100px" title="목록 수">
+												<option selected>10</option>
+												<option>20</option>
+												<option>50</option>
+												<option>100</option>
+											</select>
+											<button type="button" class="btn btn-sm btn-outline-gray ml-1">적용</button>
+										</div>
+									</div>
+
+									<div class="table table-list">
+										<div class="table-inner">
+											<table style="min-width: 1200px">
+												<caption class="sr-only">
+													게시판 통계 게시물 수 목록
+												</caption>
+												<thead>
+													<tr>
+														<th scope="col">게시판명</th>
+														<th scope="col">
+															<button type="button" class="table-align-btn">
+																<span class="table-title">총 게시물 수</span>
+																<span class="ico-wrap">
+																	<i class="ico ico-table-updown-darkgary-sm"></i>
+																	<span class="sr-only">오름차순/내림차순 정렬</span>
+																</span>
+															</button>
+														</th>
+														<th scope="col">1월</th>
+														<th scope="col">2월</th>
+														<th scope="col">3월</th>
+														<th scope="col">4월</th>
+														<th scope="col">5월</th>
+														<th scope="col">6월</th>
+														<th scope="col">7월</th>
+														<th scope="col">8월</th>
+														<th scope="col">9월</th>
+														<th scope="col">10월</th>
+														<th scope="col">11월</th>
+														<th scope="col">12월</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td class="text-left">역곡시 게시판</td>
+														<td>156,243</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+													<tr>
+														<td class="text-left">자유형 게시판</td>
+														<td>156,243</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+													<tr>
+														<td class="text-left">포토 게시판</td>
+														<td>156,243</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+													<tr>
+														<td class="text-left">동영상 게시판</td>
+														<td>156,243</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+													<tr>
+														<td class="text-left">블로그 게시판</td>
+														<td>156,243</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+													<tr>
+														<td class="text-left">홍보 동영상</td>
+														<td>156,243</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+													<tr>
+														<td class="text-left">리스트 게시판</td>
+														<td>156,243</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+													<tr>
+														<td class="text-left">민원 게시판</td>
+														<td>156,243</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+													<tr>
+														<td class="text-left">자유 게시판</td>
+														<td>156,243</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+													<tr>
+														<td class="text-left">질문 게시판</td>
+														<td>156,243</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+														<td>45</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+									<div class="pagination">
+										<a href="#;" class="direction first">처음</a>
+										<a href="#;" class="direction prev">이전</a>
+										<strong>1</strong>
+										<a href="#;">2</a>
+										<a href="#;">3</a>
+										<a href="#;">4</a>
+										<a href="#;">5</a>
+										<a href="#;" class="direction next">다음</a>
+										<a href="#;" class="direction last">끝</a>
+									</div>
+								</div>
+							</div>
+
+							<!-- 통계 영역 -->
+							<div class="card statistics">
+								<div class="statistics-wrap">
+									<div class="statistics-header">
+										<div class="tooltip mr-0">
+											<p>
+												관리자 페이지에서 특정 게시판의 게시물을 등록/수정/복원 이력의 횟수의 비중을 나타냅니다.<br /><br />
+												해당 차트는 최대 10개까지 표현할 수 있어요.
+											</p>
+										</div>
+										<h5 class="title1">2023년 게시판 사용 비율</h5>
+									</div>
+									<div class="statistics-body">
+										<div id="chart-pie" style="height: 400px"></div>
+									</div>
+								</div>
+							</div>
+
+							<div class="btn-group-between d-down-md">
+								<div class="right">
+									<a href="UI-NEIBIS-MA-로그-게시물변경이력.html" class="btn btn-lg btn-outline-gray">
+										<span>로그 보기</span>
+										<i class="ico ico-chevron-right-gray-md"></i>
+									</a>
+								</div>
+							</div>
+						</div>
+
+						<!-- 상단 고정 액션 버튼 -->
+						<div class="btn-group-fixed">
+							<a href="UI-NEIBIS-MA-로그-게시물변경이력.html" class="btn btn-lg btn-outline-gray">
+								<span>로그 보기</span>
+								<i class="ico ico-chevron-right-gray-md"></i>
+							</a>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

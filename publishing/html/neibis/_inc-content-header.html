@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				// 이곳에 정의
+			});
+		</script>
+	</head>
+
+	<body>
+		<div class="wrapper">
+			<div class="content-header">
+				<a href="#;" class="btn-tile btn-back" onclick="history.back(); return false;">
+					<i class="ico ico-back"></i>
+					<span class="sr-only">뒤로가기</span>
+				</a>
+
+				<div class="tile">
+					<div class="location">
+						<button type="button" class="btn btn-icon btn-copy">
+							<i class="ico ico-copy-gray-sm"></i>
+							<span class="sr-only">복사</span>
+						</button>
+						<ol class="breadcrumb-list">
+							<li>${대메뉴}</li>
+							<li>${중메뉴}</li>
+							<li>${현재메뉴}</li>
+						</ol>
+					</div>
+					<div class="content-title">
+						<div class="tooltip">
+							<p>
+								설명 문구 및 이용 안내문구1 설명 문구 및 이용 안내문구1 설명 문구 및 이용 안내문구1 설명 문구 및 이용
+								안내문구1 설명 문구 및 이용 안내문구1
+							</p>
+							<div class="btn-group">
+								<a href="#;" class="btn btn-sm btn-primary">버튼1</a>
+								<a href="#;" class="btn btn-sm btn-primary">버튼2버튼2</a>
+							</div>
+						</div>
+						<h2 class="title">${화면명}</h2>
+						<!-- [개발] 즐겨찾기 활성화시 on 클래스 추가 -->
+						<button type="button" class="btn-favorit">
+							<i class="ico ico-favorit"></i>
+							<span class="sr-only">즐겨찾기</span>
+						</button>
+					</div>
+				</div>
+
+				<a href="#;" class="btn-tile btn-allmenu-open">
+					<i class="ico ico-allmenu"></i>
+					<span class="sr-only">메뉴</span>
+				</a>
+			</div>
+		</div>
+	</body>
+</html>

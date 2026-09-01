@@ -1,0 +1,17 @@
+// 의견제시 입력 폼
+.opinion-form-wrap {
+	max-width: 90rem;
+	margin: 0 auto;
+
+	.opinion-form {
+		padding: $spacing-10;
+		border-radius: $spacing-3;
+		border: 1px solid $border-gray;
+	}
+
+	@include mq-down(sm) {
+		.opinion-form {
+			padding: $spacing-6;
+		}
+	}
+}

@@ -1,0 +1,54 @@
+// 브레이크포인트: sm 768 / md 1024 / lg 1280. 미디어쿼리용이라 반드시 px 유지(rem 금지).
+// $bp-lg는 $container-width(rem)와 값만 같을 뿐 다른 변수이니 혼동 주의.
+// 데스크톱 우선 구조 — 기본은 PC 스타일, mq-down()으로 모바일 대응. mq-up()은 예외적 경우에만.
+
+$bp-sm: 768px;
+$bp-md: 1024px;
+$bp-lg: 1280px;
+$bp-xl: 1440px;
+
+// "이 값 이상"
+@mixin mq-up($breakpoint) {
+	@if $breakpoint == sm {
+		@media (min-width: $bp-sm) {
+			@content;
+		}
+	} @else if $breakpoint == md {
+		@media (min-width: $bp-md) {
+			@content;
+		}
+	} @else if $breakpoint == lg {
+		@media (min-width: $bp-lg) {
+			@content;
+		}
+	} @else if $breakpoint == xl {
+		@media (min-width: $bp-xl) {
+			@content;
+		}
+	} @else {
+		@warn "Unknown breakpoint: #{$breakpoint}";
+	}
+}
+
+// "이 값 미만"
+@mixin mq-down($breakpoint) {
+	@if $breakpoint == sm {
+		@media (max-width: $bp-sm - 1px) {
+			@content;
+		}
+	} @else if $breakpoint == md {
+		@media (max-width: $bp-md - 1px) {
+			@content;
+		}
+	} @else if $breakpoint == lg {
+		@media (max-width: $bp-lg - 1px) {
+			@content;
+		}
+	} @else if $breakpoint == xl {
+		@media (max-width: $bp-xl - 1px) {
+			@content;
+		}
+	} @else {
+		@warn "Unknown breakpoint: #{$breakpoint}";
+	}
+}

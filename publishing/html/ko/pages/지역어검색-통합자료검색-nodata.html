@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>통합 자료 검색 | 지역어 검색 | 지역어 종합 정보</title>
+		<link rel="icon" href="../../../assets/_common/images/favicon.ico" />
+
+		<!-- CSS -->
+		<link rel="stylesheet" href="../../../assets/ko/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../../assets/_common/js/ui-global.js" defer></script>
+
+		<!-- TODO : 퍼블용 JS, 개발시 반영 금지 -->
+		<script src="../../../assets/_guide/js/ui-include.js" defer></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {
+				// 멀티 검색 조건 동적 추가/삭제 이벤트 리스너 (+, -, X)
+				document.addEventListener("click", function (event) {
+					const addBtn = event.target.closest(".search-panel-btn-add");
+					const minusBtn = event.target.closest(".search-panel-btn-minus");
+					const closeBtn = event.target.closest(".search-panel-btn-close");
+
+					if (addBtn) {
+						const group = addBtn.closest(".search-panel-group");
+						if (!group) return;
+
+						const isRegionGroup = group.id === "region-condition-group";
+						const newRow = document.createElement("div");
+						newRow.className = "search-panel-controls dynamic-row";
+
+						if (isRegionGroup) {
+							newRow.innerHTML = `
+								<select class="select select-lg">
+									<option value="">전체</option>
+									<option value="강원특별자치도">강원특별자치도</option>
+									<option value="제주특별자치도">제주특별자치도</option>
+								</select>
+								<select class="select select-lg">
+									<option value="">전체</option>
+									<option value="평창군">평창군</option>
+								</select>
+								<button type="button" class="search-panel-btn-close" title="해당 조건 삭제"></button>
+							`;
+						} else {
+							newRow.innerHTML = `
+								<select class="select select-lg select-w-sm">
+									<option value="AND">그리고</option>
+									<option value="OR">또는</option>
+									<option value="NOT">제외</option>
+								</select>
+								<select class="select select-lg select-w-sm">
+									<option value="">전체</option>
+									<option value="지역어">지역어</option>
+								</select>
+								<select class="select select-lg select-w-sm">
+									<option value="">포함</option>
+									<option value="시작문자">시작 문자</option>
+								</select>
+								<input type="text" class="input input-lg" placeholder="검색어를 입력하세요." />
+								<button type="button" class="btn btn-lg btn-tertiary">옛 한글</button>
+								<button type="button" class="search-panel-btn-close" title="해당 조건 삭제"></button>
+							`;
+						}
+
+						group.appendChild(newRow);
+					} else if (minusBtn) {
+						const group = minusBtn.closest(".search-panel-group");
+						if (!group) return;
+						const dynamicRows = group.querySelectorAll(".dynamic-row");
+						if (dynamicRows.length > 0) {
+							dynamicRows[dynamicRows.length - 1].remove();
+						}
+					} else if (closeBtn) {
+						const row = closeBtn.closest(".dynamic-row");
+						if (row) {
+							row.remove();
+						}
+					}
+
+					// 하단 '간단히 검색' 버튼 클릭 시 탭 이동
+					const simpleSearchBtn = event.target.closest(".search-panel-footer .btn-tertiary");
+					if (simpleSearchBtn && simpleSearchBtn.textContent.trim() === "간단히 검색") {
+						const simpleTab = document.querySelector("[aria-controls='tab-panel-simple']");
+						if (simpleTab) simpleTab.click();
+					}
+				});
+
+				// 구술발화 오디오 재생 시뮬레이션
+				const playBtns = document.querySelectorAll(".btn-play-circle");
+				let activeAnimFrame = null;
+				let activeBtn = null;
+				let activeItem = null;
+				let activeHighlightEl = null;
+
+				// 텍스트 길이(글자 수) 기준으로 하이라이트 대상 Range를 구하고,
+				// 그 Range의 줄별 사각형(getClientRects)만큼만 오버레이를 그림.
+				// -> 줄바꿈 줄 수, 텍스트 길이, 중첩 마크업에 상관없이 항상 줄 단위로 정확히 채워짐.
+				// 매 프레임 마크(span)를 지웠다 새로 만들면 CSS transition이 걸리지 않아 뚝뚝 끊겨 보이므로,
+				// 기존 마크 엘리먼트를 그대로 재사용해 위치/크기만 갱신한다(transition이 자연스럽게 적용됨).
+				function paintHighlight(highlightEl, percent) {
+					if (!highlightEl) return;
+
+					let overlay = highlightEl.querySelector(":scope > .highlight-marks");
+					if (!overlay) {
+						overlay = document.createElement("span");
+						overlay.className = "highlight-marks";
+						overlay.setAttribute("aria-hidden", "true");
+						highlightEl.insertBefore(overlay, highlightEl.firstChild);
+					}
+
+					const totalLength = highlightEl.textContent.length;
+					const charIndex = Math.round((Math.max(0, Math.min(100, percent)) / 100) * totalLength);
+
+					let rects = [];
+					if (charIndex > 0 && totalLength > 0) {
+						const walker = document.createTreeWalker(highlightEl, NodeFilter.SHOW_TEXT);
+						const firstTextNode = walker.nextNode();
+
+						if (firstTextNode) {
+							let remaining = charIndex;
+							let targetNode = firstTextNode;
+							let targetOffset = Math.min(remaining, firstTextNode.textContent.length);
+							remaining -= firstTextNode.textContent.length;
+
+							let node;
+							while (remaining > 0 && (node = walker.nextNode())) {
+								const len = node.textContent.length;
+								targetNode = node;
+								targetOffset = Math.min(remaining, len);
+								remaining -= len;
+							}
+
+							// Range의 시작점을 highlightEl(요소 노드)로 잡으면 브라우저에 따라
+							// getClientRects()가 실제 줄 사각형 외에 컨테이너 전체 너비의 가짜 사각형을
+							// 함께 반환하는 경우가 있어, 반드시 첫 텍스트 노드를 시작점으로 사용한다.
+							const range = document.createRange();
+							range.setStart(firstTextNode, 0);
+							range.setEnd(targetNode, targetOffset);
+
+							rects = Array.from(range.getClientRects()).filter(function (rect) {
+								return rect.width > 0 && rect.height > 0;
+							});
+						}
+					}
+
+					const baseRect = highlightEl.getBoundingClientRect();
+					const existingMarks = overlay.children;
+
+					rects.forEach(function (rect, i) {
+						let mark = existingMarks[i];
+						if (!mark) {
+							mark = document.createElement("span");
+							mark.className = "highlight-mark";
+							overlay.appendChild(mark);
+						}
+						mark.style.left = rect.left - baseRect.left + "px";
+						mark.style.top = rect.top - baseRect.top + "px";
+						mark.style.width = rect.width + "px";
+						mark.style.height = rect.height + "px";
+					});
+
+					while (existingMarks.length > rects.length) {
+						overlay.removeChild(existingMarks[existingMarks.length - 1]);
+					}
+				}
+
+				function resetPlayer(btn, item, highlightEl) {
+					if (activeAnimFrame) cancelAnimationFrame(activeAnimFrame);
+					if (btn) {
+						btn.classList.remove("is-playing");
+						btn.setAttribute("aria-label", "음성 재생");
+						btn.innerHTML = '<i class="svg-icon ico-play ico-sm" aria-hidden="true"></i>';
+					}
+					if (item) {
+						item.style.setProperty("--progress", "0%");
+					}
+					paintHighlight(highlightEl, 0);
+				}
+
+				playBtns.forEach(function (btn) {
+					const item = btn.closest(".search-transcript-item");
+					if (!item) return;
+					const highlightEl = item.querySelector(".highlight-text");
+
+					const DURATION_MS = 3000;
+
+					btn.addEventListener("click", function () {
+						const isPlaying = btn.classList.contains("is-playing");
+
+						if (isPlaying) {
+							resetPlayer(btn, item, highlightEl);
+							activeBtn = null;
+							activeItem = null;
+							activeHighlightEl = null;
+						} else {
+							if (activeBtn && activeBtn !== btn) {
+								resetPlayer(activeBtn, activeItem, activeHighlightEl);
+							}
+
+							btn.classList.add("is-playing");
+							btn.setAttribute("aria-label", "음성 정지");
+							btn.innerHTML = '<i class="svg-icon ico-stop ico-sm" aria-hidden="true"></i>';
+
+							activeBtn = btn;
+							activeItem = item;
+							activeHighlightEl = highlightEl;
+
+							const startTime = performance.now();
+
+							const tick = function (now) {
+								const percent = ((now - startTime) / DURATION_MS) * 100;
+
+								if (percent >= 100) {
+									resetPlayer(btn, item, highlightEl);
+									activeBtn = null;
+									activeItem = null;
+									activeHighlightEl = null;
+									activeAnimFrame = null;
+									return;
+								}
+
+								item.style.setProperty("--progress", percent + "%");
+								paintHighlight(highlightEl, percent);
+								activeAnimFrame = requestAnimationFrame(tick);
+							};
+
+							activeAnimFrame = requestAnimationFrame(tick);
+						}
+					});
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div class="wrap">
+			<!-- [퍼블용 include]: [include] 표기 부분은 실제 서버 include로 교체 필요 -->
+
+			<!-- [include]:본문 바로가기 -->
+			<div w3-include-html="../_include/inc-skipnav.html"></div>
+			<!-- [include]:상단 배너 -->
+			<div class="masthead" w3-include-html="../_include/inc-masthead.html"></div>
+			<!-- [include]:헤더  -->
+			<header class="header" w3-include-html="../_include/inc-header.html"></header>
+
+			<div id="container" class="container">
+				<!----- 콘텐츠 영역 ----->
+
+				<div class="inner" id="contents">
+					<!-- 브레드 크럼 -->
+					<nav class="breadcrumb">
+						<ol class="breadcrumb-list">
+							<li class="breadcrumb-item home">
+								<a href="#"><i class="svg-icon ico-bread-home ico-sm"></i>홈</a>
+							</li>
+							<li class="breadcrumb-item"><a href="#">지역어 검색</a></li>
+						</ol>
+					</nav>
+					<!-- // -->
+
+					<div class="content-header">
+						<h1 class="content-title">통합 자료 검색</h1>
+						<div class="content-actions">
+							<div class="tooltip">
+								<button type="button" class="btn btn-icon btn-gray">
+									<i class="svg-icon ico-share ico-md"></i>
+								</button>
+								<span class="tooltip-text">SNS 공유</span>
+							</div>
+							<div class="tooltip">
+								<button type="button" class="btn btn-icon btn-gray">
+									<i class="svg-icon ico-link ico-md"></i>
+								</button>
+								<span class="tooltip-text">링크 복사</span>
+							</div>
+							<div class="tooltip">
+								<button type="button" class="btn btn-icon btn-gray">
+									<i class="svg-icon ico-print ico-md"></i>
+								</button>
+								<span class="tooltip-text">인쇄하기</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- 콘텐츠 본문 -->
+					<div class="content-body search-page">
+						<!-- 상세검색 패널 -->
+						<div class="search-panel">
+							<div class="search-panel-head">
+								<div class="tab">
+									<ul class="tab-list">
+										<li class="tab-item">
+											<a href="#none" class="tab-link is-active" aria-controls="tab-panel-simple">간단히 검색</a>
+										</li>
+										<li class="tab-item">
+											<a href="#none" class="tab-link" aria-controls="tab-panel-detail">자세히 검색</a>
+										</li>
+									</ul>
+								</div>
+							</div>
+
+							<!-- 간단히 검색 탭 콘텐츠 -->
+							<div class="search-panel-body" data-tab-panel="tab-panel-simple">
+								<!-- 검색 범위 라디오 -->
+								<div class="search-panel-row">
+									<div class="search-panel-checkbox-row">
+										<label class="form-radio">
+											<input type="radio" name="searchScope" checked />
+											<span>전체</span>
+										</label>
+										<label class="form-radio">
+											<input type="radio" name="searchScope" />
+											<span>지역어로 찾기</span>
+										</label>
+										<label class="form-radio">
+											<input type="radio" name="searchScope" />
+											<span>표준어로 찾기</span>
+										</label>
+									</div>
+								</div>
+
+								<!-- 검색어 입력 -->
+								<div class="search-panel-row">
+									<div class="search-panel-content">
+										<div class="input-group input-group-fit">
+											<input type="text" class="input input-lg w-100" placeholder="검색어를 입력하세요." />
+											<button type="button" class="btn btn-lg btn-tertiary">옛 한글</button>
+										</div>
+
+										<div class="search-panel-recommend">
+											<span class="recommend-title">추천 검색어</span>
+											<div class="recommend-tags">
+												<a href="#none" class="tag text-link">감자</a>
+												<a href="#none" class="tag text-link">테</a>
+												<a href="#none" class="tag text-link">태</a>
+												<a href="#none" class="tag text-link">고구마</a>
+												<a href="#none" class="tag text-link">부추</a>
+												<a href="#none" class="tag text-link">할아버지</a>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- 추천 검색어 -->
+
+								<!-- 하단 액션 버튼 -->
+								<div class="search-panel-footer">
+									<button type="button" class="btn btn-xxl btn-primary">
+										<i class="svg-icon ico-search ico-xl"></i> 검색
+									</button>
+								</div>
+							</div>
+
+							<!-- 자세히 검색 탭 콘텐츠 -->
+							<div class="search-panel-body" data-tab-panel="tab-panel-detail" hidden inert>
+								<!-- 조사 지역 -->
+								<div class="search-panel-row">
+									<div class="search-panel-label">조사 지역</div>
+									<div class="search-panel-content">
+										<div class="search-panel-group search-panel-group-region" id="region-condition-group">
+											<div class="search-panel-controls">
+												<select class="select select-lg">
+													<option value="">전체</option>
+													<option value="강원특별자치도">강원특별자치도</option>
+													<option value="제주특별자치도">제주특별자치도</option>
+												</select>
+												<select class="select select-lg">
+													<option value="">전체</option>
+													<option value="평창군">평창군</option>
+												</select>
+												<div class="search-panel-controls controls-action">
+													<button type="button" class="search-panel-btn-add" title="조건 추가"></button>
+													<button type="button" class="search-panel-btn-minus" title="마지막 조건 삭제"></button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- 조사 차수 -->
+								<div class="search-panel-row">
+									<div class="search-panel-label">조사 차수</div>
+									<div class="search-panel-content">
+										<div class="search-panel-checkbox-row">
+											<label class="form-checkbox">
+												<input type="checkbox" checked />
+												<span>전체</span>
+											</label>
+											<label class="form-checkbox">
+												<input type="checkbox" />
+												<span>1차 조사 자료(2004~2020)</span>
+											</label>
+											<label class="form-checkbox">
+												<input type="checkbox" />
+												<span>2차 조사 자료(2022~)</span>
+											</label>
+										</div>
+									</div>
+								</div>
+
+								<!-- 조사 연도 -->
+								<div class="search-panel-row">
+									<div class="search-panel-label">조사 연도</div>
+									<div class="search-panel-content md-full">
+										<select class="select select-lg">
+											<option>전체</option>
+										</select>
+										<span class="search-panel-range-sep">~</span>
+										<select class="select select-lg">
+											<option>전체</option>
+										</select>
+									</div>
+								</div>
+
+								<!-- 제보자 정보 -->
+								<div class="search-panel-row">
+									<div class="search-panel-label">제보자 정보</div>
+									<div class="search-panel-content">
+										<div class="search-panel-inline-item">
+											<span class="label-text">세대별</span>
+											<div class="form-checkbox-group search-panel-checkbox-row">
+												<label class="form-checkbox"><input type="checkbox" checked /><span>전체</span></label>
+												<label class="form-checkbox"><input type="checkbox" /><span>20대</span></label>
+												<label class="form-checkbox"><input type="checkbox" /><span>50대</span></label>
+												<label class="form-checkbox"><input type="checkbox" /><span>60대</span></label>
+												<label class="form-checkbox"><input type="checkbox" /><span>70대</span></label>
+												<label class="form-checkbox"><input type="checkbox" /><span>80대</span></label>
+												<label class="form-checkbox"><input type="checkbox" /><span>90대</span></label>
+											</div>
+										</div>
+										<div class="search-panel-divider"></div>
+										<div class="search-panel-inline-item">
+											<span class="label-text">성별</span>
+											<div class="form-checkbox-group search-panel-checkbox-row">
+												<label class="form-checkbox"><input type="checkbox" checked /><span>전체</span></label>
+												<label class="form-checkbox"><input type="checkbox" /><span>남성</span></label>
+												<label class="form-checkbox"><input type="checkbox" /><span>여성</span></label>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- 검색 대상 -->
+								<div class="search-panel-row">
+									<div class="search-panel-label">검색 대상 <span class="req-point">필수</span></div>
+									<div class="search-panel-content">
+										<div class="search-panel-group search-panel-group-target" id="target-condition-group">
+											<!-- 1행 -->
+											<div class="search-panel-controls">
+												<select class="select select-lg select-w-sm">
+													<option>전체</option>
+													<option>지역어</option>
+													<option>표준어</option>
+												</select>
+												<select class="select select-lg select-w-sm">
+													<option>포함</option>
+													<option>일치</option>
+													<option>시작 문자</option>
+													<option>끝 문자</option>
+												</select>
+												<input type="text" class="input input-lg" placeholder="검색어를 입력하세요." value="감자" />
+												<button type="button" class="btn btn-lg btn-tertiary">옛 한글</button>
+												<div class="search-panel-controls controls-action">
+													<button type="button" class="search-panel-btn-add" title="조건 추가"></button>
+													<button type="button" class="search-panel-btn-minus" title="마지막 조건 삭제"></button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- 하단 액션 버튼 -->
+								<div class="search-panel-footer mt-6 mt-md-2">
+									<button type="button" class="btn btn-lg btn-tertiary btn-fit">간단히 검색</button>
+									<button type="button" class="btn btn-lg btn-primary btn-fit">
+										<i class="svg-icon ico-search ico-md"></i>
+										<span>검색</span>
+									</button>
+								</div>
+							</div>
+						</div>
+
+						<!-- 검색 결과 정보 바 -->
+						<div class="search-result-info">
+							<span>적용된 검색어 ‘<span class="text-primary-dark">감자</span>’</span>
+							<span class="divider"></span>
+							<span>검색 결과 <strong class="text-primary-dark">22,459</strong>개</span>
+						</div>
+
+						<!-- 결과 카테고리 탭 (박스 채움 형태 tab-fill) -->
+						<div class="tab tab-fill mt-16 mt-md-8">
+							<ul class="tab-list">
+								<li class="tab-item">
+									<a href="#none" class="tab-link is-active" aria-controls="sec-all">전체 (22,459)</a>
+								</li>
+								<li class="tab-item">
+									<a href="#none" class="tab-link" aria-controls="sec-vocab">어휘 조사 (12)</a>
+								</li>
+								<li class="tab-item">
+									<a href="#none" class="tab-link" aria-controls="sec-speech">구술발화 (234)</a>
+								</li>
+								<li class="tab-item">
+									<a href="#none" class="tab-link" aria-controls="sec-variant">지역별 이형태 (345)</a>
+								</li>
+								<li class="tab-item">
+									<a href="#none" class="tab-link" aria-controls="sec-lit">문학 속 지역어 (55)</a>
+								</li>
+								<li class="tab-item">
+									<a href="#none" class="tab-link" aria-controls="sec-photo">사진 생활어 (9)</a>
+								</li>
+							</ul>
+						</div>
+
+						<!-- 전체 검색 결과 섹션 -->
+						<div class="all-search-section" data-tab-panel="sec-all">
+							<!-- 섹션 1: 어휘 조사 자료 -->
+							<section class="search-section section-1">
+								<div class="search-section-head">
+									<h2 class="search-section-title">어휘 조사 자료 (12)</h2>
+								</div>
+								<div class="search-no-data">「<span>감자</span>」와 일치하는 어휘 조사 자료가 없습니다.</div>
+							</section>
+
+							<!-- 섹션 2: 구술발화 조사 자료 -->
+							<section class="search-section section-2">
+								<div class="search-section-head">
+									<h2 class="search-section-title">구술발화 조사 자료 (234)</h2>
+								</div>
+								<div class="search-no-data">「<span>감자</span>」와 일치하는 구술발화 조사 자료가 없습니다.</div>
+							</section>
+
+							<!-- 섹션 3: 지역별 이형태 자료 -->
+							<section class="search-section section-3 search">
+								<div class="search-section-head">
+									<h2 class="search-section-title">지역별 이형태 자료 (345)</h2>
+								</div>
+								<div class="search-no-data">「<span>감자</span>」와 일치하는 지역별 이형태 항목이 없습니다.</div>
+							</section>
+
+							<!-- 섹션 4: 문학 속 지역어 자료 -->
+							<section class="search-section section-4">
+								<div class="search-section-head">
+									<h2 class="search-section-title">문학 속 지역어 자료 (55)</h2>
+								</div>
+								<div class="search-no-data">「<span>감자</span>」와 일치하는 문학 속 지역어 자료가 없습니다.</div>
+							</section>
+
+							<!-- 섹션 5: 사진 생활어 자료 -->
+							<section class="search-section section-5">
+								<div class="search-section-head">
+									<h2 class="search-section-title">사진 생활어 자료 (9)</h2>
+								</div>
+								<div class="search-no-data">「<span>감자</span>」와 일치하는 사진 생활어 자료가 없습니다.</div>
+							</section>
+						</div>
+					</div>
+				</div>
+				<!----- //콘텐츠 영역 ----->
+
+				<button type="button" class="page-top-button">
+					<i class="svg-icon ico-go-top"></i>
+				</button>
+			</div>
+
+			<!-- [include]:푸터  -->
+			<footer class="footer" w3-include-html="../_include/inc-footer.html"></footer>
+			<!-- [include]:비밀번호 확인 팝업 -->
+			<div w3-include-html="../_include/inc-modal-pwd-confirm.html"></div>
+		</div>
+	</body>
+</html>

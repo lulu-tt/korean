@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- jquery.ui.touch-punch -->
+		<script src="../../assets/neibis/plugins/jquery.ui.touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				// btn-save 저장
+				$(".btn-save").click(function () {
+					if ($(".btn-select").hasClass("on")) {
+						confirm(
+							{
+								icon: "warning",
+								title: "저장하시겠어요?",
+								message: "저장하시려면 ‘확인’을 눌러주세요."
+							},
+							function (result) {
+								if (result) {
+									// true 로직 실행
+									alert({
+										icon: "success",
+										message: "정상적으로 완료되었어요."
+									});
+								} else {
+									// false 로직 실행
+								}
+							}
+						);
+					} else {
+						alert({
+							icon: "warning",
+							title: "관리자 메뉴 권한 ID 정보가 없어요",
+							message: "좌측 목록에서 조회 할 관리자를 클릭해 주세요."
+						});
+					}
+				});
+
+				window.zTreeDataUpdate = function (clickedButton) {
+					var variableName = clickedButton.data("treenode");
+					console.log("variableName:", variableName);
+
+					// 테스트용 데이터
+					var testData = {
+						treeNode1: [
+							{ id: 1, pId: 0, name: "22 사이트 메뉴명1", open: true, nocheck: true },
+							{ id: 11, pId: 1, name: "사이트 메뉴명1", open: true, nocheck: true },
+							{ id: 111, pId: 11, name: "사이트 메뉴명1", nocheck: true, disabled: true },
+							{ id: 112, pId: 11, name: "사이트 메뉴명1" }
+						],
+						treeNode2: [
+							{ id: 1, pId: 0, name: "3333 사이트 메뉴명1", open: true, nocheck: true },
+							{ id: 11, pId: 1, name: "사이트 메뉴명1", open: true, nocheck: true },
+							{ id: 111, pId: 11, name: "사이트 메뉴명1", nocheck: true, disabled: true },
+							{ id: 112, pId: 11, name: "사이트 메뉴명1" }
+						]
+						// 여기에 추가적인 노드 데이터를 추가할 수 있습니다.
+					};
+
+					if (!testData.hasOwnProperty(variableName)) {
+						console.error("Invalid variableName:", variableName); // 오류 로그 추가
+						return;
+					}
+
+					// 실제 환경이라면 아래 Ajax 부분을 사용하시고, 테스트 환경이면 테스트용 데이터를 반환하세요.
+					var isTesting = true; // 테스트 중이면 true로 설정, 실제 환경이면 false로 설정하세요.
+
+					var result;
+					if (isTesting) {
+						// 테스트 환경: 로컬 테스트 데이터 반환
+						result = testData[variableName];
+					} else {
+						// 실제 환경: Ajax를 사용하여 데이터를 가져옵니다.
+						$.ajax({
+							url: "/some-api/" + variableName, // 이 URL은 실제 API 주소로 대체하세요.
+							async: false,
+							success: function (data) {
+								result = data;
+							}
+						});
+					}
+
+					return result;
+				};
+			});
+
+			// z-tree : zNodes 추가 옵션
+			// open: true : 기본 view가 오픈상태로 노출
+			// disabled: true : 비활성화 메뉴의 경우
+			// isParent: true : 하위 메뉴가 없는 상태에서 폴더형식의 경우
+			// [특이 케이스] nocheck: true : check box가 구현되어야 하는 경우, check box가 안보이게 하는 역할을 합니다.
+
+			// iconskin 변경
+			// ico_docu, ico-page-md : 일반페이지 (기본), 지정되지 않은 종류의 페이지
+			// ico_open, ico_close, ico-folder-md : 폴더 (기본)
+			// ico-site-md : 사용자사이트 페이지
+			// ico-editpage-md :웹콘텐츠 관리 페이지
+			// ico-pagepgm-md : pgm 페이지
+			// ico-pagebbs-md : bbs 페이지
+			// ico-newwindow-md : 새창 (target: "_blank" 속성 추가 필요)
+			// ico-code-md : 코드 페이지
+
+			var zNodes = [
+				{ id: 1, pId: 0, name: "22 사이트 메뉴명1", open: true, nocheck: true },
+				{ id: 11, pId: 1, name: "사이트 메뉴명1", open: true, nocheck: true },
+				{ id: 111, pId: 11, name: "사이트 메뉴명1", nocheck: true, disabled: true },
+				{ id: 112, pId: 11, name: "사이트 메뉴명1" },
+				{ id: 113, pId: 11, name: "사이트 메뉴명1", nocheck: true, target: "_blank", iconSkin: "ico-newwindow-md" },
+				{ id: 114, pId: 11, name: "사이트 메뉴명1", nocheck: true, iconSkin: "ico-editpage-md" },
+				{ id: 115, pId: 11, name: "사이트 메뉴명1", nocheck: true, iconSkin: "ico-pagepgm-md" },
+				{ id: 116, pId: 11, name: "사이트 메뉴명1", nocheck: true, iconSkin: "ico-pagebbs-md" },
+				{ id: 117, pId: 11, name: "사이트 메뉴명1", nocheck: true, iconSkin: "ico-code-md" },
+				{
+					id: 12,
+					pId: 1,
+					name: "길어질 경우 가로 스크롤이 생성됩니다. 길어질 경우 가로 스크롤이 생성됩니다.",
+					nocheck: true
+				},
+				{ id: 121, pId: 12, name: "사이트 메뉴명1", nocheck: true },
+				{ id: 122, pId: 12, name: "사이트 메뉴명1", nocheck: true },
+				{ id: 13, pId: 1, name: "사이트 메뉴명1", nocheck: true, iconSkin: "ico-site-md" },
+				{ id: 2, pId: 0, name: "사이트 메뉴명1", nocheck: true },
+				{ id: 21, pId: 2, name: "사이트 메뉴명1", open: true },
+				{ id: 211, pId: 21, name: "사이트 메뉴명1", nocheck: true },
+				{ id: 212, pId: 21, name: "사이트 메뉴명1", nocheck: true },
+				{ id: 22, pId: 2, name: "사이트 메뉴명1", nocheck: true },
+				{ id: 221, pId: 22, name: "사이트 메뉴명1", nocheck: true },
+				{ id: 222, pId: 22, name: "사이트 메뉴명1", nocheck: true },
+				{ id: 23, pId: 2, name: "사이트 메뉴명1", nocheck: true },
+				{ id: 231, pId: 23, name: "사이트 메뉴명1", nocheck: true },
+				{ id: 232, pId: 23, name: "사이트 메뉴명1", nocheck: true },
+				{ id: 3, pId: 0, name: "사이트 메뉴명1", nocheck: true },
+				{ id: 4, pId: 0, name: "사이트 메뉴명1", nocheck: true }
+			];
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="관리자 메뉴권한"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<h3 class="sr-only">관리자 메뉴권한</h3>
+						<!-- 검색 영역 -->
+						<div class="card">
+							<form action="#;" class="search-form">
+								<div class="table table-form-basic">
+									<div class="table-inner">
+										<table>
+											<caption class="sr-only">
+												검색조건입력
+											</caption>
+											<tbody>
+												<tr>
+													<th scope="row">
+														<label for="search_word">검색어</label>
+													</th>
+													<td>
+														<input
+															type="text"
+															id="search_word"
+															class="form-control full"
+															placeholder="ID/성명으로 검색해주세요."
+														/>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+
+								<div class="btn-group-center">
+									<button type="reset" class="btn btn-md btn-outline-gray">
+										<i class="ico ico-undo-darkgray-md"></i>
+										<span class="text">초기화</span>
+									</button>
+									<button type="submit" class="btn btn-md btn-primary">
+										<i class="ico ico-search-white-md"></i>
+										<span class="text">검색</span>
+									</button>
+								</div>
+							</form>
+						</div>
+
+						<div class="card">
+							<!-- 절차 안내 -->
+							<div class="box">
+								<ol class="step-list">
+									<li>
+										<span class="num">1</span>
+										<span class="txt">좌측 목록에서 메뉴 권한을 부여할 관리자를 선택해주세요.</span>
+									</li>
+									<li>
+										<span class="num">2</span>
+										<span class="txt"
+											>우측 메뉴트리에서 접속 허용할 메뉴를 선택해주세요.(선택되지 않은 메뉴는 노출되지 않습니다.)</span
+										>
+									</li>
+									<li>
+										<span class="num">3</span>
+										<span class="txt"
+											>메뉴를 모두 선택했다면 우측 하단의 ‘저장' 버튼을 눌러주세요. 버튼을 눌러주셔야 반영됩니다.</span
+										>
+									</li>
+								</ol>
+							</div>
+
+							<div class="tree-in-wrap">
+								<!-- 테이블 목록 -->
+								<div class="table table-list table-select">
+									<div class="table-inner">
+										<table style="min-width: 800px">
+											<caption class="sr-only">
+												관리자 메뉴권한 목록
+											</caption>
+											<colgroup>
+												<col style="width: 80px" />
+												<col />
+												<col />
+												<col />
+												<col />
+												<col />
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col">선택</th>
+													<th scope="col">번호</th>
+													<th scope="col">아이디</th>
+													<th scope="col">성명</th>
+													<th scope="col">권한등급</th>
+													<th scope="col">가입일시</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td>
+														<label class="check-item">
+															<input type="radio" name="inputRadio1" id="inputRadio1_1" />
+															<span class="label sr-only">선택버튼</span>
+														</label>
+													</td>
+													<td>10</td>
+													<td>inseq123</td>
+													<td>홍길동</td>
+													<td>시스템관리자</td>
+													<td>2023.01.29 12:31:54</td>
+												</tr>
+												<tr>
+													<td>
+														<label class="check-item">
+															<input type="radio" name="inputRadio1" id="inputRadio1_2" />
+															<span class="label sr-only">선택버튼</span>
+														</label>
+													</td>
+													<td>9</td>
+													<td>inseq123</td>
+													<td>홍길동</td>
+													<td>업무관리자</td>
+													<td>2023.01.29 12:31:54</td>
+												</tr>
+												<tr>
+													<td>
+														<label class="check-item">
+															<input type="radio" name="inputRadio1" id="inputRadio1_3" />
+															<span class="label sr-only">선택버튼</span>
+														</label>
+													</td>
+													<td>8</td>
+													<td>inseq123</td>
+													<td>홍길동</td>
+													<td>업무관리자</td>
+													<td>2023.01.29 12:31:54</td>
+												</tr>
+												<tr>
+													<td>
+														<label class="check-item">
+															<input type="radio" name="inputRadio1" id="inputRadio1_4" />
+															<span class="label sr-only">선택버튼</span>
+														</label>
+													</td>
+													<td>7</td>
+													<td>inseq123</td>
+													<td>홍길동</td>
+													<td>시스템관리자</td>
+													<td>2023.01.29 12:31:54</td>
+												</tr>
+												<tr>
+													<td>
+														<label class="check-item">
+															<input type="radio" name="inputRadio1" id="inputRadio1_5" />
+															<span class="label sr-only">선택버튼</span>
+														</label>
+													</td>
+													<td>6</td>
+													<td>inseq123</td>
+													<td>홍길동</td>
+													<td>시스템관리자</td>
+													<td>2023.01.29 12:31:54</td>
+												</tr>
+												<tr>
+													<td>
+														<label class="check-item">
+															<input type="radio" name="inputRadio1" id="inputRadio1_6" />
+															<span class="label sr-only">선택버튼</span>
+														</label>
+													</td>
+													<td>5</td>
+													<td>inseq123</td>
+													<td>홍길동</td>
+													<td>업무관리자</td>
+													<td>2023.01.29 12:31:54</td>
+												</tr>
+												<tr>
+													<td>
+														<label class="check-item">
+															<input type="radio" name="inputRadio1" id="inputRadio1_7" />
+															<span class="label sr-only">선택버튼</span>
+														</label>
+													</td>
+													<td>4</td>
+													<td>inseq123</td>
+													<td>홍길동</td>
+													<td>업무관리자</td>
+													<td>2023.01.29 12:31:54</td>
+												</tr>
+												<tr>
+													<td>
+														<label class="check-item">
+															<input type="radio" name="inputRadio1" id="inputRadio1_8" />
+															<span class="label sr-only">선택버튼</span>
+														</label>
+													</td>
+													<td>3</td>
+													<td>inseq123</td>
+													<td>홍길동</td>
+													<td>시스템관리자</td>
+													<td>2023.01.29 12:31:54</td>
+												</tr>
+												<tr>
+													<td>
+														<label class="check-item">
+															<input type="radio" name="inputRadio1" id="inputRadio1_9" />
+															<span class="label sr-only">선택버튼</span>
+														</label>
+													</td>
+													<td>2</td>
+													<td>inseq123</td>
+													<td>홍길동</td>
+													<td>업무관리자</td>
+													<td>2023.01.29 12:31:54</td>
+												</tr>
+												<tr>
+													<td>
+														<label class="check-item">
+															<input type="radio" name="inputRadio1" id="inputRadio1_10" />
+															<span class="label sr-only">선택버튼</span>
+														</label>
+													</td>
+													<td>1</td>
+													<td>inseq123</td>
+													<td>홍길동</td>
+													<td>시스템관리자</td>
+													<td>2023.01.29 12:31:54</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+
+								<!-- 트리메뉴 -->
+								<div class="tree-menu-area card-in-tree">
+									<div class="tree-header">
+										<div class="btn-group-center gap-xs">
+											<button type="button" class="btn btn-xs btn-outline-gray" id="btnOpenTree">
+												<i class="ico ico-plus-gray-sm"></i>
+												<span>전체열기</span>
+											</button>
+											<button type="button" class="btn btn-xs btn-outline-gray" id="btnCloseTree">
+												<i class="ico ico-minus-gray-sm"></i>
+												<span>전체닫기</span>
+											</button>
+										</div>
+									</div>
+									<div class="tree-body">
+										<div class="scroll-araa">
+											<ul id="treeMenuCheck" class="ztree"></ul>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="btn-group-between">
+								<div class="right">
+									<button type="submit" class="btn btn-lg btn-primary btn-save">
+										<i class="ico ico-save-white-md"></i>
+										<span>저장</span>
+									</button>
+								</div>
+							</div>
+						</div>
+
+						<!-- 상단 고정 액션 버튼 -->
+						<div class="btn-group-fixed">
+							<button type="submit" class="btn btn-lg btn-primary btn-save">
+								<i class="ico ico-save-white-md"></i>
+								<span>저장</span>
+							</button>
+						</div>
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

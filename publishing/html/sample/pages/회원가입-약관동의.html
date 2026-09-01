@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>샘플 공공서비스 | 회원가입</title>
+  <link rel="shortcut icon" href="../../../assets/sample/images/common/favicon.png" />
+  <link rel="stylesheet" href="../../../assets/sample/css/common.css" />
+  <link rel="stylesheet" href="../../../assets/sample/css/sub.css" />
+  <script src="../../../assets/sample/js/ui.js" defer></script>
+</head>
+<body>
+
+  <!-- 건너뛰기 링크 -->
+  <nav class="skip-nav" aria-label="바로가기">
+    <a href="#content">본문 바로가기</a>
+    <a href="#footer">푸터 바로가기</a>
+  </nav>
+
+  <!-- 전체메뉴 -->
+  <div class="allmenu-dim" aria-hidden="true"></div>
+  <div class="allmenu-panel" role="dialog" aria-label="전체메뉴">
+    <div class="allmenu-panel__head">
+      <img class="allmenu-panel__logo" src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      <button class="allmenu-panel__close" type="button" data-allmenu-close aria-label="전체메뉴 닫기">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M2 2L14 14M14 2L2 14" stroke="rgba(255,255,255,0.65)" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="allmenu-panel__body">
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">기관소개</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./콘텐츠-일반.html">인사말</a></li>
+          <li><a class="allmenu-section__link" href="./콘텐츠-일반.html">연혁</a></li>
+          <li><a class="allmenu-section__link" href="./오시는-길.html">오시는 길</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">알림소식</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./게시판-목록.html">공지사항</a></li>
+          <li><a class="allmenu-section__link" href="./게시판-목록.html">보도자료</a></li>
+          <li><a class="allmenu-section__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+          <li><a class="allmenu-section__link" href="./FAQ.html">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">이용안내</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./개인정보처리방침.html">개인정보처리방침</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">참여마당</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./고객의소리-목록.html">고객의소리</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 롤링배너 -->
+  <div class="rolling-banner" role="region" aria-label="공지 롤링배너">
+    <div class="rolling-banner__inner">
+      <span class="rolling-banner__label">알림</span>
+      <div class="rolling-banner__content">
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">공지</span>
+          <a class="rolling-banner__title" href="#">2025년 상반기 주요사업 추진 계획 안내</a>
+          <span class="rolling-banner__date">2025.04.15</span>
+        </div>
+      </div>
+      <div class="rolling-banner__controls">
+        <button class="rolling-banner__arrow" type="button" data-rolling-prev aria-label="이전 공지">‹</button>
+        <span class="rolling-banner__count" aria-live="polite">1/1</span>
+        <button class="rolling-banner__arrow" type="button" data-rolling-next aria-label="다음 공지">›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 헤더 -->
+  <header class="site-header" role="banner">
+    <div class="site-header__inner">
+      <a class="site-logo" href="./메인.html" aria-label="샘플 공공서비스 홈으로 이동">
+        <img class="site-logo__img" src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </a>
+      <nav class="site-gnb" id="gnb" aria-label="주메뉴">
+        <ul class="site-gnb__list">
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">기관소개</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./콘텐츠-일반.html">인사말</a></li>
+                  <li><a class="gnb-dropdown__link" href="./콘텐츠-일반.html">연혁</a></li>
+                  <li><a class="gnb-dropdown__link" href="./오시는-길.html">오시는 길</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">알림소식</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./게시판-목록.html">공지사항</a></li>
+                  <li><a class="gnb-dropdown__link" href="./게시판-목록.html">보도자료</a></li>
+                  <li><a class="gnb-dropdown__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+                  <li><a class="gnb-dropdown__link" href="./FAQ.html">FAQ</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">이용안내</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./개인정보처리방침.html">개인정보처리방침</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">참여마당</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./고객의소리-목록.html">고객의소리</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </nav>
+      <div class="site-header__actions">
+        <a class="btn-login" href="./로그인.html">로그인</a>
+        <button class="btn-allmenu" type="button" data-allmenu-open aria-expanded="false">
+          <span class="btn-allmenu__bars" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span>전체메뉴</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 회원가입 콘텐츠 -->
+  <main id="content">
+
+    <!-- 브레드크럼 -->
+    <div class="breadcrumb-bar">
+      <div class="breadcrumb-bar__inner">
+        <nav class="breadcrumb" aria-label="현재 위치">
+          <span class="breadcrumb__item">
+            <a href="./메인.html">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-label="홈" style="display:inline-block;vertical-align:middle;margin-bottom:1px;">
+                <path d="M1 5.5L6.5 1L12 5.5V12H8.5V8H4.5V12H1V5.5Z" stroke="#A0A8B8" stroke-width="1.2" stroke-linejoin="round"/>
+              </svg>
+              홈
+            </a>
+          </span>
+          <span class="breadcrumb__sep" aria-hidden="true">›</span>
+          <span class="breadcrumb__item" aria-current="page">회원가입</span>
+        </nav>
+      </div>
+    </div>
+
+    <div class="join-wrap">
+      <div class="join-box">
+
+        <h1 class="join-box__title">회원가입</h1>
+
+        <!-- 단계 표시 -->
+        <!-- JSP: 단계별 is-done / is-active 클래스 동적 부여 -->
+        <ol class="join-step" aria-label="가입 단계">
+          <li class="join-step__item is-active" aria-current="step">
+            <span class="join-step__dot">1</span>
+            <span class="join-step__label">약관동의</span>
+          </li>
+          <li class="join-step__item">
+            <span class="join-step__dot">2</span>
+            <span class="join-step__label">본인인증</span>
+          </li>
+          <li class="join-step__item">
+            <span class="join-step__dot">3</span>
+            <span class="join-step__label">정보입력</span>
+          </li>
+          <li class="join-step__item">
+            <span class="join-step__dot">4</span>
+            <span class="join-step__label">가입완료</span>
+          </li>
+        </ol>
+
+        <!-- ── 전체동의 ── -->
+        <div class="terms-all">
+          <input type="checkbox" id="chk-all" name="agreeAll" />
+          <label for="chk-all">약관 전체에 동의합니다</label>
+        </div>
+
+        <!-- ── 이용약관 ── -->
+        <div class="terms-section">
+          <div class="terms-section__head">
+            <span class="terms-section__title">
+              이용약관
+              <span class="terms-required-badge">필수</span>
+            </span>
+          </div>
+          <div class="terms-body" tabindex="0" aria-label="이용약관 본문">
+            <h4>제1조 (목적)</h4>
+            <p>이 약관은 샘플 공공서비스(이하 "기관")가 제공하는 인터넷 서비스(이하 "서비스")의 이용에 관한 조건 및 절차, 기관과 이용자의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.</p>
+            <h4>제2조 (정의)</h4>
+            <p>"이용자"란 이 약관에 따라 기관이 제공하는 서비스를 받는 회원 및 비회원을 말합니다. "회원"이란 기관과 이용계약을 체결하고 이용자 아이디를 부여받은 자를 말합니다.</p>
+            <h4>제3조 (약관의 효력 및 변경)</h4>
+            <p>이 약관은 서비스를 이용하고자 하는 모든 이용자에게 적용됩니다. 기관은 약관을 변경할 경우 최소 7일 이전부터 서비스 초기 화면에 공지합니다.</p>
+            <h4>제4조 (서비스의 제공 및 변경)</h4>
+            <p>기관은 회원에게 아래와 같은 서비스를 제공합니다. 기관은 운영상·기술상 필요에 따라 제공하는 서비스를 변경할 수 있으며, 이에 대해 관련 법령에 특별한 규정이 없는 한 별도의 보상을 하지 않습니다.</p>
+          </div>
+          <div class="terms-check-row">
+            <input type="checkbox" id="chk-terms" name="agreeTerms" value="Y" />
+            <label for="chk-terms">이용약관에 동의합니다. <strong>(필수)</strong></label>
+          </div>
+        </div>
+
+        <!-- ── 개인정보 수집·이용 동의 ── -->
+        <div class="terms-section">
+          <div class="terms-section__head">
+            <span class="terms-section__title">
+              개인정보 수집·이용 동의
+              <span class="terms-required-badge">필수</span>
+            </span>
+          </div>
+          <div class="terms-body" tabindex="0" aria-label="개인정보 수집·이용 동의 본문">
+            <h4>수집하는 개인정보 항목</h4>
+            <p>기관은 회원가입, 서비스 제공, 민원 처리 등을 위해 아래와 같은 개인정보를 수집합니다.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>수집 목적</th>
+                  <th>수집 항목</th>
+                  <th>보유 기간</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>회원가입 및 관리</td>
+                  <td>이름, 휴대전화번호, 아이디, 비밀번호, 이메일</td>
+                  <td>탈퇴 시까지</td>
+                </tr>
+                <tr>
+                  <td>본인인증</td>
+                  <td>이름, 생년월일, 성별, 휴대전화번호, CI, DI</td>
+                  <td>인증 후 즉시 파기 (CI/DI 제외)</td>
+                </tr>
+              </tbody>
+            </table>
+            <h4>개인정보 수집·이용 거부 권리 안내</h4>
+            <p>정보주체는 개인정보 수집·이용에 동의를 거부할 권리가 있습니다. 다만, 동의 거부 시 회원가입이 불가능합니다.</p>
+          </div>
+          <div class="terms-check-row">
+            <input type="checkbox" id="chk-priv" name="agreePrivacy" value="Y" />
+            <label for="chk-priv">개인정보 수집·이용에 동의합니다. <strong>(필수)</strong></label>
+          </div>
+        </div>
+
+        <!-- ── 본인인증 안내 ── -->
+        <div class="cert-notice" role="note">
+          <span class="cert-notice__icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M9 2a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9ZM3.5 13c0-1.93 2.46-3.5 5.5-3.5s5.5 1.57 5.5 3.5v.5H3.5V13Z" fill="currentColor"/>
+            </svg>
+          </span>
+          <div class="cert-notice__body">
+            <p class="cert-notice__title">본인인증 안내</p>
+            <p class="cert-notice__desc">
+              서비스 가입을 위해 휴대전화 본인인증이 필요합니다.<br />
+              필수 약관에 동의하신 후 아래 <strong>본인인증</strong> 버튼을 클릭해 주세요.<br />
+              인증 완료 후 정보 입력 화면으로 이동합니다.
+            </p>
+          </div>
+        </div>
+
+        <!-- ── 버튼 바 ── -->
+        <!-- JSP: action="/uss/umt/insertMemberAction.do" 등 -->
+        <div class="join-btn-bar">
+          <a class="join-btn join-btn--outline" href="./로그인.html">취소</a>
+          <button class="join-btn join-btn--primary" type="button" id="btnCert" disabled>
+            본인인증
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="site-footer" id="footer" role="contentinfo">
+    <div class="site-footer__inner">
+      <div class="site-footer__logo">
+        <img src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </div>
+      <div class="site-footer__info">
+        <p class="site-footer__address">
+          (00000) 서울특별시 OO구 OO로 000 &nbsp;|&nbsp;
+          대표전화: 02-000-0000 &nbsp;|&nbsp;
+          팩스: 02-000-0001
+        </p>
+        <p class="site-footer__copy">Copyright &copy; 샘플 공공서비스. All Rights Reserved.</p>
+      </div>
+      <div class="site-footer__links">
+        <a class="site-footer__link is-point" href="./개인정보처리방침.html">개인정보처리방침</a>
+        <a class="site-footer__link" href="#">이용약관</a>
+        <a class="site-footer__link" href="#">사이트맵</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* ── 약관 동의 연동 ── */
+    (function () {
+      const chkAll   = document.getElementById('chk-all');
+      const chkTerms = document.getElementById('chk-terms');
+      const chkPriv  = document.getElementById('chk-priv');
+      const btnCert  = document.getElementById('btnCert');
+
+      const requiredChecks = [chkTerms, chkPriv];
+
+      function updateBtnState() {
+        const allChecked = requiredChecks.every(c => c.checked);
+        btnCert.disabled = !allChecked;
+        chkAll.checked = allChecked;
+      }
+
+      chkAll.addEventListener('change', function () {
+        requiredChecks.forEach(c => { c.checked = this.checked; });
+        updateBtnState();
+      });
+
+      requiredChecks.forEach(function (c) {
+        c.addEventListener('change', updateBtnState);
+      });
+
+      /* ── 본인인증 팝업 ── */
+      /* JSP 이식 시:
+         - certUrl은 /{siteId}/myslf-cert/popup.do 로 교체
+         - postMessage 수신 후 hidden field 세팅 → form submit 방식으로 정보입력 JSP 호출
+      */
+      btnCert.addEventListener('click', function () {
+        // 퍼블 데모: 약관 체크 확인 후 정보입력 페이지로 바로 이동
+        // 실제 운영: 아래 주석 해제하여 본인인증 팝업 오픈
+        /*
+        const certUrl = '/sample/myslf-cert/popup.do';
+        const popup = window.open(
+          certUrl,
+          'certPopup',
+          'width=500,height=700,scrollbars=no,resizable=no,top=100,left=' +
+          Math.round((screen.width - 500) / 2)
+        );
+        window.addEventListener('message', function onCertMsg(e) {
+          if (!e.data || e.data.type !== 'CERT_COMPLETE') return;
+          window.removeEventListener('message', onCertMsg);
+          // e.data 예시: { type:'CERT_COMPLETE', name:'홍길동', phone:'01012345678', ci:'...', di:'...' }
+          document.getElementById('certName').value  = e.data.name;
+          document.getElementById('certPhone').value = e.data.phone;
+          document.getElementById('certCi').value    = e.data.ci;
+          document.getElementById('certDi').value    = e.data.di;
+          document.getElementById('joinStep1Form').submit();
+        }, false);
+        */
+        // 퍼블 데모 이동
+        window.location.href = './회원가입-정보입력.html';
+      });
+    }());
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				// 이곳에 정의
+			});
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="설문조사"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+						<form action="#;">
+							<!-- 입력폼 -->
+							<div class="card">
+								<div class="table table-row">
+									<div class="table-inner">
+										<table>
+											<caption class="sr-only">
+												설문보기
+											</caption>
+											<tbody>
+												<tr>
+													<th scope="row">진행상태</th>
+													<td colspan="3">
+														<span class="label-status label-off">미진행</span>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">설문제목</th>
+													<td colspan="3">[교사용] 2022학년도 고등학교 입학전형 영향평가 실시 안내</td>
+												</tr>
+												<tr>
+													<th scope="row">참여기간</th>
+													<td>2023년 1월 29일 ~ 2023년 2월 29일</td>
+													<th scope="row">등록일시</th>
+													<td>2023년 1월 29일</td>
+												</tr>
+												<tr>
+													<th scope="row">문항수/참여자수</th>
+													<td colspan="3">2문항/0명</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+
+								<div class="info-editor-area">
+									<h3 class="title1 mt-5">설문 설명</h3>
+									<!-- [개발][웹에디터] : 위지윅 에디터 영역 변경 -->
+									<div class="editor-wrap" style="width: 100%; min-height: 120px">
+										<h3>
+											위지윅 에디터 영역 .editor-wrap 내부에 들어가는 스타일의 경우 에디터 스타일과 동일하게 적용
+											됩니다.
+										</h3>
+										<p>
+											위지윅 에디터 영역 .editor-wrap 내부에 들어가는 스타일의 경우 에디터 스타일과 동일하게 적용
+											됩니다.
+										</p>
+									</div>
+								</div>
+
+								<!-- 설문 보기 -->
+								<div class="question-area veiw">
+									<!-- 설문 문항 :객관식, 다중선택 -->
+									<div class="question-item">
+										<div class="question-wrap">
+											<div class="top">
+												<span class="num">1</span>
+												<strong class="question">[필수] 성별을 선택해주세요.<i class="req">필수입력</i></strong>
+												<span class="label"><i class="ico ico-radio-gray-md mr-1"></i> 객관식</span>
+											</div>
+											<div class="bot">
+												<p>
+													문항 설명 텍스트입니다.문항 설명 텍스트입니다.문항 설명 텍스트입니다.문항 설명
+													텍스트입니다.문항 설명 텍스트입니다.문항 설명 텍스트입니다.문항 설명 텍스트입니다.
+												</p>
+											</div>
+										</div>
+
+										<!-- 객관식, 다중선택 -->
+										<div class="poll-wrap">
+											<ul>
+												<li class="item"><span class="num">1.</span>전혀 그렇지 않다.</li>
+												<li class="item"><span class="num">2.</span>보통이다.</li>
+												<li class="item"><span class="num">3.</span>매우 그렇다.</li>
+											</ul>
+										</div>
+									</div>
+
+									<!-- 설문 문항 : 주관식 -->
+									<div class="question-item">
+										<div class="question-wrap">
+											<div class="top">
+												<span class="num">2</span>
+												<strong class="question"
+													>[필수] 지원한 학생의 자기소개서 가운데 사교육 기관의 도움을 받은 적이 있었습니까?
+													<i class="req">필수입력</i></strong
+												>
+												<span class="label"><i class="ico ico-text-gray-md mr-1"></i> 주관식</span>
+											</div>
+											<div class="bot">
+												<p>
+													문항 설명 텍스트입니다.문항 설명 텍스트입니다.문항 설명 텍스트입니다.문항 설명
+													텍스트입니다.문항 설명 텍스트입니다.문항 설명 텍스트입니다.문항 설명 텍스트입니다.
+												</p>
+											</div>
+										</div>
+									</div>
+
+									<!-- 설문 문항 :객관식, 다중선택 -->
+									<div class="question-item">
+										<div class="question-wrap">
+											<div class="top">
+												<span class="num">3</span>
+												<strong class="question"
+													>[필수] 지원한 학생의 자기소개서 가운데 사교육 기관의 도움을 받은 적이 있었습니까?
+													<i class="req">필수입력</i></strong
+												>
+												<span class="label"><i class="ico ico-check-gray-md mr-1"></i> 다중선택</span>
+											</div>
+											<div class="bot">
+												<p>
+													문항 설명 텍스트입니다.문항 설명 텍스트입니다.문항 설명 텍스트입니다.문항 설명
+													텍스트입니다.문항 설명 텍스트입니다.문항 설명 텍스트입니다.문항 설명 텍스트입니다.
+												</p>
+											</div>
+										</div>
+
+										<!-- 객관식, 다중선택 -->
+										<div class="poll-wrap">
+											<ul>
+												<li class="item"><span class="num">1.</span>전혀 그렇지 않다.</li>
+												<li class="item"><span class="num">2.</span>보통이다.</li>
+												<li class="item"><span class="num">3.</span>매우 그렇다.</li>
+											</ul>
+										</div>
+									</div>
+
+									<!-- 설문 문항 : 매트릭스 -->
+									<div class="question-item">
+										<div class="question-wrap">
+											<div class="top">
+												<span class="num">4</span>
+												<strong class="question"
+													>[필수] 지원한 학생의 자기소개서 가운데 사교육 기관의 도움을 받은 적이 있었습니까?
+													<i class="req">필수입력</i></strong
+												>
+												<span class="label"><i class="ico ico-matrix-gray-md mr-1"></i> 매트릭스</span>
+											</div>
+											<div class="bot">
+												<p>
+													문항 설명 텍스트입니다.문항 설명 텍스트입니다.문항 설명 텍스트입니다.문항 설명
+													텍스트입니다.문항 설명 텍스트입니다.문항 설명 텍스트입니다.문항 설명 텍스트입니다.
+												</p>
+											</div>
+										</div>
+
+										<div class="poll-wrap matrix">
+											<div class="item-header">
+												<span>
+													<label class="check-item-lg">
+														<input type="radio" name="inputRadio" id="inputRadio1" />
+														<span class="label">매우 별로</span></label
+													></span
+												>
+												<span>
+													<label class="check-item-lg">
+														<input type="radio" name="inputRadio" id="inputRadio2" />
+														<span class="label">별로</span></label
+													></span
+												>
+												<span>
+													<label class="check-item-lg">
+														<input type="radio" name="inputRadio" id="inputRadio3" />
+														<span class="label">보통</span></label
+													></span
+												>
+												<span>
+													<label class="check-item-lg">
+														<input type="radio" name="inputRadio" id="inputRadio4" />
+														<span class="label">양호</span></label
+													></span
+												>
+												<span>
+													<label class="check-item-lg">
+														<input type="radio" name="inputRadio" id="inputRadio5" />
+														<span class="label">매우 양호</span></label
+													></span
+												>
+											</div>
+											<div class="item">
+												<div class="question">
+													<span class="num">1.</span>
+													<strong>사과가 맛있습니까?</strong>
+												</div>
+												<div class="check-warp">
+													<label class="check-item-lg">
+														<input type="radio" name="inputRadio1_1" id="inputRadio1_1_1" />
+														<span class="label sr-only">매우 별로</span>
+													</label>
+													<label class="check-item-lg">
+														<input type="radio" name="inputRadio1_1" id="inputRadio1_1_2" />
+														<span class="label sr-only">별로</span>
+													</label>
+													<label class="check-item-lg">
+														<input type="radio" name="inputRadio1_1" id="inputRadio1_1_3" />
+														<span class="label sr-only">보통</span>
+													</label>
+													<label class="check-item-lg">
+														<input type="radio" name="inputRadio1_1" id="inputRadio1_1_4" />
+														<span class="label sr-only">양호</span>
+													</label>
+													<label class="check-item-lg">
+														<input type="radio" name="inputRadio1_1" id="inputRadio1_1_5" />
+														<span class="label sr-only">매우 양호</span>
+													</label>
+												</div>
+											</div>
+											<div class="item">
+												<div class="question">
+													<span class="num">2.</span>
+													<strong>바나나가 맛있습니까?</strong>
+												</div>
+												<div class="check-warp">
+													<label class="check-item-lg">
+														<input type="radio" name="inputRadio1_2" id="inputRadio1_2_1" />
+														<span class="label sr-only">매우 별로</span>
+													</label>
+													<label class="check-item-lg">
+														<input type="radio" name="inputRadio1_2" id="inputRadio1_2_2" />
+														<span class="label sr-only">별로</span>
+													</label>
+													<label class="check-item-lg">
+														<input type="radio" name="inputRadio1_2" id="inputRadio1_2_3" />
+														<span class="label sr-only">보통</span>
+													</label>
+													<label class="check-item-lg">
+														<input type="radio" name="inputRadio1_2" id="inputRadio1_2_4" />
+														<span class="label sr-only">양호</span>
+													</label>
+													<label class="check-item-lg">
+														<input type="radio" name="inputRadio1_2" id="inputRadio1_2_5" />
+														<span class="label sr-only">매우 양호</span>
+													</label>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- 모바일에서 노출되는 버튼 그룹  -->
+								<div class="btn-group-between">
+									<div class="left">
+										<!-- data-confirm="leave-saver" 속성 추가시 컨펌창이 뜨고, 확인 버튼 누를 때 href 값으로 이동됨 -->
+										<a
+											href="UI-NEIBIS-MA-운영-설문조사관리-목록.html"
+											data-confirm="leave-saver"
+											class="btn btn-lg btn-outline-gray"
+										>
+											<i class="ico ico-chevron-left-gray-md"></i>
+											<span>목록</span>
+										</a>
+									</div>
+								</div>
+							</div>
+						</form>
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

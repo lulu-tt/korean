@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<!-- <script src="../../assets/neibis/js/dropzone.inuix.default.js"></script> -->
+		<script src="../../assets/neibis/js/dropzone.inuix.default2.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="등록/수정형 템플릿"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+						<form action="#;">
+							<div class="card">
+								<div class="table table-row">
+									<div class="table-inner">
+										<table>
+											<caption class="sr-only">
+												${표제목} 등록
+											</caption>
+											<tbody>
+												<tr>
+													<th>단일 파일 업로드 (이미지)</th>
+													<td>
+														<div class="file-upload" data-file-type="I"></div>
+													</td>
+													<th>단일 파일 업로드</th>
+													<td>
+														<div class="file-upload"></div>
+													</td>
+												</tr>
+												<tr>
+													<th>다중 파일 업로드</th>
+													<td colspan="3">
+														<div class="file-upload file-upload-multiple"></div>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<span>레이어팝업 이미지(PC)<i class="req">필수입력</i></span>
+													</th>
+													<td colspan="3">
+														<div class="file-upload file-upload-multiple"></div>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+
+								<!-- 모바일에서 노출되는 버튼 그룹  -->
+								<div class="btn-group-between">
+									<div class="left">
+										<!-- data-confirm="leave-saver" 속성 추가시 컨펌창이 뜨고, 확인 버튼 누를 때 href 값으로 이동됨 -->
+										<a href="템플릿-목록형.html" data-confirm="leave-saver" class="btn btn-lg btn-outline-gray">
+											<i class="ico ico-chevron-left-gray-md"></i>
+											<span>목록</span>
+										</a>
+									</div>
+									<div class="right">
+										<button type="reset" class="btn btn-lg btn-outline-gray">
+											<i class="ico ico-undo-darkgray-md"></i>
+											<span>초기화</span>
+										</button>
+										<button type="submit" class="btn btn-lg btn-primary">
+											<i class="ico ico-save-white-md"></i>
+											<span>저장</span>
+										</button>
+									</div>
+								</div>
+							</div>
+
+							<!-- 상단 고정 액션 버튼 -->
+							<div class="btn-group-fixed">
+								<button type="reset" class="btn btn-lg btn-outline-gray">
+									<i class="ico ico-undo-darkgray-md"></i>
+									<span>초기화</span>
+								</button>
+								<button type="submit" class="btn btn-lg btn-primary">
+									<i class="ico ico-save-white-md"></i>
+									<span>저장</span>
+								</button>
+							</div>
+						</form>
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

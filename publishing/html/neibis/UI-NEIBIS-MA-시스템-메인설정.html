@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- jquery.ui.touch-punch -->
+		<script src="../../assets/neibis/plugins/jquery.ui.touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				$(".btn-delete").click(function () {
+					confirm(
+						{
+							icon: "error", // info, check(기본값), warning, error, warning-gray
+							title: "삭제하면 복구할 수 없어요",
+							message: "그래도 데이터를 삭제하시겠어요?"
+						},
+						function (result) {
+							if (result) {
+								console.log("확인 버튼을 눌렀습니다.");
+								// true 로직 실행
+							} else {
+								console.log("취소 버튼을 눌렀습니다.");
+								// false 로직 실행
+							}
+						}
+					);
+				});
+
+				// zTree onClick 이벤트
+				window.zTreeOnClick = function (event, treeId, treeNode) {
+					// zTree 노드 클릭시 이벤트 사용자 정의
+					alert(treeNode ? treeNode.tId : "root");
+				};
+			});
+
+			// z-tree : zNodes 추가 옵션
+			// open: true : 기본 view가 오픈상태로 노출
+			// disabled: true : 비활성화 메뉴의 경우
+			// isParent: true : 하위 메뉴가 없는 상태에서 폴더형식의 경우
+
+			// iconskin 변경
+			// ico_docu, ico-page-md : 일반페이지 (기본), 지정되지 않은 종류의 페이지
+			// ico_open, ico_close, ico-folder-md : 폴더 (기본)
+			// ico-site-md : 사용자사이트 페이지
+			// ico-editpage-md :웹콘텐츠 관리 페이지
+			// ico-pagepgm-md : pgm 페이지
+			// ico-pagebbs-md : bbs 페이지
+			// ico-newwindow-md : 새창 (target: "_blank" 속성 추가 필요)
+			// ico-code-md : 코드 페이지
+
+			var zNodes = [
+				{ id: 1, pId: 0, name: "사이트 메뉴명1", open: true },
+				{ id: 11, pId: 1, name: "사이트 메뉴명1", open: true },
+				{ id: 111, pId: 11, name: "사이트 메뉴명1", disabled: true },
+				{ id: 112, pId: 11, name: "사이트 메뉴명1" },
+				{ id: 113, pId: 11, name: "사이트 메뉴명1", target: "_blank", iconSkin: "ico-newwindow-md" },
+				{ id: 114, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-editpage-md" },
+				{ id: 115, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-pagepgm-md" },
+				{ id: 116, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-pagebbs-md" },
+				{ id: 117, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-code-md" },
+				{ id: 12, pId: 1, name: "길어질 경우 가로 스크롤이 생성됩니다. 길어질 경우 가로 스크롤이 생성됩니다." },
+				{ id: 121, pId: 12, name: "사이트 메뉴명1" },
+				{ id: 122, pId: 12, name: "사이트 메뉴명1" },
+				{ id: 13, pId: 1, name: "사이트 메뉴명1", iconSkin: "ico-site-md" },
+				{ id: 2, pId: 0, name: "사이트 메뉴명1" },
+				{ id: 21, pId: 2, name: "사이트 메뉴명1" },
+				{ id: 211, pId: 21, name: "사이트 메뉴명1" },
+				{ id: 212, pId: 21, name: "사이트 메뉴명1" },
+				{ id: 22, pId: 2, name: "사이트 메뉴명1" },
+				{ id: 221, pId: 22, name: "사이트 메뉴명1" },
+				{ id: 222, pId: 22, name: "사이트 메뉴명1" },
+				{ id: 23, pId: 2, name: "사이트 메뉴명1" },
+				{ id: 231, pId: 23, name: "사이트 메뉴명1" },
+				{ id: 232, pId: 23, name: "사이트 메뉴명1" },
+				{ id: 3, pId: 0, name: "사이트 메뉴명1" },
+				{ id: 4, pId: 0, name: "사이트 메뉴명1" }
+			];
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="메인 설정"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<div class="tree-in-wrap">
+							<!-- 트리메뉴 -->
+							<div class="tree-menu-area">
+								<div class="tree-header">
+									<div class="btn-group-center gap-xs">
+										<button type="button" class="btn btn-xs btn-outline-gray" id="btnOpenTree">
+											<i class="ico ico-plus-gray-sm"></i>
+											<span>전체열기</span>
+										</button>
+										<button type="button" class="btn btn-xs btn-outline-gray" id="btnCloseTree">
+											<i class="ico ico-minus-gray-sm"></i>
+											<span>전체닫기</span>
+										</button>
+									</div>
+								</div>
+								<div class="tree-body">
+									<div class="scroll-araa">
+										<ul id="treeMenu" class="ztree"></ul>
+									</div>
+								</div>
+							</div>
+
+							<div class="card card-col">
+								<form action="#">
+									<div class="card-inner">
+										<div class="content-area">
+											<h3 class="title1"><span class="num">1</span>기본 설정</h3>
+											<!-- 기본 설정 -->
+											<div class="table table-row">
+												<div class="table-inner">
+													<table>
+														<caption class="sr-only">
+															기본 설정
+														</caption>
+														<tbody>
+															<tr>
+																<th scope="row">등록ID/등록일시</th>
+																<td>inseqcms/2023.01.29 12:31:54</td>
+															</tr>
+															<tr>
+																<th scope="row">수정ID/수정일시</th>
+																<td>inseqcms/2023.01.29 12:31:54</td>
+															</tr>
+															<tr>
+																<th scope="row">사이트명</th>
+																<td>인시퀀스</td>
+															</tr>
+															<tr>
+																<th scope="row">사이트주소</th>
+																<td>/ko/index.do</td>
+															</tr>
+															<tr>
+																<th scope="row">
+																	<label for="select1">사이트구분<i class="req">필수입력</i></label>
+																</th>
+																<td>
+																	<select class="form-control full" id="select1">
+																		<option selected>국문</option>
+																		<option>항목1</option>
+																		<option>항목2</option>
+																	</select>
+																</td>
+															</tr>
+															<tr>
+																<th scope="row">
+																	<span>팝업존<i class="req">필수입력</i></span>
+																</th>
+																<td>
+																	<label class="check-item">
+																		<input type="radio" name="radio1" required />
+																		<span class="label">사용</span>
+																	</label>
+																	<label class="check-item">
+																		<input type="radio" name="radio1" checked required />
+																		<span class="label">미사용</span>
+																	</label>
+																</td>
+															</tr>
+															<tr>
+																<th scope="row">
+																	<span>배너존<i class="req">필수입력</i></span>
+																</th>
+																<td>
+																	<label class="check-item">
+																		<input type="radio" name="radio2" required />
+																		<span class="label">사용</span>
+																	</label>
+																	<label class="check-item">
+																		<input type="radio" name="radio2" checked required />
+																		<span class="label">미사용</span>
+																	</label>
+																</td>
+															</tr>
+															<tr>
+																<th scope="row">
+																	<span>팝업<i class="req">필수입력</i></span>
+																</th>
+																<td>
+																	<label class="check-item">
+																		<input type="radio" name="radio3" required />
+																		<span class="label">사용</span>
+																	</label>
+																	<label class="check-item">
+																		<input type="radio" name="radio3" checked required />
+																		<span class="label">미사용</span>
+																	</label>
+																</td>
+															</tr>
+															<tr>
+																<th scope="row">
+																	<span>패밀리사이트<i class="req">필수입력</i></span>
+																</th>
+																<td>
+																	<label class="check-item">
+																		<input type="radio" name="radio4" required />
+																		<span class="label">사용</span>
+																	</label>
+																	<label class="check-item">
+																		<input type="radio" name="radio4" checked required />
+																		<span class="label">미사용</span>
+																	</label>
+																</td>
+															</tr>
+															<tr>
+																<th scope="row">
+																	<span>미니팝업존<i class="req">필수입력</i></span>
+																</th>
+																<td>
+																	<label class="check-item">
+																		<input type="radio" name="radio5" required />
+																		<span class="label">사용</span>
+																	</label>
+																	<label class="check-item">
+																		<input type="radio" name="radio5" checked required />
+																		<span class="label">미사용</span>
+																	</label>
+																</td>
+															</tr>
+															<tr>
+																<th scope="row">
+																	<span>미니배너존<i class="req">필수입력</i></span>
+																</th>
+																<td>
+																	<label class="check-item">
+																		<input type="radio" name="radio6" required />
+																		<span class="label">사용</span>
+																	</label>
+																	<label class="check-item">
+																		<input type="radio" name="radio6" checked required />
+																		<span class="label">미사용</span>
+																	</label>
+																</td>
+															</tr>
+															<tr>
+																<th scope="row">
+																	<span>홍보 게시판<i class="req">필수입력</i></span>
+																</th>
+																<td>
+																	<label class="check-item">
+																		<input type="radio" name="radio7" required />
+																		<span class="label">사용</span>
+																	</label>
+																	<label class="check-item">
+																		<input type="radio" name="radio7" checked required />
+																		<span class="label">미사용</span>
+																	</label>
+																</td>
+															</tr>
+															<tr>
+																<th scope="row">
+																	<label for="input1">홍보 목록개수</label>
+																</th>
+																<td>
+																	<input type="text" class="form-control" id="input1" value="0" />
+																</td>
+															</tr>
+															<tr>
+																<th scope="row">
+																	<label for="input2">홍보 게시판ID</label>
+																</th>
+																<td>
+																	<input
+																		type="text"
+																		class="form-control full"
+																		id="input2"
+																		placeholder="단일일 경우(게시판ID)/다중일 경우(게시판ID, 게시판ID...)"
+																	/>
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+										</div>
+
+										<div class="content-area">
+											<h3 class="title1">
+												<label class="check-item-lg">
+													<input type="checkbox" />
+													<span class="label"><span class="num">2</span>메인보드 설정</span>
+												</label>
+											</h3>
+											<!-- 메인보드 게시판 검색 -->
+											<!-- <div class="table table-row">
+												<div class="table-inner">
+													<table>
+														<caption class="sr-only">
+															메인보드 게시판 검색
+														</caption>
+														<tbody>
+															<tr>
+																<th scope="row">
+																	<label for="input3">주제어</label>
+																</th>
+																<td>
+																	<div class="input-group">
+																		<input
+																			type="text"
+																			id="input3"
+																			class="form-control full"
+																			placeholder="메뉴명, 게시판ID, 게시판명으로 검색해주세요."
+																		/>
+																		<span class="input-addon">
+																			<button type="button" class="btn btn-md btn-outline-gray">
+																				<i class="ico ico-search-gray-md"></i>
+																				<span class="text">검색</span>
+																			</button>
+																		</span>
+																	</div>
+																</td>
+															</tr>
+															<tr>
+																<th scope="row">정보</th>
+																<td>-</td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div> -->
+
+											<!-- 메인보드 설정 목록 -->
+											<div class="table table-list">
+												<div class="table-inner">
+													<table style="min-width: 600px">
+														<caption class="sr-only">
+															메인보드 설정
+														</caption>
+														<thead>
+															<tr>
+																<th scope="col">검색</th>
+																<th scope="col">게시판ID</th>
+																<th scope="col">게시판 명</th>
+																<th scope="col">게시판 URL</th>
+																<th scope="col">목록개수</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr>
+																<td>
+																	<a
+																		href="#layer-popup1"
+																		class="btn btn-xs btn-outline-gray"
+																		onclick="openModal('#layer-popup1', this);"
+																	>
+																		<i class="ico ico-search-gray-sm"></i>
+																		<span class="text">검색</span>
+																	</a>
+																</td>
+																<td><input type="text" title="게시판ID 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 명 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 URL 입력" class="form-control full" /></td>
+																<td><input type="text" title="목록개수 입력" class="form-control full" /></td>
+															</tr>
+															<tr>
+																<td>
+																	<a
+																		href="#layer-popup1"
+																		class="btn btn-xs btn-outline-gray"
+																		onclick="openModal('#layer-popup1', this);"
+																	>
+																		<i class="ico ico-search-gray-sm"></i>
+																		<span class="text">검색</span>
+																	</a>
+																</td>
+																<td><input type="text" title="게시판ID 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 명 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 URL 입력" class="form-control full" /></td>
+																<td><input type="text" title="목록개수 입력" class="form-control full" /></td>
+															</tr>
+															<tr>
+																<td>
+																	<a
+																		href="#layer-popup1"
+																		class="btn btn-xs btn-outline-gray"
+																		onclick="openModal('#layer-popup1', this);"
+																	>
+																		<i class="ico ico-search-gray-sm"></i>
+																		<span class="text">검색</span>
+																	</a>
+																</td>
+																<td><input type="text" title="게시판ID 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 명 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 URL 입력" class="form-control full" /></td>
+																<td><input type="text" title="목록개수 입력" class="form-control full" /></td>
+															</tr>
+															<tr>
+																<td>
+																	<a
+																		href="#layer-popup1"
+																		class="btn btn-xs btn-outline-gray"
+																		onclick="openModal('#layer-popup1', this);"
+																	>
+																		<i class="ico ico-search-gray-sm"></i>
+																		<span class="text">검색</span>
+																	</a>
+																</td>
+																<td><input type="text" title="게시판ID 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 명 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 URL 입력" class="form-control full" /></td>
+																<td><input type="text" title="목록개수 입력" class="form-control full" /></td>
+															</tr>
+															<tr>
+																<td>
+																	<a
+																		href="#layer-popup1"
+																		class="btn btn-xs btn-outline-gray"
+																		onclick="openModal('#layer-popup1', this);"
+																	>
+																		<i class="ico ico-search-gray-sm"></i>
+																		<span class="text">검색</span>
+																	</a>
+																</td>
+																<td><input type="text" title="게시판ID 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 명 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 URL 입력" class="form-control full" /></td>
+																<td><input type="text" title="목록개수 입력" class="form-control full" /></td>
+															</tr>
+															<tr>
+																<td>
+																	<a
+																		href="#layer-popup1"
+																		class="btn btn-xs btn-outline-gray"
+																		onclick="openModal('#layer-popup1', this);"
+																	>
+																		<i class="ico ico-search-gray-sm"></i>
+																		<span class="text">검색</span>
+																	</a>
+																</td>
+																<td><input type="text" title="게시판ID 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 명 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 URL 입력" class="form-control full" /></td>
+																<td><input type="text" title="목록개수 입력" class="form-control full" /></td>
+															</tr>
+															<tr>
+																<td>
+																	<a
+																		href="#layer-popup1"
+																		class="btn btn-xs btn-outline-gray"
+																		onclick="openModal('#layer-popup1', this);"
+																	>
+																		<i class="ico ico-search-gray-sm"></i>
+																		<span class="text">검색</span>
+																	</a>
+																</td>
+																<td><input type="text" title="게시판ID 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 명 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 URL 입력" class="form-control full" /></td>
+																<td><input type="text" title="목록개수 입력" class="form-control full" /></td>
+															</tr>
+															<tr>
+																<td>
+																	<a
+																		href="#layer-popup1"
+																		class="btn btn-xs btn-outline-gray"
+																		onclick="openModal('#layer-popup1', this);"
+																	>
+																		<i class="ico ico-search-gray-sm"></i>
+																		<span class="text">검색</span>
+																	</a>
+																</td>
+																<td><input type="text" title="게시판ID 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 명 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 URL 입력" class="form-control full" /></td>
+																<td><input type="text" title="목록개수 입력" class="form-control full" /></td>
+															</tr>
+															<tr>
+																<td>
+																	<a
+																		href="#layer-popup1"
+																		class="btn btn-xs btn-outline-gray"
+																		onclick="openModal('#layer-popup1', this);"
+																	>
+																		<i class="ico ico-search-gray-sm"></i>
+																		<span class="text">검색</span>
+																	</a>
+																</td>
+																<td><input type="text" title="게시판ID 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 명 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 URL 입력" class="form-control full" /></td>
+																<td><input type="text" title="목록개수 입력" class="form-control full" /></td>
+															</tr>
+															<tr>
+																<td>
+																	<a
+																		href="#layer-popup1"
+																		class="btn btn-xs btn-outline-gray"
+																		onclick="openModal('#layer-popup1', this);"
+																	>
+																		<i class="ico ico-search-gray-sm"></i>
+																		<span class="text">검색</span>
+																	</a>
+																</td>
+																<td><input type="text" title="게시판ID 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 명 입력" class="form-control full" /></td>
+																<td><input type="text" title="게시판 URL 입력" class="form-control full" /></td>
+																<td><input type="text" title="목록개수 입력" class="form-control full" /></td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div class="btn-group-between">
+										<div class="right">
+											<a href="#" class="btn btn-lg btn-gray btn-delete">
+												<i class="ico ico-trash-white-md"></i>
+												<span>삭제</span>
+											</a>
+											<button type="submit" class="btn btn-lg btn-primary">
+												<i class="ico ico-save-white-md"></i>
+												<span>저장</span>
+											</button>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+
+						<!-- 상단 고정 액션 버튼 -->
+						<div class="btn-group-fixed">
+							<a href="#" class="btn btn-lg btn-gray btn-delete">
+								<i class="ico ico-trash-white-md"></i>
+								<span>삭제</span>
+							</a>
+							<button type="submit" class="btn btn-lg btn-primary">
+								<i class="ico ico-save-white-md"></i>
+								<span>저장</span>
+							</button>
+						</div>
+
+						<!-- Modal Popup : 게시판 검색 -->
+						<div class="modal-popup modal-xl hide" id="layer-popup1">
+							<div class="dimed"></div>
+							<div class="popup-inner bg-gray">
+								<div class="popup-header">
+									<h2 class="popup-title">게시판 검색</h2>
+								</div>
+								<div class="popup-body">
+									<div class="tabmenu-in-wrap">
+										<!-- 검색 영역 -->
+										<div class="card">
+											<form action="#;" class="search-form">
+												<div class="table table-form-basic">
+													<div class="table-inner">
+														<table>
+															<caption class="sr-only">
+																검색조건입력
+															</caption>
+															<tbody>
+																<tr>
+																	<th scope="row">
+																		<label for="search_word1">주제어<i class="req">필수입력</i></label>
+																	</th>
+																	<td>
+																		<div class="input-group sm-drop">
+																			<input
+																				type="text"
+																				id="search_word1"
+																				class="form-control"
+																				placeholder="메뉴명/게시판ID/게시판 명으로 검색해주세요."
+																			/>
+																		</div>
+																	</td>
+																</tr>
+															</tbody>
+														</table>
+													</div>
+												</div>
+
+												<div class="btn-group-center">
+													<button type="submit" class="btn btn-md btn-primary">
+														<i class="ico ico-search-white-md"></i>
+														<span class="text">검색</span>
+													</button>
+												</div>
+											</form>
+										</div>
+
+										<!-- 목록 -->
+										<div class="card">
+											<div class="list-control">
+												<div class="left">
+													<a href="#;" class="btn btn-icon btn-settings-xs">
+														<i class="ico ico-cog-darkgray-sm"></i>
+														<span class="sr-only">게시판 검색</span>
+													</a>
+													<p class="total">총 <strong class="text-primary">1</strong>건(1/1 page)</p>
+												</div>
+												<div class="right">
+													<a href="#;" class="btn btn-sm btn-xls mr-1" download>
+														<i class="ico ico-fileexcel-white-sm"></i>
+														<span>엑셀 다운로드</span>
+													</a>
+													<select class="form-control-sm" style="min-width: 100px" title="목록 수">
+														<option selected>10</option>
+														<option>20</option>
+														<option>50</option>
+														<option>100</option>
+													</select>
+													<button type="button" class="btn btn-sm btn-outline-gray ml-1">적용</button>
+												</div>
+											</div>
+
+											<div class="table table-list">
+												<div class="table-inner">
+													<table style="min-width: 1200px">
+														<caption class="sr-only">
+															게시판 목록
+														</caption>
+														<colgroup>
+															<col style="width: 80px" />
+															<col style="width: 200px" />
+															<col />
+															<col style="width: 400px" />
+														</colgroup>
+														<thead>
+															<tr>
+																<th scope="col">선택</th>
+																<th scope="col">게시판 ID</th>
+																<th scope="col">게시판명</th>
+																<th scope="col">게시판 URL</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>05192021</td>
+																<td class="text-left">
+																	인시퀀스- 국문 -수정 &gt; -게시판 2번- 수정 &gt; 게시판명은 끝까지 다 보이도록
+																	해주세요.인시퀀스- 국문 -수정 &gt; -게시판 2번- 수정 &gt; 게시판명은 끝까지 다
+																	보이도록 해주세요.인시퀀스- 국문 -수정 &gt; -게시판 2번- 수정 &gt; 게시판명은 끝까지
+																	다 보이도록 해주세요.인시퀀스- 국문...
+																</td>
+																<td class="text-left">
+																	<a href="#;" class="link">/cms/bbs/i-74/list.do/1231241231234123123/10239/13...</a>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>05192022</td>
+																<td class="text-left">보험료지원유관기간코드</td>
+																<td class="text-left">
+																	<a href="#;" class="link">/cms/bbs/i-74/list.do/12312412312341</a>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>05192023</td>
+																<td class="text-left">콘텐츠유형코드</td>
+																<td class="text-left">
+																	<a href="#;" class="link">/cms/bbs/i-74/list.do/12312412312341</a>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>05192024</td>
+																<td class="text-left">이메일주소코드</td>
+																<td class="text-left">
+																	<a href="#;" class="link">/cms/bbs/i-74/list.do/12312412312341</a>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>05192025</td>
+																<td class="text-left">공공누리코드</td>
+																<td class="text-left">
+																	<a href="#;" class="link">/cms/bbs/i-74/list.do/12312412312341</a>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>05192026</td>
+																<td class="text-left">개별상담신청코드</td>
+																<td class="text-left">
+																	<a href="#;" class="link">/cms/bbs/i-74/list.do/12312412312341</a>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>05192027</td>
+																<td class="text-left">보험료지원유관기간코드</td>
+																<td class="text-left">
+																	<a href="#;" class="link">/cms/bbs/i-74/list.do/12312412312341</a>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>05192028</td>
+																<td class="text-left">콘텐츠유형코드</td>
+																<td class="text-left">
+																	<a href="#;" class="link">/cms/bbs/i-74/list.do/12312412312341</a>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>05192029</td>
+																<td class="text-left">이메일주소코드</td>
+																<td class="text-left">
+																	<a href="#;" class="link">/cms/bbs/i-74/list.do/12312412312341</a>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>05192030</td>
+																<td class="text-left">공공누리코드</td>
+																<td class="text-left">
+																	<a href="#;" class="link">/cms/bbs/i-74/list.do/12312412312341</a>
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+
+											<div class="pagination">
+												<a href="#;" class="direction first">처음</a>
+												<a href="#;" class="direction prev">이전</a>
+												<strong>1</strong>
+												<a href="#;">2</a>
+												<a href="#;">3</a>
+												<a href="#;">4</a>
+												<a href="#;">5</a>
+												<a href="#;" class="direction next">다음</a>
+												<a href="#;" class="direction last">끝</a>
+											</div>
+										</div>
+									</div>
+								</div>
+								<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+							</div>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,2537 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- Plugins -->
+		<!-- CodeMirror -->
+		<link rel="stylesheet" href="../../assets/neibis/plugins/codemirror/codemirror.min.css" />
+		<link rel="stylesheet" href="../../assets/neibis/plugins/codemirror/idea.min.css" />
+		<script src="../../assets/neibis/plugins/codemirror/codemirror.min.js"></script>
+		<script src="../../assets/neibis/plugins/codemirror/xml.min.js"></script>
+		<script src="../../assets/neibis/plugins/codemirror/css.min.js"></script>
+		<script src="../../assets/neibis/plugins/codemirror/javascript.min.js"></script>
+
+		<!-- beautify -->
+		<script src="../../assets/neibis/plugins/beautify/beautify.min.js"></script>
+		<script src="../../assets/neibis/plugins/beautify/beautify-css.min.js"></script>
+		<script src="../../assets/neibis/plugins/beautify/beautify-html.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				// 이곳에 정의
+				$(".btn-delete").click(function () {
+					confirm(
+						{
+							icon: "error",
+							title: "삭제하면 복구할 수 없어요",
+							message: "그래도 데이터를 삭제하시겠어요?"
+						},
+						function (result) {
+							if (result) {
+								console.log("확인 버튼을 눌렀습니다.");
+								// true 로직 실행
+							} else {
+								console.log("취소 버튼을 눌렀습니다.");
+								// false 로직 실행
+							}
+						}
+					);
+				});
+
+				// btn-select 선택 버튼
+				function selectTable(slector) {
+					$(slector + " .btn-select").click(function () {
+						confirm(
+							{
+								icon: "warning",
+								title: "저장하시겠어요?",
+								message: "저장하시려면 ‘확인’을 눌러주세요."
+							},
+							function (result) {
+								if (result) {
+									closeModal(slector);
+									console.log("확인 버튼을 눌렀습니다.");
+									// true 로직 실행
+								} else {
+									console.log("취소 버튼을 눌렀습니다.");
+									// false 로직 실행
+								}
+							}
+						);
+					});
+				}
+
+				selectTable("#layer-popup1");
+				selectTable("#layer-popup2");
+				selectTable("#layer-popup3");
+
+				// 게시판 유형 변경에 따른 썸네일여부 변경
+				$(".board-type").change(function () {
+					var boardType = $(this);
+					var thumbnail = $(".thumb-nail input");
+
+					// console.log(dropdownSelect);
+
+					if (boardType.val() === "웹진형") {
+						thumbnail.prop("checked", true);
+					} else {
+						thumbnail.prop("checked", false);
+					}
+				});
+
+				// thumbnail를 수정할 때 boardTypeSelect의 변경
+				// $(".thumb-nail input").change(function () {
+				// 	var thumbnail = $(this);
+				// 	var boardType = $(".board-type option");
+				// 	var dropdownSelect = $(".board-type").siblings(".dropdown").find(".btn-select span");
+
+				// 	if (thumbnail.prop("checked")) {
+				// 		boardType.eq(1).prop("selected", true); // 웹진형 옵션 선택
+				// 		dropdownSelect.text("웹진형");
+				// 	} else {
+				// 		boardType.eq(0).prop("selected", true); // 일반형 옵션 선택
+				// 		dropdownSelect.text("일반형");
+				// 	}
+				// });
+
+				// CodeMirror : 초기화 옵션(기본 셋팅)
+				// 공통 에디터 정렬 옵션
+				const commonCodeOptions = {
+					theme: "idea",
+					lineNumbers: true,
+					lineWrapping: true,
+					indentUnit: 2,
+					tabSize: 2
+				};
+
+				htmlEditor = CodeMirror.fromTextArea(document.getElementById("html-editor"), {
+					...commonCodeOptions,
+					mode: "xml",
+					autoCloseTags: true
+				});
+				htmlEditor = CodeMirror.fromTextArea(document.getElementById("html-editor2"), {
+					...commonCodeOptions,
+					mode: "xml",
+					autoCloseTags: true
+				});
+				htmlEditor = CodeMirror.fromTextArea(document.getElementById("html-editor3"), {
+					...commonCodeOptions,
+					mode: "xml",
+					autoCloseTags: true
+				});
+			});
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="게시판 설정"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<div class="card board-settings">
+							<nav class="tabmenu tabmenu-type1 bg-lightgray">
+								<ul class="tab-list">
+									<li class="on">
+										<a href="#;" title="선택됨" onclick="$('.settings-container').show();"><span>옵션 설정</span></a>
+									</li>
+									<li>
+										<a href="#;" onclick="$('.settings-container').hide();"><span>공지안내문구 설정</span></a>
+									</li>
+								</ul>
+							</nav>
+							<div class="settings-container">
+								<!-- 기본 설정 -->
+								<div class="settings-item settings-default">
+									<form action="#">
+										<h4 class="title"><span class="num">1</span>기본 설정</h4>
+										<div class="table table-row table-row-sm">
+											<div class="table-inner">
+												<table>
+													<caption class="sr-only">
+														기본 설정
+													</caption>
+													<tbody>
+														<tr>
+															<th scope="row">
+																<label for="input1_1">게시판 ID<i class="req">필수입력</i></label>
+															</th>
+															<td>
+																<input
+																	type="text"
+																	id="input1_1"
+																	class="form-control-sm full"
+																	placeholder="영문, 숫자만 입력"
+																	required
+																/>
+																<div class="btn-group">
+																	<button type="button" class="btn btn-sm btn-outline-gray">
+																		<i class="ico ico-search-gray-sm"></i>
+																		<span class="text">중복</span>
+																	</button>
+																	<button type="submit" class="btn btn-sm btn-primary-soft">
+																		<i class="ico ico-edit-primary-sm"></i>
+																		<span>자동생성</span>
+																	</button>
+																	<button type="button" class="btn btn-sm btn-gray btn-delete">
+																		<i class="ico ico-trash-white-sm"></i>
+																		<span>삭제</span>
+																	</button>
+																</div>
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">
+																<label for="input1_2">게시판명<i class="req">필수입력</i></label>
+															</th>
+															<td>
+																<input
+																	type="text"
+																	id="input1_2"
+																	class="form-control-sm full"
+																	placeholder="게시판 명을 입력해주세요."
+																	required
+																/>
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">
+																<label for="select1">
+																	사이트 ID
+																	<i class="req">필수입력</i>
+																</label>
+															</th>
+															<td>
+																<select class="form-control-sm full" id="select1">
+																	<option selected>사이트를 선택해주세요.</option>
+																	<option>항목1</option>
+																	<option>항목2</option>
+																</select>
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">
+																<label for="select2">
+																	게시판유형
+																	<i class="req">필수입력</i>
+																</label>
+															</th>
+															<td>
+																<div class="input-group">
+																	<select class="form-control-sm board-type" id="select2">
+																		<option selected>일반형</option>
+																		<option>웹진형</option>
+																	</select>
+																	<label class="check-item-lg">
+																		<input type="checkbox" />
+																		<span class="label">공지 사용</span>
+																	</label>
+																</div>
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">
+																<label for="select3">
+																	스킨
+																	<i class="req">필수입력</i>
+																</label>
+															</th>
+															<td>
+																<select class="form-control-sm full" id="select3">
+																	<option selected>선택</option>
+																	<option>항목1</option>
+																	<option>항목2</option>
+																</select>
+															</td>
+														</tr>
+														<tr>
+															<th scope="row"><label for="input1_3">담당부서</label></th>
+															<td>
+																<div class="input-group">
+																	<input type="text" id="input1_3" class="form-control-sm" />
+																	<span class="input-addon">
+																		<a
+																			href="#layer-popup1"
+																			class="btn btn-sm btn-outline-gray"
+																			onclick="openModal('#layer-popup1', this);"
+																		>
+																			<i class="ico ico-search-gray-sm"></i>
+																			<span class="text text-md">코드</span>
+																		</a>
+																		<button type="button" class="btn btn-sm btn-gray btn-delete">
+																			<i class="ico ico-trash-white-sm"></i>
+																			<span>삭제</span>
+																		</button>
+																	</span>
+																</div>
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">
+																<label for="input1_4">담당부서코드</label>
+															</th>
+															<td>
+																<input type="text" id="input1_4" class="form-control-sm full" />
+															</td>
+														</tr>
+														<tr>
+															<th scope="row"><label for="input1_5">분류1</label></th>
+															<td>
+																<div class="input-group">
+																	<input
+																		type="text"
+																		id="input1_5"
+																		placeholder="코드를 검색해주세요."
+																		class="form-control-sm"
+																		disabled
+																	/>
+																	<span class="input-addon">
+																		<a
+																			href="#layer-popup2"
+																			class="btn btn-sm btn-outline-gray"
+																			onclick="openModal('#layer-popup2', this);"
+																			><i class="ico ico-search-gray-sm"></i> <span class="text text-md">코드</span></a
+																		>
+																		<button type="button" class="btn btn-sm btn-gray btn-delete">
+																			<i class="ico ico-trash-white-sm"></i>
+																			<span>삭제</span>
+																		</button>
+																	</span>
+																</div>
+															</td>
+														</tr>
+														<tr>
+															<th scope="row"><label for="input1_6">분류2</label></th>
+															<td>
+																<div class="input-group">
+																	<input
+																		type="text"
+																		id="input1_6"
+																		placeholder="코드를 검색해주세요."
+																		class="form-control-sm"
+																		disabled
+																	/>
+																	<span class="input-addon">
+																		<a
+																			href="#layer-popup2"
+																			class="btn btn-sm btn-outline-gray"
+																			onclick="openModal('#layer-popup2', this);"
+																			><i class="ico ico-search-gray-sm"></i> <span class="text text-md">코드</span></a
+																		>
+																		<button type="button" class="btn btn-sm btn-gray btn-delete">
+																			<i class="ico ico-trash-white-sm"></i>
+																			<span>삭제</span>
+																		</button>
+																	</span>
+																</div>
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">
+																<label for="input1_7">다중분류<br class="d-up-md" />설정코드</label>
+															</th>
+															<td>
+																<div class="input-group">
+																	<input
+																		type="text"
+																		id="input1_7"
+																		placeholder="코드를 검색해주세요."
+																		class="form-control-sm"
+																		disabled
+																	/>
+																	<span class="input-addon">
+																		<a
+																			href="#layer-popup3"
+																			class="btn btn-sm btn-outline-gray"
+																			onclick="openModal('#layer-popup3', this);"
+																			><i class="ico ico-search-gray-sm"></i> <span class="text text-md">코드</span></a
+																		>
+																		<button type="button" class="btn btn-sm btn-gray btn-delete">
+																			<i class="ico ico-trash-white-sm"></i>
+																			<span>삭제</span>
+																		</button>
+																	</span>
+																</div>
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">첨부파일</th>
+															<td>
+																<div class="input-group">
+																	<select class="form-control-sm" title="사용">
+																		<option selected>미사용</option>
+																		<option>단일</option>
+																		<option>다중</option>
+																	</select>
+																	<select class="form-control-sm" title="개수">
+																		<option selected>선택</option>
+																		<option>2개</option>
+																		<option>3개</option>
+																		<option>4개</option>
+																		<option>5개</option>
+																		<option>6개</option>
+																		<option>7개</option>
+																		<option>8개</option>
+																		<option>9개</option>
+																		<option>10개</option>
+																	</select>
+																</div>
+																<input
+																	type="text"
+																	title="저장경로(미입력시 게시판ID)"
+																	placeholder="저장경로(미입력시 게시판ID)"
+																	class="form-control-sm full"
+																	disabled
+																/>
+																<input
+																	type="text"
+																	title="허용 확장자(jpg, jpeg, gif, png)"
+																	placeholder="허용 확장자(jpg, jpeg, gif, png)"
+																	class="form-control-sm full"
+																	disabled
+																/>
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">댓글 사용</th>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+																<label class="check-item-lg">
+																	<input type="checkbox" />
+																	<span class="label">목록에 댓글 수 노출</span>
+																</label>
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">
+																<label for="input1_8">목록 개수</label>
+															</th>
+															<td>
+																<input type="text" id="input1_8" class="form-control-sm full" value="10" />
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">
+																<label for="input1_9">새 글 표시</label>
+															</th>
+															<td>
+																<input type="text" id="input1_9" class="form-control-sm full" value="1" />
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">
+																<label for="input1_10">제목글자수</label>
+															</th>
+															<td>
+																<input type="text" id="input1_10" class="form-control-sm full" value="0" />
+															</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</form>
+								</div>
+
+								<!-- 목록 관련 부가 설정 -->
+								<div class="settings-item settings-list">
+									<form action="#">
+										<h4 class="title"><span class="num">2</span>목록 관련 부가 설정</h4>
+										<div class="table table-list">
+											<div class="table-inner">
+												<table>
+													<caption class="sr-only">
+														목록 관련 부가 설정
+													</caption>
+													<colgroup>
+														<col style="width: 100px" />
+														<col />
+														<col />
+														<col />
+														<col />
+														<col />
+														<col />
+													</colgroup>
+													<thead>
+														<tr>
+															<th scope="col" rowspan="2">항목</th>
+															<th scope="col">공통</th>
+															<th scope="col" colspan="3">입력/상세</th>
+															<th scope="col" colspan="2">목록</th>
+														</tr>
+														<tr>
+															<th scope="col">항목명 변경</th>
+															<th scope="col">필수<br />여부</th>
+															<th scope="col">사용<br />여부</th>
+															<th scope="col">
+																<div class="tooltip" data-tooltip-arrow="bottom-center">
+																	<p>
+																		입력필드의 타입을 변경합니다.<br />
+																		I : input / T : textarea
+																	</p>
+																</div>
+																<span>타입</span>
+															</th>
+															<th scope="col">노출<br />여부</th>
+															<th scope="col">
+																<div class="tooltip" data-tooltip-arrow="bottom-right">
+																	<p>
+																		게시판 목록에서 노출되는 각 항목의 <br />너비를 픽셀(px) 또는 비율(%)로
+																		<br />지정합니다.<br />
+																		예&#41; 50px, 20%
+																	</p>
+																</div>
+																<span>너비</span>
+															</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr class="text-center">
+															<th scope="row" class="text-left">번호</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>-</td>
+															<td>-</td>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" checked />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">제목</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" checked />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" checked />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" checked />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">내용</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">분류1</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">분류2</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">
+																<div class="tooltip">
+																	<p>
+																		카테고리를 중복하여 선택하는 옵션으로,<br />
+																		기본 설정의 다중분류 설정 코드에 지정된<br />
+																		항목이 체크박스로 노출됩니다.
+																	</p>
+																</div>
+																<span>다중항목</span>
+															</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">부서명</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">작성기관</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">접수기관</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">
+																<div class="tooltip">
+																	<p>
+																		게시물 게시 예약 기능으로, 날짜 및 시간<br />을 지정하고 글을 등록해두면 지정한
+																		<br />시간에 사용자 홈페이지에 노출됩니다.
+																	</p>
+																</div>
+																<span>엠바고</span>
+															</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">
+																<div class="tooltip">
+																	<p>
+																		부제목이나 게시물 내용 요약 문구를 입력<br />하여 목록에 노출하는 용도로 활용합니다.
+																	</p>
+																</div>
+																<span>요약</span>
+															</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">등록자</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">등록일시</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>-</td>
+															<td>-</td>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" checked />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">조회수</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>-</td>
+															<td>-</td>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" checked />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">첨부</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>-</td>
+															<td>-</td>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">상태</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>-</td>
+															<td>-</td>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">썸네일</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>-</td>
+															<td>-</td>
+															<td>-</td>
+															<td>
+																<label class="check-switch thumb-nail" id="thumbnail">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">기타1</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">T</span>
+																		<span class="text-uncheck">I</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">기타2</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">T</span>
+																		<span class="text-uncheck">I</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">기타3</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">T</span>
+																		<span class="text-uncheck">I</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">기타4</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">T</span>
+																		<span class="text-uncheck">I</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">기타5</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">T</span>
+																		<span class="text-uncheck">I</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">기타6</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">T</span>
+																		<span class="text-uncheck">I</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">기타7</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">T</span>
+																		<span class="text-uncheck">I</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">기타8</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">T</span>
+																		<span class="text-uncheck">I</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">기타9</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">T</span>
+																		<span class="text-uncheck">I</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">기타10</th>
+															<td>
+																<input type="text" class="form-control-sm full" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">T</span>
+																		<span class="text-uncheck">I</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<input type="text" class="form-control-sm full" title="너비 입력" />
+															</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</form>
+								</div>
+
+								<!-- 입력/상세 관련 부가 설정 -->
+								<div class="settings-item settings-write">
+									<form action="#">
+										<h4 class="title"><span class="num">3</span>입력/상세 관련 부가 설정</h4>
+										<div class="table">
+											<div class="table-inner">
+												<table>
+													<caption class="sr-only">
+														입력/상세 관련 부가 설정
+													</caption>
+													<colgroup>
+														<col style="width: 100px" />
+														<col />
+														<col />
+														<col />
+													</colgroup>
+													<thead>
+														<tr>
+															<th scope="col" rowspan="2">항목</th>
+															<th scope="col">공통</th>
+															<th scope="col" colspan="2">입력/상세</th>
+														</tr>
+														<tr>
+															<th scope="col">항목명 변경</th>
+															<th scope="col">필수여부</th>
+															<th scope="col">타입</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr class="text-center">
+															<th scope="row" class="text-left">이메일</th>
+															<td>
+																<input type="text" class="form-control-sm" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">연락처</th>
+															<td>
+																<input type="text" class="form-control-sm" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">FAX</th>
+															<td>
+																<input type="text" class="form-control-sm" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">URL</th>
+															<td>
+																<input type="text" class="form-control-sm" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">패스워드</th>
+															<td>
+																<input type="text" class="form-control-sm" title="항목명 변경" />
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">휴대폰</th>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">주소</th>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">공개여부</th>
+															<td>-</td>
+															<td>-</td>
+															<td>
+																<label class="check-switch">
+																	<input type="checkbox" />
+																	<span class="label">
+																		<span class="text-checked">Y</span>
+																		<span class="text-uncheck">N</span>
+																	</span>
+																</label>
+															</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">수정일시</th>
+															<td>
+																<input type="text" class="form-control-sm" title="항목명 변경" />
+															</td>
+															<td>-</td>
+															<td>-</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">이미지</th>
+															<td>
+																<input type="text" class="form-control-sm" title="항목명 변경" />
+															</td>
+															<td>-</td>
+															<td>-</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">동영상</th>
+															<td>
+																<input type="text" class="form-control-sm" title="항목명 변경" />
+															</td>
+															<td>-</td>
+															<td>-</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">담당부서</th>
+															<td>
+																<input type="text" class="form-control-sm" title="항목명 변경" />
+															</td>
+															<td>-</td>
+															<td>-</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">담당자</th>
+															<td>
+																<input type="text" class="form-control-sm" title="항목명 변경" />
+															</td>
+															<td>-</td>
+															<td>-</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">담당연락처</th>
+															<td>
+																<input type="text" class="form-control-sm" title="항목명 변경" />
+															</td>
+															<td>-</td>
+															<td>-</td>
+														</tr>
+														<tr class="text-center">
+															<th scope="row" class="text-left">담당이메일</th>
+															<td>
+																<input type="text" class="form-control-sm" title="항목명 변경" />
+															</td>
+															<td>-</td>
+															<td>-</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
+
+							<!-- 공지 안내 문구 설정 -->
+							<h4 class="title"><span class="num">4</span>공지 안내 문구 설정</h4>
+							<div class="settings-notice-guide">
+								<div class="guide-item">
+									<strong class="guide-title">최상단 안내문</strong>
+									<div class="guide-code">
+										<div class="codes-area">
+											<textarea class="form-code" id="html-editor"></textarea>
+										</div>
+									</div>
+								</div>
+								<div class="guide-item">
+									<strong class="guide-title">상단 공지문 </strong>
+									<div class="guide-code">
+										<div class="codes-area">
+											<textarea class="form-code" id="html-editor2"></textarea>
+										</div>
+									</div>
+								</div>
+								<div class="guide-item">
+									<strong class="guide-title">하단 안내문</strong>
+									<div class="guide-code">
+										<div class="codes-area">
+											<textarea class="form-code" id="html-editor3"></textarea>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="btn-group-between">
+								<div class="left">
+									<a
+										href="UI-NEIBIS-MA-시스템-게시판관리-게시판설정-목록.html"
+										data-confirm="leave-saver"
+										class="btn btn-lg btn-outline-gray"
+									>
+										<i class="ico ico-chevron-left-gray-md"></i>
+										<span>목록</span>
+									</a>
+								</div>
+								<div class="right">
+									<button type="submit" class="btn btn-lg btn-primary-soft">
+										<i class="ico ico-pen-primary-md"></i> <span>수정</span>
+									</button>
+								</div>
+							</div>
+						</div>
+
+						<!-- Modal Popup : 담당부서 등록 -->
+						<div class="modal-popup modal-xl hide" id="layer-popup1">
+							<div class="dimed"></div>
+							<div class="popup-inner bg-gray">
+								<div class="popup-header">
+									<h2 class="popup-title">담당부서 등록</h2>
+								</div>
+								<div class="popup-body">
+									<div class="tabmenu-in-wrap">
+										<!-- 검색 영역 -->
+										<div class="card">
+											<form action="#;" class="search-form">
+												<div class="table table-form-basic">
+													<div class="table-inner">
+														<table>
+															<caption class="sr-only">
+																검색조건입력
+															</caption>
+															<tbody>
+																<tr>
+																	<th scope="row">
+																		<label for="search_word1">검색어</label>
+																	</th>
+																	<td>
+																		<div class="input-group sm-drop">
+																			<select
+																				class="form-control"
+																				title="검색 구분 선택"
+																				style="width: 100%; max-width: 160px"
+																			>
+																				<option selected>전체</option>
+																				<option>담당자</option>
+																				<option>부서</option>
+																				<option>부서코드</option>
+																				<option>담당부서(팀)</option>
+																				<option>담당부서(팀코드)</option>
+																			</select>
+																			<input
+																				type="text"
+																				id="search_word1"
+																				class="form-control"
+																				placeholder="담당자/부서/부서코드/담당부서(팀)/담당부서(팀코드)로 검색"
+																			/>
+																		</div>
+																	</td>
+																</tr>
+															</tbody>
+														</table>
+													</div>
+												</div>
+
+												<div class="btn-group-center">
+													<button type="submit" class="btn btn-md btn-primary">
+														<i class="ico ico-search-white-md"></i>
+														<span class="text">검색</span>
+													</button>
+												</div>
+											</form>
+										</div>
+
+										<!-- 목록 -->
+										<div class="card">
+											<div class="list-control">
+												<div class="left">
+													<p class="total">총 <strong class="text-primary">1</strong>건(1/1 page)</p>
+												</div>
+											</div>
+
+											<div class="table table-list">
+												<div class="table-inner">
+													<table style="min-width: 1200px">
+														<caption class="sr-only">
+															담당부서 등록 목록
+														</caption>
+														<thead>
+															<tr>
+																<th scope="col">선택</th>
+																<th scope="col">부서/부서코드</th>
+																<th scope="col">담당부서(팀)/담당부서(팀코드)</th>
+																<th scope="col">담당자</th>
+																<th scope="col">전화번호</th>
+																<th scope="col">이메일</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td>홍길동</td>
+																<td>02-123-1234</td>
+																<td>test@abc.com</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td>홍길동</td>
+																<td>02-123-1234</td>
+																<td>test@abc.com</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td>홍길동</td>
+																<td>02-123-1234</td>
+																<td>test@abc.com</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td>홍길동</td>
+																<td>02-123-1234</td>
+																<td>test@abc.com</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td>홍길동</td>
+																<td>02-123-1234</td>
+																<td>test@abc.com</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td>홍길동</td>
+																<td>02-123-1234</td>
+																<td>test@abc.com</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td>홍길동</td>
+																<td>02-123-1234</td>
+																<td>test@abc.com</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td>홍길동</td>
+																<td>02-123-1234</td>
+																<td>test@abc.com</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td>홍길동</td>
+																<td>02-123-1234</td>
+																<td>test@abc.com</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td class="text-left">LA지사(31001)</td>
+																<td>홍길동</td>
+																<td>02-123-1234</td>
+																<td>test@abc.com</td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+
+											<div class="pagination">
+												<a href="#;" class="direction first">처음</a>
+												<a href="#;" class="direction prev">이전</a>
+												<strong>1</strong>
+												<a href="#;">2</a>
+												<a href="#;">3</a>
+												<a href="#;">4</a>
+												<a href="#;">5</a>
+												<a href="#;" class="direction next">다음</a>
+												<a href="#;" class="direction last">끝</a>
+											</div>
+										</div>
+									</div>
+								</div>
+								<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+							</div>
+						</div>
+
+						<!-- Modal Popup : 분류코드 등록 -->
+						<div class="modal-popup modal-lg hide" id="layer-popup2">
+							<div class="dimed"></div>
+							<div class="popup-inner bg-gray">
+								<div class="popup-header">
+									<h2 class="popup-title">분류코드 등록</h2>
+								</div>
+								<div class="popup-body pb-10">
+									<div class="tabmenu-in-wrap">
+										<!-- 검색 영역 -->
+										<div class="card">
+											<form action="#;" class="search-form">
+												<div class="table table-form-basic">
+													<div class="table-inner">
+														<table>
+															<caption class="sr-only">
+																검색조건입력
+															</caption>
+															<tbody>
+																<tr>
+																	<th scope="row">
+																		<label for="search_word2">검색어</label>
+																	</th>
+																	<td>
+																		<div class="input-group sm-drop">
+																			<select
+																				class="form-control"
+																				title="검색 구분 선택"
+																				style="width: 100%; max-width: 160px"
+																			>
+																				<option selected>전체</option>
+																				<option>코드아이디</option>
+																				<option>코드명</option>
+																			</select>
+																			<input
+																				type="text"
+																				id="search_word2"
+																				class="form-control"
+																				placeholder="코드아이디 / 코드명으로 검색"
+																			/>
+																		</div>
+																	</td>
+																</tr>
+															</tbody>
+														</table>
+													</div>
+												</div>
+
+												<div class="btn-group-center">
+													<button type="submit" class="btn btn-md btn-primary">
+														<i class="ico ico-search-white-md"></i>
+														<span class="text">검색</span>
+													</button>
+												</div>
+											</form>
+										</div>
+
+										<!-- 목록 -->
+										<div class="card">
+											<div class="list-control">
+												<div class="left">
+													<p class="total">총 <strong class="text-primary">1</strong>건(1/1 page)</p>
+												</div>
+											</div>
+
+											<div class="table table-list">
+												<div class="table-inner">
+													<table style="min-width: 700px">
+														<caption class="sr-only">
+															분류코드 목록
+														</caption>
+														<thead>
+															<tr>
+																<th scope="col">선택</th>
+																<th scope="col">코드ID</th>
+																<th scope="col">코드명</th>
+																<th scope="col">사용여부</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">개별상담신청코드</td>
+																<td><span class="label-status label-off">미사용</span></td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">보험료지원유관기관코드</td>
+																<td><span class="label-status label-on">사용</span></td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">개별상담신청코드</td>
+																<td><span class="label-status label-off">미사용</span></td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">보험료지원유관기관코드</td>
+																<td><span class="label-status label-on">사용</span></td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">개별상담신청코드</td>
+																<td><span class="label-status label-off">미사용</span></td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">보험료지원유관기관코드</td>
+																<td><span class="label-status label-on">사용</span></td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">개별상담신청코드</td>
+																<td><span class="label-status label-off">미사용</span></td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">보험료지원유관기관코드</td>
+																<td><span class="label-status label-on">사용</span></td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">개별상담신청코드</td>
+																<td><span class="label-status label-off">미사용</span></td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">보험료지원유관기관코드</td>
+																<td><span class="label-status label-on">사용</span></td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+
+											<div class="pagination">
+												<a href="#;" class="direction first">처음</a>
+												<a href="#;" class="direction prev">이전</a>
+												<strong>1</strong>
+												<a href="#;">2</a>
+												<a href="#;">3</a>
+												<a href="#;">4</a>
+												<a href="#;">5</a>
+												<a href="#;" class="direction next">다음</a>
+												<a href="#;" class="direction last">끝</a>
+											</div>
+										</div>
+									</div>
+								</div>
+								<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+							</div>
+						</div>
+
+						<!-- Modal Popup : 다중항목코드 등록 -->
+						<div class="modal-popup modal-lg hide" id="layer-popup3">
+							<div class="dimed"></div>
+							<div class="popup-inner bg-gray">
+								<div class="popup-header">
+									<h2 class="popup-title">다중항목코드 등록</h2>
+								</div>
+								<div class="popup-body pb-10">
+									<div class="tabmenu-in-wrap">
+										<!-- 검색 영역 -->
+										<div class="card">
+											<form action="#;" class="search-form">
+												<div class="table table-form-basic">
+													<div class="table-inner">
+														<table>
+															<caption class="sr-only">
+																검색조건입력
+															</caption>
+															<tbody>
+																<tr>
+																	<th scope="row">
+																		<label for="search_word3">검색어</label>
+																	</th>
+																	<td>
+																		<div class="input-group sm-drop">
+																			<select
+																				class="form-control"
+																				title="검색 구분 선택"
+																				style="width: 100%; max-width: 160px"
+																			>
+																				<option selected>전체</option>
+																				<option>다중항목ID</option>
+																				<option>다중항목명</option>
+																			</select>
+																			<input
+																				type="text"
+																				id="search_word3"
+																				class="form-control"
+																				placeholder="다중항목ID / 다중항목명으로 검색"
+																			/>
+																		</div>
+																	</td>
+																</tr>
+															</tbody>
+														</table>
+													</div>
+												</div>
+
+												<div class="btn-group-center">
+													<button type="submit" class="btn btn-md btn-primary">
+														<i class="ico ico-search-white-md"></i>
+														<span class="text">검색</span>
+													</button>
+												</div>
+											</form>
+										</div>
+
+										<!-- 목록 -->
+										<div class="card">
+											<div class="list-control">
+												<div class="left">
+													<p class="total">총 <strong class="text-primary">1</strong>건(1/1 page)</p>
+												</div>
+											</div>
+
+											<div class="table table-list">
+												<div class="table-inner">
+													<table style="min-width: 700px">
+														<caption class="sr-only">
+															분류코드 목록
+														</caption>
+														<thead>
+															<tr>
+																<th scope="col">선택</th>
+																<th scope="col">다중항목ID</th>
+																<th scope="col">다중항목명</th>
+																<th scope="col">사용여부</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">개별상담신청코드</td>
+																<td><span class="label-status label-on">사용</span></td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">보험료지원유관기관코드</td>
+																<td><span class="label-status label-off">미사용</span></td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">개별상담신청코드</td>
+																<td><span class="label-status label-on">사용</span></td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">보험료지원유관기관코드</td>
+																<td><span class="label-status label-off">미사용</span></td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">개별상담신청코드</td>
+																<td><span class="label-status label-on">사용</span></td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">보험료지원유관기관코드</td>
+																<td><span class="label-status label-off">미사용</span></td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">개별상담신청코드</td>
+																<td><span class="label-status label-on">사용</span></td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">보험료지원유관기관코드</td>
+																<td><span class="label-status label-off">미사용</span></td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">개별상담신청코드</td>
+																<td><span class="label-status label-on">사용</span></td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-select">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>INDV_CNSLT_APP_CD</td>
+																<td class="text-left">보험료지원유관기관코드</td>
+																<td><span class="label-status label-off">미사용</span></td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+
+											<div class="pagination">
+												<a href="#;" class="direction first">처음</a>
+												<a href="#;" class="direction prev">이전</a>
+												<strong>1</strong>
+												<a href="#;">2</a>
+												<a href="#;">3</a>
+												<a href="#;">4</a>
+												<a href="#;">5</a>
+												<a href="#;" class="direction next">다음</a>
+												<a href="#;" class="direction last">끝</a>
+											</div>
+										</div>
+									</div>
+								</div>
+								<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+							</div>
+						</div>
+
+						<!-- 상단 고정 액션 버튼 -->
+						<div class="btn-group-fixed">
+							<button type="submit" class="btn btn-lg btn-primary-soft">
+								<i class="ico ico-pen-primary-md"></i>
+								<span>수정</span>
+							</button>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

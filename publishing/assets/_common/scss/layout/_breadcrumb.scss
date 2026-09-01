@@ -1,0 +1,43 @@
+.breadcrumb {
+	margin-bottom: $spacing-6;
+
+	@include mq-down(md) {
+		margin-bottom: $spacing-4;
+	}
+}
+
+.breadcrumb-list {
+	display: flex;
+	align-items: center;
+	gap: $spacing-1;
+}
+
+.breadcrumb-item {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	font-size: $font-size-body-small;
+
+	&:not(:last-child)::after {
+		content: "";
+		display: inline-block;
+		width: 1.6rem;
+		height: 1.6rem;
+		background: url("#{$icon-path}/ico_angle.svg") no-repeat center/ cover;
+		transform: rotate(270deg);
+	}
+	> a {
+		display: flex;
+		align-items: center;
+		gap: $spacing-1;
+		padding-inline: $spacing-1;
+		border-radius: 0.4rem;
+		text-decoration: underline;
+		text-underline-offset: 0.2rem;
+		transition: background-color 0.15s ease, color 0.15s ease;
+		&:hover,
+		&:focus-visible {
+			background-color: $bg-gray-subtler;
+		}
+	}
+}

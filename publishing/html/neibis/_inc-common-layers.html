@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<script>
+			function exampleModalForm(form) {
+				// TODO : 데이터 처리 및 검증 코드를 여기에 작성
+				// console.log(form.serialize());
+				console.log(serializeFormWithoutName(form));
+			}
+		</script>
+	</head>
+
+	<body>
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="p-5">
+			<h1>전역 공통 레이어</h1>
+			<div class="opener">
+				<p class="mb-4">
+					사이트 전역에서 중복으로 호출하는 레이어 팝업을 공통으로 정의합니다. 예) 로그인 시간 연장 팝업<br />
+					Alert, Confirm 유형의 팝업은 이곳에 정의하지 않습니다. (스크립트 함수로 정의)
+				</p>
+				<a href="#layer-sample1" data-modal="open" class="btn btn-md btn-primary">샘플1 레이어</a>
+				<a href="#layer-sample2" data-modal="open" class="btn btn-md btn-primary">샘플2 레이어</a>
+
+				<h2 class="title2 mt-4 mb-2">전역 공통 레이어 호출 버튼</h2>
+				<!-- 이곳에 호출 버튼을 정의하세요. -->
+				<a href="#layer-login-extend" data-modal="open" class="btn btn-md btn-primary">로그인 연장 팝업</a>
+				<a href="#layer-adinfo-revise" data-modal="open" class="btn btn-md btn-primary"> 관리자 계정 정보수정 팝업 </a>
+			</div>
+
+			<div class="common-layers">
+				<!-- TODO : [마크업] 전역 공통 레이어는 이곳에 추가하세요. -->
+
+				<!-- Modal Popup : 로그인 연장 -->
+				<div class="modal-popup modal-sm hide login-extend" id="layer-login-extend">
+					<div class="dimed"></div>
+					<div class="popup-inner">
+						<div class="popup-header">
+							<h2 class="popup-title">로그인 연장</h2>
+						</div>
+						<div class="popup-body">
+							<p class="extend-message">곧 로그아웃 돼요. 로그인을 연장해 주세요.</p>
+							<div class="time-limit">
+								<i class="ico ico-time-red"></i>
+								<em>남은 시간</em>
+								<strong>02:00</strong>
+							</div>
+						</div>
+						<div class="popup-footer">
+							<div class="btn-group-center">
+								<a href="UI-NEIBIS-MA-로그인.html" class="btn btn-lg btn-gray">로그아웃</a>
+								<button type="button" class="btn btn-lg btn-primary" data-modal="close">로그인 연장</button>
+							</div>
+						</div>
+						<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+					</div>
+				</div>
+
+				<!-- Modal Popup : 관리자 계정 정보수정 -->
+				<div class="modal-popup modal-lg hide info-revise-pop" id="layer-adinfo-revise">
+					<div class="dimed"></div>
+					<form action="#;" class="popup-inner">
+						<div class="popup-header">
+							<h2 class="popup-title">관리자 계정 정보수정</h2>
+						</div>
+						<div class="popup-body">
+							<div class="table table-form-basic">
+								<div class="table-inner">
+									<table>
+										<caption class="sr-only">
+											관리자 계정 정보수정
+										</caption>
+										<tbody>
+											<tr>
+												<th scope="row">아이디</th>
+												<td colspan="3">inseqcms123</td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="password1">현재 비밀번호</label></th>
+												<td colspan="3">
+													<div class="input-group pw-group" style="max-width: 405px">
+														<input
+															type="password"
+															id="password1"
+															class="form-control form-pw"
+															placeholder="비밀번호를 입력해주세요."
+															title="비밀번호를 입력해주세요."
+															autocomplete="off"
+															value="000000000"
+															required
+														/>
+														<button type="button" class="btn btn-pw btn-pw-off">비밀번호 확인</button>
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="password2">변경 비밀번호</label></th>
+												<td>
+													<div class="input-group pw-group">
+														<input
+															type="password"
+															id="password2"
+															class="form-control form-pw"
+															placeholder="비밀번호를 입력해주세요."
+															title="변경 비밀번호"
+															autocomplete="off"
+															value="000000000"
+															required
+														/>
+														<button type="button" class="btn btn-pw btn-pw-off">비밀번호 확인</button>
+													</div>
+													<span class="text-guide">10자 이상, 하나 이상의 숫자 및 대문자를 모두 포함</span>
+												</td>
+												<th scope="row"><label for="password3">변경 비밀번호 확인</label></th>
+												<td>
+													<div class="input-group pw-group">
+														<input
+															type="password"
+															id="password3"
+															class="form-control form-pw"
+															placeholder="비밀번호를 한번 더 입력해주세요."
+															title="변경 비밀번호 확인"
+															autocomplete="off"
+															value="000000000"
+															required
+														/>
+														<button type="button" class="btn btn-pw btn-pw-off">비밀번호 확인</button>
+													</div>
+												</td>
+											</tr>
+										</tbody>
+										<tbody>
+											<tr>
+												<th scope="row"><label for="inp_name">성명</label></th>
+												<td colspan="3">
+													<input
+														type="text"
+														id="inp_name"
+														value="홍길동"
+														class="form-control full"
+														style="max-width: 405px"
+													/>
+												</td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="inp_department">담당부서</label></th>
+												<td>
+													<input type="text" id="inp_department" class="form-control full" value="온택트사업부" />
+												</td>
+												<th scope="row"><label for="inp_num">전화번호</label></th>
+												<td>
+													<input type="text" id="inp_num" class="form-control full" value="01012341234" />
+												</td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="inp_email">이메일</label></th>
+												<td>
+													<input type="text" id="inp_email" class="form-control full" value="abcd@inseq.co.kr" />
+												</td>
+												<th scope="row"><label for="inp_phone_num">휴대폰</label></th>
+												<td>
+													<input type="text" id="inp_phone_num" class="form-control full" value="01012341234" />
+												</td>
+											</tr>
+											<tr>
+												<th scope="row"><label for="inp_fax">팩스</label></th>
+												<td colspan="3">
+													<input
+														type="text"
+														id="inp_fax"
+														class="form-control"
+														value="02-2039-3049"
+														style="width: 405px"
+													/>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+						<div class="popup-footer">
+							<div class="btn-group-center">
+								<button type="button" class="btn btn-lg btn-outline-gray" data-modal="close">닫기</button>
+								<button type="submit" class="btn btn-lg btn-primary" data-modal-submit="exampleModalForm">저장</button>
+							</div>
+						</div>
+						<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+					</form>
+				</div>
+			</div>
+
+			<!-- 샘플 레이어 -->
+			<div class="sample-layers">
+				<div class="modal-popup modal-md hide" id="layer-sample1">
+					<div class="dimed"></div>
+					<!-- 배경색상 변경시 .popup-inner에 .bg-gray 클래스 추가 -->
+					<div class="popup-inner">
+						<!-- 헤더 미사용시 .popup-header 만 제거, 하단 .btn-close-popup 버튼은 남겨둠 -->
+						<div class="popup-header">
+							<h2 class="popup-title">샘플1 레이어</h2>
+						</div>
+						<div class="popup-body">
+							<div class="scroll-inner">
+								<button type="button" onclick="alert('!!!!!!')" class="btn btn-md btn-primary">
+									레이어 속 레이어 테스트
+								</button>
+
+								<h3 class="title1 mt-4">데이트피커 테스트</h3>
+								<input type="text" class="form-control form-datepicker" title="시작일" />
+							</div>
+						</div>
+						<div class="popup-footer">
+							<div class="btn-group-center">
+								<button type="button" class="btn btn-lg btn-outline-gray" data-modal="close">취소</button>
+								<button type="button" class="btn btn-lg btn-primary">확인</button>
+							</div>
+						</div>
+						<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+					</div>
+				</div>
+
+				<div class="modal-popup modal-lg hide" id="layer-sample2">
+					<div class="dimed"></div>
+					<div class="popup-inner bg-gray">
+						<div class="popup-header">
+							<h2 class="popup-title">샘플2 레이어</h2>
+						</div>
+						<div class="popup-body">
+							<div class="scroll-inner">
+								<p>Contents</p>
+							</div>
+						</div>
+						<div class="popup-footer">
+							<div class="btn-group-center">
+								<button type="button" class="btn btn-lg btn-outline-gray" data-modal="close">취소</button>
+								<button type="button" class="btn btn-lg btn-primary">확인</button>
+							</div>
+						</div>
+						<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

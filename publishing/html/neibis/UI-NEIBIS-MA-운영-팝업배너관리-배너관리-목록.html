@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				// 이곳에 정의
+			});
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="배너관리"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<!-- 검색 영역 -->
+						<div class="card">
+							<form action="#;" class="search-form">
+								<div class="table table-form-basic">
+									<div class="table-inner">
+										<table>
+											<caption class="sr-only">
+												검색조건입력
+											</caption>
+											<tbody>
+												<tr>
+													<th scope="row">등록일자</th>
+													<td>
+														<div class="input-group input-group-datepicker">
+															<input
+																type="text"
+																class="form-control form-datepicker"
+																title="시작일"
+																placeholder="YYYY.MM.DD"
+															/>
+															<span class="input-addon">-</span>
+															<input
+																type="text"
+																class="form-control form-datepicker"
+																title="종료일"
+																placeholder="YYYY.MM.DD"
+															/>
+														</div>
+													</td>
+													<th scope="row">사이트명</th>
+													<td>
+														<select class="form-control" style="width: 100%; max-width: 424px" title="사이트명 선택">
+															<option selected>선택</option>
+															<option>option1</option>
+															<option>option2</option>
+															<option>option3</option>
+														</select>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<label for="search_word">검색어</label>
+													</th>
+													<td>
+														<div class="input-group md-drop">
+															<select class="form-control" title="검색 구분 선택" style="width: 100%; max-width: 160px">
+																<option selected>전체</option>
+																<option>제목</option>
+																<option>내용</option>
+															</select>
+															<input
+																type="text"
+																id="search_word"
+																class="form-control"
+																placeholder="제목 / 내용으로 검색해 주세요."
+															/>
+														</div>
+													</td>
+													<th scope="row">상태</th>
+													<td>
+														<select class="form-control" title="상태 선택" style="width: 200px">
+															<option selected>전체</option>
+															<option>진행</option>
+															<option>마감</option>
+														</select>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+
+								<div class="btn-group-center">
+									<button type="reset" class="btn btn-md btn-outline-gray">
+										<i class="ico ico-undo-darkgray-md"></i>
+										<span class="text">초기화</span>
+									</button>
+									<button type="submit" class="btn btn-md btn-primary">
+										<i class="ico ico-search-white-md"></i>
+										<span class="text">검색</span>
+									</button>
+								</div>
+							</form>
+						</div>
+
+						<!-- 목록 영역 : 일반형 -->
+						<div class="card">
+							<div class="list-control">
+								<div class="left">
+									<p class="total">총 <strong class="text-primary">1</strong>건(1/1 page)</p>
+								</div>
+								<div class="right">
+									<select class="form-control-sm" style="min-width: 100px" title="목록 수">
+										<option selected>10</option>
+										<option>20</option>
+										<option>50</option>
+										<option>100</option>
+									</select>
+									<button type="button" class="btn btn-sm btn-outline-gray ml-1">적용</button>
+								</div>
+							</div>
+
+							<div class="table table-list">
+								<div class="table-inner">
+									<table style="min-width: 1200px">
+										<caption class="sr-only">
+											검색결과 목록
+										</caption>
+										<colgroup>
+											<col />
+											<col />
+											<col />
+											<col style="width: 271px" />
+											<col />
+											<col />
+											<col style="width: 102px" />
+											<col />
+											<col style="width: 153px" />
+										</colgroup>
+										<thead>
+											<tr>
+												<th scope="col">번호</th>
+												<th scope="col">사이트명</th>
+												<th scope="col">제목</th>
+												<th scope="col">게시기간</th>
+												<th scope="col">상태</th>
+												<th scope="col">게시순서</th>
+												<th scope="col">등록일자</th>
+												<th scope="col">게시여부</th>
+												<th scope="col">관리</th>
+											</tr>
+										</thead>
+										<tbody>
+											<!-- 제목 클릭시 수정 페이지로 이동 /pc, mobile 버튼 클릭시 화면 미리보기 / 삭제된 페이지의 경우 제목 링크없음  -->
+											<tr>
+												<td>10</td>
+												<td>인시퀀스</td>
+												<td class="text-left">
+													<a href="UI-NEIBIS-MA-운영-팝업배너관리-배너관리-등록수정.html" class="link"
+														>링크 텍스트 text link text</a
+													>
+													<a href="#layer-sample-lg" data-modal="open" class="btn btn-xs btn-outline-gray ml-1">PC</a>
+													<a href="#layer-sample-sm" data-modal="open" class="btn btn-xs btn-outline-gray">Moblie</a>
+												</td>
+												<td>2023.03.06 01:00 ~ 2023.03.24 01:00</td>
+												<td><span class="label-status label-red">마감</span></td>
+												<td>1</td>
+												<td>2023.03.06</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-gray btn-delete">
+														<i class="ico ico-trash-white-sm"></i>
+														<span>삭제</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>9</td>
+												<td>대표홈</td>
+												<td class="text-left">
+													<a href="#;" class="link">링크 텍스트 text link text</a>
+													<a href="#layer-sample-lg" data-modal="open" class="btn btn-xs btn-outline-gray ml-1">PC</a>
+													<a href="#layer-sample-sm" data-modal="open" class="btn btn-xs btn-outline-gray">Moblie</a>
+												</td>
+												<td>2023.03.06 01:00 ~ 2023.03.24 01:00</td>
+												<td><span class="label-status label-blue">진행</span></td>
+												<td>2</td>
+												<td>2023.03.06</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-gray btn-delete">
+														<i class="ico ico-trash-white-sm"></i>
+														<span>삭제</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>8</td>
+												<td>정보센터</td>
+												<td class="text-left">링크 텍스트 text link text</td>
+												<td>2023.03.06 01:00 ~ 2023.03.24 01:00</td>
+												<td><span class="label-status label-red">마감</span></td>
+												<td>3</td>
+												<td>2023.03.06</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify disabled">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-primary-soft">
+														<i class="ico ico-restore-primary-sm"></i>
+														<span>복원</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>7</td>
+												<td>인시퀀스</td>
+												<td class="text-left">
+													<a href="#;" class="link">링크 텍스트 text link text</a>
+													<a href="#layer-sample-lg" data-modal="open" class="btn btn-xs btn-outline-gray ml-1">PC</a>
+													<a href="#layer-sample-sm" data-modal="open" class="btn btn-xs btn-outline-gray">Moblie</a>
+												</td>
+												<td>2023.03.06 01:00 ~ 2023.03.24 01:00</td>
+												<td><span class="label-status label-red">마감</span></td>
+												<td>4</td>
+												<td>2023.03.06</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-gray btn-delete">
+														<i class="ico ico-trash-white-sm"></i>
+														<span>삭제</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>6</td>
+												<td>대표홈</td>
+												<td class="text-left">
+													<a href="#;" class="link">링크 텍스트 text link text</a>
+													<a href="#layer-sample-lg" data-modal="open" class="btn btn-xs btn-outline-gray ml-1">PC</a>
+													<a href="#layer-sample-sm" data-modal="open" class="btn btn-xs btn-outline-gray">Moblie</a>
+												</td>
+												<td>2023.03.06 01:00 ~ 2023.03.24 01:00</td>
+												<td><span class="label-status label-blue">진행</span></td>
+												<td>5</td>
+												<td>2023.03.06</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-gray btn-delete">
+														<i class="ico ico-trash-white-sm"></i>
+														<span>삭제</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>5</td>
+												<td>정보센터</td>
+												<td class="text-left">링크 텍스트 text link text</td>
+												<td>2023.03.06 01:00 ~ 2023.03.24 01:00</td>
+												<td><span class="label-status label-red">마감</span></td>
+												<td>6</td>
+												<td>2023.03.06</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify disabled">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-primary-soft">
+														<i class="ico ico-restore-primary-sm"></i>
+														<span>복원</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>4</td>
+												<td>인시퀀스</td>
+												<td class="text-left">
+													<a href="#;" class="link">링크 텍스트 text link text</a>
+													<a href="#layer-sample-lg" data-modal="open" class="btn btn-xs btn-outline-gray ml-1">PC</a>
+													<a href="#layer-sample-sm" data-modal="open" class="btn btn-xs btn-outline-gray">Moblie</a>
+												</td>
+												<td>2023.03.06 01:00 ~ 2023.03.24 01:00</td>
+												<td><span class="label-status label-red">마감</span></td>
+												<td>7</td>
+												<td>2023.03.06</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-gray btn-delete">
+														<i class="ico ico-trash-white-sm"></i>
+														<span>삭제</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>3</td>
+												<td>대표홈</td>
+												<td class="text-left">
+													<a href="#;" class="link">링크 텍스트 text link text</a>
+													<a href="#layer-sample-lg" data-modal="open" class="btn btn-xs btn-outline-gray ml-1">PC</a>
+													<a href="#layer-sample-sm" data-modal="open" class="btn btn-xs btn-outline-gray">Moblie</a>
+												</td>
+												<td>2023.03.06 01:00 ~ 2023.03.24 01:00</td>
+												<td><span class="label-status label-blue">진행</span></td>
+												<td>8</td>
+												<td>2023.03.06</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-gray btn-delete">
+														<i class="ico ico-trash-white-sm"></i>
+														<span>삭제</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>2</td>
+												<td>정보센터</td>
+												<td class="text-left">링크 텍스트 text link text</td>
+												<td>2023.03.06 01:00 ~ 2023.03.24 01:00</td>
+												<td><span class="label-status label-red">마감</span></td>
+												<td>9</td>
+												<td>2023.03.06</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify disabled">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-primary-soft">
+														<i class="ico ico-restore-primary-sm"></i>
+														<span>복원</span>
+													</button>
+												</td>
+											</tr>
+											<tr>
+												<td>1</td>
+												<td>인시퀀스</td>
+												<td class="text-left">
+													<a href="#;" class="link">링크 텍스트 text link text</a>
+													<a href="#layer-sample-lg" data-modal="open" class="btn btn-xs btn-outline-gray ml-1">PC</a>
+													<a href="#layer-sample-sm" data-modal="open" class="btn btn-xs btn-outline-gray">Moblie</a>
+												</td>
+												<td>2023.03.06 01:00 ~ 2023.03.24 01:00</td>
+												<td><span class="label-status label-red">마감</span></td>
+												<td>10</td>
+												<td>2023.03.06</td>
+												<td>
+													<label class="check-switch check-switch-fix">
+														<input type="checkbox" />
+														<span class="label">
+															<span class="text-checked">게시</span>
+															<span class="text-uncheck">미게시</span>
+														</span>
+													</label>
+												</td>
+												<td>
+													<a href="#;" class="btn btn-xs btn-outline-gray btn-modify">
+														<i class="ico ico-pen-darkgary-sm"></i>
+														<span>수정</span>
+													</a>
+													<button type="button" class="btn btn-xs btn-gray btn-delete">
+														<i class="ico ico-trash-white-sm"></i>
+														<span>삭제</span>
+													</button>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+
+							<div class="pagination">
+								<a href="#;" class="direction first disabled">처음</a>
+								<a href="#;" class="direction prev disabled">이전</a>
+								<strong>1</strong>
+								<a href="#;">2</a>
+								<a href="#;">3</a>
+								<a href="#;">4</a>
+								<a href="#;">5</a>
+								<a href="#;" class="direction next">다음</a>
+								<a href="#;" class="direction last">끝</a>
+							</div>
+
+							<div class="btn-group-between">
+								<div class="right">
+									<a href="UI-NEIBIS-MA-운영-팝업배너관리-배너관리-등록수정.html" class="btn btn-lg btn-primary">
+										<i class="ico ico-plus-white-md"></i>
+										<span>등록</span>
+									</a>
+								</div>
+							</div>
+						</div>
+
+						<!-- 상단 고정 액션 버튼 -->
+						<div class="btn-group-fixed">
+							<a href="UI-NEIBIS-MA-운영-팝업배너관리-배너관리-등록수정.html" class="btn btn-lg btn-primary">
+								<i class="ico ico-plus-white-md"></i>
+								<span>등록</span>
+							</a>
+						</div>
+
+						<!-- Modal Popup : .modal-lg : 프로모션 이미지 보기 -->
+						<div class="modal-popup modal-lg hide" id="layer-sample-lg">
+							<div class="dimed"></div>
+							<div class="popup-inner">
+								<div class="popup-header">
+									<h2 class="popup-title">프로모션 이미지 보기</h2>
+								</div>
+								<div class="popup-body">
+									<div class="scroll-inner">
+										<div class="promotion-img">
+											<!-- 프로모션 이미지 영역 -->
+											<img src="/assets/neibis/images/_sample.jpg" alt="프로모션 이미지 영역" class="image" />
+										</div>
+									</div>
+								</div>
+								<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+							</div>
+						</div>
+
+						<!-- Modal Popup : .modal-sm : 프로모션 이미지 보기 -->
+						<div class="modal-popup modal-sm hide" id="layer-sample-sm">
+							<div class="dimed"></div>
+							<div class="popup-inner">
+								<div class="popup-header">
+									<h2 class="popup-title">프로모션 이미지 보기</h2>
+								</div>
+								<div class="popup-body">
+									<div class="scroll-inner">
+										<div class="promotion-img">
+											<!-- 프로모션 이미지 영역 -->
+											<img src="/assets/neibis/images/_sample.jpg" alt="프로모션 이미지 영역" class="image" />
+										</div>
+									</div>
+								</div>
+								<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+							</div>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>샘플 공공서비스 | 메인</title>
+  <link rel="shortcut icon" href="../../../assets/sample/images/common/favicon.png" />
+  <link rel="stylesheet" href="../../../assets/sample/css/common.css" />
+  <link rel="stylesheet" href="../../../assets/sample/css/main.css" />
+  <script src="../../../assets/sample/js/ui.js" defer></script>
+  <script src="../../../assets/sample/js/main.js" defer></script>
+</head>
+<body>
+
+  <!-- 건너뛰기 링크 -->
+  <nav class="skip-nav" aria-label="바로가기">
+    <a href="#content">본문 바로가기</a>
+    <a href="#gnb">주메뉴 바로가기</a>
+    <a href="#footer">푸터 바로가기</a>
+  </nav>
+
+  <!-- ============================================================
+    전체메뉴 딤 & 패널
+    JSP: <%@include file="/WEB-INF/jsp/include/_inc-allmenu.jsp"%>
+  ============================================================ -->
+  <div class="allmenu-dim" aria-hidden="true"></div>
+  <div class="allmenu-panel" role="dialog" aria-label="전체메뉴">
+    <div class="allmenu-panel__head">
+      <img
+        class="allmenu-panel__logo"
+        src="../../../assets/sample/images/common/img-logo.png"
+        alt="샘플 공공서비스"
+      />
+      <button class="allmenu-panel__close" type="button" data-allmenu-close aria-label="전체메뉴 닫기">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M2 2L14 14M14 2L2 14" stroke="rgba(255,255,255,0.65)" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="allmenu-panel__body">
+      <!-- 운영 데이터 슬롯: GNB_MENU_DATA -->
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">기관소개</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">기관장 인사말</a></li>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">설립목적 및 연혁</a></li>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">조직도</a></li>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">주요업무</a></li>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">오시는 길</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">사업안내</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">사업개요</a></li>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">추진현황</a></li>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">성과관리</a></li>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">사업공고</a></li>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">협력기관</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">정보공개</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">정보공개 안내</a></li>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">사전정보 공표</a></li>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">정보목록</a></li>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">청구하기</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">알림마당</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">공지사항</a></li>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">보도자료</a></li>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">자료실</a></li>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">FAQ</a></li>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">새소식</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">고객참여</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">온라인 민원</a></li>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">설문조사</a></li>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">국민제안</a></li>
+          <li><a class="allmenu-section__link" href="./서브-베이스.html">만족도 조사</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+    상단 롤링배너
+    JSP: <%@include file="/WEB-INF/jsp/include/_inc-rolling-banner.jsp"%>
+    운영 슬롯: ROLLING_BANNER_LIST (tag, title, date, url)
+  ============================================================ -->
+  <div class="rolling-banner" role="region" aria-label="공지 롤링배너">
+    <div class="rolling-banner__inner">
+      <span class="rolling-banner__label">알림</span>
+      <div class="rolling-banner__content">
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">공지</span>
+          <a class="rolling-banner__title" href="./서브-베이스.html">2025년 상반기 주요사업 추진 계획 안내</a>
+          <span class="rolling-banner__date">2025.04.15</span>
+        </div>
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">사업</span>
+          <a class="rolling-banner__title" href="./서브-베이스.html">디지털 행정서비스 개선 과제 공모 결과 발표</a>
+          <span class="rolling-banner__date">2025.04.10</span>
+        </div>
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">공지</span>
+          <a class="rolling-banner__title" href="./서브-베이스.html">정보보호의 달 운영 안내 및 보안교육 일정</a>
+          <span class="rolling-banner__date">2025.04.03</span>
+        </div>
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">채용</span>
+          <a class="rolling-banner__title" href="./서브-베이스.html">2025년 하반기 신규직원 채용 공고 사전 안내</a>
+          <span class="rolling-banner__date">2025.03.28</span>
+        </div>
+      </div>
+      <div class="rolling-banner__controls">
+        <button class="rolling-banner__arrow" type="button" data-rolling-prev aria-label="이전 공지">‹</button>
+        <span class="rolling-banner__count" aria-live="polite">1/4</span>
+        <button class="rolling-banner__arrow" type="button" data-rolling-next aria-label="다음 공지">›</button>
+        <!-- 일시정지/재생 -->
+        <button class="rolling-banner__toggle" type="button" data-rolling-toggle aria-label="자동재생 일시정지">
+          <span class="si-pause" aria-hidden="true">
+            <svg width="7" height="9" viewBox="0 0 7 9" fill="none">
+              <rect x="0" y="0" width="2.5" height="9" rx="1" fill="currentColor"/>
+              <rect x="4.5" y="0" width="2.5" height="9" rx="1" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="si-play" aria-hidden="true">
+            <svg width="8" height="9" viewBox="0 0 8 9" fill="none">
+              <path d="M0 0L8 4.5L0 9Z" fill="currentColor"/>
+            </svg>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+    통합형 헤더
+    JSP: <%@include file="/WEB-INF/jsp/include/_inc-header.jsp"%>
+    운영 슬롯: SITE_NAME, GNB_MENU_DATA, LOGIN_STATUS
+  ============================================================ -->
+  <header class="site-header" role="banner">
+    <div class="site-header__inner">
+
+      <a class="site-logo" href="./메인.html" aria-label="샘플 공공서비스 홈으로 이동">
+        <img
+          class="site-logo__img"
+          src="../../../assets/sample/images/common/img-logo.png"
+          alt="샘플 공공서비스"
+        />
+      </a>
+
+      <nav class="site-gnb" id="gnb" aria-label="주메뉴">
+        <ul class="site-gnb__list">
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="./서브-베이스.html">기관소개</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">기관장 인사말</a></li>
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">설립목적 및 연혁</a></li>
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">조직도</a></li>
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">주요업무</a></li>
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">오시는 길</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="./서브-베이스.html">사업안내</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">사업개요</a></li>
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">추진현황</a></li>
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">성과관리</a></li>
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">사업공고</a></li>
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">협력기관</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="./서브-베이스.html">정보공개</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">정보공개 안내</a></li>
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">사전정보 공표</a></li>
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">정보목록</a></li>
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">청구하기</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="./서브-베이스.html">알림마당</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">공지사항</a></li>
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">보도자료</a></li>
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">자료실</a></li>
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">FAQ</a></li>
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">새소식</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="./서브-베이스.html">고객참여</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">온라인 민원</a></li>
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">설문조사</a></li>
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">국민제안</a></li>
+                  <li><a class="gnb-dropdown__link" href="./서브-베이스.html">만족도 조사</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- 운영 데이터 슬롯: LOGIN_STATUS → 로그인/로그아웃 분기 -->
+      <div class="site-header__actions">
+        <button class="btn-login" type="button">로그인</button>
+        <button class="btn-allmenu" type="button" data-allmenu-open aria-expanded="false">
+          <span class="btn-allmenu__bars" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+          <span>전체메뉴</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================
+    메인 콘텐츠
+  ============================================================ -->
+  <main id="content">
+
+    <!-- ──────────────────────────────────────────────────────────
+      레이어팝업 (페이지 진입 시 자동 표시, ui.js 초기화)
+      JSP: <%@include file="/WEB-INF/jsp/include/_inc-layer-popup.jsp"%>
+      운영 슬롯: LAYER_POPUP_LIST (image_url, link_url, alt)
+
+      건수별 layer-popup__slides 클래스 분기:
+        fn:length(mainLayerPopupList) == 1 → class="layer-popup__slides is-single"
+        fn:length(mainLayerPopupList) == 2 → class="layer-popup__slides is-double"
+        fn:length(mainLayerPopupList) >= 3 → class="layer-popup__slides"  (기본 3-up)
+    ────────────────────────────────────────────────────────────── -->
+    <div class="layer-popup-wrap" role="dialog" aria-label="공지 팝업" aria-modal="true">
+      <div class="layer-popup">
+
+        <!-- 상단 닫기 바 (기존 floating X 원형 대체 → 덜 튀는 텍스트형) -->
+        <div class="layer-popup__topbar">
+          <button class="layer-popup__close-x" type="button" aria-label="팝업 닫기">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
+              <path d="M1 1L10 10M10 1L1 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            닫기
+          </button>
+        </div>
+
+        <div class="layer-popup__body">
+          <!-- 좌우 화살표 (슬라이드 3건 이상 시 표시) -->
+          <div class="layer-popup__slides-row">
+            <button class="layer-popup__arrow layer-popup__arrow--prev" type="button" data-popup-prev aria-label="이전 팝업">
+              <svg width="8" height="14" viewBox="0 0 8 14" fill="none" aria-hidden="true">
+                <path d="M7 1L1 7L7 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+
+            <!-- 운영 데이터 슬롯: LAYER_POPUP_LIST — 건수에 따라 is-single / is-double 클래스 부여 (위 주석 참고) -->
+            <div class="layer-popup__slides">
+              <div class="layer-popup__slide is-side">
+                <div class="layer-popup__img-slot" style="background: linear-gradient(135deg, #2E7D5B 0%, #1A56B0 100%);">
+                  <!-- 운영 데이터 슬롯: LAYER_POPUP_IMAGE_2 -->
+                  <div class="layer-popup__img-placeholder">
+                    <svg class="ph-icon" width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                      <rect x="2" y="2" width="28" height="28" rx="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                      <circle cx="11" cy="12" r="3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                      <path d="M2 22L10 15L15 20L21 14L30 22" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+                    </svg>
+                    <span>팝업 이미지 2</span>
+                  </div>
+                </div>
+              </div>
+              <div class="layer-popup__slide is-center">
+                <div class="layer-popup__img-slot" style="background: linear-gradient(135deg, #1A56B0 0%, #2C3E6B 100%);">
+                  <!-- 운영 데이터 슬롯: LAYER_POPUP_IMAGE_1 -->
+                  <div class="layer-popup__img-placeholder">
+                    <svg class="ph-icon" width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                      <rect x="2" y="2" width="28" height="28" rx="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                      <circle cx="11" cy="12" r="3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                      <path d="M2 22L10 15L15 20L21 14L30 22" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+                    </svg>
+                    <span>팝업 이미지 1</span>
+                  </div>
+                </div>
+              </div>
+              <div class="layer-popup__slide is-side">
+                <div class="layer-popup__img-slot" style="background: linear-gradient(135deg, #2C3E6B 0%, #B45309 100%);">
+                  <!-- 운영 데이터 슬롯: LAYER_POPUP_IMAGE_3 -->
+                  <div class="layer-popup__img-placeholder">
+                    <svg class="ph-icon" width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                      <rect x="2" y="2" width="28" height="28" rx="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                      <circle cx="11" cy="12" r="3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                      <path d="M2 22L10 15L15 20L21 14L30 22" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+                    </svg>
+                    <span>팝업 이미지 3</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- /layer-popup__slides -->
+
+            <button class="layer-popup__arrow layer-popup__arrow--next" type="button" data-popup-next aria-label="다음 팝업">
+              <svg width="8" height="14" viewBox="0 0 8 14" fill="none" aria-hidden="true">
+                <path d="M1 1L7 7L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+          <!-- /slides-row -->
+
+          <!-- dots + 일시정지 -->
+          <div class="layer-popup__ctrl-row">
+            <div class="layer-popup__dots" role="tablist" aria-label="팝업 슬라이드">
+              <button class="layer-popup__dot is-active" type="button" aria-label="슬라이드 1"></button>
+              <button class="layer-popup__dot" type="button" aria-label="슬라이드 2"></button>
+              <button class="layer-popup__dot" type="button" aria-label="슬라이드 3"></button>
+            </div>
+            <button class="layer-popup__pause" type="button" data-popup-pause aria-label="자동재생 일시정지">
+              <span class="si-pause" aria-hidden="true">
+                <svg width="7" height="9" viewBox="0 0 7 9" fill="none">
+                  <rect x="0" y="0" width="2.5" height="9" rx="1" fill="currentColor"/>
+                  <rect x="4.5" y="0" width="2.5" height="9" rx="1" fill="currentColor"/>
+                </svg>
+              </span>
+              <span class="si-play" aria-hidden="true">
+                <svg width="8" height="9" viewBox="0 0 8 9" fill="none">
+                  <path d="M0 0L8 4.5L0 9Z" fill="currentColor"/>
+                </svg>
+              </span>
+            </button>
+          </div>
+        </div>
+        <!-- /layer-popup__body -->
+
+        <div class="layer-popup__footer">
+          <label class="layer-popup__no-today">
+            <input type="checkbox" />
+            오늘 하루 보지 않기
+          </label>
+          <button class="layer-popup__close-btn" type="button">닫기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──────────────────────────────────────────────────────────
+      대표 비주얼 (Hero Visual Slider)
+      운영 슬롯: HERO_SLIDE_LIST (eyebrow, title, desc, cta_label, cta_url, bg_color)
+    ────────────────────────────────────────────────────────────── -->
+    <section class="hero-visual" aria-label="대표 비주얼">
+
+      <!-- 슬라이드 1 -->
+      <div class="hero-visual__slide" style="background: linear-gradient(135deg, #1a3a6b 0%, #2C3E6B 50%, #1A56B0 100%);">
+        <div class="hero-visual__pattern" aria-hidden="true"></div>
+        <div class="hero-visual__inner">
+          <div class="hero-visual__text">
+            <!-- 운영 데이터 슬롯: HERO_SLIDE_1 -->
+            <div class="hero-visual__eyebrow">공공 서비스 혁신</div>
+            <h1 class="hero-visual__title">국민과 함께하는<br>스마트 행정 서비스</h1>
+            <p class="hero-visual__desc">더 편리하고 투명한 공공 행정으로 국민의 일상을 지원합니다.</p>
+            <div class="hero-visual__cta">
+              <a class="hero-visual__btn" href="./서브-베이스.html">자세히 보기</a>
+            </div>
+          </div>
+          <div class="hero-visual__deco" aria-hidden="true">
+            <svg width="200" height="200" viewBox="0 0 200 200" fill="none">
+              <rect x="20" y="20" width="80" height="80" rx="4" fill="rgba(255,255,255,0.08)"/>
+              <rect x="60" y="60" width="120" height="120" rx="4" fill="rgba(255,255,255,0.05)"/>
+              <rect x="30" y="110" width="60" height="60" rx="4" fill="rgba(255,255,255,0.06)"/>
+              <circle cx="150" cy="40" r="30" fill="rgba(255,255,255,0.06)"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 슬라이드 2 -->
+      <div class="hero-visual__slide" style="background: linear-gradient(135deg, #113366 0%, #1A56B0 60%, #3B8BEB 100%);">
+        <div class="hero-visual__pattern" aria-hidden="true"></div>
+        <div class="hero-visual__inner">
+          <div class="hero-visual__text">
+            <!-- 운영 데이터 슬롯: HERO_SLIDE_2 -->
+            <div class="hero-visual__eyebrow">디지털 혁신</div>
+            <h1 class="hero-visual__title">디지털 전환으로<br>미래를 열어갑니다</h1>
+            <p class="hero-visual__desc">전자정부 표준프레임워크 기반의 신뢰할 수 있는 시스템을 제공합니다.</p>
+            <div class="hero-visual__cta">
+              <a class="hero-visual__btn" href="./서브-베이스.html">자세히 보기</a>
+            </div>
+          </div>
+          <div class="hero-visual__deco" aria-hidden="true">
+            <svg width="200" height="200" viewBox="0 0 200 200" fill="none">
+              <rect x="20" y="20" width="80" height="80" rx="4" fill="rgba(255,255,255,0.08)"/>
+              <rect x="60" y="60" width="120" height="120" rx="4" fill="rgba(255,255,255,0.05)"/>
+              <circle cx="40" cy="160" r="40" fill="rgba(255,255,255,0.04)"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 슬라이드 3 -->
+      <div class="hero-visual__slide" style="background: linear-gradient(135deg, #1E2331 0%, #2C3E6B 40%, #1A56B0 100%);">
+        <div class="hero-visual__pattern" aria-hidden="true"></div>
+        <div class="hero-visual__inner">
+          <div class="hero-visual__text">
+            <!-- 운영 데이터 슬롯: HERO_SLIDE_3 -->
+            <div class="hero-visual__eyebrow">열린 행정</div>
+            <h1 class="hero-visual__title">투명한 정보공개로<br>신뢰를 쌓습니다</h1>
+            <p class="hero-visual__desc">공공기관의 정보를 투명하게 공개하여 국민과 소통합니다.</p>
+            <div class="hero-visual__cta">
+              <a class="hero-visual__btn" href="./서브-베이스.html">자세히 보기</a>
+            </div>
+          </div>
+          <div class="hero-visual__deco" aria-hidden="true">
+            <svg width="200" height="200" viewBox="0 0 200 200" fill="none">
+              <rect x="10" y="10" width="100" height="100" rx="50" fill="rgba(255,255,255,0.05)"/>
+              <rect x="60" y="60" width="120" height="120" rx="4" fill="rgba(255,255,255,0.06)"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 좌우 화살표 (절대 위치, 비주얼 양 옆) -->
+      <button class="hero-visual__arrow hero-visual__arrow--prev" type="button" data-hero-prev aria-label="이전 슬라이드">
+        <svg width="10" height="18" viewBox="0 0 10 18" fill="none" aria-hidden="true">
+          <path d="M9 1L1 9L9 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="hero-visual__arrow hero-visual__arrow--next" type="button" data-hero-next aria-label="다음 슬라이드">
+        <svg width="10" height="18" viewBox="0 0 10 18" fill="none" aria-hidden="true">
+          <path d="M1 1L9 9L1 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <!-- 비주얼 컨트롤 (하단 우측: dot + 카운터 + 일시정지) -->
+      <div class="hero-visual__controls" aria-label="슬라이드 컨트롤">
+        <div class="hero-visual__dots" role="tablist">
+          <button class="hero-visual__dot" type="button" aria-label="슬라이드 1로 이동"></button>
+          <button class="hero-visual__dot" type="button" aria-label="슬라이드 2로 이동"></button>
+          <button class="hero-visual__dot" type="button" aria-label="슬라이드 3로 이동"></button>
+        </div>
+        <span class="hero-visual__counter" aria-live="polite">1 / 3</span>
+        <!-- 일시정지/재생 -->
+        <button class="hero-visual__pause" type="button" data-hero-pause aria-label="자동재생 일시정지">
+          <span class="si-pause" aria-hidden="true">
+            <svg width="7" height="9" viewBox="0 0 7 9" fill="none">
+              <rect x="0" y="0" width="2.5" height="9" rx="1" fill="currentColor"/>
+              <rect x="4.5" y="0" width="2.5" height="9" rx="1" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="si-play" aria-hidden="true">
+            <svg width="8" height="9" viewBox="0 0 8 9" fill="none">
+              <path d="M0 0L8 4.5L0 9Z" fill="currentColor"/>
+            </svg>
+          </span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────────────────────
+      보드 섹션 (공지사항 / 보도자료 / 카드뉴스)
+      ※ 배너관리보다 위로 배치
+      운영 슬롯: NOTICE_LIST / PRESS_LIST / CARD_NEWS_LIST
+    ────────────────────────────────────────────────────────────── -->
+    <section class="board-section" aria-label="공지사항 및 보도자료">
+      <div class="board-section__inner">
+
+        <!-- 공지사항 -->
+        <div class="board-widget">
+          <div class="board-widget__head">
+            <h2 class="board-widget__title">공지사항</h2>
+            <a class="board-widget__more" href="./서브-베이스.html">더보기 +</a>
+          </div>
+          <ul>
+            <!-- 운영 데이터 슬롯: NOTICE_LIST_START (5건) -->
+            <li class="board-list__item">
+              <div class="board-list__left">
+                <span class="board-list__tag board-list__tag--notice">공지</span>
+                <a class="board-list__title" href="./서브-베이스.html">
+                  2025년 상반기 업무 계획 안내 사항
+                  <span class="board-list__new">N</span>
+                </a>
+              </div>
+              <span class="board-list__date">2025.04.15</span>
+            </li>
+            <li class="board-list__item">
+              <div class="board-list__left">
+                <span class="board-list__tag board-list__tag--normal">일반</span>
+                <a class="board-list__title" href="./서브-베이스.html">
+                  사업 참여 신청서 제출 기한 연장 안내
+                  <span class="board-list__new">N</span>
+                </a>
+              </div>
+              <span class="board-list__date">2025.04.10</span>
+            </li>
+            <li class="board-list__item">
+              <div class="board-list__left">
+                <span class="board-list__tag board-list__tag--normal">일반</span>
+                <a class="board-list__title" href="./서브-베이스.html">시스템 정기 점검 일정 안내 (4월)</a>
+              </div>
+              <span class="board-list__date">2025.04.01</span>
+            </li>
+            <li class="board-list__item">
+              <div class="board-list__left">
+                <span class="board-list__tag board-list__tag--normal">일반</span>
+                <a class="board-list__title" href="./서브-베이스.html">기관 정보공개 운영 지침 개정 사항 공지</a>
+              </div>
+              <span class="board-list__date">2025.03.25</span>
+            </li>
+            <li class="board-list__item">
+              <div class="board-list__left">
+                <span class="board-list__tag board-list__tag--notice">공지</span>
+                <a class="board-list__title" href="./서브-베이스.html">개인정보 처리방침 개정 안내</a>
+              </div>
+              <span class="board-list__date">2025.03.18</span>
+            </li>
+            <!-- 운영 데이터 슬롯: NOTICE_LIST_END -->
+          </ul>
+
+          <!-- 운영 데이터 슬롯: NOTICE_EMPTY_STATE (공지사항 0건일 때 위 ul 대신 표시) -->
+          <!--
+          <div class="board-widget-empty">
+            <div class="board-widget-empty__icon">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                <rect x="3" y="3" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M7 8h8M7 11h8M7 14h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <p class="board-widget-empty__text">등록된 공지사항이 없습니다.</p>
+            <p class="board-widget-empty__sub">새로운 공지사항이 등록되면 이곳에 표시됩니다.</p>
+          </div>
+          -->
+        </div>
+
+        <!-- 보도자료 -->
+        <div class="board-widget">
+          <div class="board-widget__head">
+            <h2 class="board-widget__title">보도자료</h2>
+            <a class="board-widget__more" href="./서브-베이스.html">더보기 +</a>
+          </div>
+          <ul>
+            <!-- 운영 데이터 슬롯: PRESS_LIST_START (5건) -->
+            <li class="board-list__item">
+              <div class="board-list__left">
+                <span class="board-list__tag board-list__tag--press">보도</span>
+                <a class="board-list__title" href="./서브-베이스.html">NEIBIS, 전자정부 우수사례 기관 선정</a>
+              </div>
+              <span class="board-list__date">2025.04.12</span>
+            </li>
+            <li class="board-list__item">
+              <div class="board-list__left">
+                <span class="board-list__tag board-list__tag--press">보도</span>
+                <a class="board-list__title" href="./서브-베이스.html">디지털 행정 혁신 포럼 참가 및 성과 발표</a>
+              </div>
+              <span class="board-list__date">2025.04.08</span>
+            </li>
+            <li class="board-list__item">
+              <div class="board-list__left">
+                <span class="board-list__tag board-list__tag--press">보도</span>
+                <a class="board-list__title" href="./서브-베이스.html">2025년 정보화 마스터플랜 수립 완료</a>
+              </div>
+              <span class="board-list__date">2025.03.30</span>
+            </li>
+            <li class="board-list__item">
+              <div class="board-list__left">
+                <span class="board-list__tag board-list__tag--press">보도</span>
+                <a class="board-list__title" href="./서브-베이스.html">기관 홈페이지 웹 접근성 인증 획득</a>
+              </div>
+              <span class="board-list__date">2025.03.20</span>
+            </li>
+            <li class="board-list__item">
+              <div class="board-list__left">
+                <span class="board-list__tag board-list__tag--press">보도</span>
+                <a class="board-list__title" href="./서브-베이스.html">상반기 주요 사업성과 언론 보도 종합</a>
+              </div>
+              <span class="board-list__date">2025.03.10</span>
+            </li>
+            <!-- 운영 데이터 슬롯: PRESS_LIST_END -->
+          </ul>
+
+          <!-- 운영 데이터 슬롯: PRESS_EMPTY_STATE (보도자료 0건일 때 위 ul 대신 표시) -->
+          <!--
+          <div class="board-widget-empty">
+            <div class="board-widget-empty__icon">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                <path d="M4 5h14M4 9h14M4 13h9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                <circle cx="16" cy="16" r="4" stroke="currentColor" stroke-width="1.4"/>
+                <path d="M19 19l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <p class="board-widget-empty__text">등록된 보도자료가 없습니다.</p>
+            <p class="board-widget-empty__sub">새로운 보도자료가 등록되면 이곳에 표시됩니다.</p>
+          </div>
+          -->
+        </div>
+
+        <!-- 카드뉴스 -->
+        <div class="board-widget card-news-widget">
+          <div class="board-widget__head">
+            <h2 class="board-widget__title">카드뉴스</h2>
+            <div class="board-widget__ctrl">
+              <button class="banner-ctrl-btn" type="button" data-cardnews-prev aria-label="이전">‹</button>
+              <span class="banner-ctrl-count" data-cardnews-count>1/3</span>
+              <button class="banner-ctrl-btn" type="button" data-cardnews-next aria-label="다음">›</button>
+              <!-- 일시정지/재생 -->
+              <button class="banner-ctrl-toggle" type="button" data-cardnews-pause aria-label="자동재생 일시정지">
+                <span class="si-pause" aria-hidden="true">
+                  <svg width="7" height="9" viewBox="0 0 7 9" fill="none">
+                    <rect x="0" y="0" width="2.5" height="9" rx="1" fill="currentColor"/>
+                    <rect x="4.5" y="0" width="2.5" height="9" rx="1" fill="currentColor"/>
+                  </svg>
+                </span>
+                <span class="si-play" aria-hidden="true">
+                  <svg width="8" height="9" viewBox="0 0 8 9" fill="none">
+                    <path d="M0 0L8 4.5L0 9Z" fill="currentColor"/>
+                  </svg>
+                </span>
+              </button>
+            </div>
+          </div>
+          <!-- 운영 데이터 슬롯: CARD_NEWS_LIST_START -->
+          <div class="card-news__item" data-cardnews-slide>
+            <div class="card-news__img" style="background: linear-gradient(135deg, #1A56B0 0%, #4EA8F5 100%);">
+              <div class="card-news__img-placeholder">
+                <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                  <rect x="2" y="2" width="28" height="28" rx="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                  <circle cx="11" cy="12" r="3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                  <path d="M2 22L10 15L15 20L21 14L30 22" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+                </svg>
+                <span>카드뉴스 이미지 1</span>
+              </div>
+            </div>
+            <div class="card-news__info">
+              <div class="card-news__label">카드뉴스 01</div>
+              <div class="card-news__sub">2025년 주요사업 안내</div>
+            </div>
+          </div>
+          <div class="card-news__item" data-cardnews-slide>
+            <div class="card-news__img" style="background: linear-gradient(135deg, #2C3E6B 0%, #3B8BEB 100%);">
+              <div class="card-news__img-placeholder">
+                <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                  <rect x="2" y="2" width="28" height="28" rx="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                  <circle cx="11" cy="12" r="3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                  <path d="M2 22L10 15L15 20L21 14L30 22" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+                </svg>
+                <span>카드뉴스 이미지 2</span>
+              </div>
+            </div>
+            <div class="card-news__info">
+              <div class="card-news__label">카드뉴스 02</div>
+              <div class="card-news__sub">디지털 전환 성과 보고</div>
+            </div>
+          </div>
+          <div class="card-news__item" data-cardnews-slide>
+            <div class="card-news__img" style="background: linear-gradient(135deg, #133D82 0%, #2E7D5B 100%);">
+              <div class="card-news__img-placeholder">
+                <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                  <rect x="2" y="2" width="28" height="28" rx="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                  <circle cx="11" cy="12" r="3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                  <path d="M2 22L10 15L15 20L21 14L30 22" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+                </svg>
+                <span>카드뉴스 이미지 3</span>
+              </div>
+            </div>
+            <div class="card-news__info">
+              <div class="card-news__label">카드뉴스 03</div>
+              <div class="card-news__sub">정보공개 절차 안내</div>
+            </div>
+          </div>
+          <!-- 운영 데이터 슬롯: CARD_NEWS_LIST_END -->
+
+          <!-- 운영 데이터 슬롯: CARD_NEWS_EMPTY_STATE (카드뉴스 0건일 때 슬라이드 대신 표시) -->
+          <!--
+          <div class="card-news-empty">
+            <div class="card-news-empty__icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="2" y="4" width="20" height="16" rx="3" stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="8" cy="10" r="2" stroke="currentColor" stroke-width="1.4"/>
+                <path d="M2 17l5-5 4 4 3-3 8 7" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <p class="card-news-empty__text">등록된 카드뉴스가 없습니다.</p>
+            <p class="card-news-empty__sub">새로운 카드뉴스가 등록되면<br/>이곳에 표시됩니다.</p>
+          </div>
+          -->
+
+          <div class="card-news__dots-wrap" role="tablist" aria-label="카드뉴스 슬라이드">
+            <button class="banner-dot" type="button" data-cardnews-dot aria-label="카드뉴스 1"></button>
+            <button class="banner-dot" type="button" data-cardnews-dot aria-label="카드뉴스 2"></button>
+            <button class="banner-dot" type="button" data-cardnews-dot aria-label="카드뉴스 3"></button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────────────────────
+      배너관리 영역 (팝업존 + 배너존)
+      ※ 공지사항 섹션 아래로 이동
+      운영 슬롯: POPUP_ZONE_LIST / BANNER_ZONE_LIST
+    ────────────────────────────────────────────────────────────── -->
+    <section class="banner-mgmt" aria-label="배너 관리">
+      <div class="banner-mgmt__inner">
+
+        <!-- 팝업존 -->
+        <div class="banner-card banner-card--popup">
+          <div class="banner-card__head">
+            <span class="banner-card__title">팝업존</span>
+            <div class="banner-card__controls">
+              <button class="banner-ctrl-btn" type="button" data-banner-prev aria-label="이전">‹</button>
+              <span class="banner-ctrl-count" data-banner-count>1/3</span>
+              <button class="banner-ctrl-btn" type="button" data-banner-next aria-label="다음">›</button>
+              <!-- 일시정지/재생 -->
+              <button class="banner-ctrl-toggle" type="button" data-banner-pause aria-label="자동재생 일시정지">
+                <span class="si-pause" aria-hidden="true">
+                  <svg width="7" height="9" viewBox="0 0 7 9" fill="none">
+                    <rect x="0" y="0" width="2.5" height="9" rx="1" fill="currentColor"/>
+                    <rect x="4.5" y="0" width="2.5" height="9" rx="1" fill="currentColor"/>
+                  </svg>
+                </span>
+                <span class="si-play" aria-hidden="true">
+                  <svg width="8" height="9" viewBox="0 0 8 9" fill="none">
+                    <path d="M0 0L8 4.5L0 9Z" fill="currentColor"/>
+                  </svg>
+                </span>
+              </button>
+            </div>
+          </div>
+          <!-- 운영 데이터 슬롯: POPUP_ZONE_LIST_START -->
+          <div class="banner-slide" data-banner-slide>
+            <a href="./서브-베이스.html" tabindex="-1">
+              <div class="banner-card__img-slot banner-card__img-slot--popup" style="background: linear-gradient(135deg, #1A56B0 0%, #2C3E6B 100%);">
+                <div class="banner-card__img-placeholder">
+                  <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <rect x="2" y="2" width="28" height="28" rx="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                    <circle cx="11" cy="12" r="3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                    <path d="M2 22L10 15L15 20L21 14L30 22" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+                  </svg>
+                  <span>팝업 이미지 1</span>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="banner-slide" data-banner-slide>
+            <a href="./서브-베이스.html" tabindex="-1">
+              <div class="banner-card__img-slot banner-card__img-slot--popup" style="background: linear-gradient(135deg, #2E7D5B 0%, #1A56B0 100%);">
+                <div class="banner-card__img-placeholder">
+                  <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <rect x="2" y="2" width="28" height="28" rx="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                    <circle cx="11" cy="12" r="3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                    <path d="M2 22L10 15L15 20L21 14L30 22" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+                  </svg>
+                  <span>팝업 이미지 2</span>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="banner-slide" data-banner-slide>
+            <a href="./서브-베이스.html" tabindex="-1">
+              <div class="banner-card__img-slot banner-card__img-slot--popup" style="background: linear-gradient(135deg, #2C3E6B 0%, #B45309 100%);">
+                <div class="banner-card__img-placeholder">
+                  <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <rect x="2" y="2" width="28" height="28" rx="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                    <circle cx="11" cy="12" r="3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                    <path d="M2 22L10 15L15 20L21 14L30 22" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+                  </svg>
+                  <span>팝업 이미지 3</span>
+                </div>
+              </div>
+            </a>
+          </div>
+          <!-- 운영 데이터 슬롯: POPUP_ZONE_LIST_END -->
+          <div class="banner-card__dots" aria-label="팝업존 슬라이드">
+            <button class="banner-dot" type="button" data-banner-dot aria-label="팝업 1"></button>
+            <button class="banner-dot" type="button" data-banner-dot aria-label="팝업 2"></button>
+            <button class="banner-dot" type="button" data-banner-dot aria-label="팝업 3"></button>
+          </div>
+        </div>
+
+        <!-- 배너존 -->
+        <div class="banner-card banner-card--banner">
+          <div class="banner-card__head">
+            <span class="banner-card__title">배너존</span>
+            <div class="banner-card__controls">
+              <button class="banner-ctrl-btn" type="button" data-banner-prev aria-label="이전">‹</button>
+              <span class="banner-ctrl-count" data-banner-count>1/3</span>
+              <button class="banner-ctrl-btn" type="button" data-banner-next aria-label="다음">›</button>
+              <!-- 일시정지/재생 -->
+              <button class="banner-ctrl-toggle" type="button" data-banner-pause aria-label="자동재생 일시정지">
+                <span class="si-pause" aria-hidden="true">
+                  <svg width="7" height="9" viewBox="0 0 7 9" fill="none">
+                    <rect x="0" y="0" width="2.5" height="9" rx="1" fill="currentColor"/>
+                    <rect x="4.5" y="0" width="2.5" height="9" rx="1" fill="currentColor"/>
+                  </svg>
+                </span>
+                <span class="si-play" aria-hidden="true">
+                  <svg width="8" height="9" viewBox="0 0 8 9" fill="none">
+                    <path d="M0 0L8 4.5L0 9Z" fill="currentColor"/>
+                  </svg>
+                </span>
+              </button>
+            </div>
+          </div>
+          <!-- 운영 데이터 슬롯: BANNER_ZONE_LIST_START -->
+          <div class="banner-slide" data-banner-slide>
+            <a href="./서브-베이스.html" tabindex="-1">
+              <div class="banner-card__img-slot banner-card__img-slot--banner" style="background: linear-gradient(120deg, #1A56B0 0%, #4EA8F5 100%);">
+                <div class="banner-card__img-placeholder">
+                  <svg width="20" height="20" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <rect x="2" y="2" width="28" height="28" rx="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                    <circle cx="11" cy="12" r="3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                    <path d="M2 22L10 15L15 20L21 14L30 22" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+                  </svg>
+                  <span>배너 이미지 1</span>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="banner-slide" data-banner-slide>
+            <a href="./서브-베이스.html" tabindex="-1">
+              <div class="banner-card__img-slot banner-card__img-slot--banner" style="background: linear-gradient(120deg, #2C3E6B 0%, #3B8BEB 100%);">
+                <div class="banner-card__img-placeholder">
+                  <svg width="20" height="20" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <rect x="2" y="2" width="28" height="28" rx="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                    <circle cx="11" cy="12" r="3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                    <path d="M2 22L10 15L15 20L21 14L30 22" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+                  </svg>
+                  <span>배너 이미지 2</span>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="banner-slide" data-banner-slide>
+            <a href="./서브-베이스.html" tabindex="-1">
+              <div class="banner-card__img-slot banner-card__img-slot--banner" style="background: linear-gradient(120deg, #133D82 0%, #2E7D5B 100%);">
+                <div class="banner-card__img-placeholder">
+                  <svg width="20" height="20" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <rect x="2" y="2" width="28" height="28" rx="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                    <circle cx="11" cy="12" r="3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                    <path d="M2 22L10 15L15 20L21 14L30 22" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+                  </svg>
+                  <span>배너 이미지 3</span>
+                </div>
+              </div>
+            </a>
+          </div>
+          <!-- 운영 데이터 슬롯: BANNER_ZONE_LIST_END -->
+          <div class="banner-card__dots" aria-label="배너존 슬라이드">
+            <button class="banner-dot" type="button" data-banner-dot aria-label="배너 1"></button>
+            <button class="banner-dot" type="button" data-banner-dot aria-label="배너 2"></button>
+            <button class="banner-dot" type="button" data-banner-dot aria-label="배너 3"></button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────────────────────
+      포토형 게시판
+      운영 슬롯: PHOTO_BOARD_LIST (image, title, date, url) — 4건 기준
+    ────────────────────────────────────────────────────────────── -->
+    <section class="photo-board" aria-label="포토 게시판">
+      <div class="photo-board__inner">
+        <div class="section-head">
+          <h2 class="section-head__title">포토&amp;영상</h2>
+          <a class="section-head__more" href="./서브-베이스.html">더보기 +</a>
+        </div>
+        <!-- 운영 데이터 슬롯: PHOTO_BOARD_LIST_START -->
+        <ul class="photo-grid">
+          <li>
+            <a class="photo-card" href="./서브-베이스.html">
+              <div class="photo-card__img" style="background: linear-gradient(135deg, #2C3E6B, #1A56B0);">
+                <div class="photo-card__img-placeholder">
+                  <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <rect x="2" y="2" width="28" height="28" rx="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                    <circle cx="11" cy="12" r="3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                    <path d="M2 22L10 15L15 20L21 14L30 22" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="photo-card__body">
+                <p class="photo-card__title">2025 디지털 행정혁신 포럼 현장</p>
+                <span class="photo-card__date">2025.04.10</span>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a class="photo-card" href="./서브-베이스.html">
+              <div class="photo-card__img" style="background: linear-gradient(135deg, #1A56B0, #3B8BEB);">
+                <div class="photo-card__img-placeholder">
+                  <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <rect x="2" y="2" width="28" height="28" rx="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                    <circle cx="11" cy="12" r="3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                    <path d="M2 22L10 15L15 20L21 14L30 22" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="photo-card__body">
+                <p class="photo-card__title">전자정부 우수사례 기관 시상식</p>
+                <span class="photo-card__date">2025.03.25</span>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a class="photo-card" href="./서브-베이스.html">
+              <div class="photo-card__img" style="background: linear-gradient(135deg, #133D82, #2E7D5B);">
+                <div class="photo-card__img-placeholder">
+                  <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <rect x="2" y="2" width="28" height="28" rx="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                    <circle cx="11" cy="12" r="3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                    <path d="M2 22L10 15L15 20L21 14L30 22" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="photo-card__body">
+                <p class="photo-card__title">2025년 1분기 정보공개 현황 발표</p>
+                <span class="photo-card__date">2025.03.15</span>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a class="photo-card" href="./서브-베이스.html">
+              <div class="photo-card__img" style="background: linear-gradient(135deg, #163250, #1A56B0);">
+                <div class="photo-card__img-placeholder">
+                  <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <rect x="2" y="2" width="28" height="28" rx="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                    <circle cx="11" cy="12" r="3" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                    <path d="M2 22L10 15L15 20L21 14L30 22" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="photo-card__body">
+                <p class="photo-card__title">국민참여 서비스 개선 워크숍</p>
+                <span class="photo-card__date">2025.02.28</span>
+              </div>
+            </a>
+          </li>
+        </ul>
+        <!-- 운영 데이터 슬롯: PHOTO_BOARD_LIST_END -->
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────────────────────
+      관련사이트
+      운영 슬롯: RELATED_SITE_LIST (name, url)
+    ────────────────────────────────────────────────────────────── -->
+    <div class="related-sites" role="navigation" aria-label="관련 사이트">
+      <div class="related-sites__inner">
+        <span class="related-sites__label">관련사이트</span>
+        <div class="related-sites__links">
+          <!-- 운영 데이터 슬롯: RELATED_SITE_LIST_START -->
+          <a class="related-sites__link" href="#none" target="_blank" rel="noopener">행정안전부</a>
+          <a class="related-sites__link" href="#none" target="_blank" rel="noopener">국민권익위원회</a>
+          <a class="related-sites__link" href="#none" target="_blank" rel="noopener">한국지능정보사회진흥원</a>
+          <a class="related-sites__link" href="#none" target="_blank" rel="noopener">정보화진흥원</a>
+          <a class="related-sites__link" href="#none" target="_blank" rel="noopener">공공데이터포털</a>
+          <!-- 운영 데이터 슬롯: RELATED_SITE_LIST_END -->
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ============================================================
+    푸터
+    JSP: <%@include file="/WEB-INF/jsp/include/_inc-footer.jsp"%>
+    운영 슬롯: SITE_ADDRESS, SITE_TEL, SITE_FAX, COPYRIGHT_YEAR
+  ============================================================ -->
+  <footer class="site-footer" id="footer" role="contentinfo">
+    <div class="site-footer__inner">
+      <div class="site-footer__logo">
+        <img src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </div>
+      <div class="site-footer__info">
+        <!-- 운영 데이터 슬롯: SITE_ADDRESS / SITE_TEL / SITE_FAX -->
+        <p class="site-footer__address">
+          (00000) 서울특별시 OO구 OO로 000 &nbsp;|&nbsp;
+          대표전화: 02-000-0000 &nbsp;|&nbsp;
+          팩스: 02-000-0001
+        </p>
+        <!-- 운영 데이터 슬롯: COPYRIGHT_YEAR -->
+        <p class="site-footer__copy">Copyright &copy; 샘플 공공서비스. All Rights Reserved.</p>
+      </div>
+      <div class="site-footer__links">
+        <a class="site-footer__link is-point" href="./서브-베이스.html">개인정보처리방침</a>
+        <a class="site-footer__link" href="./서브-베이스.html">이용약관</a>
+        <a class="site-footer__link" href="./서브-베이스.html">사이트맵</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

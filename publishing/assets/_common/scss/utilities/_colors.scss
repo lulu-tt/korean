@@ -1,0 +1,100 @@
+// $variables.scss의 시맨틱 컬러 토큰(text-*/bg-*/border-*)을 그대로 클래스명에 매핑
+
+// Text
+.text-bolder {
+	color: $text-bolder !important;
+}
+.text-basic {
+	color: $text-basic !important;
+}
+.text-subtle {
+	color: $text-subtle !important;
+}
+.text-disabled {
+	color: $text-disabled !important;
+}
+.text-disabled-on {
+	color: $text-disabled-on !important;
+}
+.text-primary {
+	color: $text-primary !important;
+}
+.text-primary-dark {
+	color: $text-primary-dark !important;
+}
+.text-danger {
+	color: $text-danger !important;
+}
+.text-warning {
+	color: $text-warning !important;
+}
+.text-success {
+	color: $text-success !important;
+}
+.text-information {
+	color: $text-information !important;
+}
+.text-inverse {
+	color: $text-inverse !important;
+}
+.text-link {
+	color: $color-primary-50 !important;
+	text-decoration: underline !important;
+	text-underline-offset: 0.3rem !important;
+	word-break: keep-all !important;
+}
+.text-navy {
+	color: $color-secondary-80 !important;
+}
+.req {
+	color: #ab2b36 !important;
+}
+
+// Background
+.bg-white {
+	background-color: $bg-white !important;
+}
+.bg-inverse {
+	background-color: $bg-inverse !important;
+}
+.bg-gray-subtler {
+	background-color: $bg-gray-subtler !important;
+}
+.bg-gray-subtle {
+	background-color: $bg-gray-subtle !important;
+}
+.bg-primary-subtler {
+	background-color: $bg-primary-subtler !important;
+}
+.bg-danger-subtle {
+	background-color: $color-danger-5 !important;
+}
+.bg-warning-subtle {
+	background-color: $color-warning-5 !important;
+}
+.bg-success-subtle {
+	background-color: $color-success-5 !important;
+}
+.bg-info-subtle {
+	background-color: $color-info-5 !important;
+}
+.bg-point-subtle {
+	background-color: $color-point-5 !important;
+}
+
+// Border
+.border-gray-light {
+	border-color: $border-gray-light !important;
+}
+.border-gray {
+	border-color: $border-gray !important;
+}
+.border-gray-dark {
+	border-color: $border-gray-dark !important;
+}
+.border-primary {
+	border-color: $border-primary !important;
+}
+.border-primary-light {
+	border-color: $border-primary-light !important;
+}

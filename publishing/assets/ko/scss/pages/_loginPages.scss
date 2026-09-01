@@ -1,0 +1,74 @@
+// 로그인 페이지
+
+.login-wrap {
+	max-width: 50rem;
+	margin: 0 auto;
+
+	@include mq-down(md) {
+		max-width: none;
+	}
+}
+
+.login-form {
+	display: flex;
+	flex-direction: column;
+	gap: $spacing-6;
+}
+
+.login-field {
+	display: flex;
+	flex-direction: column;
+
+	.login-danger-text {
+		margin-top: $spacing-3;
+		font-weight: $font-weight-medium;
+		color: $text-danger;
+	}
+}
+
+// 아이디 찾기 | 비밀번호 찾기
+.login-links {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1.5rem;
+	margin-top: $spacing-6;
+	font-size: $font-size-body-small;
+	color: $text-subtle;
+
+	.divider {
+		width: 1px;
+		height: 1.6rem;
+		background-color: $border-gray-light;
+	}
+}
+
+// 회원가입 안내 박스
+.login-notice-box {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: $spacing-2 $spacing-3;
+
+	@include mq-down(md) {
+		flex-direction: column;
+		align-items: stretch;
+	}
+}
+
+.login-notice-logo {
+	img {
+		display: block;
+		width: 9.4rem;
+	}
+}
+
+.login-notice-desc {
+	margin-top: $spacing-2;
+	font-size: $font-size-body-small;
+	color: $text-subtle;
+}
+
+.login-notice-action {
+	flex-shrink: 0;
+}

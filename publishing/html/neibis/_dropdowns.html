@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				// disabled 상태 동기화 예제
+				$("#btn-disabled").on("click", function () {
+					var $select = $("#select1");
+					var isDisabled = $select.prop("disabled");
+					$select.prop("disabled", !isDisabled);
+				});
+
+				// disabled 상태 동기화 예제
+				$("#btn-option").on("click", function () {
+					var $select = $("#select2");
+					var selectedIndex = $select.prop("selectedIndex");
+					var totalOptions = $select.find("option").length;
+					selectedIndex = (selectedIndex + 1) % totalOptions;
+					$select.prop("selectedIndex", selectedIndex);
+
+					// 셀렉트박스의 변경 이벤트를 강제로 발생시켜 적용
+					$select.change();
+				});
+
+				// 동적 추가 셀렉트 초기화 예제
+				$("#btn-add-select").on("click", function () {
+					var $newSelect = $(
+						'<select class="form-control">' +
+							"<option>동적 추가된 셀렉트</option>" +
+							"<option>option1</option>" +
+							"<option>option2</option>" +
+							"<option>option3</option>" +
+							"</select>"
+					);
+
+					// select 박스를 클릭한 버튼 바로 다음에 추가
+					$(this).next(".preview").append($newSelect);
+
+					// 추가된 셀렉트박스에 selectToDropdown 함수 호출
+					$newSelect.selectToDropdown();
+				});
+			});
+		</script>
+	</head>
+
+	<!-- 레이아웃 유형별 body 클래스 별도 적용 -->
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="드롭다운 테스트"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+						<div class="card">
+							<h3 class="title1">Select To Dropdown</h3>
+							<div>
+								<button type="button" class="btn btn-primary btn-md" id="btn-disabled">disabled 토글</button>
+								<select class="form-control" title="${타이틀1}" id="select1">
+									<option>#select1</option>
+									<option>option1</option>
+									<option>option2</option>
+									<option>option3</option>
+								</select>
+							</div>
+							<div class="mt-2">
+								<p class="mb-1">
+									옵션값 변경이 dropdown에 적용되지 않는다면 셀렉트박스 변경 이벤트를 강제로 발생시켜주세요
+									<code>$select.change();</code>
+								</p>
+								<button type="button" class="btn btn-primary btn-md" id="btn-option">옵션값 변경</button>
+								<select class="form-control" title="${타이틀1}" id="select2">
+									<option>#select2</option>
+									<option>option1</option>
+									<option>option2</option>
+									<option>option3</option>
+								</select>
+							</div>
+							<div class="mt-2">
+								<p class="mb-1">동적으로 추가한 셀렉트박스는 <code>.selectToDropdown()</code> 메서드로 초기화</p>
+								<div class="mb-1"><code>$newSelect.selectToDropdown();</code></div>
+								<button type="button" class="btn btn-primary btn-md" id="btn-add-select">셀렉트박스 동적 추가</button>
+								<span class="preview"></span>
+							</div>
+							<div class="mt-3">
+								<h4 class="title2 mb-2">그밖에 예시</h4>
+								<select class="form-control" title="${타이틀2}" disabled>
+									<option>:disabled</option>
+									<option>option2</option>
+									<option>option3</option>
+								</select>
+
+								<select class="form-control" title="${타이틀3}" style="width: 300px">
+									<option>width: 300px</option>
+									<option>option2 option3 option9</option>
+									<option>option3</option>
+								</select>
+							</div>
+
+							<div class="mt-2">
+								<select class="form-control-sm" title="${선택}">
+									<option>.form-control-sm</option>
+									<option>option2</option>
+									<option>option3</option>
+									<option>option3</option>
+								</select>
+
+								<select class="form-control-sm" title="${선택}">
+									<option>option1</option>
+									<option>option2</option>
+									<option selected>selected</option>
+								</select>
+
+								<select class="form-control-sm" title="${선택}" style="width: 400px">
+									<option>option1</option>
+									<option selected>option2</option>
+									<option>option3</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="card">
+							<h3 class="title1">드롭다운 리스트</h3>
+							<div class="dropdown dropdown-list">
+								<dl class="select">
+									<dt>
+										<button type="button" class="btn-select" title="#{셀렉트명} 선택">
+											<span>.dropdown-list</span>
+										</button>
+									</dt>
+									<dd>
+										<ul class="option-list">
+											<li><a href="#;">option1</a></li>
+											<li><a href="#;">option2</a></li>
+											<li><a href="#;">option3</a></li>
+										</ul>
+									</dd>
+								</dl>
+							</div>
+
+							<div class="dropdown dropdown-list">
+								<dl class="select">
+									<dt>
+										<button type="button" class="btn-select" title="#{셀렉트명} 선택" disabled>
+											<span>.dropdown-list</span>
+										</button>
+									</dt>
+									<dd>
+										<ul class="option-list">
+											<li><a href="#;">option1</a></li>
+											<li><a href="#;">option2</a></li>
+											<li><a href="#;">option3</a></li>
+										</ul>
+									</dd>
+								</dl>
+							</div>
+
+							<div class="dropdown dropdown-list dropdown-sm" style="width: 300px" id="dropdown1">
+								<dl class="select">
+									<dt>
+										<button type="button" class="btn-select" title="#{셀렉트명} 선택">
+											<span>#dropdown1</span>
+										</button>
+									</dt>
+									<dd>
+										<ul class="option-list">
+											<li><a href="#;">option1</a></li>
+											<li><a href="#;">option2</a></li>
+											<li><a href="#;">option3</a></li>
+										</ul>
+									</dd>
+								</dl>
+							</div>
+						</div>
+
+						<div class="card">
+							<h3 class="title1">스크롤 발생시 드롭다운 잘리지 않도록 dropdown-up</h3>
+							<div class="table">
+								<div class="table-inner">
+									<!-- Mobile 모드 가로스크롤 처리시 min-width 값 적절히 수정 사용 -->
+									<!-- PC 모드에서 가로 스크롤 처리시 min-width 값을 콘텐츠 영역 너비보다 크게 설정 -->
+									<table style="min-width: 1600px">
+										<caption class="sr-only">
+											${표제목 노출 영역}
+										</caption>
+										<colgroup>
+											<col style="width: 14%" />
+											<col style="width: 14%" />
+											<col style="width: 14%" />
+											<col />
+										</colgroup>
+										<thead>
+											<tr>
+												<th scope="col">항목</th>
+												<th scope="col">selectToDropdown</th>
+												<th scope="col">.dropdown-list</th>
+												<th scope="col">항목</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<th scope="row">항목</th>
+												<td>
+													<select class="form-control" title="${선택}" style="width: 100%">
+														<option>1</option>
+														<option>2</option>
+														<option>3</option>
+														<option>4</option>
+													</select>
+												</td>
+												<td>
+													<div class="dropdown dropdown-list" style="width: 100%">
+														<dl class="select">
+															<dt>
+																<button type="button" class="btn-select"><span>1</span></button>
+															</dt>
+															<dd>
+																<ul class="option-list">
+																	<li><a href="#;">1</a></li>
+																	<li><a href="#;">2</a></li>
+																	<li><a href="#;">3</a></li>
+																	<li><a href="#;">4</a></li>
+																</ul>
+															</dd>
+														</dl>
+													</div>
+												</td>
+												<td>내용</td>
+											</tr>
+											<tr>
+												<th scope="row">항목</th>
+												<td>
+													<select class="form-control" title="${선택}" style="width: 100%">
+														<option>1</option>
+														<option>2</option>
+														<option>3</option>
+														<option>4</option>
+													</select>
+												</td>
+												<td>
+													<div class="dropdown dropdown-list" style="width: 100%">
+														<dl class="select">
+															<dt>
+																<button type="button" class="btn-select"><span>1</span></button>
+															</dt>
+															<dd>
+																<ul class="option-list">
+																	<li><a href="#;">1</a></li>
+																	<li><a href="#;">2</a></li>
+																	<li><a href="#;">3</a></li>
+																	<li><a href="#;">4</a></li>
+																</ul>
+															</dd>
+														</dl>
+													</div>
+												</td>
+												<td>내용</td>
+											</tr>
+											<tr>
+												<th scope="row">항목</th>
+												<td>
+													<select class="form-control" title="${선택}" style="width: 100%">
+														<option>1</option>
+														<option>2</option>
+														<option>3</option>
+														<option>4</option>
+													</select>
+												</td>
+												<td>
+													<div class="dropdown dropdown-list" style="width: 100%">
+														<dl class="select">
+															<dt>
+																<button type="button" class="btn-select"><span>1</span></button>
+															</dt>
+															<dd>
+																<ul class="option-list">
+																	<li><a href="#;">1</a></li>
+																	<li><a href="#;">2</a></li>
+																	<li><a href="#;">3</a></li>
+																	<li><a href="#;">4</a></li>
+																</ul>
+															</dd>
+														</dl>
+													</div>
+												</td>
+												<td>내용</td>
+											</tr>
+											<tr>
+												<th scope="row">항목</th>
+												<td>
+													<select class="form-control" title="${선택}" style="width: 100%">
+														<option>1</option>
+														<option>2</option>
+														<option>3</option>
+														<option>4</option>
+													</select>
+												</td>
+												<td>
+													<div class="dropdown dropdown-list" style="width: 100%">
+														<dl class="select">
+															<dt>
+																<button type="button" class="btn-select"><span>1</span></button>
+															</dt>
+															<dd>
+																<ul class="option-list">
+																	<li><a href="#;">1</a></li>
+																	<li><a href="#;">4</a></li>
+																</ul>
+															</dd>
+														</dl>
+													</div>
+												</td>
+												<td>내용</td>
+											</tr>
+											<tr>
+												<th scope="row">항목</th>
+												<td>
+													<select class="form-control" title="${선택}" style="width: 100%">
+														<option>1</option>
+														<option>2</option>
+														<option>3</option>
+														<option>4</option>
+													</select>
+												</td>
+												<td>
+													<div class="dropdown dropdown-list" style="width: 100%">
+														<dl class="select">
+															<dt>
+																<button type="button" class="btn-select"><span>1</span></button>
+															</dt>
+															<dd>
+																<ul class="option-list">
+																	<li><a href="#;">1</a></li>
+																	<li><a href="#;">2</a></li>
+																	<li><a href="#;">3</a></li>
+																	<li><a href="#;">4</a></li>
+																</ul>
+															</dd>
+														</dl>
+													</div>
+												</td>
+												<td>내용</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+
+						<div class="card">
+							<h3 class="title1">스크롤 없을 때 드롭다운 하단 노출</h3>
+							<div class="table">
+								<div class="table-inner">
+									<!-- Mobile 모드 가로스크롤 처리시 min-width 값 적절히 수정 사용 -->
+									<!-- PC 모드에서 가로 스크롤 처리시 min-width 값을 콘텐츠 영역 너비보다 크게 설정 -->
+									<table>
+										<caption class="sr-only">
+											${표제목 노출 영역}
+										</caption>
+										<colgroup>
+											<col />
+											<col />
+											<col />
+											<col />
+										</colgroup>
+										<thead>
+											<tr>
+												<th scope="col">항목</th>
+												<th scope="col">selectToDropdown</th>
+												<th scope="col">.dropdown-list</th>
+												<th scope="col">항목</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<th scope="row">항목</th>
+												<td>
+													<select class="form-control" title="${선택}" style="width: 100%">
+														<option>1</option>
+														<option>2</option>
+														<option>3</option>
+														<option>4</option>
+													</select>
+												</td>
+												<td>
+													<div class="dropdown dropdown-list" style="width: 100%">
+														<dl class="select">
+															<dt>
+																<button type="button" class="btn-select"><span>1</span></button>
+															</dt>
+															<dd>
+																<ul class="option-list">
+																	<li><a href="#;">1</a></li>
+																	<li><a href="#;">2</a></li>
+																	<li><a href="#;">3</a></li>
+																	<li><a href="#;">4</a></li>
+																</ul>
+															</dd>
+														</dl>
+													</div>
+												</td>
+												<td>내용</td>
+											</tr>
+											<tr>
+												<th scope="row">항목</th>
+												<td>
+													<select class="form-control" title="${선택}" style="width: 100%">
+														<option>1</option>
+														<option>2</option>
+														<option>3</option>
+														<option>4</option>
+													</select>
+												</td>
+												<td>
+													<div class="dropdown dropdown-list" style="width: 100%">
+														<dl class="select">
+															<dt>
+																<button type="button" class="btn-select"><span>1</span></button>
+															</dt>
+															<dd>
+																<ul class="option-list">
+																	<li><a href="#;">1</a></li>
+																	<li><a href="#;">2</a></li>
+																	<li><a href="#;">3</a></li>
+																	<li><a href="#;">4</a></li>
+																</ul>
+															</dd>
+														</dl>
+													</div>
+												</td>
+												<td>내용</td>
+											</tr>
+											<tr>
+												<th scope="row">항목</th>
+												<td>
+													<select class="form-control" title="${선택}" style="width: 100%">
+														<option>1</option>
+														<option>2</option>
+														<option>3</option>
+														<option>4</option>
+													</select>
+												</td>
+												<td>
+													<div class="dropdown dropdown-list" style="width: 100%">
+														<dl class="select">
+															<dt>
+																<button type="button" class="btn-select"><span>1</span></button>
+															</dt>
+															<dd>
+																<ul class="option-list">
+																	<li><a href="#;">1</a></li>
+																	<li><a href="#;">2</a></li>
+																	<li><a href="#;">3</a></li>
+																	<li><a href="#;">4</a></li>
+																</ul>
+															</dd>
+														</dl>
+													</div>
+												</td>
+												<td>내용</td>
+											</tr>
+											<tr>
+												<th scope="row">항목</th>
+												<td>
+													<select class="form-control" title="${선택}" style="width: 100%">
+														<option>1</option>
+														<option>2</option>
+														<option>3</option>
+														<option>4</option>
+													</select>
+												</td>
+												<td>
+													<div class="dropdown dropdown-list" style="width: 100%">
+														<dl class="select">
+															<dt>
+																<button type="button" class="btn-select"><span>1</span></button>
+															</dt>
+															<dd>
+																<ul class="option-list">
+																	<li><a href="#;">1</a></li>
+																	<li><a href="#;">4</a></li>
+																</ul>
+															</dd>
+														</dl>
+													</div>
+												</td>
+												<td>내용</td>
+											</tr>
+											<tr>
+												<th scope="row">항목</th>
+												<td>
+													<select class="form-control" title="${선택}" style="width: 100%">
+														<option>1</option>
+														<option>2</option>
+														<option>3</option>
+														<option>4</option>
+													</select>
+												</td>
+												<td>
+													<div class="dropdown dropdown-list" style="width: 100%">
+														<dl class="select">
+															<dt>
+																<button type="button" class="btn-select"><span>1</span></button>
+															</dt>
+															<dd>
+																<ul class="option-list">
+																	<li><a href="#;">1</a></li>
+																	<li><a href="#;">2</a></li>
+																	<li><a href="#;">3</a></li>
+																	<li><a href="#;">4</a></li>
+																</ul>
+															</dd>
+														</dl>
+													</div>
+												</td>
+												<td>내용</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+
+						<div class="btn-group-fixed">
+							<a href="#;" class="btn btn-md btn-gray">
+								<i class="ico ico-trash-white-md"></i>
+								<span>삭제</span>
+							</a>
+							<a href="#;" class="btn btn-md btn-outline-gray">
+								<i class="ico ico-preview-gray-md"></i>
+								<span>미리보기</span>
+							</a>
+							<button type="submit" class="btn btn-md btn-outline-primary">
+								<i class="ico ico-save-primary-md"></i>
+								<span>저장</span>
+							</button>
+							<button type="button" class="btn btn-md btn-primary">
+								<i class="ico ico-cloudupload-white-md"></i>
+								콘텐츠배포
+							</button>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

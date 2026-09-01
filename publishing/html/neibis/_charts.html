@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			window.addEventListener("DOMContentLoaded", async function () {
+				// 창의 너비를 확인
+				let windowWidth = window.innerWidth;
+
+				// 라인차트 날짜 반환
+				const dateList = Array.from({ length: 30 }, (_, i) => {
+					const date = new Date(2023, 3, i + 1);
+					const month = date.getMonth() + 1;
+					const day = date.getDate();
+
+					// MM.DD 형태로 반환
+					return `${month.toString().padStart(2, "0")}.${day.toString().padStart(2, "0")}`;
+				});
+
+				let chartBar = {
+					id: "chart-bar",
+					options: {
+						// title: { text: "Bar Chart" },
+						grid: {
+							top: 0,
+							bottom: 0,
+							left: 0, // Y축 카테고리 영역 추가 확보시 수치 조절
+							right: 0, // 우측 수치 잘리지 않도록 여백 확보
+							containLabel: true
+						},
+						xAxis: {
+							axisLabel: {
+								align: "right",
+								formatter: function (value) {
+									return value >= 0 ? Math.round(value) : "";
+								}
+							},
+							splitLine: {
+								show: false // Hide vertical grid lines
+							},
+							boundaryGap: ["8%", "8%"],
+							min: 0
+						},
+						yAxis: {
+							data: [
+								"포트폴리오",
+								"온택트서포터즈 온택트서포터즈",
+								"사업안내",
+								"I.N.UIX",
+								"NEBIS",
+								"회사소개",
+								"오시는길",
+								"인증현황",
+								"스토리"
+							],
+							axisLine: {
+								show: false // Y축 라인 숨기기
+							},
+							axisTick: {
+								show: true, // Y축 눈금
+								length: 200,
+								lineStyle: {
+									color: "#E5E7EB"
+								}
+							},
+							splitLine: {
+								show: true,
+								lineStyle: {
+									color: "#E5E7EB"
+								}
+							},
+							axisLabel: {
+								margin: 8,
+								formatter: function (value) {
+									// 최대 길이를 초과하는 경우 '...'으로 줄이기
+									if (value.length > 10) {
+										return value.slice(0, 10) + "...";
+									}
+									// 그렇지 않은 경우 원래 값을 그대로 반환
+									else {
+										return value;
+									}
+								}
+							}
+						},
+						series: [
+							{
+								type: "bar",
+								data: [500, 2000, 3600, 1000, 1500, 2500, 3000, 3500, 4000],
+								barWidth: "16px",
+								// 그래프 우측에 값 노출
+								label: {
+									show: true,
+									position: "right",
+									formatter: function (params) {
+										var formattedValue = Number(params.value).toLocaleString("en");
+										return formattedValue;
+									},
+									color: "#374151"
+								},
+								itemStyle: {
+									color: function (params) {
+										const colorList = [
+											"#357FED",
+											"#F59E0B",
+											"#0CAE79",
+											"#F97316",
+											"#8B5CF6",
+											"#EF4444",
+											"#0EA5E9",
+											"#EC4899",
+											"#84CC16",
+											"#06B6D4"
+										];
+										// 순환 적용되는 색상 인덱스 계산
+										const colorIndex = params.dataIndex % colorList.length;
+										return colorList[colorIndex];
+									}
+								}
+							}
+						]
+					}
+				};
+
+				// 그래프 배경 이미지
+				var bgpattern1 = "/assets/neibis/images/bgpattern1.jpg";
+				var bgpattern2 = "/assets/neibis/images/bgpattern2.jpg";
+				var bgpattern3 = "/assets/neibis/images/bgpattern3.jpg";
+
+				let chartColBar = {
+					id: "chart-colbar",
+					options: {
+						legend: {
+							orient: "horizontal",
+							x: "center",
+							y: "bottom",
+							itemWidth: 12, // 아이콘 가로 크기
+							itemHeight: 12 // 아이콘 세로 크기
+						},
+						grid: {
+							top: 20,
+							bottom: 40,
+							left: 0,
+							right: 0,
+							containLabel: true
+						},
+						xAxis: {
+							data: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+							axisLine: {
+								show: false
+							},
+							axisTick: {
+								show: false
+							},
+							splitLine: {
+								show: false
+							},
+							axisLabel: {
+								margin: 8
+							}
+						},
+						yAxis: {
+							min: 0, // Y축 시작 범위
+							max: 5, // Y축 마지막 범위
+							axisLabel: {
+								align: "right"
+							},
+							splitLine: {
+								show: true,
+								lineStyle: {
+									color: "#E5E7EB"
+								}
+							}
+						},
+						series: [
+							// 첫 번째 바
+							{
+								name: "배포",
+								type: "bar",
+								data: [5, 2, 1, 3, 2, 1, 2, 3, 5, 3, 4, 3],
+								barWidth: "16px",
+								barGap: "30%",
+								label: {
+									show: true,
+									position: "top",
+									formatter: function (params) {
+										return params.value;
+									},
+									color: "#374151"
+								},
+								itemStyle: {
+									// color: "#357FED"
+									color: {
+										image: bgpattern1,
+										repeat: "repeat"
+									}
+								}
+							},
+							// 두 번째 바
+							{
+								name: "수정",
+								type: "bar",
+								data: [4, 3, 2, 1, 3, 1, 2, 3, 5, 3, 2, 1],
+								barWidth: "16px",
+								barGap: "30%",
+								label: {
+									show: true,
+									position: "top",
+									formatter: function (params) {
+										return params.value;
+									},
+									color: "#374151"
+								},
+								itemStyle: {
+									// color: "#F59E0B"
+									color: {
+										image: bgpattern2,
+										repeat: "repeat"
+									}
+								}
+							},
+							// 세 번째 바
+							{
+								name: "등록",
+								type: "bar",
+								data: [1, 2, 3, 5, 3, 4, 3, 2, 1, 3, 2, 4],
+								barWidth: "16px",
+								label: {
+									show: true,
+									position: "top",
+									formatter: function (params) {
+										return params.value;
+									},
+									color: "#374151"
+								},
+								itemStyle: {
+									// color: "#0CAE79"
+									color: {
+										image: bgpattern3,
+										repeat: "repeat"
+									}
+								}
+							}
+						],
+						aria: {
+							enabled: true,
+							decal: {
+								show: true
+							}
+						}
+					}
+				};
+
+				let chartLine = {
+					id: "chart-line",
+					options: {
+						// title: {
+						// 	text: "일자별 방문자수 통계",
+						// 	left: "center"
+						// },
+						grid: {
+							top: 10,
+							bottom: 30,
+							left: 4, // Y축 카테고리 영역 추가 확보시 수치 조절
+							right: 0, // 우측 수치 잘리지 않도록 여백 확보
+							containLabel: true
+						},
+						tooltip: {
+							trigger: "axis"
+						},
+						legend: {
+							orient: "horizontal",
+							x: "center",
+							y: "bottom"
+						},
+						xAxis: {
+							data: dateList,
+							axisLabel: {
+								// align: "right"
+								rotate: 45, // 45도 각도로 회전
+								fontSize: 10,
+								color: "#A6ADB9" // X축 글자 컬러 지정
+							},
+							axisLine: {
+								lineStyle: {
+									color: "#E5E7EB" // X축 라인 색상을 #E5E7EB로 설정
+								}
+							},
+							axisTick: {
+								show: false // X축 눈금 지우기
+							}
+						},
+						yAxis: {},
+						series: [
+							{
+								name: "전체",
+								type: "line",
+								data: [
+									3000, 3100, 3200, 3000, 3200, 3400, 3200, 3500, 3400, 3600, 3700, 3900, 3800, 4000, 4100, 4000, 4200,
+									4400, 4300, 4500, 4600, 4800, 4700, 4800, 5000, 5100, 5200, 5300, 5400, 5500
+								],
+								itemStyle: { color: "#7E8594" },
+								symbol: "none"
+							},
+							{
+								name: "PC",
+								type: "line",
+								data: [
+									1000, 1200, 1100, 1200, 1100, 1300, 1400, 1200, 1300, 1400, 1600, 1500, 1600, 1800, 1900, 1700, 1900,
+									2000, 2200, 2000, 2200, 2300, 2400, 2300, 2400, 2600, 2500, 2700, 2600, 2800
+								],
+								itemStyle: { color: "#F59E0B" },
+								symbol: "none"
+							},
+							{
+								name: "Mobile",
+								type: "line",
+								data: [
+									2000, 1900, 2100, 1800, 2100, 2100, 1800, 2300, 2100, 2200, 2100, 2400, 2200, 2200, 2200, 2300, 2300,
+									2400, 2100, 2500, 2400, 2500, 2300, 2500, 2600, 2500, 2700, 2600, 2800, 2700
+								],
+								itemStyle: { color: "#357FED" },
+								symbol: "none"
+							}
+						]
+					}
+				};
+
+				let chartPie = {
+					id: "chart-pie",
+					options: {
+						legend: {
+							orient: "horizontal",
+							x: "center",
+							y: "bottom",
+							itemWidth: 12, // 아이콘 가로 크기
+							itemHeight: 12, // 아이콘 세로 크기
+							data: [
+								"자유 게시판",
+								"민원 게시판",
+								"리스트 게시판",
+								"홍보 동영상",
+								"블로그 게시판",
+								"동영상 게시판",
+								"포토 게시판",
+								"질문 게시판",
+								"자유2 게시판",
+								"민원2 게시판"
+							]
+						},
+						// 색상 배열 순환 적용됨 : 데이터 개수가 많아져도 문제없음
+						color: [
+							"#357FED",
+							"#F59E0B",
+							"#0CAE79",
+							"#F97316",
+							"#8B5CF6",
+							"#EF4444",
+							"#0EA5E9",
+							"#EC4899",
+							"#84CC16",
+							"#06B6D4"
+						],
+						series: [
+							// 파이차트 데이터 라인으로 표출
+							{
+								name: "게시판 사용 비율",
+								type: "pie",
+								radius: ["30%", "75%"],
+								center: ["50%", "45%"], // 차트의 중심 위치를 조절
+								data: [
+									{ value: 45, name: "자유 게시판" },
+									{ value: 20, name: "민원 게시판" },
+									{ value: 10, name: "리스트 게시판" },
+									{ value: 10, name: "홍보 동영상" },
+									{ value: 10, name: "블로그 게시판" },
+									{ value: 5, name: "동영상 게시판" },
+									{ value: 5, name: "포토 게시판" },
+									{ value: 5, name: "질문 게시판" },
+									{ value: 5, name: "자유2 게시판" },
+									{ value: 5, name: "민원2 게시판" }
+								],
+								label: {
+									formatter: "{b} {c}%", // 카테고리명: 값(퍼센트)
+									show: windowWidth < 768 ? false : true // 너비가 768 미만이면 'show'를 'false'로 설정, 그렇지 않으면 'true'
+								},
+								labelLine: {
+									show: windowWidth < 768 ? false : true, // 너비가 768 미만이면 'show'를 'false'로 설정, 그렇지 않으면 'true'
+									length: 16, // 라벨 선 첫번째 부분 길이
+									length2: 120, // 라벨 선 두번째 부분 길이
+									lineStyle: {
+										color: "#A6ADB9" // 라인 색상 설정
+									}
+								}
+							},
+							// 파이차트 데이터 면 내부에 흰색 글자로 표출 (두가지 정보 노출시 시리즈 2회 표출)
+							{
+								name: "게시판 사용 비율",
+								type: "pie",
+								radius: ["30%", "75%"],
+								center: ["50%", "45%"], // 차트의 중심 위치를 조절
+								data: [
+									{ value: 25, name: "자유 게시판" },
+									{ value: 20, name: "민원 게시판" },
+									{ value: 10, name: "리스트 게시판" },
+									{ value: 10, name: "홍보 동영상" },
+									{ value: 10, name: "블로그 게시판" },
+									{ value: 5, name: "동영상 게시판" },
+									{ value: 5, name: "포토 게시판" },
+									{ value: 5, name: "질문 게시판" },
+									{ value: 5, name: "자유2 게시판" },
+									{ value: 5, name: "민원2 게시판" }
+								],
+								label: {
+									color: "#ffffff", // 흰색 글자
+									position: "inside", // 라벨 내부에 위치
+									formatter: "{c}%" // 값(퍼센트)만 표시
+								}
+							}
+						]
+					}
+				};
+
+				// 각 차트 인스턴스를 저장할 객체
+				let chartInstances = {};
+
+				const charts = [chartBar, chartColBar, chartLine, chartPie];
+				await window.useCharts(charts);
+			});
+		</script>
+
+		<style>
+			#chart-bar {
+				height: 490px;
+				/* background: yellow; */
+			}
+			#chart-colbar {
+				height: 490px;
+				/* background: yellow; */
+			}
+			.scroll-area {
+				overflow-x: auto;
+			}
+			#chart-line {
+				height: 400px;
+				/* background: yellow; */
+			}
+			#chart-pie {
+				height: 400px;
+				/* background: yellow; */
+			}
+		</style>
+	</head>
+
+	<!-- 레이아웃 유형별 body 클래스 별도 적용 -->
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="eChart.js"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+						<div class="card">
+							<div id="chart-bar"></div>
+						</div>
+						<div class="card">
+							<div class="scroll-area">
+								<div id="chart-colbar" style="min-width: 1200px"></div>
+							</div>
+						</div>
+						<div class="card">
+							<div id="chart-line"></div>
+						</div>
+						<div class="card">
+							<div id="chart-pie"></div>
+						</div>
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

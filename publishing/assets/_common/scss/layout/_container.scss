@@ -1,0 +1,44 @@
+// .container는 배경색/전체폭만 담당 — max-width/중앙정렬은 .inner(utilities/_inner.scss)에서 처리.
+
+.container {
+	flex: 1 0 auto;
+	width: 100%;
+	position: relative;
+	padding-block: $spacing-6 $spacing-16;
+
+	@include mq-down(md) {
+		padding-block: $spacing-4 $spacing-10;
+	}
+}
+
+.page-top-button {
+	position: fixed;
+	right: $spacing-6;
+	bottom: $spacing-6;
+	z-index: $z-page-top-button;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 4.8rem;
+	height: 4.8rem;
+	color: $text-inverse;
+	background-color: $color-gray-90;
+	border-radius: 50%;
+	box-shadow: 0 0.2rem 0.8rem rgba($color-gray-100, 0.2);
+	transition: bottom 0.1s ease-in-out, background-color 0.1s ease;
+
+	&:hover,
+	&:focus-visible {
+		background-color: $color-primary-60;
+	}
+
+	.svg-icon {
+		// SVG는 어두운 회색(#33363D)으로 고정 배포되어, 어두운 배경 위에서는 흰색으로 강제 반전한다.
+		filter: brightness(0) invert(1);
+	}
+
+	// footer가 화면에 들어오면(ui-global.js) footer 위로 멈추도록 bottom 값을 키운다.
+	&.is-near-footer {
+		bottom: 7.4rem;
+	}
+}

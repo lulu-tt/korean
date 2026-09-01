@@ -1,0 +1,66 @@
+// CMS 에디터가 생성한 HTML을 그대로 담는 영역 — 마크업을 통제할 수 없어 태그 셀렉터로 스타일 지정.
+
+.editor-content {
+	font-size: $font-size-body-medium;
+	color: $text-subtle;
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-weight: $font-weight-bold;
+		color: $text-bolder;
+	}
+	h2 {
+		font-size: $font-size-heading-medium;
+	}
+	h3 {
+		font-size: $font-size-body-large;
+	}
+	h4 {
+		font-size: $font-size-body-medium;
+	}
+
+	a {
+		color: $text-primary;
+		text-decoration: underline;
+		text-underline-offset: 0.2rem;
+	}
+
+	strong,
+	b {
+		font-weight: $font-weight-bold;
+	}
+
+	ul {
+		list-style: disc;
+	}
+	ol {
+		list-style: decimal;
+	}
+
+	img {
+		max-width: 100%;
+		height: auto;
+		margin-block: $spacing-1;
+	}
+
+	table {
+		width: 100%;
+		border-collapse: collapse;
+
+		th,
+		td {
+			padding: $spacing-2 $spacing-3;
+			border: 1px solid $border-gray-light;
+		}
+	}
+
+	blockquote {
+		padding-left: $spacing-4;
+		color: $text-subtle;
+		border-left: 3px solid $border-gray-light;
+	}
+}

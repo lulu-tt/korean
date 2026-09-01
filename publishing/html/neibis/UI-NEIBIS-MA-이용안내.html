@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				// 이곳에 정의
+				$(".toggle-list .toggle-content").hide();
+				$(".toggle-list .toggle-btn").click(function () {
+					var $toggleTitle = $(this).closest(".toggle-title");
+					var $toggleContent = $toggleTitle.next();
+
+					if ($toggleTitle.hasClass("on")) {
+						$toggleTitle.removeClass("on");
+						$toggleContent.slideUp();
+					} else {
+						$toggleTitle.addClass("on");
+						$toggleContent.slideDown();
+					}
+				});
+			});
+		</script>
+	</head>
+
+	<!-- 레이아웃 유형별 body 클래스 별도 적용 -->
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="네이비스 이용안내"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<div class="card tutorial">
+							<div class="tit-area">
+								<div class="left">
+									<h3 class="title2">네이비스 이용가이드</h3>
+									<p class="sub-text">도움이 필요할 경우 매뉴얼을 통해 궁금증을 해결하세요.</p>
+								</div>
+								<div class="right">
+									<a href="#;" class="btn btn-lg btn-primary">
+										<strong>네이비스 통합 매뉴얼 바로가기</strong>
+										<i class="ico ico-externallink-white-md"></i>
+									</a>
+								</div>
+							</div>
+
+							<div class="cont-area">
+								<ul class="tutorial-list">
+									<li>
+										<a href="#;" class="item">
+											<div class="cont">
+												<span>웹콘텐츠 관리</span>
+												<strong>사용자 사이트 웹 콘텐츠 관리하기</strong>
+											</div>
+											<i class="ico ico-chevron-right-lightgray-md"></i>
+										</a>
+									</li>
+									<li>
+										<a href="#;" class="item">
+											<div class="cont">
+												<span>프로모션 관리</span>
+												<strong>메인 페이지에 프로모션 추가하기</strong>
+											</div>
+											<i class="ico ico-chevron-right-lightgray-md"></i>
+										</a>
+									</li>
+									<li>
+										<a href="#;" class="item">
+											<div class="cont">
+												<span>사용자 메뉴 설정</span>
+												<strong>사용자 사이트 메뉴 위치 이동하기</strong>
+											</div>
+											<i class="ico ico-chevron-right-lightgray-md"></i>
+										</a>
+									</li>
+									<li>
+										<a href="#;" class="item">
+											<div class="cont">
+												<span>사용자 메뉴 SEO 설정</span>
+												<strong>사용자 메뉴 SEO 설정하기</strong>
+											</div>
+											<i class="ico ico-chevron-right-lightgray-md"></i>
+										</a>
+									</li>
+									<li>
+										<a href="#;" class="item">
+											<div class="cont">
+												<span>즐겨찾기</span>
+												<strong>자주 찾는 메뉴 즐겨찾기 등록하기</strong>
+											</div>
+											<i class="ico ico-chevron-right-lightgray-md"></i>
+										</a>
+									</li>
+									<li>
+										<a href="#;" class="item">
+											<div class="cont">
+												<span>관리자 등록관리</span>
+												<strong>잠금 처리된 관리자 계정 해제하기</strong>
+											</div>
+											<i class="ico ico-chevron-right-lightgray-md"></i>
+										</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+
+						<!-- 기본 지원의 경우  -->
+						<div class="card tutorial">
+							<h3 class="title2">사용중인 기술지원 서비스</h3>
+							<div class="support-services">
+								<div class="services-item basic">
+									<div class="box box-state">
+										<div class="left">
+											<span class="state-free">무료</span>
+											<strong class="state">기본 지원</strong>
+											<ul class="list list-check">
+												<li><strong>개발자 가이드, 매뉴얼 제공</strong></li>
+												<li>제품 구매 후 <strong>1년 이내 장애 조치 및 보안 업데이트</strong> 지원</li>
+											</ul>
+										</div>
+										<div class="right">
+											<dl class="info">
+												<dt class="tit">계약명</dt>
+												<dd>한국무역보험공사</dd>
+											</dl>
+											<dl class="info">
+												<dt class="tit">기술지원 기간</dt>
+												<dd>2023.07.18 ~ 2024.07.18</dd>
+											</dl>
+										</div>
+									</div>
+									<div class="box box-guide">
+										<div class="left">
+											<div class="ico-wrap"><img src="/assets/neibis/images/img-services-character.png" alt="" /></div>
+											<div class="info">
+												<strong class="title3">문의사항이 있으시다면 언제든 연락해주세요.</strong>
+												<p>neibis@inseq.co.kr</p>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- 유지보수 계약중 인 경우  -->
+						<div class="card tutorial">
+							<h3 class="title2">사용중인 기술지원 서비스</h3>
+							<div class="support-services">
+								<div class="services-item contract">
+									<div class="box box-state">
+										<div class="left">
+											<strong class="state">유지보수 계약 중</strong>
+											<ul class="list list-check">
+												<li><strong>개발자 가이드, 매뉴얼 제공</strong></li>
+												<li>제품 구매 후 <strong>1년 이내 장애 조치 및 보안 업데이트</strong> 지원</li>
+												<li><strong>전담 고객지원 PMS 채널 개설</strong> 후 신속한 문제 해결 지원</li>
+												<li>계약 비용에 맞는 <strong>신규 기능 추가, 개선 지원</strong></li>
+												<li>네이비스 버전 업그레이드</li>
+											</ul>
+										</div>
+										<div class="right">
+											<dl class="info">
+												<dt class="tit">계약명</dt>
+												<dd>한국무역보험공사</dd>
+											</dl>
+											<dl class="info">
+												<dt class="tit">기술지원 기간</dt>
+												<dd>2023.07.18 ~ 2024.07.18</dd>
+											</dl>
+										</div>
+									</div>
+									<div class="box box-guide">
+										<div class="left">
+											<div class="ico-wrap"><img src="/assets/neibis/images/img-services-character.png" alt="" /></div>
+											<div class="info">
+												<strong class="title3">문의사항이 있으시다면 “인시퀀스 PMS”에서 문의해주세요.</strong>
+											</div>
+										</div>
+										<div class="right">
+											<a
+												href="http://pms.inseq.co.kr/"
+												target="_blank"
+												title="새창"
+												class="btn btn-lg btn-pms-shortcuts"
+												><span>인시퀀스 PMS 바로가기</span><i class="ico ico-externallink-white-md"></i
+											></a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="card tutorial">
+							<h3 class="title2">기술지원 관련 FAQ</h3>
+
+							<div class="faq-area">
+								<ul class="toggle-list">
+									<li class="toggle-item">
+										<div class="toggle-title">
+											<button type="button" class="toggle-btn">
+												<span class="left"
+													><strong class="title">Q. 네이비스 도입 후 어떤 기술지원을 해주나요?</strong></span
+												>
+												<span class="right">
+													<i class="ico ico-chevron-bottom-darkgray"><span class="sr-only">여닫기</span></i>
+												</span>
+											</button>
+										</div>
+										<div class="toggle-content">
+											<p>아래와 같이 기본서비스, 유지보수 계약 시 2가지로 나누어 집니다. 혜택을 비교해 보세요.</p>
+											<ul class="list list-depth1">
+												<li>
+													<strong class="tit"><span class="num">1.</span>기본 지원(무료)</strong>
+													<p>아래 사항을 기본적으로 지원해 드립니다.</p>
+													<ul class="list list-dot">
+														<li>개발자 가이드, 매뉴얼 제공</li>
+														<li>제품 구매 후 1년 이내 장애 조치 및 보안 업데이트 지원</li>
+													</ul>
+												</li>
+												<li>
+													<strong class="tit"
+														><span class="num">2.</span>유지보수 계약 시(견적상담 후 요금 책정)</strong
+													>
+													<p>
+														유지보수 계약시 아래 사항을 기본적으로 지원해 드리며
+														<strong>추가혜택을 제공</strong>드립니다.
+													</p>
+													<ul class="list list-dot">
+														<li>개발자 가이드, 매뉴얼 제공</li>
+														<li>제품 구매 후 1년 이내 장애 조치 및 보안 업데이트 지원</li>
+													</ul>
+													<strong>추가혜택은 아래와 같습니다.</strong>
+													<ul class="list list-dot">
+														<li>전담 고객지원 PMS 채널 개설 후 신속한 문제 해결 지원</li>
+														<li>계약 비용에 맞는 신규 기능 추가, 개선 지원</li>
+														<li>네이비스 버전 업그레이드</li>
+													</ul>
+												</li>
+											</ul>
+										</div>
+									</li>
+									<li class="toggle-item">
+										<div class="toggle-title">
+											<button type="button" class="toggle-btn">
+												<span class="left"
+													><strong class="title">Q. 온라인으로 어떻게 유지보수 작업을 진행하나요?</strong></span
+												>
+												<span class="right">
+													<i class="ico ico-chevron-bottom-darkgray"><span class="sr-only">여닫기</span></i>
+												</span>
+											</button>
+										</div>
+										<div class="toggle-content">
+											<p>
+												<strong>기술 지원 문의부터 해결까지 간편하게 온라인으로 의사소통할 수 있습니다.</strong><br />
+												자세한 과정은 아래에서 확인하실 수 있습니다.
+											</p>
+											<div class="img-area">
+												<img
+													src="/assets/neibis/images/img-faq-question1@2x.png"
+													alt="INSEQ PMS & GIT 연동으로 고객과 온라인 의사소통"
+													class="img"
+												/>
+											</div>
+											<div class="img-area fit">
+												<img
+													src="/assets/neibis/images/img-faq-question2@2x.png"
+													alt="하단 내용 참고"
+													class="img img-md d-up-lg"
+												/>
+												<img
+													src="/assets/neibis/images/img-faq-question2-mobile@2x.png"
+													alt="하단 내용 참고"
+													class="img img-md d-down-md"
+												/>
+											</div>
+											<ol class="list list-depth1">
+												<li>
+													<strong class="tit"
+														><span class="num">1.</span>인시퀀스 PMS를 통해 문의사항을 등록해주세요.</strong
+													>
+													<strong>PMS가 무엇인가요?</strong>
+													<p>
+														Git 기반 온라인 의사소통 시스템 입니다.<br />
+														PMS를 통해 게시물을 등록할 수 있으며 이슈를 문의할 수 있습니다.
+													</p>
+													<a
+														href="https://drive.google.com/file/d/1noD_WXcMZYX176noMH3FlbSr4V_2bq5p/view?usp=sharing"
+														target="_blank"
+														title="새창"
+														class="btn btn-xl btn-lightgray"
+														download
+														>PMS 요청 가이드 문서 보기<i class="ico ico-externallink-darkgray-md"></i>
+													</a>
+												</li>
+												<li class="gap-xl">
+													<strong class="tit"
+														><span class="num">2.</span>인시퀀스에서 문의사항을 확인 후 담당자를 배정해드립니다.</strong
+													>
+													<p>이슈를 확인 후 담당자를 배정하며 내용을 면밀히 검토합니다.</p>
+												</li>
+												<li class="gap-xl">
+													<strong class="tit"><span class="num">3.</span>이슈 작업을 진행하게 됩니다.</strong>
+													<ul class="list list-dot">
+														<li>고객과의 커뮤니케이션을 통해 문제 해결을 도와드립니다.</li>
+														<li>버그, 이용법, 기타문의 다양한 주제로 이슈를 등록하실 수 있습니다.</li>
+													</ul>
+													<strong>PMS로 작업물을 전달드리며 이메일로 알림을 받을 수 있습니다. </strong>
+												</li>
+												<li class="gap-xl">
+													<strong class="tit"><span class="num">4.</span>작업물을 확인해주시면 됩니다. </strong>
+													<p>
+														최종적으로 요구사항이 잘 반영되었는지 확인해주신 후 문제가 없다면 이슈를 종료하게 됩니다.
+													</p>
+												</li>
+											</ol>
+
+											<strong>
+												온라인 의사소통 과정이 더 궁금하시다면 아래 버튼을 클릭해 자세한 과정이 담긴 스토리를 확인하실
+												수 있습니다.
+											</strong>
+											<a
+												href="https://inseq.co.kr/ko/bbs/i-24/show.do?seq=22"
+												target="_blank"
+												title="새창"
+												class="btn btn-xl btn-lightgray"
+												>더 자세한 내용 보러가기<i class="ico ico-chevron-right-black-md"></i
+											></a>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="openlicense-area">
+							<div class="copyright-wrap">
+								<p class="copyright">
+									COPYRIGHT SINCE 2023
+									<a href="https://inseq.co.kr/ko/index.do" class="link-text" target="_blank" title="새창 열림"
+										>INSEQUENCE Co., Ltd.</a
+									><br class="d-down-md" />
+									ALL RIGHTS RESERVED. POWERED BY
+									<a
+										href="https://inseq.co.kr/ko/cntnts/i-33/web.do"
+										class="link-text neibis"
+										target="_blank"
+										title="새창 열림"
+										>NEIBIS CMS.</a
+									>
+								</p>
+								<a href="#layer-sample-md" data-modal="open" class="btn btn-link">오픈소스 라이선스 고지</a>
+							</div>
+						</div>
+
+						<!-- Modal Popup : .modal-md -->
+						<div class="modal-popup modal-md hide" id="layer-sample-md">
+							<div class="dimed"></div>
+							<div class="popup-inner">
+								<div class="popup-header">
+									<h2 class="popup-title">오픈소스 라이선스 고지</h2>
+								</div>
+								<div class="popup-body">
+									<div class="scroll-inner">
+										<ul class="openlicense-list">
+											<li>
+												<strong class="tit">INTRODUCTION OF EGOVFRAME</strong>
+												<a
+													href="https://www.egovframe.go.kr/home/sub.do?menuNo=23"
+													title="새창 열림"
+													target="_blank"
+													class="openlicense-link"
+													>https://www.egovframe.go.kr/home/sub.do?menuNo=23</a
+												>
+												<p>APACHE2.0</p>
+											</li>
+											<li>
+												<strong class="tit">chartjs</strong>
+												<a href="https://www.chartjs.org" title="새창 열림" target="_blank" class="openlicense-link"
+													>https://www.chartjs.org</a
+												>
+												<p>MIT</p>
+											</li>
+											<li>
+												<strong class="tit">codemirror</strong>
+												<a href="https://codemirror.net/" title="새창 열림" target="_blank" class="openlicense-link"
+													>https://codemirror.net/</a
+												>
+												<p>MIT</p>
+											</li>
+											<li>
+												<strong class="tit">jQuery UI Touch Punch 0.2.3</strong>
+												<a href="https://jqueryui.com/" title="새창 열림" target="_blank" class="openlicense-link"
+													>https://jqueryui.com/</a
+												>
+												<p>MIT</p>
+											</li>
+											<li>
+												<strong class="tit">Slick slider</strong>
+												<a
+													href="https://kenwheeler.github.io/slick/"
+													title="새창 열림"
+													target="_blank"
+													class="openlicense-link"
+													>https://kenwheeler.github.io/slick/</a
+												>
+												<p>MIT</p>
+											</li>
+											<li>
+												<strong class="tit">ztree</strong>
+												<a
+													href="ttps://www.treejs.cn/v3/main.php#_zTreeInfo"
+													title="새창 열림"
+													target="_blank"
+													class="openlicense-link"
+													>ttps://www.treejs.cn/v3/main.php#_zTreeInfo</a
+												>
+												<p>MIT</p>
+											</li>
+											<li>
+												<strong class="tit">beautify</strong>
+												<a
+													href="https://beautifier.io/?without-codemirror"
+													title="새창 열림"
+													target="_blank"
+													class="openlicense-link"
+													>https://beautifier.io/?without-codemirror</a
+												>
+												<p>MIT</p>
+											</li>
+											<li>
+												<strong class="tit">dropzone</strong>
+												<a href="https://www.dropzone.dev/" title="새창 열림" target="_blank" class="openlicense-link"
+													>https://www.dropzone.dev/</a
+												>
+												<p>MIT</p>
+											</li>
+											<li>
+												<strong class="tit">easy-pie-chart</strong>
+												<a
+													href="https://github.com/rendro/easy-pie-chart"
+													title="새창 열림"
+													target="_blank"
+													class="openlicense-link"
+													>https://github.com/rendro/easy-pie-chart</a
+												>
+												<p>MIT, GPL</p>
+											</li>
+										</ul>
+										<div class="openlicense-info">
+											<div class="info-cont">
+												<strong class="tit">Copyright (c) MIT License</strong>
+												<p>
+													Permission is hereby granted, free of charge, to any person<br />
+													obtaining a copy of this software and associated documentation<br />
+													files (the "Software"), to deal in the Software without<br />
+													restriction, including without limitation the rights to use,<br />
+													copy, modify, merge, publish, distribute, sublicense, and/or sell<br />
+													copies of the Software, and to permit persons to whom the<br />
+													Software is furnished to do so, subject to the following<br />
+													conditions:
+												</p>
+												<p>
+													The above copyright notice and this permission notice shall be<br />
+													included in all copies or substantial portions of the Software.
+												</p>
+												<p>
+													THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,<br />
+													EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES<br />
+													OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND<br />
+													NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT<br />
+													HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,<br />
+													WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING<br />
+													FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR<br />
+													OTHER DEALINGS IN THE SOFTWARE.
+												</p>
+											</div>
+
+											<div class="info-cont">
+												<strong class="tit">Copyright (c) Apache License 2.0</strong>
+												<p>
+													Licensed under the Apache License, Version 2.0 (the "License");<br />
+													you may not use this file except in compliance with the License.<br />
+													You may obtain a copy of the License at
+												</p>
+												<p>http://www.apache.org/licenses/LICENSE-2.0</p>
+												<p>
+													Unless required by applicable law or agreed to in writing, software<br />
+													distributed under the License is distributed on an "AS IS" BASIS,<br />
+													WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<br />
+													See the License for the specific language governing permissions and<br />
+													limitations under the License.
+												</p>
+											</div>
+
+											<div class="info-cont">
+												<strong class="tit">Copyright (C) GNU General Public License(GPL)</strong>
+												<p>
+													This program is free software: you can redistribute it and/or modify<br />
+													it under the terms of the GNU General Public License as published by<br />
+													the Free Software Foundation, either version 3 of the License, or<br />
+													(at your option) any later version.
+												</p>
+												<p>
+													This program is distributed in the hope that it will be useful,<br />
+													but WITHOUT ANY WARRANTY; without even the implied warranty of<br />
+													MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the<br />
+													GNU General Public License for more details.
+												</p>
+												<p>
+													You should have received a copy of the GNU General Public License<br />
+													along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;
+												</p>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="popup-footer">
+									<div class="btn-group-center">
+										<button type="button" class="btn btn-lg btn-outline-gray" data-modal="close">취소</button>
+										<button type="button" class="btn btn-lg btn-primary">확인</button>
+									</div>
+								</div>
+								<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+							</div>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

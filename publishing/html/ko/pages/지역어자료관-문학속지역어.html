@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>문학 속 지역어 | 지역어 자료관 | 지역어 종합 정보</title>
+		<link rel="icon" href="../../../assets/_common/images/favicon.ico" />
+
+		<!-- CSS -->
+		<link rel="stylesheet" href="../../../assets/ko/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../../assets/_common/js/ui-global.js" defer></script>
+
+		<!-- TODO : 퍼블용 JS, 개발시 반영 금지 -->
+		<script src="../../../assets/_guide/js/ui-include.js" defer></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {
+				// 검색 대상 조건 동적 추가/삭제 이벤트 리스너 (+, -, X)
+				document.addEventListener("click", function (event) {
+					const addBtn = event.target.closest(".search-panel-btn-add");
+					const minusBtn = event.target.closest(".search-panel-btn-minus");
+					const closeBtn = event.target.closest(".search-panel-btn-close");
+
+					if (addBtn) {
+						const group = addBtn.closest(".search-panel-group");
+						if (!group) return;
+
+						const newRow = document.createElement("div");
+						newRow.className = "search-panel-controls dynamic-row";
+						newRow.innerHTML = `
+							<select class="select select-lg select-w-sm">
+								<option value="AND">그리고</option>
+								<option value="OR">또는</option>
+								<option value="NOT">제외</option>
+							</select>
+							<select class="select select-lg select-w-sm">
+								<option value="">전체</option>
+								<option value="지역어">지역어</option>
+							</select>
+							<select class="select select-lg select-w-sm">
+								<option value="">포함</option>
+								<option value="시작문자">시작 문자</option>
+							</select>
+							<input type="text" class="input input-lg" placeholder="검색어를 입력하세요." />
+							<button type="button" class="btn btn-lg btn-tertiary">옛 한글</button>
+							<button type="button" class="search-panel-btn-close" title="해당 조건 삭제"></button>
+						`;
+
+						group.appendChild(newRow);
+					} else if (minusBtn) {
+						const group = minusBtn.closest(".search-panel-group");
+						if (!group) return;
+						const dynamicRows = group.querySelectorAll(".dynamic-row");
+						if (dynamicRows.length > 0) {
+							dynamicRows[dynamicRows.length - 1].remove();
+						}
+					} else if (closeBtn) {
+						const row = closeBtn.closest(".dynamic-row");
+						if (row) {
+							row.remove();
+						}
+					}
+
+					// 하단 '간단히 검색' 버튼 클릭 시 탭 이동
+					const simpleSearchBtn = event.target.closest(".search-panel-footer .btn-tertiary");
+					if (simpleSearchBtn && simpleSearchBtn.textContent.trim() === "간단히 검색") {
+						const simpleTab = document.querySelector("[aria-controls='tab-panel-simple']");
+						if (simpleTab) simpleTab.click();
+					}
+				});
+
+				// 작가 및 작품 필터: 자모 탭으로 작가 목록 필터링, 작가 선택 시 해당 작가의 작품 목록 노출
+				const authorWorkFilter = document.querySelector(".author-work-filter");
+				if (authorWorkFilter) {
+					// 자모 탭에는 없는 쌍자음(ㄲㄸㅃㅆㅉ)을 대응하는 홑자음 탭으로 매핑
+					const CHOSEONG_LIST = [
+						"ㄱ",
+						"ㄲ",
+						"ㄴ",
+						"ㄷ",
+						"ㄸ",
+						"ㄹ",
+						"ㅁ",
+						"ㅂ",
+						"ㅃ",
+						"ㅅ",
+						"ㅆ",
+						"ㅇ",
+						"ㅈ",
+						"ㅉ",
+						"ㅊ",
+						"ㅋ",
+						"ㅌ",
+						"ㅍ",
+						"ㅎ"
+					];
+					const CHOSEONG_TO_TAB = { ㄲ: "ㄱ", ㄸ: "ㄷ", ㅃ: "ㅂ", ㅆ: "ㅅ", ㅉ: "ㅈ" };
+					// TODO : 실제 연동 시 선택한 작가 기준 작품 목록 응답으로 대체
+					const WORK_SAMPLE = [
+						{ name: "봄B", count: 1 },
+						{ name: "사(蛇)", count: 1 },
+						{ name: "숲에서", count: 1 }
+					];
+
+					function getAuthorJamo(name) {
+						const code = name.charCodeAt(0) - 0xac00;
+						if (code < 0 || code > 11171) return null;
+						const cho = CHOSEONG_LIST[Math.floor(code / 588)];
+						return CHOSEONG_TO_TAB[cho] || cho;
+					}
+
+					const jamoBtns = authorWorkFilter.querySelectorAll(".author-jamo-btn");
+					const authorList = authorWorkFilter.querySelector(".author-list");
+					const authorChips = authorWorkFilter.querySelectorAll(".author-chip");
+					const authorListEmpty = authorWorkFilter.querySelector(".author-list-empty");
+					const workEmpty = authorWorkFilter.querySelector(".author-work-empty");
+					const workList = authorWorkFilter.querySelector(".work-list");
+
+					jamoBtns.forEach(function (btn) {
+						btn.addEventListener("click", function () {
+							jamoBtns.forEach(function (b) {
+								b.classList.remove("is-active");
+							});
+							btn.classList.add("is-active");
+
+							const jamo = btn.dataset.jamo;
+							let visibleCount = 0;
+
+							authorChips.forEach(function (chip) {
+								const name = chip.querySelector(".author-chip-name").textContent.trim();
+								const isMatch = jamo === "all" || getAuthorJamo(name) === jamo;
+								chip.hidden = !isMatch;
+								if (isMatch) visibleCount++;
+							});
+
+							authorList.hidden = visibleCount === 0;
+							authorListEmpty.hidden = visibleCount !== 0;
+						});
+					});
+
+					// 작가 선택 상태는 radio input의 :checked로 처리(별도 클래스 토글 불필요), 선택 시 작품 목록만 채워준다.
+					authorList.addEventListener("change", function (event) {
+						if (!event.target.matches('input[type="radio"]')) return;
+
+						workList.innerHTML = WORK_SAMPLE.map(function (work) {
+							return `<label class="work-chip"><input type="radio" name="literatureWork" class="sr-only" /><span class="work-chip-name">${work.name}</span> <span class="work-chip-count">(${work.count})</span></label>`;
+						}).join("");
+
+						workEmpty.hidden = true;
+						workList.hidden = false;
+					});
+				}
+
+				// 검색 정렬기준 버튼 (카드형 / 리스트형 전환)
+				const searchCardList = document.querySelector(".search-card-list");
+				document.querySelectorAll(".btn-result-filter").forEach((btn) => {
+					btn.addEventListener("click", () => {
+						document.querySelectorAll(".btn-result-filter").forEach((b) => {
+							b.classList.remove("is-active");
+							b.setAttribute("aria-pressed", "false");
+						});
+						btn.classList.add("is-active");
+						btn.setAttribute("aria-pressed", "true");
+
+						if (searchCardList) {
+							searchCardList.classList.toggle("type-card", btn.dataset.filterView === "card");
+						}
+					});
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div class="wrap">
+			<!-- [퍼블용 include]: [include] 표기 부분은 실제 서버 include로 교체 필요 -->
+
+			<!-- [include]:본문 바로가기 -->
+			<div w3-include-html="../_include/inc-skipnav.html"></div>
+			<!-- [include]:상단 배너 -->
+			<div class="masthead" w3-include-html="../_include/inc-masthead.html"></div>
+			<!-- [include]:헤더  -->
+			<header class="header" w3-include-html="../_include/inc-header.html"></header>
+
+			<div id="container" class="container">
+				<!----- 콘텐츠 영역 ----->
+
+				<div class="inner" id="contents">
+					<!-- 브레드 크럼 -->
+					<nav class="breadcrumb">
+						<ol class="breadcrumb-list">
+							<li class="breadcrumb-item home">
+								<a href="#"><i class="svg-icon ico-bread-home ico-sm"></i>홈</a>
+							</li>
+							<li class="breadcrumb-item"><a href="#">지역어 자료관</a></li>
+						</ol>
+					</nav>
+					<!-- // -->
+
+					<div class="content-header">
+						<h1 class="content-title">문학 속 지역어</h1>
+						<div class="content-actions">
+							<div class="tooltip">
+								<button type="button" class="btn btn-icon btn-gray">
+									<i class="svg-icon ico-share ico-md"></i>
+								</button>
+								<span class="tooltip-text">SNS 공유</span>
+							</div>
+							<div class="tooltip">
+								<button type="button" class="btn btn-icon btn-gray">
+									<i class="svg-icon ico-link ico-md"></i>
+								</button>
+								<span class="tooltip-text">링크 복사</span>
+							</div>
+							<div class="tooltip">
+								<button type="button" class="btn btn-icon btn-gray">
+									<i class="svg-icon ico-print ico-md"></i>
+								</button>
+								<span class="tooltip-text">인쇄하기</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- 콘텐츠 본문 -->
+					<div class="content-body">
+						<!-- 상세검색 패널 -->
+						<div class="search-panel">
+							<div class="search-panel-head">
+								<div class="tab">
+									<ul class="tab-list">
+										<li class="tab-item">
+											<a href="#none" class="tab-link is-active" aria-controls="tab-panel-simple">간단히 검색</a>
+										</li>
+										<li class="tab-item">
+											<a href="#none" class="tab-link" aria-controls="tab-panel-detail">자세히 검색</a>
+										</li>
+									</ul>
+								</div>
+							</div>
+
+							<!-- 간단히 검색 탭 콘텐츠 -->
+							<div class="search-panel-body" data-tab-panel="tab-panel-simple">
+								<!-- 검색 범위 라디오 -->
+								<div class="search-panel-row">
+									<div class="search-panel-checkbox-row">
+										<label class="form-radio">
+											<input type="radio" name="searchScope" checked />
+											<span>전체</span>
+										</label>
+										<label class="form-radio">
+											<input type="radio" name="searchScope" />
+											<span>지역어로 찾기</span>
+										</label>
+										<label class="form-radio">
+											<input type="radio" name="searchScope" />
+											<span>표준어로 찾기</span>
+										</label>
+									</div>
+								</div>
+
+								<!-- 검색어 입력 -->
+								<div class="search-panel-row">
+									<div class="search-panel-content">
+										<div class="input-group input-group-fit">
+											<input type="text" class="input input-lg w-100" placeholder="검색어를 입력하세요." />
+											<button type="button" class="btn btn-lg btn-tertiary">옛 한글</button>
+										</div>
+
+										<div class="search-panel-recommend">
+											<span class="recommend-title">추천 검색어</span>
+											<div class="recommend-tags">
+												<a href="#none" class="tag text-link">감자</a>
+												<a href="#none" class="tag text-link">테</a>
+												<a href="#none" class="tag text-link">태</a>
+												<a href="#none" class="tag text-link">고구마</a>
+												<a href="#none" class="tag text-link">부추</a>
+												<a href="#none" class="tag text-link">할아버지</a>
+											</div>
+										</div>
+									</div>
+								</div>
+								<!-- 추천 검색어 -->
+
+								<!-- 하단 액션 버튼 -->
+								<div class="search-panel-footer">
+									<button type="button" class="btn btn-xxl btn-primary">
+										<i class="svg-icon ico-search ico-xl"></i> 검색
+									</button>
+								</div>
+							</div>
+
+							<!-- 자세히 검색 탭 콘텐츠 -->
+							<div class="search-panel-body" data-tab-panel="tab-panel-detail" hidden inert>
+								<!-- 작가 및 작품-->
+								<div class="search-panel-row">
+									<div class="search-panel-label">작가 및 작품</div>
+									<div class="search-panel-content md-full">
+										<div class="author-work-filter">
+											<!-- 작가 -->
+											<div class="author-work-box">
+												<div class="author-work-box-title">작가</div>
+												<div class="author-work-box-body">
+													<div class="author-jamo-nav">
+														<div class="author-jamo-list">
+															<button type="button" class="author-jamo-btn is-active" data-jamo="all">전체</button>
+															<button type="button" class="author-jamo-btn" data-jamo="ㄱ">ㄱ</button>
+															<button type="button" class="author-jamo-btn" data-jamo="ㄴ">ㄴ</button>
+															<button type="button" class="author-jamo-btn" data-jamo="ㄷ">ㄷ</button>
+															<button type="button" class="author-jamo-btn" data-jamo="ㄹ">ㄹ</button>
+															<button type="button" class="author-jamo-btn" data-jamo="ㅁ">ㅁ</button>
+															<button type="button" class="author-jamo-btn" data-jamo="ㅂ">ㅂ</button>
+															<button type="button" class="author-jamo-btn" data-jamo="ㅅ">ㅅ</button>
+															<button type="button" class="author-jamo-btn" data-jamo="ㅇ">ㅇ</button>
+															<button type="button" class="author-jamo-btn" data-jamo="ㅈ">ㅈ</button>
+															<button type="button" class="author-jamo-btn" data-jamo="ㅊ">ㅊ</button>
+															<button type="button" class="author-jamo-btn" data-jamo="ㅋ">ㅋ</button>
+															<button type="button" class="author-jamo-btn" data-jamo="ㅌ">ㅌ</button>
+															<button type="button" class="author-jamo-btn" data-jamo="ㅍ">ㅍ</button>
+															<button type="button" class="author-jamo-btn" data-jamo="ㅎ">ㅎ</button>
+														</div>
+
+														<!-- 모바일 가로 스크롤 시작/끝 표시 (ui-global.js jamoScrollNav) -->
+														<div class="author-jamo-edge prev">
+															<button type="button" class="author-jamo-nav-btn" aria-label="이전 자모 보기">
+																<i class="svg-icon ico-chevron-gray ico-sm"></i>
+															</button>
+														</div>
+														<div class="author-jamo-edge next">
+															<button type="button" class="author-jamo-nav-btn" aria-label="다음 자모 보기">
+																<i class="svg-icon ico-chevron-gray ico-sm"></i>
+															</button>
+														</div>
+													</div>
+
+													<div class="author-list">
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">강석경</span> <span class="author-chip-count">(2)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">강준희</span> <span class="author-chip-count">(300)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">강평원</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">구술/성춘식, 편집/신경란</span>
+															<span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">권정생</span> <span class="author-chip-count">(57)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김동리</span> <span class="author-chip-count">(3)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김문수</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김성동</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김소월</span> <span class="author-chip-count">(32)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김소월역(譯)</span>
+															<span class="author-chip-count">(3)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김여정</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김영랑</span> <span class="author-chip-count">(6)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김용길</span> <span class="author-chip-count">(5)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김용일</span> <span class="author-chip-count">(37)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김재흔</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김점호</span> <span class="author-chip-count">(43)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김정한</span> <span class="author-chip-count">(3)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김주영</span> <span class="author-chip-count">(22)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김중태</span> <span class="author-chip-count">(2)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김지하</span> <span class="author-chip-count">(2)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김춘복</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김춘수</span> <span class="author-chip-count">(3)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김태진</span> <span class="author-chip-count">(2)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">김훈</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">노천명</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">두초20</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">두초8-18</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">문충성</span> <span class="author-chip-count">(120)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">민현숙</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">박경리</span> <span class="author-chip-count">(428)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">박경수</span> <span class="author-chip-count">(4)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">박두진</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">박목월</span> <span class="author-chip-count">(18)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">박범신</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">박상률</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">박종화</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">박태일</span> <span class="author-chip-count">(3)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">백석</span> <span class="author-chip-count">(52)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">복거일</span> <span class="author-chip-count">(2)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">서정범</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">서정주</span> <span class="author-chip-count">(41)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">서지월</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">성춘식</span> <span class="author-chip-count">(40)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">송기숙</span> <span class="author-chip-count">(156)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">신경숙</span> <span class="author-chip-count">(13)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">신석정</span> <span class="author-chip-count">(5)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">심원섭</span> <span class="author-chip-count">(10)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">안수길</span> <span class="author-chip-count">(32)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">양주동</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">양중해</span> <span class="author-chip-count">(9)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">오성찬</span> <span class="author-chip-count">(260)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">오영수</span> <span class="author-chip-count">(4)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">오장환</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">유정</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">유치환</span> <span class="author-chip-count">(12)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">윤곤강</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">윤대녕</span> <span class="author-chip-count">(3)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">윤흥길</span> <span class="author-chip-count">(211)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이광복</span> <span class="author-chip-count">(42)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이기영</span> <span class="author-chip-count">(90)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이기철 편</span>
+															<span class="author-chip-count">(52)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이기형</span> <span class="author-chip-count">(4)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이동하</span> <span class="author-chip-count">(3)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이동희</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이만희</span> <span class="author-chip-count">(3)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이무영</span> <span class="author-chip-count">(7)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이문구</span> <span class="author-chip-count">(286)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이문열</span> <span class="author-chip-count">(262)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이병천</span> <span class="author-chip-count">(45)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이상규</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이상규 편</span> <span class="author-chip-count">(2)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이상화</span> <span class="author-chip-count">(7)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이아정</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이오덕</span> <span class="author-chip-count">(26)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이용악</span> <span class="author-chip-count">(38)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이육사</span> <span class="author-chip-count">(4)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이현수</span> <span class="author-chip-count">(71)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">이호철</span> <span class="author-chip-count">(3)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">정숙</span> <span class="author-chip-count">(11)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">정지용</span> <span class="author-chip-count">(12)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">조오현</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">조정래</span> <span class="author-chip-count">(535)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">조태일</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">채만식</span> <span class="author-chip-count">(385)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">최명희</span> <span class="author-chip-count">(293)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">최영철</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">피천득</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">한기팔</span> <span class="author-chip-count">(4)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">허수경</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">현기영</span> <span class="author-chip-count">(189)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">현길언</span> <span class="author-chip-count">(111)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">현진건</span> <span class="author-chip-count">(16)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">홍명희</span> <span class="author-chip-count">(34)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">홍희표</span> <span class="author-chip-count">(1)</span>
+														</label>
+														<label class="author-chip"
+															><input type="radio" name="literatureAuthor" class="sr-only" />
+															<span class="author-chip-name">황석영</span> <span class="author-chip-count">(2)</span>
+														</label>
+													</div>
+													<!-- 자모 선택 결과 작가 없음 -->
+													<p class="author-list-empty" hidden>해당 초성의 작가 데이터가 없습니다.</p>
+												</div>
+											</div>
+
+											<!-- 작품: 작가 미선택 시 안내 문구 노출, 작가 선택 시 work-list에 작품 목록 채워짐 -->
+											<div class="author-work-box">
+												<div class="author-work-box-title">작품</div>
+												<div class="author-work-box-body">
+													<p class="author-work-empty">작가를 선택해주세요.</p>
+													<div class="work-list" hidden></div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- 지역 -->
+								<div class="search-panel-row">
+									<div class="search-panel-label">지역</div>
+									<div class="search-panel-content">
+										<div class="search-panel-inline-item">
+											<div class="form-radio-group search-panel-radio-row">
+												<label class="form-radio">
+													<input type="radio" name="radio-region" value="all" checked />
+													<span>전체</span>
+												</label>
+
+												<label class="form-radio">
+													<input type="radio" name="radio-region" value="gangwon" />
+													<span>강원도</span>
+												</label>
+
+												<label class="form-radio">
+													<input type="radio" name="radio-region" value="gyeonggi" />
+													<span>경기도</span>
+												</label>
+
+												<label class="form-radio">
+													<input type="radio" name="radio-region" value="gyeongsang" />
+													<span>경상도</span>
+												</label>
+
+												<label class="form-radio">
+													<input type="radio" name="radio-region" value="jeolla" />
+													<span>전라도</span>
+												</label>
+
+												<label class="form-radio">
+													<input type="radio" name="radio-region" value="jeju" />
+													<span>제주도</span>
+												</label>
+
+												<label class="form-radio">
+													<input type="radio" name="radio-region" value="chungcheong" />
+													<span>충청도</span>
+												</label>
+
+												<label class="form-radio">
+													<input type="radio" name="radio-region" value="pyeongan" />
+													<span>평안도</span>
+												</label>
+
+												<label class="form-radio">
+													<input type="radio" name="radio-region" value="hamgyeong" />
+													<span>함경도</span>
+												</label>
+
+												<label class="form-radio">
+													<input type="radio" name="radio-region" value="hwanghae" />
+													<span>황해도</span>
+												</label>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- 검색 대상 -->
+								<div class="search-panel-row">
+									<div class="search-panel-label">검색 대상 <span class="req-point">필수</span></div>
+									<div class="search-panel-content">
+										<div class="search-panel-group search-panel-group-target" id="target-condition-group">
+											<!-- 1행 -->
+											<div class="search-panel-controls">
+												<select class="select select-lg select-w-sm">
+													<option>전체</option>
+													<option>지역어</option>
+													<option>표준어</option>
+												</select>
+												<select class="select select-lg select-w-sm">
+													<option>포함</option>
+													<option>일치</option>
+													<option>시작 문자</option>
+													<option>끝 문자</option>
+												</select>
+												<input type="text" class="input input-lg" placeholder="검색어를 입력하세요." value="감자" />
+												<button type="button" class="btn btn-lg btn-tertiary">옛 한글</button>
+												<div class="search-panel-controls controls-action">
+													<button type="button" class="search-panel-btn-add" title="조건 추가"></button>
+													<button type="button" class="search-panel-btn-minus" title="마지막 조건 삭제"></button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- 하단 액션 버튼 -->
+								<div class="search-panel-footer mt-6 mt-md-2">
+									<button type="button" class="btn btn-lg btn-tertiary btn-fit">간단히 검색</button>
+									<button type="button" class="btn btn-lg btn-primary btn-fit">
+										<i class="svg-icon ico-search ico-md"></i>
+										<span>검색</span>
+									</button>
+								</div>
+							</div>
+						</div>
+
+						<!-- 검색 결과 정보 바 -->
+						<div class="search-result-info">
+							<span>적용된 검색어 ‘<span class="text-primary-dark">감자</span>’</span>
+							<span class="divider"></span>
+							<span>검색 결과 <strong class="text-primary-dark">22,459</strong>개</span>
+
+							<div class="result-filter">
+								<strong>정렬기준</strong>
+								<div class="btn-group" role="group" aria-label="정렬기준">
+									<button type="button" class="btn-result-filter is-active" data-filter-view="card" aria-pressed="true">
+										카드형
+									</button>
+									<button type="button" class="btn-result-filter" data-filter-view="list" aria-pressed="false">
+										리스트형
+									</button>
+								</div>
+							</div>
+						</div>
+
+						<section class="search-section section-1 no-line">
+							<div class="search-card-list type-card no-scroll">
+								<div class="search-card-item">
+									<div class="search-card-header">
+										<div class="search-card-header-left">
+											<span class="num">1</span>
+											<span class="subject"
+												><span class="subject-item">가시게</span> <span class="subject-sub-item">(명사)</span></span
+											>
+										</div>
+										<div class="search-card-header-right">
+											<ul class="meta-info-list">
+												<li class="meta-info">
+													<span class="meta-label">지역</span>
+													<span class="meta-value">충청도</span>
+												</li>
+												<li class="meta-info">
+													<span class="meta-label">대응 표준어</span>
+													<span class="meta-value">대응 표준어 없음</span>
+												</li>
+											</ul>
+										</div>
+									</div>
+									<div class="search-card-body">
+										<dl class="poet-info-list">
+											<div class="poet-info-item">
+												<dt>해설</dt>
+												<dd>옷감, 종이, 머리털 따위를 자르는 기구.</dd>
+											</div>
+											<div class="poet-info-item">
+												<dt>용례</dt>
+												<dd class="poet-example">
+													<div class="example-item">
+														인분은 옥수수 뿐만 아니라 밀과 보리에도 퍼다 주는데, 이는 대개 밀, 보리가
+														<span class="badge badge-sm badge-outline-navy">가새보리</span> 또는 가새밀이 될 때 퍼다
+														준다.<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+													</div>
+
+													<!-- 용례 토글 컨텐츠 -->
+													<div class="example-toggle-contents" data-toggle-content="info-row-1" inert>
+														<div class="example-item">
+															“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+															<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+														</div>
+													</div>
+
+													<!-- 용례 토글 버튼 -->
+													<div class="btn-group">
+														<button
+															type="button"
+															class="btn btn-xs btn-secondary btn-toggle-poet"
+															data-toggle-btn="info-row-1"
+															data-label-open="용례 접기"
+														>
+															<span class="toggle-btn-label">용례 더보기(총 2건)</span>
+															<i class="svg-icon ico-sm ico-arrow-dropdown-primary" aria-hidden="true"></i>
+														</button>
+													</div>
+												</dd>
+											</div>
+
+											<div class="poet-info-item">
+												<dt>다른 방언형</dt>
+												<dd>고만두다, 곤두다, 건두다</dd>
+											</div>
+										</dl>
+									</div>
+								</div>
+
+								<div class="search-card-item">
+									<div class="search-card-header">
+										<div class="search-card-header-left">
+											<span class="num">2</span>
+											<span class="subject"
+												><span class="subject-item">가시게</span> <span class="subject-sub-item">(명사)</span></span
+											>
+										</div>
+										<div class="search-card-header-right">
+											<ul class="meta-info-list">
+												<li class="meta-info">
+													<span class="meta-label">지역</span>
+													<span class="meta-value">충청도</span>
+												</li>
+												<li class="meta-info">
+													<span class="meta-label">대응 표준어</span>
+													<span class="meta-value">대응 표준어 없음</span>
+												</li>
+											</ul>
+										</div>
+									</div>
+									<div class="search-card-body">
+										<dl class="poet-info-list">
+											<div class="poet-info-item">
+												<dt>해설</dt>
+												<dd>옷감, 종이, 머리털 따위를 자르는 기구.</dd>
+											</div>
+											<div class="poet-info-item">
+												<dt>용례</dt>
+												<dd class="poet-example">
+													<div class="example-item">
+														“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+														<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+													</div>
+
+													<!-- 용례 토글 컨텐츠 -->
+													<div class="example-toggle-contents" data-toggle-content="info-row-2" inert>
+														<div class="example-item">
+															“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+															<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+														</div>
+													</div>
+
+													<!-- 용례 토글 버튼 -->
+													<div class="btn-group">
+														<button
+															type="button"
+															class="btn btn-xs btn-secondary btn-toggle-poet"
+															data-toggle-btn="info-row-2"
+															data-label-open="용례 접기"
+														>
+															<span class="toggle-btn-label">용례 더보기(총 2건)</span>
+															<i class="svg-icon ico-sm ico-arrow-dropdown-primary" aria-hidden="true"></i>
+														</button>
+													</div>
+												</dd>
+											</div>
+
+											<div class="poet-info-item">
+												<dt>다른 방언형</dt>
+												<dd>고만두다, 곤두다, 건두다</dd>
+											</div>
+										</dl>
+									</div>
+								</div>
+
+								<div class="search-card-item">
+									<div class="search-card-header">
+										<div class="search-card-header-left">
+											<span class="num">3</span>
+											<span class="subject"
+												><span class="subject-item">가시게</span> <span class="subject-sub-item">(명사)</span></span
+											>
+										</div>
+										<div class="search-card-header-right">
+											<ul class="meta-info-list">
+												<li class="meta-info">
+													<span class="meta-label">지역</span>
+													<span class="meta-value">충청도</span>
+												</li>
+												<li class="meta-info">
+													<span class="meta-label">대응 표준어</span>
+													<span class="meta-value">대응 표준어 없음</span>
+												</li>
+											</ul>
+										</div>
+									</div>
+									<div class="search-card-body">
+										<dl class="poet-info-list">
+											<div class="poet-info-item">
+												<dt>해설</dt>
+												<dd>옷감, 종이, 머리털 따위를 자르는 기구.</dd>
+											</div>
+											<div class="poet-info-item">
+												<dt>용례</dt>
+												<dd class="poet-example">
+													<div class="example-item">
+														“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+														<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+													</div>
+
+													<!-- 용례 토글 컨텐츠 -->
+													<div class="example-toggle-contents" data-toggle-content="info-row-3" inert>
+														<div class="example-item">
+															“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+															<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+														</div>
+													</div>
+
+													<!-- 용례 토글 버튼 -->
+													<div class="btn-group">
+														<button
+															type="button"
+															class="btn btn-xs btn-secondary btn-toggle-poet"
+															data-toggle-btn="info-row-3"
+															data-label-open="용례 접기"
+														>
+															<span class="toggle-btn-label">용례 더보기(총 2건)</span>
+															<i class="svg-icon ico-sm ico-arrow-dropdown-primary" aria-hidden="true"></i>
+														</button>
+													</div>
+												</dd>
+											</div>
+
+											<div class="poet-info-item">
+												<dt>다른 방언형</dt>
+												<dd>고만두다, 곤두다, 건두다</dd>
+											</div>
+										</dl>
+									</div>
+								</div>
+
+								<div class="search-card-item">
+									<div class="search-card-header">
+										<div class="search-card-header-left">
+											<span class="num">4</span>
+											<span class="subject"
+												><span class="subject-item">가시게</span> <span class="subject-sub-item">(명사)</span></span
+											>
+										</div>
+										<div class="search-card-header-right">
+											<ul class="meta-info-list">
+												<li class="meta-info">
+													<span class="meta-label">지역</span>
+													<span class="meta-value">충청도</span>
+												</li>
+												<li class="meta-info">
+													<span class="meta-label">대응 표준어</span>
+													<span class="meta-value">대응 표준어 없음</span>
+												</li>
+											</ul>
+										</div>
+									</div>
+									<div class="search-card-body">
+										<dl class="poet-info-list">
+											<div class="poet-info-item">
+												<dt>해설</dt>
+												<dd>옷감, 종이, 머리털 따위를 자르는 기구.</dd>
+											</div>
+											<div class="poet-info-item">
+												<dt>용례</dt>
+												<dd class="poet-example">
+													<div class="example-item">
+														“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+														<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+													</div>
+
+													<!-- 용례 토글 컨텐츠 -->
+													<div class="example-toggle-contents" data-toggle-content="info-row-4" inert>
+														<div class="example-item">
+															“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+															<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+														</div>
+													</div>
+
+													<!-- 용례 토글 버튼 -->
+													<div class="btn-group">
+														<button
+															type="button"
+															class="btn btn-xs btn-secondary btn-toggle-poet"
+															data-toggle-btn="info-row-4"
+															data-label-open="용례 접기"
+														>
+															<span class="toggle-btn-label">용례 더보기(총 2건)</span>
+															<i class="svg-icon ico-sm ico-arrow-dropdown-primary" aria-hidden="true"></i>
+														</button>
+													</div>
+												</dd>
+											</div>
+
+											<div class="poet-info-item">
+												<dt>다른 방언형</dt>
+												<dd>고만두다, 곤두다, 건두다</dd>
+											</div>
+										</dl>
+									</div>
+								</div>
+
+								<div class="search-card-item">
+									<div class="search-card-header">
+										<div class="search-card-header-left">
+											<span class="num">5</span>
+											<span class="subject"
+												><span class="subject-item">가시게</span> <span class="subject-sub-item">(명사)</span></span
+											>
+										</div>
+										<div class="search-card-header-right">
+											<ul class="meta-info-list">
+												<li class="meta-info">
+													<span class="meta-label">지역</span>
+													<span class="meta-value">충청도</span>
+												</li>
+												<li class="meta-info">
+													<span class="meta-label">대응 표준어</span>
+													<span class="meta-value">대응 표준어 없음</span>
+												</li>
+											</ul>
+										</div>
+									</div>
+									<div class="search-card-body">
+										<dl class="poet-info-list">
+											<div class="poet-info-item">
+												<dt>해설</dt>
+												<dd>옷감, 종이, 머리털 따위를 자르는 기구.</dd>
+											</div>
+											<div class="poet-info-item">
+												<dt>용례</dt>
+												<dd class="poet-example">
+													<div class="example-item">
+														“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+														<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+													</div>
+
+													<!-- 용례 토글 컨텐츠 -->
+													<div class="example-toggle-contents" data-toggle-content="info-row-5" inert>
+														<div class="example-item">
+															“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+															<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+														</div>
+													</div>
+
+													<!-- 용례 토글 버튼 -->
+													<div class="btn-group">
+														<button
+															type="button"
+															class="btn btn-xs btn-secondary btn-toggle-poet"
+															data-toggle-btn="info-row-5"
+															data-label-open="용례 접기"
+														>
+															<span class="toggle-btn-label">용례 더보기(총 2건)</span>
+															<i class="svg-icon ico-sm ico-arrow-dropdown-primary" aria-hidden="true"></i>
+														</button>
+													</div>
+												</dd>
+											</div>
+
+											<div class="poet-info-item">
+												<dt>다른 방언형</dt>
+												<dd>고만두다, 곤두다, 건두다</dd>
+											</div>
+										</dl>
+									</div>
+								</div>
+
+								<div class="search-card-item">
+									<div class="search-card-header">
+										<div class="search-card-header-left">
+											<span class="num">6</span>
+											<span class="subject"
+												><span class="subject-item">가시게</span> <span class="subject-sub-item">(명사)</span></span
+											>
+										</div>
+										<div class="search-card-header-right">
+											<ul class="meta-info-list">
+												<li class="meta-info">
+													<span class="meta-label">지역</span>
+													<span class="meta-value">충청도</span>
+												</li>
+												<li class="meta-info">
+													<span class="meta-label">대응 표준어</span>
+													<span class="meta-value">대응 표준어 없음</span>
+												</li>
+											</ul>
+										</div>
+									</div>
+									<div class="search-card-body">
+										<dl class="poet-info-list">
+											<div class="poet-info-item">
+												<dt>해설</dt>
+												<dd>옷감, 종이, 머리털 따위를 자르는 기구.</dd>
+											</div>
+											<div class="poet-info-item">
+												<dt>용례</dt>
+												<dd class="poet-example">
+													<div class="example-item">
+														“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+														<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+													</div>
+
+													<!-- 용례 토글 컨텐츠 -->
+													<div class="example-toggle-contents" data-toggle-content="info-row-6" inert>
+														<div class="example-item">
+															“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+															<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+														</div>
+													</div>
+
+													<!-- 용례 토글 버튼 -->
+													<div class="btn-group">
+														<button
+															type="button"
+															class="btn btn-xs btn-secondary btn-toggle-poet"
+															data-toggle-btn="info-row-6"
+															data-label-open="용례 접기"
+														>
+															<span class="toggle-btn-label">용례 더보기(총 2건)</span>
+															<i class="svg-icon ico-sm ico-arrow-dropdown-primary" aria-hidden="true"></i>
+														</button>
+													</div>
+												</dd>
+											</div>
+
+											<div class="poet-info-item">
+												<dt>다른 방언형</dt>
+												<dd>고만두다, 곤두다, 건두다</dd>
+											</div>
+										</dl>
+									</div>
+								</div>
+
+								<div class="search-card-item">
+									<div class="search-card-header">
+										<div class="search-card-header-left">
+											<span class="num">7</span>
+											<span class="subject"
+												><span class="subject-item">가시게</span> <span class="subject-sub-item">(명사)</span></span
+											>
+										</div>
+										<div class="search-card-header-right">
+											<ul class="meta-info-list">
+												<li class="meta-info">
+													<span class="meta-label">지역</span>
+													<span class="meta-value">충청도</span>
+												</li>
+												<li class="meta-info">
+													<span class="meta-label">대응 표준어</span>
+													<span class="meta-value">대응 표준어 없음</span>
+												</li>
+											</ul>
+										</div>
+									</div>
+									<div class="search-card-body">
+										<dl class="poet-info-list">
+											<div class="poet-info-item">
+												<dt>해설</dt>
+												<dd>옷감, 종이, 머리털 따위를 자르는 기구.</dd>
+											</div>
+											<div class="poet-info-item">
+												<dt>용례</dt>
+												<dd class="poet-example">
+													<div class="example-item">
+														“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+														<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+													</div>
+
+													<!-- 용례 토글 컨텐츠 -->
+													<div class="example-toggle-contents" data-toggle-content="info-row-7" inert>
+														<div class="example-item">
+															“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+															<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+														</div>
+													</div>
+
+													<!-- 용례 토글 버튼 -->
+													<div class="btn-group">
+														<button
+															type="button"
+															class="btn btn-xs btn-secondary btn-toggle-poet"
+															data-toggle-btn="info-row-7"
+															data-label-open="용례 접기"
+														>
+															<span class="toggle-btn-label">용례 더보기(총 2건)</span>
+															<i class="svg-icon ico-sm ico-arrow-dropdown-primary" aria-hidden="true"></i>
+														</button>
+													</div>
+												</dd>
+											</div>
+
+											<div class="poet-info-item">
+												<dt>다른 방언형</dt>
+												<dd>고만두다, 곤두다, 건두다</dd>
+											</div>
+										</dl>
+									</div>
+								</div>
+
+								<div class="search-card-item">
+									<div class="search-card-header">
+										<div class="search-card-header-left">
+											<span class="num">8</span>
+											<span class="subject"
+												><span class="subject-item">가시게</span> <span class="subject-sub-item">(명사)</span></span
+											>
+										</div>
+										<div class="search-card-header-right">
+											<ul class="meta-info-list">
+												<li class="meta-info">
+													<span class="meta-label">지역</span>
+													<span class="meta-value">충청도</span>
+												</li>
+												<li class="meta-info">
+													<span class="meta-label">대응 표준어</span>
+													<span class="meta-value">대응 표준어 없음</span>
+												</li>
+											</ul>
+										</div>
+									</div>
+									<div class="search-card-body">
+										<dl class="poet-info-list">
+											<div class="poet-info-item">
+												<dt>해설</dt>
+												<dd>옷감, 종이, 머리털 따위를 자르는 기구.</dd>
+											</div>
+											<div class="poet-info-item">
+												<dt>용례</dt>
+												<dd class="poet-example">
+													<div class="example-item">
+														“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+														<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+													</div>
+
+													<!-- 용례 토글 컨텐츠 -->
+													<div class="example-toggle-contents" data-toggle-content="info-row-8" inert>
+														<div class="example-item">
+															“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+															<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+														</div>
+													</div>
+
+													<!-- 용례 토글 버튼 -->
+													<div class="btn-group">
+														<button
+															type="button"
+															class="btn btn-xs btn-secondary btn-toggle-poet"
+															data-toggle-btn="info-row-8"
+															data-label-open="용례 접기"
+														>
+															<span class="toggle-btn-label">용례 더보기(총 2건)</span>
+															<i class="svg-icon ico-sm ico-arrow-dropdown-primary" aria-hidden="true"></i>
+														</button>
+													</div>
+												</dd>
+											</div>
+
+											<div class="poet-info-item">
+												<dt>다른 방언형</dt>
+												<dd>고만두다, 곤두다, 건두다</dd>
+											</div>
+										</dl>
+									</div>
+								</div>
+
+								<div class="search-card-item">
+									<div class="search-card-header">
+										<div class="search-card-header-left">
+											<span class="num">9</span>
+											<span class="subject"
+												><span class="subject-item">가시게</span> <span class="subject-sub-item">(명사)</span></span
+											>
+										</div>
+										<div class="search-card-header-right">
+											<ul class="meta-info-list">
+												<li class="meta-info">
+													<span class="meta-label">지역</span>
+													<span class="meta-value">충청도</span>
+												</li>
+												<li class="meta-info">
+													<span class="meta-label">대응 표준어</span>
+													<span class="meta-value">대응 표준어 없음</span>
+												</li>
+											</ul>
+										</div>
+									</div>
+									<div class="search-card-body">
+										<dl class="poet-info-list">
+											<div class="poet-info-item">
+												<dt>해설</dt>
+												<dd>옷감, 종이, 머리털 따위를 자르는 기구.</dd>
+											</div>
+											<div class="poet-info-item">
+												<dt>용례</dt>
+												<dd class="poet-example">
+													<div class="example-item">
+														“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+														<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+													</div>
+
+													<!-- 용례 토글 컨텐츠 -->
+													<div class="example-toggle-contents" data-toggle-content="info-row-9" inert>
+														<div class="example-item">
+															“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+															<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+														</div>
+													</div>
+
+													<!-- 용례 토글 버튼 -->
+													<div class="btn-group">
+														<button
+															type="button"
+															class="btn btn-xs btn-secondary btn-toggle-poet"
+															data-toggle-btn="info-row-9"
+															data-label-open="용례 접기"
+														>
+															<span class="toggle-btn-label">용례 더보기(총 2건)</span>
+															<i class="svg-icon ico-sm ico-arrow-dropdown-primary" aria-hidden="true"></i>
+														</button>
+													</div>
+												</dd>
+											</div>
+
+											<div class="poet-info-item">
+												<dt>다른 방언형</dt>
+												<dd>고만두다, 곤두다, 건두다</dd>
+											</div>
+										</dl>
+									</div>
+								</div>
+
+								<div class="search-card-item">
+									<div class="search-card-header">
+										<div class="search-card-header-left">
+											<span class="num">10</span>
+											<span class="subject"
+												><span class="subject-item">가시게</span> <span class="subject-sub-item">(명사)</span></span
+											>
+										</div>
+										<div class="search-card-header-right">
+											<ul class="meta-info-list">
+												<li class="meta-info">
+													<span class="meta-label">지역</span>
+													<span class="meta-value">충청도</span>
+												</li>
+												<li class="meta-info">
+													<span class="meta-label">대응 표준어</span>
+													<span class="meta-value">대응 표준어 없음</span>
+												</li>
+											</ul>
+										</div>
+									</div>
+									<div class="search-card-body">
+										<dl class="poet-info-list">
+											<div class="poet-info-item">
+												<dt>해설</dt>
+												<dd>옷감, 종이, 머리털 따위를 자르는 기구.</dd>
+											</div>
+											<div class="poet-info-item">
+												<dt>용례</dt>
+												<dd class="poet-example">
+													<div class="example-item">
+														“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+														<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+													</div>
+
+													<!-- 용례 토글 컨텐츠 -->
+													<div class="example-toggle-contents" data-toggle-content="info-row-10" inert>
+														<div class="example-item">
+															“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+															<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+														</div>
+													</div>
+
+													<!-- 용례 토글 버튼 -->
+													<div class="btn-group">
+														<button
+															type="button"
+															class="btn btn-xs btn-secondary btn-toggle-poet"
+															data-toggle-btn="info-row-10"
+															data-label-open="용례 접기"
+														>
+															<span class="toggle-btn-label">용례 더보기(총 2건)</span>
+															<i class="svg-icon ico-sm ico-arrow-dropdown-primary" aria-hidden="true"></i>
+														</button>
+													</div>
+												</dd>
+											</div>
+
+											<div class="poet-info-item">
+												<dt>다른 방언형</dt>
+												<dd>고만두다, 곤두다, 건두다</dd>
+											</div>
+										</dl>
+									</div>
+								</div>
+
+								<div class="search-card-item">
+									<div class="search-card-header">
+										<div class="search-card-header-left">
+											<span class="num">11</span>
+											<span class="subject"
+												><span class="subject-item">가시게</span> <span class="subject-sub-item">(명사)</span></span
+											>
+										</div>
+										<div class="search-card-header-right">
+											<ul class="meta-info-list">
+												<li class="meta-info">
+													<span class="meta-label">지역</span>
+													<span class="meta-value">충청도</span>
+												</li>
+												<li class="meta-info">
+													<span class="meta-label">대응 표준어</span>
+													<span class="meta-value">대응 표준어 없음</span>
+												</li>
+											</ul>
+										</div>
+									</div>
+									<div class="search-card-body">
+										<dl class="poet-info-list">
+											<div class="poet-info-item">
+												<dt>해설</dt>
+												<dd>옷감, 종이, 머리털 따위를 자르는 기구.</dd>
+											</div>
+											<div class="poet-info-item">
+												<dt>용례</dt>
+												<dd class="poet-example">
+													<div class="example-item">
+														“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+														<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+													</div>
+
+													<!-- 용례 토글 컨텐츠 -->
+													<div class="example-toggle-contents" data-toggle-content="info-row-11" inert>
+														<div class="example-item">
+															“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+															<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+														</div>
+													</div>
+
+													<!-- 용례 토글 버튼 -->
+													<div class="btn-group">
+														<button
+															type="button"
+															class="btn btn-xs btn-secondary btn-toggle-poet"
+															data-toggle-btn="info-row-11"
+															data-label-open="용례 접기"
+														>
+															<span class="toggle-btn-label">용례 더보기(총 2건)</span>
+															<i class="svg-icon ico-sm ico-arrow-dropdown-primary" aria-hidden="true"></i>
+														</button>
+													</div>
+												</dd>
+											</div>
+
+											<div class="poet-info-item">
+												<dt>다른 방언형</dt>
+												<dd>고만두다, 곤두다, 건두다</dd>
+											</div>
+										</dl>
+									</div>
+								</div>
+
+								<div class="search-card-item">
+									<div class="search-card-header">
+										<div class="search-card-header-left">
+											<span class="num">12</span>
+											<span class="subject"
+												><span class="subject-item">가시게</span> <span class="subject-sub-item">(명사)</span></span
+											>
+										</div>
+										<div class="search-card-header-right">
+											<ul class="meta-info-list">
+												<li class="meta-info">
+													<span class="meta-label">지역</span>
+													<span class="meta-value">충청도</span>
+												</li>
+												<li class="meta-info">
+													<span class="meta-label">대응 표준어</span>
+													<span class="meta-value">대응 표준어 없음</span>
+												</li>
+											</ul>
+										</div>
+									</div>
+									<div class="search-card-body">
+										<dl class="poet-info-list">
+											<div class="poet-info-item">
+												<dt>해설</dt>
+												<dd>옷감, 종이, 머리털 따위를 자르는 기구.</dd>
+											</div>
+											<div class="poet-info-item">
+												<dt>용례</dt>
+												<dd class="poet-example">
+													<div class="example-item">
+														“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+														<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+														<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+													</div>
+
+													<!-- 용례 토글 컨텐츠 -->
+													<div class="example-toggle-contents" data-toggle-content="info-row-12" inert>
+														<div class="example-item">
+															“거짓말이라이. 거짓말이 아이여 언눔이 도령.” “간도.” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간도</span> .” “언눔이 도령.” “
+															<span class="badge badge-sm badge-outline-navy">간두</span> 라니까.”
+															<span class="text-subtle">〈강준희 이카로스의 날개는 녹지 않았다(상) 1996〉</span>
+														</div>
+													</div>
+
+													<!-- 용례 토글 버튼 -->
+													<div class="btn-group">
+														<button
+															type="button"
+															class="btn btn-xs btn-secondary btn-toggle-poet"
+															data-toggle-btn="info-row-12"
+															data-label-open="용례 접기"
+														>
+															<span class="toggle-btn-label">용례 더보기(총 2건)</span>
+															<i class="svg-icon ico-sm ico-arrow-dropdown-primary" aria-hidden="true"></i>
+														</button>
+													</div>
+												</dd>
+											</div>
+
+											<div class="poet-info-item">
+												<dt>다른 방언형</dt>
+												<dd>고만두다, 곤두다, 건두다</dd>
+											</div>
+										</dl>
+									</div>
+								</div>
+							</div>
+
+							<!-- 페이지네이션 -->
+							<nav class="pagination" aria-label="페이지 목록">
+								<a href="#" class="pagination-nav prev disabled"
+									><i class="svg-icon ico-arrow-darkgray ico-left"></i>이전</a
+								>
+								<ul class="pagination-list">
+									<li><a href="#" class="pagination-link active" aria-current="true">1</a></li>
+									<li><a href="#" class="pagination-link">2</a></li>
+									<li><a href="#" class="pagination-link">3</a></li>
+									<li><a href="#" class="pagination-link">4</a></li>
+									<li><a href="#" class="pagination-link">5</a></li>
+									<li class="d-up-md"><a href="#" class="pagination-link">6</a></li>
+									<li class="d-up-md"><a href="#" class="pagination-link">7</a></li>
+									<li class="d-up-md"><a href="#" class="pagination-link">8</a></li>
+									<li><span class="link-dot"></span></li>
+									<li><a href="#" class="pagination-link">99</a></li>
+								</ul>
+								<a href="#" class="pagination-nav next">다음<i class="svg-icon ico-arrow-darkgray ico-right"></i></a>
+							</nav>
+						</section>
+					</div>
+				</div>
+				<!----- //콘텐츠 영역 ----->
+
+				<button type="button" class="page-top-button">
+					<i class="svg-icon ico-go-top"></i>
+				</button>
+			</div>
+
+			<!-- [include]:푸터  -->
+			<footer class="footer" w3-include-html="../_include/inc-footer.html"></footer>
+			<!-- [include]:비밀번호 확인 팝업 -->
+			<div w3-include-html="../_include/inc-modal-pwd-confirm.html"></div>
+		</div>
+	</body>
+</html>

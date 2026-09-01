@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>회원가입 | 지역어 종합 정보</title>
+		<link rel="icon" href="../../../assets/_common/images/favicon.ico" />
+
+		<!-- CSS -->
+		<link rel="stylesheet" href="../../../assets/ko/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../../assets/_common/js/ui-global.js" defer></script>
+
+		<!-- TODO : 퍼블용 JS, 개발시 반영 금지 -->
+		<script src="../../../assets/_guide/js/ui-include.js" defer></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {
+				document.querySelector("#btn-confirm1")?.addEventListener("click", function () {
+					uiConfirm(
+						{
+							icon: "error",
+							title: "회원 탈퇴",
+							message: "정말 회원을 탈퇴하시겠습니까?<br>탈퇴 후에는 복구할 수 없습니다."
+						},
+						function (result) {
+							if (result) {
+								uiAlert("탈퇴가 완료되었습니다.");
+								// TODO : 실제 탈퇴 처리
+							} else {
+							}
+						}
+					);
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div class="wrap">
+			<!-- [퍼블용 include]: [include] 표기 부분은 실제 서버 include로 교체 필요 -->
+
+			<!-- [include]:본문 바로가기 -->
+			<div w3-include-html="../_include/inc-skipnav.html"></div>
+			<!-- [include]:상단 배너 -->
+			<div class="masthead" w3-include-html="../_include/inc-masthead.html"></div>
+			<!-- [include]:헤더  -->
+			<header class="header" w3-include-html="../_include/inc-header.html"></header>
+
+			<div id="container" class="container">
+				<!----- 콘텐츠 영역 ----->
+
+				<div class="inner" id="contents">
+					<!-- 브레드 크럼 -->
+					<nav class="breadcrumb" aria-label="현재 위치">
+						<ol class="breadcrumb-list">
+							<li class="breadcrumb-item home">
+								<a href="#"><i class="svg-icon ico-bread-home ico-sm" aria-hidden="true"></i>홈</a>
+							</li>
+							<li class="breadcrumb-item"><a href="#">나의 정보 수정</a></li>
+						</ol>
+					</nav>
+					<!-- // -->
+
+					<div class="content-header text-center">
+						<h1 class="content-title">나의 정보 수정</h1>
+					</div>
+
+					<div class="content-body">
+						<div class="join-form-wrap">
+							<div class="box box-policy">
+								<p>
+									지역어 종합 정보는 회원님의 개인정보를 안전하게 보호하고 있으며, 회원님의 명백한 동의 없이는
+									공개하거나 제3자에게 제공하지 않습니다.
+								</p>
+							</div>
+
+							<!-- 가입 정보 입력 섹션 -->
+							<div class="sub-title-wrap mt-16 mt-md-6">
+								<h2 class="sub-title">가입 정보 입력</h2>
+							</div>
+
+							<div class="form-info-note mt-6 mb-6">
+								<p><span class="req">필수</span> 표시가 있는 항목은 반드시 입력해야 합니다.</p>
+							</div>
+
+							<!-- 가입 정보 폼 -->
+							<form class="join-form">
+								<!-- 계정(ID) -->
+								<div class="form-group">
+									<label class="form-label" for="user-id"> 계정(ID)</label>
+									<input type="text" id="user-id" class="input input-xl w-100 is-view" value="hanguk_user" readonly />
+									<p class="text-disabled-on body-small mt-2">계정(ID)은 변경할 수 없습니다.</p>
+								</div>
+
+								<!-- 별명 -->
+								<div class="form-group">
+									<label class="form-label" for="user-nickname"> 별명 <span class="req">필수</span> </label>
+									<input
+										type="text"
+										id="user-nickname"
+										class="input input-xl w-100"
+										placeholder="별명을 입력하세요."
+										value="지역어사랑"
+										required
+									/>
+								</div>
+
+								<!-- 비밀번호 -->
+								<div class="form-group">
+									<label class="form-label" for="user-pwd"> 비밀번호 수정 <span class="req">필수</span> </label>
+									<input
+										type="password"
+										id="user-pwd"
+										class="input input-xl w-100"
+										placeholder="세 비밀번호를 입력하세요"
+										required
+									/>
+									<p class="text-disabled-on body-small mt-2">영문자, 숫자, 특수 문자(2가지 이상)의 조합 9~16자</p>
+								</div>
+
+								<!-- 비밀번호 확인 -->
+								<div class="form-group">
+									<label class="form-label" for="user-pwd-confirm"> 비밀번호 확인 <span class="req">필수</span> </label>
+
+									<!-- [개발] input 에러 상태 : .is-error 클래스 추가 -->
+									<input
+										type="password"
+										id="user-pwd-confirm"
+										class="input input-xl is-error w-100"
+										placeholder="새 비밀번호를 한 번 더 입력하세요."
+										required
+									/>
+									<p class="form-error-text">에러 문구가 표시됩니다.</p>
+								</div>
+							</form>
+
+							<!-- 하단 버튼 그룹 -->
+							<div class="board-actions mt-lg-16">
+								<div class="btn-group center">
+									<a href="#;" class="btn btn-xxxl btn-tertiary md-full">취소</a>
+									<button type="submit" class="btn btn-xxxl btn-primary md-full">저장</button>
+									<button type="button" id="btn-confirm1" class="btn btn-xxxl btn-red md-full">회원탈퇴</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!----- //콘텐츠 영역 ----->
+
+				<button type="button" class="page-top-button" aria-label="맨 위로 이동">
+					<i class="svg-icon ico-go-top" aria-hidden="true"></i>
+				</button>
+			</div>
+
+			<!-- [include]:푸터  -->
+			<footer class="footer" w3-include-html="../_include/inc-footer.html"></footer>
+			<!-- [include]:비밀번호 확인 팝업 -->
+			<div w3-include-html="../_include/inc-modal-pwd-confirm.html"></div>
+		</div>
+	</body>
+</html>

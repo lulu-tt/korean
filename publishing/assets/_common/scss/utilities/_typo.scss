@@ -1,0 +1,66 @@
+.heading-xlarge {
+	font-size: $font-size-heading-xlarge;
+	font-weight: $font-weight-bold;
+	line-height: $line-height-base;
+}
+.heading-large {
+	font-size: $font-size-heading-large;
+	font-weight: $font-weight-bold;
+	line-height: $line-height-base;
+}
+.heading-medium {
+	font-size: $font-size-heading-medium;
+	font-weight: $font-weight-bold;
+	line-height: $line-height-base;
+}
+.heading-small {
+	font-size: $font-size-heading-small;
+	font-weight: $font-weight-bold;
+	line-height: $line-height-base;
+}
+.heading-xsmall {
+	font-size: $font-size-heading-xsmall;
+	font-weight: $font-weight-bold;
+	line-height: $line-height-base;
+}
+
+.body-large {
+	font-size: $font-size-body-large;
+	font-weight: $font-weight-regular;
+	line-height: $line-height-base;
+}
+.body-medium {
+	font-size: $font-size-body-medium;
+	font-weight: $font-weight-regular;
+	line-height: $line-height-base;
+}
+.body-small {
+	font-size: $font-size-body-small;
+	font-weight: $font-weight-regular;
+	line-height: $line-height-base;
+}
+.body-xsmall {
+	font-size: $font-size-body-xsmall;
+	font-weight: $font-weight-regular;
+	line-height: $line-height-base;
+}
+
+.font-bold {
+	font-weight: $font-weight-bold !important;
+}
+.font-medium {
+	font-weight: $font-weight-medium !important;
+}
+.font-regular {
+	font-weight: $font-weight-regular !important;
+}
+
+.text-right {
+	text-align: right;
+}
+.text-center {
+	text-align: center;
+}
+.text-left {
+	text-align: left;
+}

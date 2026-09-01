@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>샘플 공공서비스 | 비밀번호 재설정</title>
+  <link rel="shortcut icon" href="../../../assets/sample/images/common/favicon.png" />
+  <link rel="stylesheet" href="../../../assets/sample/css/common.css" />
+  <link rel="stylesheet" href="../../../assets/sample/css/sub.css" />
+  <script src="../../../assets/sample/js/ui.js" defer></script>
+</head>
+<body>
+
+  <!-- 건너뛰기 링크 -->
+  <nav class="skip-nav" aria-label="바로가기">
+    <a href="#content">본문 바로가기</a>
+    <a href="#footer">푸터 바로가기</a>
+  </nav>
+
+  <!-- 전체메뉴 -->
+  <div class="allmenu-dim" aria-hidden="true"></div>
+  <div class="allmenu-panel" role="dialog" aria-label="전체메뉴">
+    <div class="allmenu-panel__head">
+      <img class="allmenu-panel__logo" src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      <button class="allmenu-panel__close" type="button" data-allmenu-close aria-label="전체메뉴 닫기">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M2 2L14 14M14 2L2 14" stroke="rgba(255,255,255,0.65)" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="allmenu-panel__body">
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">기관소개</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./콘텐츠-일반.html">인사말</a></li>
+          <li><a class="allmenu-section__link" href="./콘텐츠-일반.html">연혁</a></li>
+          <li><a class="allmenu-section__link" href="./오시는-길.html">오시는 길</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">알림소식</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./게시판-목록.html">공지사항</a></li>
+          <li><a class="allmenu-section__link" href="./게시판-목록.html">보도자료</a></li>
+          <li><a class="allmenu-section__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+          <li><a class="allmenu-section__link" href="./FAQ.html">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">이용안내</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./개인정보처리방침.html">개인정보처리방침</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">참여마당</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./고객의소리-목록.html">고객의소리</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 롤링배너 -->
+  <div class="rolling-banner" role="region" aria-label="공지 롤링배너">
+    <div class="rolling-banner__inner">
+      <span class="rolling-banner__label">알림</span>
+      <div class="rolling-banner__content">
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">공지</span>
+          <a class="rolling-banner__title" href="#">2025년 상반기 주요사업 추진 계획 안내</a>
+          <span class="rolling-banner__date">2025.04.15</span>
+        </div>
+      </div>
+      <div class="rolling-banner__controls">
+        <button class="rolling-banner__arrow" type="button" data-rolling-prev aria-label="이전 공지">‹</button>
+        <span class="rolling-banner__count" aria-live="polite">1/1</span>
+        <button class="rolling-banner__arrow" type="button" data-rolling-next aria-label="다음 공지">›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 헤더 -->
+  <header class="site-header" role="banner">
+    <div class="site-header__inner">
+      <a class="site-logo" href="./메인.html" aria-label="샘플 공공서비스 홈으로 이동">
+        <img class="site-logo__img" src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </a>
+      <nav class="site-gnb" id="gnb" aria-label="주메뉴">
+        <ul class="site-gnb__list">
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">기관소개</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./콘텐츠-일반.html">인사말</a></li>
+                  <li><a class="gnb-dropdown__link" href="./콘텐츠-일반.html">연혁</a></li>
+                  <li><a class="gnb-dropdown__link" href="./오시는-길.html">오시는 길</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">알림소식</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./게시판-목록.html">공지사항</a></li>
+                  <li><a class="gnb-dropdown__link" href="./게시판-목록.html">보도자료</a></li>
+                  <li><a class="gnb-dropdown__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+                  <li><a class="gnb-dropdown__link" href="./FAQ.html">FAQ</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">이용안내</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./개인정보처리방침.html">개인정보처리방침</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">참여마당</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./고객의소리-목록.html">고객의소리</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </nav>
+      <div class="site-header__actions">
+        <a class="btn-login" href="./로그인.html">로그인</a>
+        <button class="btn-allmenu" type="button" data-allmenu-open aria-expanded="false">
+          <span class="btn-allmenu__bars" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span>전체메뉴</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 비밀번호 재설정 콘텐츠 -->
+  <main id="content">
+
+    <!-- 브레드크럼 -->
+    <div class="breadcrumb-bar">
+      <div class="breadcrumb-bar__inner">
+        <nav class="breadcrumb" aria-label="현재 위치">
+          <span class="breadcrumb__item">
+            <a href="./메인.html">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-label="홈" style="display:inline-block;vertical-align:middle;margin-bottom:1px;">
+                <path d="M1 5.5L6.5 1L12 5.5V12H8.5V8H4.5V12H1V5.5Z" stroke="#A0A8B8" stroke-width="1.2" stroke-linejoin="round"/>
+              </svg>
+              홈
+            </a>
+          </span>
+          <span class="breadcrumb__sep" aria-hidden="true">›</span>
+          <span class="breadcrumb__item" aria-current="page">비밀번호 재설정</span>
+        </nav>
+      </div>
+    </div>
+
+    <div class="join-wrap">
+      <div class="join-box">
+
+        <h1 class="join-box__title">비밀번호 재설정</h1>
+        <p class="find-box__desc">
+          아이디를 입력하고 본인인증을 완료하면<br />
+          새 비밀번호를 설정할 수 있습니다.
+        </p>
+
+        <!-- 비밀번호 재설정 폼 -->
+        <!-- JSP: action="/uss/umt/updatePasswordAction.do" method="post" -->
+        <form id="resetPwForm" method="post" action="#" novalidate>
+
+          <!-- 인증 결과 hidden 필드 — JSP: 팝업 콜백에서 채워짐 -->
+          <input type="hidden" name="certKey"   id="certKey"   value="" />
+          <input type="hidden" name="ci"         id="certCi"    value="" />
+          <input type="hidden" name="certResult" id="certResult" value="N" />
+
+          <!-- ──────────────────────────────────
+               STEP 1: 아이디 입력 + 본인인증
+          ────────────────────────────────── -->
+          <div class="join-section-label">아이디 확인</div>
+
+          <!-- 아이디 -->
+          <div class="join-field">
+            <label for="userId">
+              아이디 <span class="required" aria-hidden="true">*</span>
+              <span class="sr-only">(필수)</span>
+            </label>
+            <div class="join-input-row">
+              <input class="write-input" type="text" id="userId" name="userId"
+                placeholder="가입 시 사용한 아이디를 입력해 주세요" maxlength="20"
+                autocomplete="username" required />
+              <button class="join-check-btn" type="button" id="btnCertPw">
+                본인인증
+              </button>
+            </div>
+            <!-- 인증 완료 후 활성 메시지 (초기 숨김) -->
+            <p class="join-msg join-msg--success" id="msgCertOk" role="alert" hidden>
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><circle cx="6.5" cy="6.5" r="6" stroke="#43a047" stroke-width="1.2"/><path d="M4 6.5L5.8 8.3L9 5" stroke="#43a047" stroke-width="1.3" stroke-linecap="round"/></svg>
+              본인인증이 완료되었습니다. 새 비밀번호를 입력해 주세요.
+            </p>
+            <!-- 아이디 없음 오류 (초기 숨김) -->
+            <p class="join-msg join-msg--error" id="msgUserNotFound" role="alert" hidden>
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><circle cx="6.5" cy="6.5" r="6" stroke="#e53935" stroke-width="1.2"/><path d="M6.5 4v3M6.5 9h.01" stroke="#e53935" stroke-width="1.4" stroke-linecap="round"/></svg>
+              입력한 아이디로 조회된 회원 정보가 없습니다.
+            </p>
+          </div>
+
+          <!-- 본인인증 안내 박스 -->
+          <div class="cert-notice" role="note" id="certNoticeBox">
+            <span class="cert-notice__icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M9 1.5C6.515 1.5 4.5 3.515 4.5 6c0 1.72.976 3.227 2.4 4.012L6 16.5h6l-.9-6.488C12.524 9.227 13.5 7.72 13.5 6c0-2.485-2.015-4.5-4.5-4.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div class="cert-notice__body">
+              <p class="cert-notice__title">본인인증이 필요합니다</p>
+              <p class="cert-notice__desc">
+                아이디 입력 후 <strong>본인인증</strong> 버튼을 클릭하면 인증 팝업이 열립니다.<br />
+                인증 완료 후 새 비밀번호 입력란이 활성화됩니다.
+              </p>
+            </div>
+          </div>
+
+          <div class="join-divider"></div>
+
+          <!-- ──────────────────────────────────
+               STEP 2: 새 비밀번호 입력
+               — 인증 완료 전: .find-pw-section (opacity 0.45, pointer-events none)
+               — 인증 완료 후: .find-pw-section.is-active
+               — JSP: 서버 렌더링 시 인증 완료 상태에서 is-active 추가
+          ────────────────────────────────── -->
+          <div class="find-pw-section" id="pwSection" aria-label="새 비밀번호 입력" aria-disabled="true">
+
+            <!-- 비활성 안내 (인증 완료 후 is-active 추가 시 제거 또는 hidden) -->
+            <div class="find-pw-section__notice" id="pwSectionNotice" aria-hidden="false">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <circle cx="7" cy="7" r="6.5" stroke="#bbb" stroke-width="1.2"/>
+                <path d="M7 6v4M7 4.5h.01" stroke="#bbb" stroke-width="1.3" stroke-linecap="round"/>
+              </svg>
+              본인인증 완료 후 새 비밀번호를 설정할 수 있습니다.
+            </div>
+
+            <div class="join-section-label">새 비밀번호 설정</div>
+
+            <!-- 새 비밀번호 -->
+            <div class="join-field">
+              <label for="password">
+                새 비밀번호 <span class="required" aria-hidden="true">*</span>
+                <span class="sr-only">(필수)</span>
+              </label>
+              <input class="write-input" type="password" id="password" name="password"
+                placeholder="새 비밀번호를 입력해 주세요" maxlength="16"
+                autocomplete="new-password"
+                disabled required />
+              <!-- 오류 메시지 -->
+              <p class="join-msg join-msg--info">
+                8~16자, 영문·숫자·특수문자를 모두 포함해야 합니다.
+              </p>
+              <!-- 형식 오류 상태 (주석) -->
+              <!--
+              <p class="join-msg join-msg--error" role="alert">
+                비밀번호는 8자 이상, 영문·숫자·특수문자를 모두 포함해야 합니다.
+              </p>
+              -->
+              <!-- 정상 상태 (주석) -->
+              <!--
+              <p class="join-msg join-msg--success" role="alert">사용 가능한 비밀번호입니다.</p>
+              -->
+              <!-- 비밀번호 규칙 안내 -->
+              <ul class="pw-rule-list" id="pwRuleList" aria-label="비밀번호 규칙">
+                <li id="rule-len">8자 이상 16자 이하</li>
+                <li id="rule-alpha">영문 포함</li>
+                <li id="rule-num">숫자 포함</li>
+                <li id="rule-special">특수문자 포함 (!@#$%^&amp;* 등)</li>
+              </ul>
+            </div>
+
+            <!-- 새 비밀번호 확인 -->
+            <div class="join-field">
+              <label for="passwordConfirm">
+                새 비밀번호 확인 <span class="required" aria-hidden="true">*</span>
+                <span class="sr-only">(필수)</span>
+              </label>
+              <input class="write-input" type="password" id="passwordConfirm" name="passwordConfirm"
+                placeholder="새 비밀번호를 다시 입력해 주세요" maxlength="16"
+                autocomplete="new-password"
+                disabled required />
+              <!-- 불일치 오류 상태 (주석) -->
+              <!--
+              <p class="join-msg join-msg--error" role="alert">
+                비밀번호가 일치하지 않습니다.
+              </p>
+              -->
+              <!-- 일치 상태 (주석) -->
+              <!--
+              <p class="join-msg join-msg--success" role="alert">비밀번호가 일치합니다.</p>
+              -->
+            </div>
+
+          </div>
+          <!-- /find-pw-section -->
+
+          <!-- ── 버튼 바 ── -->
+          <div class="join-btn-bar">
+            <a class="join-btn join-btn--outline" href="./로그인.html">취소</a>
+            <button class="join-btn join-btn--primary" type="submit" id="btnSubmit" disabled>
+              비밀번호 변경
+            </button>
+          </div>
+
+          <!-- 성공 안내 (주석 슬롯 — JSP: 변경 성공 시 출력) -->
+          <!--
+          <p class="join-msg join-msg--success" role="alert" style="margin-top:16px;justify-content:center;">
+            비밀번호가 성공적으로 변경되었습니다. 새 비밀번호로 로그인해 주세요.
+          </p>
+          -->
+
+        </form>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="site-footer" id="footer" role="contentinfo">
+    <div class="site-footer__inner">
+      <div class="site-footer__logo">
+        <img src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </div>
+      <div class="site-footer__info">
+        <p class="site-footer__address">
+          (00000) 서울특별시 OO구 OO로 000 &nbsp;|&nbsp;
+          대표전화: 02-000-0000 &nbsp;|&nbsp;
+          팩스: 02-000-0001
+        </p>
+        <p class="site-footer__copy">Copyright &copy; 샘플 공공서비스. All Rights Reserved.</p>
+      </div>
+      <div class="site-footer__links">
+        <a class="site-footer__link is-point" href="./개인정보처리방침.html">개인정보처리방침</a>
+        <a class="site-footer__link" href="#">이용약관</a>
+        <a class="site-footer__link" href="#">사이트맵</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+
+      var userIdInput   = document.getElementById('userId');
+      var pwSection     = document.getElementById('pwSection');
+      var pwSectionNotice = document.getElementById('pwSectionNotice');
+      var pwInput       = document.getElementById('password');
+      var pwcInput      = document.getElementById('passwordConfirm');
+      var btnCert       = document.getElementById('btnCertPw');
+      var btnSubmit     = document.getElementById('btnSubmit');
+      var msgCertOk     = document.getElementById('msgCertOk');
+      var msgNotFound   = document.getElementById('msgUserNotFound');
+      var certNoticeBox = document.getElementById('certNoticeBox');
+
+      /* ── 본인인증 버튼 ── */
+      btnCert.addEventListener('click', function () {
+        var uid = userIdInput.value.trim();
+        if (!uid) {
+          userIdInput.focus();
+          userIdInput.className = 'write-input is-error';
+          return;
+        }
+
+        /* ── 실제 운영 시 아래 주석 해제 ── */
+        /*
+        var certUrl = '/{siteId}/myslf-cert/popup.do';
+        window.open(
+          certUrl,
+          'certPopup',
+          'width=500,height=700,scrollbars=no,resizable=no,top=100,left=' +
+          Math.round((screen.width - 500) / 2)
+        );
+        // 팝업 완료 후 팝업 내부에서 window.opener.nextStep(certData) 호출
+        */
+
+        /* ── 퍼블 데모: 인증 완료 상태 시뮬레이션 ── */
+        activatePwSection();
+      });
+
+      /* ── 팝업 완료 콜백 — 전역 선언 (JSP 이식 필수) ── */
+      /*
+      window.nextStep = function (certData) {
+        // certData: { certKey, name, mobileNum, ci }
+        document.getElementById('certKey').value   = certData.certKey   || '';
+        document.getElementById('certCi').value    = certData.ci        || '';
+        document.getElementById('certResult').value = 'Y';
+        activatePwSection();
+      };
+      */
+
+      /* ── 비밀번호 영역 활성화 ── */
+      function activatePwSection() {
+        pwSection.classList.add('is-active');
+        pwSection.removeAttribute('aria-disabled');
+        pwSectionNotice.hidden = true;
+        pwInput.disabled  = false;
+        pwcInput.disabled = false;
+        pwInput.focus();
+        msgCertOk.hidden  = false;
+        userIdInput.className = 'write-input is-valid';
+        userIdInput.readOnly  = true;
+        btnCert.disabled = true;
+        btnCert.textContent = '인증완료';
+        /* 인증 완료 시 본인인증 안내 박스 숨김 (선택) */
+        certNoticeBox.hidden = true;
+      }
+
+      /* ── 비밀번호 실시간 검증 ── */
+      var rules = {
+        len     : document.getElementById('rule-len'),
+        alpha   : document.getElementById('rule-alpha'),
+        num     : document.getElementById('rule-num'),
+        special : document.getElementById('rule-special')
+      };
+
+      function checkRule(el, ok) {
+        el.classList.toggle('is-ok', ok);
+      }
+
+      function validatePw() {
+        var val = pwInput.value;
+        var lenOk     = val.length >= 8 && val.length <= 16;
+        var alphaOk   = /[a-zA-Z]/.test(val);
+        var numOk     = /\d/.test(val);
+        var specialOk = /[!@#$%^&*]/.test(val);
+        var allOk     = lenOk && alphaOk && numOk && specialOk;
+
+        checkRule(rules.len,     lenOk);
+        checkRule(rules.alpha,   alphaOk);
+        checkRule(rules.num,     numOk);
+        checkRule(rules.special, specialOk);
+
+        pwInput.className = 'write-input' + (val.length === 0 ? '' : allOk ? ' is-valid' : ' is-error');
+        validatePwConfirm();
+        toggleSubmit();
+      }
+
+      function validatePwConfirm() {
+        if (!pwcInput.value) return;
+        var match = pwInput.value === pwcInput.value;
+        pwcInput.className = 'write-input ' + (match ? 'is-valid' : 'is-error');
+        toggleSubmit();
+      }
+
+      function toggleSubmit() {
+        var pwOk  = pwInput.classList.contains('is-valid');
+        var pwcOk = pwcInput.classList.contains('is-valid');
+        btnSubmit.disabled = !(pwOk && pwcOk);
+      }
+
+      pwInput.addEventListener('input', validatePw);
+      pwcInput.addEventListener('input', validatePwConfirm);
+
+      /* ── 폼 submit ── */
+      document.getElementById('resetPwForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        /* JSP 이식 시: 서버 처리 후 로그인 화면으로 redirect
+           성공: response.sendRedirect("/{siteId}/uat/uia/egovLoginUsr.do")
+           실패: 오류 메시지 출력 후 폼 유지
+        */
+        /* 퍼블 데모: 로그인 페이지로 이동 */
+        window.location.href = './로그인.html';
+      });
+
+    }());
+  </script>
+
+</body>
+</html>

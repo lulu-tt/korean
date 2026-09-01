@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>나의 의견 제시 | 알림마당 | 지역어 종합 정보</title>
+		<link rel="icon" href="../../../assets/_common/images/favicon.ico" />
+
+		<!-- CSS -->
+		<link rel="stylesheet" href="../../../assets/ko/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../../assets/_common/js/ui-global.js" defer></script>
+
+		<!-- TODO : 퍼블용 JS, 개발시 반영 금지 -->
+		<script src="../../../assets/_guide/js/ui-include.js" defer></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {});
+		</script>
+	</head>
+	<body>
+		<div class="wrap">
+			<!-- [퍼블용 include]: [include] 표기 부분은 실제 서버 include로 교체 필요 -->
+
+			<!-- [include]:본문 바로가기 -->
+			<div w3-include-html="../_include/inc-skipnav.html"></div>
+			<!-- [include]:상단 배너 -->
+			<div class="masthead" w3-include-html="../_include/inc-masthead.html"></div>
+			<!-- [include]:헤더  -->
+			<header class="header" w3-include-html="../_include/inc-header.html"></header>
+
+			<div id="container" class="container">
+				<!----- 콘텐츠 영역 ----->
+
+				<div class="inner" id="contents">
+					<!-- 브레드 크럼 -->
+					<nav class="breadcrumb" aria-label="현재 위치">
+						<ol class="breadcrumb-list">
+							<li class="breadcrumb-item home">
+								<a href="#"><i class="svg-icon ico-bread-home ico-sm" aria-hidden="true"></i>홈</a>
+							</li>
+							<li class="breadcrumb-item"><a href="#">알림마당</a></li>
+						</ol>
+					</nav>
+					<!-- // -->
+
+					<div class="content-header text-center">
+						<h1 class="content-title">나의 의견 제시</h1>
+					</div>
+
+					<div class="content-body">
+						<div class="opinion-form-wrap">
+							<div class="box mb-lg-16 mb-md-6">
+								<strong class="box-info-title"
+									>아래와 같은 게시물은 관리자에 의해 사전통보 없이 삭제될 수 있습니다.</strong
+								>
+								<ul class="list list1 text-subtle mt-3 ml-7">
+									<li>
+										저속한 표현, 타인의 명예훼손, 불건전한 내용, 중복등록, 광고성 내용, 특정사안에 대한 동참 선동의 경우
+									</li>
+									<li>개인정보가 포함된 게시글이나 한 사람이 3회 이상 동일 유사한 의견을 반복적으로 게시하는 행위</li>
+									<li>정치적 목적 및 성향이 포함되거나 선거법에 위반되는 내용</li>
+								</ul>
+							</div>
+
+							<div class="form-info-note mb-3">
+								<p><span class="req">필수</span> 표시가 있는 항목은 반드시 입력해야 합니다.</p>
+							</div>
+
+							<!-- 의견 제시 입력폼 -->
+							<form id="opinion-form" class="opinion-form">
+								<!-- 분류 -->
+								<div class="form-group">
+									<label class="form-label" for="opinion-category"> 분류 <span class="req">필수</span></label>
+									<select id="opinion-category" name="category" class="select select-xl" style="width: 100%" required>
+										<option value="" selected disabled>분류를 선택해주세요.</option>
+										<option value="option1">option1</option>
+									</select>
+								</div>
+
+								<!-- 제목 -->
+								<div class="form-group">
+									<label class="form-label" for="opinion-name"> 제목 <span class="req">필수</span> </label>
+									<input
+										type="text"
+										id="opinion-name"
+										class="input input-xl w-100"
+										placeholder="제목을 입력해주세요."
+										required
+									/>
+								</div>
+
+								<!-- 내용 -->
+								<div class="form-group">
+									<label class="form-label" for="opinion-content"> 내용 <span class="req">필수</span> </label>
+									<p class="text-disabled-on body-small mb-2">
+										※ 개인정보노출 방지를 위해 개인정보(주민번호, 신용카드번호, 은행계좌번호, 법인등록번호, 핸드폰번호
+										등)가 포함되지 않도록 각별히 주의하시기 바랍니다.
+									</p>
+									<div class="textarea-wrap">
+										<textarea
+											id="opinion-content"
+											class="textarea"
+											placeholder="내용을 입력해주세요"
+											rows="6"
+											required
+										></textarea>
+									</div>
+								</div>
+
+								<!-- 첨부파일 -->
+								<div class="form-group">
+									<label class="form-label" for="opinion-file">첨부파일</label>
+									<div class="input-group file-attach-group">
+										<input
+											type="text"
+											class="input input-xl file-attach-name"
+											placeholder="선택된 파일이 없습니다."
+											readonly
+											tabindex="-1"
+										/>
+										<button type="button" class="btn btn-xxl btn-secondary file-attach-btn">파일 선택</button>
+										<input type="file" id="opinion-file" name="opinionFile" class="sr-only file-attach-input" />
+									</div>
+
+									<p class="text-disabled-on body-small mt-2">※ 10MB 이하의 파일만 첨부할 수 있습니다.</p>
+								</div>
+
+								<!-- 보안문자 -->
+								<div class="form-group">
+									<label class="form-label" for="opinion-captcha-input"> 보안문자 <span class="req">필수</span></label>
+
+									<div class="captcha-group">
+										<div class="captcha-row">
+											<!-- [개발] 실제 보안문자(이미지/오디오) 위젯이 들어갈 영역 -->
+											<span class="captcha-code" aria-hidden="true"></span>
+											<div class="captcha-actions">
+												<button type="button" class="btn btn-secondary btn-xs">새로고침</button>
+												<button type="button" class="btn btn-secondary btn-xs">음성듣기</button>
+											</div>
+										</div>
+										<p class="req body-small mt-2 mb-2">보이는 순서대로 숫자 및 문자를 모두 입력해주세요</p>
+										<input
+											type="text"
+											id="opinion-captcha-input"
+											class="input input-xl w-100"
+											placeholder="보안문자 입력"
+											style="max-width: 368px"
+											required
+										/>
+									</div>
+								</div>
+							</form>
+
+							<!-- 하단 버튼 그룹 -->
+							<div class="board-actions mt-lg-16">
+								<div class="btn-group center">
+									<a href="#;" class="btn btn-xxxl btn-tertiary md-full">취소</a>
+									<button type="submit" form="opinion-form" class="btn btn-xxxl btn-primary md-full">등록</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!----- //콘텐츠 영역 ----->
+
+				<button type="button" class="page-top-button" aria-label="맨 위로 이동">
+					<i class="svg-icon ico-go-top" aria-hidden="true"></i>
+				</button>
+			</div>
+
+			<!-- [include]:푸터  -->
+			<footer class="footer" w3-include-html="../_include/inc-footer.html"></footer>
+			<!-- [include]:비밀번호 확인 팝업 -->
+			<div w3-include-html="../_include/inc-modal-pwd-confirm.html"></div>
+		</div>
+	</body>
+</html>

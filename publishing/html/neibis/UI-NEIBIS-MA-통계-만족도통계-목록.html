@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			function submitFuntion(event) {
+				event.preventDefault();
+				if (!$(event.target).closest(".modal-popup").length) {
+					$(".search-before").hide();
+					$(".result-area").show();
+					$(".statistics").show();
+					$(".site-name").show();
+				}
+			}
+
+			// 모달 검색
+			function modalSubmitFuntion(event) {
+				event.preventDefault();
+				if ($(event.target).closest(".modal-popup").length) {
+					$(".modal-search-before").hide();
+					$(".modal-result-area").show();
+					$(".modal-statistics").css("display", "flex");
+				}
+			}
+
+			$(function () {
+				$("form.search-form").on("submit", submitFuntion);
+				$(".modal-popup form.search-form").on("submit", modalSubmitFuntion);
+			});
+
+			window.addEventListener("DOMContentLoaded", async function () {
+				// 창의 너비를 확인
+				let windowWidth = window.innerWidth;
+
+				// 라인차트 날짜 반환
+				const dateList = Array.from({ length: 30 }, (_, i) => {
+					const date = new Date(2023, 0, i + 1);
+					const month = date.getMonth() + 1;
+					const day = date.getDate();
+
+					// MM.DD 형태로 반환
+					return `${month.toString().padStart(2, "0")}.${day.toString().padStart(2, "0")}`;
+				});
+				async function modalChart() {
+					let chartLine = {
+						id: "chart-line",
+						options: {
+							// title: {
+							// 	text: "일자별 방문자수 통계",
+							// 	left: "center"
+							// },
+							grid: {
+								top: 10,
+								bottom: 30,
+								left: 4, // Y축 카테고리 영역 추가 확보시 수치 조절
+								right: 0, // 우측 수치 잘리지 않도록 여백 확보
+								containLabel: true
+							},
+							tooltip: {
+								trigger: "axis"
+							},
+							legend: {
+								orient: "horizontal",
+								x: "center",
+								y: "bottom"
+							},
+							xAxis: {
+								data: dateList,
+								axisLabel: {
+									// align: "right"
+									rotate: 45, // 45도 각도로 회전
+									fontSize: 10,
+									color: "#A6ADB9" // X축 글자 컬러 지정
+								},
+								axisLine: {
+									lineStyle: {
+										color: "#E5E7EB" // X축 라인 색상을 #E5E7EB로 설정
+									}
+								},
+								axisTick: {
+									show: false // X축 눈금 지우기
+								}
+							},
+							yAxis: {
+								axisLabel: {
+									fontSize: 10,
+									color: "#A6ADB9"
+								}
+							},
+							series: [
+								{
+									// name: "만족도",
+									type: "line",
+									data: [
+										3.7, 3.8, 4, 3.8, 4.2, 3.9, 4.1, 4.3, 4.4, 4.5, 4.6, 4.7, 4.3, 4.4, 4.5, 4.6, 4.7, 5, 3.9, 4.1, 4.4,
+										4.5, 4.6, 4.7, 4.3, 4.4, 4.5, 4.6, 4.7, 5
+									],
+									itemStyle: { color: "#357FED" },
+									symbol: "none"
+								}
+							]
+						}
+					};
+
+					// 각 차트 인스턴스를 저장할 객체
+					let chartInstances = {};
+
+					const charts = [chartLine];
+					await window.useCharts(charts);
+				}
+
+				// tab 구조에 차트가 들어가야할 경우 너비, 높이값 불러오기
+				// 모달 검색
+				$(".modal-popup form.search-form").on("submit", async function () {
+					const originalDisplay = $("#tab-content2").css("display");
+					$("#tab-content2").css("display", "block");
+					await modalChart();
+					$("#tab-content2").css("display", originalDisplay);
+				});
+			});
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="만족도 통계"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<div class="statistics-contnet-wrap">
+							<!-- 검색 영역 -->
+							<div class="card">
+								<form action="#;" class="search-form">
+									<div class="table table-form-basic">
+										<div class="table-inner">
+											<table>
+												<caption class="sr-only">
+													검색조건입력
+												</caption>
+												<tbody>
+													<tr>
+														<th scope="row">
+															<label for="inp_date">조회연도<i class="req">필수입력</i></label>
+														</th>
+														<td>
+															<select id="inp_date" class="form-control" style="width: 100%; max-width: 424px">
+																<option>2023</option>
+																<option>2022</option>
+																<option>2021</option>
+																<option>2020</option>
+																<option>2019</option>
+															</select>
+														</td>
+														<th scope="row">
+															<span>사이트명<i class="req">필수입력</i></span>
+														</th>
+														<td>
+															<select class="form-control" title="사이트명 선택" style="width: 100%; max-width: 424px">
+																<option selected>대표 홈 국문</option>
+																<option>항목1</option>
+																<option>항목2</option>
+															</select>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<div class="tooltip">
+																<p>양호하거나 개선 필요한 페이지를 구분하여 조회할 수 있어요.</p>
+																<br />
+																<ul>
+																	<li>양호 : 3점 ~ 5점</li>
+																	<li>개선필요 : 1점 ~ 2.9점</li>
+																</ul>
+															</div>
+															<span>구분<i class="req">필수입력</i></span>
+														</th>
+														<td colspan="3">
+															<select id="select1" class="form-control" style="width: 100%; max-width: 200px">
+																<option selected>전체</option>
+																<option>양호</option>
+																<option>개선 필요</option>
+															</select>
+														</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+									<div class="btn-group-center">
+										<button type="reset" class="btn btn-md btn-outline-gray">
+											<i class="ico ico-undo-darkgray-md"></i>
+											<span class="text">초기화</span>
+										</button>
+										<button type="submit" class="btn btn-md btn-primary">
+											<i class="ico ico-search-white-md"></i>
+											<span class="text">검색</span>
+										</button>
+									</div>
+								</form>
+							</div>
+
+							<!-- 선택한 사이트명 노출 -->
+							<div class="card site-name">
+								<h3>대표 홈 국문</h3>
+							</div>
+
+							<div class="content-row-area satisfaction">
+								<!-- 목록 -->
+								<div class="card">
+									<div class="search-before"><p>데이터를 검색해보세요</p></div>
+
+									<!-- 데이터 없을 경우 -->
+									<!-- <div class="nodata-area"><p>데이터가 없어요</p></div> -->
+
+									<!-- 목록 -->
+									<div class="result-area" style="display: none">
+										<div class="list-control">
+											<div class="left">
+												<p class="total">총 <strong class="text-primary">113</strong>건(1/1 page)</p>
+											</div>
+											<div class="right">
+												<a href="#;" class="btn btn-sm btn-xls mr-1" download>
+													<i class="ico ico-fileexcel-white-sm"></i>
+													<span>엑셀 다운로드</span>
+												</a>
+												<select class="form-control-sm" style="min-width: 100px" title="목록 수">
+													<option selected>10</option>
+													<option>20</option>
+													<option>50</option>
+													<option>100</option>
+												</select>
+												<button type="button" class="btn btn-sm btn-outline-gray ml-1">적용</button>
+											</div>
+										</div>
+
+										<div class="table table-list">
+											<div class="table-inner">
+												<table style="min-width: 1100px">
+													<caption class="sr-only">
+														만족도 통계 목록
+													</caption>
+													<colgroup>
+														<col style="width: 60px" />
+														<col />
+														<col style="width: 100px" />
+														<col style="width: 84px" />
+														<col style="width: 100px" />
+														<col style="width: 100px" />
+														<col style="width: 100px" />
+														<col style="width: 100px" />
+														<col style="width: 100px" />
+														<col style="width: 100px" />
+													</colgroup>
+													<thead>
+														<tr>
+															<th scope="col">번호</th>
+															<th scope="col">콘텐츠 명</th>
+															<th scope="col">한줄 의견 수</th>
+															<th scope="col">
+																<button type="button" class="table-align-btn">
+																	<span class="table-title">평점</span>
+																	<span class="ico-wrap">
+																		<i class="ico ico-table-updown-darkgary-sm"></i>
+																		<span class="sr-only">오름차순/내림차순 정렬</span>
+																	</span>
+																</button>
+															</th>
+															<th scope="col">참여자 수</th>
+															<th scope="col">매우만족(5점)</th>
+															<th scope="col">만족(4점)</th>
+															<th scope="col">보통(3점)</th>
+															<th scope="col">불만족(2점)</th>
+															<th scope="col">매우<br />불만족(1점)</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td>1</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link">포트폴리오</a>
+															</td>
+															<td>45</td>
+															<!-- 
+																[평점 점수 별 클래스 부여]
+																1.0 ~ 1.9 : very-bad
+																2.0 ~ 2.9 : better
+																3.0 ~ 3.9 : good
+																4.0 ~ 5.0 : very-good
+																-->
+															<td class="very-good">4.9</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+														</tr>
+														<tr>
+															<td>2</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link">온택트서포터즈</a>
+															</td>
+															<td>45</td>
+															<td class="very-good">4.6</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+														</tr>
+														<tr>
+															<td>3</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link"
+																	>회사소개 &gt; 사업안내</a
+																>
+															</td>
+															<td>45</td>
+															<td class="very-good">4.2</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+														</tr>
+														<tr>
+															<td>4</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link">솔루션 &gt; I.N.UIX</a>
+															</td>
+															<td>45</td>
+															<td class="good">3.8</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+														</tr>
+														<tr>
+															<td>5</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link">솔루션 &gt; NEIBIS</a>
+															</td>
+															<td>45</td>
+															<td class="good">3.3</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+														</tr>
+														<tr>
+															<td>6</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link"
+																	>회사소개 &gt; 회사소개</a
+																>
+															</td>
+															<td>45</td>
+															<td class="good">3.0</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+														</tr>
+														<tr>
+															<td>7</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link"
+																	>회사소개 &gt; 오시는길</a
+																>
+															</td>
+															<td>45</td>
+															<td class="better">2.8</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+														</tr>
+														<tr>
+															<td>8</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link"
+																	>회사소개 &gt; 인증현황</a
+																>
+															</td>
+															<td>45</td>
+															<td class="better">2.2</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+														</tr>
+														<tr>
+															<td>9</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link">스토리</a>
+															</td>
+															<td>45</td>
+															<td class="very-bad">1.6</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+														</tr>
+														<tr>
+															<td>10</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link"
+																	>회사소개 &gt; 사업안내</a
+																>
+															</td>
+															<td>45</td>
+															<td class="very-bad">1.2</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+															<td>45</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+
+										<div class="pagination">
+											<a href="#;" class="direction first">처음</a>
+											<a href="#;" class="direction prev">이전</a>
+											<strong>1</strong>
+											<a href="#;">2</a>
+											<a href="#;">3</a>
+											<a href="#;">4</a>
+											<a href="#;">5</a>
+											<a href="#;" class="direction next">다음</a>
+											<a href="#;" class="direction last">끝</a>
+										</div>
+									</div>
+								</div>
+
+								<!-- 데이터 없을 경우 .satisfaction-area 전체 제거 -->
+								<div class="satisfaction-area statistics">
+									<!-- 양호 콘텐츠만 있을 경우 .very-good-area 노출 -->
+									<div class="box-point very-good-area">
+										<strong>콘텐츠 만족도가 모두 양호하네요!</strong>
+										<span>지금 상태를 잘 유지해주세요.</span>
+										<div class="count-area">
+											<dl>
+												<dt>양호 콘텐츠</dt>
+												<dd><strong>1121241</strong>건</dd>
+											</dl>
+											<dl class="point">
+												<dt>개선 필요 콘텐츠</dt>
+												<dd><strong>0</strong>건</dd>
+											</dl>
+											<dl>
+												<dt>참여자 합계</dt>
+												<dd><strong>3,860</strong>명</dd>
+											</dl>
+											<dl>
+												<dt>한줄 의견 수 합계</dt>
+												<dd><strong>328</strong>건</dd>
+											</dl>
+										</div>
+									</div>
+
+									<!-- 개선 필요 콘텐츠 있을 경우 .very-bad-area 노출 -->
+									<!-- <div class="box-point very-bad-area">
+											<strong>개선이 필요한 콘텐츠가 있어요!</strong>
+											<span>내용을 검토해 개선하는것이 어떠신가요? </span>
+											<div class="count-area">
+												<dl>
+													<dt>개선 필요 콘텐츠</dt>
+													<dd><strong>2505050</strong>건</dd>
+												</dl>
+												<dl>
+													<dt>양호 콘텐츠</dt>
+													<dd><strong>12</strong>건</dd>
+												</dl>
+												<dl>
+													<dt>참여자 합계</dt>
+													<dd><strong>3,860</strong>명</dd>
+												</dl>
+												<dl>
+													<dt>한줄 의견 수 합계</dt>
+													<dd><strong>328</strong>건</dd>
+												</dl>
+											</div>
+										</div> -->
+								</div>
+							</div>
+						</div>
+
+						<!-- Modal Popup : 메뉴 만족도 통계 상세보기 팝업 -->
+						<div class="modal-popup modal-xl hide" id="layer-statistics-popup">
+							<div class="dimed"></div>
+							<div class="popup-inner bg-gray">
+								<div class="popup-header">
+									<h2 class="popup-title"><span>포트폴리오</span> 메뉴 만족도 통계</h2>
+								</div>
+								<div class="popup-body">
+									<div class="statistics-contnet-wrap">
+										<div class="site-name-area">
+											<div class="site-name">
+												<span><i class="ico ico-site-name-md"></i>사이트명 <span>대표홈 국문</span></span>
+											</div>
+											<ol class="breadcrumb-list">
+												<li>메뉴 1뎁스명</li>
+												<li>메뉴 2뎁스명</li>
+												<li>메뉴 3뎁스명</li>
+												<li>포트폴리오</li>
+											</ol>
+										</div>
+										<div class="card">
+											<form action="#;" class="search-form">
+												<div class="table table-form-basic">
+													<div class="table-inner">
+														<table>
+															<caption class="sr-only">
+																검색조건입력
+															</caption>
+															<tbody>
+																<tr>
+																	<th scope="row">
+																		<label for="inp_date2">조회연도<i class="req">필수입력</i></label>
+																	</th>
+																	<td>
+																		<select id="inp_date2" class="form-control" style="width: 100%; max-width: 424px">
+																			<option>2023</option>
+																			<option>2022</option>
+																			<option>2021</option>
+																			<option>2020</option>
+																			<option>2019</option>
+																		</select>
+																	</td>
+																</tr>
+															</tbody>
+														</table>
+													</div>
+												</div>
+												<div class="btn-group-center">
+													<button type="reset" class="btn btn-md btn-outline-gray">
+														<i class="ico ico-undo-darkgray-md"></i>
+														<span class="text">초기화</span>
+													</button>
+													<button type="submit" class="btn btn-md btn-primary">
+														<i class="ico ico-search-white-md"></i>
+														<span class="text">검색</span>
+													</button>
+												</div>
+											</form>
+										</div>
+										<!-- 만족도 사이드바가 들어갈 경우 -->
+										<div class="content-row-area satisfaction modal-statistics">
+											<!-- 통계 영역 -->
+											<div class="card">
+												<div class="statistics-wrap">
+													<div class="statistics-header">
+														<h3 class="title1">포트폴리오 메뉴 만족도 통계</h3>
+													</div>
+													<div class="statistics-body">
+														<div id="chart-line" style="height: 387px"></div>
+													</div>
+												</div>
+											</div>
+
+											<!-- 만족도 사이드바 -->
+											<div class="satisfaction-area">
+												<!--
+																					점수별 클래스명 지정 필요
+																					1.0 ~ 1.9 : very-bad-area
+																					2.0 ~ 2.9 : better-area
+																					3.0 ~ 3.9 : good-area
+																					4.0 ~ 5.0 : very-good-area
+																				-->
+												<!-- <div class="box-point very-good-area">
+																					<strong>평균 만족도가 매우 높아요!</strong>
+																					<span>지금 상태를 잘 유지해주세요.</span>
+																					<div class="count-area">
+																						<dl>
+																							<dt>평균 만족도</dt>
+																							<dd><strong>4.8</strong>점</dd>
+																						</dl>
+																						<dl>
+																							<dt>참여자 합계</dt>
+																							<dd><strong>3,450</strong>명</dd>
+																						</dl>
+																						<dl>
+																							<dt>한줄 의견 수 합계</dt>
+																							<dd><strong>328</strong>건</dd>
+																						</dl>
+																					</div>
+																				</div> -->
+												<div class="box-point better-area">
+													<strong>평균 만족도가 높아요!</strong>
+													<span>지금 상태를 잘 유지해주세요.</span>
+													<div class="count-area">
+														<dl>
+															<dt>평균 만족도</dt>
+															<dd><strong>3.5</strong>점</dd>
+														</dl>
+														<dl>
+															<dt>참여자 합계</dt>
+															<dd><strong>3,450</strong>명</dd>
+														</dl>
+														<dl>
+															<dt>한줄 의견 수 합계</dt>
+															<dd><strong>328</strong>건</dd>
+														</dl>
+													</div>
+												</div>
+												<!-- <div class="box-point good-area">
+															<strong>평균 만족도가 조금 낮아요.</strong>
+															<span>내용을 검토해 개선하는것이 어떠신가요?</span>
+															<div class="count-area">
+																<dl>
+																	<dt>평균 만족도</dt>
+																	<dd><strong>2.2</strong>점</dd>
+																</dl>
+																<dl>
+																	<dt>참여자 합계</dt>
+																	<dd><strong>3,450</strong>명</dd>
+																</dl>
+																<dl>
+																	<dt>한줄 의견 수 합계</dt>
+																	<dd><strong>328</strong>건</dd>
+																</dl>
+															</div>
+														</div> -->
+												<!-- <div class="box-point very-bad-area">
+															<strong>평균 만족도가 매우 낮아요.</strong>
+															<span>내용을 검토해 개선하는것이 어떠신가요?</span>
+															<div class="count-area">
+																<dl>
+																	<dt>평균 만족도</dt>
+																	<dd><strong>1.2</strong>점</dd>
+																</dl>
+																<dl>
+																	<dt>참여자 합계</dt>
+																	<dd><strong>3,450</strong>명</dd>
+																</dl>
+																<dl>
+																	<dt>한줄 의견 수 합계</dt>
+																	<dd><strong>328</strong>건</dd>
+																</dl>
+															</div>
+														</div> -->
+											</div>
+										</div>
+										<div class="card">
+											<div class="modal-search-before"><p>데이터를 검색해보세요</p></div>
+
+											<!-- 데이터 없을 경우 -->
+											<!-- <div class="modal-nodata-area"><p>데이터가 없어요</p></div> -->
+
+											<!-- 목록 -->
+											<div class="modal-result-area" style="display: none">
+												<div class="list-control">
+													<div class="left">
+														<p class="total">총 <strong class="text-primary">113</strong>건(1/1 page)</p>
+													</div>
+													<div class="right">
+														<a href="#;" class="btn btn-sm btn-xls mr-1" download>
+															<i class="ico ico-fileexcel-white-sm"></i>
+															<span>엑셀 다운로드</span>
+														</a>
+														<select class="form-control-sm" style="min-width: 100px" title="목록 수">
+															<option selected>10</option>
+															<option>20</option>
+															<option>50</option>
+															<option>100</option>
+														</select>
+														<button type="button" class="btn btn-sm btn-outline-gray ml-1">적용</button>
+													</div>
+												</div>
+												<div class="table table-list satisfaction">
+													<div class="table-inner">
+														<table style="min-width: 1100px">
+															<caption class="sr-only">
+																만족도 통계 상세 목록
+															</caption>
+															<colgroup>
+																<col />
+																<col />
+																<col style="width: 120px" />
+																<col />
+																<col />
+															</colgroup>
+															<thead>
+																<tr>
+																	<th scope="col">번호</th>
+																	<th scope="col">한줄 의견</th>
+																	<th scope="col">
+																		<button type="button" class="table-align-btn">
+																			<span class="table-title">만족도 점수</span>
+																			<span class="ico-wrap">
+																				<i class="ico ico-table-updown-darkgary-sm"></i>
+																				<span class="sr-only">오름차순/내림차순 정렬</span>
+																			</span>
+																		</button>
+																	</th>
+																	<th scope="col">등록일시</th>
+																	<th scope="col">등록IP</th>
+																</tr>
+															</thead>
+															<tbody>
+																<tr>
+																	<td>1</td>
+																	<td class="text-left">짱이에요!</td>
+																	<!--
+																		[평점 점수 별 클래스 부여]
+																		1.0 ~ 1.9 : very-bad
+																		2.0 ~ 2.9 : better
+																		3.0 ~ 3.9 : good
+																		4.0 ~ 5.0 : very-good
+																	-->
+																	<td class="very-good">4.9</td>
+																	<td>2022.12.23</td>
+																	<td>127.25.55</td>
+																</tr>
+																<tr>
+																	<td>2</td>
+																	<td class="text-left">짱이에요!</td>
+																	<td class="very-good">4.9</td>
+																	<td>2022.12.23</td>
+																	<td>127.25.55</td>
+																</tr>
+																<tr>
+																	<td>3</td>
+																	<td class="text-left">한 줄 의견입니다.</td>
+																	<td class="good">3.3</td>
+																	<td>2022.12.23</td>
+																	<td>127.25.55</td>
+																</tr>
+																<tr>
+																	<td>4</td>
+																	<td class="text-left">-</td>
+																	<td class="good">3.9</td>
+																	<td>2022.12.23</td>
+																	<td>127.25.55</td>
+																</tr>
+																<tr>
+																	<td>5</td>
+																	<td class="text-left">-</td>
+																	<td class="better">2.5</td>
+																	<td>2022.12.23</td>
+																	<td>127.25.55</td>
+																</tr>
+																<tr>
+																	<td>6</td>
+																	<td class="text-left">-</td>
+																	<td class="better">2.5</td>
+																	<td>2022.12.23</td>
+																	<td>127.25.55</td>
+																</tr>
+																<tr>
+																	<td>7</td>
+																	<td class="text-left">-</td>
+																	<td class="better">2.5</td>
+																	<td>2022.12.23</td>
+																	<td>127.25.55</td>
+																</tr>
+																<tr>
+																	<td>8</td>
+																	<td class="text-left">
+																		너무 복잡해서 담당자에게 연락을 했는데 연락할 수단이 없네요..
+																	</td>
+																	<td class="very-good">1</td>
+																	<td>2022.12.23</td>
+																	<td>127.25.55</td>
+																</tr>
+																<tr>
+																	<td>9</td>
+																	<td class="text-left">
+																		너무 복잡해서 담당자에게 연락을 했는데 연락할 수단이 없네요..
+																	</td>
+																	<td class="very-good">1.2</td>
+																	<td>2022.12.23</td>
+																	<td>127.25.55</td>
+																</tr>
+																<tr>
+																	<td>10</td>
+																	<td class="text-left">
+																		너무 복잡해서 담당자에게 연락을 했는데 연락할 수단이 없네요..
+																	</td>
+																	<td class="very-bad">1.5</td>
+																	<td>2022.12.23</td>
+																	<td>127.25.55</td>
+																</tr>
+															</tbody>
+														</table>
+													</div>
+												</div>
+												<div class="pagination">
+													<a href="#;" class="direction first">처음</a>
+													<a href="#;" class="direction prev">이전</a>
+													<strong>1</strong>
+													<a href="#;">2</a>
+													<a href="#;">3</a>
+													<a href="#;">4</a>
+													<a href="#;">5</a>
+													<a href="#;" class="direction next">다음</a>
+													<a href="#;" class="direction last">끝</a>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+							</div>
+						</div>
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

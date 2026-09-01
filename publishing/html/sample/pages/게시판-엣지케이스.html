@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>샘플 공공서비스 | 게시판 개발 이식 상태 참조</title>
+  <link rel="shortcut icon" href="../../../assets/sample/images/common/favicon.png" />
+  <link rel="stylesheet" href="../../../assets/sample/css/common.css" />
+  <link rel="stylesheet" href="../../../assets/sample/css/sub.css" />
+  <script src="../../../assets/sample/js/ui.js" defer></script>
+</head>
+<body>
+
+  <!-- 건너뛰기 링크 -->
+  <nav class="skip-nav" aria-label="바로가기">
+    <a href="#content">본문 바로가기</a>
+    <a href="#lnb">좌측메뉴 바로가기</a>
+    <a href="#footer">푸터 바로가기</a>
+  </nav>
+
+  <!-- 전체메뉴 -->
+  <div class="allmenu-dim" aria-hidden="true"></div>
+  <div class="allmenu-panel" role="dialog" aria-label="전체메뉴">
+    <div class="allmenu-panel__head">
+      <img class="allmenu-panel__logo" src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      <button class="allmenu-panel__close" type="button" data-allmenu-close aria-label="전체메뉴 닫기">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M2 2L14 14M14 2L2 14" stroke="rgba(255,255,255,0.65)" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="allmenu-panel__body">
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">기관소개</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./콘텐츠-일반.html">인사말</a></li>
+          <li><a class="allmenu-section__link" href="./콘텐츠-일반.html">연혁</a></li>
+          <li><a class="allmenu-section__link" href="./오시는-길.html">오시는 길</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">알림소식</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./게시판-목록.html">공지사항</a></li>
+          <li><a class="allmenu-section__link" href="./게시판-목록.html">보도자료</a></li>
+          <li><a class="allmenu-section__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+          <li><a class="allmenu-section__link" href="./FAQ.html">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">이용안내</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./개인정보처리방침.html">개인정보처리방침</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">참여마당</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./고객의소리-목록.html">고객의소리</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 롤링배너 -->
+  <div class="rolling-banner" role="region" aria-label="공지 롤링배너">
+    <div class="rolling-banner__inner">
+      <span class="rolling-banner__label">알림</span>
+      <div class="rolling-banner__content">
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">공지</span>
+          <a class="rolling-banner__title" href="#">2025년 상반기 주요사업 추진 계획 안내</a>
+          <span class="rolling-banner__date">2025.04.15</span>
+        </div>
+      </div>
+      <div class="rolling-banner__controls">
+        <button class="rolling-banner__arrow" type="button" data-rolling-prev aria-label="이전 공지">‹</button>
+        <span class="rolling-banner__count" aria-live="polite">1/1</span>
+        <button class="rolling-banner__arrow" type="button" data-rolling-next aria-label="다음 공지">›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 헤더 -->
+  <header class="site-header" role="banner">
+    <div class="site-header__inner">
+      <a class="site-logo" href="./메인.html" aria-label="샘플 공공서비스 홈으로 이동">
+        <img class="site-logo__img" src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </a>
+      <nav class="site-gnb" id="gnb" aria-label="주메뉴">
+        <ul class="site-gnb__list">
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">기관소개</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./콘텐츠-일반.html">인사말</a></li>
+                  <li><a class="gnb-dropdown__link" href="./콘텐츠-일반.html">연혁</a></li>
+                  <li><a class="gnb-dropdown__link" href="./오시는-길.html">오시는 길</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link is-active" href="#" aria-current="page">알림소식</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./게시판-목록.html">공지사항</a></li>
+                  <li><a class="gnb-dropdown__link" href="./게시판-목록.html">보도자료</a></li>
+                  <li><a class="gnb-dropdown__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+                  <li><a class="gnb-dropdown__link" href="./FAQ.html">FAQ</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">이용안내</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./개인정보처리방침.html">개인정보처리방침</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">참여마당</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./고객의소리-목록.html">고객의소리</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </nav>
+      <div class="site-header__actions">
+        <a class="btn-login" href="./로그인.html">로그인</a>
+        <button class="btn-allmenu" type="button" data-allmenu-open aria-expanded="false">
+          <span class="btn-allmenu__bars" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span>전체메뉴</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 서브 콘텐츠 -->
+  <main id="content">
+
+    <!-- 브레드크럼 -->
+    <div class="breadcrumb-bar">
+      <div class="breadcrumb-bar__inner">
+        <nav class="breadcrumb" aria-label="현재 위치">
+          <span class="breadcrumb__item">
+            <a href="./메인.html">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-label="홈" style="display:inline-block;vertical-align:middle;margin-bottom:1px;">
+                <path d="M1 5.5L6.5 1L12 5.5V12H8.5V8H4.5V12H1V5.5Z" stroke="#A0A8B8" stroke-width="1.2" stroke-linejoin="round"/>
+              </svg>
+              홈
+            </a>
+          </span>
+          <span class="breadcrumb__sep" aria-hidden="true">›</span>
+          <span class="breadcrumb__item"><a href="#">알림소식</a></span>
+          <span class="breadcrumb__sep" aria-hidden="true">›</span>
+          <span class="breadcrumb__item" aria-current="page">공지사항 — 개발 이식 상태 참조</span>
+        </nav>
+      </div>
+    </div>
+
+    <!-- 서브 레이아웃 -->
+    <div class="sub-layout">
+      <div class="sub-layout__inner">
+
+        <!-- LNB -->
+        <aside class="lnb" id="lnb" aria-label="좌측 메뉴">
+          <div class="lnb__section-title">알림소식</div>
+          <ul class="lnb__list">
+            <li class="lnb__item">
+              <a class="lnb__link is-active" href="./게시판-목록.html" aria-current="page">공지사항</a>
+            </li>
+            <li class="lnb__item">
+              <a class="lnb__link" href="./게시판-목록.html">보도자료</a>
+            </li>
+            <li class="lnb__item">
+              <a class="lnb__link" href="./포토갤러리-목록.html">포토갤러리</a>
+            </li>
+            <li class="lnb__item">
+              <a class="lnb__link" href="./FAQ.html">FAQ</a>
+            </li>
+          </ul>
+        </aside>
+
+        <!-- 콘텐츠 -->
+        <div class="sub-content">
+
+          <div class="sub-content__title-bar">
+            <h1 class="sub-content__title">공지사항 — 개발 이식 상태 참조</h1>
+          </div>
+
+          <!-- 안내 박스 -->
+          <div class="edge-ref-notice">
+            이 페이지는 <strong>개발 이식 기준 엣지케이스 참조용</strong>입니다. 실제 서비스에는 노출되지 않으며, JSP 조건 분기에 따라 렌더되는 각 빈 상태 UI를 사전 확인하기 위한 목적으로 사용합니다.
+          </div>
+
+
+          <!-- ============================================================
+               상태 1: 첨부파일 없음
+               ============================================================ -->
+          <section class="edge-ref-section">
+
+            <div class="edge-ref-label">상태 1 — 첨부파일 없음 (attach 블록 미렌더)</div>
+            <div class="edge-ref-code"><!-- JSP 조건 분기 -->
+&lt;c:if test="${fn:length(attachList) gt 0}"&gt;
+  &lt;div class="board-detail__attach"&gt; ... &lt;/div&gt;
+&lt;/c:if&gt;
+→ attachList가 비어 있으면 .board-detail__attach 블록 자체를 렌더하지 않음</div>
+
+            <!-- 운영 데이터 슬롯: BOARD_DETAIL (첨부 없음) -->
+            <article class="board-detail">
+              <div class="board-detail__head">
+                <h2 class="board-detail__title">첨부파일이 없는 게시물 예시</h2>
+                <div class="board-detail__meta">
+                  <span class="board-detail__meta-item">
+                    <span class="board-detail__meta-label">작성자</span>
+                    관리자
+                  </span>
+                  <span class="board-detail__meta-item">
+                    <span class="board-detail__meta-label">등록일</span>
+                    2025.04.15
+                  </span>
+                  <span class="board-detail__meta-item">
+                    <span class="board-detail__meta-label">조회수</span>
+                    128
+                  </span>
+                </div>
+              </div>
+
+              <!-- 첨부파일 영역 없음 (attachList size == 0 → 미렌더) -->
+
+              <div class="board-detail__body">
+                <p>첨부파일이 없는 게시물의 경우 <code>.board-detail__attach</code> 블록 전체가 렌더되지 않습니다.</p>
+                <p>본문 콘텐츠 영역은 정상적으로 표시됩니다.</p>
+              </div>
+            </article>
+
+            <div class="detail-btn-bar" style="margin-top:20px;">
+              <a class="detail-btn" href="./게시판-목록.html">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                  <path d="M2 4h10M2 7h10M2 10h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                </svg>
+                목록
+              </a>
+            </div>
+
+          </section>
+
+
+          <!-- ============================================================
+               상태 2: 첨부파일 있음 (비교용 — 정상)
+               ============================================================ -->
+          <section class="edge-ref-section">
+
+            <div class="edge-ref-label">상태 2 — 첨부파일 있음 (정상 렌더 비교)</div>
+            <div class="edge-ref-code"><!-- JSP: attachList.size() > 0 → .board-detail__attach 렌더 -->
+파일명 / 용량: ${attach.orignlFileNm} (${attach.fileSize}KB)
+다운로드 URL: /cmm/fms/FileDown.do?atchFileId=${attach.atchFileId}&fileSn=${attach.fileSn}</div>
+
+            <article class="board-detail">
+              <div class="board-detail__head">
+                <h2 class="board-detail__title">첨부파일이 있는 게시물 예시</h2>
+                <div class="board-detail__meta">
+                  <span class="board-detail__meta-item">
+                    <span class="board-detail__meta-label">작성자</span>
+                    관리자
+                  </span>
+                  <span class="board-detail__meta-item">
+                    <span class="board-detail__meta-label">등록일</span>
+                    2025.04.15
+                  </span>
+                  <span class="board-detail__meta-item">
+                    <span class="board-detail__meta-label">조회수</span>
+                    342
+                  </span>
+                </div>
+              </div>
+
+              <!-- 운영 데이터 슬롯: ATTACH_LIST -->
+              <div class="board-detail__attach">
+                <span class="board-detail__attach-label">첨부파일</span>
+                <ul class="board-detail__attach-list">
+                  <li>
+                    <a class="board-detail__attach-item" href="#" download>
+                      <span class="attach-icon" aria-hidden="true">
+                        <svg width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M8.5 4.5L4.5 8.5C3.7 9.3 2.3 9.3 1.5 8.5C0.7 7.7 0.7 6.3 1.5 5.5L5.5 1.5C6 1 6.8 1 7.3 1.5C7.8 2 7.8 2.8 7.3 3.3L3.3 7.3C3.1 7.5 2.7 7.5 2.5 7.3C2.3 7.1 2.3 6.7 2.5 6.5L5.8 3.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </span>
+                      2025년_상반기_업무계획.pdf
+                      <span class="board-detail__attach-size">(1.2 MB)</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="board-detail__attach-item" href="#" download>
+                      <span class="attach-icon" aria-hidden="true">
+                        <svg width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M8.5 4.5L4.5 8.5C3.7 9.3 2.3 9.3 1.5 8.5C0.7 7.7 0.7 6.3 1.5 5.5L5.5 1.5C6 1 6.8 1 7.3 1.5C7.8 2 7.8 2.8 7.3 3.3L3.3 7.3C3.1 7.5 2.7 7.5 2.5 7.3C2.3 7.1 2.3 6.7 2.5 6.5L5.8 3.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </span>
+                      부서별_세부추진일정.xlsx
+                      <span class="board-detail__attach-size">(348 KB)</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="board-detail__body">
+                <p>첨부파일이 있는 정상 상태의 렌더링 예시입니다.</p>
+              </div>
+            </article>
+
+          </section>
+
+
+          <!-- ============================================================
+               상태 3: 이전글 / 다음글 — 케이스별 분기
+               ============================================================ -->
+          <section class="edge-ref-section">
+
+            <div class="edge-ref-label">상태 3 — 이전글 / 다음글 없음 (케이스별)</div>
+            <div class="edge-ref-code"><!-- JSP 조건 분기 -->
+&lt;c:choose&gt;
+  &lt;c:when test="${prevArticle != null}"&gt;
+    &lt;a class="detail-nav__item" href="..."&gt; ... &lt;/a&gt;
+  &lt;/c:when&gt;
+  &lt;c:otherwise&gt;
+    &lt;span class="detail-nav__item detail-nav__item--none"&gt;
+      &lt;span class="detail-nav__label"&gt;이전글&lt;/span&gt;
+      &lt;span class="detail-nav__title"&gt;이전 게시물이 없습니다.&lt;/span&gt;
+    &lt;/span&gt;
+  &lt;/c:otherwise&gt;
+&lt;/c:choose&gt;</div>
+
+            <!-- 케이스 A: 이전글 없음 + 다음글 있음 -->
+            <div class="edge-ref-case">
+              <div class="edge-ref-case__title">케이스 A — 이전글 없음 / 다음글 있음</div>
+              <nav class="detail-nav" aria-label="이전·다음 게시물">
+                <span class="detail-nav__item detail-nav__item--none">
+                  <span class="detail-nav__label">이전글</span>
+                  <span class="detail-nav__title">이전 게시물이 없습니다.</span>
+                </span>
+                <a class="detail-nav__item" href="./게시판-상세.html">
+                  <span class="detail-nav__label">다음글</span>
+                  <span class="detail-nav__title">디지털 행정서비스 개선 과제 공모 결과 발표</span>
+                  <span class="detail-nav__date">2025.04.18</span>
+                </a>
+              </nav>
+            </div>
+
+            <!-- 케이스 B: 이전글 있음 + 다음글 없음 -->
+            <div class="edge-ref-case" style="margin-top:24px;">
+              <div class="edge-ref-case__title">케이스 B — 이전글 있음 / 다음글 없음</div>
+              <nav class="detail-nav" aria-label="이전·다음 게시물">
+                <a class="detail-nav__item" href="./게시판-상세.html">
+                  <span class="detail-nav__label">이전글</span>
+                  <span class="detail-nav__title">사업 참여 신청서 제출 기한 연장 안내</span>
+                  <span class="detail-nav__date">2025.04.10</span>
+                </a>
+                <span class="detail-nav__item detail-nav__item--none">
+                  <span class="detail-nav__label">다음글</span>
+                  <span class="detail-nav__title">다음 게시물이 없습니다.</span>
+                </span>
+              </nav>
+            </div>
+
+            <!-- 케이스 C: 이전글 / 다음글 모두 없음 (게시물 1건인 경우) -->
+            <div class="edge-ref-case" style="margin-top:24px;">
+              <div class="edge-ref-case__title">케이스 C — 이전글 / 다음글 모두 없음 (단일 게시물)</div>
+              <nav class="detail-nav" aria-label="이전·다음 게시물">
+                <span class="detail-nav__item detail-nav__item--none">
+                  <span class="detail-nav__label">이전글</span>
+                  <span class="detail-nav__title">이전 게시물이 없습니다.</span>
+                </span>
+                <span class="detail-nav__item detail-nav__item--none">
+                  <span class="detail-nav__label">다음글</span>
+                  <span class="detail-nav__title">다음 게시물이 없습니다.</span>
+                </span>
+              </nav>
+            </div>
+
+            <!-- 케이스 D: 이전글 / 다음글 모두 있음 (정상 비교) -->
+            <div class="edge-ref-case" style="margin-top:24px;">
+              <div class="edge-ref-case__title">케이스 D — 이전글 / 다음글 모두 있음 (정상)</div>
+              <nav class="detail-nav" aria-label="이전·다음 게시물">
+                <a class="detail-nav__item" href="./게시판-상세.html">
+                  <span class="detail-nav__label">이전글</span>
+                  <span class="detail-nav__title">사업 참여 신청서 제출 기한 연장 안내</span>
+                  <span class="detail-nav__date">2025.04.10</span>
+                </a>
+                <a class="detail-nav__item" href="./게시판-상세.html">
+                  <span class="detail-nav__label">다음글</span>
+                  <span class="detail-nav__title">디지털 행정서비스 개선 과제 공모 결과 발표</span>
+                  <span class="detail-nav__date">2025.04.18</span>
+                </a>
+              </nav>
+            </div>
+
+          </section>
+
+
+          <!-- ============================================================
+               상태 4: 목록 0건 (게시판 목록 empty state)
+               ============================================================ -->
+          <section class="edge-ref-section">
+
+            <div class="edge-ref-label">상태 4 — 목록 0건 (게시판 목록 empty state)</div>
+            <div class="edge-ref-code"><!-- JSP 조건 분기 (게시판-목록.jsp) -->
+&lt;c:choose&gt;
+  &lt;c:when test="${fn:length(resultList) == 0}"&gt;
+    &lt;div class="no-data no-data--board"&gt; ... &lt;/div&gt;
+  &lt;/c:when&gt;
+  &lt;c:otherwise&gt;
+    &lt;!-- 일반 테이블 렌더 --&gt;
+  &lt;/c:otherwise&gt;
+&lt;/c:choose&gt;
+
+검색 결과 0건과 데이터 자체 없음은 동일 컴포넌트를 사용하며,
+텍스트만 조건부로 변경합니다.
+  데이터 없음:  "등록된 게시물이 없습니다."
+  검색 결과 없음: "검색 결과가 없습니다."</div>
+
+            <!-- 데이터 없음 상태 -->
+            <div class="edge-ref-case">
+              <div class="edge-ref-case__title">케이스 A — 데이터 없음</div>
+              <div class="no-data no-data--board">
+                <span class="no-data__icon" aria-hidden="true">
+                  <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+                    <rect x="6" y="8" width="28" height="30" rx="2" stroke="#C8D0DC" stroke-width="1.8"/>
+                    <path d="M12 16h16M12 22h16M12 28h10" stroke="#C8D0DC" stroke-width="1.6" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <p class="no-data__text">등록된 게시물이 없습니다.</p>
+                <p class="no-data__sub">현재 등록된 공지사항이 없습니다. 나중에 다시 확인해 주세요.</p>
+              </div>
+            </div>
+
+            <!-- 검색 결과 없음 상태 -->
+            <div class="edge-ref-case" style="margin-top:24px;">
+              <div class="edge-ref-case__title">케이스 B — 검색 결과 없음</div>
+              <div class="no-data no-data--search">
+                <span class="no-data__icon" aria-hidden="true">
+                  <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+                    <circle cx="20" cy="20" r="11" stroke="#C8D0DC" stroke-width="1.8"/>
+                    <path d="M28.5 28.5L37 37" stroke="#C8D0DC" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M15 20h10M20 15v10" stroke="#C8D0DC" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M27 17L17 27" stroke="#C8D0DC" stroke-width="1.6" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <p class="no-data__text">검색 결과가 없습니다.</p>
+                <p class="no-data__sub">검색어를 다시 확인하거나 다른 조건으로 검색해 보세요.</p>
+              </div>
+            </div>
+
+          </section>
+
+
+          <!-- ============================================================
+               클래스 레퍼런스 요약
+               ============================================================ -->
+          <section class="edge-ref-section">
+            <div class="edge-ref-label">클래스 레퍼런스</div>
+            <table class="board-table" style="font-size:13px;">
+              <thead>
+                <tr>
+                  <th style="width:240px;">클래스</th>
+                  <th style="width:100px;">엘리먼트</th>
+                  <th>설명</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>.board-detail__attach</code></td>
+                  <td><code>div</code></td>
+                  <td>첨부파일 영역 — attachList.size() &gt; 0 일 때만 렌더</td>
+                </tr>
+                <tr>
+                  <td><code>.detail-nav__item</code></td>
+                  <td><code>a</code></td>
+                  <td>이전/다음글 링크 — 게시물이 존재할 때</td>
+                </tr>
+                <tr>
+                  <td><code>.detail-nav__item--none</code></td>
+                  <td><code>span</code></td>
+                  <td>이전/다음글 없음 상태 — pointer-events:none, 회색 표시</td>
+                </tr>
+                <tr>
+                  <td><code>.no-data--board</code></td>
+                  <td><code>div</code></td>
+                  <td>게시판 목록 0건 상태</td>
+                </tr>
+                <tr>
+                  <td><code>.no-data--search</code></td>
+                  <td><code>div</code></td>
+                  <td>검색 결과 없음 상태</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
+        </div>
+        <!-- /sub-content -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="site-footer" id="footer" role="contentinfo">
+    <div class="site-footer__inner">
+      <div class="site-footer__logo">
+        <img src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </div>
+      <div class="site-footer__info">
+        <p class="site-footer__address">
+          (00000) 서울특별시 OO구 OO로 000 &nbsp;|&nbsp;
+          대표전화: 02-000-0000 &nbsp;|&nbsp;
+          팩스: 02-000-0001
+        </p>
+        <p class="site-footer__copy">Copyright &copy; 샘플 공공서비스. All Rights Reserved.</p>
+      </div>
+      <div class="site-footer__links">
+        <a class="site-footer__link is-point" href="./개인정보처리방침.html">개인정보처리방침</a>
+        <a class="site-footer__link" href="#">이용약관</a>
+        <a class="site-footer__link" href="#">사이트맵</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

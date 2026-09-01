@@ -1,0 +1,402 @@
+// 스킨/레이아웃 클래스는 wrapper(.table-list / .table-row)에 붙이고, 안쪽 <table>은 클래스 없이 둔다.
+
+.table {
+	width: 100%;
+}
+
+// table-list — 게시판 등 목록 페이지용 표(헤더 있음).
+.table-list {
+	overflow-x: visible;
+	border-top: 1px solid $color-secondary-10;
+
+	table {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	caption {
+		@include sr-only;
+	}
+
+	thead {
+		th {
+			height: 4.8rem;
+			font-weight: $font-weight-bold;
+			font-size: $font-size-body-small;
+			color: $text-subtle;
+			border-bottom: 1px solid $color-secondary-10;
+			padding-inline: $spacing-2;
+		}
+	}
+
+	tbody {
+		td {
+			height: 6.4rem;
+			color: $text-subtle;
+			text-align: center;
+			border-bottom: 1px solid $border-gray-light;
+			padding-inline: $spacing-2;
+		}
+	}
+
+	.board-title {
+		max-width: 100%;
+		color: $text-basic;
+		text-align: left;
+		@include line-clamp(1);
+
+		&:hover {
+			text-decoration: underline;
+			text-underline-offset: 0.3rem;
+		}
+	}
+
+	td {
+		&.board-title-cell,
+		&.has-category {
+			text-align: left;
+			padding-inline: $spacing-4;
+		}
+	}
+
+	div {
+		&.board-title-cell {
+			display: flex;
+			align-items: center;
+			height: 100%;
+		}
+	}
+
+	.board-title-category {
+		display: inline-flex;
+		align-items: center;
+		gap: $spacing-2;
+		margin-right: $spacing-2;
+	}
+
+	.board-category-label,
+	.board-title-label {
+		@include sr-only;
+	}
+
+	.board-title-row {
+		display: flex;
+		align-items: center;
+		flex: 1;
+		min-width: 0;
+	}
+
+	.notice-row {
+		background-color: $bg-primary-subtler;
+
+		.board-title-cell {
+			font-weight: $font-weight-bold;
+		}
+		.badge {
+			font-weight: $font-weight-bold;
+		}
+	}
+
+	@include mq-down(md) {
+		overflow-x: visible;
+		border-top: 0;
+
+		table {
+			display: block;
+			width: 100%;
+			min-width: 0;
+		}
+
+		colgroup {
+			display: none;
+		}
+
+		thead {
+			@include sr-only;
+		}
+
+		tbody {
+			display: block;
+
+			tr {
+				display: block;
+				overflow: hidden;
+				border-top: 1px solid $border-gray-light;
+				padding-block: $spacing-2;
+			}
+
+			tr:last-child {
+				margin-bottom: 0;
+				border-bottom: 1px solid $border-gray-light;
+			}
+
+			tr:hover {
+				.board-title {
+					text-decoration: none;
+				}
+			}
+
+			td {
+				display: flex;
+				align-items: flex-start;
+				gap: $spacing-4;
+				height: auto;
+				padding: $spacing-1 $spacing-4;
+				text-align: left;
+				border-bottom: none;
+				line-height: 1.52em;
+			}
+
+			td:last-child {
+				border-bottom: 0;
+			}
+
+			td::before {
+				content: attr(data-label);
+				flex: 0 0 18%;
+				font-size: $font-size-body-small;
+				color: $text-subtle;
+				line-height: 1.7em;
+				font-weight: $font-weight-regular;
+			}
+
+			.ico-attach {
+				margin-top: 0.2rem;
+				width: 2rem;
+				height: 2rem;
+			}
+		}
+
+		.board-title {
+			max-width: 100%;
+			word-break: keep-all;
+			overflow-wrap: break-word;
+			font-weight: $font-weight-bold;
+			@include line-clamp(2);
+
+			&.md-viewall {
+				@include line-clamp-none;
+			}
+		}
+
+		td {
+			&.has-category {
+				display: block;
+
+				&::before {
+					content: none;
+				}
+			}
+		}
+
+		div {
+			&.board-title-cell {
+				display: block;
+				height: auto;
+			}
+		}
+
+		.board-title-category {
+			display: flex;
+			align-items: center;
+			gap: $spacing-4;
+			margin: 0 0 $spacing-2;
+		}
+
+		.board-title-row {
+			display: flex;
+			align-items: flex-start;
+			gap: $spacing-4;
+		}
+
+		.board-category-label,
+		.board-title-label {
+			position: static;
+			width: auto;
+			height: auto;
+			padding: 0;
+			margin: 0;
+			overflow: visible;
+			clip: auto;
+			white-space: normal;
+			flex: 0 0 18%;
+			font-size: $font-size-body-small;
+			color: $text-subtle;
+			line-height: 1.7em;
+			font-weight: $font-weight-regular;
+		}
+
+		.notice-row {
+			background-color: $bg-primary-subtler;
+		}
+	}
+}
+
+// accordion-table — 테이블 + 아코디언 하이브리드 표 (어휘 조사 자료 등)
+.accordion-table {
+	tbody {
+		tr.accordion-item-row {
+			cursor: pointer;
+			transition: background-color 0.15s ease;
+
+			&:hover,
+			&:has(.accordion-toggle[aria-expanded="true"]) {
+				background-color: $bg-primary-subtler !important;
+			}
+
+			.accordion-toggle {
+				&[aria-expanded="true"] {
+					.ico-arrow-down {
+						transform: rotate(180deg);
+					}
+				}
+			}
+		}
+
+		// 펼침 아코디언 패널 행 레이아웃 및 td::before 초기화
+		tr.accordion-panel-row,
+		tr:has(.accordion-panel) {
+			background-color: transparent !important;
+
+			&:hover {
+				background-color: transparent !important;
+			}
+
+			> td {
+				padding: 0 !important;
+				border: 0 !important;
+				height: auto !important;
+
+				&::before {
+					content: none !important;
+					display: none !important;
+				}
+			}
+
+			.accordion-panel {
+				width: 100%;
+			}
+
+			@include mq-down(md) {
+				padding: 0;
+				border-bottom: 0;
+				border-top: 0;
+
+				> td {
+					width: 100%;
+				}
+			}
+		}
+	}
+
+	.accordion-item-title {
+		@include line-clamp(1);
+	}
+
+	@include mq-down(md) {
+		tbody {
+			tr.accordion-item-row {
+				position: relative;
+
+				td {
+					&::before {
+						content: attr(data-label) !important;
+						display: block !important;
+					}
+
+					&:last-child:has(.accordion-toggle) {
+						position: absolute;
+						top: 0.6rem;
+						right: 0.4rem;
+						width: auto;
+						padding: 0;
+						border: none;
+
+						&::before {
+							content: none !important;
+							display: none !important;
+						}
+
+						.accordion-toggle {
+							padding: 0;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+// table-row — 작성/신청 페이지의 라벨-값 표(헤더 없음). 좌측 라벨(th) + 우측 입력(td) 구성.
+.table-row {
+	table {
+		width: 100%;
+		font-size: $font-size-body-medium;
+		border-top: 2px solid $color-gray-90;
+	}
+
+	caption {
+		@include sr-only;
+	}
+
+	th,
+	td {
+		padding: $spacing-4;
+		border-bottom: 1px solid $border-gray-light;
+	}
+
+	th {
+		width: 16rem;
+		font-weight: $font-weight-bold;
+		color: $text-basic;
+		text-align: left;
+		vertical-align: top;
+		background-color: $bg-gray-subtler;
+	}
+
+	td {
+		vertical-align: top;
+	}
+
+	.required {
+		margin-left: $spacing-1;
+		color: $text-danger;
+	}
+
+	@include mq-down(md) {
+		table {
+			border-top: 0;
+		}
+
+		tbody {
+			display: block;
+		}
+
+		tbody tr {
+			display: block;
+			border-top: 1px solid $border-gray-light;
+			padding-block: $spacing-4;
+		}
+
+		tbody tr:first-child {
+			border-top: 2px solid $color-gray-90;
+		}
+
+		th,
+		td {
+			display: block;
+			width: 100%;
+			padding: 0;
+			border-bottom: 0;
+			background-color: transparent;
+		}
+
+		th {
+			margin-bottom: $spacing-2;
+		}
+
+		td {
+			margin-top: $spacing-2;
+		}
+	}
+}

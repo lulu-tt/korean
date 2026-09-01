@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+		<script src="../../assets/neibis/js/neibis.ai.ui.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- jquery.ui.touch-punch -->
+		<script src="../../assets/neibis/plugins/jquery.ui.touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				// 이곳에 정의
+
+				// zTree onClick 이벤트
+				window.zTreeOnClick = function (event, treeId, treeNode) {
+					// zTree 노드 클릭시 이벤트 사용자 정의
+					alert(treeNode ? treeNode.tId : "root");
+				};
+
+				window.zTreeBeforeRename = function (treeId, treeNode, newName, isCancel) {
+					// zTree 노드 네이밍 변경 시 기존 네임
+					// console.log(treeId, treeNode, newName, isCancel);
+				};
+
+				window.zTreeRename = function (e, treeId, treeNode, isCancel) {
+					// zTree 노드 네이밍 변경 시 사용자 정의
+					// console.log(e, treeId, treeNode, isCancel);
+				};
+
+				// zTree 노드 생성시 기준 네이밍 변경
+				window.zTreeCreateNewNode = function (zTree, treeNode, isParent) {
+					const nameFunc = function () {
+						return "이름을 입력해주세요.";
+					};
+					return createNewNode(zTree, treeNode, isParent, nameFunc);
+				};
+
+				function removeNodeId(treeNode) {
+					// zTree 삭제된 노드 확인
+					// console.log("삭제된 노드 확인: ", treeNode);
+				}
+			});
+
+			// z-tree : zNodes 추가 옵션
+			// open: true : 기본 view가 오픈상태로 노출
+			// disabled: true : 비활성화 메뉴의 경우
+			// isParent: true : 하위 메뉴가 없는 상태에서 폴더형식의 경우
+
+			// iconskin 변경
+			// ico_docu, ico-page-md : 일반페이지 (기본), 지정되지 않은 종류의 페이지
+			// ico_open, ico_close, ico-folder-md : 폴더 (기본)
+			// ico-site-md : 사용자사이트 페이지
+			// ico-editpage-md :웹콘텐츠 관리 페이지
+			// ico-pagepgm-md : pgm 페이지
+			// ico-pagebbs-md : bbs 페이지
+			// ico-newwindow-md : 새창 (target: "_blank" 속성 추가 필요)
+			// ico-code-md : 코드 페이지
+
+			var zNodes = [
+				{ id: 1, pId: 0, name: "사이트 메뉴명1", open: true },
+				{ id: 11, pId: 1, name: "사이트 메뉴명1", open: true },
+				{ id: 111, pId: 11, name: "사이트 메뉴명1", disabled: true },
+				{ id: 112, pId: 11, name: "사이트 메뉴명1" },
+				{ id: 113, pId: 11, name: "사이트 메뉴명1", target: "_blank", iconSkin: "ico-newwindow-md" },
+				{ id: 114, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-editpage-md" },
+				{ id: 115, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-pagepgm-md" },
+				{ id: 116, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-pagebbs-md" },
+				{ id: 117, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-code-md" },
+				{ id: 12, pId: 1, name: "길어질 경우 가로 스크롤이 생성됩니다. 길어질 경우 가로 스크롤이 생성됩니다." },
+				{ id: 121, pId: 12, name: "사이트 메뉴명1" },
+				{ id: 122, pId: 12, name: "사이트 메뉴명1" },
+				{ id: 13, pId: 1, name: "사이트 메뉴명1", iconSkin: "ico-site-md" },
+				{ id: 2, pId: 0, name: "사이트 메뉴명1" },
+				{ id: 21, pId: 2, name: "사이트 메뉴명1" },
+				{ id: 211, pId: 21, name: "사이트 메뉴명1" },
+				{ id: 212, pId: 21, name: "사이트 메뉴명1" },
+				{ id: 22, pId: 2, name: "사이트 메뉴명1" },
+				{ id: 221, pId: 22, name: "사이트 메뉴명1" },
+				{ id: 222, pId: 22, name: "사이트 메뉴명1" },
+				{ id: 23, pId: 2, name: "사이트 메뉴명1" },
+				{ id: 231, pId: 23, name: "사이트 메뉴명1" },
+				{ id: 232, pId: 23, name: "사이트 메뉴명1" },
+				{ id: 3, pId: 0, name: "사이트 메뉴명1" },
+				{ id: 4, pId: 0, name: "사이트 메뉴명1" }
+			];
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="사용자 메뉴"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<form action="#;">
+							<div class="tree-in-wrap">
+								<!-- 트리메뉴 -->
+								<div class="tree-menu-area">
+									<div class="tree-header">
+										<div class="btn-group-center gap-xs">
+											<button type="button" class="btn btn-xs btn-outline-gray" id="btnOpenTree">
+												<i class="ico ico-plus-gray-sm"></i>
+												<span>전체열기</span>
+											</button>
+											<button type="button" class="btn btn-xs btn-outline-gray" id="btnCloseTree">
+												<i class="ico ico-minus-gray-sm"></i>
+												<span>전체닫기</span>
+											</button>
+										</div>
+									</div>
+									<div class="tree-body">
+										<div class="scroll-araa">
+											<ul id="treeMenu" class="ztree"></ul>
+										</div>
+									</div>
+									<div class="tree-footer">
+										<div class="btn-group-center gap-xs">
+											<button type="button" class="btn btn-xs btn-primary-soft" id="btnAdd">
+												<i class="ico ico-plus-primary-sm"></i>
+												<span>메뉴추가</span>
+											</button>
+											<button type="button" class="btn btn-xs btn-gray" id="btnDelt">
+												<i class="ico ico-minus-white-sm"></i>
+												<span>메뉴삭제</span>
+											</button>
+											<button type="button" class="btn btn-xs btn-outline-gray">
+												<span>순서변경</span>
+											</button>
+										</div>
+									</div>
+								</div>
+
+								<!-- SEO 설정 상세 -->
+								<div class="card">
+									<nav class="tabmenu tabmenu-type1 bg-lightgray">
+										<ul class="tab-list">
+											<li>
+												<a href="UI-NEIBIS-MA-시스템-메뉴관리-사용자메뉴-메뉴설정(탭).html"><span>메뉴 설정</span></a>
+											</li>
+											<li class="on">
+												<a href="#" title="선택됨"><span>SEO 설정</span></a>
+											</li>
+										</ul>
+									</nav>
+
+									<h3 class="sr-only">SEO 설정</h3>
+									<div class="table table-row">
+										<div class="table-inner">
+											<table>
+												<caption class="sr-only">
+													SEO 설정
+												</caption>
+												<tbody>
+													<tr>
+														<th scope="row">
+															<label for="input_keyword1">주제어 및 핵심어<i class="req">필수입력</i></label>
+														</th>
+														<td>
+															<div class="input-group">
+																<input
+																	type="text"
+																	id="input_keyword1"
+																	class="form-control"
+																	placeholder="주제어 및 핵심어를 입력해주세요."
+																	required
+																/>
+																<span class="input-addon">
+																	<button type="submit" class="btn btn-md btn-primary">
+																		<span class="text">등록</span>
+																	</button>
+																</span>
+															</div>
+															<div class="meta-tag-area">
+																<span class="meta-tag">
+																	<span class="txt"
+																		>한국은 세계 최초 5G 사용화를 이뤘으며, 한국의 정보통신기술 보급은 2년 연속 세계
+																		1위를 달성하였습니다.</span
+																	>
+																	<button type="button" class="btn btn-icon btn-tag-close">
+																		<i class="ico ico-close-lightgray-sm"></i>
+																		<span class="sr-only">삭제</span>
+																	</button>
+																</span>
+															</div>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<label for="input_keyword2">키워드<i class="req">필수입력</i></label>
+														</th>
+														<td>
+															<div class="input-group">
+																<input
+																	type="text"
+																	id="input_keyword2"
+																	class="form-control"
+																	placeholder="키워드를 입력해주세요."
+																	required
+																/>
+																<span class="input-addon">
+																	<button type="submit" class="btn btn-md btn-primary">
+																		<span class="text">등록</span>
+																	</button>
+																</span>
+															</div>
+															<div class="meta-tag-area">
+																<span class="meta-tag">
+																	<span class="txt">글로벌 ICT 리더</span>
+																	<button type="button" class="btn btn-icon btn-tag-close">
+																		<i class="ico ico-close-lightgray-sm"></i>
+																		<span class="sr-only">삭제</span>
+																	</button>
+																</span>
+																<span class="meta-tag">
+																	<span class="txt">5G 세계 최초 상용화</span>
+																	<button type="button" class="btn btn-icon btn-tag-close">
+																		<i class="ico ico-close-lightgray-sm"></i>
+																		<span class="sr-only">삭제</span>
+																	</button>
+																</span>
+																<span class="meta-tag">
+																	<span class="txt">5G 세계 최초 상용화</span>
+																	<button type="button" class="btn btn-icon btn-tag-close">
+																		<i class="ico ico-close-lightgray-sm"></i>
+																		<span class="sr-only">삭제</span>
+																	</button>
+																</span>
+																<span class="meta-tag">
+																	<span class="txt">5G 세계 최초 상용화</span>
+																	<button type="button" class="btn btn-icon btn-tag-close">
+																		<i class="ico ico-close-lightgray-sm"></i>
+																		<span class="sr-only">삭제</span>
+																	</button>
+																</span>
+																<span class="meta-tag">
+																	<span class="txt">한국의 정보통신기술 보급 세계 1위</span>
+																	<button type="button" class="btn btn-icon btn-tag-close">
+																		<i class="ico ico-close-lightgray-sm"></i>
+																		<span class="sr-only">삭제</span>
+																	</button>
+																</span>
+																<span class="meta-tag">
+																	<span class="txt">한국의 정보통신기술 보급 세계 1위</span>
+																	<button type="button" class="btn btn-icon btn-tag-close">
+																		<i class="ico ico-close-lightgray-sm"></i>
+																		<span class="sr-only">삭제</span>
+																	</button>
+																</span>
+																<span class="meta-tag">
+																	<span class="txt">한국의 정보통신기술 보급 세계 1위</span>
+																	<button type="button" class="btn btn-icon btn-tag-close">
+																		<i class="ico ico-close-lightgray-sm"></i>
+																		<span class="sr-only">삭제</span>
+																	</button>
+																</span>
+															</div>
+														</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+									<div class="btn-group-between">
+										<div class="right">
+											<a href="#layer-side-panel" data-modal="open" class="btn btn-lg btn-outline-primary">
+												<i class="ico ico-ai-search-primary-md"></i>
+												<span>AI SEO 분석</span>
+											</a>
+											<a href="#;" target="_blank" title="새창" class="btn btn-lg btn-outline-gray">
+												<i class="ico ico-externallink-gray-md"></i>
+												<span>미리보기</span>
+											</a>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- 상단 고정 액션 버튼 -->
+							<div class="btn-group-fixed">
+								<a href="#layer-side-panel" data-modal="open" class="btn btn-lg btn-outline-primary">
+									<i class="ico ico-ai-search-primary-md"></i>
+									<span>AI SEO 분석</span>
+								</a>
+								<a href="#;" target="_blank" title="새창" class="btn btn-lg btn-outline-gray">
+									<i class="ico ico-externallink-gray-md"></i>
+									<span>미리보기</span>
+								</a>
+							</div>
+						</form>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+		<!-- AI SEO 분석 사이드 패널 -->
+		<div id="layer-side-panel" class="modal-popup layer-side-panel side-panel-overlay hide">
+			<div class="dimed"></div>
+			<div class="popup-inner">
+				<!-- 패널 헤더 -->
+				<div class="popup-header panel-ai-header">
+					<h2 class="popup-title">AI SEO 분석</h2>
+
+					<!-- 생성 완료 상태바 -->
+					<div class="panel-ai-status-bar" id="ai-seo-status-bar" style="display: none">
+						<span class="panel-ai-status-badge">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="12"
+								height="12"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="3"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								aria-hidden="true"
+							>
+								<polyline points="20 6 9 17 4 12" />
+							</svg>
+							분석 완료
+						</span>
+						<span class="panel-ai-status-meta">
+							<span class="panel-ai-status-item">입력 토큰: <strong id="aiSeoTokenIn">-</strong></span>
+							<span class="panel-ai-status-item">출력 토큰: <strong id="aiSeoTokenOut">-</strong></span>
+							<span class="panel-ai-status-item">소요: <strong id="aiSeoTime">-</strong>초</span>
+						</span>
+					</div>
+				</div>
+
+				<div class="popup-body">
+					<div class="panel-content panel-ai-seo">
+						<!-- 입력 폼 영역 -->
+						<div class="ai-section ai-draft-form-section">
+							<div class="ai-draft-field">
+								<label for="aiSeoMenuName" class="ai-draft-label">메뉴명<i class="req">필수입력</i></label>
+								<input type="text" id="aiSeoMenuName" class="form-control" placeholder="예) 공지사항" />
+							</div>
+							<div class="ai-draft-field">
+								<label for="aiSeoPageUrl" class="ai-draft-label">분석할 페이지 URL</label>
+								<input
+									type="url"
+									id="aiSeoPageUrl"
+									class="form-control"
+									placeholder="예) https://example.go.kr/board/notice/view"
+								/>
+							</div>
+							<div class="ai-draft-generate-wrap">
+								<button type="button" class="btn btn-lg btn-primary ai-draft-btn-generate" id="btn-ai-seo-generate" disabled>
+									SEO 자동 분석
+								</button>
+							</div>
+						</div>
+
+						<!-- 생성 결과 영역 -->
+						<div class="ai-section ai-draft-result-section" id="ai-seo-result-area" style="display: none">
+							<!-- 주제어 및 핵심어 결과 -->
+							<div class="ai-draft-result-block">
+								<div class="ai-draft-result-label">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="13"
+										height="13"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										aria-hidden="true"
+									>
+										<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+										<polyline points="14 2 14 8 20 8" />
+									</svg>
+									주제어 및 핵심어
+									<button type="button" class="btn btn-icon btn-copy" data-copy-target="aiSeoResultDescription">
+										<i class="ico ico-copy-gray-sm"></i>
+										<span class="sr-only">복사</span>
+									</button>
+									<button
+										type="button"
+										class="btn btn-xs btn-outline-gray btn-ai-seo-apply"
+										data-apply-target="input_keyword1"
+										data-result-source="aiSeoResultDescription"
+									>
+										<span>적용</span>
+									</button>
+								</div>
+								<div class="ai-draft-result-text" id="aiSeoResultDescription"></div>
+							</div>
+							<!-- 키워드 결과 -->
+							<div class="ai-draft-result-block">
+								<div class="ai-draft-result-label">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="13"
+										height="13"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										aria-hidden="true"
+									>
+										<line x1="17" y1="10" x2="3" y2="10" />
+										<line x1="21" y1="6" x2="3" y2="6" />
+										<line x1="21" y1="14" x2="3" y2="14" />
+										<line x1="17" y1="18" x2="3" y2="18" />
+									</svg>
+									키워드
+									<button type="button" class="btn btn-icon btn-copy" data-copy-target="aiSeoResultKeywords">
+										<i class="ico ico-copy-gray-sm"></i>
+										<span class="sr-only">복사</span>
+									</button>
+									<button
+										type="button"
+										class="btn btn-xs btn-outline-gray btn-ai-seo-apply"
+										data-apply-target="input_keyword2"
+										data-result-source="aiSeoResultKeywords"
+									>
+										<span>선택 적용</span>
+									</button>
+								</div>
+								<div class="meta-tag-area" id="aiSeoResultKeywords"></div>
+							</div>
+						</div>
+					</div>
+					<!-- //panel-content panel-ai-seo -->
+				</div>
+				<!-- //popup-body -->
+
+				<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+			</div>
+		</div>
+		<!-- // AI SEO 분석 사이드 패널 -->
+	</body>
+</html>

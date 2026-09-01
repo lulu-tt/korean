@@ -1,0 +1,23 @@
+// ============================================================
+// 토글 컴포넌트 (data-toggle-btn / data-toggle-content)
+// ============================================================
+
+[data-toggle-content] {
+	display: none;
+
+	&.is-open {
+		display: block;
+	}
+}
+
+[data-toggle-btn] {
+	cursor: pointer;
+	user-select: none;
+
+	&[aria-expanded="true"] {
+		.ico-toggle,
+		.svg-icon.ico-chevron {
+			transform: rotate(180deg);
+		}
+	}
+}

@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			function submitFuntion(event) {
+				event.preventDefault();
+				$(".search-before").hide();
+				$(".card.nodata").hide();
+				$(".result-area").show();
+				floatingNavPosition();
+			}
+
+			function floatingNavPosition() {
+				var floatingNav = $(".floating-area");
+				var floatingInMenu = $(".floating-in-menu");
+				var floatingInMenuTop = floatingInMenu.offset().top;
+				floatingNav.css("top", floatingInMenuTop);
+
+				if (window.innerWidth >= 1280) {
+					floatingNav.css("top", floatingInMenuTop);
+				} else {
+					floatingNav.css("top", "");
+				}
+			}
+
+			$(function () {
+				// 이곳에 정의
+				var floatingNav = $(".floating-area");
+				var floatingInMenu = $(".floating-in-menu");
+
+				// 플로팅 메뉴 위치지정
+				var floatingInMenuTop = floatingInMenu.offset().top;
+				floatingNav.css("top", floatingInMenuTop);
+
+				$(window)
+					.on("resize", function () {
+						floatingNavPosition();
+					})
+					.trigger("resize");
+
+				var floatingWrap = $(".floating-wrap");
+				var btnFloating = $(".btn-floating");
+
+				// 플로팅 메뉴 모바일 버전
+
+				// 버튼 클릭 이벤트 핸들러
+				function handleButtonClick() {
+					floatingWrap.removeClass("on");
+					if (btnFloating.hasClass("open")) {
+						floatingWrap.addClass("on");
+						btnFloating.removeClass("open").addClass("close");
+					} else if (btnFloating.hasClass("close")) {
+						floatingWrap.removeClass("on");
+						btnFloating.removeClass("close").addClass("open");
+					}
+				}
+				btnFloating.on("click", function () {
+					handleButtonClick();
+				});
+
+				// 플로팅 메뉴
+				$(".floating-nav a").on("click", function () {
+					$(".floating-nav a").removeClass("on");
+					$(this).addClass("on");
+				});
+
+				// 스크롤 이벤트
+				$(window)
+					.on("scroll", function () {
+						var scrollTop = $(this).scrollTop();
+
+						// 스크롤 시 활성화 플로팅 메뉴 변경
+						$(".floating-nav li a").each(function () {
+							var content = $($(this).attr("href"));
+							var offset = 80;
+							if (
+								content.position().top - offset <= scrollTop &&
+								content.position().top + content.outerHeight() > scrollTop
+							) {
+								$(".floating-nav li a").removeClass("on");
+								$(this).addClass("on");
+							} else {
+								$(this).removeClass("on");
+							}
+						});
+					})
+					.trigger("scroll");
+				// 플로팅 메뉴 클릭 위치
+				$(".floating-nav li a").on("click", function (e) {
+					e.preventDefault();
+					var content = $($(this).attr("href"));
+					var offset = 80;
+					var top = content.offset().top - offset;
+					$("html, body").animate({ scrollTop: top }, 500);
+				});
+
+				// 조회 버튼 클릭시
+				$("form.search-form").on("submit", submitFuntion);
+
+				// 인쇄 버튼
+				function handlePrint() {
+					$("body").addClass("printmode");
+					window.print();
+					// $("body").removeClass("printmode");
+				}
+
+				$("#btn-print, .btn-print").on("click", handlePrint);
+
+				document.addEventListener("keydown", function (event) {
+					if ((event.ctrlKey || event.metaKey) && event.key === "p") {
+						event.preventDefault();
+						handlePrint();
+					}
+				});
+
+				// 인쇄 사파리 모드
+				if (navigator.userAgent.indexOf("Safari") !== -1 && navigator.userAgent.indexOf("Chrome") === -1) {
+					document.body.classList.add("safari");
+					console.log("safari");
+				}
+			});
+
+			window.addEventListener("DOMContentLoaded", async function () {
+				// 창의 너비를 확인
+				let windowWidth = window.innerWidth;
+
+				// 라인차트 날짜 반환
+				const dateList = Array.from({ length: 30 }, (_, i) => {
+					const date = new Date(2023, 0, i + 1);
+					const month = date.getMonth() + 1;
+					const day = date.getDate();
+
+					// MM.DD 형태로 반환
+					return `${month.toString().padStart(2, "0")}.${day.toString().padStart(2, "0")}`;
+				});
+				async function generateBarChart() {
+					let chartBar = {
+						id: "chart-bar",
+						options: {
+							// title: { text: "Bar Chart" },
+							grid: {
+								top: 0,
+								bottom: 0,
+								left: 0, // Y축 카테고리 영역 추가 확보시 수치 조절
+								right: 0, // 우측 수치 잘리지 않도록 여백 확보
+								containLabel: true
+							},
+							xAxis: {
+								axisLabel: {
+									align: "right",
+									formatter: function (value) {
+										return value >= 0 ? Math.round(value) : "";
+									}
+								},
+								splitLine: {
+									show: false // Hide vertical grid lines
+								},
+								boundaryGap: ["8%", "8%"],
+								min: 0
+							},
+							yAxis: {
+								data: [
+									"포트폴리오",
+									"온택트서포터즈 온택트서포터즈",
+									"사업안내",
+									"I.N.UIX",
+									"NEBIS",
+									"회사소개",
+									"오시는길",
+									"인증현황",
+									"스토리"
+								],
+								axisLine: {
+									show: false // Y축 라인 숨기기
+								},
+								axisTick: {
+									show: true, // Y축 눈금
+									length: 200,
+									lineStyle: {
+										color: "#E5E7EB"
+									}
+								},
+								splitLine: {
+									show: true,
+									lineStyle: {
+										color: "#E5E7EB"
+									}
+								},
+								axisLabel: {
+									margin: 8,
+									formatter: function (value) {
+										// 최대 길이를 초과하는 경우 '...'으로 줄이기
+										if (value.length > 10) {
+											return value.slice(0, 10) + "...";
+										}
+										// 그렇지 않은 경우 원래 값을 그대로 반환
+										else {
+											return value;
+										}
+									}
+								}
+							},
+							series: [
+								{
+									type: "bar",
+									data: [500, 2000, 3600, 1000, 1500, 2500, 3000, 3500, 4000],
+									barWidth: "16px",
+									// 그래프 우측에 값 노출
+									label: {
+										show: true,
+										position: "right",
+										formatter: function (params) {
+											var formattedValue = Number(params.value).toLocaleString("en");
+											return formattedValue;
+										},
+										color: "#374151"
+									},
+									itemStyle: {
+										color: function (params) {
+											const colorList = [
+												"#357FED",
+												"#F59E0B",
+												"#0CAE79",
+												"#F97316",
+												"#8B5CF6",
+												"#EF4444",
+												"#0EA5E9",
+												"#EC4899",
+												"#84CC16",
+												"#06B6D4"
+											];
+											// 순환 적용되는 색상 인덱스 계산
+											const colorIndex = params.dataIndex % colorList.length;
+											return colorList[colorIndex];
+										}
+									}
+								}
+							]
+						}
+					};
+
+					let chartLine = {
+						id: "chart-line",
+						options: {
+							// title: {
+							// 	text: "일자별 방문자수 통계",
+							// 	left: "center"
+							// },
+							grid: {
+								top: 10,
+								bottom: 30,
+								left: 4, // Y축 카테고리 영역 추가 확보시 수치 조절
+								right: 0, // 우측 수치 잘리지 않도록 여백 확보
+								containLabel: true
+							},
+							tooltip: {
+								trigger: "axis"
+							},
+							legend: {
+								orient: "horizontal",
+								x: "center",
+								y: "bottom"
+							},
+							xAxis: {
+								data: dateList,
+								axisLabel: {
+									// align: "right"
+									rotate: 45, // 45도 각도로 회전
+									fontSize: 10,
+									color: "#A6ADB9" // X축 글자 컬러 지정
+								},
+								axisLine: {
+									lineStyle: {
+										color: "#E5E7EB" // X축 라인 색상을 #E5E7EB로 설정
+									}
+								},
+								axisTick: {
+									show: false // X축 눈금 지우기
+								}
+							},
+							yAxis: {
+								axisLabel: {
+									fontSize: 10,
+									color: "#A6ADB9"
+								}
+							},
+							series: [
+								{
+									name: "전체",
+									type: "line",
+									data: [
+										3000, 3100, 3200, 3000, 3200, 3400, 3200, 3500, 3400, 3600, 3700, 3900, 3800, 4000, 4100, 4000,
+										4200, 4400, 4300, 4500, 4600, 4800, 4700, 4800, 5000, 5100, 5200, 5300, 5400, 5500
+									],
+									itemStyle: { color: "#7E8594" },
+									symbol: "none"
+								},
+								{
+									name: "PC",
+									type: "line",
+									data: [
+										1000, 1200, 1100, 1200, 1100, 1300, 1400, 1200, 1300, 1400, 1600, 1500, 1600, 1800, 1900, 1700,
+										1900, 2000, 2200, 2000, 2200, 2300, 2400, 2300, 2400, 2600, 2500, 2700, 2600, 2800
+									],
+									itemStyle: { color: "#357FED" },
+									symbol: "none"
+								},
+								{
+									name: "Mobile",
+									type: "line",
+									data: [
+										2000, 1900, 2100, 1800, 2100, 2100, 1800, 2300, 2100, 2200, 2100, 2400, 2200, 2200, 2200, 2300,
+										2300, 2400, 2100, 2500, 2400, 2500, 2300, 2500, 2600, 2500, 2700, 2600, 2800, 2700
+									],
+									itemStyle: { color: "#F59E0B" },
+									symbol: "none"
+								}
+							]
+						}
+					};
+
+					let chartLine2 = {
+						id: "chart-line2",
+						options: {
+							// title: {
+							// 	text: "일자별 방문자수 통계",
+							// 	left: "center"
+							// },
+							grid: {
+								top: 10,
+								bottom: 30,
+								left: 4, // Y축 카테고리 영역 추가 확보시 수치 조절
+								right: 0, // 우측 수치 잘리지 않도록 여백 확보
+								containLabel: true
+							},
+							tooltip: {
+								trigger: "axis"
+							},
+							legend: {
+								orient: "horizontal",
+								x: "center",
+								y: "bottom"
+							},
+							xAxis: {
+								data: dateList,
+								axisLabel: {
+									// align: "right"
+									rotate: 45, // 45도 각도로 회전
+									fontSize: 10,
+									color: "#A6ADB9" // X축 글자 컬러 지정
+								},
+								axisLine: {
+									lineStyle: {
+										color: "#E5E7EB" // X축 라인 색상을 #E5E7EB로 설정
+									}
+								},
+								axisTick: {
+									show: false // X축 눈금 지우기
+								}
+							},
+							yAxis: {},
+							series: [
+								{
+									name: "참여자 수",
+									type: "line",
+									data: [
+										2000, 1900, 2100, 1800, 2100, 2100, 1800, 2300, 2100, 2200, 2100, 2400, 2200, 2200, 2200, 2300,
+										2300, 2400, 2100, 2500, 2400, 2500, 2300, 2500, 2600, 2500, 2700, 2600, 2800, 2700
+									],
+									itemStyle: { color: "#357FED" },
+									symbol: "none"
+								},
+								{
+									name: "한 줄 의견 수",
+									type: "line",
+									data: [
+										1000, 1200, 1100, 1200, 1100, 1300, 1400, 1200, 1300, 1400, 1600, 1500, 1600, 1800, 1900, 1700,
+										1900, 2000, 2200, 2000, 2200, 2300, 2400, 2300, 2400, 2600, 2500, 2700, 2600, 2800
+									],
+									itemStyle: { color: "#F59E0B" },
+									symbol: "none"
+								}
+							]
+						}
+					};
+
+					let chartPie = {
+						id: "chart-pie",
+						options: {
+							legend: {
+								orient: "horizontal",
+								x: "center",
+								y: "bottom",
+								itemWidth: 12, // 아이콘 가로 크기
+								itemHeight: 12, // 아이콘 세로 크기
+								data: ["PC", "Mobile"]
+							},
+							// 색상 배열 순환 적용됨 : 데이터 개수가 많아져도 문제없음
+							color: [
+								"#357FED",
+								"#F59E0B",
+								"#0CAE79",
+								"#F97316",
+								"#8B5CF6",
+								"#EF4444",
+								"#0EA5E9",
+								"#EC4899",
+								"#84CC16",
+								"#06B6D4"
+							],
+							series: [
+								// 파이차트 데이터 면 내부에 흰색 글자로 표출 (두가지 정보 노출시 시리즈 2회 표출)
+								{
+									name: "게시판 사용 비율",
+									type: "pie",
+									radius: ["30%", "66%"],
+									center: ["50%", "42%"], // 차트의 중심 위치를 조절
+									data: [
+										{ value: 25, name: "PC" },
+										{ value: 75, name: "Mobile" }
+									],
+									label: {
+										color: "#ffffff", // 흰색 글자
+										position: "inside", // 라벨 내부에 위치
+										formatter: "{c}%" // 값(퍼센트)만 표시
+									}
+								}
+							]
+						}
+					};
+
+					let chartPie2 = {
+						id: "chart-pie2",
+						options: {
+							legend: {
+								orient: "horizontal",
+								x: "center",
+								y: "bottom",
+								itemWidth: 12, // 아이콘 가로 크기
+								itemHeight: 12, // 아이콘 세로 크기
+								data: [
+									"사이트명1",
+									"사이트명2",
+									"사이트명3",
+									"사이트명4",
+									"사이트명5",
+									"사이트명6",
+									"사이트명7",
+									"사이트명8",
+									"사이트명9",
+									"사이트명10"
+								]
+							},
+							// 색상 배열 순환 적용됨 : 데이터 개수가 많아져도 문제없음
+							color: [
+								"#357FED",
+								"#F59E0B",
+								"#0CAE79",
+								"#F97316",
+								"#8B5CF6",
+								"#EF4444",
+								"#0EA5E9",
+								"#EC4899",
+								"#84CC16",
+								"#06B6D4"
+							],
+							series: [
+								// 파이차트 데이터 면 내부에 흰색 글자로 표출 (두가지 정보 노출시 시리즈 2회 표출)
+								{
+									name: "게시판 사용 비율",
+									type: "pie",
+									radius: ["30%", "66%"],
+									center: ["50%", "42%"], // 차트의 중심 위치를 조절
+									data: [
+										{ value: 25, name: "사이트명1" },
+										{ value: 20, name: "사이트명2" },
+										{ value: 15, name: "사이트명3" },
+										{ value: 14, name: "사이트명4" },
+										{ value: 11, name: "사이트명5" },
+										{ value: 5, name: "사이트명6" },
+										{ value: 4, name: "사이트명7" },
+										{ value: 3, name: "사이트명8" },
+										{ value: 2, name: "사이트명9" },
+										{ value: 1, name: "사이트명10" }
+									],
+									label: {
+										color: "#ffffff", // 흰색 글자
+										position: "inside", // 라벨 내부에 위치
+										formatter: "{c}%" // 값(퍼센트)만 표시
+									}
+								}
+							],
+							tooltip: {
+								trigger: "item",
+								formatter: function (params) {
+									const dataName = params.name;
+									const dataValue = params.value;
+									return `${dataName}: ${dataValue}%`;
+								}
+							}
+						}
+					};
+
+					// 각 차트 인스턴스를 저장할 객체
+					let chartInstances = {};
+
+					const charts = [chartLine, chartLine2, chartPie, chartPie2, chartBar];
+					await window.useCharts(charts);
+				}
+
+				await generateBarChart();
+
+				// tab 구조에 차트가 들어가야할 경우 너비, 높이값 불러오기
+				// $("form.search-form").on("submit", async function () {});
+			});
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div
+						class="content-header"
+						data-inc="_inc-content-header.html"
+						data-page-title="방문자 통계 요약 보고서"
+					></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<!-- 검색 영역 -->
+						<div class="card" id="cont-search">
+							<form action="#;" class="search-form">
+								<div class="table table-form-basic">
+									<div class="table-inner">
+										<table>
+											<caption class="sr-only">
+												검색조건입력
+											</caption>
+											<tbody>
+												<tr>
+													<th scope="row">
+														<span>조회기간<i class="req">필수입력</i></span>
+													</th>
+													<td>
+														<div class="input-group input-group-date-range">
+															<div class="radio-btn-group">
+																<span class="check-item">
+																	<input type="radio" id="radio_btn2" name="radio_date_range" value="7d1" required />
+																	<label for="radio_btn2">1주일</label>
+																</span>
+																<span class="check-item">
+																	<input
+																		type="radio"
+																		id="radio_btn3"
+																		name="radio_date_range"
+																		value="1m1"
+																		checked
+																		required
+																	/>
+																	<label for="radio_btn3">1개월</label>
+																</span>
+																<span class="check-item">
+																	<input type="radio" id="radio_btn4" name="radio_date_range" value="3m1" required />
+																	<label for="radio_btn4">3개월</label>
+																</span>
+																<span class="check-item">
+																	<input type="radio" id="radio_btn5" name="radio_date_range" value="6m1" required />
+																	<label for="radio_btn5">6개월</label>
+																</span>
+																<span class="check-item">
+																	<input type="radio" id="radio_btn6" name="radio_date_range" value="12m1" required />
+																	<label for="radio_btn6">1년</label>
+																</span>
+															</div>
+															<div class="input-group input-group-datepicker">
+																<input
+																	type="text"
+																	class="form-control form-datepicker range-start"
+																	title="시작일 선택"
+																	placeholder="YYYY.MM.DD"
+																	required
+																/>
+																<span class="input-addon">-</span>
+																<input
+																	type="text"
+																	class="form-control form-datepicker range-end"
+																	title="종료일 선택"
+																	placeholder="YYYY.MM.DD"
+																	required
+																/>
+															</div>
+														</div>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<span>사이트명<i class="req">필수입력</i></span>
+													</th>
+													<td>
+														<select class="form-control" style="width: 100%; max-width: 424px" title="사이트명 선택">
+															<option selected="">대표 홈 국문</option>
+															<option>option1</option>
+															<option>option2</option>
+															<option>option3</option>
+														</select>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+
+								<div class="btn-group-center">
+									<button type="submit" class="btn btn-md btn-primary">
+										<i class="ico ico-search-white-md"></i>
+										<span class="text">조회</span>
+									</button>
+								</div>
+							</form>
+						</div>
+
+						<div class="card nodata">
+							<div class="search-before"><p>데이터를 검색해보세요</p></div>
+
+							<!-- 데이터 없을 경우 -->
+							<!-- <div class="nodata-area"><p>데이터가 없어요</p></div> -->
+
+							<!-- 목록 -->
+						</div>
+						<!-- 결과 내용 -->
+						<div class="floating-in-menu result-area">
+							<div class="card">
+								<!-- 인쇄 영역 -->
+								<div class="report-print-area">
+									<div class="page-inner cover">
+										<!-- 페이지 본문 -->
+										<div class="cover-header">
+											<h2 class="report-title">방문자 통계 보고서</h2>
+											<strong class="report-tit-desc">대표 홈 국문</strong>
+											<span class="label-date">2023.02.29~2023.03.29</span>
+										</div>
+										<div class="cover-footer">
+											<h1 class="logo">
+												<img src="/assets/neibis/images/logo-neibis-white@2x.png" alt="neibis" />
+											</h1>
+										</div>
+										<!-- // 페이지 본문 -->
+									</div>
+								</div>
+
+								<!-- 콘텐츠 타이틀 영역 -->
+								<div class="content-title-area">
+									<h3 class="content-title">방문자 통계 보고서</h3>
+									<div class="info">
+										<strong>대표 홈 국문</strong>
+										<span class="label-date label-gray">2023.02.29~2023.03.29</span>
+									</div>
+								</div>
+
+								<!-- 사이트 방문자 수 영역 -->
+								<div class="card-cont cont-visitor" id="cont-visitor">
+									<h4 class="cont-title">방문자 수와 접속 디바이스는?</h4>
+									<p>이전 방문자 수와 등락을 비교하고, 사이트의 PC/Mobile 접속 비율을 한 번에 확인하세요.</p>
+									<div class="box-point mt-5">
+										<ul class="list list2">
+											<li>
+												방문자 수가
+												<strong>
+													($이틀전, $2주전, $2개월전, $6개월전, $1년전, $특정기간*2)의 $22,534명에서 $14,234명(46%) 증가 </strong
+												>하였습니다.
+											</li>
+											<li>디바이스 비율이 <strong>PC는 $8% 감소하고, Mobile은 $24% 증가</strong>하였습니다.</li>
+										</ul>
+										<p class="guide-text">
+											더 많은 방문자 수 증가를 위해 콘텐츠 내용이나 SEO를 업데이트 하는 것은 어떨까요?
+										</p>
+									</div>
+									<div class="card-inner">
+										<div class="card-warp">
+											<ul class="chart-info">
+												<li>
+													<span class="tit"><i class="ico ico-user-gray-md"></i><span>방문자 수</span></span>
+													<strong>1,929</strong>
+													<em class="up"><i class="ico ico-chevron-up-red-md"></i>13,829(37%)</em>
+												</li>
+												<li>
+													<span class="tit"><i class="ico ico-view-gray-md"></i><span>페이지 뷰</span></span>
+													<strong>1,929</strong>
+													<em class="up"><i class="ico ico-chevron-up-red-md"></i>97,829(58%)</em>
+												</li>
+												<li class="border-none">
+													<span class="tit"><i class="ico ico-pc-gray-md"></i><span>PC</span></span>
+													<strong>1,929</strong>
+													<em class="down"><i class="ico ico-chevron-down-blue-md"></i>6,829(9%)</em>
+												</li>
+												<li>
+													<span class="tit"><i class="ico ico-mobile-gray-md"></i><span>Mobile</span></span>
+													<strong>1,929</strong>
+													<em class="nodata">비교 데이터가 부족합니다.</em>
+												</li>
+											</ul>
+											<!-- 통계 영역 -->
+											<div class="chart-area">
+												<div class="content-row">
+													<div class="inner">
+														<div class="col-item col-3">
+															<div id="chart-line" style="height: 300px"></div>
+														</div>
+														<div class="col-item">
+															<div id="chart-pie" style="height: 300px"></div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="guide-text">
+										<strong class="info">등락 비교일</strong
+										><span>2023.01.29~2023.02.95 / 2023.01.29~2023.02.95(30일)</span>
+									</div>
+								</div>
+
+								<!-- 인기메뉴 영역 -->
+								<div class="card-cont cont-popularity" id="cont-popularity">
+									<h4 class="cont-title">인기 메뉴와 메뉴별 접속자 수 변화폭은?</h4>
+									<p>인기 메뉴 트렌드를 쉽게 파악해 보세요.</p>
+									<a
+										href="UI-NEIBIS-MA-통계-사용자메뉴별통계.html"
+										target="_blank"
+										title="새 창"
+										class="btn btn-sm btn-outline-gray mt-2"
+									>
+										<span>통계 바로가기</span>
+									</a>
+									<div class="box-point mt-5">
+										<ul class="list list2">
+											<li>
+												총 방문자 12,700명 중 <strong>$‘포트폴리오 페이지’ 방문자 수가 2,540명</strong>으로 선두를
+												달리고 있어요.
+											</li>
+											<li>
+												총 <strong>$‘100’개의 메뉴</strong>가 있으며, 순위에 반영된 메뉴는
+												<strong>$‘90’개의 메뉴</strong>가 있어요.
+											</li>
+										</ul>
+										<p class="guide-text">
+											아직 SEO를 설정하지 않은 메뉴가 있다면 설정하는 것을 고려해 보세요. 방문자 수가 증가할 수도
+											있어요.
+										</p>
+										<a
+											href="UI-NEIBIS-MA-시스템-메뉴관리-사용자메뉴-SEO설정(탭).html"
+											target="_blank"
+											title="새 창"
+											class="btn btn-sm btn-outline-gray mt-2"
+										>
+											<span>SEO 설정하기</span>
+										</a>
+									</div>
+									<div class="card-inner row">
+										<div class="card-warp">
+											<span class="sub-tit"
+												><i class="ico ico-user-gray-md"></i><span>이 메뉴의 방문자 수가 가장 많아요!</span></span
+											>
+											<strong class="title">포트폴리오 <span>(2540명)</span></strong>
+											<div class="chart-area">
+												<div id="chart-bar" style="height: 490px"></div>
+											</div>
+										</div>
+										<div class="card-warp">
+											<span class="sub-tit"
+												><i class="ico ico-menu-gray-md"></i><span>메뉴별 방문자 변화폭을 확인해보세요!</span></span
+											>
+											<strong class="title">메뉴별 방문자 수 비교</strong>
+											<div class="table table-list table-ranking">
+												<div class="table-inner">
+													<table style="min-width: 420px">
+														<caption class="sr-only">
+															가장 적은 방문자 수 메뉴
+														</caption>
+														<colgroup>
+															<col style="width: 80px" />
+															<col />
+															<col style="width: 142px" />
+														</colgroup>
+														<thead>
+															<tr>
+																<th scope="col">순위</th>
+																<th scope="col">메뉴명</th>
+																<th scope="col">방문자 수</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr>
+																<td>
+																	<span class="num-ranking">
+																		<span>1</span><em class="up"><i class="ico ico-arrow-up-red-xs"></i>2</em>
+																	</span>
+																</td>
+																<td class="text-left">
+																	대표홈 &gt; 어디있는지 알 수 없는 메뉴 &gt; 어디있는지 알 수 없는 메뉴
+																</td>
+																<td>
+																	<span class="num-ranking">
+																		<span>000,000</span
+																		><em class="up"><i class="ico ico-arrow-up-red-xs"></i>000,000</em>
+																	</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span class="num-ranking">
+																		<span>2</span><em class="up"><i class="ico ico-arrow-up-red-xs"></i>1</em></span
+																	>
+																</td>
+																<td class="text-left">
+																	대표홈 &gt; 어디있는지 알 수 없는 메뉴 &gt; 어디있는지 알 수 없는 메뉴 대표홈 &gt;
+																	어디있는지 알 수 없는 메뉴 &gt; 어디있는지 알 수 없는 메뉴
+																</td>
+																<td>
+																	<span class="num-ranking">
+																		<span>80,000,000</span
+																		><em class="up"><i class="ico ico-arrow-up-red-xs"></i>80,000,000</em>
+																	</span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span class="num-ranking"><span>3</span><em class="same">-</em></span>
+																</td>
+																<td class="text-left">$사이트명 &gt; 눈에 안띄는 메뉴</td>
+																<td>
+																	<span class="num-ranking"><span>800</span><em class="same">-</em></span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span class="num-ranking">
+																		<span>4</span
+																		><em class="down"><i class="ico ico-arrow-down-blue-xs"></i>2</em></span
+																	>
+																</td>
+																<td class="text-left">$사이트명 &gt; 눈에 안띄는 메뉴</td>
+																<td>
+																	<span class="num-ranking">
+																		<span>700</span
+																		><em class="down"><i class="ico ico-arrow-down-blue-xs"></i>332</em></span
+																	>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span class="num-ranking">
+																		<span>5</span
+																		><em class="down"><i class="ico ico-arrow-down-blue-xs"></i>1</em></span
+																	>
+																</td>
+																<td class="text-left">$사이트명 &gt; 눈에 안띄는 메뉴</td>
+																<td>
+																	<span class="num-ranking">
+																		<span>600</span
+																		><em class="down"><i class="ico ico-arrow-down-blue-xs"></i>221</em></span
+																	>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span class="num-ranking">
+																		<span>6</span><em class="up"><i class="ico ico-arrow-up-red-xs"></i>10</em></span
+																	>
+																</td>
+																<td class="text-left">$사이트명 &gt; 눈에 안띄는 메뉴</td>
+																<td>
+																	<span class="num-ranking">
+																		<span>500</span><em class="up"><i class="ico ico-arrow-up-red-xs"></i>111</em></span
+																	>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span class="num-ranking"><span>7</span><em class="same">-</em></span>
+																</td>
+																<td class="text-left">$사이트명 &gt; 눈에 안띄는 메뉴</td>
+																<td>
+																	<span class="num-ranking"><span>400</span><em class="same">-</em></span>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span class="num-ranking">
+																		<span>8</span
+																		><em class="down"><i class="ico ico-arrow-down-blue-xs"></i>3</em></span
+																	>
+																</td>
+																<td class="text-left">$사이트명 &gt; 눈에 안띄는 메뉴</td>
+																<td>
+																	<span class="num-ranking">
+																		<span>300</span
+																		><em class="down"><i class="ico ico-arrow-down-blue-xs"></i>64</em></span
+																	>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span class="num-ranking">
+																		<span>9</span><em class="up"><i class="ico ico-arrow-up-red-xs"></i>9</em></span
+																	>
+																</td>
+																<td class="text-left">$사이트명 &gt; 눈에 안띄는 메뉴</td>
+																<td>
+																	<span class="num-ranking">
+																		<span>200</span><em class="up"><i class="ico ico-arrow-up-red-xs"></i>14</em></span
+																	>
+																</td>
+															</tr>
+															<tr>
+																<td>
+																	<span class="num-ranking">
+																		<span>10</span><em class="up"><i class="ico ico-arrow-up-red-xs"></i>8</em></span
+																	>
+																</td>
+																<td class="text-left">$사이트명 &gt; 눈에 안띄는 메뉴</td>
+																<td>
+																	<span class="num-ranking">
+																		<span>100</span><em class="up"><i class="ico ico-arrow-up-red-xs"></i>20</em></span
+																	>
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="guide-text">
+										<span class="info">메뉴는 최대 10개만 노출됩니다.(방문자 수가 많은 메뉴 기준)</span>
+									</div>
+								</div>
+
+								<!-- 만족도 조사 영역 -->
+								<div class="card-cont cont-satisfaction" id="cont-satisfaction">
+									<h4 class="cont-title">방문자가 느끼는 콘텐츠 만족도는?</h4>
+									<p>
+										만족도 조사 진행 현황을 파악하고, 고객이 불만족하여 점검이 필요한 콘텐츠가 몇 개 있는지 쉽게
+										파악해요.
+									</p>
+									<a
+										href="UI-NEIBIS-MA-통계-만족도통계-목록.html"
+										target="_blank"
+										title="새 창"
+										class="btn btn-sm btn-outline-gray mt-2"
+									>
+										<span>통계 바로가기</span>
+									</a>
+									<div class="box-point mt-5">
+										<ul class="list list2">
+											<li>
+												총 $128개 콘텐츠 중에, <strong>평점이 있는 콘텐츠는 $24건</strong>이며, 조회기간 중
+												<strong>만족도 조사에 참여한 사람은 총 $5명</strong>이 있어요.
+											</li>
+											<li>조회기간 <strong>신규로 등록된 한줄의견은 총 $2건</strong> 있어요.</li>
+										</ul>
+									</div>
+									<div class="card-inner row">
+										<div class="card-warp">
+											<ul class="chart-info">
+												<li>
+													<span class="tit"><i class="ico ico-best-gray-md"></i><span>양호 콘텐츠</span></span>
+													<strong class="down">1121241건</strong>
+													<!-- 데이터가 없을경우 -->
+													<!-- <strong class="nodata">-</strong> -->
+												</li>
+												<li>
+													<span class="tit"><i class="ico ico-exmark-gray-md"></i><span>개선 필요 콘텐츠</span></span>
+													<strong class="up">7건</strong>
+													<!-- 데이터가 없을경우 -->
+													<!-- <strong class="nodata">-</strong> -->
+												</li>
+											</ul>
+											<strong class="title1">아래 콘텐츠는 점검하는 것이 어떨까요?</strong>
+
+											<!-- 데이터가 없을경우 -->
+											<!-- <div class="nodata-area">
+												<p>만족도 조사를 실시한 콘텐츠가 없어요.</p>
+											</div> -->
+
+											<div class="table table-list table-ranking">
+												<div class="table-inner">
+													<table style="min-width: 350px">
+														<caption class="sr-only">
+															콘텐츠는 점검 내역
+														</caption>
+														<colgroup>
+															<col />
+															<col style="width: 100px" />
+														</colgroup>
+														<thead>
+															<tr>
+																<th scope="col">콘텐츠 명</th>
+																<th scope="col">평점(1~5)</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr>
+																<td class="text-left">보기 불편한 콘텐츠</td>
+																<td>
+																	<span class="num-ranking">
+																		<span>1.0</span><em class="up"><i class="ico ico-arrow-up-red-xs"></i>0.5</em>
+																	</span>
+																</td>
+															</tr>
+															<tr>
+																<td class="text-left">인기 없는 콘텐츠</td>
+																<td>
+																	<span class="num-ranking">
+																		<span>1.1</span><em class="up"><i class="ico ico-arrow-up-red-xs"></i>0.1</em>
+																	</span>
+																</td>
+															</tr>
+															<tr>
+																<td class="text-left">
+																	너무 복잡하게 설명한 콘텐츠너무 복잡하게 설명한 콘텐츠 너무 복잡하게
+																</td>
+																<td>
+																	<span class="num-ranking"><span>4.5</span><em class="new">NEW</em></span>
+																</td>
+															</tr>
+															<tr>
+																<td class="text-left">너무 복잡하게 설명한 콘텐츠</td>
+																<td>
+																	<span class="num-ranking">
+																		<span>1.1</span><em class="down"><i class="ico ico-arrow-down-blue-xs"></i>0.3</em>
+																	</span>
+																</td>
+															</tr>
+															<tr>
+																<td class="text-left">너무 복잡하게 설명한 콘텐츠</td>
+																<td>
+																	<span class="num-ranking">
+																		<span>1.1</span><em class="down"><i class="ico ico-arrow-down-blue-xs"></i>0.4</em>
+																	</span>
+																</td>
+															</tr>
+															<tr>
+																<td class="text-left">너무 복잡하게 설명한 콘텐츠</td>
+																<td>
+																	<span class="num-ranking"><span>2</span><em class="new">NEW</em></span>
+																</td>
+															</tr>
+															<tr>
+																<td class="text-left">너무 복잡하게 설명한 콘텐츠</td>
+																<td>
+																	<span class="num-ranking">
+																		<span>1.1</span><em class="down"><i class="ico ico-arrow-down-blue-xs"></i>1.2</em>
+																	</span>
+																</td>
+															</tr>
+															<tr>
+																<td class="text-left">너무 복잡하게 설명한 콘텐츠</td>
+																<td>
+																	<span class="num-ranking"><span>1.1</span><em class="same">-</em></span>
+																</td>
+															</tr>
+															<tr>
+																<td class="text-left">너무 복잡하게 설명한 콘텐츠</td>
+																<td>
+																	<span class="num-ranking"><span>1.5</span><em class="same">-</em></span>
+																</td>
+															</tr>
+															<tr>
+																<td class="text-left">너무 복잡하게 설명한 콘텐츠</td>
+																<td>
+																	<span class="num-ranking">
+																		<span>1.1</span><em class="down"><i class="ico ico-arrow-down-blue-xs"></i>1.2</em>
+																	</span>
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+										</div>
+										<div class="card-warp">
+											<ul class="chart-info">
+												<li>
+													<span class="tit"><i class="ico ico-user-gray-md"></i><span>참여자 합계</span></span>
+													<strong>3,860명</strong>
+													<!-- 데이터가 없을경우 -->
+													<!-- <strong class="nodata">-</strong> -->
+												</li>
+												<li>
+													<span class="tit"><i class="ico ico-speech-gray-md"></i><span>한 줄 의견 수 합계</span></span>
+													<strong>328건</strong>
+													<!-- 데이터가 없을경우 -->
+													<!-- <strong class="nodata">-</strong> -->
+												</li>
+											</ul>
+											<strong class="title1">참여자 수 통계</strong>
+											<!-- 데이터가 없을경우 -->
+											<!-- <div class="nodata-area">
+												<p>만족도조사를 참여한 사람이 없어요.</p>
+											</div> -->
+											<div class="chart-area"><div id="chart-line2" style="height: 440px"></div></div>
+										</div>
+									</div>
+									<div class="guide-text">
+										<span class="info">콘텐츠는 최대 10개만 노출됩니다.(평점이 제일 낮은 콘텐츠 기준)</span>
+									</div>
+								</div>
+
+								<!-- 베스트 게시물 영역 -->
+								<div class="card-cont cont-best" id="cont-best">
+									<h4 class="cont-title">방문자가 가장 많이 조회한 게시물은?</h4>
+									<p>방문자가 가장 많이 조회한 게시물을 분석하고 추후 더 좋은 내용의 게시물을 등록해보세요.</p>
+									<div class="box-point mt-5">
+										<ul class="list list2">
+											<li>
+												<strong>$ 게시물</strong>은 무려 <strong>255개의 추천수</strong>와,
+												<strong>1000건의 조회수</strong>를 달성했어요!
+											</li>
+											<li>
+												<strong>조회수가 가장 많은 게시물은 $게시물</strong> 이에요. 이 게시물의 제목이 방문자의 클릭을
+												유도한 것은 아닐까요?
+											</li>
+										</ul>
+										<p class="guide-text">
+											신규 게시물을 업로드 하기 전에 추천수가 높은 게시물들은 어떻게 방문자에게 만족감을 주었는지
+											분석해보는 것은 어떨까요?
+										</p>
+									</div>
+									<div class="card-inner">
+										<!-- 데이터가 없을경우 -->
+										<div class="card-warp">
+											<div class="nodata-area">
+												<p>아직 방문자가 조회한 게시물이 없어요.</p>
+											</div>
+										</div>
+
+										<div class="card-warp">
+											<span class="sub-tit"
+												><i class="ico ico-best-gray-md"></i><span>사용자 사이트 베스트 게시물</span></span
+											>
+											<strong class="title"
+												>대표 홈 국문 &gt; 공지사항<br class="d-down-sm" /><span>(2,3948,932회)</span></strong
+											>
+
+											<div class="table table-list table-point-blue">
+												<div class="table-inner">
+													<table style="min-width: 800px">
+														<caption class="sr-only">
+															사용자 사이트 베스트 게시물
+														</caption>
+														<colgroup>
+															<col />
+															<col />
+															<col />
+															<col />
+															<col />
+														</colgroup>
+														<thead>
+															<tr>
+																<th scope="col">순위</th>
+																<th scope="col">게시판 명</th>
+																<th scope="col">게시물 명</th>
+																<th scope="col">추천수</th>
+																<th scope="col">조회수</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr>
+																<td>1</td>
+																<td class="text-left">자유 게시판</td>
+																<td class="text-left">인시퀀스 회사에 다니면 좋은 장점 1,000,000 가지</td>
+																<td>225</td>
+																<td>1000</td>
+															</tr>
+															<tr>
+																<td>2</td>
+																<td class="text-left">자유 게시판</td>
+																<td class="text-left">인시퀀스 회사에 다니면 좋은 장점 1,000,000 가지</td>
+																<td>225</td>
+																<td>1000</td>
+															</tr>
+															<tr>
+																<td>3</td>
+																<td class="text-left">공지 게시판</td>
+																<td class="text-left">아무개 게시물</td>
+																<td>22</td>
+																<td>100</td>
+															</tr>
+															<tr>
+																<td>4</td>
+																<td class="text-left">공지 게시판</td>
+																<td class="text-left">아무개 게시물</td>
+																<td>22</td>
+																<td>100</td>
+															</tr>
+															<tr>
+																<td>5</td>
+																<td class="text-left">공지 게시판</td>
+																<td class="text-left">아무개 게시물</td>
+																<td>22</td>
+																<td>100</td>
+															</tr>
+															<tr>
+																<td>6</td>
+																<td class="text-left">공지 게시판</td>
+																<td class="text-left">아무개 게시물</td>
+																<td>22</td>
+																<td>100</td>
+															</tr>
+															<tr>
+																<td>7</td>
+																<td class="text-left">공지 게시판</td>
+																<td class="text-left">아무개 게시물</td>
+																<td>22</td>
+																<td>100</td>
+															</tr>
+															<tr>
+																<td>8</td>
+																<td class="text-left">공지 게시판</td>
+																<td class="text-left">아무개 게시물</td>
+																<td>22</td>
+																<td>100</td>
+															</tr>
+															<tr>
+																<td>9</td>
+																<td class="text-left">공지 게시판</td>
+																<td class="text-left">아무개 게시물</td>
+																<td>22</td>
+																<td>100</td>
+															</tr>
+															<tr>
+																<td>10</td>
+																<td class="text-left">공지 게시판</td>
+																<td class="text-left">아무개 게시물</td>
+																<td>22</td>
+																<td>100</td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="guide-text">
+										<span class="info">게시판은 최대 상위 10개만 노출됩니다.(추천수가 제일 많은 게시물 기준)</span>
+									</div>
+								</div>
+
+								<!-- 게시판 현황 영역 -->
+								<div class="card-cont cont-board" id="cont-board">
+									<h4 class="cont-title">사용률이 저조한 게시판은?</h4>
+									<p>사용률이 저조한 게시판들을 한 눈에 확인하고 점검/통폐합이 필요한 게시판이 있는지 확인하세요.</p>
+									<div class="box-point mt-5">
+										<ul class="list list2">
+											<li>
+												기간동안 <strong>가장 사용률이 저조한 게시판은 $게시판명</strong>으로
+												<strong>평균 총 2건</strong>의 <strong>게시물을 업로드</strong> 했어요.
+											</li>
+										</ul>
+										<p class="guide-text">
+											장기간 동안 게시물 수가 0건이나 사용률이 저조한 게시판이 있다면 점검을 해보거나, 통폐합을 하는
+											것은 어떨까요?
+										</p>
+									</div>
+									<div class="card-inner">
+										<div class="card-warp">
+											<ul class="chart-info">
+												<li>
+													<span class="tit"><i class="ico ico-best-gray-md"></i><span>가장 활발한 게시판</span></span>
+													<strong class="down">인시퀀스 게시판 (<span>25건</span>)</strong>
+												</li>
+												<li>
+													<span class="tit"><i class="ico ico-exmark-gray-md"></i><span>가장 저조한 게시판</span></span>
+													<strong class="up">공지 게시판 (<span>2건</span>)</strong>
+												</li>
+												<li>
+													<span class="tit"
+														><i class="ico ico-average-gray-md"></i><span>평균 등록 게시물 수</span>
+													</span>
+													<strong>7건</strong>
+												</li>
+											</ul>
+											<div class="table table-list table-point-blue">
+												<div class="table-inner">
+													<table style="min-width: 500px">
+														<caption class="sr-only">
+															사용률이 저조한 게시판
+														</caption>
+														<colgroup>
+															<col style="width: 90px" />
+															<col />
+															<col style="width: 120px" />
+															<col style="width: 160px" />
+														</colgroup>
+														<thead>
+															<tr>
+																<th scope="col">순위</th>
+																<th scope="col">게시판 명</th>
+																<th scope="col">등록 게시물 수</th>
+																<th scope="col">최근 업로드 날짜</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr>
+																<td>1</td>
+																<td class="text-left">자유 게시판</td>
+																<td>225</td>
+																<td>2022.11.13</td>
+															</tr>
+															<tr>
+																<td>2</td>
+																<td class="text-left">자유 게시판</td>
+																<td>225</td>
+																<td>2022.11.13</td>
+															</tr>
+															<tr>
+																<td>3</td>
+																<td class="text-left">공지 게시판</td>
+																<td>22</td>
+																<td>2022.11.13</td>
+															</tr>
+															<tr>
+																<td>4</td>
+																<td class="text-left">공지 게시판</td>
+																<td>22</td>
+																<td>2022.11.13</td>
+															</tr>
+															<tr>
+																<td>5</td>
+																<td class="text-left">공지 게시판</td>
+																<td>22</td>
+																<td>2022.11.13</td>
+															</tr>
+															<tr>
+																<td>6</td>
+																<td class="text-left">공지 게시판</td>
+																<td>22</td>
+																<td>2022.11.13</td>
+															</tr>
+															<tr>
+																<td>7</td>
+																<td class="text-left">공지 게시판</td>
+																<td>22</td>
+																<td>2022.11.13</td>
+															</tr>
+															<tr>
+																<td>8</td>
+																<td class="text-left">공지 게시판</td>
+																<td>22</td>
+																<td>2022.11.13</td>
+															</tr>
+															<tr>
+																<td>9</td>
+																<td class="text-left">공지 게시판</td>
+																<td>22</td>
+																<td>2022.11.13</td>
+															</tr>
+															<tr>
+																<td>10</td>
+																<td class="text-left">공지 게시판</td>
+																<td>22</td>
+																<td>2022.11.13</td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="guide-text">
+										<span class="info"
+											>게시판은 최대 상위 10개만 노출됩니다.(등록 게시물수가 가장 적은 게시판 기준)</span
+										>
+									</div>
+								</div>
+
+								<!-- 전체 사이트 방문자 영역 -->
+								<div class="card-cont cont-site" id="cont-site">
+									<h4 class="cont-title">전체 사이트 방문자 현황 한눈에 보기</h4>
+									<p>
+										전체 사이트 방문자 현황을 한눈에 파악하고, 특정 사이트 개선과 방향성 등의 기초 자료로 활용해 보세요.
+									</p>
+									<div class="box-point mt-5">
+										<ul class="list list2">
+											<li>
+												총 11개 사이트를 합하여 총
+												<strong>$명의 방문자가 있었으며, 이전 대비 $명이 증가/감소</strong>하였습니다.
+											</li>
+										</ul>
+									</div>
+									<div class="card-inner">
+										<div class="card-warp">
+											<ul class="chart-info">
+												<li>
+													<span class="tit"
+														><i class="ico ico-add-gray-md"></i><span>전체 사이트 방문자 수 합계</span></span
+													>
+													<strong>3,423,392명</strong>
+												</li>
+												<li>
+													<span class="tit"
+														><i class="ico ico-user-gray-md"></i
+														><span>
+															인시퀀스 홈페이지 <br class="d-down-sm" /><span>대표 홈 국문 방문자 수</span></span
+														></span
+													>
+													<strong>124,600명 (<span>3.1%</span>)</strong>
+												</li>
+											</ul>
+											<div class="row-area">
+												<div class="table-area">
+													<div class="table table-list table-ranking">
+														<div class="table-inner">
+															<table style="min-width: 400px">
+																<caption class="sr-only">
+																	전체 사이트 방문자 수 합계
+																</caption>
+																<colgroup>
+																	<col />
+																	<col />
+																	<col style="width: 175px" />
+																</colgroup>
+																<thead>
+																	<tr>
+																		<th scope="col">No</th>
+																		<th scope="col">사이트 명</th>
+																		<th scope="col">방문자 수</th>
+																	</tr>
+																</thead>
+																<tbody>
+																	<tr>
+																		<td>1</td>
+																		<td class="text-left">인시퀀스 회사에 다니면 좋은 장점 1,000,000 가지</td>
+																		<td>
+																			<span class="num-ranking">
+																				<span>00,000,000</span
+																				><em class="down"><i class="ico ico-arrow-down-blue-xs"></i>00,000,000</em>
+																			</span>
+																		</td>
+																	</tr>
+																	<tr>
+																		<td>2</td>
+																		<td class="text-left">
+																			아무개 게시물아무개 게시물아무개 게시물아무개 게시물아무개 게시물아무개
+																			게시물아무개 게시물아무개 게시물아무개 게시물아무개 게시물아무개 게시물
+																		</td>
+																		<td>
+																			<span class="num-ranking">
+																				<span>00,000,000,000</span
+																				><em class="down"><i class="ico ico-arrow-down-blue-xs"></i>00,000,000,000</em>
+																			</span>
+																		</td>
+																	</tr>
+																	<tr>
+																		<td>3</td>
+																		<td class="text-left">아무개 게시물</td>
+																		<td>
+																			<span class="num-ranking">
+																				<span>124,860</span
+																				><em class="up"><i class="ico ico-arrow-up-red-xs"></i>20</em>
+																			</span>
+																		</td>
+																	</tr>
+																	<tr>
+																		<td>4</td>
+																		<td class="text-left">아무개 게시물</td>
+																		<td>
+																			<span class="num-ranking">
+																				<span>124,860</span
+																				><em class="up"><i class="ico ico-arrow-up-red-xs"></i>20</em>
+																			</span>
+																		</td>
+																	</tr>
+																	<tr>
+																		<td>5</td>
+																		<td class="text-left">아무개 게시물</td>
+																		<td>
+																			<span class="num-ranking">
+																				<span>124,860</span
+																				><em class="up"><i class="ico ico-arrow-up-red-xs"></i>20</em>
+																			</span>
+																		</td>
+																	</tr>
+																	<tr>
+																		<td>6</td>
+																		<td class="text-left">아무개 게시물</td>
+																		<td>
+																			<span class="num-ranking">
+																				<span>124,600</span
+																				><em class="down"><i class="ico ico-arrow-down-blue-xs"></i>14</em>
+																			</span>
+																		</td>
+																	</tr>
+																	<tr>
+																		<td>7</td>
+																		<td class="text-left">아무개 게시물</td>
+																		<td>
+																			<span class="num-ranking"><span>125,200</span><em class="same">-</em></span>
+																		</td>
+																	</tr>
+																	<tr>
+																		<td>8</td>
+																		<td class="text-left">아무개 게시물</td>
+																		<td>
+																			<span class="num-ranking">
+																				<span>124,860</span
+																				><em class="up"><i class="ico ico-arrow-up-red-xs"></i>20</em>
+																			</span>
+																		</td>
+																	</tr>
+																	<tr>
+																		<td>9</td>
+																		<td class="text-left">아무개 게시물</td>
+																		<td>
+																			<span class="num-ranking">
+																				<span>124,600</span
+																				><em class="down"><i class="ico ico-arrow-down-blue-xs"></i>10</em>
+																			</span>
+																		</td>
+																	</tr>
+																	<tr>
+																		<td>10</td>
+																		<td class="text-left">아무개 게시물</td>
+																		<td>
+																			<span class="num-ranking"><span>125,200</span><em class="same">-</em></span>
+																		</td>
+																	</tr>
+																</tbody>
+															</table>
+														</div>
+													</div>
+												</div>
+												<div class="chart-area">
+													<div class="inner">
+														<div class="col-item">
+															<strong class="chart-tit"
+																>사이트별<br />
+																방문자 수 비율</strong
+															>
+															<div id="chart-pie2" style="height: 440px"></div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="guide-text">
+										<strong class="info">등락 비교일</strong
+										><span>2023.01.29~2023.02.95 / 2023.01.29~2023.02.95(30일)</span>
+										<span class="sub">(방문자 수가 제일 많은 사이트 기준)</span>
+									</div>
+								</div>
+
+								<!-- 인쇄 영역 -->
+								<div class="report-print-area">
+									<div class="page-inner cover closing">
+										<!-- 페이지 본문 -->
+										<div class="cover-footer">
+											<h1 class="logo">
+												<img src="/assets/neibis/images/logo-neibis-white@2x.png" alt="neibis" />
+											</h1>
+										</div>
+										<!-- // 페이지 본문 -->
+									</div>
+								</div>
+							</div>
+
+							<!-- 플로팅 네비게이션 -->
+							<div class="floating-area">
+								<div class="floating-wrap">
+									<strong class="title">사이트명입니다. 텍스트가 길어질 경우 두줄 처리</strong>
+									<ul class="floating-nav">
+										<li>
+											<a href="#content">
+												<i class="ico ico-floating-home"></i>
+												<span class="text">0. 검색 영역</span>
+											</a>
+										</li>
+										<li>
+											<a href="#cont-visitor">
+												<i class="ico ico-floating-data"></i>
+												<span class="text">1. 사이트 방문자</span>
+											</a>
+										</li>
+										<li>
+											<a href="#cont-popularity">
+												<i class="ico ico-floating-data"></i>
+												<span class="text">2. 메뉴별 방문자</span>
+											</a>
+										</li>
+										<li>
+											<a href="#cont-satisfaction">
+												<i class="ico ico-floating-data"></i>
+												<span class="text">3. 만족도 조사</span>
+											</a>
+										</li>
+										<li>
+											<a href="#cont-best">
+												<i class="ico ico-floating-data"></i>
+												<span class="text">4. 게시물 현황</span>
+											</a>
+										</li>
+										<li>
+											<a href="#cont-board">
+												<i class="ico ico-floating-data"></i>
+												<span class="text">5. 게시판 현황</span>
+											</a>
+										</li>
+										<li>
+											<a href="#cont-site">
+												<i class="ico ico-floating-data"></i>
+												<span class="text">6. 전체 사이트</span>
+											</a>
+										</li>
+									</ul>
+									<div class="btn-group">
+										<button type="button" class="btn btn-lg btn-primary btn-print">
+											<i class="ico ico-print-white-md"></i>
+											<span>보고서 인쇄</span>
+										</button>
+									</div>
+								</div>
+
+								<div class="btn-group-floating">
+									<a href="#;" class="btn btn-icon btn-floating open">
+										<span class="sr-only">플로팅 메뉴</span>
+										<i class="ico ico-floating-gray-lg"></i>
+									</a>
+								</div>
+							</div>
+						</div>
+
+						<!-- 상단 고정 액션 버튼 -->
+						<div class="btn-group-fixed">
+							<button type="button" class="btn btn-lg btn-primary btn-print" id="btn-print">
+								<i class="ico ico-print-white-md"></i>
+								<span>보고서 인쇄</span>
+							</button>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

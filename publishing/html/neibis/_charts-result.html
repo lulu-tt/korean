@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			window.addEventListener("DOMContentLoaded", async function () {
+				// Function to generate the bar chart
+				async function generateBarChart() {
+					let chartBar = {
+						id: "chart-bar",
+						options: {
+							// title: { text: "Bar Chart" },
+							grid: {
+								top: 0,
+								bottom: 0,
+								left: 0, // Y축 카테고리 영역 추가 확보시 수치 조절
+								right: 0, // 우측 수치 잘리지 않도록 여백 확보
+								containLabel: true
+							},
+							xAxis: {
+								axisLabel: {
+									align: "right",
+									formatter: function (value) {
+										return value >= 0 ? Math.round(value) : "";
+									}
+								},
+								splitLine: {
+									show: false // Hide vertical grid lines
+								},
+								boundaryGap: ["8%", "8%"],
+								min: 0
+							},
+							yAxis: {
+								data: [
+									"포트폴리오",
+									"온택트서포터즈 온택트서포터즈",
+									"사업안내",
+									"I.N.UIX",
+									"NEBIS",
+									"회사소개",
+									"오시는길",
+									"인증현황",
+									"스토리",
+									"사업안내"
+								],
+								axisLine: {
+									show: false // Y축 라인 숨기기
+								},
+								axisTick: {
+									show: true, // Y축 눈금
+									length: 200,
+									lineStyle: {
+										color: "#E5E7EB"
+									}
+								},
+								splitLine: {
+									show: true,
+									length: 1000,
+									lineStyle: {
+										color: "#E5E7EB"
+									}
+								},
+								axisLabel: {
+									margin: 8,
+									formatter: function (value) {
+										// 최대 길이를 초과하는 경우 '...'으로 줄이기
+										if (value.length > 10) {
+											return value.slice(0, 10) + "...";
+										}
+										// 그렇지 않은 경우 원래 값을 그대로 반환
+										else {
+											return value;
+										}
+									}
+								}
+							},
+							series: [
+								{
+									type: "bar",
+									data: [500, 2000, 3600, 1000, 1500, 2500, 3000, 3500, 4000, 4500],
+									barWidth: "16px",
+									// 그래프 우측에 값 노출
+									label: {
+										show: true,
+										position: "right",
+										formatter: function (params) {
+											// 수정 - 데이터 값을 value 속성으로 가져와야 합니다.
+											var formattedValue = Number(params.value).toLocaleString("en");
+											return formattedValue;
+										},
+										color: "#374151"
+									},
+									itemStyle: {
+										color: function (params) {
+											const colorList = [
+												"#357FED",
+												"#F59E0B",
+												"#0CAE79",
+												"#F97316",
+												"#8B5CF6",
+												"#EF4444",
+												"#0EA5E9",
+												"#EC4899",
+												"#84CC16",
+												"#06B6D4"
+											];
+											// 순환 적용되는 색상 인덱스 계산
+											const colorIndex = params.dataIndex % colorList.length;
+											return colorList[colorIndex];
+										}
+									}
+								}
+							]
+						}
+					};
+
+					await window.useCharts([chartBar]);
+				}
+
+				// Attach the generateBarChart function to the button click event
+				$("#btn-search").click(generateBarChart);
+			});
+		</script>
+		<style>
+			#chart-bar {
+				height: 490px;
+				/* background: yellow; */
+			}
+		</style>
+	</head>
+
+	<!-- 레이아웃 유형별 body 클래스 별도 적용 -->
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="eChart.js"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+						<div class="card">
+							<button type="button" class="btn btn-md btn-primary" id="btn-search">Generate Bar Chart</button>
+
+							<!-- <button type="button" class="btn btn-md btn-primary" id="btn-data-update">Update Data</button> -->
+
+							<div id="chart-bar">
+								<p>차트영역</p>
+							</div>
+						</div>
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

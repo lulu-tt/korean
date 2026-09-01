@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				// 이곳에 정의
+			});
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="관리자 접속로그"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<div class="tabmenu-in-wrap">
+							<!-- 검색 영역 -->
+							<div class="card">
+								<form action="#;" class="search-form">
+									<div class="table table-form-basic">
+										<div class="table-inner">
+											<table>
+												<caption class="sr-only">
+													검색조건입력
+												</caption>
+												<tbody>
+													<tr>
+														<th scope="row">
+															<span>조회기간<i class="req">필수입력</i></span>
+														</th>
+														<td>
+															<div class="input-group input-group-date-range">
+																<div class="radio-btn-group">
+																	<span class="check-item">
+																		<input type="radio" id="radio_btn1" name="radio_date_range" value="1d" required />
+																		<label for="radio_btn1">하루전</label>
+																	</span>
+																	<span class="check-item">
+																		<input type="radio" id="radio_btn2" name="radio_date_range" value="7d" required />
+																		<label for="radio_btn2">1주일</label>
+																	</span>
+																	<span class="check-item">
+																		<input
+																			type="radio"
+																			id="radio_btn3"
+																			name="radio_date_range"
+																			value="1m"
+																			checked
+																			required
+																		/>
+																		<label for="radio_btn3">1개월</label>
+																	</span>
+																	<span class="check-item">
+																		<input type="radio" id="radio_btn4" name="radio_date_range" value="3m" required />
+																		<label for="radio_btn4">3개월</label>
+																	</span>
+																	<span class="check-item">
+																		<input type="radio" id="radio_btn5" name="radio_date_range" value="6m" required />
+																		<label for="radio_btn5">6개월</label>
+																	</span>
+																	<span class="check-item">
+																		<input type="radio" id="radio_btn6" name="radio_date_range" value="12m" required />
+																		<label for="radio_btn6">1년</label>
+																	</span>
+																</div>
+																<div class="input-group input-group-datepicker">
+																	<input
+																		type="text"
+																		class="form-control form-datepicker range-start"
+																		title="시작일 선택"
+																		placeholder="YYYY.MM.DD"
+																		required
+																	/>
+																	<span class="input-addon">-</span>
+																	<input
+																		type="text"
+																		class="form-control form-datepicker range-end"
+																		title="종료일 선택"
+																		placeholder="YYYY.MM.DD"
+																		required
+																	/>
+																</div>
+															</div>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<label for="search_word">검색어</label>
+														</th>
+														<td>
+															<input
+																type="text"
+																id="search_word"
+																class="form-control full"
+																placeholder="사용자 아이디 또는 사용자 명으로 검색해주세요."
+															/>
+														</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+									<div class="btn-group-center">
+										<button type="reset" class="btn btn-md btn-outline-gray">
+											<i class="ico ico-undo-darkgray-md"></i>
+											<span class="text">초기화</span>
+										</button>
+										<button type="submit" class="btn btn-md btn-primary">
+											<i class="ico ico-search-white-md"></i>
+											<span class="text">검색</span>
+										</button>
+									</div>
+								</form>
+							</div>
+
+							<!-- 목록 -->
+							<div class="card">
+								<div class="list-control">
+									<div class="left">
+										<p class="total">총 <strong class="text-primary">1</strong>건(1/1 page)</p>
+									</div>
+									<div class="right">
+										<a href="#;" class="btn btn-sm btn-xls mr-1" download>
+											<i class="ico ico-fileexcel-white-sm"></i>
+											<span>엑셀 다운로드</span>
+										</a>
+										<select class="form-control-sm" style="min-width: 100px" title="목록 수">
+											<option selected>10</option>
+											<option>20</option>
+											<option>50</option>
+											<option>100</option>
+										</select>
+										<button type="button" class="btn btn-sm btn-outline-gray ml-1">적용</button>
+									</div>
+								</div>
+
+								<div class="table table-list">
+									<div class="table-inner">
+										<table style="min-width: 1300px">
+											<caption class="sr-only">
+												관리자 접속로그 목록
+											</caption>
+											<thead>
+												<tr>
+													<th scope="col">번호</th>
+													<th scope="col">활동 구분</th>
+													<th scope="col">관리자ID</th>
+													<th scope="col">관리자명</th>
+													<th scope="col">디바이스</th>
+													<th scope="col">브라우저</th>
+													<th scope="col">접속IP</th>
+													<th scope="col">로그ID</th>
+													<th scope="col">발생일시</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td>10</td>
+													<td>
+														<span class="label-status label-on">로그인</span>
+													</td>
+													<td>InseqNEIBIS</td>
+													<td>인시퀀스</td>
+													<td>PC</td>
+													<td>chrome</td>
+													<td class="text-left">192.168.0.1</td>
+													<td class="text-left">LOGIN_1678171328812</td>
+													<td>2023.03.07 15:42:09</td>
+												</tr>
+												<tr>
+													<td>9</td>
+													<td>
+														<span class="label-status label-red">로그아웃</span>
+													</td>
+													<td>InseqNEIBIS</td>
+													<td>개발팀</td>
+													<td>Mobile</td>
+													<td>chrome</td>
+													<td class="text-left">121.173.242.256</td>
+													<td class="text-left">LOGIN_16413456653</td>
+													<td>2023.03.07 15:42:09</td>
+												</tr>
+												<tr>
+													<td>8</td>
+													<td>
+														<span class="label-status label-on">로그인</span>
+													</td>
+													<td>InseqNEIBIS</td>
+													<td>인시퀀스</td>
+													<td>PC</td>
+													<td>chrome</td>
+													<td class="text-left">192.168.0.1</td>
+													<td class="text-left">LOGIN_1678171328812</td>
+													<td>2023.03.07 15:42:09</td>
+												</tr>
+												<tr>
+													<td>7</td>
+													<td>
+														<span class="label-status label-red">로그아웃</span>
+													</td>
+													<td>InseqNEIBIS</td>
+													<td>개발팀</td>
+													<td>Mobile</td>
+													<td>chrome</td>
+													<td class="text-left">121.173.242.256</td>
+													<td class="text-left">LOGIN_16413456653</td>
+													<td>2023.03.07 15:42:09</td>
+												</tr>
+												<tr>
+													<td>6</td>
+													<td>
+														<span class="label-status label-on">로그인</span>
+													</td>
+													<td>InseqNEIBIS</td>
+													<td>인시퀀스</td>
+													<td>PC</td>
+													<td>chrome</td>
+													<td class="text-left">192.168.0.1</td>
+													<td class="text-left">LOGIN_1678171328812</td>
+													<td>2023.03.07 15:42:09</td>
+												</tr>
+												<tr>
+													<td>5</td>
+													<td>
+														<span class="label-status label-red">로그아웃</span>
+													</td>
+													<td>InseqNEIBIS</td>
+													<td>개발팀</td>
+													<td>Mobile</td>
+													<td>chrome</td>
+													<td class="text-left">121.173.242.256</td>
+													<td class="text-left">LOGIN_16413456653</td>
+													<td>2023.03.07 15:42:09</td>
+												</tr>
+												<tr>
+													<td>4</td>
+													<td>
+														<span class="label-status label-on">로그인</span>
+													</td>
+													<td>InseqNEIBIS</td>
+													<td>인시퀀스</td>
+													<td>PC</td>
+													<td>chrome</td>
+													<td class="text-left">192.168.0.1</td>
+													<td class="text-left">LOGIN_1678171328812</td>
+													<td>2023.03.07 15:42:09</td>
+												</tr>
+												<tr>
+													<td>3</td>
+													<td>
+														<span class="label-status label-red">로그아웃</span>
+													</td>
+													<td>InseqNEIBIS</td>
+													<td>개발팀</td>
+													<td>Mobile</td>
+													<td>chrome</td>
+													<td class="text-left">121.173.242.256</td>
+													<td class="text-left">LOGIN_16413456653</td>
+													<td>2023.03.07 15:42:09</td>
+												</tr>
+												<tr>
+													<td>2</td>
+													<td>
+														<span class="label-status label-on">로그인</span>
+													</td>
+													<td>InseqNEIBIS</td>
+													<td>인시퀀스</td>
+													<td>PC</td>
+													<td>chrome</td>
+													<td class="text-left">192.168.0.1</td>
+													<td class="text-left">LOGIN_1678171328812</td>
+													<td>2023.03.07 15:42:09</td>
+												</tr>
+												<tr>
+													<td>1</td>
+													<td>
+														<span class="label-status label-red">로그아웃</span>
+													</td>
+													<td>InseqNEIBIS</td>
+													<td>개발팀</td>
+													<td>Mobile</td>
+													<td>chrome</td>
+													<td class="text-left">121.173.242.256</td>
+													<td class="text-left">LOGIN_16413456653</td>
+													<td>2023.03.07 15:42:09</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+
+								<div class="pagination">
+									<a href="#;" class="direction first">처음</a>
+									<a href="#;" class="direction prev">이전</a>
+									<strong>1</strong>
+									<a href="#;">2</a>
+									<a href="#;">3</a>
+									<a href="#;">4</a>
+									<a href="#;">5</a>
+									<a href="#;" class="direction next">다음</a>
+									<a href="#;" class="direction last">끝</a>
+								</div>
+							</div>
+
+							<!-- 상단 고정 액션 버튼 -->
+							<div class="btn-group-fixed">
+								<a href="UI-NEIBIS-MA-통계-관리자접속자통계-로그인통계(탭).html" class="btn btn-lg btn-outline-gray">
+									<span>통계 보기</span>
+									<i class="ico ico-chevron-right-gray-md"></i>
+								</a>
+							</div>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

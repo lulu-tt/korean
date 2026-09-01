@@ -1,0 +1,41 @@
+// .captcha-group — 보안문자(캡차) 영역 레이아웃
+.captcha-group {
+	.captcha-row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: $spacing-4;
+	}
+
+	.captcha-code {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 28rem;
+		height: 7.2rem;
+		border: 1px solid $border-gray;
+		border-radius: 0.6rem;
+	}
+
+	.captcha-actions {
+		display: flex;
+		flex-direction: column;
+		gap: $spacing-2;
+	}
+
+	@include mq-down(sm) {
+		.captcha-row {
+			gap: 1rem;
+		}
+		.captcha-code {
+			width: 100%;
+		}
+		.captcha-actions {
+			width: 100%;
+			flex-direction: row;
+			.btn {
+				flex: 1 1 auto;
+			}
+		}
+	}
+}

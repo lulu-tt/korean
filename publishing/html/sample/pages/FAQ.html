@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>샘플 공공서비스 | FAQ</title>
+  <link rel="shortcut icon" href="../../../assets/sample/images/common/favicon.png" />
+  <link rel="stylesheet" href="../../../assets/sample/css/common.css" />
+  <link rel="stylesheet" href="../../../assets/sample/css/sub.css" />
+  <script src="../../../assets/sample/js/ui.js" defer></script>
+</head>
+<body>
+
+  <!-- 건너뛰기 링크 -->
+  <nav class="skip-nav" aria-label="바로가기">
+    <a href="#content">본문 바로가기</a>
+    <a href="#lnb">좌측메뉴 바로가기</a>
+    <a href="#footer">푸터 바로가기</a>
+  </nav>
+
+  <!-- 전체메뉴 -->
+  <div class="allmenu-dim" aria-hidden="true"></div>
+  <div class="allmenu-panel" role="dialog" aria-label="전체메뉴">
+    <div class="allmenu-panel__head">
+      <img class="allmenu-panel__logo" src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      <button class="allmenu-panel__close" type="button" data-allmenu-close aria-label="전체메뉴 닫기">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M2 2L14 14M14 2L2 14" stroke="rgba(255,255,255,0.65)" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="allmenu-panel__body">
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">기관소개</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./콘텐츠-일반.html">인사말</a></li>
+          <li><a class="allmenu-section__link" href="./콘텐츠-일반.html">연혁</a></li>
+          <li><a class="allmenu-section__link" href="./오시는-길.html">오시는 길</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">알림소식</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./게시판-목록.html">공지사항</a></li>
+          <li><a class="allmenu-section__link" href="./게시판-목록.html">보도자료</a></li>
+          <li><a class="allmenu-section__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+          <li><a class="allmenu-section__link" href="./FAQ.html">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">이용안내</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./개인정보처리방침.html">개인정보처리방침</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">참여마당</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./고객의소리-목록.html">고객의소리</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 롤링배너 -->
+  <div class="rolling-banner" role="region" aria-label="공지 롤링배너">
+    <div class="rolling-banner__inner">
+      <span class="rolling-banner__label">알림</span>
+      <div class="rolling-banner__content">
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">공지</span>
+          <a class="rolling-banner__title" href="#">2025년 상반기 주요사업 추진 계획 안내</a>
+          <span class="rolling-banner__date">2025.04.15</span>
+        </div>
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">사업</span>
+          <a class="rolling-banner__title" href="#">디지털 행정서비스 개선 과제 공모 결과 발표</a>
+          <span class="rolling-banner__date">2025.04.10</span>
+        </div>
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">공지</span>
+          <a class="rolling-banner__title" href="#">정보보호의 달 운영 안내 및 보안교육 일정</a>
+          <span class="rolling-banner__date">2025.04.03</span>
+        </div>
+      </div>
+      <div class="rolling-banner__controls">
+        <button class="rolling-banner__arrow" type="button" data-rolling-prev aria-label="이전 공지">‹</button>
+        <span class="rolling-banner__count" aria-live="polite">1/3</span>
+        <button class="rolling-banner__arrow" type="button" data-rolling-next aria-label="다음 공지">›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 헤더 -->
+  <header class="site-header" role="banner">
+    <div class="site-header__inner">
+      <a class="site-logo" href="./메인.html" aria-label="샘플 공공서비스 홈으로 이동">
+        <img class="site-logo__img" src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </a>
+      <nav class="site-gnb" id="gnb" aria-label="주메뉴">
+        <ul class="site-gnb__list">
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">기관소개</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./콘텐츠-일반.html">인사말</a></li>
+                  <li><a class="gnb-dropdown__link" href="./콘텐츠-일반.html">연혁</a></li>
+                  <li><a class="gnb-dropdown__link" href="./오시는-길.html">오시는 길</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link is-active" href="#" aria-current="page">알림소식</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./게시판-목록.html">공지사항</a></li>
+                  <li><a class="gnb-dropdown__link" href="./게시판-목록.html">보도자료</a></li>
+                  <li><a class="gnb-dropdown__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+                  <li><a class="gnb-dropdown__link" href="./FAQ.html">FAQ</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">이용안내</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./개인정보처리방침.html">개인정보처리방침</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">참여마당</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./고객의소리-목록.html">고객의소리</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </nav>
+      <div class="site-header__actions">
+        <a class="btn-login" href="./로그인.html">로그인</a>
+        <button class="btn-allmenu" type="button" data-allmenu-open aria-expanded="false">
+          <span class="btn-allmenu__bars" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span>전체메뉴</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 서브 콘텐츠 -->
+  <main id="content">
+
+    <!-- 브레드크럼 -->
+    <div class="breadcrumb-bar">
+      <div class="breadcrumb-bar__inner">
+        <nav class="breadcrumb" aria-label="현재 위치">
+          <span class="breadcrumb__item">
+            <a href="./메인.html">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-label="홈" style="display:inline-block;vertical-align:middle;margin-bottom:1px;">
+                <path d="M1 5.5L6.5 1L12 5.5V12H8.5V8H4.5V12H1V5.5Z" stroke="#A0A8B8" stroke-width="1.2" stroke-linejoin="round"/>
+              </svg>
+              홈
+            </a>
+          </span>
+          <span class="breadcrumb__sep" aria-hidden="true">›</span>
+          <span class="breadcrumb__item"><a href="#">알림소식</a></span>
+          <span class="breadcrumb__sep" aria-hidden="true">›</span>
+          <span class="breadcrumb__item" aria-current="page">FAQ</span>
+        </nav>
+      </div>
+    </div>
+
+    <!-- 서브 레이아웃 -->
+    <div class="sub-layout">
+      <div class="sub-layout__inner">
+
+        <!-- LNB -->
+        <aside class="lnb" id="lnb" aria-label="좌측 메뉴">
+          <div class="lnb__section-title">알림소식</div>
+          <ul class="lnb__list">
+            <li class="lnb__item"><a class="lnb__link" href="./게시판-목록.html">공지사항</a></li>
+            <li class="lnb__item"><a class="lnb__link" href="./게시판-목록.html">보도자료</a></li>
+            <li class="lnb__item"><a class="lnb__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+            <li class="lnb__item"><a class="lnb__link is-active" href="./FAQ.html" aria-current="page">FAQ</a></li>
+          </ul>
+        </aside>
+
+        <!-- 콘텐츠 -->
+        <div class="sub-content">
+
+          <div class="sub-content__title-bar">
+            <h1 class="sub-content__title">FAQ</h1>
+          </div>
+
+          <!-- 운영 데이터 슬롯: FAQ_LIST -->
+
+          <!-- 툴바 -->
+          <div class="faq-toolbar">
+            <div class="faq-toolbar__info">
+              총 <strong>12건</strong>
+            </div>
+            <div class="faq-toolbar__search">
+              <select class="faq-search-select" aria-label="검색 분류">
+                <option value="">전체</option>
+                <option value="service">서비스 이용</option>
+                <option value="account">회원/계정</option>
+                <option value="etc">기타</option>
+              </select>
+              <input class="faq-search-input" type="text" placeholder="검색어를 입력해주세요." aria-label="FAQ 검색" />
+              <button class="faq-search-btn" type="button">검색</button>
+            </div>
+          </div>
+
+          <!-- FAQ 목록 -->
+          <div class="faq-list" id="faqList">
+
+            <!-- 아이템 1 -->
+            <div class="faq-item">
+              <button class="faq-question" type="button" aria-expanded="false" aria-controls="faq-answer-1">
+                <span class="faq-q-badge" aria-hidden="true">Q</span>
+                <span class="faq-q-text">샘플 공공서비스는 누구나 이용할 수 있나요?</span>
+                <svg class="faq-q-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <path d="M4 7l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="faq-answer" id="faq-answer-1" role="region">
+                <div class="faq-answer__inner">
+                  <span class="faq-a-badge" aria-hidden="true">A</span>
+                  <p class="faq-a-text">
+                    네, 대한민국 국민이라면 누구나 이용하실 수 있습니다. 일부 서비스의 경우 회원가입 후 본인인증이 필요할 수 있으며,
+                    만 14세 미만의 경우 법정대리인의 동의가 필요합니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 아이템 2 -->
+            <div class="faq-item">
+              <button class="faq-question" type="button" aria-expanded="false" aria-controls="faq-answer-2">
+                <span class="faq-q-badge" aria-hidden="true">Q</span>
+                <span class="faq-q-text">회원가입은 어떻게 하나요?</span>
+                <svg class="faq-q-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <path d="M4 7l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="faq-answer" id="faq-answer-2" role="region">
+                <div class="faq-answer__inner">
+                  <span class="faq-a-badge" aria-hidden="true">A</span>
+                  <p class="faq-a-text">
+                    홈페이지 상단의 [로그인] 버튼을 클릭한 뒤 [회원가입] 메뉴를 선택하시면 됩니다.
+                    이름, 이메일, 비밀번호 등 기본 정보를 입력하고 이메일 인증을 완료하시면 가입이 마무리됩니다.
+                    소셜 계정(카카오, 네이버)을 통한 간편 가입도 지원합니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 아이템 3 -->
+            <div class="faq-item">
+              <button class="faq-question" type="button" aria-expanded="false" aria-controls="faq-answer-3">
+                <span class="faq-q-badge" aria-hidden="true">Q</span>
+                <span class="faq-q-text">비밀번호를 잊어버렸을 때 어떻게 하나요?</span>
+                <svg class="faq-q-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <path d="M4 7l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="faq-answer" id="faq-answer-3" role="region">
+                <div class="faq-answer__inner">
+                  <span class="faq-a-badge" aria-hidden="true">A</span>
+                  <p class="faq-a-text">
+                    로그인 화면의 [비밀번호 찾기] 링크를 클릭하시면 가입 시 등록한 이메일 주소로 임시 비밀번호 또는
+                    재설정 링크가 발송됩니다. 이메일이 기억나지 않으시면 고객센터(02-000-0000)로 연락해 주세요.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 아이템 4 -->
+            <div class="faq-item">
+              <button class="faq-question" type="button" aria-expanded="false" aria-controls="faq-answer-4">
+                <span class="faq-q-badge" aria-hidden="true">Q</span>
+                <span class="faq-q-text">서비스 이용 시간이 정해져 있나요?</span>
+                <svg class="faq-q-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <path d="M4 7l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="faq-answer" id="faq-answer-4" role="region">
+                <div class="faq-answer__inner">
+                  <span class="faq-a-badge" aria-hidden="true">A</span>
+                  <p class="faq-a-text">
+                    대부분의 온라인 서비스는 24시간 365일 이용 가능합니다. 다만, 매주 화요일 새벽 02:00~04:00에는
+                    정기 시스템 점검이 진행되어 서비스 이용이 제한될 수 있습니다. 전화 상담은 평일 09:00~18:00에
+                    운영하며, 점심시간(12:00~13:00)은 제외됩니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 아이템 5 -->
+            <div class="faq-item">
+              <button class="faq-question" type="button" aria-expanded="false" aria-controls="faq-answer-5">
+                <span class="faq-q-badge" aria-hidden="true">Q</span>
+                <span class="faq-q-text">개인정보는 어떻게 보호되나요?</span>
+                <svg class="faq-q-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <path d="M4 7l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="faq-answer" id="faq-answer-5" role="region">
+                <div class="faq-answer__inner">
+                  <span class="faq-a-badge" aria-hidden="true">A</span>
+                  <p class="faq-a-text">
+                    저희 기관은 「개인정보 보호법」에 따라 이용자의 개인정보를 철저히 보호합니다.
+                    수집된 개인정보는 서비스 제공 목적 이외에는 사용되지 않으며, 법령에 의한 경우를 제외하고
+                    제3자에게 제공되지 않습니다. 자세한 사항은 <a href="./개인정보처리방침.html" style="color:var(--c-blue);text-decoration:underline;">개인정보처리방침</a>을 참고해 주세요.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 아이템 6 -->
+            <div class="faq-item">
+              <button class="faq-question" type="button" aria-expanded="false" aria-controls="faq-answer-6">
+                <span class="faq-q-badge" aria-hidden="true">Q</span>
+                <span class="faq-q-text">자료 다운로드 시 오류가 발생합니다.</span>
+                <svg class="faq-q-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <path d="M4 7l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="faq-answer" id="faq-answer-6" role="region">
+                <div class="faq-answer__inner">
+                  <span class="faq-a-badge" aria-hidden="true">A</span>
+                  <p class="faq-a-text">
+                    브라우저의 팝업 차단 설정이 활성화되어 있거나, 로그인이 필요한 자료의 경우 세션 만료로 오류가 발생할 수 있습니다.
+                    팝업 차단을 해제하신 후 다시 시도해 주시고, 문제가 지속되면 브라우저 캐시를 삭제하거나
+                    다른 브라우저(Chrome, Edge 등)를 사용해 보세요. 지속적인 오류는 고객센터로 문의해 주시기 바랍니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <!-- /faq-list -->
+
+          <!-- 페이지네이션 -->
+          <nav class="pagination" aria-label="페이지 이동">
+            <button class="pg-nav" type="button" aria-label="이전 페이지" disabled>이전</button>
+            <button class="pg-btn is-active" type="button" aria-current="page" aria-label="1페이지">1</button>
+            <button class="pg-btn" type="button" aria-label="2페이지">2</button>
+            <button class="pg-nav" type="button" aria-label="다음 페이지">다음</button>
+          </nav>
+
+        </div>
+        <!-- /sub-content -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="site-footer" id="footer" role="contentinfo">
+    <div class="site-footer__inner">
+      <div class="site-footer__logo">
+        <img src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </div>
+      <div class="site-footer__info">
+        <p class="site-footer__address">
+          (00000) 서울특별시 OO구 OO로 000 &nbsp;|&nbsp;
+          대표전화: 02-000-0000 &nbsp;|&nbsp;
+          팩스: 02-000-0001
+        </p>
+        <p class="site-footer__copy">Copyright &copy; 샘플 공공서비스. All Rights Reserved.</p>
+      </div>
+      <div class="site-footer__links">
+        <a class="site-footer__link is-point" href="./개인정보처리방침.html">개인정보처리방침</a>
+        <a class="site-footer__link" href="#">이용약관</a>
+        <a class="site-footer__link" href="#">사이트맵</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- FAQ 아코디언 JS -->
+  <script>
+    (function () {
+      var list = document.getElementById('faqList');
+      if (!list) return;
+      list.addEventListener('click', function (e) {
+        var btn = e.target.closest('.faq-question');
+        if (!btn) return;
+        var isOpen = btn.classList.contains('is-open');
+        var answerId = btn.getAttribute('aria-controls');
+        var answer = document.getElementById(answerId);
+
+        /* 다른 열린 항목 닫기 */
+        list.querySelectorAll('.faq-question.is-open').forEach(function (q) {
+          q.classList.remove('is-open');
+          q.setAttribute('aria-expanded', 'false');
+          var otherAnswerId = q.getAttribute('aria-controls');
+          var otherAnswer = document.getElementById(otherAnswerId);
+          if (otherAnswer) otherAnswer.classList.remove('is-open');
+        });
+
+        if (!isOpen && answer) {
+          btn.classList.add('is-open');
+          btn.setAttribute('aria-expanded', 'true');
+          answer.classList.add('is-open');
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>

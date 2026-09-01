@@ -1,0 +1,76 @@
+.select {
+	appearance: none;
+	height: 4.4rem;
+	padding-inline: $spacing-4;
+	padding-right: $spacing-8;
+	font-size: $font-size-body-medium;
+	color: $text-basic;
+	background-color: $bg-white;
+	background-image: url("#{$icon-path}/ico_angle_disabled.svg");
+	background-repeat: no-repeat;
+	background-position: right $spacing-4 center;
+	background-size: 2rem;
+	border: 1px solid $border-gray;
+	border-radius: 0.6rem;
+
+	&:focus-visible {
+		@include focus-ring;
+	}
+
+	&:disabled {
+		color: $text-disabled;
+		background-color: $bg-gray-subtle;
+	}
+
+	// 크기(Size)
+	&.select-xl {
+		height: $spacing-14;
+		font-size: $font-size-body-large;
+		border-radius: $spacing-2;
+	}
+
+	&.select-lg {
+		height: $spacing-12;
+		background-size: 2rem;
+	}
+
+	&.select-md {
+		height: $spacing-10;
+		font-size: $font-size-body-small;
+		background-size: 1.6rem;
+	}
+
+	&.select-sm {
+		height: $spacing-9;
+		padding-inline: $spacing-2;
+		padding-right: $spacing-7;
+		font-size: $font-size-body-small;
+		background-position: right $spacing-2 center;
+		background-size: 1.4rem;
+	}
+
+	// 상태(State)
+	&.is-focused {
+		@include focus-ring;
+		border-color: $border-primary;
+	}
+
+	&.is-completed {
+		color: $text-basic;
+		border-color: $border-gray-dark;
+	}
+
+	&.is-error {
+		border-color: $text-danger;
+
+		&:focus-visible {
+			outline-color: $text-danger;
+		}
+	}
+
+	&.is-view {
+		color: $text-subtle;
+		background-color: $bg-gray-subtle;
+		pointer-events: none;
+	}
+}

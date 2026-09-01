@@ -1,0 +1,177 @@
+// 색상까지 바꿔야 하는 아이콘은 CSS로 tint하지 않고, 준비된 상태별 svg 파일을 그대로 바꿔 낀다.
+
+$icon-path: "../images/component/icon";
+
+// 실제 프로젝트에서 쓰이는 크기값 그대로 xs~xl 5단계로 정리
+$icon-sizes: (
+	xs: 1.4rem,
+	sm: 1.6rem,
+	md: 1.8rem,
+	lg: 2rem,
+	xl: 2.4rem,
+	xxl: 2.8rem
+) !default;
+
+@mixin icon-set($name, $ext: svg) {
+	background-image: url("#{$icon-path}/#{$name}.#{$ext}");
+}
+
+@mixin icon-base {
+	display: inline-block;
+	flex-shrink: 0;
+	vertical-align: middle;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+	@include square(map-get($icon-sizes, lg));
+
+	@each $size, $value in $icon-sizes {
+		&.ico-#{$size} {
+			@include square($value);
+		}
+	}
+
+	// 화살표/꺽쇠류 회전 (기본값은 아래 방향 기준)
+	&.ico-up {
+		transform: rotate(180deg);
+	}
+	&.ico-left {
+		transform: rotate(90deg);
+	}
+	&.ico-right {
+		transform: rotate(-90deg);
+	}
+
+	// 전용 disabled svg가 없는 아이콘의 비활성 표시 대체 처리
+	&.ico-disabled {
+		opacity: 0.4;
+	}
+}
+
+// svg 아이콘 목록 — 파일명(ico_xxx.svg) 기준 1:1 매핑, ico_ 접두어 제거 + _ -> - 치환
+$svg-icon-map: (
+	all: ico_all,
+	angle: ico_angle,
+	arrow-dropdown: ico_arrow_dropdown,
+	blog: ico_blog,
+	bread-home: ico_bread_home,
+	calendar: ico_calendar,
+	call: ico_call,
+	checkbox-checked: ico_checkbox_checked,
+	chevron-gray: ico_chevron_gray,
+	chevron-primary: ico_chevron_primary,
+	close: ico_close,
+	complete-fill: ico_complete_fill,
+	delete: ico_delete,
+	delete-fill: ico_delete_fill,
+	download: ico_download,
+	ellipsis: ico_ellipsis,
+	email: ico_email,
+	error-fill: ico_error_fill,
+	expand: ico_expand,
+	facebook: ico_facebook,
+	faq: ico_faq,
+	file: ico_file,
+	file-figma: ico_file_figma,
+	file-html: ico_file_html,
+	file-hwp: ico_file_hwp,
+	file-hwp-color: ico_file_hwp_color,
+	file-pdf: ico_file_pdf,
+	file-pdf-color: ico_file_pdf_color,
+	file-sketch: ico_file_sketch,
+	file-xd: ico_file_xd,
+	filter: ico_filter,
+	flag: ico_flag,
+	flow-arrow: ico_flow_arrow,
+	foldable: ico_foldable,
+	global: ico_global,
+	go: ico_go,
+	go-top: ico_go_top,
+	help: ico_help,
+	help-fill: ico_help_fill,
+	information: ico_information,
+	information-fill: ico_information_fill,
+	instagram: ico_instagram,
+	join: ico_join,
+	key: ico_key,
+	like: ico_like,
+	lock: ico_lock,
+	login: ico_login,
+	login-certify-go: ico_login_certify_go,
+	login-certify-type-01: ico_login_certify_type_01,
+	login-certify-type-02: ico_login_certify_type_02,
+	login-certify-type-03: ico_login_certify_type_03,
+	login-certify-type-04: ico_login_certify_type_04,
+	login-certify-type-05: ico_login_certify_type_05,
+	login-certify-type-06: ico_login_certify_type_06,
+	logo-krds: ico_logo_krds,
+	logout: ico_logout,
+	more: ico_more,
+	my: ico_my,
+	notice-fill: ico_notice_fill,
+	notice-fill-blue: ico_notice_fill_blue,
+	plus: ico_plus,
+	print: ico_print,
+	pw-visible-off: ico_pw_visible_off,
+	pw-visible-on: ico_pw_visible_on,
+	reset: ico_reset,
+	sch: ico_sch,
+	sch-plus: ico_sch_plus,
+	scrap: ico_scrap,
+	setting: ico_setting,
+	share: ico_share,
+	sns-x: ico_sns_x,
+	step-done: ico_step_done,
+	success-fill: ico_success_fill,
+	swiper-play: ico_swiper_play,
+	swiper-stop: ico_swiper_stop,
+	switch-off: ico_switch_off,
+	switch-on: ico_switch_on,
+	tooltip: ico_tooltip,
+	upload: ico_upload,
+	urgent-badge-danger: ico_urgent_badge_danger,
+	urgent-badge-info: ico_urgent_badge_info,
+	urgent-badge-ok: ico_urgent_badge_ok,
+	user: ico_user,
+	view-mode: ico_view_mode,
+	warning-fill: ico_warning_fill,
+	youtube: ico_youtube,
+	search: ico_search,
+	arrow-darkgray: ico_arrow_darkgray,
+	arrow-lightgray: ico_arrow_lightgray,
+	link: ico_link,
+	lock-wide: ico_lock_wide,
+	attach: ico_attach,
+	information-fill-navy: ico_information_fill_navy,
+	edit: ico_edit,
+	faq-primary: ico_faq_primary,
+	safe: ico_safe,
+	map-primary: ico_map_primary,
+	play: ico_play,
+	stop: ico_stop,
+	file-excel: ico_file_excel,
+	arrow-dropdown-primary: ico_arrow_dropdown_primary
+) !default;
+
+.svg-icon {
+	@include icon-base;
+
+	@each $key, $file in $svg-icon-map {
+		&.ico-#{$key} {
+			@include icon-set($file);
+		}
+	}
+
+	// ico_angle은 상태별 전용 svg가 준비돼 있어, 공용 opacity 대신 파일 자체를 바꿔 낀다.
+	&.ico-angle.ico-disabled {
+		@include icon-set(ico_angle_disabled);
+		opacity: 1;
+	}
+}
+
+// png 아이콘 — 아직 등록된 png 에셋은 없다.
+// 추가되면 위 $svg-icon-map과 같은 방식으로 $png-icon-map을 만들고
+// .png-icon 안에서 @each로 풀어주면 된다 (예: news: ico_news_photo).
+.png-icon {
+	@include icon-base;
+}

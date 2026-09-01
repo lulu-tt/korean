@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="로그인 보안설정"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<form action="#;">
+							<!-- 로그인 보안설정 상세 -->
+							<div class="card">
+								<div class="table table-row">
+									<div class="table-inner">
+										<table>
+											<caption class="sr-only">
+												로그인 보안설정
+											</caption>
+											<tbody>
+												<tr>
+													<th scope="row">
+														<div class="tooltip">
+															<p>
+																동시로그인 허용 안 함 시 다른 PC, 모바일에서 동일한 ID로 로그인하면 기본 접속이
+																종료됩니다.
+															</p>
+														</div>
+														<span>동시로그인<i class="req">필수입력</i></span>
+													</th>
+													<td>
+														<label class="check-item">
+															<input type="radio" name="radio1" checked required />
+															<span class="label">허용</span>
+														</label>
+														<label class="check-item">
+															<input type="radio" name="radio1" required />
+															<span class="label">미허용</span>
+														</label>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+
+								<div class="btn-group-between">
+									<div class="right">
+										<button type="submit" class="btn btn-lg btn-primary">
+											<i class="ico ico-save-white-md"></i>
+											저장
+										</button>
+									</div>
+								</div>
+							</div>
+						</form>
+
+						<!-- 상단 고정 액션 버튼 -->
+						<div class="btn-group-fixed">
+							<button type="submit" class="btn btn-lg btn-primary">
+								<i class="ico ico-save-white-md"></i>
+								저장
+							</button>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,9 @@
+// .input-group과 함께 붙여 쓰는 첨부파일 전용 레이아웃. 레이아웃(flex/gap)은 .input-group이 담당
+//첨부파일 전용 클래스 훅(JS 스코프, 포커스 상태)만 다룬다.
+.file-attach-group {
+	position: relative;
+
+	&.is-focused .file-attach-btn {
+		@include focus-ring;
+	}
+}

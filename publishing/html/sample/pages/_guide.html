@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEIBIS Sample — 디자인 가이드</title>
+
+  <!-- 실제 pub CSS 연결 (공통 변수·폰트 로드) -->
+  <link rel="stylesheet" href="../../../assets/sample/css/common.css" />
+  <link rel="stylesheet" href="../../../assets/sample/css/sub.css" />
+
+  <style>
+    /* ================================================================
+       가이드 전용 레이아웃 — pub 페이지와 무관
+       ================================================================ */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #F4F6FA;
+      font-family: 'SpoqaHanSansNeo', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      color: #2B3245;
+      font-size: 14px;
+    }
+
+    /* ── 헤더 ── */
+    .g-header {
+      position: sticky; top: 0; z-index: 100;
+      background: #2C3E6B;
+      padding: 0 32px;
+      height: 52px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    }
+    .g-header__title {
+      font-size: 15px; font-weight: 700; color: #fff; letter-spacing: 0.02em;
+    }
+    .g-header__sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-left: 12px; }
+    .g-header__scope {
+      font-size: 11px; color: rgba(255,255,255,0.55);
+      background: rgba(255,255,255,0.08);
+      padding: 3px 10px; border-radius: 3px;
+    }
+
+    /* ── 사이드 네비 ── */
+    .g-layout { display: flex; min-height: calc(100vh - 52px); }
+    .g-nav {
+      width: 200px; flex-shrink: 0;
+      background: #fff;
+      border-right: 1px solid #EAECF2;
+      padding: 20px 0;
+      position: sticky; top: 52px;
+      height: calc(100vh - 52px);
+      overflow-y: auto;
+    }
+    .g-nav__group { padding: 0 0 8px; }
+    .g-nav__label {
+      font-size: 10px; font-weight: 700; color: #B0B8C8;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 10px 18px 4px;
+    }
+    .g-nav__link {
+      display: block; padding: 6px 18px;
+      font-size: 12.5px; color: #5A6377;
+      text-decoration: none; transition: color 120ms, background 120ms;
+    }
+    .g-nav__link:hover { color: #1A56B0; background: #F4F8FF; }
+    .g-nav__link.is-active { color: #1A56B0; font-weight: 600; background: #EBF3FF; }
+
+    /* ── 메인 콘텐츠 ── */
+    .g-main { flex: 1; padding: 32px 36px 80px; max-width: 960px; }
+
+    /* ── 섹션 ── */
+    .g-section { margin-bottom: 56px; scroll-margin-top: 68px; }
+    .g-section__title {
+      font-size: 20px; font-weight: 700; color: #1E2331;
+      padding-bottom: 12px; margin-bottom: 24px;
+      border-bottom: 2px solid #1A56B0;
+    }
+    .g-subsection { margin-bottom: 32px; }
+    .g-subsection__title {
+      font-size: 12px; font-weight: 700; color: #8D95A3;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    /* ── 카드 래퍼 ── */
+    .g-card {
+      background: #fff; border: 1px solid #EAECF2;
+      border-radius: 8px; padding: 20px 24px;
+      margin-bottom: 12px;
+    }
+    .g-card--dark { background: #2C3E6B; border-color: #2C3E6B; }
+    .g-card--gray { background: #F4F6FA; }
+
+    /* ── 토큰 메타 태그 ── */
+    .g-token {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; color: #8D95A3;
+      background: #F4F6FA; border: 1px solid #EAECF2;
+      border-radius: 3px; padding: 2px 7px;
+      font-family: 'Consolas', 'Courier New', monospace;
+    }
+
+    /* ================================================================
+       색상 섹션
+       ================================================================ */
+    .color-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+    .color-swatch {
+      width: calc(16.66% - 9px);
+      min-width: 100px;
+      border-radius: 6px; overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+    .color-chip { height: 60px; }
+    .color-label {
+      padding: 7px 10px; background: #fff;
+      font-size: 11px; border-top: 1px solid #EAECF2;
+    }
+    .color-name { font-weight: 600; color: #2B3245; display: block; }
+    .color-val  { color: #8D95A3; font-size: 10px; font-family: 'Consolas', monospace; }
+    .color-var  { color: #B0B8C8; font-size: 10px; font-family: 'Consolas', monospace; display: block; }
+
+    /* semantic 색상 — 2단 */
+    .semantic-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+    .semantic-swatch {
+      flex: 1; min-width: 140px;
+      border-radius: 6px; overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+    .semantic-chip-top    { height: 36px; }
+    .semantic-chip-bottom { height: 24px; }
+
+    /* ================================================================
+       타이포 섹션
+       ================================================================ */
+    .type-row {
+      display: flex; align-items: baseline; gap: 20px;
+      padding: 10px 0; border-bottom: 1px solid #F4F6FA;
+    }
+    .type-row:last-child { border-bottom: none; }
+    .type-meta {
+      width: 120px; flex-shrink: 0;
+      font-size: 11px; color: #8D95A3;
+      font-family: 'Consolas', monospace;
+    }
+    .type-usage { width: 100px; flex-shrink: 0; font-size: 11px; color: #B0B8C8; }
+    .type-specimen { color: #2B3245; flex: 1; }
+
+    /* ================================================================
+       버튼 섹션
+       ================================================================ */
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+
+    /* 버튼 스타일 (가이드용 — pub에서는 별도 선언) */
+    .g-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      font-family: inherit; cursor: pointer; border: none; border-radius: 4px;
+      font-size: 14px; font-weight: 500; padding: 9px 20px;
+      transition: background 150ms, color 150ms, border-color 150ms;
+      line-height: 1; white-space: nowrap; text-decoration: none;
+    }
+    .g-btn--primary   { background: #1A56B0; color: #fff; }
+    .g-btn--primary:hover { background: #133D82; }
+    .g-btn--secondary { background: #fff; color: #1A56B0; border: 1px solid #1A56B0; }
+    .g-btn--secondary:hover { background: #EBF3FF; }
+    .g-btn--ghost     { background: transparent; color: #5A6377; border: 1px solid #D6DBE5; }
+    .g-btn--ghost:hover { background: #F4F6FA; }
+    .g-btn--danger    { background: #C0392B; color: #fff; }
+    .g-btn--danger:hover { background: #962d22; }
+    .g-btn--disabled  { background: #EEF1F7; color: #8D95A3; cursor: not-allowed; }
+    .g-btn--sm { padding: 6px 14px; font-size: 12px; }
+    .g-btn--lg { padding: 12px 28px; font-size: 15px; }
+    .g-btn--pill { border-radius: 999px; }
+
+    /* ================================================================
+       폼 섹션
+       ================================================================ */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .g-field { display: flex; flex-direction: column; gap: 5px; }
+    .g-label {
+      font-size: 12px; font-weight: 500; color: #5A6377; letter-spacing: 0.04em;
+    }
+    .g-label .req { color: #C0392B; margin-left: 2px; }
+    .g-input, .g-select, .g-textarea {
+      font-family: inherit; font-size: 14px; color: #2B3245;
+      background: #fff; border: 1px solid #D6DBE5; border-radius: 4px;
+      padding: 9px 12px; outline: none;
+      transition: border-color 200ms, box-shadow 200ms;
+    }
+    .g-input:focus, .g-select:focus, .g-textarea:focus {
+      border-color: #1A56B0; box-shadow: 0 0 0 3px rgba(26,86,176,0.12);
+    }
+    .g-input.is-error { border-color: #C0392B; }
+    .g-input.is-error:focus { box-shadow: 0 0 0 3px rgba(192,57,43,0.12); }
+    .g-error-msg { font-size: 12px; color: #C0392B; }
+    .g-input-hint { font-size: 12px; color: #8D95A3; }
+    .g-textarea { resize: vertical; min-height: 80px; }
+    .g-select { appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%238D95A3' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px;
+    }
+    .g-check-row { display: flex; flex-wrap: wrap; gap: 12px; }
+    .g-check-label {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13.5px; color: #2B3245; cursor: pointer; user-select: none;
+    }
+    .g-check-label input[type="checkbox"],
+    .g-check-label input[type="radio"] { accent-color: #1A56B0; width: 15px; height: 15px; cursor: pointer; }
+    .g-field-full { grid-column: 1 / -1; }
+
+    /* ================================================================
+       뱃지 섹션
+       ================================================================ */
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+
+    /* 상태 뱃지 (filled) */
+    .g-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11.5px; font-weight: 500;
+      padding: 4px 10px; border-radius: 3px; line-height: 1.4;
+    }
+    .g-badge .dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+    .g-badge--blue   { background: #EBF3FF; color: #1A56B0; } .g-badge--blue .dot   { background: #1A56B0; }
+    .g-badge--green  { background: #E8F5EE; color: #2E7D5B; } .g-badge--green .dot  { background: #2E7D5B; }
+    .g-badge--amber  { background: #FEF3C7; color: #92400E; } .g-badge--amber .dot  { background: #B45309; }
+    .g-badge--red    { background: #FDECEA; color: #B91C1C; } .g-badge--red .dot    { background: #C0392B; }
+    .g-badge--slate  { background: #EEF1F7; color: #5A6377; } .g-badge--slate .dot  { background: #8D95A3; }
+    /* outlined */
+    .g-badge--out { background: transparent; border: 1px solid; padding: 3px 9px; }
+    .g-badge--out.g-badge--blue  { border-color: #93C2F8; color: #1A56B0; }
+    .g-badge--out.g-badge--green { border-color: #6FCF97; color: #2E7D5B; }
+    .g-badge--out.g-badge--red   { border-color: #F4A5A0; color: #B91C1C; }
+    .g-badge--out.g-badge--slate { border-color: #C5CBD8; color: #5A6377; }
+
+    /* 태그 · 필터 */
+    .g-tag {
+      display: inline-flex; align-items: center;
+      font-size: 12px; color: #5A6377;
+      background: #fff; border: 1px solid #D6DBE5;
+      border-radius: 3px; padding: 4px 10px; line-height: 1.4;
+      transition: border-color 150ms, color 150ms;
+      cursor: pointer;
+    }
+    .g-tag.is-on { color: #1A56B0; border-color: #1A56B0; background: #EBF3FF; font-weight: 500; }
+    .g-pill {
+      display: inline-flex; align-items: center;
+      font-size: 12px; font-weight: 500;
+      padding: 5px 14px; border-radius: 999px;
+      background: #fff; border: 1px solid #D6DBE5; color: #5A6377;
+      transition: all 150ms; cursor: pointer;
+    }
+    .g-pill.is-on { background: #2C3E6B; color: #fff; border-color: #2C3E6B; }
+
+    /* 카운트 · 인디케이터 */
+    .g-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; line-height: 1;
+      height: 20px; min-width: 20px; padding: 0 6px;
+      border-radius: 999px; white-space: nowrap;
+    }
+    .g-count--blue  { background: #1A56B0; color: #fff; }
+    .g-count--red   { background: #C0392B; color: #fff; }
+    .g-count--slate { background: #EEF1F7; color: #5A6377; border: 1px solid #D6DBE5; }
+    .g-chip {
+      display: inline-flex; align-items: center;
+      font-size: 9.5px; font-weight: 800; letter-spacing: 0.08em;
+      padding: 2px 6px; border-radius: 3px; line-height: 1.4;
+      text-transform: uppercase;
+    }
+    .g-chip--new { background: #1A56B0; color: #fff; }
+    .g-chip--hot { background: #C0392B; color: #fff; }
+
+    /* 게시판 태그칩 (sub.css와 동일) */
+    .tag-chip--notice { background: #EBF3FF; color: #1A56B0; }
+    .tag-chip--normal { background: #EEF1F7; color: #A0A8B8; }
+
+    /* ================================================================
+       게시판 섹션 — sub.css 재활용 + 가이드 오버라이드 최소화
+       ================================================================ */
+    .board-demo { border: 1px solid #EAECF2; border-radius: 6px; overflow: hidden; }
+
+    /* ================================================================
+       LNB 데모
+       ================================================================ */
+    .lnb-demo-wrap { display: flex; gap: 20px; align-items: flex-start; }
+    .lnb-demo-box {
+      width: 220px; flex-shrink: 0;
+      border: 1px solid #EAECF2; border-radius: 6px;
+      overflow: hidden;
+    }
+
+    /* ================================================================
+       스페이싱 섹션
+       ================================================================ */
+    .spacing-grid { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
+    .spacing-token { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .spacing-bar { background: #1A56B0; width: 36px; border-radius: 3px; opacity: 0.75; }
+    .spacing-label { font-size: 10.5px; color: #8D95A3; text-align: center; line-height: 1.5; }
+
+    /* ================================================================
+       일시정지/재생 패턴
+       ================================================================ */
+    .pattern-code {
+      background: #1E2331; color: #A8C4E0;
+      border-radius: 6px; padding: 16px 20px;
+      font-size: 12px; font-family: 'Consolas', 'Courier New', monospace;
+      line-height: 1.7; overflow-x: auto;
+      margin-bottom: 10px;
+    }
+    .pattern-code .cm { color: #5A7A9A; }
+    .pattern-code .kw { color: #4EC9B0; }
+    .pattern-code .str { color: #CE9178; }
+    .pattern-code .cls { color: #DCDCAA; }
+    .pattern-code .val { color: #9CDCFE; }
+
+    /* ================================================================
+       반응형 — 가이드 전용
+       ================================================================ */
+    @media (max-width: 900px) {
+      .g-nav { display: none; }
+      .g-main { padding: 20px; }
+      .color-swatch { width: calc(33.33% - 8px); }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── 상단 헤더 ── -->
+<header class="g-header">
+  <div>
+    <span class="g-header__title">NEIBIS Sample — Design Guide</span>
+    <span class="g-header__sub">샘플 사이트 퍼블 전용</span>
+  </div>
+  <span class="g-header__scope">⚠ 적용 범위: neibis-cms / assets/sample · html/sample</span>
+</header>
+
+<div class="g-layout">
+
+  <!-- ── 사이드 네비 ── -->
+  <nav class="g-nav" aria-label="가이드 섹션">
+    <div class="g-nav__group">
+      <div class="g-nav__label">Foundation</div>
+      <a class="g-nav__link is-active" href="#colors">Color</a>
+      <a class="g-nav__link" href="#typography">Typography</a>
+      <a class="g-nav__link" href="#spacing">Spacing</a>
+    </div>
+    <div class="g-nav__group">
+      <div class="g-nav__label">Components</div>
+      <a class="g-nav__link" href="#buttons">Button</a>
+      <a class="g-nav__link" href="#form">Form</a>
+      <a class="g-nav__link" href="#badge">Badge / Tag</a>
+      <a class="g-nav__link" href="#board">Board</a>
+      <a class="g-nav__link" href="#lnb">LNB</a>
+    </div>
+    <div class="g-nav__group">
+      <div class="g-nav__label">Patterns</div>
+      <a class="g-nav__link" href="#no-data">No Data / Empty</a>
+      <a class="g-nav__link" href="#slider-pattern">Slider / Pause</a>
+    </div>
+  </nav>
+
+  <!-- ── 메인 콘텐츠 ── -->
+  <main class="g-main">
+
+    <!-- ============================================================
+         COLOR
+         ============================================================ -->
+    <section class="g-section" id="colors">
+      <h2 class="g-section__title">Color</h2>
+
+      <!-- Brand -->
+      <div class="g-subsection">
+        <div class="g-subsection__title">Brand</div>
+        <div class="g-card">
+          <div class="color-grid">
+            <div class="color-swatch">
+              <div class="color-chip" style="background:#1A56B0"></div>
+              <div class="color-label">
+                <span class="color-name">Primary</span>
+                <span class="color-val">#1A56B0</span>
+                <span class="color-var">--c-blue</span>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="color-chip" style="background:#133D82"></div>
+              <div class="color-label">
+                <span class="color-name">Primary Dark</span>
+                <span class="color-val">#133D82</span>
+                <span class="color-var">hover 전용</span>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="color-chip" style="background:#3B8BEB"></div>
+              <div class="color-label">
+                <span class="color-name">Primary Mid</span>
+                <span class="color-val">#3B8BEB</span>
+                <span class="color-var">dot · accent</span>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="color-chip" style="background:#EBF3FF"></div>
+              <div class="color-label">
+                <span class="color-name">Primary Light</span>
+                <span class="color-val">#EBF3FF</span>
+                <span class="color-var">--c-blue-bg</span>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="color-chip" style="background:#2C3E6B"></div>
+              <div class="color-label">
+                <span class="color-name">Brand Navy</span>
+                <span class="color-val">#2C3E6B</span>
+                <span class="color-var">--c-navy</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Neutral -->
+      <div class="g-subsection">
+        <div class="g-subsection__title">Neutral (Text · BG · Line)</div>
+        <div class="g-card">
+          <div class="color-grid">
+            <div class="color-swatch">
+              <div class="color-chip" style="background:#1E2331"></div>
+              <div class="color-label">
+                <span class="color-name">Ink 900</span>
+                <span class="color-val">#1E2331</span>
+                <span class="color-var">--c-text</span>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="color-chip" style="background:#2B3245"></div>
+              <div class="color-label">
+                <span class="color-name">Ink 800</span>
+                <span class="color-val">#2B3245</span>
+                <span class="color-var">body text</span>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="color-chip" style="background:#5A6377"></div>
+              <div class="color-label">
+                <span class="color-name">Ink 600</span>
+                <span class="color-val">#5A6377</span>
+                <span class="color-var">--c-text-sub</span>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="color-chip" style="background:#8D95A3"></div>
+              <div class="color-label">
+                <span class="color-name">Ink 400</span>
+                <span class="color-val">#8D95A3</span>
+                <span class="color-var">--c-text-mute</span>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="color-chip" style="background:#B8C0CC"></div>
+              <div class="color-label">
+                <span class="color-name">Ink 300</span>
+                <span class="color-val">#B8C0CC</span>
+                <span class="color-var">--c-text-xmute</span>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="color-chip" style="background:#D6DBE5; border-bottom: 1px solid #EAECF2;"></div>
+              <div class="color-label">
+                <span class="color-name">Line Dark</span>
+                <span class="color-val">#D6DBE5</span>
+                <span class="color-var">--c-line-dark</span>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="color-chip" style="background:#EAECF2; border-bottom: 1px solid #D6DBE5;"></div>
+              <div class="color-label">
+                <span class="color-name">Line</span>
+                <span class="color-val">#EAECF2</span>
+                <span class="color-var">--c-line</span>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="color-chip" style="background:#F4F6FA; border-bottom: 1px solid #EAECF2;"></div>
+              <div class="color-label">
+                <span class="color-name">BG</span>
+                <span class="color-val">#F4F6FA</span>
+                <span class="color-var">--c-bg</span>
+              </div>
+            </div>
+            <div class="color-swatch">
+              <div class="color-chip" style="background:#FAFBFD; border-bottom: 1px solid #EAECF2;"></div>
+              <div class="color-label">
+                <span class="color-name">BG Sub</span>
+                <span class="color-val">#FAFBFD</span>
+                <span class="color-var">--c-bg-sub</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Semantic -->
+      <div class="g-subsection">
+        <div class="g-subsection__title">Semantic (Success · Warning · Danger · Info)</div>
+        <div class="g-card">
+          <div class="semantic-grid">
+            <div class="semantic-swatch">
+              <div class="semantic-chip-top"    style="background:#2E7D5B"></div>
+              <div class="semantic-chip-bottom" style="background:#E8F5EE"></div>
+              <div class="color-label" style="background:#fff">
+                <span class="color-name">Success</span>
+                <span class="color-val">#2E7D5B · #E8F5EE</span>
+              </div>
+            </div>
+            <div class="semantic-swatch">
+              <div class="semantic-chip-top"    style="background:#B45309"></div>
+              <div class="semantic-chip-bottom" style="background:#FEF3C7"></div>
+              <div class="color-label" style="background:#fff">
+                <span class="color-name">Warning</span>
+                <span class="color-val">#B45309 · #FEF3C7</span>
+              </div>
+            </div>
+            <div class="semantic-swatch">
+              <div class="semantic-chip-top"    style="background:#C0392B"></div>
+              <div class="semantic-chip-bottom" style="background:#FDECEA"></div>
+              <div class="color-label" style="background:#fff">
+                <span class="color-name">Danger</span>
+                <span class="color-val">#C0392B · #FDECEA</span>
+              </div>
+            </div>
+            <div class="semantic-swatch">
+              <div class="semantic-chip-top"    style="background:#1A56B0"></div>
+              <div class="semantic-chip-bottom" style="background:#EBF3FF"></div>
+              <div class="color-label" style="background:#fff">
+                <span class="color-name">Info</span>
+                <span class="color-val">#1A56B0 · #EBF3FF</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         TYPOGRAPHY
+         ============================================================ -->
+    <section class="g-section" id="typography">
+      <h2 class="g-section__title">Typography</h2>
+
+      <!-- Type Scale -->
+      <div class="g-subsection">
+        <div class="g-subsection__title">Type Scale — SpoqaHanSansNeo</div>
+        <div class="g-card">
+          <div class="type-row">
+            <div class="type-meta">40px · 700</div>
+            <div class="type-usage">비주얼 제목</div>
+            <div class="type-specimen" style="font-size:40px;font-weight:700;line-height:1.3">대표 비주얼 제목</div>
+          </div>
+          <div class="type-row">
+            <div class="type-meta">32px · 700</div>
+            <div class="type-usage">섹션 헤딩</div>
+            <div class="type-specimen" style="font-size:32px;font-weight:700;line-height:1.3">섹션 주요 헤딩</div>
+          </div>
+          <div class="type-row">
+            <div class="type-meta">28px · 700</div>
+            <div class="type-usage">페이지 제목</div>
+            <div class="type-specimen" style="font-size:28px;font-weight:700;line-height:1.3">H2 페이지 제목</div>
+          </div>
+          <div class="type-row">
+            <div class="type-meta">24px · 700</div>
+            <div class="type-usage">하위 헤딩</div>
+            <div class="type-specimen" style="font-size:24px;font-weight:700;line-height:1.3">H3 하위 헤딩</div>
+          </div>
+          <div class="type-row">
+            <div class="type-meta">20px · 500</div>
+            <div class="type-usage">카드 타이틀</div>
+            <div class="type-specimen" style="font-size:20px;font-weight:500;line-height:1.5">H4 카드 타이틀</div>
+          </div>
+          <div class="type-row">
+            <div class="type-meta">18px · 500</div>
+            <div class="type-usage">소제목</div>
+            <div class="type-specimen" style="font-size:18px;font-weight:500;line-height:1.6">H5 소제목 텍스트</div>
+          </div>
+          <div class="type-row">
+            <div class="type-meta">16px · 400</div>
+            <div class="type-usage">본문 Large</div>
+            <div class="type-specimen" style="font-size:16px;font-weight:400;line-height:1.7">본문 텍스트는 정돈된 공공서비스 느낌으로</div>
+          </div>
+          <div class="type-row">
+            <div class="type-meta">15px · 400</div>
+            <div class="type-usage">기본 본문</div>
+            <div class="type-specimen" style="font-size:15px;font-weight:400;line-height:1.7">기본 본문 — 공지사항 목록, 게시판 내용</div>
+          </div>
+          <div class="type-row">
+            <div class="type-meta">13px · 400</div>
+            <div class="type-usage">캡션 · 날짜</div>
+            <div class="type-specimen" style="font-size:13px;font-weight:400;line-height:1.6;color:#5A6377">캡션 · 날짜 · 부가 정보 · 메타데이터</div>
+          </div>
+          <div class="type-row">
+            <div class="type-meta">12px · 400</div>
+            <div class="type-usage">라벨 · 태그</div>
+            <div class="type-specimen" style="font-size:12px;font-weight:400;line-height:1.5;color:#8D95A3">라벨 · 태그 · 배지 · 보조 레이블</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Type Components -->
+      <div class="g-subsection">
+        <div class="g-subsection__title">Type Components — 실사용 컨텍스트</div>
+        <div class="g-card">
+          <div class="type-row" style="align-items: center;">
+            <div class="type-meta">GNB 메뉴</div>
+            <div style="display:flex; gap:24px;">
+              <span style="font-size:14px;font-weight:500;color:#5A6377">기관소개</span>
+              <span style="font-size:14px;font-weight:600;color:#1A56B0;border-bottom:2px solid #1A56B0;padding-bottom:2px">알림마당</span>
+              <span style="font-size:14px;font-weight:500;color:#5A6377">사업안내</span>
+            </div>
+          </div>
+          <div class="type-row" style="align-items:center;">
+            <div class="type-meta">브레드크럼</div>
+            <span style="font-size:13px;color:#8D95A3">홈 › 알림마당 › <strong style="color:#2B3245;font-weight:500">공지사항</strong></span>
+          </div>
+          <div class="type-row">
+            <div class="type-meta">게시판 제목</div>
+            <div>
+              <div style="font-size:15px;font-weight:500;color:#2B3245">[공지] 2025년 상반기 업무계획 안내</div>
+              <div style="font-size:13px;color:#8D95A3;margin-top:3px">2025.04.15 &nbsp;·&nbsp; 관리자</div>
+            </div>
+          </div>
+          <div class="type-row" style="align-items:center;">
+            <div class="type-meta">LNB 항목</div>
+            <div style="display:flex; flex-direction:column; gap:2px;">
+              <span style="font-size:13.5px;font-weight:600;color:#1A56B0">공지사항 (활성)</span>
+              <span style="font-size:13.5px;color:#5A6377">보도자료</span>
+              <span style="font-size:12.5px;color:#8D95A3;padding-left:12px">└ 전체 공지 (3뎁스)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SPACING
+         ============================================================ -->
+    <section class="g-section" id="spacing">
+      <h2 class="g-section__title">Spacing</h2>
+      <div class="g-card">
+        <div class="spacing-grid">
+          <div class="spacing-token"><div class="spacing-bar" style="height:4px"></div><div class="spacing-label">4px</div></div>
+          <div class="spacing-token"><div class="spacing-bar" style="height:8px"></div><div class="spacing-label">8px</div></div>
+          <div class="spacing-token"><div class="spacing-bar" style="height:12px"></div><div class="spacing-label">12px</div></div>
+          <div class="spacing-token"><div class="spacing-bar" style="height:16px"></div><div class="spacing-label">16px</div></div>
+          <div class="spacing-token"><div class="spacing-bar" style="height:20px"></div><div class="spacing-label">20px</div></div>
+          <div class="spacing-token"><div class="spacing-bar" style="height:24px"></div><div class="spacing-label">24px</div></div>
+          <div class="spacing-token"><div class="spacing-bar" style="height:28px"></div><div class="spacing-label">28px</div></div>
+          <div class="spacing-token"><div class="spacing-bar" style="height:32px"></div><div class="spacing-label">32px</div></div>
+          <div class="spacing-token"><div class="spacing-bar" style="height:40px"></div><div class="spacing-label">40px</div></div>
+          <div class="spacing-token"><div class="spacing-bar" style="height:48px"></div><div class="spacing-label">48px</div></div>
+          <div class="spacing-token"><div class="spacing-bar" style="height:64px"></div><div class="spacing-label">64px</div></div>
+          <div class="spacing-token"><div class="spacing-bar" style="height:80px"></div><div class="spacing-label">80px</div></div>
+        </div>
+        <div style="margin-top:16px; font-size:12px; color:#8D95A3;">
+          컨테이너 최대 너비: <span class="g-token">1280px</span> &nbsp;·&nbsp;
+          좌우 패딩: <span class="g-token">28px</span> &nbsp;·&nbsp;
+          GNB 높이: <span class="g-token">64px</span> &nbsp;·&nbsp;
+          LNB 너비: <span class="g-token">220px</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         BUTTON
+         ============================================================ -->
+    <section class="g-section" id="buttons">
+      <h2 class="g-section__title">Button</h2>
+
+      <div class="g-subsection">
+        <div class="g-subsection__title">Variant — Primary · Secondary · Ghost · Danger</div>
+        <div class="g-card">
+          <div class="btn-row">
+            <button class="g-btn g-btn--primary">확인</button>
+            <button class="g-btn g-btn--secondary">목록보기</button>
+            <button class="g-btn g-btn--ghost">취소</button>
+            <button class="g-btn g-btn--danger">삭제</button>
+            <button class="g-btn g-btn--disabled" disabled>비활성화</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="g-subsection">
+        <div class="g-subsection__title">Size — sm · base · lg</div>
+        <div class="g-card">
+          <div class="btn-row">
+            <button class="g-btn g-btn--primary g-btn--sm">소형 버튼</button>
+            <button class="g-btn g-btn--primary">기본 버튼</button>
+            <button class="g-btn g-btn--primary g-btn--lg">대형 버튼</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="g-subsection">
+        <div class="g-subsection__title">Pill (rounded) variant</div>
+        <div class="g-card">
+          <div class="btn-row">
+            <button class="g-btn g-btn--primary g-btn--sm g-btn--pill">소형 라운드</button>
+            <button class="g-btn g-btn--primary g-btn--pill">기본 라운드</button>
+            <button class="g-btn g-btn--secondary g-btn--pill">보조 라운드</button>
+            <button class="g-btn g-btn--ghost g-btn--pill">고스트 라운드</button>
+            <button class="g-btn g-btn--primary g-btn--lg g-btn--pill">대형 라운드</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         FORM
+         ============================================================ -->
+    <section class="g-section" id="form">
+      <h2 class="g-section__title">Form</h2>
+
+      <div class="g-subsection">
+        <div class="g-subsection__title">Input · Select · Textarea</div>
+        <div class="g-card">
+          <div class="form-grid">
+            <div class="g-field">
+              <label class="g-label">성명 <span class="req">*</span></label>
+              <input class="g-input" type="text" placeholder="홍길동" />
+            </div>
+            <div class="g-field">
+              <label class="g-label">연락처</label>
+              <input class="g-input" type="text" placeholder="010-0000-0000" />
+              <span class="g-input-hint">숫자만 입력하세요.</span>
+            </div>
+            <div class="g-field">
+              <label class="g-label">분류 선택</label>
+              <select class="g-select">
+                <option>선택하세요</option>
+                <option>공지사항</option>
+                <option>보도자료</option>
+                <option>자료실</option>
+              </select>
+            </div>
+            <div class="g-field">
+              <label class="g-label">오류 상태</label>
+              <input class="g-input is-error" type="text" value="잘못된 입력" />
+              <span class="g-error-msg">올바른 형식으로 입력하세요.</span>
+            </div>
+            <div class="g-field g-field-full">
+              <label class="g-label">내용</label>
+              <textarea class="g-textarea" placeholder="내용을 입력하세요."></textarea>
+            </div>
+            <div class="g-field g-field-full">
+              <label class="g-label">체크박스 · 라디오</label>
+              <div class="g-check-row">
+                <label class="g-check-label"><input type="checkbox" checked /> 동의합니다</label>
+                <label class="g-check-label"><input type="checkbox" /> 선택항목</label>
+                <label class="g-check-label"><input type="checkbox" disabled /> 비활성화</label>
+                &nbsp;
+                <label class="g-check-label"><input type="radio" name="r" checked /> 전체</label>
+                <label class="g-check-label"><input type="radio" name="r" /> 공지사항</label>
+                <label class="g-check-label"><input type="radio" name="r" /> 보도자료</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         BADGE / TAG
+         ============================================================ -->
+    <section class="g-section" id="badge">
+      <h2 class="g-section__title">Badge / Tag</h2>
+
+      <div class="g-subsection">
+        <div class="g-subsection__title">Status Badge — filled (dot 포함)</div>
+        <div class="g-card">
+          <div class="badge-row">
+            <span class="g-badge g-badge--blue"><span class="dot"></span>공지</span>
+            <span class="g-badge g-badge--green"><span class="dot"></span>진행중</span>
+            <span class="g-badge g-badge--amber"><span class="dot"></span>검토중</span>
+            <span class="g-badge g-badge--red"><span class="dot"></span>마감</span>
+            <span class="g-badge g-badge--slate"><span class="dot"></span>일반</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="g-subsection">
+        <div class="g-subsection__title">Status Badge — outlined</div>
+        <div class="g-card">
+          <div class="badge-row">
+            <span class="g-badge g-badge--out g-badge--blue">공지</span>
+            <span class="g-badge g-badge--out g-badge--green">진행중</span>
+            <span class="g-badge g-badge--out g-badge--red">마감</span>
+            <span class="g-badge g-badge--out g-badge--slate">일반</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="g-subsection">
+        <div class="g-subsection__title">게시판 Tag Chip (sub.css 사용)</div>
+        <div class="g-card">
+          <div class="badge-row">
+            <span class="tag-chip tag-chip--notice">공지</span>
+            <span class="tag-chip tag-chip--normal">일반</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="g-subsection">
+        <div class="g-subsection__title">Tag · Filter Pill</div>
+        <div class="g-card">
+          <div class="badge-row">
+            <span class="g-tag is-on">전체</span>
+            <span class="g-tag">행정</span>
+            <span class="g-tag">사업안내</span>
+            <span class="g-tag">민원</span>
+            &nbsp;
+            <span class="g-pill is-on">전체</span>
+            <span class="g-pill">공지사항</span>
+            <span class="g-pill">보도자료</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="g-subsection">
+        <div class="g-subsection__title">Count Badge · Indicator Chip</div>
+        <div class="g-card">
+          <div class="badge-row">
+            <span class="g-count g-count--blue">1</span>
+            <span class="g-count g-count--blue">12</span>
+            <span class="g-count g-count--blue">128</span>
+            <span class="g-count g-count--blue">99+</span>
+            <span class="g-count g-count--red">3</span>
+            <span class="g-count g-count--slate">42</span>
+            &nbsp;
+            <span class="g-chip g-chip--new">NEW</span>
+            <span class="g-chip g-chip--hot">HOT</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         BOARD
+         ============================================================ -->
+    <section class="g-section" id="board">
+      <h2 class="g-section__title">Board</h2>
+
+      <div class="g-subsection">
+        <div class="g-subsection__title">게시판 목록 (sub.css — .board-table-wrap)</div>
+        <div class="board-demo">
+          <!-- toolbar -->
+          <div class="board-toolbar">
+            <div class="board-toolbar__left">
+              <span class="toolbar-count-label">전체</span>
+              <span class="toolbar-count-val">247건</span>
+              <span class="toolbar-divider">|</span>
+              <span class="toolbar-page-info"><em>1</em> / 25 페이지</span>
+            </div>
+            <div class="board-toolbar__right">
+              <span class="toolbar-per-label">페이지당</span>
+              <select class="toolbar-per-select" aria-label="페이지당 표시 건수">
+                <option>10건</option><option>20건</option><option>30건</option>
+              </select>
+            </div>
+          </div>
+          <!-- table -->
+          <div class="board-table-wrap">
+            <div class="board-table-head" role="row">
+              <span class="board-table-col board-table-col--no">번호</span>
+              <span class="board-table-col board-table-col--tag">분류</span>
+              <span class="board-table-col board-table-col--title">제목</span>
+              <span class="board-table-col board-table-col--attach">첨부</span>
+              <span class="board-table-col board-table-col--date">등록일</span>
+              <span class="board-table-col board-table-col--views">조회</span>
+            </div>
+            <!-- 공지 + 새글 + 첨부 -->
+            <div class="board-row is-pinned" tabindex="0" role="row">
+              <span class="board-cell--no">공지</span>
+              <span class="board-cell--tag"><span class="tag-chip tag-chip--notice">공지</span></span>
+              <div class="board-cell--title">
+                <span class="board-cell__new-dot" aria-label="새글"></span>
+                <span class="board-cell__title-text">2025년 상반기 업무 계획 안내 사항</span>
+              </div>
+              <span class="board-cell--attach">
+                <span class="attach-icon" title="첨부파일 있음">
+                  <svg width="11" height="13" viewBox="0 0 11 13" fill="none" aria-hidden="true"><path d="M9.5 5L5 9.5C4 10.5 2.4 10.5 1.4 9.5C0.4 8.5 0.4 6.9 1.4 5.9L6 1.3C6.6.7 7.6.7 8.2 1.3C8.8 1.9 8.8 2.9 8.2 3.5L3.6 8.1C3.3 8.4 2.9 8.4 2.6 8.1C2.3 7.8 2.3 7.4 2.6 7.1L6.5 3.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+              </span>
+              <span class="board-cell--date">2025.04.15</span>
+              <span class="board-cell--views">342</span>
+            </div>
+            <!-- 일반 + 첨부 없음 -->
+            <div class="board-row" tabindex="0" role="row">
+              <span class="board-cell--no">128</span>
+              <span class="board-cell--tag"><span class="tag-chip tag-chip--normal">일반</span></span>
+              <div class="board-cell--title">
+                <span class="board-cell__new-dot" aria-label="새글"></span>
+                <span class="board-cell__title-text">사업 참여 신청서 제출 기한 연장 안내</span>
+              </div>
+              <span class="board-cell--attach"></span>
+              <span class="board-cell--date">2025.04.10</span>
+              <span class="board-cell--views">218</span>
+            </div>
+            <!-- 일반 -->
+            <div class="board-row" tabindex="0" role="row">
+              <span class="board-cell--no">127</span>
+              <span class="board-cell--tag"><span class="tag-chip tag-chip--normal">일반</span></span>
+              <div class="board-cell--title">
+                <span class="board-cell__title-text">시스템 정기 점검 일정 안내 (4월)</span>
+              </div>
+              <span class="board-cell--attach">
+                <span class="attach-icon" title="첨부파일 있음">
+                  <svg width="11" height="13" viewBox="0 0 11 13" fill="none" aria-hidden="true"><path d="M9.5 5L5 9.5C4 10.5 2.4 10.5 1.4 9.5C0.4 8.5 0.4 6.9 1.4 5.9L6 1.3C6.6.7 7.6.7 8.2 1.3C8.8 1.9 8.8 2.9 8.2 3.5L3.6 8.1C3.3 8.4 2.9 8.4 2.6 8.1C2.3 7.8 2.3 7.4 2.6 7.1L6.5 3.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+              </span>
+              <span class="board-cell--date">2025.04.01</span>
+              <span class="board-cell--views">195</span>
+            </div>
+          </div>
+          <!-- pagination -->
+          <div class="pagination">
+            <button class="pg-nav" aria-label="처음 페이지">«</button>
+            <button class="pg-nav" aria-label="이전 페이지">‹</button>
+            <button class="pg-btn is-active" aria-current="page">1</button>
+            <button class="pg-btn">2</button>
+            <button class="pg-btn">3</button>
+            <button class="pg-btn">4</button>
+            <button class="pg-btn">5</button>
+            <button class="pg-nav" aria-label="다음 페이지">›</button>
+            <button class="pg-nav" aria-label="마지막 페이지">»</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         LNB
+         ============================================================ -->
+    <section class="g-section" id="lnb">
+      <h2 class="g-section__title">LNB</h2>
+      <div class="g-subsection">
+        <div class="g-subsection__title">2뎁스 · 3뎁스 구조 (sub.css)</div>
+        <div class="lnb-demo-wrap">
+
+          <!-- 2뎁스만 있는 경우 -->
+          <div class="lnb-demo-box">
+            <div class="lnb">
+              <div class="lnb__section-title">알림마당</div>
+              <ul class="lnb__list">
+                <li class="lnb__item">
+                  <a class="lnb__link is-active" href="#" aria-current="page">공지사항</a>
+                </li>
+                <li class="lnb__item">
+                  <a class="lnb__link" href="#">보도자료</a>
+                </li>
+                <li class="lnb__item">
+                  <a class="lnb__link" href="#">자료실</a>
+                </li>
+                <li class="lnb__item">
+                  <a class="lnb__link" href="#">FAQ</a>
+                </li>
+              </ul>
+            </div>
+            <div style="padding:12px 16px; font-size:11px; color:#8D95A3;">2뎁스 — 기본형</div>
+          </div>
+
+          <!-- 3뎁스 있는 경우 -->
+          <div class="lnb-demo-box">
+            <div class="lnb">
+              <div class="lnb__section-title">알림마당</div>
+              <ul class="lnb__list">
+                <li class="lnb__item--has-sub">
+                  <button class="lnb__link lnb__link--toggle is-active"
+                          type="button" aria-expanded="true" aria-controls="demo-sub-1">
+                    공지사항
+                    <svg class="lnb__chevron-svg" width="11" height="7" viewBox="0 0 11 7" fill="none" aria-hidden="true">
+                      <path d="M1 1L5.5 5.5L10 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                  <ul class="lnb__sub-list is-open" id="demo-sub-1">
+                    <li><a class="lnb__sub-link is-active" href="#" aria-current="page">전체</a></li>
+                    <li><a class="lnb__sub-link" href="#">일반공지</a></li>
+                    <li><a class="lnb__sub-link" href="#">중요공지</a></li>
+                  </ul>
+                </li>
+                <li class="lnb__item--has-sub">
+                  <button class="lnb__link lnb__link--toggle"
+                          type="button" aria-expanded="false" aria-controls="demo-sub-2">
+                    보도자료
+                    <svg class="lnb__chevron-svg" width="11" height="7" viewBox="0 0 11 7" fill="none" aria-hidden="true">
+                      <path d="M1 1L5.5 5.5L10 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                  <ul class="lnb__sub-list" id="demo-sub-2">
+                    <li><a class="lnb__sub-link" href="#">전체 보도자료</a></li>
+                    <li><a class="lnb__sub-link" href="#">언론 보도</a></li>
+                  </ul>
+                </li>
+                <li class="lnb__item">
+                  <a class="lnb__link" href="#">FAQ</a>
+                </li>
+              </ul>
+            </div>
+            <div style="padding:12px 16px; font-size:11px; color:#8D95A3;">3뎁스 — 토글 슬라이드</div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         NO DATA / EMPTY STATE
+         ============================================================ -->
+    <section class="g-section" id="no-data">
+      <h2 class="g-section__title">No Data / Empty State</h2>
+
+      <!-- 1. 게시판 목록 빈 상태 -->
+      <div class="g-subsection">
+        <div class="g-subsection__title">Board — 등록된 게시물 없음 (테이블 내부 삽입)</div>
+        <div class="g-card" style="padding:0; overflow:hidden;">
+          <div class="board-table-wrap" style="border-top:2px solid var(--c-blue-dark);">
+            <div class="board-table-head" role="row">
+              <span class="board-table-col board-table-col--no">번호</span>
+              <span class="board-table-col board-table-col--tag">분류</span>
+              <span class="board-table-col board-table-col--title">제목</span>
+              <span class="board-table-col board-table-col--attach">첨부</span>
+              <span class="board-table-col board-table-col--date">등록일</span>
+              <span class="board-table-col board-table-col--views">조회</span>
+            </div>
+            <!-- 운영 데이터 슬롯: BOARD_EMPTY_STATE (목록이 비었을 때 표시) -->
+            <div class="board-no-data">
+              <div class="no-data no-data--board">
+                <div class="no-data__icon">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                    <rect x="4" y="4" width="20" height="20" rx="3" stroke="currentColor" stroke-width="1.6"/>
+                    <path d="M9 10h10M9 14h10M9 18h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <p class="no-data__text">등록된 게시물이 없습니다.</p>
+                <p class="no-data__sub">추후 게시물이 등록될 예정입니다.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pattern-code" style="margin-top:8px;">&lt;<span style="color:#4EC9B0">div</span> <span style="color:#9CDCFE">class</span>=<span style="color:#CE9178">"board-no-data"</span>&gt;
+  &lt;<span style="color:#4EC9B0">div</span> <span style="color:#9CDCFE">class</span>=<span style="color:#CE9178">"no-data no-data--board"</span>&gt;
+    &lt;<span style="color:#4EC9B0">div</span> <span style="color:#9CDCFE">class</span>=<span style="color:#CE9178">"no-data__icon"</span>&gt;...svg...&lt;/<span style="color:#4EC9B0">div</span>&gt;
+    &lt;<span style="color:#4EC9B0">p</span> <span style="color:#9CDCFE">class</span>=<span style="color:#CE9178">"no-data__text"</span>&gt;등록된 게시물이 없습니다.&lt;/<span style="color:#4EC9B0">p</span>&gt;
+    &lt;<span style="color:#4EC9B0">p</span> <span style="color:#9CDCFE">class</span>=<span style="color:#CE9178">"no-data__sub"</span>&gt;추후 게시물이 등록될 예정입니다.&lt;/<span style="color:#4EC9B0">p</span>&gt;
+  &lt;/<span style="color:#4EC9B0">div</span>&gt;
+&lt;/<span style="color:#4EC9B0">div</span>&gt;</div>
+      </div>
+
+      <!-- 2. 검색 결과 없음 -->
+      <div class="g-subsection">
+        <div class="g-subsection__title">Search — 검색 결과 없음 (검색어 피드백 포함)</div>
+        <div class="g-card" style="padding:0; overflow:hidden;">
+          <div class="board-table-wrap" style="border-top:2px solid var(--c-blue-dark);">
+            <div class="board-table-head" role="row">
+              <span class="board-table-col board-table-col--no">번호</span>
+              <span class="board-table-col board-table-col--title">제목</span>
+              <span class="board-table-col board-table-col--date">등록일</span>
+              <span class="board-table-col board-table-col--views">조회</span>
+            </div>
+            <div class="board-no-data">
+              <div class="no-data no-data--search">
+                <div class="no-data__icon">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="7" stroke="currentColor" stroke-width="1.6"/>
+                    <path d="M17 17l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M9.5 12h5M12 9.5v5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <!-- 운영 데이터 슬롯: SEARCH_KEYWORD -->
+                <p class="no-data__text">'<strong style="color:var(--c-blue)">검색어</strong>'에 대한 검색 결과가 없습니다.</p>
+                <p class="no-data__sub">다른 검색어를 입력하거나 조건을 변경해 보세요.</p>
+                <button class="no-data__action" type="button" onclick="history.back()">검색 초기화</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 갤러리 빈 상태 -->
+      <div class="g-subsection">
+        <div class="g-subsection__title">Gallery — 등록된 사진 없음</div>
+        <div class="g-card" style="background:#f8f9fa; border:1px solid #e8e8e8; border-radius:8px; padding:0; overflow:hidden;">
+          <div class="no-data no-data--gallery" style="padding:64px 20px;">
+            <div class="no-data__icon">
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+                <rect x="3" y="6" width="30" height="24" rx="3" stroke="currentColor" stroke-width="1.6"/>
+                <circle cx="12" cy="15" r="3" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M3 26l9-8 7 6 5-4 9 8" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <p class="no-data__text">등록된 사진이 없습니다.</p>
+            <p class="no-data__sub">포토갤러리가 업데이트되면 이곳에 표시됩니다.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. 시스템 오류 -->
+      <div class="g-subsection">
+        <div class="g-subsection__title">Error — 데이터 로드 실패 / 시스템 오류</div>
+        <div class="g-card">
+          <div style="display:flex; gap:20px; flex-wrap:wrap;">
+
+            <!-- 오류 -->
+            <div style="flex:1; min-width:220px; border:1px solid #fdecea; border-radius:8px; overflow:hidden;">
+              <div class="no-data no-data--error">
+                <div class="no-data__icon">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                    <circle cx="14" cy="14" r="10" stroke="currentColor" stroke-width="1.6"/>
+                    <path d="M14 9v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <circle cx="14" cy="19" r="1" fill="currentColor"/>
+                  </svg>
+                </div>
+                <p class="no-data__text">데이터를 불러오지 못했습니다.</p>
+                <p class="no-data__sub">일시적인 오류입니다.<br/>잠시 후 다시 시도해 주세요.</p>
+                <button class="no-data__action no-data__action--primary" type="button">다시 시도</button>
+              </div>
+              <div style="padding:6px 12px 10px; font-size:11px; color:#c0392b; background:#fdecea; text-align:center;">.no-data--error</div>
+            </div>
+
+            <!-- 네트워크 -->
+            <div style="flex:1; min-width:220px; border:1px solid #ffe0b2; border-radius:8px; overflow:hidden;">
+              <div class="no-data no-data--network">
+                <div class="no-data__icon">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                    <path d="M4 8c2.67-2.67 6.28-4 10-4s7.33 1.33 10 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M7.5 11.5C9.3 9.7 11.5 8.7 14 8.7s4.7 1 6.5 2.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M11 15c.8-.8 1.8-1.2 3-1.2s2.2.4 3 1.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                    <circle cx="14" cy="20" r="1.5" fill="currentColor"/>
+                    <line x1="5" y1="4" x2="23" y2="24" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <p class="no-data__text">네트워크 연결을 확인해주세요.</p>
+                <p class="no-data__sub">인터넷 연결 후 다시 시도해 주세요.</p>
+                <button class="no-data__action" type="button">새로고침</button>
+              </div>
+              <div style="padding:6px 12px 10px; font-size:11px; color:#e65100; background:#fff3e0; text-align:center;">.no-data--network</div>
+            </div>
+
+            <!-- 로그인 필요 -->
+            <div style="flex:1; min-width:220px; border:1px solid #dce8ff; border-radius:8px; overflow:hidden;">
+              <div class="no-data no-data--login">
+                <div class="no-data__icon">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                    <circle cx="14" cy="10" r="4" stroke="currentColor" stroke-width="1.6"/>
+                    <path d="M6 24c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M19 13v5M21.5 15.5h-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <p class="no-data__text">로그인이 필요한 서비스입니다.</p>
+                <p class="no-data__sub">로그인 후 이용하실 수 있습니다.</p>
+                <a class="no-data__action no-data__action--primary" href="./로그인.html">로그인하기</a>
+              </div>
+              <div style="padding:6px 12px 10px; font-size:11px; color:var(--c-blue); background:#f0f6ff; text-align:center;">.no-data--login</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. 클래스 레퍼런스 -->
+      <div class="g-subsection">
+        <div class="g-subsection__title">Class Reference (sub.css — .no-data)</div>
+        <div class="g-card">
+          <table style="width:100%; border-collapse:collapse; font-size:13px;">
+            <thead>
+              <tr style="border-bottom:2px solid var(--c-blue-dark);">
+                <th style="padding:8px 12px; text-align:left; color:#444; font-size:12px;">클래스</th>
+                <th style="padding:8px 12px; text-align:left; color:#444; font-size:12px;">용도</th>
+                <th style="padding:8px 12px; text-align:left; color:#444; font-size:12px;">아이콘 배경</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid #ececec;">
+                <td style="padding:9px 12px;"><span class="g-token">.no-data</span></td>
+                <td style="padding:9px 12px; color:#555;">기본 베이스 (단독 사용 가능)</td>
+                <td style="padding:9px 12px; color:#888;">#f0f3f8 / #b8c0cc</td>
+              </tr>
+              <tr style="border-bottom:1px solid #ececec;">
+                <td style="padding:9px 12px;"><span class="g-token">.no-data--board</span></td>
+                <td style="padding:9px 12px; color:#555;">게시판 테이블 내부, padding 축소</td>
+                <td style="padding:9px 12px; color:#888;">기본 동일</td>
+              </tr>
+              <tr style="border-bottom:1px solid #ececec;">
+                <td style="padding:9px 12px;"><span class="g-token">.no-data--search</span></td>
+                <td style="padding:9px 12px; color:#555;">검색 결과 없음</td>
+                <td style="padding:9px 12px; color:#888;">기본 동일</td>
+              </tr>
+              <tr style="border-bottom:1px solid #ececec;">
+                <td style="padding:9px 12px;"><span class="g-token">.no-data--gallery</span></td>
+                <td style="padding:9px 12px; color:#555;">갤러리 그리드 비었을 때</td>
+                <td style="padding:9px 12px; color:#888;">기본 동일, 아이콘 72px</td>
+              </tr>
+              <tr style="border-bottom:1px solid #ececec;">
+                <td style="padding:9px 12px;"><span class="g-token">.no-data--error</span></td>
+                <td style="padding:9px 12px; color:#555;">시스템/API 오류</td>
+                <td style="padding:9px 12px; color:#888;">#fdecea / #c0392b</td>
+              </tr>
+              <tr style="border-bottom:1px solid #ececec;">
+                <td style="padding:9px 12px;"><span class="g-token">.no-data--network</span></td>
+                <td style="padding:9px 12px; color:#555;">네트워크 오류</td>
+                <td style="padding:9px 12px; color:#888;">#fff3e0 / #e65100</td>
+              </tr>
+              <tr>
+                <td style="padding:9px 12px;"><span class="g-token">.no-data--login</span></td>
+                <td style="padding:9px 12px; color:#555;">로그인 필요 안내</td>
+                <td style="padding:9px 12px; color:#888;">#f0f6ff / var(--c-blue)</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="margin-top:14px; font-size:12.5px; color:#888;">
+            액션 버튼: <span class="g-token">.no-data__action</span> (outline) · <span class="g-token">.no-data__action--primary</span> (filled blue)<br/>
+            게시판 래퍼: <span class="g-token">.board-no-data</span> — 테이블 행처럼 border-bottom 적용
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ============================================================
+         SLIDER / PAUSE PATTERN
+         ============================================================ -->
+    <section class="g-section" id="slider-pattern">
+      <h2 class="g-section__title">Slider / Pause Pattern</h2>
+
+      <div class="g-subsection">
+        <div class="g-subsection__title">일시정지·재생 버튼 공통 패턴</div>
+        <div class="g-card">
+          <p style="font-size:13px; color:#5A6377; margin:0 0 16px;">
+            모든 슬라이더(히어로, 팝업존, 배너존, 카드뉴스, 롤링배너)에서 동일 패턴 사용.
+            버튼에 <code class="g-token">.is-paused</code> 클래스 토글로 아이콘 전환.
+          </p>
+
+          <!-- HTML 코드 -->
+          <div class="g-subsection__title">HTML</div>
+          <div class="pattern-code"><span class="cm">&lt;!-- 일시정지 버튼: aria-label은 JS가 syncPauseUI()로 업데이트 --&gt;</span>
+&lt;<span class="kw">button</span> <span class="val">class</span>=<span class="str">"[컴포넌트]-toggle"</span> <span class="val">type</span>=<span class="str">"button"</span>
+        <span class="val">aria-label</span>=<span class="str">"자동재생 일시정지"</span>&gt;
+  <span class="cm">&lt;!-- 재생 중 표시 --&gt;</span>
+  &lt;<span class="kw">svg</span> <span class="val">class</span>=<span class="str">"si-pause"</span> ...&gt;pause icon&lt;/<span class="kw">svg</span>&gt;
+  <span class="cm">&lt;!-- 일시정지 중 표시 --&gt;</span>
+  &lt;<span class="kw">svg</span> <span class="val">class</span>=<span class="str">"si-play"</span> ...&gt;play icon&lt;/<span class="kw">svg</span>&gt;
+&lt;/<span class="kw">button</span>&gt;</div>
+
+          <!-- CSS 코드 -->
+          <div class="g-subsection__title">CSS</div>
+          <div class="pattern-code"><span class="cm">/* 기본: pause 아이콘 표시, play 아이콘 숨김 */</span>
+.<span class="cls">si-play</span> { display: none; }
+
+<span class="cm">/* .is-paused 상태: 반전 */</span>
+.<span class="cls">is-paused</span> .<span class="cls">si-pause</span> { display: none; }
+.<span class="cls">is-paused</span> .<span class="cls">si-play</span>  { display: inline; }</div>
+
+          <!-- JS 코드 -->
+          <div class="g-subsection__title">JS — ui.js 공통 함수</div>
+          <div class="pattern-code"><span class="cm">/* syncPauseUI: 버튼 상태 동기화 */</span>
+<span class="kw">function</span> <span class="cls">syncPauseUI</span>(btn, isPaused) {
+  btn.classList.toggle(<span class="str">'is-paused'</span>, isPaused);
+  btn.setAttribute(<span class="str">'aria-label'</span>,
+    isPaused ? <span class="str">'자동재생 시작'</span> : <span class="str">'자동재생 일시정지'</span>
+  );
+}
+
+<span class="cm">/* manualPaused 플래그: hover 일시정지와 분리 */</span>
+<span class="kw">var</span> manualPaused = <span class="val">false</span>;
+toggleBtn.addEventListener(<span class="str">'click'</span>, <span class="kw">function</span> () {
+  manualPaused = !manualPaused;
+  manualPaused ? pause() : play();
+  <span class="cls">syncPauseUI</span>(toggleBtn, manualPaused);
+});
+wrap.addEventListener(<span class="str">'mouseenter'</span>, <span class="kw">function</span> () {
+  <span class="kw">if</span> (!manualPaused) pause(); <span class="cm">// 수동 일시정지 중엔 hover 무시</span>
+});
+wrap.addEventListener(<span class="str">'mouseleave'</span>, <span class="kw">function</span> () {
+  <span class="kw">if</span> (!manualPaused) play();
+});</div>
+        </div>
+      </div>
+
+      <div class="g-subsection">
+        <div class="g-subsection__title">운영 데이터 슬롯 주석 규칙</div>
+        <div class="g-card">
+          <p style="font-size:13px; color:#5A6377; margin:0 0 12px;">
+            JSP 이식 시 개발파트(CODEX)가 슬롯 위치를 찾을 수 있도록 HTML에 주석으로 표기.
+          </p>
+          <div class="pattern-code"><span class="cm">&lt;!-- 운영 데이터 슬롯: BOARD_LIST_START (반복) --&gt;</span>
+<span class="cm">&lt;!-- 반복 행 마크업 --&gt;</span>
+<span class="cm">&lt;!-- 운영 데이터 슬롯: BOARD_LIST_END --&gt;</span>
+
+<span class="cm">&lt;!-- 운영 데이터 슬롯: TOTAL_COUNT / CURRENT_PAGE / TOTAL_PAGE --&gt;</span>
+<span class="cm">&lt;!-- 운영 데이터 슬롯: HERO_SLIDE_LIST --&gt;</span></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- LNB 토글 (가이드 내 데모용) -->
+<script>
+  (function () {
+    var items = document.querySelectorAll('.lnb__item--has-sub');
+    items.forEach(function (item) {
+      var btn = item.querySelector('.lnb__link--toggle');
+      var sub = item.querySelector('.lnb__sub-list');
+      if (!btn || !sub) return;
+      btn.addEventListener('click', function () {
+        var isOpen = sub.classList.contains('is-open');
+        sub.classList.toggle('is-open', !isOpen);
+        btn.setAttribute('aria-expanded', !isOpen ? 'true' : 'false');
+      });
+    });
+
+    // 사이드 네비 active 처리
+    var navLinks = document.querySelectorAll('.g-nav__link');
+    var sections = document.querySelectorAll('.g-section');
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          var id = entry.target.id;
+          navLinks.forEach(function (l) {
+            l.classList.toggle('is-active', l.getAttribute('href') === '#' + id);
+          });
+        }
+      });
+    }, { rootMargin: '-20% 0px -60% 0px' });
+    sections.forEach(function (s) { observer.observe(s); });
+  })();
+</script>
+
+</body>
+</html>

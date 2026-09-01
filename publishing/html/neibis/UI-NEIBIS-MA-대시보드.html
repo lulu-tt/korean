@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				$("#site-select").customDropdown({
+					onSelect: function (option) {
+						alert("선택된 옵션:" + option.text());
+					}
+				});
+
+				// [개발] 90일 이상 비밀번호 미변경시
+				// alert(
+				// 	{
+				// 		icon: "warning",
+				// 		title: "비밀번호를 변경해주세요",
+				// 		message: "90일 이상 비밀번호를 변경하지 않았어요."
+				// 	},
+				// 	function () {
+				// 		// alert 확인버튼 클릭 이후 실행될 콜백함수
+				// 	}
+				// );
+
+				// 방문자 통계 positon-right 변경
+				function checkWindowSize() {
+					var windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+
+					// 화면 크기에 따라 속성 변경
+					if (windowWidth <= 1024) {
+						var tooltipPosition = document.querySelector(".positon-right");
+						if (tooltipPosition) {
+							tooltipPosition.setAttribute("data-tooltip-arrow", "top-right");
+						}
+
+						var tooltipContent = document.querySelector(".positon-right .tooltip-content");
+						if (tooltipContent) {
+							tooltipContent.classList.remove("top-center");
+							tooltipContent.classList.add("top-right");
+						}
+					} else {
+						var tooltipPosition = document.querySelector(".positon-right");
+						if (tooltipPosition) {
+							tooltipPosition.setAttribute("data-tooltip-arrow", "top-center");
+						}
+
+						var tooltipContent = document.querySelector(".positon-right .tooltip-content");
+						if (tooltipContent) {
+							tooltipContent.classList.remove("top-right");
+							tooltipContent.classList.add("top-center");
+						}
+					}
+				}
+
+				// 화면 크기 변화 감지 이벤트 리스너 등록
+				window.addEventListener("resize", checkWindowSize);
+
+				// 페이지 로드 시 초기 체크
+				window.addEventListener("load", checkWindowSize);
+			});
+
+			window.addEventListener("DOMContentLoaded", async function () {
+				// 창의 너비를 확인
+				let windowWidth = window.innerWidth;
+
+				// 라인차트 날짜 반환
+				const dateList = Array.from({ length: 30 }, (_, i) => {
+					const date = new Date(2023, 0, i + 1);
+					const month = date.getMonth() + 1;
+					const day = date.getDate();
+
+					// MM.DD 형태로 반환
+					return `${month.toString().padStart(2, "0")}.${day.toString().padStart(2, "0")}`;
+				});
+
+				const dateListWeek = Array.from({ length: 7 }, (_, i) => {
+					const date = new Date(2023, 0, i + 1);
+					const month = date.getMonth() + 1;
+					const day = date.getDate();
+
+					// MM.DD 형태로 반환
+					return `${month.toString().padStart(2, "0")}.${day.toString().padStart(2, "0")}`;
+				});
+				async function generateBarChart() {
+					let chartLine = {
+						id: "chart-line",
+						options: {
+							// title: {
+							// 	text: "일자별 방문자수 통계",
+							// 	left: "center"
+							// },
+							grid: {
+								top: 10,
+								bottom: 30,
+								left: 4, // Y축 카테고리 영역 추가 확보시 수치 조절
+								right: 0, // 우측 수치 잘리지 않도록 여백 확보
+								containLabel: true
+							},
+							tooltip: {
+								trigger: "axis"
+							},
+							legend: {
+								orient: "horizontal",
+								x: "center",
+								y: "bottom"
+							},
+							xAxis: {
+								data: dateListWeek,
+								axisLabel: {
+									// align: "right"
+									// rotate: 45,
+									fontSize: 10,
+									color: "#A6ADB9" // X축 글자 컬러 지정
+								},
+								axisLine: {
+									lineStyle: {
+										color: "#E5E7EB" // X축 라인 색상을 #E5E7EB로 설정
+									}
+								},
+								axisTick: {
+									show: false // X축 눈금 지우기
+								}
+							},
+							yAxis: {
+								axisLabel: {
+									// align: "right"
+									// rotate: 45,
+									fontSize: 10,
+									color: "#A6ADB9"
+								}
+							},
+							series: [
+								{
+									name: "방문자",
+									type: "line",
+									data: [2000, 1900, 2100, 1800, 2100, 2100, 1800],
+									itemStyle: { color: "#357FED" },
+									symbol: "none"
+								},
+								{
+									name: "페이지뷰",
+									type: "line",
+									data: [1000, 1200, 1100, 1200, 1100, 1300, 1400],
+									itemStyle: { color: "#F59E0B" },
+									symbol: "none"
+								}
+							]
+						}
+					};
+
+					let chartLine2 = {
+						id: "chart-line2",
+						options: {
+							// title: {
+							// 	text: "일자별 방문자수 통계",
+							// 	left: "center"
+							// },
+							grid: {
+								top: 10,
+								bottom: 32,
+								left: 4, // Y축 카테고리 영역 추가 확보시 수치 조절
+								right: 4, // 우측 수치 잘리지 않도록 여백 확보
+								containLabel: true
+							},
+							tooltip: {
+								trigger: "axis"
+							},
+							legend: {
+								orient: "horizontal",
+								x: "center",
+								y: "bottom",
+								padding: [12, 0, 0, 0]
+							},
+							xAxis: {
+								data: dateList,
+								axisLabel: {
+									// align: "right"
+									// rotate: 45,
+									fontSize: 10,
+									color: "#A6ADB9" // X축 글자 컬러 지정
+								},
+								axisLine: {
+									lineStyle: {
+										color: "#E5E7EB" // X축 라인 색상을 #E5E7EB로 설정
+									}
+								},
+								axisTick: {
+									show: false // X축 눈금 지우기
+								}
+							},
+							yAxis: {
+								axisLabel: {
+									// align: "right"
+									// rotate: 45,
+									fontSize: 10,
+									color: "#A6ADB9"
+								}
+							},
+							series: [
+								{
+									name: "방문자",
+									type: "line",
+									data: [
+										2000, 1900, 2100, 1800, 2100, 2100, 1800, 2300, 2100, 2200, 2100, 2400, 2200, 2200, 2200, 2300,
+										2300, 2400, 2100, 2500, 2400, 2500, 2300, 2500, 2600, 2500, 2700, 2600, 2800, 2700, 2700
+									],
+									itemStyle: { color: "#357FED" },
+									symbol: "none"
+								},
+								{
+									name: "페이지뷰",
+									type: "line",
+									data: [
+										1000, 1200, 1100, 1200, 1100, 1300, 1400, 1200, 1300, 1400, 1600, 1500, 1600, 1800, 1900, 1700,
+										1900, 2000, 2200, 2000, 2200, 2300, 2400, 2300, 2400, 2600, 2500, 2700, 2600, 2800, 2800
+									],
+									itemStyle: { color: "#F59E0B" },
+									symbol: "none"
+								}
+							]
+						}
+					};
+
+					// 각 차트 인스턴스를 저장할 객체
+					let chartInstances = {};
+
+					const charts = [chartLine, chartLine2];
+					await window.useCharts(charts);
+				}
+				async function generatePieChart() {
+					let chartPie = {
+						id: "chart-pie",
+						options: {
+							// grid: {
+							// 	top: 100,
+							// 	bottom: 32
+							// },
+							legend: {
+								orient: "horizontal",
+								x: "center",
+								y: "bottom",
+								itemWidth: 12, // 아이콘 가로 크기
+								itemHeight: 12, // 아이콘 세로 크기
+								data: ["PC", "Mobile"]
+							},
+							// 색상 배열 순환 적용됨 : 데이터 개수가 많아져도 문제없음
+							color: [
+								"#357FED",
+								"#F59E0B",
+								"#0CAE79",
+								"#F97316",
+								"#8B5CF6",
+								"#EF4444",
+								"#0EA5E9",
+								"#EC4899",
+								"#84CC16",
+								"#06B6D4"
+							],
+							series: [
+								// 파이차트 데이터 면 내부에 흰색 글자로 표출 (두가지 정보 노출시 시리즈 2회 표출)
+								{
+									name: "게시판 사용 비율",
+									type: "pie",
+									radius: ["30%", "66%"],
+									center: ["50%", "42%"], // 차트의 중심 위치를 조절
+									data: [
+										{ value: 25, name: "PC" },
+										{ value: 75, name: "Mobile" }
+									],
+									label: {
+										color: "#ffffff", // 흰색 글자
+										position: "inside", // 라벨 내부에 위치
+										formatter: "{c}%" // 값(퍼센트)만 표시
+									}
+								}
+							]
+						}
+					};
+
+					// 각 차트 인스턴스를 저장할 객체
+					let chartInstances = {};
+
+					const charts = [chartPie];
+					await window.useCharts(charts);
+				}
+
+				await generateBarChart();
+
+				/// 차트 컨테이너 리플로우 (ECharts API 사용하지 않는 방식)
+				function forceContainerReflow() {
+					try {
+						// 차트 컨테이너들 강제 리플로우
+						const chartContainers = document.querySelectorAll('[id^="chart-"]');
+						chartContainers.forEach(container => {
+							// 원래 스타일 저장
+							const originalDisplay = window.getComputedStyle(container).display;
+							// display:none으로 설정했다가 다시 원래대로
+							container.style.display = 'none';
+							// 강제 리플로우 트리거
+							void container.offsetWidth;
+							// 원래 스타일로 복원
+							container.style.display = originalDisplay;
+						});
+						
+						// 차트 컨테이너 부모 엘리먼트들도 강제 리플로우
+						chartContainers.forEach(container => {
+							let parent = container.parentElement;
+							if (parent) {
+								const originalDisplay = window.getComputedStyle(parent).display;
+								parent.style.display = 'none';
+								void parent.offsetWidth;
+								parent.style.display = originalDisplay;
+							}
+						});
+						
+						// 이후 차트 API 통해 리사이즈
+							const dispatchResizeEvent = () => {
+								window.dispatchEvent(new Event('resize'));
+							};
+							dispatchResizeEvent();
+						
+					} catch (err) {
+						// console.error("컨테이너 리플로우 적용 중 오류:", err);
+					}
+				}
+
+				// 초기 차트 생성
+				await generateBarChart();
+
+				// 탭 클릭 이벤트 처리
+				$(".tabmenu-icon .tab-list li a").on("click", async function () {
+					await generateBarChart();
+					await generatePieChart();
+					forceContainerReflow();  // 컨테이너 리플로우
+				});
+			});
+		</script>
+	</head>
+
+	<body class="layout-type-main">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="대시보드"></div>
+					<div class="content-body">
+						<div class="dashboard">
+							<section class="section section-guide">
+								<h3 class="sr-only">네이비스 이용 가이드</h3>
+								<ul class="quick-link">
+									<li>
+										<a href="UI-NEIBIS-MA-운영-웹콘텐츠관리.html">
+											<div class="icon">
+												<img src="/assets/neibis/images/ico-pen-lg@2x.png" alt="" />
+											</div>
+											<div class="cont">
+												<strong class="title">웹 콘텐츠 관리</strong>
+												<p>I.N.UIX와 결합한 웹 에디터를 사용하여 쉽게 웹 콘텐츠를 쉽게 수정할 수 있어요.</p>
+											</div>
+										</a>
+									</li>
+									<li>
+										<a href="UI-NEIBIS-MA-이용안내.html">
+											<div class="icon">
+												<img src="/assets/neibis/images/ico-question-blue-lg@2x.png" alt="" />
+											</div>
+											<div class="cont">
+												<strong class="title">네이비스 이용안내</strong>
+												<p>
+													네이비스를 100% 활용하는 방법!<br class="d-up-lg" />
+													매뉴얼과 고객지원을 확인해보세요.
+												</p>
+											</div>
+										</a>
+									</li>
+									<li>
+										<a href="UI-NEIBIS-MA-방문자통계요약보고서.html">
+											<div class="icon">
+												<img src="/assets/neibis/images/ico-chart-lg@2x.png" alt="" />
+											</div>
+											<div class="cont">
+												<strong class="title">방문자 통계 요약 보고서</strong>
+												<p>로그/통계 데이터를 기반으로 현 상황 분석과 대처 방안을 제시해요.</p>
+											</div>
+										</a>
+									</li>
+								</ul>
+							</section>
+							<section class="section section-report">
+								<div class="section-title">
+									<div class="dropdown dropdown-list dropdown-site" id="site-select">
+										<dl class="select">
+											<dt>
+												<button type="button" class="btn-select" title="사이트 선택">
+													<span>대표 홈(국문)</span>
+												</button>
+											</dt>
+											<dd>
+												<ul class="option-list">
+													<li><a href="#;">대표 홈(국문)</a></li>
+													<li><a href="#;">대표 홈(영문)</a></li>
+													<li><a href="#;">대표 홈(중국어)</a></li>
+												</ul>
+											</dd>
+										</dl>
+									</div>
+									<h3 class="title">방문자 통계</h3>
+									<div class="tooltip positon-right" data-tooltip-arrow="top-center">
+										<p>- 사이트 방문자 분석의 데이터의 출처는 하단에 표시된 사이트를 기준으로 하고 있어요.</p>
+										<p>- 전체 또는 다른 사이트를 조회하고 싶다면 하단의 메뉴에서 사이트를 선택해 주세요.</p>
+									</div>
+								</div>
+								<div class="shortcut-btn-area">
+									<a href="#;" class="btn btn-lg btn-primary"
+										>월간 방문자 분석 통계 바로가기<i class="ico ico-chevron-right-white-md"></i
+									></a>
+								</div>
+
+								<div class="card today-report">
+									<div class="card-header">
+										<h4 class="card-title"><i class="ico ico-page-lg"></i>방문자/페이지 뷰 통계</h4>
+										<div class="tooltip" data-tooltip-arrow="top-center">
+											<p>사용자 사이트에서 최근 1주일간의 중복 IP를 제외한 접속 통계를 시각화해요.</p>
+										</div>
+										<div class="card-toolbar">
+											<a href="UI-NEIBIS-MA-통계-사용자방문자통계-방문자수(탭).html" class="btn-more">더보기</a>
+										</div>
+									</div>
+									<div class="card-body">
+										<dl class="today today-hit">
+											<dt><i class="ico ico-user-blue-md"></i>오늘 방문자 수</dt>
+											<dd>
+												<!-- [개발] point-up, point-down, point-stay -->
+												<div class="point point-down">
+													<span>5.8% 감소</span>
+													<span>전일 동시간 대비</span>
+												</div>
+												<span class="count">1,929</span>
+											</dd>
+										</dl>
+										<dl class="today today-view">
+											<dt><i class="ico ico-view-orange-md"></i>오늘 페이지 뷰</dt>
+											<dd>
+												<!-- [개발] point-up, point-down, point-stay -->
+												<div class="point point-up">
+													<span>24.8% 증가</span>
+													<span>전일 동시간 대비</span>
+												</div>
+												<span class="count">822,532</span>
+											</dd>
+										</dl>
+										<div class="chart-area">
+											<div id="chart-line" style="height: 290px"></div>
+										</div>
+									</div>
+								</div>
+
+								<!-- [개발] visitor-up, visitor-down, visitor-stay, visitor-nodata -->
+								<div class="card visitor-report visitor-up">
+									<div class="card-header">
+										<h4 class="card-title">주간 방문자 분석 현황</h4>
+									</div>
+									<div class="card-body">
+										<div class="nodata">
+											<i class="ico ico-visitor-nodata"></i>
+											<p>방문자 데이터가 더 많이 쌓일때까지 기다리고 있어요.</p>
+										</div>
+										<div class="info">
+											<p class="point">+2.4%</p>
+											<p class="report"><strong>전주 대비 전체적으로 방문자 수가 증가하고 있어요!</strong></p>
+											<p class="suggestions">
+												더 많은 방문자 수 증가를 위해 최근 인기 메뉴를 메인에 배치하거나 SEO를 지정하는 것을
+												추천드립니다.
+											</p>
+										</div>
+									</div>
+								</div>
+
+								<div class="card monthly-device">
+									<div class="card-header">
+										<h4 class="card-title"><i class="ico ico-device-lg"></i>월간 사용자 디바이스별 접속 통계</h4>
+										<div class="tooltip" data-tooltip-arrow="top-center">
+											<p>사용자 사이트에서 최근 1개월간의 중복 IP를 제외한 디바이스 접속 통계를 시각화해요.</p>
+										</div>
+										<div class="card-toolbar">
+											<a href="UI-NEIBIS-MA-통계-사용자방문자통계-방문자디바이스(탭).html" class="btn-more">더보기</a>
+										</div>
+									</div>
+									<div class="card-body">
+										<nav class="tabmenu tabmenu-icon">
+											<ul class="tab-list">
+												<li class="on">
+													<a href="#tab-content1">
+														<i class="ico ico-line-chart-primary-sm"></i>
+														<span class="sr-only">월간 사용자 디바이스별 접속 통계</span>
+													</a>
+												</li>
+												<li>
+													<a href="#tab-content2">
+														<i class="ico ico-donut-chart-primary-sm"></i>
+														<span class="sr-only">월간 사용자 디바이스별 접속 통계</span>
+													</a>
+												</li>
+											</ul>
+										</nav>
+										<div class="device-body">
+											<div class="tab-content" id="tab-content1">
+												<h5 class="sr-only">월간 사용자 디바이스별 접속 통계</h5>
+												<div class="chart-area line">
+													<div id="chart-line2" style="height: 200px"></div>
+												</div>
+											</div>
+											<div class="tab-content" id="tab-content2">
+												<h5 class="sr-only">월간 사용자 디바이스별 접속 통계</h5>
+												<div class="chart-area pie">
+													<div id="chart-pie" style="height: 205px"></div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="card menu-ranking">
+									<div class="card-header">
+										<h4 class="card-title"><i class="ico ico-popular-lg"></i>주간 인기 메뉴 순위</h4>
+										<div class="tooltip" data-tooltip-arrow="top-center">
+											<p>방문객이 가장 많이 접속한 인기 메뉴를 표시해요.</p>
+										</div>
+										<div class="card-toolbar">
+											<a href="UI-NEIBIS-MA-통계-사용자메뉴별통계.html" class="btn-more">더보기</a>
+										</div>
+									</div>
+									<!-- [개발] card-body에 .ranking-nodata-->
+									<div class="card-body">
+										<div class="nodata">
+											<i class="ico ico-ranking-nodata"></i>
+											<p>
+												아직 방문자 데이터가 없어요.<br />
+												과연 이번 주 인기 메뉴는 누가 될까요?
+											</p>
+										</div>
+										<ol class="ranking-list">
+											<li>
+												<span class="num">1</span>
+												<p>포트폴리오</p>
+												<span class="count">1,256</span>
+											</li>
+											<li>
+												<span class="num">2</span>
+												<p>오시는길</p>
+												<span class="count">536</span>
+											</li>
+											<li>
+												<span class="num">3</span>
+												<p>i.n.uix framework</p>
+												<span class="count">264</span>
+											</li>
+											<li>
+												<span class="num">4</span>
+												<p>인기 메뉴 순위 네이비스인기 메뉴 순위 네이비인기 메뉴 순위 네이비인기 메뉴 순위 네이비</p>
+												<span class="count">243</span>
+											</li>
+											<li>
+												<span class="num">5</span>
+												<p>스토리</p>
+												<span class="count">120</span>
+											</li>
+										</ol>
+									</div>
+									<div class="card-footer">
+										<span>오늘 14:23 기준</span>
+										<span>23.01.01-23.01.07</span>
+									</div>
+								</div>
+							</section>
+							<section class="section section-myinfo">
+								<h3 class="sr-only">내 정보</h3>
+								<!-- [개발] gold, silver, bronze -->
+								<div class="info-item myinfo gold">
+									<div class="profile">
+										<!-- <img src="/assets/neibis/images/" alt="프로필 이미지" /> -->
+									</div>
+									<dl class="info">
+										<dt class="name">홍길동</dt>
+										<dd class="role"><span class="label">시스템 관리자</span></dd>
+										<dd class="last-connect">
+											<span class="label"><i class="ico ico-calendar-lightgray-sm"></i>마지막 접속시간</span>
+											<span class="date">23.01.10 15:15:30</span>
+										</dd>
+									</dl>
+									<div class="btn-group">
+										<a href="#layer-adinfo-revise" data-modal="open" class="btn btn-sm btn-primary-soft">정보수정</a>
+										<a href="UI-NEIBIS-MA-로그인.html" class="btn btn-sm btn-gray">로그아웃</a>
+									</div>
+								</div>
+
+								<div class="info-item lastest-visit">
+									<h4 class="item-title"><i class="ico ico-history-lg"></i>최근 방문한 메뉴</h4>
+									<!-- [개발] item-body에 .visit-nodata -->
+									<div class="item-body">
+										<div class="nodata">
+											<i class="ico ico-visit-nodata"></i>
+											<p>
+												최근 방문한 메뉴가 없어요. <br />
+												화면 왼쪽에서 메뉴를 눌러보세요.
+											</p>
+										</div>
+										<ul class="visit-list">
+											<li>
+												<a href="#;">
+													<span class="visit-menu">대표 홈 (국문)</span>
+													<p>웹 콘텐츠 관리웹 콘텐츠 관리웹 콘텐츠 관리웹 콘텐츠 관리</p>
+												</a>
+											</li>
+											<li>
+												<a href="#;">
+													<span class="visit-menu">대표 홈 (국문)</span>
+													<p>시스템 정보 관리</p>
+												</a>
+											</li>
+											<li>
+												<a href="#;">
+													<span class="visit-menu">대표 홈 (국문)</span>
+													<p>웹 콘텐츠 관리</p>
+												</a>
+											</li>
+											<li>
+												<a href="#;">
+													<span class="visit-menu">대표 홈 (국문)</span>
+													<p>웹 콘텐츠 관리</p>
+												</a>
+											</li>
+										</ul>
+									</div>
+								</div>
+
+								<!-- [개발] 운영 관리자, 운영 담당자 계정에서는 ‘개인정보 열람 이력‘ 영역 삭제 -->
+								<div class="info-item privacy-history">
+									<h4 class="item-title"><i class="ico ico-card-lg"></i>개인정보 열람 이력</h4>
+									<!-- [개발] item-body에 .history-nodata -->
+									<div class="item-body">
+										<div class="nodata">
+											<i class="ico ico-history-nodata"></i>
+											<p>아직 아무도 개인정보를 열람하지 않았어요.</p>
+										</div>
+										<ul class="history-list">
+											<li>
+												<a href="#;">
+													<span class="user-id">user_id</span>
+													<span>메뉴명노출영역</span>
+												</a>
+											</li>
+											<li>
+												<a href="#;">
+													<span class="user-id">user_id</span>
+													<span>메뉴명노출영역메뉴명노출영역메뉴명노출영역메뉴명노출영역메뉴명노출영역</span>
+												</a>
+											</li>
+											<li>
+												<a href="#;">
+													<span class="user-id">user_id_user_id</span>
+													<span>메뉴명노출영역</span>
+												</a>
+											</li>
+											<li>
+												<a href="#;">
+													<span class="user-id">user_id</span>
+													<span>메뉴명노출영역</span>
+												</a>
+											</li>
+											<li>
+												<a href="#;">
+													<span class="user-id">user_id_user_id</span>
+													<span>메뉴명 노출영역</span>
+												</a>
+											</li>
+										</ul>
+									</div>
+									<a href="UI-NEIBIS-MA-로그-개인정보열람이력.html" class="btn-more">더보기</a>
+								</div>
+								<!-- [개발] 운영 관리자, 운영 담당자 계정에서는 ‘개인정보 열람 이력‘ 영역 삭제 -->
+
+								<div class="info-item connect-info">
+									<h4 class="item-title"><i class="ico ico-info-lg"></i>나의 접속환경</h4>
+									<div class="item-body">
+										<dl>
+											<dt>
+												<!-- [개발]
+													Apple : ico-apple@2x.png
+													Linux : ico-linux@2x.png
+													Windows : ico-window@2x.png
+													Android : ico-android@2x.png
+													etc일 경우 : ico-osetc@2x.png
+												-->
+												<img src="/assets/neibis/images/ico-apple@2x.png" alt="Apple" class="icon" />
+												<span class="connect-label">OS</span>
+											</dt>
+											<dd class="connect">Apple</dd>
+										</dl>
+										<dl>
+											<dt>
+												<!-- [개발]
+													Chrome : ico-chrome@2x.png
+													Edge : ico-edge@2x.png
+													Firefox : ico-firefox@2x.png
+													Opera : ico-opera@2x.png
+													Safari : ico-safari@2x.png
+													etc일 경우 : ico-browseretc@2x.png
+												-->
+												<img src="/assets/neibis/images/ico-safari@2x.png" alt="safari" class="icon" />
+												<span class="connect-label">Browser</span>
+											</dt>
+											<dd class="connect">Safari</dd>
+										</dl>
+									</div>
+								</div>
+							</section>
+						</div>
+						<div class="dashboard-footer">
+							<p class="copyright">
+								COPYRIGHT SINCE 2023
+								<a href="https://inseq.co.kr/ko/index.do" class="link-text" target="_blank" title="새창 열림"
+									>INSEQUENCE Co., Ltd.</a
+								><br class="d-down-md" />
+								ALL RIGHTS RESERVED. POWERED BY
+								<a
+									href="https://inseq.co.kr/ko/cntnts/i-33/web.do"
+									class="link-text neibis"
+									target="_blank"
+									title="새창 열림"
+									>NEIBIS CMS.</a
+								>
+							</p>
+						</div>
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

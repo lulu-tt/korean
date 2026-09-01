@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>샘플 공공서비스 | 고객의소리 — 비밀번호 확인</title>
+  <link rel="shortcut icon" href="../../../assets/sample/images/common/favicon.png" />
+  <link rel="stylesheet" href="../../../assets/sample/css/common.css" />
+  <link rel="stylesheet" href="../../../assets/sample/css/sub.css" />
+  <script src="../../../assets/sample/js/ui.js" defer></script>
+</head>
+<body>
+
+  <!-- 건너뛰기 링크 -->
+  <nav class="skip-nav" aria-label="바로가기">
+    <a href="#content">본문 바로가기</a>
+    <a href="#lnb">좌측메뉴 바로가기</a>
+    <a href="#footer">푸터 바로가기</a>
+  </nav>
+
+  <!-- 전체메뉴 -->
+  <div class="allmenu-dim" aria-hidden="true"></div>
+  <div class="allmenu-panel" role="dialog" aria-label="전체메뉴">
+    <div class="allmenu-panel__head">
+      <img class="allmenu-panel__logo" src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      <button class="allmenu-panel__close" type="button" data-allmenu-close aria-label="전체메뉴 닫기">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M2 2L14 14M14 2L2 14" stroke="rgba(255,255,255,0.65)" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="allmenu-panel__body">
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">기관소개</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./콘텐츠-일반.html">인사말</a></li>
+          <li><a class="allmenu-section__link" href="./콘텐츠-일반.html">연혁</a></li>
+          <li><a class="allmenu-section__link" href="./오시는-길.html">오시는 길</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">알림소식</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./게시판-목록.html">공지사항</a></li>
+          <li><a class="allmenu-section__link" href="./게시판-목록.html">보도자료</a></li>
+          <li><a class="allmenu-section__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+          <li><a class="allmenu-section__link" href="./FAQ.html">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">이용안내</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./개인정보처리방침.html">개인정보처리방침</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">참여마당</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./고객의소리-목록.html">고객의소리</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 롤링배너 -->
+  <div class="rolling-banner" role="region" aria-label="공지 롤링배너">
+    <div class="rolling-banner__inner">
+      <span class="rolling-banner__label">알림</span>
+      <div class="rolling-banner__content">
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">공지</span>
+          <a class="rolling-banner__title" href="#">2025년 상반기 주요사업 추진 계획 안내</a>
+          <span class="rolling-banner__date">2025.04.15</span>
+        </div>
+      </div>
+      <div class="rolling-banner__controls">
+        <button class="rolling-banner__arrow" type="button" data-rolling-prev aria-label="이전 공지">‹</button>
+        <span class="rolling-banner__count" aria-live="polite">1/1</span>
+        <button class="rolling-banner__arrow" type="button" data-rolling-next aria-label="다음 공지">›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 헤더 -->
+  <header class="site-header" role="banner">
+    <div class="site-header__inner">
+      <a class="site-logo" href="./메인.html" aria-label="샘플 공공서비스 홈으로 이동">
+        <img class="site-logo__img" src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </a>
+      <nav class="site-gnb" id="gnb" aria-label="주메뉴">
+        <ul class="site-gnb__list">
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">기관소개</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./콘텐츠-일반.html">인사말</a></li>
+                  <li><a class="gnb-dropdown__link" href="./콘텐츠-일반.html">연혁</a></li>
+                  <li><a class="gnb-dropdown__link" href="./오시는-길.html">오시는 길</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">알림소식</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./게시판-목록.html">공지사항</a></li>
+                  <li><a class="gnb-dropdown__link" href="./게시판-목록.html">보도자료</a></li>
+                  <li><a class="gnb-dropdown__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+                  <li><a class="gnb-dropdown__link" href="./FAQ.html">FAQ</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">이용안내</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./개인정보처리방침.html">개인정보처리방침</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link is-active" href="#" aria-current="page">참여마당</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./고객의소리-목록.html">고객의소리</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </nav>
+      <div class="site-header__actions">
+        <a class="btn-login" href="./로그인.html">로그인</a>
+        <button class="btn-allmenu" type="button" data-allmenu-open aria-expanded="false">
+          <span class="btn-allmenu__bars" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span>전체메뉴</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 서브 콘텐츠 -->
+  <main id="content">
+
+    <!-- 브레드크럼 -->
+    <div class="breadcrumb-bar">
+      <div class="breadcrumb-bar__inner">
+        <nav class="breadcrumb" aria-label="현재 위치">
+          <span class="breadcrumb__item">
+            <a href="./메인.html">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-label="홈" style="display:inline-block;vertical-align:middle;margin-bottom:1px;">
+                <path d="M1 5.5L6.5 1L12 5.5V12H8.5V8H4.5V12H1V5.5Z" stroke="#A0A8B8" stroke-width="1.2" stroke-linejoin="round"/>
+              </svg>
+              홈
+            </a>
+          </span>
+          <span class="breadcrumb__sep" aria-hidden="true">›</span>
+          <span class="breadcrumb__item"><a href="#">참여마당</a></span>
+          <span class="breadcrumb__sep" aria-hidden="true">›</span>
+          <span class="breadcrumb__item"><a href="./고객의소리-목록.html">고객의소리</a></span>
+          <span class="breadcrumb__sep" aria-hidden="true">›</span>
+          <span class="breadcrumb__item" aria-current="page">비밀번호 확인</span>
+        </nav>
+      </div>
+    </div>
+
+    <!-- 서브 레이아웃 -->
+    <div class="sub-layout">
+      <div class="sub-layout__inner">
+
+        <!-- LNB -->
+        <aside class="lnb" id="lnb" aria-label="좌측 메뉴">
+          <div class="lnb__section-title">참여마당</div>
+          <ul class="lnb__list">
+            <li class="lnb__item">
+              <a class="lnb__link is-active" href="./고객의소리-목록.html" aria-current="page">고객의소리</a>
+            </li>
+          </ul>
+        </aside>
+
+        <!-- 콘텐츠 -->
+        <div class="sub-content">
+
+          <div class="sub-content__title-bar">
+            <h1 class="sub-content__title">고객의소리</h1>
+          </div>
+
+          <!-- 운영 데이터 슬롯: PW_CONFIRM
+               비공개 게시물 진입 시 비밀번호 확인 화면
+               JSP: /cmm/bbsArticleCheckPassword.do
+          -->
+          <div class="pw-confirm-wrap">
+            <div class="pw-confirm-box">
+
+              <!-- 자물쇠 아이콘 -->
+              <div class="pw-confirm-box__icon" aria-hidden="true">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                  <rect x="5" y="13" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M9 13V9a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <circle cx="14" cy="19.5" r="1.5" fill="currentColor"/>
+                  <line x1="14" y1="21" x2="14" y2="23" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+              </div>
+
+              <p class="pw-confirm-box__title">비공개 게시물입니다</p>
+              <p class="pw-confirm-box__desc">
+                작성 시 등록하신 비밀번호를 입력해 주세요.<br>
+                비밀번호가 일치할 경우 내용을 확인할 수 있습니다.
+              </p>
+
+              <!-- 비밀번호 입력 폼 -->
+              <!-- 운영 데이터 슬롯: PW_FORM (action: /cmm/bbsArticleCheckPasswordProc.do) -->
+              <form class="pw-confirm-box__form" action="#" method="post" novalidate>
+                <!-- hidden: nttId, bbsId -->
+                <input type="hidden" name="nttId" value="" />
+                <input type="hidden" name="bbsId" value="" />
+
+                <div>
+                  <label class="pw-confirm-box__label" for="confirmPw">비밀번호</label>
+                  <input
+                    class="pw-confirm-box__input"
+                    type="password"
+                    id="confirmPw"
+                    name="password"
+                    placeholder="비밀번호를 입력해 주세요."
+                    maxlength="20"
+                    autocomplete="off"
+                    aria-describedby="confirmPwError"
+                    aria-required="true"
+                  />
+                  <!-- 운영 데이터 슬롯: PW_ERROR (비밀번호 불일치 시 is-visible 추가) -->
+                  <p class="pw-confirm-box__error" id="confirmPwError" role="alert">
+                    비밀번호가 일치하지 않습니다. 다시 입력해 주세요.
+                  </p>
+                </div>
+
+                <button class="pw-confirm-box__btn" type="submit">확인</button>
+              </form>
+
+              <a class="pw-confirm-box__back" href="./고객의소리-목록.html">목록으로 돌아가기</a>
+
+            </div>
+          </div>
+          <!-- /pw-confirm-wrap -->
+
+        </div>
+        <!-- /sub-content -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="site-footer" id="footer" role="contentinfo">
+    <div class="site-footer__inner">
+      <div class="site-footer__logo">
+        <img src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </div>
+      <div class="site-footer__info">
+        <p class="site-footer__address">
+          (00000) 서울특별시 OO구 OO로 000 &nbsp;|&nbsp;
+          대표전화: 02-000-0000 &nbsp;|&nbsp;
+          팩스: 02-000-0001
+        </p>
+        <p class="site-footer__copy">Copyright &copy; 샘플 공공서비스. All Rights Reserved.</p>
+      </div>
+      <div class="site-footer__links">
+        <a class="site-footer__link is-point" href="./개인정보처리방침.html">개인정보처리방침</a>
+        <a class="site-footer__link" href="#">이용약관</a>
+        <a class="site-footer__link" href="#">사이트맵</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* 비밀번호 확인 폼 — 퍼블 테스트용 인라인 JS
+       실제 운영 시 서버 응답(비밀번호 불일치)에 따라 .pw-confirm-box__error에 .is-visible 클래스 추가 */
+    (function () {
+      var form  = document.querySelector('.pw-confirm-box__form');
+      var input = document.getElementById('confirmPw');
+      var error = document.getElementById('confirmPwError');
+      if (!form) return;
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!input.value.trim()) {
+          error.classList.add('is-visible');
+          input.focus();
+        } else {
+          error.classList.remove('is-visible');
+          /* 운영: form.submit() → 서버 검증 */
+          alert('[퍼블 테스트] 비밀번호 확인 요청: ' + input.value);
+        }
+      });
+      input.addEventListener('input', function () {
+        if (error.classList.contains('is-visible')) {
+          error.classList.remove('is-visible');
+        }
+      });
+    }());
+  </script>
+
+</body>
+</html>

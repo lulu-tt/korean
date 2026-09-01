@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>회원가입 | 지역어 종합 정보</title>
+		<link rel="icon" href="../../../assets/_common/images/favicon.ico" />
+
+		<!-- CSS -->
+		<link rel="stylesheet" href="../../../assets/ko/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../../assets/_common/js/ui-global.js" defer></script>
+
+		<!-- TODO : 퍼블용 JS, 개발시 반영 금지 -->
+		<script src="../../../assets/_guide/js/ui-include.js" defer></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {});
+		</script>
+	</head>
+	<body>
+		<div class="wrap">
+			<!-- [퍼블용 include]: [include] 표기 부분은 실제 서버 include로 교체 필요 -->
+
+			<!-- [include]:본문 바로가기 -->
+			<div w3-include-html="../_include/inc-skipnav.html"></div>
+			<!-- [include]:상단 배너 -->
+			<div class="masthead" w3-include-html="../_include/inc-masthead.html"></div>
+			<!-- [include]:헤더  -->
+			<header class="header" w3-include-html="../_include/inc-header.html"></header>
+
+			<div id="container" class="container">
+				<!----- 콘텐츠 영역 ----->
+
+				<div class="inner" id="contents">
+					<!-- 브레드 크럼 -->
+					<nav class="breadcrumb" aria-label="현재 위치">
+						<ol class="breadcrumb-list">
+							<li class="breadcrumb-item home">
+								<a href="#"><i class="svg-icon ico-bread-home ico-sm" aria-hidden="true"></i>홈</a>
+							</li>
+							<li class="breadcrumb-item"><a href="#">회원서비스</a></li>
+							<li class="breadcrumb-item"><a href="#">회원가입</a></li>
+						</ol>
+					</nav>
+					<!-- // -->
+
+					<div class="content-header text-center">
+						<h1 class="content-title">회원 가입</h1>
+					</div>
+
+					<div class="content-body">
+						<div class="join-form-wrap">
+							<div class="box box-policy">
+								<p>
+									지역어 종합 정보는 회원님의 개인정보를 안전하게 보호하고 있으며, 회원님의 명백한 동의 없이는
+									공개하거나 제3자에게 제공하지 않습니다.
+								</p>
+							</div>
+
+							<!-- 가입 정보 입력 섹션 -->
+							<div class="sub-title-wrap mt-16 mt-md-6">
+								<h2 class="sub-title">가입 정보 입력</h2>
+							</div>
+
+							<div class="form-info-note mt-6 mb-6">
+								<p><span class="req">필수</span> 표시가 있는 항목은 반드시 입력해야 합니다.</p>
+							</div>
+
+							<!-- 가입 정보 폼 -->
+							<form class="join-form">
+								<!-- 계정(ID) -->
+								<div class="form-group">
+									<label class="form-label" for="user-id"> 계정(ID) <span class="req">필수</span> </label>
+									<div class="input-group">
+										<input
+											type="text"
+											id="user-id"
+											class="input input-xl"
+											placeholder="영문자, 숫자 3자 이상"
+											required
+										/>
+										<button type="button" class="btn btn-xxl btn-primary">중복 확인</button>
+									</div>
+									<!-- [개발] 아이디 확인 알림 문구 필요시 -->
+									<!-- <p class="form-alert-text">사용 가능한 아이디입니다.</p> -->
+								</div>
+
+								<!-- 비밀번호 -->
+								<div class="form-group">
+									<label class="form-label" for="user-pwd"> 비밀번호 <span class="req">필수</span> </label>
+									<input
+										type="password"
+										id="user-pwd"
+										class="input input-xl w-100"
+										placeholder="비밀번호를 입력하세요"
+										required
+									/>
+									<p class="body-small text-disabled-on mt-2">영문자, 숫자, 특수 문자(2가지 이상)의 조합 9~16자</p>
+								</div>
+
+								<!-- 비밀번호 확인 -->
+								<div class="form-group">
+									<label class="form-label" for="user-pwd-confirm"> 비밀번호 확인 <span class="req">필수</span> </label>
+
+									<!-- [개발] input 에러 상태 : .is-error 클래스 추가 -->
+									<input
+										type="password"
+										id="user-pwd-confirm"
+										class="input input-xl w-100"
+										placeholder="비밀번호를 한 번 더 입력하세요."
+										required
+									/>
+									<p class="form-error-text">에러 문구가 표시됩니다.</p>
+								</div>
+
+								<!-- 별명 -->
+								<div class="form-group">
+									<label class="form-label" for="user-nickname"> 별명 <span class="req">필수</span> </label>
+									<input
+										type="text"
+										id="user-nickname"
+										class="input input-xl w-100"
+										placeholder="별명을 입력하세요."
+										required
+									/>
+								</div>
+
+								<!-- 약관 동의 섹션 -->
+								<div class="sub-title-wrap mt-16">
+									<h2 class="sub-title">약관 동의</h2>
+								</div>
+
+								<!-- 전체 동의 체크박스 -->
+								<div class="form-agree-all mt-6 mb-6">
+									<label class="form-checkbox form-lg">
+										<input type="checkbox" id="agree-all" />
+										<span class="font-bold pl-1">필수 항목 모두 동의합니다.</span>
+									</label>
+								</div>
+
+								<!-- 약관 항목 1: 서비스 이용 약관 -->
+								<div class="box terms-box">
+									<div class="terms-header">
+										<strong class="terms-title">[필수] 서비스 이용 약관에 동의하십니까?</strong>
+										<button
+											type="button"
+											class="btn btn-md btn-secondary"
+											data-toggle-btn="policy1"
+											data-label-open="약관닫기"
+											aria-expanded="false"
+										>
+											약관읽기
+										</button>
+									</div>
+									<div class="terms-radios">
+										<label class="form-radio">
+											<input type="radio" name="agree-service" value="disagree" class="agree-item-radio" />
+											<span>동의안함</span>
+										</label>
+										<label class="form-radio">
+											<input type="radio" name="agree-service" value="agree" class="agree-item-radio" />
+											<span>동의함</span>
+										</label>
+									</div>
+								</div>
+
+								<div class="terms-view mt-4" data-toggle-content="policy1">
+									<div class="terms-view-content">
+										<div class="blk">
+											<h4>제1장 총칙</h4>
+											<p><b>제1조 (목적)</b></p>
+											<p>
+												이 약관은 국립국어원(이하 "국어원"이라 한다.)이 제공하는 누리집 서비스의 이용 조건 및 절차,
+												이용자와 국어원의 권리, 의무, 책임 사항과 기타 필요한 사항을 규정하기 위한 것입니다. 이 약관이
+												적용되는 누리집은 다음과 같습니다.
+											</p>
+											<p>- 지역어 종합 정보(dialect.korean.go.kr)</p>
+										</div>
+										<div class="blk">
+											<p><b>제2조 (용어의 정의)</b></p>
+											<p>이 약관에서 사용하는 용어는 다음과 같이 정의합니다.</p>
+											<ul>
+												<li>
+													① 누리집: 온라인을 통해 이용할 수 있는, 이 약관이 적용되는 인터넷 사이트(지역어 종합 정보)를
+													말합니다.
+												</li>
+												<li>
+													② 서비스: 구현되는 단말기(PC, TV, 휴대형 단말기 등의 각종 유무선 장치를 포함)와 상관없이
+													이용할 수 있는 누리집이 제공하는 제반 서비스를 말합니다.
+												</li>
+												<li>③ 이용자: 이 약관에 따라 누리집에서 제공하는 서비스를 이용하는 자를 말합니다.</li>
+												<li>
+													④ 가입: 이 약관에 동의하고, 누리집에서 제공하는 신청서 양식에 해당 정보를 기입하여 누리집 이용
+													계약을 완료하는 행위를 말합니다.
+												</li>
+												<li>
+													⑤ 회원 정보: 국어원이 이용자에게 누리집의 회원 가입 신청서 양식을 통해 수집하는 회원의 별명,
+													계정(ID), 비밀번호를 말합니다.
+												</li>
+												<li>
+													⑥ 계정(ID): 회원의 식별과 누리집에서 제공하는 정보 이용을 위해서 회원이 정하고, 국어원이
+													승인하는 영문자, 숫자의 조합(3자 이상)을 말합니다.
+												</li>
+												<li>
+													⑦ 비밀번호: 회원과 회원 계정(ID)이 일치하는지를 확인하고 통신상 자신의 개인 정보 보호를 위하여
+													회원 자신이 정한 영문자, 숫자, 특수 문자(2가지 이상)의 조합(9~16자)을 말합니다.
+												</li>
+												<li>⑧ 탈퇴: 회원이 누리집 이용을 하지 않기로 하여 회원 등록을 취소하는 행위를 말합니다.</li>
+											</ul>
+										</div>
+										<div class="blk">
+											<p><b>제3조 (약관의 효력과 변경)</b></p>
+											<p>
+												① 국어원이 이 약관을 누리집에 게시하거나 기타의 방법으로 회원에게 공지하고, 이에 동의한 회원이
+												누리집에 가입하면 이 약관의 효력이 발생합니다.
+											</p>
+											<p>
+												② 이 약관은 누리집에 가입한 회원을 비롯하여 누리집에서 제공하는 서비스를 이용하고자 하는
+												이용자까지 누리집의 모든 이용자에게 그 효력이 발생합니다.
+											</p>
+											<p>
+												③ 누리집에 새로운 서비스를 추가하거나, 정책상 중요한 사유와 특별한 사정이 발생한 경우에 이
+												약관은 미리 고지하지 않고 변경될 수 있습니다. 변경된 약관은 누리집에 게재하여 회원과 이용자에게
+												공지하면 그 효력이 발생합니다.
+											</p>
+										</div>
+										<div class="blk">
+											<h4>제2장 서비스 제공 및 이용</h4>
+											<p><b>제5조 (회원 가입의 성립 및 이용 제한)</b></p>
+											<p>
+												① 회원 가입은 가입을 하고자 하는 이용자가 이 약관의 내용에 대해 동의를 한 후 회원 가입 신청을 한
+												것에 대해 국어원이 승낙함으로써 성립됩니다.
+											</p>
+											<p>
+												② 회원 탈퇴는 회원 본인이 누리집 내 ‘내 정보 관리’ 화면에서 회원 탈퇴를 신청함으로써
+												이루어집니다.
+											</p>
+										</div>
+										<div class="blk">
+											<h4>제3장 의무 및 책임</h4>
+											<p><b>제10조 (회원과 이용자의 의무)</b></p>
+											<p>
+												회원과 이용자는 서비스를 이용할 때 허위 사실 기재, 타인 정보 도용, 저작권 침해, 타인의 명예
+												훼손, 음란물 게재, 서비스 운영 방해 등의 행위를 하여서는 안 됩니다.
+											</p>
+										</div>
+										<div class="blk">
+											<p>부칙 (2023년 3월 6일 약관) — 본 약관은 2023년 3월 6일부터 시행됩니다.</p>
+										</div>
+									</div>
+								</div>
+
+								<!-- 약관 항목 2: 개인정보 수집·이용 동의 -->
+								<div class="box terms-box mt-6">
+									<div class="terms-header">
+										<strong class="terms-title">[필수] 개인정보 수집·이용에 동의하십니까?</strong>
+										<button
+											type="button"
+											class="btn btn-md btn-secondary"
+											data-toggle-btn="policy2"
+											data-label-open="약관닫기"
+											aria-expanded="false"
+										>
+											약관읽기
+										</button>
+									</div>
+									<div class="terms-radios">
+										<label class="form-radio">
+											<input type="radio" name="agree-privacy" value="disagree" class="agree-item-radio" />
+											<span>동의안함</span>
+										</label>
+										<label class="form-radio">
+											<input type="radio" name="agree-privacy" value="agree" class="agree-item-radio" />
+											<span>동의함</span>
+										</label>
+									</div>
+								</div>
+
+								<div class="terms-view mt-4" data-toggle-content="policy2">
+									<div class="terms-view-content">
+										<div class="blk">
+											<h4>개인정보 수집·이용 동의</h4>
+											<p><b>1. 수집 항목</b></p>
+											<p>계정(ID), 비밀번호, 별명</p>
+										</div>
+										<div class="blk">
+											<p><b>2. 수집·이용 목적</b></p>
+											<p>회원 식별 및 본인 확인, 회원제 서비스 제공, 공지사항 전달 및 문의 응대</p>
+										</div>
+										<div class="blk">
+											<p><b>3. 보유 및 이용 기간</b></p>
+											<p>
+												회원 탈퇴 시까지 보유하며, 탈퇴 시 지체 없이 파기합니다. (단, 관계 법령에 따라 보존할 필요가
+												있는 경우 해당 기간 동안 보관)
+											</p>
+										</div>
+										<div class="blk">
+											<p>
+												귀하는 개인정보 수집·이용에 동의하지 않을 수 있으며, 동의를 거부할 경우 회원 가입 및 회원제
+												서비스 이용이 제한됩니다.
+											</p>
+										</div>
+									</div>
+								</div>
+							</form>
+
+							<!-- 하단 버튼 그룹 -->
+							<div class="board-actions mt-lg-16">
+								<div class="btn-group center">
+									<a href="#;" class="btn btn-xxxl btn-tertiary md-full">취소</a>
+									<button type="submit" class="btn btn-xxxl btn-primary md-full">가입하기</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!----- //콘텐츠 영역 ----->
+
+				<button type="button" class="page-top-button" aria-label="맨 위로 이동">
+					<i class="svg-icon ico-go-top" aria-hidden="true"></i>
+				</button>
+			</div>
+
+			<!-- [include]:푸터  -->
+			<footer class="footer" w3-include-html="../_include/inc-footer.html"></footer>
+			<!-- [include]:비밀번호 확인 팝업 -->
+			<div w3-include-html="../_include/inc-modal-pwd-confirm.html"></div>
+		</div>
+	</body>
+</html>

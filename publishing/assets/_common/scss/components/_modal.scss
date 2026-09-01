@@ -1,0 +1,185 @@
+// 네이티브 <dialog> 기반. dialog.modal은 backdrop/위치만 담당하고, 박스 스타일과
+// 크기(.modal-sm/md/lg)·변형(.modal-alert)은 .popup-inner에 준다.
+
+// dialog는 height 없이 max-height만 가져 퍼센트 기반 max-height가 제대로 해석되지 않으므로,
+// 같은 값을 dialog와 .popup-inner 양쪽에 명시해 내용이 넘치면 .popup-body 내부 스크롤로 대응한다.
+$modal-viewport-margin: $spacing-8; // 32px
+$modal-viewport-margin-mobile: $spacing-6; // 24px
+
+dialog.modal {
+	// display는 반드시 &[open]로 감싸서 지정
+	box-sizing: border-box;
+	padding: 0;
+	overflow: visible;
+	background: transparent;
+	border: 0;
+
+	&::backdrop {
+		background-color: rgba($color-gray-100, 0.5);
+	}
+
+	&[open] {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: calc(100% - #{$modal-viewport-margin});
+		max-height: calc(100vh - #{$modal-viewport-margin});
+		margin: auto;
+	}
+
+	@include mq-down(sm) {
+		&[open] {
+			max-width: 100%;
+			width: calc(100% - #{$modal-viewport-margin-mobile});
+			max-height: calc(100vh - #{$modal-viewport-margin-mobile});
+		}
+	}
+}
+
+.popup-inner {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	max-width: 56rem; // medium(기본)
+	max-height: calc(100vh - #{$modal-viewport-margin});
+	overflow: hidden;
+	background-color: $bg-white;
+	border-radius: 1.2rem;
+	box-shadow: 0 0.8rem 1.6rem rgba($color-gray-100, 0.12);
+	padding: $spacing-6;
+
+	&.modal-sm {
+		max-width: 40rem;
+	}
+	&.modal-md {
+		max-width: 56rem;
+	}
+	&.modal-lg {
+		max-width: 76rem;
+	}
+	&.modal-xl {
+		max-width: 100rem;
+	}
+
+	@include mq-down(sm) {
+		padding: $spacing-5;
+		max-height: calc(100vh - #{$modal-viewport-margin-mobile});
+
+		&.modal-sm,
+		&.modal-md,
+		&.modal-lg,
+		&.modal-xl {
+			max-width: 100%;
+		}
+	}
+}
+
+.popup-header {
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+	padding: $spacing-8 $spacing-4 $spacing-2 $spacing-4;
+
+	@include mq-down(sm) {
+		padding-inline: $spacing-1;
+	}
+
+	.popup-title {
+		font-size: 2.4rem;
+		font-weight: $font-weight-bold;
+	}
+}
+
+.btn-modal-close {
+	position: absolute;
+	top: $spacing-4;
+	right: $spacing-4;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 2rem;
+	@include icon-set(ico_close);
+	@include square(3.2rem);
+	border-radius: 0.4rem;
+
+	&:hover,
+	&:focus-visible {
+		background-color: $bg-gray-subtler;
+	}
+	&:active {
+		background-color: $bg-gray-subtle;
+	}
+}
+
+.popup-title {
+	font-size: $font-size-heading-medium;
+	font-weight: $font-weight-bold;
+	color: $text-basic;
+}
+
+.popup-body {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	padding: $spacing-2 $spacing-4 $spacing-2;
+	line-height: $line-height-base;
+	color: $text-basic;
+
+	&:first-child {
+		padding-top: $spacing-8;
+	}
+
+	@include mq-down(sm) {
+		padding-inline: $spacing-1;
+	}
+}
+
+.popup-footer {
+	display: flex;
+	flex-shrink: 0;
+	justify-content: flex-end;
+	gap: $spacing-2;
+	padding: $spacing-4 $spacing-4;
+
+	@include mq-down(sm) {
+		padding-inline: $spacing-1;
+	}
+}
+
+// 얼럿/컨펌 — 헤더(X 닫기) 없이 .popup-body 안에 제목+설명만 둔다.
+.modal-alert {
+	max-width: 36rem;
+	padding: 0;
+	.popup-body {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		padding-top: 3.6rem;
+	}
+
+	.popup-message {
+		line-height: 1.3em;
+	}
+
+	.popup-footer {
+		justify-content: center;
+		border-top: 0;
+		padding-top: 0.8rem;
+		padding-bottom: 2.8rem;
+	}
+}
+
+.modal-alert-icon {
+	display: flex;
+	justify-content: center;
+	margin-bottom: $spacing-2;
+
+	.svg-icon {
+		width: 5.6rem;
+		height: 5.6rem;
+	}
+
+	&[hidden] {
+		display: none;
+	}
+}

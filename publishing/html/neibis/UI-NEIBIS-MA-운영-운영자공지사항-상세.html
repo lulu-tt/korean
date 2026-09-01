@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				// 이곳에 정의
+				$(".btn-delete").click(function () {
+					confirm(
+						{
+							icon: "error", // info, check(기본값), warning, error, warning-gray
+							title: "삭제하면 복구할 수 없어요",
+							message: "그래도 데이터를 삭제하시겠어요?"
+						},
+						function (result) {
+							if (result) {
+								console.log("확인 버튼을 눌렀습니다.");
+								// true 로직 실행
+							} else {
+								console.log("취소 버튼을 눌렀습니다.");
+								// false 로직 실행
+							}
+						}
+					);
+				});
+			});
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="운영자 공지사항"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<div class="card">
+							<div class="table table-row">
+								<div class="table-inner">
+									<table>
+										<caption class="sr-only">
+											운영자 공지사항 상세
+										</caption>
+										<tbody>
+											<tr>
+												<th scope="row">
+													<span>게시여부<i class="req">필수입력</i></span>
+												</th>
+												<td>
+													<label class="check-item">
+														<input type="radio" name="inputRadio1" id="inputRadio1_2" checked disabled />
+														<span class="label">게시</span>
+													</label>
+													<label class="check-item">
+														<input type="radio" name="inputRadio1" id="inputRadio1_1" disabled />
+														<span class="label">미게시</span>
+													</label>
+												</td>
+												<th scope="row">
+													<span>공지여부<i class="req">필수입력</i></span>
+												</th>
+												<td>
+													<label class="check-item">
+														<input type="radio" name="inputRadio2" id="inputRadio2_1" disabled />
+														<span class="label">공지</span>
+													</label>
+													<label class="check-item">
+														<input type="radio" name="inputRadio2" id="inputRadio2_2" checked disabled />
+														<span class="label">미공지</span>
+													</label>
+												</td>
+											</tr>
+											<tr>
+												<th scope="row">등록일시</th>
+												<td>2023.03.15</td>
+												<th scope="row">수정일시</th>
+												<td>2023.03.15</td>
+											</tr>
+											<tr>
+												<th scope="row">작성자</th>
+												<td colspan="3">inseqcms</td>
+											</tr>
+											<tr>
+												<th scope="row">조회수</th>
+												<td>12</td>
+												<th scope="row">게시순위</th>
+												<td>5</td>
+											</tr>
+											<tr>
+												<th scope="row">
+													<span>제목<i class="req">필수입력</i></span>
+												</th>
+												<td colspan="3">공지사항 입니다.</td>
+											</tr>
+											<tr>
+												<th scope="row">
+													<span>엠바고 설정<i class="req">필수입력</i></span>
+												</th>
+												<td colspan="3">2023.03.15 01:00</td>
+											</tr>
+											<tr>
+												<th scope="row">첨부파일</th>
+												<td colspan="3">
+													<div class="file-add-area">
+														<div class="file-list">
+															<div class="file-item">
+																<div class="preview">
+																	<!-- 이미지 미리보기 경우 -->
+																	<img
+																		src="/assets/neibis/images/img-upload-file-sample.jpg"
+																		alt=""
+																		class="preview-img"
+																	/>
+																</div>
+																<div class="info">
+																	<p class="name">
+																		ico-error-xl@2x.pngico-error-xl@2x.pngico-error-xl@2x.pngico-error-xl@2x.pngico-error-xl@2x.pngico-error-xl@2x.pngico-error-xl@2x.pngico-error-xl@2x.pngico-error-xl@2x.pngico-error-xl@2x.png
+																	</p>
+																	<p class="size">2.04 KB</p>
+																</div>
+																<div class="btn-area">
+																	<a href="#" class="btn btn-download" download>
+																		<i class="ico ico-download-md"></i> <span class="sr-only">다운로드</span>
+																	</a>
+																</div>
+															</div>
+															<div class="file-item">
+																<div class="preview">
+																	<!-- 이미지 미리보기가 없을 경우 -->
+																	<!-- <img
+																			src="/assets/neibis/images/img-upload-file-sample.jpg"
+																			alt=""
+																			class="preview-img"
+																		/> -->
+																</div>
+																<div class="info">
+																	<p class="name">ico-error-xl@2x.png</p>
+																	<p class="size">2.04 KB</p>
+																</div>
+																<div class="btn-area">
+																	<a href="#" class="btn btn-download" download>
+																		<i class="ico ico-download-md"></i> <span class="sr-only">다운로드</span>
+																	</a>
+																</div>
+															</div>
+														</div>
+													</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="info-editor-area">
+								<h3 class="title1 mt-5">내용</h3>
+								<!-- [개발][웹에디터] : 위지윅 에디터 영역 변경 -->
+								<div class="editor-wrap" style="width: 100%; min-height: 120px">
+									<h3>
+										위지윅 에디터 영역 .editor-wrap 내부에 들어가는 스타일의 경우 에디터 스타일과 동일하게 적용 됩니다.
+									</h3>
+									<p>
+										위지윅 에디터 영역 .editor-wrap 내부에 들어가는 스타일의 경우 에디터 스타일과 동일하게 적용 됩니다.
+									</p>
+								</div>
+							</div>
+
+							<!-- 모바일에서 노출되는 버튼 그룹  -->
+							<div class="btn-group-between">
+								<div class="d-up-md">
+									<a href="UI-NEIBIS-MA-운영-운영자공지사항-목록.html" class="btn btn-lg btn-outline-gray">
+										<i class="ico ico-chevron-left-gray-md"></i>
+										<span>목록</span>
+									</a>
+								</div>
+								<div class="right">
+									<a
+										href="UI-NEIBIS-MA-운영-운영자공지사항-목록.html"
+										data-confirm="leave-saver"
+										class="btn btn-lg btn-gray btn-delete"
+									>
+										<i class="ico ico-trash-white-md"></i>
+										<span>삭제</span>
+									</a>
+									<a href="UI-NEIBIS-MA-운영-운영자공지사항-등록수정.html" class="btn btn-lg btn-primary-soft">
+										<i class="ico ico-pen-primary-md"></i>
+										<span>수정</span>
+									</a>
+								</div>
+							</div>
+						</div>
+						<ul class="article-nav">
+							<li class="prev">
+								<a href="#;" class="item">
+									<span><i class="ico ico-prev-gray-sm mr-1"></i>이전글</span>
+									<strong class="link-info"> PC에서의 최대 높이값은 82px 입니다.</strong>
+								</a>
+							</li>
+							<li class="next">
+								<a href="#;" class="item">
+									<span>다음글<i class="ico ico-next-gray-sm ml-1"></i></span>
+									<strong class="link-info">
+										타이틀텍스트입니다.타이틀 텍스트입니다.타이틀 텍스트입니다.타이틀 텍스트입니다.타이틀
+										텍스트입니다.타이틀 텍스트입니다.
+									</strong>
+								</a>
+							</li>
+						</ul>
+
+						<!-- 상단 고정 액션 버튼 -->
+						<div class="btn-group-fixed">
+							<a
+								href="UI-NEIBIS-MA-운영-운영자공지사항-목록.html"
+								data-confirm="leave-saver"
+								class="btn btn-lg btn-gray btn-delete"
+							>
+								<i class="ico ico-trash-white-md"></i>
+								<span>삭제</span>
+							</a>
+
+							<a href="UI-NEIBIS-MA-운영-운영자공지사항-등록수정.html" class="btn btn-lg btn-primary-soft">
+								<i class="ico ico-pen-primary-md"></i>
+								<span>수정</span>
+							</a>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

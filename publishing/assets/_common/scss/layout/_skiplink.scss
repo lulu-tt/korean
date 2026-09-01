@@ -1,0 +1,27 @@
+.skip-link {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: $z-skip-link;
+	width: 100%;
+	text-align: center;
+	background-color: $color-primary-60;
+
+	&:not(:focus) {
+		@include sr-only;
+	}
+
+	&:focus {
+		@include focus-ring;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: $spacing-11;
+		font-size: $font-size-body-small;
+		color: $text-inverse;
+
+		@include mq-down(md) {
+			font-size: $font-size-body-xsmall;
+		}
+	}
+}

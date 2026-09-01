@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				// 이곳에 정의
+			});
+		</script>
+	</head>
+
+	<!-- 레이아웃 유형별 body 클래스 별도 적용 -->
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div
+						class="content-header"
+						data-inc="_inc-content-header.html"
+						data-page-title="템플릿명이 가장 가장 가장 가장 길 경우"
+					></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<div class="card">
+							<p>Contents</p>
+							<img src="/assets/neibis/images/_sample.jpg" alt="" />
+
+							<!-- 액션 버튼 -->
+							<div class="btn-group-between">
+								<div class="left">
+									<!-- data-confirm="leave-saver" 속성 추가시 컨펌창이 뜨고, 확인 버튼 누를 때 href 값으로 이동됨 -->
+									<a href="#;" data-confirm="leave-saver" class="btn btn-lg btn-outline-gray">
+										<i class="ico ico-chevron-left-gray-md"></i>
+										<span>목록</span>
+									</a>
+								</div>
+								<div class="right">
+									<a href="#" class="btn btn-lg btn-gray btn-delete">
+										<i class="ico ico-trash-white-md"></i>
+										<span>삭제</span>
+									</a>
+									<button type="submit" class="btn btn-lg btn-primary">
+										<i class="ico ico-save-white-md"></i>
+										<span>저장</span>
+									</button>
+								</div>
+							</div>
+						</div>
+
+						<div class="btn-group-fixed">
+							<a href="#" class="btn btn-lg btn-gray btn-delete">
+								<i class="ico ico-trash-white-md"></i>
+								<span>삭제</span>
+							</a>
+							<button type="submit" class="btn btn-lg btn-primary">
+								<i class="ico ico-save-white-md"></i>
+								<span>저장</span>
+							</button>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

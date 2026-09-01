@@ -1,0 +1,22 @@
+.content-body {
+	margin-top: $spacing-16;
+
+	@include mq-down(md) {
+		margin-top: $spacing-6;
+	}
+
+	&:has(.login-wrap),
+	&:has(.join-complete-wrap) {
+		margin-top: $spacing-7;
+
+		@include mq-down(md) {
+			margin-top: $spacing-4;
+		}
+	}
+	&.search-page {
+		padding-bottom: 6.4rem;
+		@include mq-down(md) {
+			padding-bottom: 2.4rem;
+		}
+	}
+}

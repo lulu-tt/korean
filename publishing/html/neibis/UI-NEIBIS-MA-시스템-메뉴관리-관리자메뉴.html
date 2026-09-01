@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- jquery.ui.touch-punch -->
+		<script src="../../assets/neibis/plugins/jquery.ui.touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				// 이곳에 정의
+
+				// 메뉴 URL 게시판 클릭 시 팝업 노출
+				document.getElementById("open-layer-popup").addEventListener("click", function () {
+					var layerPopup = document.getElementById("layer-popup1");
+					layerPopup.classList.remove("hide");
+					layerPopup.classList.add("show");
+				});
+
+				// btn-selected 선택 버튼
+				function selectTable(slector) {
+					$(slector + " .btn-selected").click(function () {
+						confirm(
+							{
+								icon: "warning",
+								title: "저장하시겠어요?",
+								message: "저장하시려면 ‘확인’을 눌러주세요."
+							},
+							function (result) {
+								if (result) {
+									closeModal(slector);
+									console.log("확인 버튼을 눌렀습니다.");
+									// true 로직 실행
+								} else {
+									console.log("취소 버튼을 눌렀습니다.");
+									// false 로직 실행
+								}
+							}
+						);
+					});
+				}
+
+				selectTable("#layer-popup1");
+
+				// zTree onClick 이벤트
+				window.zTreeOnClick = function (event, treeId, treeNode) {
+					// zTree 노드 클릭시 이벤트 사용자 정의
+					alert(treeNode ? treeNode.tId : "root");
+				};
+
+				window.zTreeBeforeRename = function (treeId, treeNode, newName, isCancel) {
+					// zTree 노드 네이밍 변경 시 기존 네임
+					// console.log(treeId, treeNode, newName, isCancel);
+				};
+
+				window.zTreeRename = function (e, treeId, treeNode, isCancel) {
+					// zTree 노드 네이밍 변경 시 사용자 정의
+					// console.log(e, treeId, treeNode, isCancel);
+				};
+
+				// zTree 노드 생성시 기준 네이밍 변경
+				window.zTreeCreateNewNode = function (zTree, treeNode, isParent) {
+					const nameFunc = function () {
+						return "이름을 입력해주세요.";
+					};
+					return createNewNode(zTree, treeNode, isParent, nameFunc);
+				};
+
+				function removeNodeId(treeNode) {
+					// zTree 삭제된 노드 확인
+					// console.log("삭제된 노드 확인: ", treeNode);
+				}
+			});
+
+			// z-tree : zNodes 추가 옵션
+			// open: true : 기본 view가 오픈상태로 노출
+			// disabled: true : 비활성화 메뉴의 경우
+			// isParent: true : 하위 메뉴가 없는 상태에서 폴더형식의 경우
+
+			// iconskin 변경
+			// ico_docu, ico-page-md : 일반페이지 (기본), 지정되지 않은 종류의 페이지
+			// ico_open, ico_close, ico-folder-md : 폴더 (기본)
+			// ico-site-md : 사용자사이트 페이지
+			// ico-editpage-md :웹콘텐츠 관리 페이지
+			// ico-pagepgm-md : pgm 페이지
+			// ico-pagebbs-md : bbs 페이지
+			// ico-newwindow-md : 새창 (target: "_blank" 속성 추가 필요)
+			// ico-code-md : 코드 페이지
+
+			var zNodes = [
+				{ id: 1, pId: 0, name: "사이트 메뉴명1", open: true },
+				{ id: 11, pId: 1, name: "사이트 메뉴명1", open: true },
+				{ id: 111, pId: 11, name: "사이트 메뉴명1", disabled: true },
+				{ id: 112, pId: 11, name: "사이트 메뉴명1" },
+				{ id: 113, pId: 11, name: "사이트 메뉴명1", target: "_blank", iconSkin: "ico-newwindow-md" },
+				{ id: 114, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-editpage-md" },
+				{ id: 115, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-pagepgm-md" },
+				{ id: 116, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-pagebbs-md" },
+				{ id: 117, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-code-md" },
+				{ id: 12, pId: 1, name: "길어질 경우 가로 스크롤이 생성됩니다. 길어질 경우 가로 스크롤이 생성됩니다." },
+				{ id: 121, pId: 12, name: "사이트 메뉴명1" },
+				{ id: 122, pId: 12, name: "사이트 메뉴명1" },
+				{ id: 13, pId: 1, name: "사이트 메뉴명1", iconSkin: "ico-site-md" },
+				{ id: 2, pId: 0, name: "사이트 메뉴명1" },
+				{ id: 21, pId: 2, name: "사이트 메뉴명1" },
+				{ id: 211, pId: 21, name: "사이트 메뉴명1" },
+				{ id: 212, pId: 21, name: "사이트 메뉴명1" },
+				{ id: 22, pId: 2, name: "사이트 메뉴명1" },
+				{ id: 221, pId: 22, name: "사이트 메뉴명1" },
+				{ id: 222, pId: 22, name: "사이트 메뉴명1" },
+				{ id: 23, pId: 2, name: "사이트 메뉴명1" },
+				{ id: 231, pId: 23, name: "사이트 메뉴명1" },
+				{ id: 232, pId: 23, name: "사이트 메뉴명1" },
+				{ id: 3, pId: 0, name: "사이트 메뉴명1" },
+				{ id: 4, pId: 0, name: "사이트 메뉴명1" }
+			];
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="관리자 메뉴"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<form action="#;">
+							<div class="tree-in-wrap">
+								<!-- 트리메뉴 -->
+								<div class="tree-menu-area">
+									<div class="tree-header">
+										<div class="btn-group-center gap-xs">
+											<button type="button" class="btn btn-xs btn-outline-gray" id="btnOpenTree">
+												<i class="ico ico-plus-gray-sm"></i>
+												<span>전체열기</span>
+											</button>
+											<button type="button" class="btn btn-xs btn-outline-gray" id="btnCloseTree">
+												<i class="ico ico-minus-gray-sm"></i>
+												<span>전체닫기</span>
+											</button>
+										</div>
+									</div>
+									<div class="tree-body">
+										<div class="scroll-araa">
+											<ul id="treeMenu" class="ztree"></ul>
+										</div>
+									</div>
+									<div class="tree-footer">
+										<div class="btn-group-center gap-xs">
+											<button type="button" class="btn btn-xs btn-primary-soft" id="btnAdd">
+												<i class="ico ico-plus-primary-sm"></i>
+												<span>메뉴추가</span>
+											</button>
+											<button type="button" class="btn btn-xs btn-gray" id="btnDelt">
+												<i class="ico ico-minus-white-sm"></i>
+												<span>메뉴삭제</span>
+											</button>
+											<button type="button" class="btn btn-xs btn-outline-gray">
+												<span>순서변경</span>
+											</button>
+										</div>
+									</div>
+								</div>
+
+								<!-- 관리자 메뉴 상세 -->
+								<div class="card">
+									<div class="table table-row">
+										<div class="table-inner">
+											<table>
+												<caption class="sr-only">
+													관리자 메뉴
+												</caption>
+												<tbody>
+													<tr>
+														<th scope="row">
+															<label for="input1">사이트 아이디<i class="req">필수입력</i></label>
+														</th>
+														<td colspan="3">
+															<input
+																type="text"
+																id="input1"
+																class="form-control full"
+																placeholder="영문(소문자)로 입력해주세요."
+																value="cms"
+																required
+																disabled
+															/>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<label for="input2">메뉴명<i class="req">필수입력</i></label>
+														</th>
+														<td colspan="3">
+															<input
+																type="text"
+																id="input2"
+																class="form-control full"
+																placeholder="메뉴명을 입력해주세요."
+																required
+															/>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<label for="textarea1">메뉴 설명</label>
+														</th>
+														<td colspan="3">
+															<textarea
+																class="form-control full"
+																id="textarea1"
+																placeholder="설명을 입력해주세요."
+															></textarea>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<label for="textarea2">메뉴 소개</label>
+														</th>
+														<td colspan="3">
+															<textarea
+																class="form-control full"
+																id="textarea2"
+																placeholder="설명을 입력해주세요."
+															></textarea>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<label for="textarea4">메뉴명 툴팁</label>
+														</th>
+														<td colspan="3">
+															<!-- [웹에디터] 추후 웹에디터로 변경 예정 -->
+															<div class="details-cell">
+																<div class="row-item">
+																	<strong class="label">툴팁 사용 여부</strong>
+																	<label class="check-item">
+																		<input type="radio" name="radio1-1" checked />
+																		<span class="label">사용</span>
+																	</label>
+																	<label class="check-item">
+																		<input type="radio" name="radio1-1" />
+																		<span class="label">미사용</span>
+																	</label>
+																</div>
+																<div class="row-item">
+																	<div class="btn-group">
+																		<button type="reset" class="btn btn-sm btn-outline-gray">
+																			<i class="ico ico-undo-darkgray-md"></i>
+																			<span class="text">소스 초기화</span>
+																		</button>
+																		<button type="button" class="btn btn-sm btn-primary-soft">
+																			<i class="ico ico-plus-primary-md"></i>
+																			<span class="text">링크 버튼 추가</span>
+																		</button>
+																	</div>
+																</div>
+																<div class="row-item">
+																	<textarea
+																		class="form-control full"
+																		id="textarea4"
+																		placeholder="툴팁에 들어갈 설명 문구를 입력해 주세요."
+																	></textarea>
+																</div>
+															</div>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<label for="input3">메뉴 URL<i class="req">필수입력</i></label>
+														</th>
+														<td colspan="3">
+															<label class="check-item">
+																<input type="radio" name="radio1" checked required />
+																<span class="label">디렉토리</span>
+															</label>
+															<label class="check-item" id="open-layer-popup">
+																<input type="radio" name="radio1" required />
+																<span class="label">게시판</span>
+															</label>
+															<label class="check-item">
+																<input type="radio" name="radio1" required />
+																<span class="label">PGM</span>
+															</label>
+															<label class="check-item">
+																<input type="radio" name="radio1" required />
+																<span class="label">내용초기화</span>
+															</label>
+															<input
+																type="text"
+																id="input3"
+																class="form-control full"
+																placeholder="메뉴 URL 을 입력해주세요."
+																required
+															/>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<label for="input4">프로그램 ID<i class="req">필수입력</i></label>
+														</th>
+														<td colspan="3">
+															<input
+																type="text"
+																id="input4"
+																class="form-control full"
+																placeholder="프로그램 ID를 입력해주세요."
+																required
+															/>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<span>
+																개인정보 여부
+																<i class="req">필수입력</i>
+															</span>
+														</th>
+														<td colspan="3">
+															<label class="check-item">
+																<input type="radio" name="radio8" required />
+																<span class="label">사용</span>
+															</label>
+															<label class="check-item">
+																<input type="radio" name="radio8" checked required />
+																<span class="label">미사용</span>
+															</label>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<label>숨김여부(메뉴상태)<i class="req">필수입력</i></label>
+														</th>
+														<td>
+															<label class="check-item">
+																<input type="radio" name="radio4" required />
+																<span class="label">숨김</span>
+															</label>
+															<label class="check-item">
+																<input type="radio" name="radio4" checked required />
+																<span class="label">노출</span>
+															</label>
+														</td>
+														<th scope="row">
+															<label>새창여부<i class="req">필수입력</i></label>
+														</th>
+														<td>
+															<label class="check-item">
+																<input type="radio" name="radio5" required />
+																<span class="label">새창</span>
+															</label>
+															<label class="check-item">
+																<input type="radio" name="radio5" checked required />
+																<span class="label">현재창</span>
+															</label>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<span>메뉴권한<i class="req">필수입력</i></span>
+														</th>
+														<td>
+															<label class="check-item">
+																<input type="radio" name="radio6" checked required />
+																<span class="label">사용</span>
+															</label>
+															<label class="check-item">
+																<input type="radio" name="radio6" required />
+																<span class="label">미사용</span>
+															</label>
+															<label class="check-item">
+																<input type="radio" name="radio6" required />
+																<span class="label">메뉴사용중지</span>
+															</label>
+														</td>
+														<th scope="row">
+															<span>
+																리포트관리
+																<i class="req">필수입력</i>
+															</span>
+														</th>
+														<td>
+															<label class="check-item">
+																<input type="radio" name="radio7" required />
+																<span class="label">사용</span>
+															</label>
+															<label class="check-item">
+																<input type="radio" name="radio7" checked required />
+																<span class="label">미사용</span>
+															</label>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<label for="input5">상위메뉴(일련)</label>
+														</th>
+														<td>
+															<input type="text" id="input5" class="form-control full" value="관리자메뉴(0)" disabled />
+														</td>
+														<th scope="row">
+															<label for="input6">메뉴순서<i class="req">필수입력</i></label>
+														</th>
+														<td>
+															<input type="text" id="input6" class="form-control full" value="5" disabled required />
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<label for="input7">파라미터</label>
+														</th>
+														<td colspan="3">
+															<input
+																type="text"
+																id="input7"
+																class="form-control full"
+																placeholder="파라미터를 입력해주세요."
+															/>
+														</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+									<h4 class="title1 mt-10">담당부서 설정</h4>
+									<div class="table table-row">
+										<div class="table-inner">
+											<table>
+												<caption class="sr-only">
+													담당부서 설정
+												</caption>
+												<tbody>
+													<tr>
+														<th scope="row">
+															<label for="input8">담당부서</label>
+														</th>
+														<td>
+															<input
+																type="text"
+																id="input8"
+																class="form-control full"
+																placeholder="담당부서를 입력해주세요."
+															/>
+														</td>
+														<th scope="row">
+															<label for="input9">담당자</label>
+														</th>
+														<td>
+															<input
+																type="text"
+																id="input9"
+																class="form-control full"
+																placeholder="담당자를 입력해주세요."
+															/>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<label for="input10">전화번호</label>
+														</th>
+														<td>
+															<input
+																type="text"
+																id="input10"
+																class="form-control full"
+																placeholder="전화번호 입력해주세요."
+															/>
+														</td>
+														<th scope="row">
+															<label for="input11">이메일</label>
+														</th>
+														<td>
+															<input
+																type="text"
+																id="input11"
+																class="form-control full"
+																placeholder="이메일을 입력해주세요."
+															/>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<label for="input12">tmpl</label>
+														</th>
+														<td colspan="3">
+															<input type="text" id="input12" class="form-control full" value="cms" disabled />
+														</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+									<div class="btn-group-between">
+										<div class="right">
+											<button type="submit" class="btn btn-lg btn-primary">
+												<i class="ico ico-save-white-md"></i>
+												<span>변경 내용 저장</span>
+											</button>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- 상단 고정 액션 버튼 -->
+							<div class="btn-group-fixed">
+								<button type="submit" class="btn btn-lg btn-primary">
+									<i class="ico ico-save-white-md"></i>
+									<span>변경 내용 저장</span>
+								</button>
+							</div>
+						</form>
+
+						<!-- Modal Popup : 게시판 등록 -->
+						<div class="modal-popup modal-xl hide" id="layer-popup1">
+							<div class="dimed"></div>
+							<div class="popup-inner bg-gray">
+								<div class="popup-header">
+									<h2 class="popup-title">게시판 등록</h2>
+								</div>
+								<div class="popup-body">
+									<div class="tabmenu-in-wrap">
+										<!-- 검색 영역 -->
+										<div class="card">
+											<form action="#;" class="search-form">
+												<div class="table table-form-basic">
+													<div class="table-inner">
+														<table>
+															<caption class="sr-only">
+																검색조건입력
+															</caption>
+															<tbody>
+																<tr>
+																	<th scope="row">
+																		<label for="search_word1">주제어</label>
+																	</th>
+																	<td>
+																		<div class="input-group sm-drop">
+																			<select
+																				class="form-control"
+																				title="검색 구분 선택"
+																				style="width: 100%; max-width: 160px"
+																			>
+																				<option selected>전체</option>
+																				<option>게시판ID</option>
+																				<option>게시판명</option>
+																			</select>
+																			<input
+																				type="text"
+																				id="search_word1"
+																				class="form-control"
+																				placeholder="게시판ID / 게시판명으로 검색해주세요."
+																			/>
+																		</div>
+																	</td>
+																</tr>
+															</tbody>
+														</table>
+													</div>
+												</div>
+
+												<div class="btn-group-center">
+													<button type="submit" class="btn btn-md btn-primary">
+														<i class="ico ico-search-white-md"></i>
+														<span class="text">검색</span>
+													</button>
+												</div>
+											</form>
+										</div>
+
+										<!-- 목록 -->
+										<div class="card">
+											<div class="list-control">
+												<div class="left">
+													<p class="total">총 <strong class="text-primary">1</strong>건(1/1 page)</p>
+												</div>
+											</div>
+
+											<div class="table table-list">
+												<div class="table-inner">
+													<table style="min-width: 1200px">
+														<caption class="sr-only">
+															게시판 등록 목록
+														</caption>
+														<thead>
+															<tr>
+																<th scope="col">선택</th>
+																<th scope="col">게시판ID</th>
+																<th scope="col">타입</th>
+																<th scope="col">게시판명</th>
+																<th scope="col">사용여부</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-selected">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>story</td>
+																<td>일반형</td>
+																<td class="text-left">스토리</td>
+																<td>사용</td>
+															</tr>
+															<tr>
+																<td></td>
+																<td>cms-notice</td>
+																<td>썸네일형</td>
+																<td class="text-left">운영자 공지사항</td>
+																<td>미사용</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-selected">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>story</td>
+																<td>동영상형</td>
+																<td class="text-left">포트폴리오</td>
+																<td>사용</td>
+															</tr>
+															<tr>
+																<td></td>
+																<td>0001</td>
+																<td>댓글형</td>
+																<td class="text-left">게시판</td>
+																<td>미사용</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-selected">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>0002</td>
+																<td>일반형</td>
+																<td class="text-left">운영자 공지사항</td>
+																<td>사용</td>
+															</tr>
+															<tr>
+																<td></td>
+																<td>0003</td>
+																<td>일반형</td>
+																<td class="text-left">스토리</td>
+																<td>미사용</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-selected">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>0004</td>
+																<td>일반형</td>
+																<td class="text-left">포트폴리오</td>
+																<td>사용</td>
+															</tr>
+															<tr>
+																<td></td>
+																<td>0005</td>
+																<td>썸네일형</td>
+																<td class="text-left">게시판</td>
+																<td>미사용</td>
+															</tr>
+															<tr>
+																<td>
+																	<button type="button" class="btn btn-xs btn-primary-soft btn-selected">
+																		<i class="ico ico-check-primary-sm"></i>
+																		<span>선택</span>
+																	</button>
+																</td>
+																<td>0006</td>
+																<td>동영상형</td>
+																<td class="text-left">스토리</td>
+																<td>사용</td>
+															</tr>
+															<tr>
+																<td></td>
+																<td>0007</td>
+																<td>댓글형</td>
+																<td class="text-left">운영자 공지사항항</td>
+																<td>미사용</td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+
+											<div class="pagination">
+												<a href="#;" class="direction first">처음</a>
+												<a href="#;" class="direction prev">이전</a>
+												<strong>1</strong>
+												<a href="#;">2</a>
+												<a href="#;">3</a>
+												<a href="#;">4</a>
+												<a href="#;">5</a>
+												<a href="#;" class="direction next">다음</a>
+												<a href="#;" class="direction last">끝</a>
+											</div>
+										</div>
+									</div>
+								</div>
+								<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+							</div>
+						</div>
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

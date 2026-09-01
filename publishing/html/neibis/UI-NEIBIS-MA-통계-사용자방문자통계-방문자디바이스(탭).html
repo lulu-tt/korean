@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			function submitFuntion(event) {
+				event.preventDefault();
+				$(".search-before").hide();
+				$(".result-area").show();
+				$(".statistics").show();
+				$(".site-name").show();
+			}
+
+			$(function () {
+				$("form.search-form").on("submit", submitFuntion);
+			});
+
+			window.addEventListener("DOMContentLoaded", async function () {
+				// 창의 너비를 확인
+				let windowWidth = window.innerWidth;
+
+				// 라인차트 날짜 반환
+				const dateList = Array.from({ length: 30 }, (_, i) => {
+					const date = new Date(2023, 0, i + 1);
+					const month = date.getMonth() + 1;
+					const day = date.getDate();
+
+					// MM.DD 형태로 반환
+					return `${month.toString().padStart(2, "0")}.${day.toString().padStart(2, "0")}`;
+				});
+				async function generateBarChart() {
+					let chartLine = {
+						id: "chart-line",
+						options: {
+							// title: {
+							// 	text: "일자별 방문자수 통계",
+							// 	left: "center"
+							// },
+							grid: {
+								top: 10,
+								bottom: 30,
+								left: 4, // Y축 카테고리 영역 추가 확보시 수치 조절
+								right: 0, // 우측 수치 잘리지 않도록 여백 확보
+								containLabel: true
+							},
+							tooltip: {
+								trigger: "axis"
+							},
+							legend: {
+								orient: "horizontal",
+								x: "center",
+								y: "bottom"
+							},
+							xAxis: {
+								data: dateList,
+								axisLabel: {
+									// align: "right"
+									rotate: 45, // 45도 각도로 회전
+									fontSize: 10,
+									color: "#A6ADB9" // X축 글자 컬러 지정
+								},
+								axisLine: {
+									lineStyle: {
+										color: "#E5E7EB" // X축 라인 색상을 #E5E7EB로 설정
+									}
+								},
+								axisTick: {
+									show: false // X축 눈금 지우기
+								}
+							},
+							yAxis: {
+								axisLabel: {
+									fontSize: 10,
+									color: "#A6ADB9"
+								}
+							},
+							series: [
+								{
+									name: "전체",
+									type: "line",
+									data: [
+										3000, 3100, 3200, 3000, 3200, 3400, 3200, 3500, 3400, 3600, 3700, 3900, 3800, 4000, 4100, 4000,
+										4200, 4400, 4300, 4500, 4600, 4800, 4700, 4800, 5000, 5100, 5200, 5300, 5400, 5500
+									],
+									itemStyle: { color: "#7E8594" },
+									symbol: "none"
+								},
+								{
+									name: "PC",
+									type: "line",
+									data: [
+										1000, 1200, 1100, 1200, 1100, 1300, 1400, 1200, 1300, 1400, 1600, 1500, 1600, 1800, 1900, 1700,
+										1900, 2000, 2200, 2000, 2200, 2300, 2400, 2300, 2400, 2600, 2500, 2700, 2600, 2800
+									],
+									itemStyle: { color: "#357FED" },
+									symbol: "none"
+								},
+								{
+									name: "Mobile",
+									type: "line",
+									data: [
+										2000, 1900, 2100, 1800, 2100, 2100, 1800, 2300, 2100, 2200, 2100, 2400, 2200, 2200, 2200, 2300,
+										2300, 2400, 2100, 2500, 2400, 2500, 2300, 2500, 2600, 2500, 2700, 2600, 2800, 2700
+									],
+									itemStyle: { color: "#F59E0B" },
+									symbol: "none"
+								}
+							]
+						}
+					};
+
+					let chartPie = {
+						id: "chart-pie",
+						options: {
+							legend: {
+								orient: "horizontal",
+								x: "center",
+								y: "bottom",
+								itemWidth: 12, // 아이콘 가로 크기
+								itemHeight: 12, // 아이콘 세로 크기
+								data: ["PC", "Mobile"]
+							},
+							// 색상 배열 순환 적용됨 : 데이터 개수가 많아져도 문제없음
+							color: [
+								"#357FED",
+								"#F59E0B",
+								"#0CAE79",
+								"#F97316",
+								"#8B5CF6",
+								"#EF4444",
+								"#0EA5E9",
+								"#EC4899",
+								"#84CC16",
+								"#06B6D4"
+							],
+							series: [
+								// 파이차트 데이터 면 내부에 흰색 글자로 표출 (두가지 정보 노출시 시리즈 2회 표출)
+								{
+									name: "게시판 사용 비율",
+									type: "pie",
+									radius: ["30%", "66%"],
+									center: ["50%", "42%"], // 차트의 중심 위치를 조절
+									data: [
+										{ value: 25, name: "PC" },
+										{ value: 75, name: "Mobile" }
+									],
+									label: {
+										color: "#ffffff", // 흰색 글자
+										position: "inside", // 라벨 내부에 위치
+										formatter: "{c}%" // 값(퍼센트)만 표시
+									}
+								}
+							]
+						}
+					};
+
+					// 각 차트 인스턴스를 저장할 객체
+					let chartInstances = {};
+
+					const charts = [chartLine, chartPie];
+					await window.useCharts(charts);
+				}
+
+				// tab 구조에 차트가 들어가야할 경우 너비, 높이값 불러오기
+				$("form.search-form").on("submit", async function () {
+					const originalDisplay = $("#tab-content2").css("display");
+					$("#tab-content2").css("display", "block");
+					await generateBarChart();
+					$("#tab-content2").css("display", originalDisplay);
+				});
+			});
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="사용자 방문자 통계"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<div class="statistics-contnet-wrap">
+							<nav class="tabmenu tabmenu-type1 tabmenu-flex">
+								<ul class="tab-list">
+									<li>
+										<a href="UI-NEIBIS-MA-통계-사용자방문자통계-방문자수(탭).html"><span>방문자 수</span></a>
+									</li>
+									<li class="on">
+										<a href="#" title="선택됨"><span>방문자 디바이스</span></a>
+									</li>
+								</ul>
+							</nav>
+
+							<h3 class="sr-only">방문자 디바이스</h3>
+							<!-- 검색 영역 -->
+							<div class="card">
+								<form action="#;" class="search-form">
+									<div class="table table-form-basic">
+										<div class="table-inner">
+											<table>
+												<caption class="sr-only">
+													검색조건입력
+												</caption>
+												<tbody>
+													<tr>
+														<th scope="row">
+															<span>조회기간<i class="req">필수입력</i></span>
+														</th>
+
+														<td>
+															<div class="input-group input-group-date-range">
+																<div class="radio-btn-group">
+																	<span class="check-item">
+																		<input type="radio" id="radio_btn1" name="radio_date_range" value="1d" required />
+																		<label for="radio_btn1">하루전</label>
+																	</span>
+																	<span class="check-item">
+																		<input type="radio" id="radio_btn2" name="radio_date_range" value="7d" required />
+																		<label for="radio_btn2">1주일</label>
+																	</span>
+																	<span class="check-item">
+																		<input
+																			type="radio"
+																			id="radio_btn3"
+																			name="radio_date_range"
+																			value="1m"
+																			checked
+																			required
+																		/>
+																		<label for="radio_btn3">1개월</label>
+																	</span>
+																	<span class="check-item">
+																		<input type="radio" id="radio_btn4" name="radio_date_range" value="3m" required />
+																		<label for="radio_btn4">3개월</label>
+																	</span>
+																	<span class="check-item">
+																		<input type="radio" id="radio_btn5" name="radio_date_range" value="6m" required />
+																		<label for="radio_btn5">6개월</label>
+																	</span>
+																	<span class="check-item">
+																		<input type="radio" id="radio_btn6" name="radio_date_range" value="12m" required />
+																		<label for="radio_btn6">1년</label>
+																	</span>
+																</div>
+																<div class="input-group input-group-datepicker">
+																	<input
+																		type="text"
+																		class="form-control form-datepicker range-start"
+																		title="시작일 선택"
+																		placeholder="YYYY.MM.DD"
+																		required
+																	/>
+																	<span class="input-addon">-</span>
+																	<input
+																		type="text"
+																		class="form-control form-datepicker range-end"
+																		title="종료일 선택"
+																		placeholder="YYYY.MM.DD"
+																		required
+																	/>
+																</div>
+															</div>
+														</td>
+													</tr>
+													<tr>
+														<th scope="row">
+															<span>사이트명<i class="req">필수입력</i></span>
+														</th>
+														<td>
+															<select class="form-control" title="사이트명 선택" style="width: 100%; max-width: 424px">
+																<option selected>대표 홈 국문</option>
+																<option>항목1</option>
+																<option>항목2</option>
+															</select>
+														</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+									<div class="btn-group-center">
+										<button type="reset" class="btn btn-md btn-outline-gray">
+											<i class="ico ico-undo-darkgray-md"></i>
+											<span class="text">초기화</span>
+										</button>
+										<button type="submit" class="btn btn-md btn-primary">
+											<i class="ico ico-search-white-md"></i>
+											<span class="text">검색</span>
+										</button>
+									</div>
+								</form>
+							</div>
+
+							<!-- 선택한 사이트명 노출 -->
+							<div class="card site-name">
+								<h4>대표 홈 국문</h4>
+							</div>
+
+							<!-- 통계 영역 -->
+							<div class="card statistics">
+								<div class="statistics-wrap">
+									<div class="statistics-header">
+										<h5 class="title1">방문자 디바이스 통계</h5>
+									</div>
+									<div class="statistics-body">
+										<div class="content-row">
+											<div class="inner">
+												<div class="col-item col-3">
+													<div id="chart-line"></div>
+												</div>
+												<div class="col-item">
+													<div id="chart-pie"></div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- 목록 -->
+							<div class="card">
+								<div class="search-before"><p>데이터를 검색해보세요</p></div>
+
+								<!-- 데이터 없을 경우 -->
+								<!-- <div class="nodata-area"><p>데이터가 없어요</p></div> -->
+
+								<!-- 목록 -->
+								<div class="result-area" style="display: none">
+									<div class="list-control">
+										<div class="left">
+											<p class="total">총 <strong class="text-primary">113</strong>건(1/1 page)</p>
+										</div>
+										<div class="right">
+											<a href="#;" class="btn btn-sm btn-xls mr-1" download>
+												<i class="ico ico-fileexcel-white-sm"></i>
+												<span>엑셀 다운로드</span>
+											</a>
+											<select class="form-control-sm" style="min-width: 100px" title="목록 수">
+												<option selected>10</option>
+												<option>20</option>
+												<option>50</option>
+												<option>100</option>
+											</select>
+											<button type="button" class="btn btn-sm btn-outline-gray ml-1">적용</button>
+										</div>
+									</div>
+
+									<div class="table table-list">
+										<div class="table-inner">
+											<table style="min-width: 800px">
+												<caption class="sr-only">
+													방문자 디바이스 목록
+												</caption>
+												<thead>
+													<tr>
+														<th scope="col">번호</th>
+														<th scope="col">날짜</th>
+														<th scope="col">
+															<button type="button" class="table-align-btn">
+																<span class="table-title">방문자 수</span>
+																<span class="ico-wrap">
+																	<i class="ico ico-table-updown-darkgary-sm"></i>
+																	<span class="sr-only">오름차순/내림차순 정렬</span>
+																</span>
+															</button>
+														</th>
+														<th scope="col">
+															<button type="button" class="table-align-btn">
+																<span class="table-title">페이지 뷰</span>
+																<span class="ico-wrap">
+																	<i class="ico ico-table-updown-darkgary-sm"></i>
+																	<span class="sr-only">오름차순/내림차순 정렬</span>
+																</span>
+															</button>
+														</th>
+														<th scope="col">
+															<button type="button" class="table-align-btn">
+																<span class="table-title">PC</span>
+																<span class="ico-wrap">
+																	<i class="ico ico-table-updown-darkgary-sm"></i>
+																	<span class="sr-only">오름차순/내림차순 정렬</span>
+																</span>
+															</button>
+														</th>
+														<th scope="col">
+															<button type="button" class="table-align-btn">
+																<span class="table-title">Mobile</span>
+																<span class="ico-wrap">
+																	<i class="ico ico-table-updown-darkgary-sm"></i>
+																	<span class="sr-only">오름차순/내림차순 정렬</span>
+																</span>
+															</button>
+														</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td>32</td>
+														<td>2023.03.12</td>
+														<td>369</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+													<tr>
+														<td>31</td>
+														<td>2023.03.12</td>
+														<td>369</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+													<tr>
+														<td>30</td>
+														<td>2023.03.12</td>
+														<td>369</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+													<tr>
+														<td>29</td>
+														<td>2023.03.12</td>
+														<td>369</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+													<tr>
+														<td>28</td>
+														<td>2023.03.12</td>
+														<td>369</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+													<tr>
+														<td>27</td>
+														<td>2023.03.12</td>
+														<td>369</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+													<tr>
+														<td>26</td>
+														<td>2023.03.12</td>
+														<td>369</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+													<tr>
+														<td>25</td>
+														<td>2023.03.12</td>
+														<td>369</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+													<tr>
+														<td>24</td>
+														<td>2023.03.12</td>
+														<td>369</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+													<tr>
+														<td>23</td>
+														<td>2023.03.12</td>
+														<td>369</td>
+														<td>369</td>
+														<td>145</td>
+														<td>65</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+									<div class="pagination">
+										<a href="#;" class="direction first">처음</a>
+										<a href="#;" class="direction prev">이전</a>
+										<strong>1</strong>
+										<a href="#;">2</a>
+										<a href="#;">3</a>
+										<a href="#;">4</a>
+										<a href="#;">5</a>
+										<a href="#;" class="direction next">다음</a>
+										<a href="#;" class="direction last">끝</a>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

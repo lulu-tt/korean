@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="wrapper">
+			<aside id="sidebar">
+				<div class="sidebar-header">
+					<h1 class="sidebar-title">
+						<a href="UI-NEIBIS-MA-대시보드.html"
+							><img src="/assets/neibis/images/logo.png" alt="neibis" /><span class="logo-text">관리시스템</span></a
+						>
+					</h1>
+					<div class="toolbar">
+						<button type="button" class="btn btn-icon btn-upside-down">
+							<i class="ico ico-bararrowsv-gray-sm"></i>
+							<span class="text">메뉴순서 상하반전</span>
+						</button>
+						<button type="button" class="btn btn-icon btn-collapse">
+							<i class="ico ico-chevrondouble-left-gray-sm"></i>
+							<span class="text">메뉴 <span class="close">접기</span><span class="open">펼치기</span></span>
+						</button>
+					</div>
+				</div>
+
+				<!-- 콘텐츠 영역 -->
+				<div class="sidebar-body">
+					<div class="favorit-area variable-area">
+						<h2 class="favorit-title">
+							<button type="button" class="btn-favorit" title="여닫기">
+								<i class="ico ico-favorit-gray-md"></i>
+								<span class="text">즐겨찾기</span>
+							</button>
+						</h2>
+						<div class="favorit-body">
+							<nav class="favorit-menu">
+								<!-- 데이터 없음 -->
+								<!-- <p class="nodata">
+									<strong>저장된 메뉴가 없어요.</strong>
+									<span>
+										페이지 상단의 ⭐모양을 클릭하면<br />
+										즐겨찾기 메뉴에 저장할 수 있어요.
+									</span>
+								</p> -->
+								<!-- 데이터 있을 때 -->
+								<div class="title-area">
+									<i class="ico ico-favorit-gray-md"></i>
+									<span class="text">즐겨찾기</span>
+								</div>
+								<ul class="favorit-list">
+									<li>
+										<a href="UI-NEIBIS-MA-운영-웹콘텐츠관리.html">웹콘텐츠 관리</a>
+									</li>
+									<li class="on">
+										<a href="UI-NEIBIS-MA-시스템-코드관리-코드설정-목록.html">코드설정</a>
+									</li>
+									<li>
+										<a href="UI-NEIBIS-MA-통계-사용자방문자통계-방문자수(탭).html">사용자 방문자 통계</a>
+									</li>
+									<li>
+										<a href="UI-NEIBIS-MA-로그-관리자접속로그.html">관리자접속로그</a>
+									</li>
+									<li>
+										<a href="#;">즐겨 찾기 메뉴명이 최대한 길어질 경우</a>
+									</li>
+									<li>
+										<a href="#;">즐겨 찾기 메뉴명이 최대한 길어질 경우</a>
+									</li>
+									<li>
+										<a href="#;">즐겨 찾기 메뉴명이 최대한 길어질 경우</a>
+									</li>
+									<li>
+										<a href="#;">즐겨 찾기 메뉴명이 최대한 길어질 경우</a>
+									</li>
+									<li>
+										<a href="#;">즐겨 찾기 메뉴명이 최대한 길어질 경우</a>
+									</li>
+									<li>
+										<a href="#;">즐겨 찾기 메뉴명이 최대한 길어질 경우</a>
+									</li>
+									<li>
+										<a href="#;">즐겨 찾기 메뉴명이 최대한 길어질 경우</a>
+									</li>
+									<li>
+										<a href="#;">즐겨 찾기 메뉴명이 최대한 길어질 경우</a>
+									</li>
+									<li>
+										<a href="#;">즐겨 찾기 메뉴명이 최대한 길어질 경우</a>
+									</li>
+								</ul>
+								<!-- // 데이터 있을 때 -->
+							</nav>
+						</div>
+					</div>
+					<div class="separator separator1"></div>
+					<nav id="gnb-area" class="variable-area">
+						<ul class="gnb-list">
+							<!-- [개발] 활성화 최하위 메뉴의 li class="on" -->
+							<li>
+								<a href="UI-NEIBIS-MA-대시보드.html">
+									<i class="ico ico-dashboard-gray-md"></i>
+									<span class="text">대시보드</span>
+								</a>
+							</li>
+							<li>
+								<a href="#;">
+									<i class="ico ico-operation-gray-md"></i>
+									<span class="text">운영</span>
+								</a>
+								<div class="gnb-container">
+									<ul>
+										<li><a href="UI-NEIBIS-MA-운영-웹콘텐츠관리.html">웹콘텐츠 관리</a></li>
+										<li><a href="UI-NEIBIS-MA-운영-운영자공지사항-목록.html">운영자 공지사항</a></li>
+										<li>
+											<a href="#;">팝업/배너 관리</a>
+											<ul>
+												<li>
+													<a href="UI-NEIBIS-MA-운영-팝업배너관리-프로모션영역관리-목록.html">프로모션 영역 관리</a>
+												</li>
+												<li><a href="UI-NEIBIS-MA-운영-팝업배너관리-팝업존관리-목록.html">팝업존 관리</a></li>
+												<li><a href="UI-NEIBIS-MA-운영-팝업배너관리-팝업관리-목록.html">팝업 관리</a></li>
+												<li><a href="UI-NEIBIS-MA-운영-팝업배너관리-배너관리-목록.html">배너 관리</a></li>
+												<li><a href="UI-NEIBIS-MA-운영-팝업배너관리-미니팝업존관리-목록.html">미니팝업존 관리</a></li>
+												<li><a href="UI-NEIBIS-MA-운영-팝업배너관리-미니배너관리-목록.html">미니배너 관리</a></li>
+												<li>
+													<a href="UI-NEIBIS-MA-운영-팝업배너관리-레이어팝업관리-목록.html">레이어 팝업 관리</a>
+												</li>
+												<li><a href="UI-NEIBIS-MA-운영-팝업배너관리-패밀리관리-목록.html">패밀리 관리</a></li>
+											</ul>
+										</li>
+										<li>
+											<a href="#;">설문조사 관리</a>
+											<ul>
+												<li>
+													<a href="UI-NEIBIS-MA-운영-설문조사관리-목록.html">설문조사 관리</a>
+												</li>
+												<li>
+													<a href="UI-NEIBIS-MA-운영-설문조사참여-목록.html">설문조사 참여</a>
+												</li>
+											</ul>
+										</li>
+										<li>
+											<a href="#;">조직 관리</a>
+											<ul>
+												<li>
+													<a href="UI-NEIBIS-MA-운영-조직관리-부서및직원업무설정.html">부서및직원업무 설정</a>
+												</li>
+												<li>
+													<a href="UI-NEIBIS-MA-운영-조직관리-직원검색.html">직원검색</a>
+												</li>
+											</ul>
+										</li>
+										<li>
+											<a href="UI-NEIBIS-MA-운영-통합회원관리.html">통합회원관리</a>
+										</li>
+										<li>
+											<a href="UI-NEIBIS-MA-운영-스케쥴-일정관리-목록.html">스케쥴</a>
+										</li>
+									</ul>
+								</div>
+							</li>
+							<li>
+								<a href="#;">
+									<i class="ico ico-monitor-gray-md"></i>
+									<span class="text">시스템</span>
+								</a>
+								<div class="gnb-container">
+									<ul>
+										<li>
+											<a href="#;">메뉴 관리</a>
+											<ul>
+												<li>
+													<a href="UI-NEIBIS-MA-시스템-메뉴관리-관리자메뉴.html">관리자메뉴</a>
+												</li>
+												<li>
+													<a href="UI-NEIBIS-MA-시스템-메뉴관리-사용자메뉴-메뉴설정(탭).html">사용자메뉴</a>
+												</li>
+											</ul>
+										</li>
+										<li>
+											<a href="UI-NEIBIS-MA-시스템-메인설정.html">메인 설정</a>
+										</li>
+										<li>
+											<a href="#;">게시판 관리</a>
+											<ul>
+												<li>
+													<a href="UI-NEIBIS-MA-시스템-게시판관리-게시판설정-목록.html">게시판 설정</a>
+												</li>
+												<li>
+													<a href="UI-NEIBIS-MA-시스템-게시판관리-게시물복원관리-설정(탭).html">게시물 복원 관리</a>
+												</li>
+												<li>
+													<a href="UI-NEIBIS-MA-시스템-게시판관리-RSS설정.html">RSS 설정</a>
+												</li>
+											</ul>
+										</li>
+										<li>
+											<a href="#;">코드관리</a>
+											<ul>
+												<li>
+													<a href="UI-NEIBIS-MA-시스템-코드관리-코드설정-목록.html">코드설정</a>
+												</li>
+												<li>
+													<a href="UI-NEIBIS-MA-시스템-코드관리-다중항목코드설정.html">다중항목코드설정</a>
+												</li>
+											</ul>
+										</li>
+										<li>
+											<a href="#;">정보관리</a>
+											<ul>
+												<li>
+													<a href="UI-NEIBIS-MA-시스템-정보관리-관리자등록관리-목록.html">관리자 등록관리</a>
+												</li>
+												<li>
+													<a href="UI-NEIBIS-MA-시스템-정보관리-관리자아이피관리-목록.html">관리자 아이피관리</a>
+												</li>
+												<li>
+													<a href="UI-NEIBIS-MA-시스템-정보관리-로그인보안설정.html">로그인 보안설정</a>
+												</li>
+											</ul>
+										</li>
+										<li>
+											<a href="#;">권한관리</a>
+											<ul>
+												<li>
+													<a href="UI-NEIBIS-MA-시스템-권한관리-관리자메뉴권한.html">관리자 메뉴권한</a>
+												</li>
+												<li>
+													<a href="UI-NEIBIS-MA-시스템-권한관리-웹콘텐츠권한.html">웹콘텐츠 권한</a>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</div>
+							</li>
+							<li>
+								<a href="#;">
+									<i class="ico ico-log-gray-md"></i>
+									<span class="text">로그</span>
+								</a>
+								<div class="gnb-container">
+									<ul>
+										<li><a href="UI-NEIBIS-MA-로그-관리자접속로그.html">관리자 접속 로그</a></li>
+										<li>
+											<a href="#;">메뉴별 로그</a>
+											<ul>
+												<li>
+													<a href="UI-NEIBIS-MA-로그-메뉴별로그-관리자메뉴로그.html">관리자 메뉴로그</a>
+												</li>
+												<li>
+													<a href="UI-NEIBIS-MA-로그-메뉴별로그-사용자메뉴로그.html">사용자 메뉴로그</a>
+												</li>
+											</ul>
+										</li>
+										<li><a href="UI-NEIBIS-MA-로그-개인정보열람이력.html">개인정보 열람이력</a></li>
+										<li><a href="UI-NEIBIS-MA-로그-게시물변경이력.html">게시물 변경 이력</a></li>
+										<li><a href="UI-NEIBIS-MA-로그-웹콘텐츠이력.html">웹콘텐츠 이력</a></li>
+									</ul>
+								</div>
+							</li>
+							<li>
+								<a href="#;">
+									<i class="ico ico-chartbar-gray-md"></i>
+									<span class="text">통계</span>
+								</a>
+								<div class="gnb-container">
+									<ul>
+										<li><a href="UI-NEIBIS-MA-통계-관리자접속자통계-로그인통계(탭).html">관리자 접속자 통계</a></li>
+										<li><a href="UI-NEIBIS-MA-통계-사용자방문자통계-방문자수(탭).html">사용자 방문자 통계</a></li>
+										<li><a href="UI-NEIBIS-MA-통계-사용자메뉴별통계.html">사용자 메뉴별 통계</a></li>
+										<li><a href="UI-NEIBIS-MA-통계-만족도통계-목록.html">만족도 통계</a></li>
+										<li><a href="UI-NEIBIS-MA-통계-게시판통계-조회수(탭).html">게시판 통계</a></li>
+										<li><a href="UI-NEIBIS-MA-통계-웹콘텐츠통계.html">웹콘텐츠 통계</a></li>
+									</ul>
+								</div>
+							</li>
+							<li>
+								<a href="UI-NEIBIS-MA-방문자통계요약보고서.html">
+									<i class="ico ico-report-gray-md"></i>
+									<span class="text">방문자 통계 요약 보고서</span>
+								</a>
+							</li>
+						</ul>
+					</nav>
+					<div class="separator separator2"></div>
+					<div class="site-manage-area variable-area">
+						<h2 class="site-manage-title">
+							<button type="button" class="btn-site-manage">
+								<i class="ico ico-earth-md"></i>
+								<span>사이트 관리</span>
+							</button>
+						</h2>
+						<div class="site-manage-body">
+							<div class="title-area">
+								<i class="ico ico-earth-md"></i>
+								<span>사이트 관리</span>
+							</div>
+							<form action="#;" class="site-search">
+								<fieldset>
+									<legend class="sr-only">사이트 검색</legend>
+									<input
+										type="text"
+										class="form-control"
+										placeholder="사이트를 검색해 주세요"
+										title="사이트를 검색해 주세요"
+									/>
+									<button type="button" class="btn-search">
+										<i class="ico ico-search-gray-sm"></i><span class="sr-only">검색</span>
+									</button>
+								</fieldset>
+							</form>
+							<nav class="site-menu">
+								<!-- 데이터 없음 -->
+
+								<!-- <p class="nodata">
+									<strong>아직 접속 가능한 사이트가 없어요.</strong>
+									<span>
+										시스템 관리자, 운영 관리자에게<br />
+										메뉴권한을 요청해보시겠어요?
+									</span>
+								</p> -->
+
+								<!-- 기본 타입 -->
+								<ul class="site-list">
+									<li>
+										<a href="/keis/neibis/directory/23/directory.do">한국고용정보원-국문</a>
+										<ul>
+											<li>
+												<a href="/keis/neibis/directory/25/directory.do">발간자료</a>
+
+												<ul>
+													<li>
+														<a href="/keis/neibis/proj/27/pblc/ctgry/list.do">발간물 관리</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/proj/28/pblc/sttus/list.do">발간물 등록현황</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/proj/29/pblc/131/list.do">연구사업보고서</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/proj/30/pblc/125/list.do">직업진로정보서</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/proj/31/pblc/130/list.do">고용이슈</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/proj/32/pblc/126/list.do">고용동향브리프</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/proj/33/pblc/262/list.do">지역산업과 고용</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/proj/34/pblc/321/list.do">산업·일자리전환지도 브리프</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/proj/35/pblc/127/list.do">해외고용리포트</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/proj/339/pblc/124/list.do">고용과 직업연구</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/proj/340/pblc/129/list.do">지역고용동향브리프</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/proj/341/pblc/325/list.do">고용정책 연구</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/proj/40/pblc/123/list.do">웹진-커리어Info</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/36/list.do">인력수급전망</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/37/list.do">구인구직통계</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/38/list.do">고용보험통계</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/39/list.do">직업능력개발사업통계</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/41/list.do">인포그래픽</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/43/list.do">세미나자료</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/proj/359/pblc/dwldstats/list.do">발간자료 다운로드 통계</a>
+													</li>
+												</ul>
+											</li>
+
+											<li>
+												<a href="/keis/neibis/directory/44/directory.do">고용패널조사</a>
+
+												<ul>
+													<li>
+														<a href="/keis/neibis/bbs/45/list.do">청년패널(YP)자료</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/46/list.do">고령화연구패널(KLoSA)자료</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/47/list.do">고령화고용패널(KLoEE)자료</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/48/list.do">대졸자직업이동경로조사(GOMS) 자료</a>
+													</li>
+												</ul>
+											</li>
+
+											<li>
+												<a href="/keis/neibis/directory/49/directory.do">정보공개</a>
+
+												<ul>
+													<li>
+														<a href="/keis/neibis/extn/19/bfhd-info/list.do">사전정보공표</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/52/list.do">정보목록</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/54/list.do">공공데이터 공모전 수상작</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/55/list.do">사업실명제</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/57/list.do">기관차량운영현황</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/58/list.do">직원국외출장정보</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/60/list.do">주요MOU체결현황</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/61/list.do">부서장업무추진비</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/extn/459/mngmpblnt/list.do">경영공시</a>
+													</li>
+												</ul>
+											</li>
+
+											<li>
+												<a href="/keis/neibis/directory/62/directory.do">열린경영</a>
+
+												<ul>
+													<li>
+														<a href="/keis/neibis/bbs/63/list.do">윤리경영추진활동</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/64/list.do">인권자료실</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/65/list.do">안전보건경영 추진활동</a>
+													</li>
+												</ul>
+											</li>
+
+											<li>
+												<a href="/keis/neibis/directory/67/directory.do">국민참여</a>
+
+												<ul>
+													<li>
+														<a href="/keis/neibis/bbs/70/list.do">연구과제 공모</a>
+													</li>
+												</ul>
+											</li>
+
+											<li>
+												<a href="/keis/neibis/directory/71/directory.do">알림마당</a>
+
+												<ul>
+													<li>
+														<a href="/keis/neibis/bbs/72/list.do">공지사항</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/proj/73/pblc/161/list.do">홍보책자</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/74/list.do">사진갤러리</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/75/list.do">영상갤러리</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/77/list.do">보도자료</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/78/list.do">언론보도</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/79/list.do">KEIS연구기자단</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/80/list.do">정보화사업 발주정보</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/81/list.do">제안서 평가결과</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/82/list.do">채용공고</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/83/list.do">친인척 채용현황</a>
+													</li>
+												</ul>
+											</li>
+
+											<li>
+												<a href="/keis/neibis/directory/480/directory.do">사업소개</a>
+
+												<ul>
+													<li>
+														<a href="/keis/neibis/bbs/481/list.do">생애주기별 서비스 관리</a>
+													</li>
+												</ul>
+											</li>
+
+											<li>
+												<a href="/keis/neibis/directory/482/directory.do">이용안내</a>
+
+												<ul>
+													<li>
+														<a href="/keis/neibis/bbs/483/list.do">개인정보처리방침</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/484/list.do">영상정보처리기기 운영관리방침</a>
+													</li>
+												</ul>
+											</li>
+										</ul>
+									</li>
+
+									<li class="on">
+										<a href="/keis/neibis/directory/84/directory.do">한국고용정보원-영문</a>
+
+										<ul>
+											<li>
+												<a href="/keis/neibis/directory/85/directory.do">Publication</a>
+
+												<ul>
+													<li>
+														<a href="/keis/neibis/bbs/86/list.do">Research Report</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/87/list.do">KEIS e-Letter</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/extn/88/sbscrp/list.do">Subscriptions</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/89/list.do">LMIS</a>
+													</li>
+												</ul>
+											</li>
+
+											<li>
+												<a href="/keis/neibis/directory/91/directory.do">News &amp; Event</a>
+
+												<ul>
+													<li>
+														<a href="/keis/neibis/bbs/92/list.do">KEIS News</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/93/list.do">Photo Gallery</a>
+													</li>
+
+													<li>
+														<a href="/keis/neibis/bbs/94/list.do">Symposium</a>
+													</li>
+												</ul>
+											</li>
+
+											<li>
+												<a href="/keis/neibis/directory/95/directory.do">About KEIS</a>
+
+												<ul>
+													<li>
+														<a href="/keis/neibis/bbs/96/list.do">Brochure</a>
+													</li>
+												</ul>
+											</li>
+										</ul>
+									</li>
+								</ul>
+
+								<!-- 검색어 입력 시 : 2글자 이상 입력시 노출 -->
+								<!-- <ul class="site-list site-list-result">
+								<li>
+									<a href="#;"> <span>대표 홈 국문</span>포트폴리오 포트폴리오 포트폴리오</a>
+								</li>
+								<li>
+									<a href="#;"><span>대표 홈 국문</span> 포트폴리오1</a>
+								</li>
+								<li>
+									<a href="#;"><span>대표 홈 국문</span>포트폴리오2</a>
+								</li>
+								<li>
+									<a href="#;"><span>대표 홈 국문</span>포트폴리오3</a>
+								</li>
+								<li>
+									<a href="#;"><span>대표 홈 국문</span>포트폴리오4</a>
+								</li>
+								<li>
+									<a href="#;"><span>대표 홈 국문</span>포트폴리오5</a>
+								</li>
+							</ul> -->
+							</nav>
+						</div>
+					</div>
+				</div>
+				<div class="user-info-area">
+					<!-- 사용자 정보 영역 
+					테마에 맞춰 프로필 이미지 변경 필요 : blue, red, green, yellow, orange
+					-->
+					<div class="info">
+						<span class="profile">
+							<!-- 개발팀 확인 필요 -->
+							<button type="button" class="profile-thumb">
+								<img src="/assets/neibis/images/img-profile-gold-blue-md@2x.png" alt="프로필 이미지" />
+							</button>
+
+							<strong class="text-normal">시스템 관리자</strong>
+						</span>
+						<!-- 시간 영역 -->
+						<span class="time-info">
+							<!-- 2023-05-30 수정 내역 : time 마크업 수정, 로그인 시간 연장팝업 노출이후 부터 노출-->
+							<dl class="time">
+								<dt class="time-title"><i class="ico ico-time-sm"></i><span class="sr-only">남은시간</span></dt>
+								<dd>09:59</dd>
+							</dl>
+							<a href="#;" class="btn-ellipsis">
+								<i class="ico ico-ellipsis-gray-md"></i><span class="sr-only">더보기</span>
+							</a>
+						</span>
+					</div>
+
+					<div class="info-detail">
+						<div class="user-profile">
+							<span class="info-top">
+								<strong class="name">홍길동</strong>
+								<!-- 사용자 등급 아이콘 : gold, silver, bronze 로 구분 -->
+								<span class="rating"><i class="ico ico-system-gold-md"></i>시스템 관리자</span>
+							</span>
+							<span class="info-bottom time">
+								<dl class="time-item">
+									<dt class="time-title"><i class="ico ico-calendar-lightgray-sm"></i>마지막 접속시간</dt>
+									<dd>23.01.10 15:15:30</dd>
+								</dl>
+								<dl class="time-item">
+									<dt class="time-title"><i class="ico ico-clock-gray-sm"></i>남은 시간</dt>
+									<dd>09:00</dd>
+								</dl>
+							</span>
+						</div>
+
+						<div class="btn-group">
+							<button type="button" class="btn btn-sm"><i class="ico ico-plus-gray-md"></i>접속시간 연장하기</button>
+							<a href="#layer-admin-info-revise" data-modal="open" class="btn btn-sm"
+								><i class="ico ico-edit-gray-md"></i>정보수정</a
+							>
+							<button type="button" class="btn btn-sm"><i class="ico ico-logout-gray-md"></i>로그아웃</button>
+						</div>
+					</div>
+				</div>
+				<button type="button" class="btn btn-allmenu-close">
+					<i class="ico ico-allmenu-close"></i>
+					<span class="sr-only">메뉴 닫기</span>
+				</button>
+			</aside>
+		</div>
+	</body>
+</html>

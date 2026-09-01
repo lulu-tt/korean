@@ -1,0 +1,165 @@
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	font-size: 62.5%; // 1rem = 10px 환산 기준
+}
+
+body {
+	margin: 0;
+	font-family: $font-family-base;
+	font-size: $font-size-base;
+	line-height: $line-height-base;
+	font-weight: $font-weight-regular;
+	color: $text-basic;
+	background-color: $bg-white;
+	-webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul,
+ol,
+dl,
+dd {
+	margin: 0;
+	padding: 0;
+}
+
+ul,
+ol {
+	list-style: none;
+}
+
+img {
+	max-width: 100%;
+	vertical-align: middle;
+	border: 0;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+address {
+	font-style: normal;
+}
+
+button {
+	font-family: inherit;
+	cursor: pointer;
+	background: none;
+	border: 0;
+	padding: 0;
+}
+
+input,
+select,
+textarea,
+button {
+	font-family: inherit;
+	font-size: 100%;
+}
+
+table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+:focus-visible {
+	@include focus-ring;
+}
+
+// ==================================================
+// Custom Scrollbar
+// Firefox / Webkit(Chrome, Edge, Safari)
+// ==================================================
+
+// Firefox
+html {
+	scrollbar-width: thin;
+	scrollbar-color: $color-secondary-20 $color-secondary-5;
+}
+
+::-webkit-scrollbar {
+	width: $scrollbar-width;
+	height: $scrollbar-width;
+}
+
+::-webkit-scrollbar-track {
+	background-color: $color-secondary-5;
+}
+
+::-webkit-scrollbar-thumb {
+	background-color: $color-secondary-20;
+	border-radius: 999px;
+
+	&:hover {
+		background-color: $color-secondary-30;
+	}
+}
+
+::-webkit-scrollbar-button {
+	display: none;
+	width: 0;
+	height: 0;
+}
+
+::-webkit-scrollbar-corner {
+	background-color: transparent;
+}
+
+.sr-only {
+	@include sr-only;
+}
+
+// JS는 body에 클래스만 토글하고, 실제 동작은 CSS에서 정의한다(인라인 style 금지).
+.is-gnb-desktop {
+	@include mq-up(md) {
+		overflow: hidden;
+	}
+}
+
+.is-gnb-mobile {
+	@include mq-down(md) {
+		overflow: hidden;
+	}
+}
+
+// 스크롤바 사라짐으로 인한 폭 밀림 보정 — full-bleed 요소마다 개별로 padding 부여.
+.is-gnb-desktop.has-scroll-y {
+	@include mq-up(md) {
+		.masthead,
+		.header,
+		.gnb-panel,
+		.container,
+		.footer {
+			padding-right: $scrollbar-width;
+		}
+	}
+}
+
+// GNB와 달리 브레이크포인트 구분 없이 항상 잠근다.
+.is-modal {
+	overflow: hidden;
+}
+
+.is-modal.has-scroll-y {
+	@include mq-up(md) {
+		.masthead,
+		.header,
+		.container,
+		.footer {
+			padding-right: $scrollbar-width;
+		}
+	}
+}

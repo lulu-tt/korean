@@ -1,0 +1,193 @@
+// KRDS 접근성 규칙: 네이티브 역할/포커스 동작을 유지하고 크기·상태는 클래스로만 제어한다.
+
+.input {
+	height: 4.4rem;
+	padding-inline: $spacing-4;
+	font-size: $font-size-body-medium;
+	color: $text-basic;
+	background-color: $bg-white;
+	border: 1px solid $border-gray-dark;
+	border-radius: 0.6rem;
+
+	&::placeholder {
+		color: $text-disabled;
+	}
+
+	&:focus-visible {
+		@include focus-ring;
+	}
+
+	&:disabled {
+		color: $text-disabled;
+		background-color: $bg-gray-subtle;
+	}
+
+	// 크기(Size)
+	&.input-xl {
+		height: $spacing-14;
+		font-size: $font-size-body-large;
+		border-radius: $spacing-2;
+	}
+
+	&.input-lg {
+		height: $spacing-12;
+	}
+
+	&.input-md {
+		height: $spacing-10;
+		font-size: $font-size-body-small;
+	}
+
+	&.input-sm {
+		height: $spacing-9;
+		padding-inline: $spacing-2;
+		font-size: $font-size-body-small;
+	}
+
+	// 상태(State)
+	&.is-focused {
+		@include focus-ring;
+		border-color: $border-primary;
+	}
+
+	&.is-error {
+		border-color: $text-danger;
+
+		&:focus-visible {
+			outline-color: $text-danger;
+		}
+	}
+
+	&.is-view {
+		color: $text-subtle;
+		background-color: $color-gray-20;
+		pointer-events: none;
+		border-color: $border-gray;
+	}
+
+	// 길이(Width)
+	&.w-100 {
+		width: 100%;
+	}
+
+	&.md-full {
+		@include mq-down(md) {
+			width: 100%;
+		}
+	}
+}
+
+.input-password-wrap {
+	position: relative;
+
+	.input {
+		width: 100%;
+		padding-right: $spacing-11;
+	}
+
+	.input-password-toggle {
+		position: absolute;
+		top: 50%;
+		right: $spacing-3;
+		transform: translateY(-50%);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+}
+
+// textarea
+.textarea {
+	display: block;
+	width: 100%;
+	min-height: 4.4rem;
+	padding: $spacing-3;
+	font-family: inherit;
+	font-size: $font-size-body-medium;
+	color: $text-basic;
+	background-color: $bg-white;
+	border: 1px solid $border-gray;
+	border-radius: 0.6rem;
+	resize: vertical;
+
+	&::placeholder {
+		color: $text-disabled;
+	}
+
+	&:focus-visible {
+		@include focus-ring;
+	}
+
+	&:disabled {
+		color: $text-disabled;
+		background-color: $bg-gray-subtle;
+	}
+
+	&.is-error {
+		border-color: $text-danger;
+
+		&:focus-visible {
+			outline-color: $text-danger;
+		}
+	}
+}
+
+.textarea-wrap {
+	overflow: hidden;
+	border: 1px solid $border-gray;
+	border-radius: 0.6rem;
+
+	.textarea {
+		border: none;
+		border-radius: 0;
+
+		&:focus-visible {
+			outline: none;
+		}
+	}
+
+	&:focus-within {
+		@include focus-ring;
+	}
+
+	&.is-error {
+		border-color: $text-danger;
+
+		&:focus-within {
+			outline-color: $text-danger;
+		}
+	}
+}
+
+// Input Group — input/select + 버튼(addon)을 묶어서 사용
+.input-group {
+	display: flex;
+	align-items: center;
+	gap: $spacing-2;
+	width: 100%;
+
+	.input,
+	.select {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
+	.btn {
+		flex: 0 0 auto;
+	}
+
+	@include mq-down(sm) {
+		max-width: none !important;
+		flex-wrap: wrap;
+		.btn {
+			flex: 1 1 100%;
+		}
+
+		&.input-group-fit {
+			flex-wrap: nowrap;
+			.btn {
+				flex: 0 0 auto;
+			}
+		}
+	}
+}

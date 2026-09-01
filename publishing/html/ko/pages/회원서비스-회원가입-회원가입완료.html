@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>회원가입 | 지역어 종합 정보</title>
+		<link rel="icon" href="../../../assets/_common/images/favicon.ico" />
+
+		<!-- CSS -->
+		<link rel="stylesheet" href="../../../assets/ko/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../../assets/_common/js/ui-global.js" defer></script>
+
+		<!-- TODO : 퍼블용 JS, 개발시 반영 금지 -->
+		<script src="../../../assets/_guide/js/ui-include.js" defer></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {});
+		</script>
+	</head>
+	<body>
+		<div class="wrap">
+			<!-- [퍼블용 include]: [include] 표기 부분은 실제 서버 include로 교체 필요 -->
+
+			<!-- [include]:본문 바로가기 -->
+			<div w3-include-html="../_include/inc-skipnav.html"></div>
+			<!-- [include]:상단 배너 -->
+			<div class="masthead" w3-include-html="../_include/inc-masthead.html"></div>
+			<!-- [include]:헤더  -->
+			<header class="header" w3-include-html="../_include/inc-header.html"></header>
+
+			<div id="container" class="container">
+				<!----- 콘텐츠 영역 ----->
+
+				<div class="inner" id="contents">
+					<!-- 브레드 크럼 -->
+					<nav class="breadcrumb" aria-label="현재 위치">
+						<ol class="breadcrumb-list">
+							<li class="breadcrumb-item home">
+								<a href="#"><i class="svg-icon ico-bread-home ico-sm" aria-hidden="true"></i>홈</a>
+							</li>
+						</ol>
+					</nav>
+					<!-- // -->
+
+					<div class="content-header">
+						<h1 class="content-title">회원가입</h1>
+					</div>
+
+					<div class="content-body">
+						<div class="join-complete-wrap">
+							<div class="box box-policy mt-10">
+								<p>
+									지역어 종합 정보는 회원님의 개인정보를 안전하게 보호하고 있으며, <br class="d-up-lg" />
+									회원님의 명백한 동의 없이는 공개하거나 제3자에게 제공하지 않습니다.
+								</p>
+							</div>
+							<div class="complete-info mt-12">
+								<div class="info-icon">
+									<img src="../../../assets/_common/images/img-check-circle-primary@2x.png" alt="" />
+								</div>
+								<h2 class="info-messege mb-3">회원 가입이 완료되었습니다.</h2>
+								<p class="info-text mb-7">
+									지역어 종합 정보의 회원이 되신 것을 환영합니다. <br class="d-up-lg" />
+									로그인 후 다양한 서비스를 이용하실 수 있습니다.
+								</p>
+								<div class="btn-group equal">
+									<a href="#;" class="btn btn-xxxl btn-tertiary md-full">메인으로</a>
+									<a href="#;" class="btn btn-xxxl btn-primary md-full">로그인하기</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!----- //콘텐츠 영역 ----->
+
+				<button type="button" class="page-top-button" aria-label="맨 위로 이동">
+					<i class="svg-icon ico-go-top" aria-hidden="true"></i>
+				</button>
+			</div>
+
+			<!-- [include]:푸터  -->
+			<footer class="footer" w3-include-html="../_include/inc-footer.html"></footer>
+			<!-- [include]:비밀번호 확인 팝업 -->
+			<div w3-include-html="../_include/inc-modal-pwd-confirm.html"></div>
+		</div>
+	</body>
+</html>

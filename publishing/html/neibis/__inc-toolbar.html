@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+	</head>
+
+	<body>
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div class="_toolbar">
+				<h2 class="title">UI 템플릿 바로가기</h2>
+				<div class="btn-group">
+					<a href="/inuix/neibis.html" class="btn btn-xs btn-outline-primary">공통 컴포넌트</a>
+					<a href="_template.html" class="btn btn-xs btn-outline-gray">레이아웃</a>
+				</div>
+				<div class="btn-group">
+					<a href="템플릿-목록형.html" class="btn btn-xs btn-outline-gray"> 목록 </a>
+					<a href="템플릿-상세형.html" class="btn btn-xs btn-outline-gray"> 상세 </a>
+					<a href="템플릿-등록수정형.html" class="btn btn-xs btn-outline-gray"> 등록/수정 </a>
+				</div>
+				<button type="button" class="btn btn-icon btn-close" onclick="$('._toolbar').remove();">
+					<i class="ico ico-close-lightgray-sm"></i>
+					<span class="sr-only">닫기</span>
+				</button>
+			</div>
+		</div>
+	</body>
+</html>

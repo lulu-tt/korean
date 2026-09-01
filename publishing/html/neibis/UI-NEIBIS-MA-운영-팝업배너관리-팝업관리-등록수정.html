@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="팝업관리"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+						<form action="#;">
+							<!-- 입력폼 -->
+							<div class="card">
+								<div class="table table-row">
+									<div class="table-inner">
+										<table>
+											<caption class="sr-only">
+												팝업관리 등록
+											</caption>
+											<tbody>
+												<tr>
+													<th scope="row">
+														<span>게시여부<i class="req">필수입력</i></span>
+													</th>
+													<td>
+														<label class="check-item">
+															<input type="radio" name="inputRadio1" id="inputRadio1_2" checked />
+															<span class="label">게시</span>
+														</label>
+														<label class="check-item">
+															<input type="radio" name="inputRadio1" id="inputRadio1_1" />
+															<span class="label">미게시</span>
+														</label>
+													</td>
+													<th scope="row">
+														<label for="input_rank">게시순위</label>
+													</th>
+													<td>
+														<input
+															type="text"
+															id="input_rank"
+															class="form-control-sm full"
+															placeholder="placeholder"
+															value="5"
+														/>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<span>홈페이지구분<i class="req">필수입력</i></span>
+													</th>
+													<td colspan="3">
+														<select class="form-control-sm" title="홈페이지구분 선택" style="width: 100%">
+															<option selected>전체</option>
+															<option>${사이트명}</option>
+															<option>${사이트명}</option>
+														</select>
+														<span class="text-guide text-invalid">홈페이지구분은 저장 후 변경이 불가능합니다.</span>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<label for="input_title">제목<i class="req">필수입력</i></label>
+													</th>
+													<td colspan="3">
+														<input
+															type="text"
+															id="input_title"
+															class="form-control-sm full"
+															placeholder="제목을 입력해주세요."
+															required
+														/>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<span>게시 시작일시<i class="req">필수입력</i></span>
+													</th>
+													<td colspan="3">
+														<input
+															type="text"
+															class="form-control-sm form-datepicker"
+															title="게시 시작일시"
+															placeholder="YYYY.MM.DD"
+															required
+														/>
+														<select class="form-control-sm" title="시간 선택">
+															<option selected>00 시</option>
+															<option>01 시</option>
+															<option>02 시</option>
+															<option>03 시</option>
+															<option>04 시</option>
+															<option>23 시</option>
+														</select>
+														<select class="form-control-sm" title="분 선택">
+															<option selected>00 분</option>
+															<option>01 분</option>
+															<option>02 분</option>
+															<option>03 분</option>
+															<option>04 분</option>
+															<option>59 분</option>
+														</select>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<span>게시 종료일시<i class="req">필수입력</i></span>
+													</th>
+													<td colspan="3">
+														<input
+															type="text"
+															class="form-control-sm form-datepicker"
+															title="게시 종료일시"
+															placeholder="YYYY.MM.DD"
+															required
+														/>
+														<select class="form-control-sm" title="시간 선택">
+															<option selected>00 시</option>
+															<option>01 시</option>
+															<option>02 시</option>
+															<option>03 시</option>
+															<option>04 시</option>
+															<option>23 시</option>
+														</select>
+														<select class="form-control-sm" title="분 선택">
+															<option selected>00 분</option>
+															<option>01 분</option>
+															<option>02 분</option>
+															<option>03 분</option>
+															<option>04 분</option>
+															<option>59 분</option>
+														</select>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">위치</th>
+													<td colspan="3">
+														<div class="details-cell">
+															<div class="row-item">
+																<label for="input-top" class="label">TOP(px)</label>
+																<input type="text" id="input-top" class="form-control" />
+															</div>
+															<div class="row-item">
+																<label for="input-left" class="label">LEFT(px)</label>
+																<input type="text" id="input-left" class="form-control" />
+															</div>
+															<span class="text-guide text-invalid">Input to the pixels</span>
+														</div>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<span>레이어팝업 이미지(PC)<i class="req">필수입력</i></span>
+													</th>
+													<td>
+														<div class="file-upload"></div>
+													</td>
+													<th scope="row">
+														<span>레이어팝업 이미지(Mobile)<i class="req">필수입력</i></span>
+													</th>
+													<td>
+														<div class="file-upload"></div>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<span>새창 여부<i class="req">필수입력</i></span>
+													</th>
+													<td colspan="3">
+														<label class="check-item">
+															<input type="radio" name="inputRadio2" id="inputRadio2_2" checked />
+															<span class="label">새창</span>
+														</label>
+														<label class="check-item">
+															<input type="radio" name="inputRadio2" id="inputRadio2_1" />
+															<span class="label">현재창</span>
+														</label>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<label for="input_link">링크URL<i class="req">필수입력</i></label>
+													</th>
+													<td colspan="3">
+														<input
+															type="text"
+															id="input_link"
+															class="form-control-sm full"
+															placeholder="placeholder"
+															value="http://www.abc.com"
+															required
+														/>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<label for="input_desc">이미지 설명<i class="req">필수입력</i></label>
+													</th>
+													<td colspan="3">
+														<textarea
+															id="input_desc"
+															class="form-control full"
+															rows="2"
+															placeholder="* 웹접근성 지침에 맞춰 팝업이미지 설명을 입력해 주세요."
+															required
+														></textarea>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+
+								<!-- 모바일에서 노출되는 버튼 그룹  -->
+								<div class="btn-group-between">
+									<div class="left">
+										<!-- data-confirm="leave-saver" 속성 추가시 컨펌창이 뜨고, 확인 버튼 누를 때 href 값으로 이동됨 -->
+										<a
+											href="UI-NEIBIS-MA-운영-팝업배너관리-팝업관리-목록.html"
+											data-confirm="leave-saver"
+											class="btn btn-lg btn-outline-gray"
+										>
+											<i class="ico ico-chevron-left-gray-md"></i>
+											<span>목록</span>
+										</a>
+									</div>
+									<div class="right">
+										<!-- 등록 모드에서는 미노출 -->
+										<button type="submit" class="btn btn-lg btn-primary-soft">
+											<i class="ico ico-pen-primary-md"></i>
+											<span>수정</span>
+										</button>
+										<!-- // 등록 모드에서는 미노출 -->
+
+										<!-- 수정 모드에서는 미노출 -->
+										<button type="submit" class="btn btn-lg btn-primary">
+											<i class="ico ico-save-white-md"></i>
+											<span>저장</span>
+										</button>
+										<!-- // 수정 모드에서는 미노출 -->
+									</div>
+								</div>
+							</div>
+
+							<!-- 상단 고정 액션 버튼 -->
+							<div class="btn-group-fixed">
+								<!-- 등록 모드에서는 미노출 -->
+								<button type="submit" class="btn btn-lg btn-primary-soft">
+									<i class="ico ico-pen-primary-md"></i>
+									<span>수정</span>
+								</button>
+								<!-- // 등록 모드에서는 미노출 -->
+
+								<!-- 수정 모드에서는 미노출 -->
+								<button type="submit" class="btn btn-lg btn-primary">
+									<i class="ico ico-save-white-md"></i>
+									<span>저장</span>
+								</button>
+								<!-- // 수정 모드에서는 미노출 -->
+							</div>
+						</form>
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

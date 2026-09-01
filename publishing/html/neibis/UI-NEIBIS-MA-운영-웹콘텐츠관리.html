@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- Plugins -->
+		<!-- CodeMirror -->
+		<link rel="stylesheet" href="../../assets/neibis/plugins/codemirror/codemirror.min.css" />
+		<link rel="stylesheet" href="../../assets/neibis/plugins/codemirror/idea.min.css" />
+		<script src="../../assets/neibis/plugins/codemirror/codemirror.min.js"></script>
+		<script src="../../assets/neibis/plugins/codemirror/xml.min.js"></script>
+		<script src="../../assets/neibis/plugins/codemirror/css.min.js"></script>
+		<script src="../../assets/neibis/plugins/codemirror/javascript.min.js"></script>
+
+		<!-- beautify -->
+		<script src="../../assets/neibis/plugins/beautify/beautify.min.js"></script>
+		<script src="../../assets/neibis/plugins/beautify/beautify-css.min.js"></script>
+		<script src="../../assets/neibis/plugins/beautify/beautify-html.min.js"></script>
+
+		<!-- CKEditor -->
+		<script src="../../assets/neibis/plugins/ckeditor4/ckeditor.js"></script>
+		<script src="../../assets/neibis/plugins/ckeditor4/ckeditor.inuix.neibis.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			// [개발] 웹에디터 위지윅 아이프레임 스타일시트 제어
+			var contextRoot = typeof window.CONTEXT_ROOT === "undefined" ? "" : "/" + window.CONTEXT_ROOT;
+			var siteId = "ko"; // 원하는 디폴트 siteId 값으로 변경
+			window.cssUrls = [
+				// contextRoot + "/assets/neibis/css/editor.css", // 웹 에디터 프레임 기본 스타일 (삭제 금지)
+				contextRoot + "/assets/" + siteId + "/css/style.css"
+			];
+
+			// [개발] 웹 에디터 URL 변경 테스트 : 작업시 초기 설정 필수
+			function changeCkEditorUploadUrl(menuSn) {
+				resetDefaultSetEditors(); // [필수] 초기 설정 (초기 설정 재셋팅필요)
+				window.CKEDITOR.config.filebrowserUploadUrl = "/file/" + menuSn + "/ckeditorUpload.do?action=post";
+				window.CKEDITOR.config.filebrowserImageUploadUrl = "/image/" + menuSn + "/ckeditorUpload.do?action=post";
+				window.CKEDITOR.config.imageUploadUrl = "/image/" + menuSn + "/ckeditorUpload.do?action=post";
+			}
+
+			// // [개발] 웹에디터 위지윅 아이프레임 내부 컨테이너 클래스 (필요시 정의 :현재 사용되지 않음)
+			// window.customOutputAreaClasses = [
+			// 	"content-body"
+			// 	// "my-custom-output-area-1",
+			// ];
+
+			// [개발] 테스트 용 데이터 입니다. 사용 X : 웹 콘텐츠 : 중앙 데이터 저장소
+			var defaultTestData = {
+				html: `<h3>text</h3>`,
+				css: `body {background: yellow;}*/`,
+				js: `console.log('test3');`
+			};
+
+			// [개발] 데이터 변경 : 개별 커스텀 테스트
+			// window.WebEditorPlugin.changeWebContentHtml(); // html 데이터 변경
+			// window.WebEditorPlugin.changeWebContentCss(); // css 데이터 변경
+			// window.WebEditorPlugin.changeWebContentJs(); // js 데이터 변경
+			// 코드 내용 변경 예제
+			// $(function () {
+			//  window.WebEditorPlugin.resetInitialLoadState();
+			// 	$("#btn-change-html").on("click", function () {
+			// 		window.WebEditorPlugin.changeWebContentHtml(defaultTestData.html);
+			// 	});
+			// 	$("#btn-change-css").on("click", function () {
+			// 		window.WebEditorPlugin.changeWebContentCss(defaultTestData.css);
+			// 	});
+			// 	$("#btn-change-js").on("click", function () {
+			// 		window.WebEditorPlugin.changeWebContentJs(defaultTestData.js);
+			// 	});
+			// });
+
+			$(function () {
+				// 페이지 정보 펼치기 접기
+				$("#btn-pageinfo-toggle").click(function () {
+					$(".page-info").toggleClass("opened");
+
+					if (!$(this).hasClass("on")) {
+						$(this).addClass("on");
+					} else {
+						$(this).removeClass("on");
+					}
+				});
+
+				// 사이트 변경시 아이프레임 CSS 갱신
+				$("button[data-site-id]").on("click", function () {
+					var newSiteId = $(this).data("site-id");
+					window.WebEditorPlugin.changeCssUrl(newSiteId);
+				});
+
+				// 탭메뉴
+				$("a[href='#code'").click(function () {
+					$(".codes-area").css({
+						position: "relative",
+						left: "0",
+						visibility: "visible"
+					});
+				});
+				$("a[href='#webeditor']").click(function () {
+					$(".codes-area").css({
+						position: "absolute",
+						left: "-9999px", // 화면 밖으로 이동
+						visibility: "hidden"
+					});
+				});
+
+				// 기기별 반응형 미리보기
+				// $("#device-resize").customDropdown({
+				// 	onSelect: function (option) {
+				// 		viewportResize(option);
+				// 	}
+				// });
+
+				// 패널 버튼
+				$(".panel-area button").on("click", function () {
+					$(".panel-area button").removeClass("on");
+					$(this).addClass("on");
+
+					if (!$(this).is(":first")) {
+						$(".seperator").addClass("on");
+					}
+				});
+				$(".panel-area button:first").on("click", function () {
+					$(".seperator").removeClass("on");
+				});
+
+				// 코드로 수정 - 여닫기 버튼
+				// $(".btn-code-openclose").click(function () {
+				// 	$(".btn-code-openclose").removeClass("on");
+				// 	$(this).addClass("on");
+				// });
+
+				// edit resize시, 가로 사이즈에 따라 UI 변경
+				var isDragging = false;
+				function updateCodeItemToolsVisibility() {
+					$(".code-item").each(function () {
+						var $codeItem = $(this);
+						var codeItemWidth = $codeItem.width();
+						var codeItemHeight = $codeItem.height();
+
+						if (codeItemWidth <= 145) {
+							$codeItem.find(".code-item-tools").hide();
+						} else {
+							$codeItem.find(".code-item-tools").show();
+						}
+
+						if (codeItemWidth <= 88) {
+							$codeItem.find(".code-item-body").hide();
+							$codeItem.find(".code-item-header").addClass("length");
+							$codeItem.css({ background: "#f3f4f6" });
+							$codeItem.find(".code-item-tools").show();
+							$codeItem.find(".code-item-tools [data-editor='beautifyCode']").hide();
+							$(".btn-code-openclose", $codeItem).addClass("on");
+						} else {
+							$codeItem.find(".code-item-body").show();
+							$codeItem.find(".code-item-header").removeClass("length");
+							$codeItem.find(".code-item-tools [data-editor='beautifyCode']").show();
+							$(".btn-code-openclose", $codeItem).removeClass("on");
+						}
+
+						// edit resize시, 세로 사이즈에 따라 UI 변경
+						if (codeItemHeight <= 36) {
+							$codeItem.find(".code-item-tools [data-editor='beautifyCode']").hide();
+							$(".btn-code-openclose", $codeItem).addClass("on");
+						} else {
+							$codeItem.find(".code-item-tools [data-editor='beautifyCode']").show();
+							$(".btn-code-openclose", $codeItem).removeClass("on");
+
+							if (codeItemWidth <= 88) {
+								$codeItem.find(".code-item-tools [data-editor='beautifyCode']").hide();
+								$(".btn-code-openclose", $codeItem).addClass("on");
+							}
+						}
+					});
+				}
+
+				$(document).ready(function () {
+					setTimeout(function () {
+						$('a[title="PC View"]').addClass("on");
+					}, 500);
+
+					// 페이지 로드 시와 윈도우 크기 변경 시에 이벤트 실행(위 edit resize시 내용 이어서)
+					updateCodeItemToolsVisibility();
+
+					$(window).on("resize", function () {
+						updateCodeItemToolsVisibility();
+					});
+
+					// 마우스가 움직일 때도 이벤트 실행
+					function handleMouseMove(event) {
+						updateCodeItemToolsVisibility();
+						if (isDragging) {
+							updateCodeItemToolsVisibility();
+						}
+					}
+
+					$(document).on("mousemove", handleMouseMove);
+
+					// 드래그 시작 시
+					$(document).on("mousedown", ".seperator", function (event) {
+						isDragging = true;
+					});
+
+					// 드래그 종료 시
+					$(document).on("mouseup", function () {
+						isDragging = false;
+						$(document).off("mousemove", handleMouseMove);
+						setTimeout(function () {
+							$(document).on("mousemove", handleMouseMove);
+							updateCodeItemToolsVisibility();
+						}, 50);
+					});
+
+					$(".seperator").click(function () {
+						updateCodeItemToolsVisibility();
+					});
+				});
+			});
+
+			// z-tree : zNodes 추가 옵션
+			// open: true : 기본 view가 오픈상태로 노출
+			// disabled: true : 비활성화 메뉴의 경우
+			// isParent: true : 하위 메뉴가 없는 상태에서 폴더형식의 경우
+
+			// iconskin 변경
+			// ico_docu, ico-page-md : 일반페이지 (기본), 지정되지 않은 종류의 페이지
+			// ico_open, ico_close, ico-folder-md : 폴더 (기본)
+			// ico-site-md : 사용자사이트 페이지
+			// ico-editpage-md :웹콘텐츠 관리 페이지
+			// ico-pagepgm-md : pgm 페이지
+			// ico-pagebbs-md : bbs 페이지
+			// ico-newwindow-md : 새창 (target: "_blank" 속성 추가 필요)
+			// ico-code-md : 코드 페이지
+
+			var zNodes = [
+				{ id: 1, pId: 0, name: "사이트 메뉴명1", open: true },
+				{ id: 11, pId: 1, name: "사이트 메뉴명1", open: true },
+				{ id: 111, pId: 11, name: "사이트 메뉴명1", disabled: true },
+				{ id: 112, pId: 11, name: "사이트 메뉴명1" },
+				{ id: 113, pId: 11, name: "사이트 메뉴명1", target: "_blank", iconSkin: "ico-newwindow-md" },
+				{ id: 114, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-editpage-md" },
+				{ id: 115, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-pagepgm-md" },
+				{ id: 116, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-pagebbs-md" },
+				{ id: 117, pId: 11, name: "사이트 메뉴명1", iconSkin: "ico-code-md" },
+				{ id: 12, pId: 1, name: "길어질 경우 가로 스크롤이 생성됩니다. 길어질 경우 가로 스크롤이 생성됩니다." },
+				{ id: 121, pId: 12, name: "사이트 메뉴명1" },
+				{ id: 122, pId: 12, name: "사이트 메뉴명1" },
+				{ id: 13, pId: 1, name: "사이트 메뉴명1", iconSkin: "ico-site-md" },
+				{ id: 2, pId: 0, name: "사이트 메뉴명1" },
+				{ id: 21, pId: 2, name: "사이트 메뉴명1" },
+				{ id: 211, pId: 21, name: "사이트 메뉴명1" },
+				{ id: 212, pId: 21, name: "사이트 메뉴명1" },
+				{ id: 22, pId: 2, name: "사이트 메뉴명1" },
+				{ id: 221, pId: 22, name: "사이트 메뉴명1" },
+				{ id: 222, pId: 22, name: "사이트 메뉴명1" },
+				{ id: 23, pId: 2, name: "사이트 메뉴명1" },
+				{ id: 231, pId: 23, name: "사이트 메뉴명1" },
+				{ id: 232, pId: 23, name: "사이트 메뉴명1" },
+				{ id: 3, pId: 0, name: "사이트 메뉴명1" },
+				{ id: 4, pId: 0, name: "사이트 메뉴명1" }
+			];
+
+			function contentsRestore(button) {
+				var form = $(button).closest("form");
+				alert(
+					{
+						title: "콘텐츠 복원 test",
+						message: $(form).serialize()
+					},
+					function () {
+						form.submit();
+					}
+				);
+			}
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="웹콘텐츠관리"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+						<div class="webcontents-management">
+							<div class="card navigator">
+								<div class="site-select">
+									<h3 class="title">1. 사이트 선택</h3>
+									<div class="dropdown dropdown-sm dropdown-list" style="width: 100%">
+										<dl class="select">
+											<dt>
+												<button type="button" class="btn-select" title="사이트 선택">
+													<span>대표 홈 국문</span>
+												</button>
+											</dt>
+											<dd>
+												<ul class="option-list">
+													<li>
+														<button type="button" data-site-id="ko">대표홈 (국문)</button>
+													</li>
+													<li>
+														<button type="button" data-site-id="en">대표홈 (영문)</button>
+													</li>
+													<li>
+														<button type="button" data-site-id="cn">대표홈 (중문)</button>
+													</li>
+												</ul>
+											</dd>
+										</dl>
+									</div>
+								</div>
+								<div class="page-tree">
+									<h3 class="title">2. 페이지 선택</h3>
+
+									<!-- 트리메뉴 -->
+									<div class="tree-menu-area card-in-tree">
+										<div class="tree-header">
+											<div class="btn-group-center gap-xs">
+												<button type="button" class="btn btn-xs btn-outline-gray" id="btnOpenTree">
+													<i class="ico ico-plus-gray-sm"></i>
+													<span>전체열기</span>
+												</button>
+												<button type="button" class="btn btn-xs btn-outline-gray" id="btnCloseTree">
+													<i class="ico ico-minus-gray-sm"></i>
+													<span>전체닫기</span>
+												</button>
+											</div>
+										</div>
+										<div class="tree-body">
+											<div class="scroll-araa">
+												<ul id="treeMenu" class="ztree"></ul>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="page-info">
+									<div class="page-info-header">
+										<h3 class="title">페이지 정보</h3>
+										<button type="button" id="btn-pageinfo-toggle">
+											<span class="sr-only">펼치기</span>
+										</button>
+									</div>
+									<dl class="page-info-body">
+										<dt>파일명</dt>
+										<dd>/ko/i-19.html</dd>
+										<dt>사이트코드</dt>
+										<dd>ko</dd>
+										<dt>최초 배포일시</dt>
+										<dd>2023.01.29 14:21:07</dd>
+										<dt>최종 배포일시</dt>
+										<dd>2023.01.29 14:21:07</dd>
+										<dt>최초 배포자</dt>
+										<dd>neibis1</dd>
+										<dt>최종 배포자</dt>
+										<dd>neibis2</dd>
+									</dl>
+								</div>
+							</div>
+							<div class="card webcontents-input-area">
+								<!-- [개발] 웹 에디터 URL 변경 테스트용 버튼 : 개발 적용시 삭제 필요 -->
+								<!-- <button type="button" class="btn btn-sm btn-primary" onclick="changeCkEditorUploadUrl('되낭?')">
+									<span>웹 에디터 URL 변경 테스트용 버튼</span>
+								</button> -->
+								<div class="webcontents-header">
+									<nav class="tabmenu tabmenu-type2">
+										<ul class="tab-list type2">
+											<li class="on">
+												<a href="#code"><span>코드로 수정</span></a>
+											</li>
+											<li>
+												<a href="#webeditor"><span>웹 에디터로 수정</span></a>
+											</li>
+										</ul>
+									</nav>
+									<div class="mode-control">
+										<div class="panel-area">
+											<button type="button" class="btn btn-sm on" data-layout-type="default">
+												<span class="sr-only">기본</span>
+											</button>
+											<button type="button" class="btn btn-sm" data-layout-type="left">
+												<span class="sr-only">좌패널</span>
+											</button>
+											<button type="button" class="btn btn-sm" data-layout-type="right">
+												<span class="sr-only">우패널</span>
+											</button>
+										</div>
+										<button type="button" class="btn btn-sm btn-outline-gray" id="fullscreen-toggle">
+											<span>전체화면</span>
+										</button>
+									</div>
+								</div>
+								<form action="#" class="webcontents-body">
+									<h3 class="sr-only">코드로 수정</h3>
+									<div class="editor-area layout-type-default">
+										<div class="codes-area">
+											<div class="code-item code-item-html">
+												<div class="code-item-header">
+													<h4 class="code-item-title">HTML</h4>
+													<div class="code-item-tools">
+														<!-- 개발 후 제거 -->
+														<!-- <button type="button" class="btn btn-xs btn-primary" id="btn-change-html">변경</button> -->
+														<!-- // 개발 후 제거 -->
+														<button
+															type="button"
+															class="btn btn-xs"
+															data-editor="beautifyCode"
+															data-target="html-editor"
+															data-beautify-type="html"
+														>
+															<span class="sr-only">정렬</span>
+														</button>
+														<!-- <button type="button" class="btn btn-xs btn-code-openclose on" id="btn-html-open">
+															<span class="sr-only">여닫기</span>
+														</button> -->
+													</div>
+												</div>
+												<div class="code-item-body">
+													<textarea class="form-code" id="html-editor"></textarea>
+												</div>
+											</div>
+
+											<button type="button" class="seperator seperator1">
+												<span class="sr-only">너비 조정 핸들</span>
+											</button>
+
+											<div class="code-item code-item-css">
+												<div class="code-item-header">
+													<h4 class="code-item-title">CSS</h4>
+													<div class="code-item-tools">
+														<!-- 개발 후 제거 -->
+														<!-- <button type="button" class="btn btn-xs btn-primary" id="btn-change-css">변경</button> -->
+														<!-- // 개발 후 제거 -->
+														<button
+															type="button"
+															class="btn btn-xs"
+															data-editor="beautifyCode"
+															data-target="css-editor"
+															data-beautify-type="css"
+														>
+															<span class="sr-only">정렬</span>
+														</button>
+														<!-- <button type="button" class="btn btn-xs btn-code-openclose" id="btn-css-open">
+															<span class="sr-only">여닫기</span>
+														</button> -->
+													</div>
+												</div>
+												<div class="code-item-body">
+													<textarea class="form-code" id="css-editor">body {background: red}</textarea>
+												</div>
+											</div>
+
+											<button type="button" class="seperator seperator2">
+												<span class="sr-only">너비 조정 핸들</span>
+											</button>
+
+											<div class="code-item code-item-js">
+												<div class="code-item-header">
+													<h4 class="code-item-title">Javascript</h4>
+													<div class="code-item-tools">
+														<!-- 개발 후 제거 -->
+														<!-- <button type="button" class="btn btn-xs btn-primary" id="btn-change-js">변경</button> -->
+														<!-- // 개발 후 제거 -->
+														<button
+															type="button"
+															class="btn btn-xs"
+															data-editor="beautifyCode"
+															data-target="js-editor"
+															data-beautify-type="js"
+														>
+															<span class="sr-only">정렬</span>
+														</button>
+														<!-- <button type="button" class="btn btn-xs btn-code-openclose" id="btn-js-open">
+															<span class="sr-only">여닫기</span>
+														</button> -->
+													</div>
+												</div>
+												<div class="code-item-body">
+													<textarea class="form-code" id="js-editor">
+console.log('test'); console.log('test2');</textarea
+													>
+												</div>
+											</div>
+										</div>
+
+										<div class="webeditor-area">
+											<h3 class="sr-only">웹 에디터로 수정</h3>
+
+											<!-- ckeditor editor -->
+											<div class="webeditor-viewport">
+												<textarea name="ckeditor" id="ckeditor" class="inuix-ckeditor" rows="10" cols="80"></textarea>
+											</div>
+										</div>
+									</div>
+
+									<div class="btn-group-between">
+										<div>
+											<a
+												href="#layer-update-history"
+												class="btn btn-md btn-outline-gray btn-con-change-history"
+												data-modal="open"
+											>
+												<span>콘텐츠 변경 이력</span>
+											</a>
+										</div>
+										<div>
+											<button type="button" class="btn btn-md btn-gray">
+												<i class="ico ico-trash-white-md"></i>
+												<span>삭제</span>
+											</button>
+											<a href="#;" class="btn btn-md btn-outline-gray">
+												<i class="ico ico-preview-gray-md"></i>
+												<span>미리보기</span>
+											</a>
+											<button type="submit" class="btn btn-md btn-primary-soft">
+												<i class="ico ico-save-primary-md"></i>
+												<span>저장</span>
+											</button>
+											<button type="button" class="btn btn-md btn-primary">
+												<i class="ico ico-cloudupload-white-md"></i>
+												콘텐츠 배포
+											</button>
+										</div>
+									</div>
+
+									<!-- 우측 상단 고정 버튼 -->
+									<div class="btn-group-fixed">
+										<button type="button" class="btn btn-md btn-gray">
+											<i class="ico ico-trash-white-md"></i>
+											<span>삭제</span>
+										</button>
+										<a href="#;" class="btn btn-md btn-outline-gray">
+											<i class="ico ico-preview-gray-md"></i>
+											<span>미리보기</span>
+										</a>
+										<button type="submit" class="btn btn-md btn-primary-soft">
+											<i class="ico ico-save-primary-md"></i>
+											<span>저장</span>
+										</button>
+										<button type="button" class="btn btn-md btn-primary">
+											<i class="ico ico-cloudupload-white-md"></i>
+											콘텐츠 배포
+										</button>
+									</div>
+								</form>
+							</div>
+						</div>
+
+						<!-- 웹콘텐츠 변경 이력 -->
+						<div class="modal-popup modal-xl hide" id="layer-update-history">
+							<div class="dimed"></div>
+							<form action="#;" class="popup-inner bg-gray">
+								<div class="popup-header">
+									<h2 class="popup-title">웹콘텐츠 변경 이력</h2>
+								</div>
+								<div class="popup-body">
+									<div class="scroll-inner">
+										<div class="card">
+											<div class="list-control">
+												<div class="left">
+													<a href="#;" class="btn btn-icon btn-settings-xs">
+														<i class="ico ico-cog-darkgray-sm"></i>
+														<span class="sr-only">게시판 설정</span>
+													</a>
+													<p class="total">총 <strong class="text-primary">1</strong>건(1/1 page)</p>
+												</div>
+												<div class="right">
+													<a href="#;" class="btn btn-sm btn-xls mr-1" download>
+														<i class="ico ico-fileexcel-white-sm"></i>
+														<span>엑셀 다운로드</span>
+													</a>
+													<select class="form-control-sm" style="min-width: 100px" title="목록 수">
+														<option selected>10</option>
+														<option>20</option>
+														<option>50</option>
+														<option>100</option>
+													</select>
+													<button type="button" class="btn btn-sm btn-outline-gray ml-1">적용</button>
+												</div>
+											</div>
+
+											<div class="table table-list">
+												<div class="table-inner">
+													<table style="min-width: 1400px">
+														<caption class="sr-only">
+															웹 콘텐츠 이력 목록
+														</caption>
+														<thead>
+															<tr>
+																<th scope="col">버전</th>
+																<th scope="col">작업일시</th>
+																<th scope="col">등록ID/등록IP</th>
+																<th scope="col">복원일시</th>
+																<th scope="col">복원ID/복원IP</th>
+																<th scope="col">상태</th>
+																<th scope="col">내용 미리보기</th>
+																<th scope="col">복원</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr>
+																<td>v.29</td>
+																<td>2023.03.07 15:42:09</td>
+																<td>inseqcms/192.168.0.1</td>
+																<td>-</td>
+																<td>inseqcms/192.168.0.1</td>
+																<td>
+																	<span class="label-status label-blue">배포</span>
+																	<!-- <span class="label-status label-orange">수정</span> -->
+																	<!-- <span class="label-status label-green">등록</span> -->
+																</td>
+																<td>
+																	<a href="#;" class="btn btn-xs btn-outline-gray">
+																		<i class="ico ico-preview-gray-sm"></i>
+																		<span>미리보기</span>
+																	</a>
+																</td>
+																<td>
+																	<button
+																		type="button"
+																		class="btn btn-xs btn-outline-primary"
+																		onclick="contentsRestore(this);"
+																	>
+																		<i class="ico ico-restore-primary-sm"></i>
+																		<span>복원</span>
+																	</button>
+																</td>
+															</tr>
+															<tr>
+																<td>v.29</td>
+																<td>2023.03.07 15:42:09</td>
+																<td>inseqcms/192.168.0.12</td>
+																<td>-</td>
+																<td>inseqcms/192.168.0.1</td>
+																<td>
+																	<span class="label-status label-blue">배포</span>
+																	<!-- <span class="label-status label-orange">수정</span> -->
+																	<!-- <span class="label-status label-green">등록</span> -->
+																</td>
+																<td>
+																	<a href="#;" class="btn btn-xs btn-outline-gray">
+																		<i class="ico ico-preview-gray-sm"></i>
+																		<span>미리보기</span>
+																	</a>
+																</td>
+																<td>
+																	<button
+																		type="button"
+																		class="btn btn-xs btn-outline-primary"
+																		onclick="contentsRestore(this);"
+																	>
+																		<i class="ico ico-restore-primary-sm"></i>
+																		<span>복원</span>
+																	</button>
+																</td>
+															</tr>
+															<tr>
+																<td>v.29</td>
+																<td>2023.03.07 15:42:09</td>
+																<td>inseqcms/192.168.0.1</td>
+																<td>-</td>
+																<td>/</td>
+																<td>
+																	<!-- <span class="label-status label-blue">배포</span> -->
+																	<span class="label-status label-orange">수정</span>
+																	<!-- <span class="label-status label-green">등록</span> -->
+																</td>
+																<td>
+																	<a href="#;" class="btn btn-xs btn-outline-gray">
+																		<i class="ico ico-preview-gray-sm"></i>
+																		<span>미리보기</span>
+																	</a>
+																</td>
+																<td>
+																	<button
+																		type="button"
+																		class="btn btn-xs btn-outline-primary"
+																		onclick="contentsRestore(this);"
+																	>
+																		<i class="ico ico-restore-primary-sm"></i>
+																		<span>복원</span>
+																	</button>
+																</td>
+															</tr>
+															<tr>
+																<td>v.29</td>
+																<td>2023.03.07 15:42:09</td>
+																<td>inseqcms/192.168.0.1</td>
+																<td>-</td>
+																<td>inseqcms/192.168.0.1</td>
+																<td>
+																	<span class="label-status label-blue">배포</span>
+																	<!-- <span class="label-status label-orange">수정</span> -->
+																	<!-- <span class="label-status label-green">등록</span> -->
+																</td>
+																<td>
+																	<a href="#;" class="btn btn-xs btn-outline-gray">
+																		<i class="ico ico-preview-gray-sm"></i>
+																		<span>미리보기</span>
+																	</a>
+																</td>
+																<td>
+																	<button
+																		type="button"
+																		class="btn btn-xs btn-outline-primary"
+																		onclick="contentsRestore(this);"
+																	>
+																		<i class="ico ico-restore-primary-sm"></i>
+																		<span>복원</span>
+																	</button>
+																</td>
+															</tr>
+															<tr>
+																<td>v.29</td>
+																<td>2023.03.07 15:42:09</td>
+																<td>inseqcms/192.168.0.1</td>
+																<td>-</td>
+																<td>inseqcms/192.168.0.1</td>
+																<td>
+																	<span class="label-status label-blue">배포</span>
+																	<!-- <span class="label-status label-orange">수정</span> -->
+																	<!-- <span class="label-status label-green">등록</span> -->
+																</td>
+																<td>
+																	<a href="#;" class="btn btn-xs btn-outline-gray">
+																		<i class="ico ico-preview-gray-sm"></i>
+																		<span>미리보기</span>
+																	</a>
+																</td>
+																<td>
+																	<button
+																		type="button"
+																		class="btn btn-xs btn-outline-primary"
+																		onclick="contentsRestore(this);"
+																	>
+																		<i class="ico ico-restore-primary-sm"></i>
+																		<span>복원</span>
+																	</button>
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+
+											<div class="pagination">
+												<a href="#;" class="direction first disabled">처음</a>
+												<a href="#;" class="direction prev disabled">이전</a>
+												<strong>1</strong>
+												<a href="#;">2</a>
+												<a href="#;">3</a>
+												<a href="#;">4</a>
+												<a href="#;">5</a>
+												<a href="#;" class="direction next">다음</a>
+												<a href="#;" class="direction last">끝</a>
+											</div>
+										</div>
+									</div>
+								</div>
+								<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+							</form>
+						</div>
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>샘플 공공서비스 | 공지사항 상세</title>
+  <link rel="shortcut icon" href="../../../assets/sample/images/common/favicon.png" />
+  <link rel="stylesheet" href="../../../assets/sample/css/common.css" />
+  <link rel="stylesheet" href="../../../assets/sample/css/sub.css" />
+  <script src="../../../assets/sample/js/ui.js" defer></script>
+</head>
+<body>
+
+  <!-- 건너뛰기 링크 -->
+  <nav class="skip-nav" aria-label="바로가기">
+    <a href="#content">본문 바로가기</a>
+    <a href="#lnb">좌측메뉴 바로가기</a>
+    <a href="#footer">푸터 바로가기</a>
+  </nav>
+
+  <!-- 전체메뉴 -->
+  <div class="allmenu-dim" aria-hidden="true"></div>
+  <div class="allmenu-panel" role="dialog" aria-label="전체메뉴">
+    <div class="allmenu-panel__head">
+      <img class="allmenu-panel__logo" src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      <button class="allmenu-panel__close" type="button" data-allmenu-close aria-label="전체메뉴 닫기">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M2 2L14 14M14 2L2 14" stroke="rgba(255,255,255,0.65)" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="allmenu-panel__body">
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">기관소개</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./콘텐츠-일반.html">인사말</a></li>
+          <li><a class="allmenu-section__link" href="./콘텐츠-일반.html">연혁</a></li>
+          <li><a class="allmenu-section__link" href="./오시는-길.html">오시는 길</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">알림소식</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./게시판-목록.html">공지사항</a></li>
+          <li><a class="allmenu-section__link" href="./게시판-목록.html">보도자료</a></li>
+          <li><a class="allmenu-section__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+          <li><a class="allmenu-section__link" href="./FAQ.html">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">이용안내</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./개인정보처리방침.html">개인정보처리방침</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">참여마당</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./고객의소리-목록.html">고객의소리</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 롤링배너 -->
+  <div class="rolling-banner" role="region" aria-label="공지 롤링배너">
+    <div class="rolling-banner__inner">
+      <span class="rolling-banner__label">알림</span>
+      <div class="rolling-banner__content">
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">공지</span>
+          <a class="rolling-banner__title" href="#">2025년 상반기 주요사업 추진 계획 안내</a>
+          <span class="rolling-banner__date">2025.04.15</span>
+        </div>
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">사업</span>
+          <a class="rolling-banner__title" href="#">디지털 행정서비스 개선 과제 공모 결과 발표</a>
+          <span class="rolling-banner__date">2025.04.10</span>
+        </div>
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">공지</span>
+          <a class="rolling-banner__title" href="#">정보보호의 달 운영 안내 및 보안교육 일정</a>
+          <span class="rolling-banner__date">2025.04.03</span>
+        </div>
+      </div>
+      <div class="rolling-banner__controls">
+        <button class="rolling-banner__arrow" type="button" data-rolling-prev aria-label="이전 공지">‹</button>
+        <span class="rolling-banner__count" aria-live="polite">1/3</span>
+        <button class="rolling-banner__arrow" type="button" data-rolling-next aria-label="다음 공지">›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 헤더 -->
+  <header class="site-header" role="banner">
+    <div class="site-header__inner">
+      <a class="site-logo" href="./메인.html" aria-label="샘플 공공서비스 홈으로 이동">
+        <img class="site-logo__img" src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </a>
+      <nav class="site-gnb" id="gnb" aria-label="주메뉴">
+        <ul class="site-gnb__list">
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">기관소개</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./콘텐츠-일반.html">인사말</a></li>
+                  <li><a class="gnb-dropdown__link" href="./콘텐츠-일반.html">연혁</a></li>
+                  <li><a class="gnb-dropdown__link" href="./오시는-길.html">오시는 길</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link is-active" href="#" aria-current="page">알림소식</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./게시판-목록.html">공지사항</a></li>
+                  <li><a class="gnb-dropdown__link" href="./게시판-목록.html">보도자료</a></li>
+                  <li><a class="gnb-dropdown__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+                  <li><a class="gnb-dropdown__link" href="./FAQ.html">FAQ</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">이용안내</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./개인정보처리방침.html">개인정보처리방침</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">참여마당</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./고객의소리-목록.html">고객의소리</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </nav>
+      <div class="site-header__actions">
+        <a class="btn-login" href="./로그인.html">로그인</a>
+        <button class="btn-allmenu" type="button" data-allmenu-open aria-expanded="false">
+          <span class="btn-allmenu__bars" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span>전체메뉴</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 서브 콘텐츠 -->
+  <main id="content">
+
+    <!-- 브레드크럼 -->
+    <div class="breadcrumb-bar">
+      <div class="breadcrumb-bar__inner">
+        <nav class="breadcrumb" aria-label="현재 위치">
+          <span class="breadcrumb__item">
+            <a href="./메인.html">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-label="홈" style="display:inline-block;vertical-align:middle;margin-bottom:1px;">
+                <path d="M1 5.5L6.5 1L12 5.5V12H8.5V8H4.5V12H1V5.5Z" stroke="#A0A8B8" stroke-width="1.2" stroke-linejoin="round"/>
+              </svg>
+              홈
+            </a>
+          </span>
+          <span class="breadcrumb__sep" aria-hidden="true">›</span>
+          <span class="breadcrumb__item"><a href="#">알림소식</a></span>
+          <span class="breadcrumb__sep" aria-hidden="true">›</span>
+          <span class="breadcrumb__item"><a href="./게시판-목록.html">공지사항</a></span>
+          <span class="breadcrumb__sep" aria-hidden="true">›</span>
+          <span class="breadcrumb__item" aria-current="page">상세보기</span>
+        </nav>
+      </div>
+    </div>
+
+    <!-- 서브 레이아웃 -->
+    <div class="sub-layout">
+      <div class="sub-layout__inner">
+
+        <!-- LNB -->
+        <aside class="lnb" id="lnb" aria-label="좌측 메뉴">
+          <div class="lnb__section-title">알림소식</div>
+          <ul class="lnb__list">
+            <li class="lnb__item">
+              <a class="lnb__link is-active" href="./게시판-목록.html" aria-current="page">공지사항</a>
+            </li>
+            <li class="lnb__item">
+              <a class="lnb__link" href="./게시판-목록.html">보도자료</a>
+            </li>
+            <li class="lnb__item">
+              <a class="lnb__link" href="./포토갤러리-목록.html">포토갤러리</a>
+            </li>
+            <li class="lnb__item">
+              <a class="lnb__link" href="./FAQ.html">FAQ</a>
+            </li>
+          </ul>
+        </aside>
+
+        <!-- 콘텐츠 -->
+        <div class="sub-content">
+
+          <div class="sub-content__title-bar">
+            <h1 class="sub-content__title">공지사항</h1>
+          </div>
+
+          <!-- ── 게시판 상세 ── -->
+          <!-- 운영 데이터 슬롯: BOARD_DETAIL -->
+          <article class="board-detail">
+
+            <!-- 제목 + 메타 -->
+            <div class="board-detail__head">
+              <h2 class="board-detail__title">2025년 상반기 업무 계획 안내 사항</h2>
+              <div class="board-detail__meta">
+                <span class="board-detail__meta-item">
+                  <span class="board-detail__meta-label">작성자</span>
+                  관리자
+                </span>
+                <span class="board-detail__meta-item">
+                  <span class="board-detail__meta-label">등록일</span>
+                  2025.04.15
+                </span>
+                <span class="board-detail__meta-item">
+                  <span class="board-detail__meta-label">조회수</span>
+                  342
+                </span>
+              </div>
+            </div>
+
+            <!-- 첨부파일 -->
+            <!-- 운영 데이터 슬롯: ATTACH_LIST (없을 경우 영역 미표시)
+                 JSP: c:if test="${not empty atchFileList}" → board-detail__attach 전체 블록
+                 바로보기 지원 확장자: hwp, hwpx, pdf, txt, jpg, jpeg, png, gif, bmp, svg, jfif -->
+            <div class="board-detail__attach">
+              <span class="board-detail__attach-label">첨부파일</span>
+              <div class="board-detail__attach-body">
+                <ul class="board-detail__attach-list">
+
+                  <!-- ① PDF — 바로보기 O -->
+                  <li class="board-detail__attach-row">
+                    <a class="board-detail__attach-item" href="#" download>
+                      <span class="attach-icon" aria-hidden="true">
+                        <svg width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M8.5 4.5L4.5 8.5C3.7 9.3 2.3 9.3 1.5 8.5C0.7 7.7 0.7 6.3 1.5 5.5L5.5 1.5C6 1 6.8 1 7.3 1.5C7.8 2 7.8 2.8 7.3 3.3L3.3 7.3C3.1 7.5 2.7 7.5 2.5 7.3C2.3 7.1 2.3 6.7 2.5 6.5L5.8 3.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </span>
+                      <span class="board-detail__attach-name">2025년_상반기_업무계획.pdf</span>
+                      <span class="board-detail__attach-size">(1.2 MB)</span>
+                    </a>
+                    <!-- JSP: c:if test="${isPreviewableFile}" -->
+                    <a class="board-detail__attach-preview" href="#" target="_blank" rel="noopener noreferrer">
+                      <svg width="9" height="9" viewBox="0 0 9 9" fill="none" aria-hidden="true"><path d="M1.5 7.5L7.5 1.5M4.5 1.5H7.5V4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      바로보기
+                    </a>
+                  </li>
+
+                  <!-- ② XLSX — 바로보기 X (다운로드 전용) -->
+                  <li class="board-detail__attach-row">
+                    <a class="board-detail__attach-item" href="#" download>
+                      <span class="attach-icon" aria-hidden="true">
+                        <svg width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M8.5 4.5L4.5 8.5C3.7 9.3 2.3 9.3 1.5 8.5C0.7 7.7 0.7 6.3 1.5 5.5L5.5 1.5C6 1 6.8 1 7.3 1.5C7.8 2 7.8 2.8 7.3 3.3L3.3 7.3C3.1 7.5 2.7 7.5 2.5 7.3C2.3 7.1 2.3 6.7 2.5 6.5L5.8 3.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </span>
+                      <span class="board-detail__attach-name">부서별_세부추진일정.xlsx</span>
+                      <span class="board-detail__attach-size">(348 KB)</span>
+                    </a>
+                    <!-- JSP: isPreviewableFile = false → board-detail__attach-preview 없음 -->
+                  </li>
+
+                  <!-- ③ HWP — 바로보기 O + 긴 파일명 (ellipsis 케이스) -->
+                  <li class="board-detail__attach-row">
+                    <a class="board-detail__attach-item" href="#" download>
+                      <span class="attach-icon" aria-hidden="true">
+                        <svg width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M8.5 4.5L4.5 8.5C3.7 9.3 2.3 9.3 1.5 8.5C0.7 7.7 0.7 6.3 1.5 5.5L5.5 1.5C6 1 6.8 1 7.3 1.5C7.8 2 7.8 2.8 7.3 3.3L3.3 7.3C3.1 7.5 2.7 7.5 2.5 7.3C2.3 7.1 2.3 6.7 2.5 6.5L5.8 3.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </span>
+                      <span class="board-detail__attach-name">2025년_상반기_업무추진계획_및_세부일정_최종확정본_v3_배포용.hwp</span>
+                      <span class="board-detail__attach-size">(4.7 MB)</span>
+                    </a>
+                    <a class="board-detail__attach-preview" href="#" target="_blank" rel="noopener noreferrer">
+                      <svg width="9" height="9" viewBox="0 0 9 9" fill="none" aria-hidden="true"><path d="M1.5 7.5L7.5 1.5M4.5 1.5H7.5V4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      바로보기
+                    </a>
+                  </li>
+
+                  <!-- ④ JPG — 바로보기 O -->
+                  <li class="board-detail__attach-row">
+                    <a class="board-detail__attach-item" href="#" download>
+                      <span class="attach-icon" aria-hidden="true">
+                        <svg width="10" height="12" viewBox="0 0 10 12" fill="none"><path d="M8.5 4.5L4.5 8.5C3.7 9.3 2.3 9.3 1.5 8.5C0.7 7.7 0.7 6.3 1.5 5.5L5.5 1.5C6 1 6.8 1 7.3 1.5C7.8 2 7.8 2.8 7.3 3.3L3.3 7.3C3.1 7.5 2.7 7.5 2.5 7.3C2.3 7.1 2.3 6.7 2.5 6.5L5.8 3.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </span>
+                      <span class="board-detail__attach-name">기관행사_기념촬영.jpg</span>
+                      <span class="board-detail__attach-size">(860 KB)</span>
+                    </a>
+                    <a class="board-detail__attach-preview" href="#" target="_blank" rel="noopener noreferrer">
+                      <svg width="9" height="9" viewBox="0 0 9 9" fill="none" aria-hidden="true"><path d="M1.5 7.5L7.5 1.5M4.5 1.5H7.5V4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      바로보기
+                    </a>
+                  </li>
+
+                </ul>
+                <!-- 바로보기 제한 안내: 목록 하단 보조 안내 톤 -->
+                <p class="board-detail__attach-notice">※ 시스템 관리를 위해 15MB가 넘으면 바로보기가 제한됩니다.</p>
+              </div>
+            </div>
+
+            <!-- 본문 -->
+            <!-- 운영 데이터 슬롯: BOARD_BODY_CONTENT -->
+            <div class="board-detail__body">
+              <p>안녕하십니까. 샘플 공공서비스입니다.</p>
+              <p>
+                2025년 상반기 주요 업무 계획을 아래와 같이 안내해 드립니다.
+                각 부서에서는 해당 내용을 참고하시어 업무 추진에 차질이 없도록 협조해 주시기 바랍니다.
+              </p>
+              <p>
+                ■ 추진 방향<br>
+                - 디지털 행정서비스 고도화 및 이용자 편의 증진<br>
+                - 공공데이터 개방 확대 및 활용 지원 강화<br>
+                - 기관 내 업무 효율화를 위한 시스템 개선 추진
+              </p>
+              <p>
+                ■ 주요 일정<br>
+                - 2025. 04. ~ 05.: 상반기 사업 점검 및 성과 측정<br>
+                - 2025. 06.: 상반기 성과 보고회 개최<br>
+                - 2025. 07.: 하반기 사업 계획 수립
+              </p>
+              <p>
+                문의 사항은 담당 부서(☎ 02-000-0000)로 연락해 주시기 바랍니다.<br>
+                감사합니다.
+              </p>
+            </div>
+
+          </article>
+
+          <!-- 하단 버튼 -->
+          <div class="detail-btn-bar">
+            <a class="detail-btn" href="./게시판-목록.html">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M2 4h10M2 7h10M2 10h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+              목록
+            </a>
+          </div>
+
+          <!-- 이전글/다음글 -->
+          <!-- 운영 데이터 슬롯: PREV_NEXT_ITEM -->
+          <nav class="detail-nav" aria-label="이전·다음 게시물">
+            <a class="detail-nav__item" href="./게시판-상세.html">
+              <span class="detail-nav__label">이전글</span>
+              <span class="detail-nav__title">사업 참여 신청서 제출 기한 연장 안내</span>
+              <span class="detail-nav__date">2025.04.10</span>
+            </a>
+            <a class="detail-nav__item" href="./게시판-상세.html">
+              <span class="detail-nav__label">다음글</span>
+              <span class="detail-nav__title">디지털 행정서비스 개선 과제 공모 결과 발표</span>
+              <span class="detail-nav__date">2025.04.18</span>
+            </a>
+          </nav>
+
+        </div>
+        <!-- /sub-content -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="site-footer" id="footer" role="contentinfo">
+    <div class="site-footer__inner">
+      <div class="site-footer__logo">
+        <img src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </div>
+      <div class="site-footer__info">
+        <p class="site-footer__address">
+          (00000) 서울특별시 OO구 OO로 000 &nbsp;|&nbsp;
+          대표전화: 02-000-0000 &nbsp;|&nbsp;
+          팩스: 02-000-0001
+        </p>
+        <p class="site-footer__copy">Copyright &copy; 샘플 공공서비스. All Rights Reserved.</p>
+      </div>
+      <div class="site-footer__links">
+        <a class="site-footer__link is-point" href="./개인정보처리방침.html">개인정보처리방침</a>
+        <a class="site-footer__link" href="#">이용약관</a>
+        <a class="site-footer__link" href="#">사이트맵</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

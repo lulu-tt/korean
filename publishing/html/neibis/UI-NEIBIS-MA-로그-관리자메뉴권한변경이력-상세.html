@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				// 이곳에 정의
+			});
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div
+						class="content-header"
+						data-inc="_inc-content-header.html"
+						data-page-title="관리자 메뉴 권한 변경 이력"
+					></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+						<form action="#;">
+							<div class="card">
+								<div class="table table-row">
+									<div class="table-inner">
+										<table>
+											<caption class="sr-only">
+												관리자 메뉴 권한 변경 이력 상세 목록
+											</caption>
+											<tbody>
+												<tr>
+													<th scope="row">계정ID</th>
+													<td>Neibis</td>
+													<th scope="row">계정이름</th>
+													<td>네이비스</td>
+												</tr>
+												<tr>
+													<th scope="row">수정자ID</th>
+													<td>Inseq</td>
+													<th scope="row">수정자IP</th>
+													<td>122.10.0.10</td>
+												</tr>
+												<tr>
+													<th scope="row">변경일시</th>
+													<td colspan="3">2024-05-29 11:06:11</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+
+								<h3 class="title1 mt-10">메뉴 권한 변경 내역 (<strong>3</strong>건)</h3>
+								<div class="table table-list">
+									<div class="table-inner">
+										<table style="min-width: 800px">
+											<caption class="sr-only">
+												메뉴 권한 변경 내역
+											</caption>
+											<thead>
+												<tr>
+													<th scope="col">No</th>
+													<th scope="col">메뉴명</th>
+													<th scope="col">개인정보 메뉴 여부 (<strong>2</strong>건)</th>
+													<th scope="col">구분</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td>1</td>
+													<td class="text-left">인시퀀스-국문 &gt; 테스트 메뉴 &gt; 게시판 - 일반형(기본)A</td>
+													<td>
+														<span class="label-status label-blue">개인정보대상</span>
+													</td>
+													<td>
+														<span class="label-status label-blue">접속권한부여</span>
+													</td>
+												</tr>
+												<tr>
+													<td>2</td>
+													<td class="text-left">인시퀀스-국문 &gt; 테스트 메뉴 &gt; 게시판 - 일반형(기본)B</td>
+													<td></td>
+													<td>
+														<span class="label-status label-red">접속권한삭제</span>
+													</td>
+												</tr>
+												<tr>
+													<td>3</td>
+													<td class="text-left">인시퀀스-국문 &gt; 테스트 메뉴 &gt; 게시판 - 일반형(기본)C</td>
+													<td>
+														<span class="label-status label-blue">개인정보대상</span>
+													</td>
+													<td>
+														<span class="label-status label-red">접속권한삭제</span>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+
+								<h3 class="title1 mt-10">메뉴 접속 권한 조회 (<strong>1</strong>건)</h3>
+								<div class="table table-list">
+									<div class="table-inner">
+										<table style="min-width: 600px">
+											<caption class="sr-only">
+												메뉴 접속 권한 조회 목록
+											</caption>
+											<thead>
+												<tr>
+													<th scope="col">No</th>
+													<th scope="col">메뉴명</th>
+													<th scope="col">개인정보 메뉴 여부 (<strong>1</strong>건)</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td>1</td>
+													<td class="text-left">인시퀀스-국문 &gt; 테스트 메뉴 &gt; 게시판 - 일반형(기본)A</td>
+													<td>
+														<span class="label-status label-blue">개인정보대상</span>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+
+								<!-- 모바일에서 노출되는 버튼 그룹  -->
+								<div class="btn-group-between">
+									<div class="left">
+										<a href="UI-NEIBIS-MA-로그-관리자메뉴권한변경이력.html" class="btn btn-lg btn-outline-gray">
+											<i class="ico ico-chevron-left-gray-md"></i>
+											<span>목록</span>
+										</a>
+									</div>
+								</div>
+							</div>
+						</form>
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

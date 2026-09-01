@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			function submitFuntion(event) {
+				event.preventDefault();
+				$(".search-before").hide();
+				$(".result-area").show();
+				$(".statistics").show();
+				$(".site-name").show();
+				$(".guide-list").show();
+			}
+
+			$(function () {
+				$("form.search-form").on("submit", submitFuntion);
+			});
+
+			window.addEventListener("DOMContentLoaded", async function () {
+				// 창의 너비를 확인
+				let windowWidth = window.innerWidth;
+
+				// 라인차트 날짜 반환
+				const dateList = Array.from({ length: 30 }, (_, i) => {
+					const date = new Date(2023, 3, i + 1);
+					const month = date.getMonth() + 1;
+					const day = date.getDate();
+
+					// MM.DD 형태로 반환
+					return `${month.toString().padStart(2, "0")}.${day.toString().padStart(2, "0")}`;
+				});
+				async function generateBarChart() {
+					let chartBar = {
+						id: "chart-bar",
+						options: {
+							// title: { text: "Bar Chart" },
+							grid: {
+								top: 85,
+								bottom: 0,
+								left: 0, // Y축 카테고리 영역 추가 확보시 수치 조절
+								right: 0, // 우측 수치 잘리지 않도록 여백 확보
+								containLabel: true
+							},
+							tooltip: {
+								trigger: "axis"
+							},
+							xAxis: {
+								axisLabel: {
+									align: "right",
+									formatter: function (value) {
+										return value >= 0 ? Math.round(value) : "";
+									}
+								},
+								splitLine: {
+									show: false // Hide vertical grid lines
+								},
+								boundaryGap: ["8%", "8%"],
+								min: 0
+							},
+							yAxis: {
+								data: [
+									"역곡시 게시판",
+									"모두 창작 마을",
+									"포토 게시판",
+									"동영상 게시판",
+									"블로그 게시판",
+									"홍보 동영상",
+									"리스트 게시판",
+									"민원 게시판",
+									"자유 게시판"
+								],
+								axisLine: {
+									show: false // Y축 라인 숨기기
+								},
+								axisTick: {
+									show: true, // Y축 눈금
+									length: 200,
+									lineStyle: {
+										color: "#E5E7EB"
+									}
+								},
+								splitLine: {
+									show: true,
+									lineStyle: {
+										color: "#E5E7EB"
+									}
+								},
+								axisLabel: {
+									margin: 8,
+									formatter: function (value) {
+										// 최대 길이를 초과하는 경우 '...'으로 줄이기
+										if (value.length > 10) {
+											return value.slice(0, 10) + "...";
+										}
+										// 그렇지 않은 경우 원래 값을 그대로 반환
+										else {
+											return value;
+										}
+									}
+								}
+							},
+							series: [
+								{
+									type: "bar",
+									data: [290, 2000, 3600, 1000, 1500, 2500, 3000, 3500, 4000],
+									barWidth: "16px",
+									// 그래프 우측에 값 노출
+									label: {
+										show: true,
+										position: "right",
+										formatter: function (params) {
+											var formattedValue = Number(params.value).toLocaleString("en");
+											return formattedValue;
+										},
+										color: "#374151"
+									},
+									itemStyle: {
+										color: function (params) {
+											const colorList = [
+												"#357FED",
+												"#F59E0B",
+												"#0CAE79",
+												"#F97316",
+												"#8B5CF6",
+												"#EF4444",
+												"#0EA5E9",
+												"#EC4899",
+												"#84CC16",
+												"#06B6D4"
+											];
+											// 순환 적용되는 색상 인덱스 계산
+											const colorIndex = params.dataIndex % colorList.length;
+											return colorList[colorIndex];
+										}
+									}
+								}
+							]
+						}
+					};
+
+					let chartPie = {
+						id: "chart-pie",
+						options: {
+							legend: {
+								orient: "horizontal",
+								x: "center",
+								y: "bottom",
+								itemWidth: 12, // 아이콘 가로 크기
+								itemHeight: 12, // 아이콘 세로 크기
+								data: [
+									"포트폴리오",
+									"온택트서포터즈",
+									"회사소개 > 사업안내",
+									"솔루션 > I.N.UIX",
+									"솔루션 > NEBIS",
+									"회사소개 > 회사소개",
+									"회사소개 > 오시는길",
+									"회사소개 > 인증현황",
+									"스토리",
+									"회사소개 > 사업안내"
+								]
+							},
+							// 색상 배열 순환 적용됨 : 데이터 개수가 많아져도 문제없음
+							color: [
+								"#357FED",
+								"#F59E0B",
+								"#0CAE79",
+								"#F97316",
+								"#8B5CF6",
+								"#EF4444",
+								"#0EA5E9",
+								"#EC4899",
+								"#84CC16",
+								"#06B6D4"
+							],
+							series: [
+								// 파이차트 데이터 면 내부에 흰색 글자로 표출 (두가지 정보 노출시 시리즈 2회 표출)
+								{
+									name: "게시판 사용 비율",
+									type: "pie",
+									radius: ["30%", "75%"],
+									center: ["50%", "45%"], // 차트의 중심 위치를 조절
+									data: [
+										{ value: 45, name: "포트폴리오" },
+										{ value: 20, name: "온택트서포터즈" },
+										{ value: 10, name: "회사소개 > 사업안내" },
+										{ value: 10, name: "솔루션 > I.N.UIX" },
+										{ value: 10, name: "솔루션 > NEBIS" },
+										{ value: 5, name: "회사소개 > 회사소개" },
+										{ value: 5, name: "회사소개 > 오시는길" },
+										{ value: 5, name: "회사소개 > 인증현황" },
+										{ value: 5, name: "스토리" },
+										{ value: 5, name: "회사소개 > 사업안내" }
+									],
+									label: {
+										color: "#ffffff", // 흰색 글자
+										position: "inside", // 라벨 내부에 위치
+										formatter: "{c}%" // 값(퍼센트)만 표시
+									}
+								}
+							]
+						}
+					};
+
+					// 각 차트 인스턴스를 저장할 객체
+					let chartInstances = {};
+
+					const charts = [chartBar, chartPie];
+					await window.useCharts(charts);
+				}
+
+				async function modalChart() {
+					// 그래프 배경 이미지
+					var bgpattern1 = "/assets/neibis/images/bgpattern1.jpg";
+					var bgpattern2 = "/assets/neibis/images/bgpattern2.jpg";
+					var bgpattern3 = "/assets/neibis/images/bgpattern3.jpg";
+					var bgpattern4 = "/assets/neibis/images/bgpattern4.jpg";
+					let chartColBar = {
+						id: "chart-colbar",
+						options: {
+							legend: {
+								orient: "horizontal",
+								x: "center",
+								y: "bottom",
+								itemWidth: 12, // 아이콘 가로 크기
+								itemHeight: 12 // 아이콘 세로 크기
+							},
+							grid: {
+								top: 20,
+								bottom: 40,
+								left: 0,
+								right: 0,
+								containLabel: true
+							},
+							xAxis: {
+								data: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+								axisLine: {
+									show: false
+								},
+								axisTick: {
+									show: false
+								},
+								splitLine: {
+									show: false
+								},
+								axisLabel: {
+									margin: 8
+								}
+							},
+							yAxis: {
+								min: 0, // Y축 시작 범위
+								max: 5, // Y축 마지막 범위
+								axisLabel: {
+									align: "right"
+								},
+								splitLine: {
+									show: true,
+									lineStyle: {
+										color: "#E5E7EB"
+									}
+								}
+							},
+							series: [
+								// 첫 번째 바
+								{
+									name: "배포",
+									type: "bar",
+									data: [5, 2, 1, 3, 2, 1, 2, 3, 5, 3, 4, 3],
+									barWidth: "16px",
+									barGap: "30%",
+									label: {
+										show: true,
+										position: "top",
+										formatter: function (params) {
+											return params.value;
+										},
+										color: "#374151"
+									},
+									itemStyle: {
+										color: "#357FED"
+									}
+								},
+								// 두 번째 바
+								{
+									name: "수정",
+									type: "bar",
+									data: [4, 3, 2, 1, 3, 1, 2, 3, 5, 3, 2, 1],
+									barWidth: "16px",
+									barGap: "30%",
+									label: {
+										show: true,
+										position: "top",
+										formatter: function (params) {
+											return params.value;
+										},
+										color: "#374151"
+									},
+									itemStyle: {
+										// color: "#F59E0B"
+										color: {
+											image: bgpattern1,
+											repeat: "repeat"
+										}
+									}
+								},
+								// 세 번째 바
+								{
+									name: "등록",
+									type: "bar",
+									data: [1, 2, 3, 5, 3, 4, 3, 2, 1, 3, 2, 4],
+									barWidth: "16px",
+									label: {
+										show: true,
+										position: "top",
+										formatter: function (params) {
+											return params.value;
+										},
+										color: "#374151"
+									},
+									itemStyle: {
+										// color: "#0CAE79"
+										color: {
+											image: bgpattern2,
+											repeat: "repeat"
+										}
+									}
+								},
+								// 네 번째 바
+								{
+									name: "복원",
+									type: "bar",
+									data: [2, 4, 4, 1, 5, 2, 2, 5, 4, 1, 3, 2],
+									barWidth: "16px",
+									label: {
+										show: true,
+										position: "top",
+										formatter: function (params) {
+											return params.value;
+										},
+										color: "#374151"
+									},
+									itemStyle: {
+										// color: "#0CAE79"
+										color: {
+											image: bgpattern3,
+											repeat: "repeat"
+										}
+									}
+								},
+								// 다섯 번째 바
+								{
+									name: "삭제",
+									type: "bar",
+									data: [1, 2, 3, 5, 3, 4, 5, 2, 1, 3, 2, 4],
+									barWidth: "16px",
+									label: {
+										show: true,
+										position: "top",
+										formatter: function (params) {
+											return params.value;
+										},
+										color: "#374151"
+									},
+									itemStyle: {
+										// color: "#0CAE79"
+										color: {
+											image: bgpattern4,
+											repeat: "repeat"
+										}
+									}
+								}
+							],
+							aria: {
+								enabled: true,
+								decal: {
+									show: true
+								}
+							}
+						}
+					};
+
+					// 각 차트 인스턴스를 저장할 객체
+					let chartInstances = {};
+
+					const charts = [chartColBar];
+					await window.useCharts(charts);
+				}
+
+				// tab 구조에 차트가 들어가야할 경우 너비, 높이값 불러오기
+				$("form.search-form").on("submit", async function () {
+					const originalDisplay = $("#tab-content2").css("display");
+					$("#tab-content2").css("display", "block");
+					await generateBarChart();
+					await modalChart();
+					$("#tab-content2").css("display", originalDisplay);
+				});
+			});
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="웹콘텐츠 통계"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<div class="statistics-contnet-wrap">
+							<!-- 검색 영역 -->
+							<div class="card">
+								<form action="#;" class="search-form">
+									<div class="table table-form-basic">
+										<div class="table-inner">
+											<table>
+												<caption class="sr-only">
+													검색조건입력
+												</caption>
+												<tbody>
+													<tr>
+														<th scope="row">
+															<label for="inp_date">조회연도<i class="req">필수입력</i></label>
+														</th>
+														<td>
+															<select id="inp_date" class="form-control" style="width: 100%; max-width: 424px">
+																<option>2023</option>
+																<option>2022</option>
+																<option>2021</option>
+																<option>2020</option>
+																<option>2019</option>
+															</select>
+														</td>
+														<th scope="row">
+															<span>사이트명<i class="req">필수입력</i></span>
+														</th>
+														<td>
+															<select class="form-control" title="사이트명 선택" style="width: 100%; max-width: 424px">
+																<option selected>대표 홈 국문</option>
+																<option>항목1</option>
+																<option>항목2</option>
+															</select>
+														</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+									<div class="btn-group-center">
+										<button type="reset" class="btn btn-md btn-outline-gray">
+											<i class="ico ico-undo-darkgray-md"></i>
+											<span class="text">초기화</span>
+										</button>
+										<button type="submit" class="btn btn-md btn-primary">
+											<i class="ico ico-search-white-md"></i>
+											<span class="text">검색</span>
+										</button>
+									</div>
+								</form>
+							</div>
+
+							<!-- 선택한 사이트명 노출 -->
+							<div class="card site-name">
+								<h3>대표 홈 국문</h3>
+							</div>
+
+							<div class="content-row-area">
+								<div class="card">
+									<div class="search-before"><p>데이터를 검색해보세요</p></div>
+
+									<!-- 데이터 없을 경우 -->
+									<!-- <div class="nodata-area"><p>데이터가 없어요</p></div> -->
+
+									<div class="box guide-list">
+										<ol>
+											<li>
+												웹 콘텐츠 관리 횟수는 관리자 페이지에서 특정 웹콘텐츠를 등록/수정/복원/배포 한 이력의 횟수
+												입니다.
+											</li>
+											<li>
+												웹 콘텐츠 관리 횟수 비율은 관리자 페이지에서 특정 웹콘텐츠를 등록/수정/복원/배포 한 이력의
+												횟수를 비율로 나타낸 데이터입니다.
+											</li>
+										</ol>
+									</div>
+
+									<!-- 목록 -->
+									<div class="result-area" style="display: none">
+										<div class="list-control">
+											<div class="left">
+												<p class="total">총 <strong class="text-primary">113</strong>건(1/1 page)</p>
+											</div>
+											<div class="right">
+												<a href="#;" class="btn btn-sm btn-xls mr-1" download>
+													<i class="ico ico-fileexcel-white-sm"></i>
+													<span>엑셀 다운로드</span>
+												</a>
+												<select class="form-control-sm" style="min-width: 100px" title="목록 수">
+													<option selected>10</option>
+													<option>20</option>
+													<option>50</option>
+													<option>100</option>
+												</select>
+												<button type="button" class="btn btn-sm btn-outline-gray ml-1">적용</button>
+											</div>
+										</div>
+										<div class="table table-list">
+											<div class="table-inner">
+												<table style="min-width: 500px">
+													<caption class="sr-only">
+														웹 콘텐츠 통계 목록
+													</caption>
+													<colgroup>
+														<col />
+														<col />
+														<col />
+													</colgroup>
+													<thead>
+														<tr>
+															<th scope="col">번호</th>
+															<th scope="col">컨텐츠명</th>
+															<th scope="col">
+																<button type="button" class="table-align-btn">
+																	<span class="table-title">관리 횟수</span>
+																	<span class="ico-wrap">
+																		<i class="ico ico-table-updown-darkgary-sm"></i>
+																		<span class="sr-only">오름차순/내림차순 정렬</span>
+																	</span>
+																</button>
+															</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td>10</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link">포트폴리오</a>
+															</td>
+															<td>100</td>
+														</tr>
+														<tr>
+															<td>9</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link">온택트서포터즈</a>
+															</td>
+															<td>90</td>
+														</tr>
+														<tr>
+															<td>8</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link"
+																	>회사소개 &gt; 사업안내</a
+																>
+															</td>
+															<td>80</td>
+														</tr>
+														<tr>
+															<td>7</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link">솔루션 &gt; I.N.UIX</a>
+															</td>
+															<td>70</td>
+														</tr>
+														<tr>
+															<td>6</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link">솔루션 &gt; NEIBIS</a>
+															</td>
+															<td>60</td>
+														</tr>
+														<tr>
+															<td>5</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link"
+																	>회사소개 &gt; 회사소개</a
+																>
+															</td>
+															<td>50</td>
+														</tr>
+														<tr>
+															<td>4</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link"
+																	>회사소개 &gt; 오시는길</a
+																>
+															</td>
+															<td>40</td>
+														</tr>
+														<tr>
+															<td>3</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link"
+																	>회사소개 &gt; 인증현황</a
+																>
+															</td>
+															<td>30</td>
+														</tr>
+														<tr>
+															<td>2</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link">스토리</a>
+															</td>
+															<td>20</td>
+														</tr>
+														<tr>
+															<td>1</td>
+															<td class="text-left">
+																<a href="#layer-statistics-popup" data-modal="open" class="link"
+																	>회사소개 &gt; 사업안내</a
+																>
+															</td>
+															<td>10</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+
+										<div class="pagination">
+											<a href="#;" class="direction first">처음</a>
+											<a href="#;" class="direction prev">이전</a>
+											<strong>1</strong>
+											<a href="#;">2</a>
+											<a href="#;">3</a>
+											<a href="#;">4</a>
+											<a href="#;">5</a>
+											<a href="#;" class="direction next">다음</a>
+											<a href="#;" class="direction last">끝</a>
+										</div>
+									</div>
+									<!-- 데이터 조회 전 -->
+								</div>
+
+								<!-- 통계 영역 -->
+								<!-- 통계 영역 검색으로 노출 일 경우 .card에 .statistics 클래스 추가 -->
+								<div class="card statistics">
+									<div class="statistics-wrap">
+										<div class="statistics-header">
+											<div class="tooltip mr-0">
+												<p>해당 차트는 최대 10개까지 표현할 수 있어요.</p>
+											</div>
+											<h4 class="title1">웹콘텐츠 관리 횟수 비율</h4>
+
+											<nav class="tabmenu tabmenu-custom">
+												<ul class="tab-list">
+													<li class="on">
+														<a href="#tab-content1">
+															<i class="ico ico-bar-chart-white-sm"></i>
+															<i class="ico ico-bar-chart-primary-sm"></i>
+															<span class="sr-only">웹 콘텐츠 관리 횟수 차트</span>
+														</a>
+													</li>
+													<li>
+														<a href="#tab-content2">
+															<i class="ico ico-donut-chart-white-sm"></i>
+															<i class="ico ico-donut-chart-primary-sm"></i>
+															<span class="sr-only">웹 콘텐츠 관리 비율 차트</span>
+														</a>
+													</li>
+												</ul>
+											</nav>
+										</div>
+										<div class="statistics-body">
+											<div class="tab-content" id="tab-content1">
+												<h4 class="sr-only">웹 컨텐츠 관리 횟수 차트</h4>
+												<div id="chart-bar" style="height: 520px"></div>
+											</div>
+											<div class="tab-content" id="tab-content2">
+												<h4 class="sr-only">웹 콘텐츠 관리 비율 차트</h4>
+												<div id="chart-pie" style="height: 520px"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="btn-group-between d-down-md">
+								<div class="right">
+									<a href="UI-NEIBIS-MA-로그-웹콘텐츠이력.html" class="btn btn-lg btn-outline-gray">
+										<span>로그 보기</span>
+										<i class="ico ico-chevron-right-gray-md"></i>
+									</a>
+								</div>
+							</div>
+						</div>
+
+						<!-- 상단 고정 액션 버튼 -->
+						<div class="btn-group-fixed">
+							<a href="UI-NEIBIS-MA-로그-웹콘텐츠이력.html" class="btn btn-lg btn-outline-gray">
+								<span>로그 보기</span>
+								<i class="ico ico-chevron-right-gray-md"></i>
+							</a>
+						</div>
+
+						<!-- Modal Popup : 웹 콘텐츠 통계 상세보기 팝업 -->
+						<div class="modal-popup modal-xl hide" id="layer-statistics-popup">
+							<div class="dimed"></div>
+							<div class="popup-inner bg-gray">
+								<div class="popup-header">
+									<h2 class="popup-title">포트폴리오 웹콘텐츠 관리 통계</h2>
+								</div>
+								<div class="popup-body">
+									<!-- 통계 영역 -->
+									<div class="site-name-area">
+										<div class="site-name">
+											<span><i class="ico ico-site-name-md"></i>사이트명 <span>대표홈 국문</span></span>
+										</div>
+										<ol class="breadcrumb-list">
+											<li>메뉴 1뎁스명</li>
+											<li>메뉴 2뎁스명</li>
+											<li>메뉴 3뎁스명</li>
+											<li>포트폴리오</li>
+										</ol>
+									</div>
+
+									<div class="card">
+										<form action="#;" class="search-form">
+											<div class="table table-form-basic">
+												<div class="table-inner">
+													<table>
+														<caption class="sr-only">
+															검색조건입력
+														</caption>
+														<tbody>
+															<tr>
+																<th scope="row">
+																	<label for="inp_date2">조회연도<i class="req">필수입력</i></label>
+																</th>
+																<td>
+																	<select id="inp_date2" class="form-control" style="width: 100%; max-width: 424px">
+																		<option>2023</option>
+																		<option>2022</option>
+																		<option>2021</option>
+																		<option>2020</option>
+																		<option>2019</option>
+																	</select>
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+											<div class="btn-group-center">
+												<button type="reset" class="btn btn-md btn-outline-gray">
+													<i class="ico ico-undo-darkgray-md"></i>
+													<span class="text">초기화</span>
+												</button>
+												<button type="submit" class="btn btn-md btn-primary">
+													<i class="ico ico-search-white-md"></i>
+													<span class="text">검색</span>
+												</button>
+											</div>
+										</form>
+									</div>
+
+									<div class="card statistics">
+										<div class="statistics-wrap">
+											<h3 class="sr-only">웹콘텐츠 관리 통계 차트</h3>
+											<div class="statistics-body">
+												<div class="scroll-area">
+													<div id="chart-colbar" style="min-width: 1200px; height: 490px"></div>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<!-- 목록 -->
+									<div class="card">
+										<div class="table table-list">
+											<div class="table-inner">
+												<table style="min-width: 1300px">
+													<caption class="sr-only">
+														웹콘텐츠 관리 통계 상세 목록
+													</caption>
+													<colgroup>
+														<col />
+														<col />
+														<col />
+														<col />
+														<col />
+														<col />
+														<col />
+														<col />
+														<col />
+														<col />
+														<col />
+														<col />
+														<col />
+														<col />
+														<col />
+													</colgroup>
+													<thead>
+														<tr>
+															<th scope="col">상태</th>
+															<th scope="col">컨텐츠명</th>
+															<th scope="col">총</th>
+															<th scope="col">1월</th>
+															<th scope="col">2월</th>
+															<th scope="col">3월</th>
+															<th scope="col">4월</th>
+															<th scope="col">5월</th>
+															<th scope="col">6월</th>
+															<th scope="col">7월</th>
+															<th scope="col">8월</th>
+															<th scope="col">9월</th>
+															<th scope="col">10월</th>
+															<th scope="col">11월</th>
+															<th scope="col">12월</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td>배포</td>
+															<td class="text-left">인시퀀스 &gt; 솔루션 &gt; I.N.UIXFramework</td>
+															<td>35</td>
+															<td>6</td>
+															<td>8</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+														</tr>
+														<tr>
+															<td>수정</td>
+															<td class="text-left">인시퀀스 &gt; 솔루션 &gt; I.N.UIXFramework</td>
+															<td>35</td>
+															<td>6</td>
+															<td>8</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+														</tr>
+														<tr>
+															<td>등록</td>
+															<td class="text-left">인시퀀스 &gt; 솔루션 &gt; I.N.UIXFramework</td>
+															<td>35</td>
+															<td>6</td>
+															<td>8</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+														</tr>
+														<tr>
+															<td>복원</td>
+															<td class="text-left">인시퀀스 &gt; 솔루션 &gt; I.N.UIXFramework</td>
+															<td>35</td>
+															<td>6</td>
+															<td>8</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+														</tr>
+														<tr>
+															<td>삭제</td>
+															<td class="text-left">인시퀀스 &gt; 솔루션 &gt; I.N.UIXFramework</td>
+															<td>35</td>
+															<td>6</td>
+															<td>8</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+															<td>7</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+
+										<div class="pagination">
+											<a href="#;" class="direction first">처음</a>
+											<a href="#;" class="direction prev">이전</a>
+											<strong>1</strong>
+											<a href="#;">2</a>
+											<a href="#;">3</a>
+											<a href="#;">4</a>
+											<a href="#;">5</a>
+											<a href="#;" class="direction next">다음</a>
+											<a href="#;" class="direction last">끝</a>
+										</div>
+									</div>
+								</div>
+								<button type="button" class="btn btn-close-popup" data-modal="close">닫기</button>
+							</div>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

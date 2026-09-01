@@ -1,0 +1,10 @@
+// z-index 전용 변수 — 낮은 값 -> 높은 값 순 정렬
+
+$z-tooltip: 10; // 버튼 등에 붙는 툴팁
+$z-page-top-button: 50; // 화면 우하단 top 버튼
+$z-header-backdrop: 60; // 데스크톱 GNB 패널 열렸을 때의 배경 dim
+$z-header: 70; // sticky 헤더
+$z-masthead: 70; // 국가상징 배너
+$z-header-panel: 200; // GNB 하위 메뉴 패널, 내 정보 팝업
+$z-mobile-menu: 1000; // 모바일 전체메뉴 오버레이
+$z-skip-link: 9999; // 스킵 링크(항상 최상단)

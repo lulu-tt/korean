@@ -1,0 +1,69 @@
+// 클래스명: {속성}{방향}-{숫자} (숫자는 $spacing-{숫자} 토큰과 1:1 대응).
+// 반응형 접미사: 없음(공통) → -lg-(1280px 이상) → -md-(1280px 미만)가 뒤에서 덮어쓴다. 예: .pt-4 / .pt-lg-4
+
+$spacing-scale: (
+	0: 0,
+	1: $spacing-1,
+	2: $spacing-2,
+	3: $spacing-3,
+	4: $spacing-4,
+	5: $spacing-5,
+	6: $spacing-6,
+	7: $spacing-7,
+	8: $spacing-8,
+	9: $spacing-9,
+	10: $spacing-10,
+	11: $spacing-11,
+	12: $spacing-12,
+	13: $spacing-13,
+	14: $spacing-14,
+	15: $spacing-15,
+	16: $spacing-16,
+	17: $spacing-17,
+	18: $spacing-18
+);
+
+@mixin spacing-utilities($suffix: "") {
+	@each $key, $value in $spacing-scale {
+		.m#{$suffix}-#{$key} {
+			margin: $value !important;
+		}
+		.mt#{$suffix}-#{$key} {
+			margin-top: $value !important;
+		}
+		.mb#{$suffix}-#{$key} {
+			margin-bottom: $value !important;
+		}
+		.ml#{$suffix}-#{$key} {
+			margin-left: $value !important;
+		}
+		.mr#{$suffix}-#{$key} {
+			margin-right: $value !important;
+		}
+		.p#{$suffix}-#{$key} {
+			padding: $value !important;
+		}
+		.pt#{$suffix}-#{$key} {
+			padding-top: $value !important;
+		}
+		.pb#{$suffix}-#{$key} {
+			padding-bottom: $value !important;
+		}
+		.pl#{$suffix}-#{$key} {
+			padding-left: $value !important;
+		}
+		.pr#{$suffix}-#{$key} {
+			padding-right: $value !important;
+		}
+	}
+}
+
+@include spacing-utilities();
+
+@include mq-up(lg) {
+	@include spacing-utilities("-lg");
+}
+
+@include mq-down(lg) {
+	@include spacing-utilities("-md");
+}

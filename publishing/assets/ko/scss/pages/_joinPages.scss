@@ -1,0 +1,156 @@
+// 회원가입 완료
+.join-complete-wrap {
+	max-width: 50rem;
+	margin: 0 auto;
+
+	.complete-info {
+		max-width: 40rem;
+		margin: 0 auto;
+		text-align: center;
+
+		.info-icon {
+			margin-bottom: $spacing-7;
+			img {
+				width: 8rem;
+			}
+		}
+
+		.info-messege {
+			font-size: 2.4rem;
+		}
+
+		.info-text {
+			color: $text-subtle;
+			letter-spacing: -0.003em;
+		}
+
+		@include mq-down(md) {
+			.info-icon {
+				img {
+					width: 6.4rem;
+				}
+			}
+		}
+	}
+}
+
+// 회원가입 입력 폼
+.join-form-wrap {
+	max-width: 90rem;
+	margin: 0 auto;
+
+	.sub-title-wrap {
+		border-bottom: 2px solid $color-gray-90;
+		padding-bottom: 1.8rem;
+
+		.sub-title {
+			font-size: 2.4rem;
+			font-weight: $font-weight-bold;
+			color: $text-bolder;
+		}
+	}
+}
+
+.terms-box {
+	background-color: $bg-gray-subtler;
+	border: none;
+	border-radius: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: $spacing-6;
+
+	.terms-header {
+		display: flex;
+		align-items: center;
+		gap: $spacing-3;
+
+		.terms-title {
+			font-size: $font-size-heading-small;
+			font-weight: $font-weight-bold;
+		}
+	}
+
+	.terms-radios {
+		display: flex;
+		gap: $spacing-6;
+	}
+
+	@include mq-down(sm) {
+		flex-direction: column;
+		align-items: flex-start;
+		row-gap: 1.2rem;
+		padding: $spacing-4;
+
+		.terms-header {
+			flex-direction: column;
+			align-items: flex-start;
+
+			.terms-title {
+				font-size: $font-size-base;
+			}
+		}
+	}
+}
+
+.terms-view {
+	border-radius: 1.2rem;
+	border: 1px solid $border-gray;
+	max-height: 30rem;
+	overflow: hidden;
+
+	.terms-view-content {
+		padding: $spacing-6;
+		overflow-y: auto;
+		max-height: 30rem;
+		color: $text-subtle;
+	}
+
+	h4 {
+		font-size: $font-size-body-large;
+		margin-bottom: 1.6rem;
+		color: $text-basic;
+	}
+	p {
+		margin-bottom: 0.6rem;
+	}
+	.blk {
+		margin-bottom: 1.8rem;
+	}
+	.blk:last-child {
+		margin-bottom: 0;
+	}
+	ul {
+		list-style: none;
+		margin-top: 0.6rem;
+		padding: 0;
+	}
+	ul li {
+		margin-bottom: 0.6rem;
+	}
+}
+
+.box.box-policy {
+	position: relative;
+	padding-left: 4.4rem;
+	color: $text-subtle;
+	font-size: $font-size-body-small;
+	&::before {
+		content: "";
+		position: absolute;
+		display: block;
+		top: 50%;
+		left: 1.6rem;
+		transform: translateY(-50%);
+		width: 2rem;
+		height: 2rem;
+		background: url("#{$icon-path}/ico_safe_primary.svg") no-repeat center/cover;
+	}
+
+	@include mq-down(md) {
+		&::before {
+			top: 1.6rem;
+			transform: none;
+		}
+	}
+}

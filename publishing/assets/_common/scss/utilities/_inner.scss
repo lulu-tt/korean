@@ -1,0 +1,22 @@
+// .inner는 container의 자식으로 max-width + 중앙 정렬만 담당 (폭 제어와 외곽 레이어를 2단으로 분리)
+
+.inner {
+	margin-inline: auto;
+	// padding-inline: $spacing-4;
+	width: 100%;
+	max-width: $container-width;
+
+	&.inner-wide {
+		max-width: $container-width-wide;
+	}
+
+	&.inner-full {
+		max-width: 100%;
+	}
+}
+
+@include mq-down(lg) {
+	.inner {
+		padding-inline: $spacing-4;
+	}
+}

@@ -1,0 +1,12 @@
+// 이미지 경로 정의
+$icon-path: "../../_common/images/component/icon";
+
+@import "../../_common/scss/variables";
+@import "../../_common/scss/breakpoints";
+@import "../../_common/scss/mixins";
+@import "pages/boardListPages";
+@import "pages/boardViewPages";
+@import "pages/loginPages";
+@import "pages/joinPages";
+@import "pages/opinionPages";
+@import "pages/searchPages";

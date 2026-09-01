@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>샘플 공공서비스 | 회원가입</title>
+  <link rel="shortcut icon" href="../../../assets/sample/images/common/favicon.png" />
+  <link rel="stylesheet" href="../../../assets/sample/css/common.css" />
+  <link rel="stylesheet" href="../../../assets/sample/css/sub.css" />
+  <script src="../../../assets/sample/js/ui.js" defer></script>
+</head>
+<body>
+
+  <!-- 건너뛰기 링크 -->
+  <nav class="skip-nav" aria-label="바로가기">
+    <a href="#content">본문 바로가기</a>
+    <a href="#footer">푸터 바로가기</a>
+  </nav>
+
+  <!-- 전체메뉴 -->
+  <div class="allmenu-dim" aria-hidden="true"></div>
+  <div class="allmenu-panel" role="dialog" aria-label="전체메뉴">
+    <div class="allmenu-panel__head">
+      <img class="allmenu-panel__logo" src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      <button class="allmenu-panel__close" type="button" data-allmenu-close aria-label="전체메뉴 닫기">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M2 2L14 14M14 2L2 14" stroke="rgba(255,255,255,0.65)" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="allmenu-panel__body">
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">기관소개</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./콘텐츠-일반.html">인사말</a></li>
+          <li><a class="allmenu-section__link" href="./콘텐츠-일반.html">연혁</a></li>
+          <li><a class="allmenu-section__link" href="./오시는-길.html">오시는 길</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">알림소식</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./게시판-목록.html">공지사항</a></li>
+          <li><a class="allmenu-section__link" href="./게시판-목록.html">보도자료</a></li>
+          <li><a class="allmenu-section__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+          <li><a class="allmenu-section__link" href="./FAQ.html">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">이용안내</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./개인정보처리방침.html">개인정보처리방침</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">참여마당</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./고객의소리-목록.html">고객의소리</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 롤링배너 -->
+  <div class="rolling-banner" role="region" aria-label="공지 롤링배너">
+    <div class="rolling-banner__inner">
+      <span class="rolling-banner__label">알림</span>
+      <div class="rolling-banner__content">
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">공지</span>
+          <a class="rolling-banner__title" href="#">2025년 상반기 주요사업 추진 계획 안내</a>
+          <span class="rolling-banner__date">2025.04.15</span>
+        </div>
+      </div>
+      <div class="rolling-banner__controls">
+        <button class="rolling-banner__arrow" type="button" data-rolling-prev aria-label="이전 공지">‹</button>
+        <span class="rolling-banner__count" aria-live="polite">1/1</span>
+        <button class="rolling-banner__arrow" type="button" data-rolling-next aria-label="다음 공지">›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 헤더 -->
+  <header class="site-header" role="banner">
+    <div class="site-header__inner">
+      <a class="site-logo" href="./메인.html" aria-label="샘플 공공서비스 홈으로 이동">
+        <img class="site-logo__img" src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </a>
+      <nav class="site-gnb" id="gnb" aria-label="주메뉴">
+        <ul class="site-gnb__list">
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">기관소개</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./콘텐츠-일반.html">인사말</a></li>
+                  <li><a class="gnb-dropdown__link" href="./콘텐츠-일반.html">연혁</a></li>
+                  <li><a class="gnb-dropdown__link" href="./오시는-길.html">오시는 길</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">알림소식</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./게시판-목록.html">공지사항</a></li>
+                  <li><a class="gnb-dropdown__link" href="./게시판-목록.html">보도자료</a></li>
+                  <li><a class="gnb-dropdown__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+                  <li><a class="gnb-dropdown__link" href="./FAQ.html">FAQ</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">이용안내</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./개인정보처리방침.html">개인정보처리방침</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">참여마당</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./고객의소리-목록.html">고객의소리</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </nav>
+      <div class="site-header__actions">
+        <a class="btn-login" href="./로그인.html">로그인</a>
+        <button class="btn-allmenu" type="button" data-allmenu-open aria-expanded="false">
+          <span class="btn-allmenu__bars" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span>전체메뉴</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 회원가입 콘텐츠 -->
+  <main id="content">
+
+    <!-- 브레드크럼 -->
+    <div class="breadcrumb-bar">
+      <div class="breadcrumb-bar__inner">
+        <nav class="breadcrumb" aria-label="현재 위치">
+          <span class="breadcrumb__item">
+            <a href="./메인.html">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-label="홈" style="display:inline-block;vertical-align:middle;margin-bottom:1px;">
+                <path d="M1 5.5L6.5 1L12 5.5V12H8.5V8H4.5V12H1V5.5Z" stroke="#A0A8B8" stroke-width="1.2" stroke-linejoin="round"/>
+              </svg>
+              홈
+            </a>
+          </span>
+          <span class="breadcrumb__sep" aria-hidden="true">›</span>
+          <span class="breadcrumb__item" aria-current="page">회원가입</span>
+        </nav>
+      </div>
+    </div>
+
+    <div class="join-wrap">
+      <div class="join-box">
+
+        <h1 class="join-box__title">회원가입</h1>
+
+        <!-- 단계 표시 -->
+        <ol class="join-step" aria-label="가입 단계">
+          <li class="join-step__item is-done">
+            <span class="join-step__dot" aria-hidden="true">
+              <!-- 완료 체크 아이콘 -->
+              <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+                <path d="M1 5L4.5 8.5L11 1.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="join-step__label">약관동의</span>
+          </li>
+          <li class="join-step__item is-done">
+            <span class="join-step__dot" aria-hidden="true">
+              <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+                <path d="M1 5L4.5 8.5L11 1.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="join-step__label">본인인증</span>
+          </li>
+          <li class="join-step__item is-active" aria-current="step">
+            <span class="join-step__dot">3</span>
+            <span class="join-step__label">정보입력</span>
+          </li>
+          <li class="join-step__item">
+            <span class="join-step__dot">4</span>
+            <span class="join-step__label">가입완료</span>
+          </li>
+        </ol>
+
+        <!-- 가입 폼 -->
+        <!-- JSP: action="/uss/umt/insertMember.do" method="post" -->
+        <form id="joinForm" method="post" action="#" novalidate>
+
+          <!-- ── 본인인증 완료 정보 (read-only) ── -->
+          <!-- JSP: 본인인증 완료 후 session 또는 hidden field 에서 출력 -->
+          <p class="join-section-label">본인인증 완료 정보</p>
+
+          <div class="join-field">
+            <label>이름</label>
+            <!-- JSP: ${certVO.name} -->
+            <div class="join-readonly">
+              <span class="join-readonly__badge">
+                <svg width="10" height="9" viewBox="0 0 10 9" fill="none" aria-hidden="true">
+                  <path d="M1 4.5L3.5 7L9 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                인증완료
+              </span>
+              홍길동
+            </div>
+            <!-- hidden: 실제 인증값 -->
+            <input type="hidden" name="name" value="홍길동" />
+          </div>
+
+          <div class="join-field">
+            <label>휴대전화</label>
+            <!-- JSP: ${certVO.mobileNum} (포맷: 010-0000-0000) -->
+            <div class="join-readonly">
+              <span class="join-readonly__badge">
+                <svg width="10" height="9" viewBox="0 0 10 9" fill="none" aria-hidden="true">
+                  <path d="M1 4.5L3.5 7L9 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                인증완료
+              </span>
+              010-1234-5678
+            </div>
+            <input type="hidden" name="mobileNum" value="01012345678" />
+            <input type="hidden" name="ci" value="" />
+            <input type="hidden" name="di" value="" />
+          </div>
+
+          <div class="join-divider"></div>
+
+          <!-- ── 계정 정보 입력 ── -->
+          <p class="join-section-label">계정 정보</p>
+
+          <!-- 아이디 -->
+          <div class="join-field">
+            <label for="userId">
+              아이디 <span class="required" aria-hidden="true">*</span>
+              <span class="sr-only">(필수)</span>
+            </label>
+            <div class="join-input-row">
+              <input class="write-input is-valid" type="text" id="userId" name="userId"
+                placeholder="4~20자 영문 소문자, 숫자 조합" maxlength="20"
+                autocomplete="username" value="honggildong" required />
+              <button class="join-check-btn" type="button" id="btnIdCheck">중복확인</button>
+            </div>
+            <!-- 상태별 메시지 — JSP: c:choose로 분기 -->
+            <!-- 사용 가능 -->
+            <p class="join-msg join-msg--success" id="msgId" role="alert">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><circle cx="6.5" cy="6.5" r="6" stroke="#43a047" stroke-width="1.2"/><path d="M4 6.5L5.8 8.3L9 5" stroke="#43a047" stroke-width="1.3" stroke-linecap="round"/></svg>
+              사용 가능한 아이디입니다.
+            </p>
+            <!-- 중복 (주석 상태로 보관)
+            <p class="join-msg join-msg--error" role="alert">
+              이미 사용 중인 아이디입니다. 다른 아이디를 입력해 주세요.
+            </p>
+            -->
+            <!-- 미확인 (주석 상태로 보관)
+            <p class="join-msg join-msg--info">
+              아이디 중복확인을 해주세요.
+            </p>
+            -->
+          </div>
+
+          <!-- 비밀번호 -->
+          <div class="join-field">
+            <label for="password">
+              비밀번호 <span class="required" aria-hidden="true">*</span>
+              <span class="sr-only">(필수)</span>
+            </label>
+            <input class="write-input is-error" type="password" id="password" name="password"
+              placeholder="8~16자, 영문+숫자+특수문자 조합" maxlength="16"
+              autocomplete="new-password" required />
+            <!-- 오류 메시지 -->
+            <p class="join-msg join-msg--error" role="alert">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><circle cx="6.5" cy="6.5" r="6" stroke="#e53935" stroke-width="1.2"/><path d="M6.5 4v3M6.5 9h.01" stroke="#e53935" stroke-width="1.4" stroke-linecap="round"/></svg>
+              비밀번호는 8자 이상, 영문·숫자·특수문자를 모두 포함해야 합니다.
+            </p>
+            <!-- 정상 (주석 상태)
+            <p class="join-msg join-msg--success" role="alert">사용 가능한 비밀번호입니다.</p>
+            -->
+          </div>
+
+          <!-- 비밀번호 확인 -->
+          <div class="join-field">
+            <label for="passwordConfirm">
+              비밀번호 확인 <span class="required" aria-hidden="true">*</span>
+              <span class="sr-only">(필수)</span>
+            </label>
+            <input class="write-input is-error" type="password" id="passwordConfirm" name="passwordConfirm"
+              placeholder="비밀번호를 다시 입력해 주세요" maxlength="16"
+              autocomplete="new-password" required />
+            <!-- 불일치 오류 -->
+            <p class="join-msg join-msg--error" role="alert">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><circle cx="6.5" cy="6.5" r="6" stroke="#e53935" stroke-width="1.2"/><path d="M6.5 4v3M6.5 9h.01" stroke="#e53935" stroke-width="1.4" stroke-linecap="round"/></svg>
+              비밀번호가 일치하지 않습니다.
+            </p>
+            <!-- 일치 (주석 상태)
+            <p class="join-msg join-msg--success" role="alert">비밀번호가 일치합니다.</p>
+            -->
+          </div>
+
+          <div class="join-divider"></div>
+
+          <!-- ── 연락처 정보 ── -->
+          <p class="join-section-label">연락처 정보</p>
+
+          <!-- 이메일 -->
+          <div class="join-field">
+            <label for="email">
+              이메일 <span class="required" aria-hidden="true">*</span>
+              <span class="sr-only">(필수)</span>
+            </label>
+            <input class="write-input" type="email" id="email" name="email"
+              placeholder="example@domain.com" maxlength="100"
+              autocomplete="email" required />
+            <p class="join-msg join-msg--info">이메일은 비밀번호 찾기 등에 사용됩니다.</p>
+            <!-- 형식 오류 (주석 상태)
+            <p class="join-msg join-msg--error" role="alert">올바른 이메일 형식을 입력해 주세요.</p>
+            -->
+          </div>
+
+          <!-- ── 버튼 바 ── -->
+          <div class="join-btn-bar">
+            <a class="join-btn join-btn--outline" href="./회원가입-약관동의.html">이전</a>
+            <button class="join-btn join-btn--primary" type="submit">가입완료</button>
+          </div>
+
+        </form>
+        <!-- /joinForm -->
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="site-footer" id="footer" role="contentinfo">
+    <div class="site-footer__inner">
+      <div class="site-footer__logo">
+        <img src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </div>
+      <div class="site-footer__info">
+        <p class="site-footer__address">
+          (00000) 서울특별시 OO구 OO로 000 &nbsp;|&nbsp;
+          대표전화: 02-000-0000 &nbsp;|&nbsp;
+          팩스: 02-000-0001
+        </p>
+        <p class="site-footer__copy">Copyright &copy; 샘플 공공서비스. All Rights Reserved.</p>
+      </div>
+      <div class="site-footer__links">
+        <a class="site-footer__link is-point" href="./개인정보처리방침.html">개인정보처리방침</a>
+        <a class="site-footer__link" href="#">이용약관</a>
+        <a class="site-footer__link" href="#">사이트맵</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* ── 아이디 중복확인 ── */
+    /* JSP 이식 시: fetch('/uss/umt/checkIdDplct.do?userId=xxx') 로 교체 */
+    (function () {
+      var idInput   = document.getElementById('userId');
+      var msgId     = document.getElementById('msgId');
+      var btnCheck  = document.getElementById('btnIdCheck');
+      var idChecked = false; // 중복확인 완료 여부 (JSP에서 hidden field로 관리)
+
+      btnCheck.addEventListener('click', function () {
+        var val = idInput.value.trim();
+        if (!val) {
+          msgId.textContent = '아이디를 입력해 주세요.';
+          msgId.className = 'join-msg join-msg--error';
+          return;
+        }
+        if (!/^[a-z0-9]{4,20}$/.test(val)) {
+          msgId.textContent = '4~20자 영문 소문자, 숫자만 사용할 수 있습니다.';
+          msgId.className = 'join-msg join-msg--error';
+          idInput.className = 'write-input is-error';
+          idChecked = false;
+          return;
+        }
+        // 퍼블 데모: 항상 사용 가능으로 처리
+        // 실제 운영: AJAX 중복확인 후 결과 반영
+        msgId.innerHTML = '<svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><circle cx="6.5" cy="6.5" r="6" stroke="#43a047" stroke-width="1.2"/><path d="M4 6.5L5.8 8.3L9 5" stroke="#43a047" stroke-width="1.3" stroke-linecap="round"/></svg> 사용 가능한 아이디입니다.';
+        msgId.className = 'join-msg join-msg--success';
+        idInput.className = 'write-input is-valid';
+        idChecked = true;
+      });
+
+      /* ── 비밀번호 실시간 검증 ── */
+      var pwInput   = document.getElementById('password');
+      var pwcInput  = document.getElementById('passwordConfirm');
+
+      function validatePw() {
+        var val = pwInput.value;
+        var msg = pwInput.nextElementSibling;
+        var ok  = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,16}$/.test(val);
+        pwInput.className = 'write-input ' + (val.length === 0 ? '' : ok ? 'is-valid' : 'is-error');
+        if (val.length > 0) {
+          msg.innerHTML = ok
+            ? '<svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><circle cx="6.5" cy="6.5" r="6" stroke="#43a047" stroke-width="1.2"/><path d="M4 6.5L5.8 8.3L9 5" stroke="#43a047" stroke-width="1.3" stroke-linecap="round"/></svg> 사용 가능한 비밀번호입니다.'
+            : '<svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><circle cx="6.5" cy="6.5" r="6" stroke="#e53935" stroke-width="1.2"/><path d="M6.5 4v3M6.5 9h.01" stroke="#e53935" stroke-width="1.4" stroke-linecap="round"/></svg> 비밀번호는 8자 이상, 영문·숫자·특수문자를 모두 포함해야 합니다.';
+          msg.className = 'join-msg ' + (ok ? 'join-msg--success' : 'join-msg--error');
+        }
+        validatePwConfirm();
+      }
+
+      function validatePwConfirm() {
+        var msg = pwcInput.nextElementSibling;
+        if (!pwcInput.value) return;
+        var match = pwInput.value === pwcInput.value;
+        pwcInput.className = 'write-input ' + (match ? 'is-valid' : 'is-error');
+        msg.innerHTML = match
+          ? '<svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><circle cx="6.5" cy="6.5" r="6" stroke="#43a047" stroke-width="1.2"/><path d="M4 6.5L5.8 8.3L9 5" stroke="#43a047" stroke-width="1.3" stroke-linecap="round"/></svg> 비밀번호가 일치합니다.'
+          : '<svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><circle cx="6.5" cy="6.5" r="6" stroke="#e53935" stroke-width="1.2"/><path d="M6.5 4v3M6.5 9h.01" stroke="#e53935" stroke-width="1.4" stroke-linecap="round"/></svg> 비밀번호가 일치하지 않습니다.';
+        msg.className = 'join-msg ' + (match ? 'join-msg--success' : 'join-msg--error');
+      }
+
+      pwInput.addEventListener('input', validatePw);
+      pwcInput.addEventListener('input', validatePwConfirm);
+
+      /* ── 폼 submit 최종 검증 ── */
+      document.getElementById('joinForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        // 퍼블 데모: 가입완료 페이지 이동
+        // 실제 운영: 서버측 검증 후 리다이렉트
+        window.location.href = './회원가입-완료.html';
+      });
+    }());
+  </script>
+
+</body>
+</html>

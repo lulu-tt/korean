@@ -1,0 +1,54 @@
+.box {
+	box-sizing: border-box;
+	width: 100%;
+	padding: $spacing-4;
+	border: 1px solid $color-secondary-10;
+	border-radius: 1.2rem;
+	background: $color-secondary-5;
+
+	// Size — padding
+	&.box-sm {
+		padding: $spacing-3;
+	}
+	&.box-lg {
+		padding: $spacing-6;
+	}
+
+	// Color
+	&.box-white {
+		border-color: $border-gray-light;
+		background-color: $bg-white;
+	}
+	&.box-gray {
+		border-color: $color-secondary-10;
+		background-color: $bg-gray-subtler;
+	}
+	&.box-primary {
+		border-color: $border-primary-light;
+		background-color: $bg-primary-subtler;
+	}
+
+	// Border
+	&.box-no-border {
+		border-width: 0;
+	}
+
+	.box-info-title {
+		display: block;
+		position: relative;
+		font-weight: $font-weight-bold;
+		color: $color-secondary-80;
+		padding-left: 2.8rem;
+
+		&::before {
+			position: absolute;
+			left: 0;
+			top: 0.3rem;
+			content: "";
+			display: inline-block;
+			width: 2rem;
+			height: 2rem;
+			background: url("#{$icon-path}/ico_information_fill_navy.svg") no-repeat center/cover;
+		}
+	}
+}

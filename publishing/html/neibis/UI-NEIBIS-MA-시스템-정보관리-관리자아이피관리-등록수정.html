@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="관리자 아이피관리"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+
+						<form action="#;">
+							<!-- 관리자 아이피관리 상세 -->
+							<div class="card">
+								<div class="table table-row">
+									<div class="table-inner">
+										<table>
+											<caption class="sr-only">
+												관리자 아이피관리
+											</caption>
+											<tbody>
+												<tr>
+													<th scope="row">
+														<span>허용여부<i class="req">필수입력</i></span>
+													</th>
+													<td>
+														<div class="input-group">
+															<label class="check-item">
+																<input type="radio" name="radio1" checked required />
+																<span class="label">허용</span>
+															</label>
+															<label class="check-item">
+																<input type="radio" name="radio1" required />
+																<span class="label">미허용</span>
+															</label>
+														</div>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<span>허용 IP<i class="req">필수입력</i></span>
+													</th>
+													<td>
+														<div class="input-group ip-group">
+															<div class="input-group">
+																<input type="text" title="ip 번호 입력" class="form-control" required />
+																<span class="input-addon">-</span>
+																<input type="text" title="ip 번호 입력" class="form-control" required />
+																<span class="input-addon">-</span>
+																<input type="text" title="ip 번호 입력" class="form-control" required />
+																<span class="input-addon">-</span>
+																<input type="text" title="ip 번호 입력" class="form-control" required />
+															</div>
+															<button type="button" class="btn btn-md btn-outline-gray">
+																<i class="ico ico-search-darkgray-md"></i>
+																<span class="text text-md">중복 확인</span>
+															</button>
+														</div>
+														<!-- IP 사용 가능 시 노출 문구 -->
+														<span class="text-guide text-primary"> 이 아이피는 사용할 수 있어요. </span>
+
+														<!-- IP 중복되어 사용 불가일 경우 노출 문구 -->
+														<span class="text-guide text-invalid"> 이 아이피는 이미 사용중이에요. </span>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<label for="input_name">성명<i class="req">필수입력</i></label>
+													</th>
+													<td>
+														<input
+															type="text"
+															id="input_name"
+															class="form-control full"
+															placeholder="성명을 입력해주세요."
+															required
+														/>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<label for="textarea1">설명</label>
+													</th>
+													<td>
+														<textarea
+															class="form-control full"
+															id="textarea1"
+															placeholder="설명을 입력해주세요."
+														></textarea>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+
+								<div class="btn-group-between">
+									<div class="left">
+										<a
+											href="UI-NEIBIS-MA-시스템-정보관리-관리자아이피관리-목록.html"
+											data-confirm="leave-saver"
+											class="btn btn-lg btn-outline-gray"
+										>
+											<i class="ico ico-chevron-left-gray-md"></i>
+											<span>목록</span>
+										</a>
+									</div>
+									<div class="right">
+										<button type="submit" class="btn btn-lg btn-primary-soft">
+											<i class="ico ico-pen-primary-md"></i>
+											<span>수정</span>
+										</button>
+										<button type="submit" class="btn btn-lg btn-primary">
+											<i class="ico ico-save-white-md"></i>
+											<span>저장</span>
+										</button>
+									</div>
+								</div>
+							</div>
+						</form>
+
+						<!-- 상단 고정 액션 버튼 -->
+						<div class="btn-group-fixed">
+							<button type="submit" class="btn btn-lg btn-primary-soft">
+								<i class="ico ico-pen-primary-md"></i>
+								<span>수정</span>
+							</button>
+							<button type="submit" class="btn btn-lg btn-primary">
+								<i class="ico ico-save-white-md"></i>
+								<span>저장</span>
+							</button>
+						</div>
+
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

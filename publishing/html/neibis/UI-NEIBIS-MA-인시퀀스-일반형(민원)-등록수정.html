@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>현재화면명 | 메뉴명 | 사이트명</title>
+		<link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+
+		<!-- JavaScript -->
+		<script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+
+		<!-- Plugins -->
+		<!-- CodeMirror -->
+		<link rel="stylesheet" href="../../assets/neibis/plugins/codemirror/codemirror.min.css" />
+		<link rel="stylesheet" href="../../assets/neibis/plugins/codemirror/idea.min.css" />
+		<script src="../../assets/neibis/plugins/codemirror/codemirror.min.js"></script>
+		<script src="../../assets/neibis/plugins/codemirror/xml.min.js"></script>
+		<script src="../../assets/neibis/plugins/codemirror/css.min.js"></script>
+		<script src="../../assets/neibis/plugins/codemirror/javascript.min.js"></script>
+
+		<!-- beautify -->
+		<script src="../../assets/neibis/plugins/beautify/beautify.min.js"></script>
+		<script src="../../assets/neibis/plugins/beautify/beautify-css.min.js"></script>
+		<script src="../../assets/neibis/plugins/beautify/beautify-html.min.js"></script>
+
+		<!-- CKEditor -->
+		<script src="../../assets/neibis/plugins/ckeditor4/ckeditor.js"></script>
+		<script src="../../assets/neibis/plugins/ckeditor4/ckeditor.inuix.neibis.js"></script>
+
+		<!-- I.N.UIX NEIBIS -->
+		<script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+
+		<!-- Plugins -->
+		<script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+		<script src="../../assets/neibis/js/dropzone.inuix.default.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+		<script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+
+		<!-- 페이지 개별 스크립트 -->
+		<script>
+			$(function () {
+				// 이곳에 정의
+				$(".btn-delete").click(function () {
+					confirm(
+						{
+							icon: "error", // info, check(기본값), warning, error, warning-gray
+							title: "삭제하면 복구할 수 없어요",
+							message: "그래도 데이터를 삭제하시겠어요?"
+						},
+						function (result) {
+							if (result) {
+								console.log("확인 버튼을 눌렀습니다.");
+								// true 로직 실행
+							} else {
+								console.log("취소 버튼을 눌렀습니다.");
+								// false 로직 실행
+							}
+						}
+					);
+				});
+			});
+
+			// [개발] 웹에디터 위지윅 아이프레임 스타일시트 제어
+			var contextRoot = typeof window.CONTEXT_ROOT === "undefined" ? "" : "/" + window.CONTEXT_ROOT;
+			var siteId = "ko"; // 원하는 디폴트 siteId 값으로 변경
+			window.cssUrls = [
+				// contextRoot + "/assets/neibis/css/editor.css", // 웹 에디터 프레임 기본 스타일 (삭제 금지)
+				contextRoot + "/assets/" + siteId + "/css/style.css"
+			];
+
+			// // [개발] 웹에디터 위지윅 아이프레임 내부 컨테이너 클래스 (필요시 정의 :현재 사용되지 않음)
+			// window.customOutputAreaClasses = [
+			// 	"content-body"
+			// 	// "my-custom-output-area-1",
+			// ];
+
+			$(document).ready(function () {
+				setTimeout(function () {
+					$('a[title="PC View"]').addClass("on");
+				}, 500);
+			});
+			// });
+		</script>
+	</head>
+
+	<body class="layout-type-sub">
+		<div class="loadingbar">
+			<div class="progress"></div>
+			<div class="spinner"></div>
+			<p class="sr-only">Loading...</p>
+		</div>
+		<div class="wrapper">
+			<div id="container">
+				<aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+				<article id="content">
+					<div class="content-header" data-inc="_inc-content-header.html" data-page-title="일반형(민원)-등록수정"></div>
+					<div class="content-body">
+						<!-- 본문 영역 -->
+						<form action="#;">
+							<!-- 입력폼 -->
+							<div class="card">
+								<div class="table table-row">
+									<div class="table-inner">
+										<table>
+											<caption class="sr-only">
+												${표제목} 등록
+											</caption>
+											<tbody>
+												<tr>
+													<th scope="row">
+														<span>게시여부<i class="req">필수입력</i></span>
+													</th>
+													<td>
+														<label class="check-item">
+															<input type="radio" name="inputRadio1" id="inputRadio1_2" checked />
+															<span class="label">게시</span>
+														</label>
+														<label class="check-item">
+															<input type="radio" name="inputRadio1" id="inputRadio1_1" />
+															<span class="label">미게시</span>
+														</label>
+													</td>
+													<th scope="row">
+														<span>공지여부<i class="req">필수입력</i></span>
+													</th>
+													<td>
+														<label class="check-item">
+															<input type="radio" name="inputRadio2" id="inputRadio2_1" />
+															<span class="label">공지</span>
+														</label>
+														<label class="check-item">
+															<input type="radio" name="inputRadio2" id="inputRadio2_2" checked />
+															<span class="label">미공지</span>
+														</label>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">등록일시</th>
+													<td>
+														<input
+															type="text"
+															class="form-control-sm form-datepicker"
+															title="등록일시"
+															placeholder="YYYY.MM.DD"
+														/>
+													</td>
+													<th scope="row">수정일시</th>
+													<td>
+														<input
+															type="text"
+															class="form-control-sm form-datepicker"
+															title="수정일시"
+															placeholder="YYYY.MM.DD"
+														/>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<label for="input_name">작성자</label>
+													</th>
+													<td colspan="3">
+														<input type="text" id="input_name" class="form-control-sm full" placeholder="placeholder" />
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">조회수</th>
+													<td>12</td>
+													<th scope="row">
+														<label for="input_rank">게시순위</label>
+													</th>
+													<td>
+														<input
+															type="text"
+															id="input_rank"
+															class="form-control-sm full"
+															placeholder="placeholder"
+															value="5"
+														/>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<label for="input_title">제목<i class="req">필수입력</i></label>
+													</th>
+													<td colspan="3">
+														<input
+															type="text"
+															id="input_title"
+															class="form-control-sm full"
+															placeholder="제목을 입력해주세요."
+															required
+														/>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">
+														<span>엠바고 설정<i class="req">필수입력</i></span>
+													</th>
+													<td colspan="3">
+														<input
+															type="text"
+															class="form-control-sm form-datepicker"
+															title="날짜"
+															placeholder="YYYY.MM.DD"
+															required
+														/>
+														<select class="form-control-sm" title="시간 선택">
+															<option selected>00 시</option>
+															<option>01 시</option>
+															<option>02 시</option>
+															<option>03 시</option>
+															<option>04 시</option>
+															<option>23 시</option>
+														</select>
+														<select class="form-control-sm" title="분 선택">
+															<option selected>00 분</option>
+															<option>01 분</option>
+															<option>02 분</option>
+															<option>03 분</option>
+															<option>04 분</option>
+															<option>59 분</option>
+														</select>
+													</td>
+												</tr>
+												<tr>
+													<th scope="row">첨부파일</th>
+													<td colspan="3">
+														<div class="file-upload file-upload-multiple"></div>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="info-editor-area">
+									<h3 class="title1 mt-5">내용<i class="req">필수입력</i></h3>
+									<div class="input-group mb-5">
+										<label class="check-item">
+											<input type="radio" name="inputRadio3" id="inputRadio3_1" checked />
+											<span class="label">미진행</span>
+										</label>
+										<label class="check-item">
+											<input type="radio" name="inputRadio3" id="inputRadio3_2" />
+											<span class="label">진행</span>
+										</label>
+									</div>
+
+									<!-- [개발] : [웹에디터] : 위지윅 에디터 영역으로 변경 -->
+									<div class="editor-wrap">
+										<div class="editor-area layout-type-default">
+											<div class="webeditor-area">
+												<h4 class="sr-only">웹 에디터로 수정</h4>
+
+												<!-- ckeditor editor -->
+												<div class="webeditor-viewport">
+													<textarea name="ckeditor" id="ckeditor" class="inuix-ckeditor" rows="10" cols="80"></textarea>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- 모바일에서 노출되는 버튼 그룹  -->
+								<div class="btn-group-between">
+									<div class="left">
+										<!-- data-confirm="leave-saver" 속성 추가시 컨펌창이 뜨고, 확인 버튼 누를 때 href 값으로 이동됨 -->
+										<a
+											href="UI-NEIBIS-MA-인시퀀스-일반형(민원)-목록.html"
+											data-confirm="leave-saver"
+											class="btn btn-lg btn-outline-gray"
+										>
+											<i class="ico ico-chevron-left-gray-md"></i>
+											<span>목록</span>
+										</a>
+									</div>
+									<div class="right">
+										<a href="#" class="btn btn-lg btn-gray btn-delete">
+											<i class="ico ico-trash-white-md"></i>
+											<span>삭제</span>
+										</a>
+										<!-- 수정 모드에서는 미노출 -->
+										<button type="reset" class="btn btn-lg btn-gray">
+											<i class="ico ico-close-white-md"></i>
+											<span>취소</span>
+										</button>
+										<button type="reset" class="btn btn-lg btn-outline-gray">
+											<i class="ico ico-undo-darkgray-md"></i>
+											<span>초기화</span>
+										</button>
+										<!-- 등록 모드에서는 미노출 -->
+										<button type="submit" class="btn btn-lg btn-primary-soft">
+											<i class="ico ico-pen-primary-md"></i>
+											<span>수정</span>
+										</button>
+										<!-- // 수정 모드에서는 미노출 -->
+										<button type="submit" class="btn btn-lg btn-primary">
+											<i class="ico ico-save-white-md"></i>
+											<span>저장</span>
+										</button>
+									</div>
+								</div>
+							</div>
+
+							<!-- 상단 고정 액션 버튼 -->
+							<div class="btn-group-fixed">
+								<a href="#" class="btn btn-lg btn-gray btn-delete">
+									<i class="ico ico-trash-white-md"></i>
+									<span>삭제</span>
+								</a>
+
+								<!-- 수정 모드에서는 미노출 -->
+								<button type="reset" class="btn btn-lg btn-gray">
+									<i class="ico ico-close-white-md"></i>
+									<span>취소</span>
+								</button>
+								<button type="reset" class="btn btn-lg btn-outline-gray">
+									<i class="ico ico-undo-darkgray-md"></i>
+									<span>초기화</span>
+								</button>
+								<!-- 등록 모드에서는 미노출 -->
+								<button type="submit" class="btn btn-lg btn-primary-soft">
+									<i class="ico ico-pen-primary-md"></i>
+									<span>수정</span>
+								</button>
+								<!-- // 수정 모드에서는 미노출 -->
+								<button type="submit" class="btn btn-lg btn-primary">
+									<i class="ico ico-save-white-md"></i>
+									<span>저장</span>
+								</button>
+							</div>
+						</form>
+						<!-- // 본문 영역 -->
+					</div>
+				</article>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,429 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta name="format-detection" content="telephone=no" />
+    <title>팝업·배너 이미지 제작 | 팝업/배너관리 | NEIBIS</title>
+    <link rel="shortcut icon" href="../../assets/neibis/images/favicon.png" />
+    <link rel="stylesheet" href="../../assets/neibis/css/style.css" />
+    <!-- JavaScript -->
+    <script src="../../assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+    <script src="../../assets/neibis/lib/jquery-ui/jquery-ui.min.js"></script>
+    <!-- I.N.UIX NEIBIS (data-inc include 처리 포함) -->
+    <script src="../../assets/neibis/js/jquery.inuix.neibis.min.js"></script>
+    <!-- Plugins (사이드바 트리/업로드 등 공통 include 동작용) -->
+    <script src="../../assets/neibis/plugins/dropzone/dropzone.min.js"></script>
+    <script src="../../assets/neibis/js/dropzone.inuix.neibis.js"></script>
+    <script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.core.min.js"></script>
+    <script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.excheck.min.js"></script>
+    <script src="../../assets/neibis/plugins/ztree/js/jquery.ztree.exedit.min.js"></script>
+    <script src="../../assets/neibis/plugins/ztree/zTreeCustom.js"></script>
+</head>
+
+<body class="layout-type-sub">
+    <div class="loadingbar">
+        <div class="progress"></div>
+        <div class="spinner"></div>
+        <p class="sr-only">Loading...</p>
+    </div>
+    <div class="wrapper">
+        <div id="container">
+            <aside id="sidebar" data-inc="_inc-sidebar.html"></aside>
+            <article id="content">
+                <div class="content-header" data-inc="_inc-content-header.html" data-page-title="팝업·배너 이미지 제작"></div>
+                <div class="content-body">
+                    <!-- 본문 영역 -->
+
+<!-- ============================================================
+     팝업·배너 이미지 제작 정적 HTML 산출물
+     기준: WEB-INF/jsp/neibis/core/neibis-source/site/image-maker/list.jsp
+     스타일: assets/neibis/css/style.css > content.css > pages/imageMakerPage.scss
+     스크립트: assets/neibis/js/site/image-maker.js
+     ============================================================ -->
+<div class="image-maker" id="imageMakerRoot">
+	<div class="im-workbar">
+		<div class="im-workbar-main">
+			<div>
+				<p class="im-kicker">빠른 시작</p>
+				<h3>캔버스를 보면서 바로 제작</h3>
+			</div>
+			<p class="im-workbar-note">유형은 추천 시작값만 바꾸며, 크기와 문구, 배경, 위치는 언제든 직접 조정할 수 있습니다.</p>
+		</div>
+		<div class="im-workbar-actions">
+			<button type="button" class="btn btn-md btn-outline-gray" id="imageMakerUndo">되돌리기</button>
+			<button type="button" class="btn btn-md btn-outline-gray" id="imageMakerRedo">다시실행</button>
+			<button type="button" class="btn btn-md btn-outline-gray" id="imageMakerReset">초기화</button>
+			<button type="button" class="btn btn-md btn-primary" id="imageMakerOpenDownload">다운로드</button>
+		</div>
+	</div>
+
+	<div class="im-preset is-collapsed" id="imageMakerPreset">
+		<button type="button" class="im-preset-header" id="imageMakerPresetToggle">
+			<span>
+				<strong>유형 프리셋</strong>
+				<em>추천 시작 크기와 샘플 배치일 뿐 강제 규격이 아닙니다.</em>
+			</span>
+			<span id="imageMakerPresetToggleText" class="im-toggle-text">펼치기</span>
+		</button>
+		<div class="im-preset-body">
+			<div class="im-preset-grid" id="imageMakerPresetGrid" aria-label="이미지 유형"></div>
+			<p>선택한 유형은 캔버스 시작 크기와 추천 배치만 바꿉니다. 크기와 레이어는 다시 조정할 수 있습니다.</p>
+		</div>
+	</div>
+
+	<div class="im-layout">
+		<section class="im-stage" aria-label="이미지 제작 캔버스">
+			<div class="im-stage-head">
+				<div>
+					<p class="im-kicker">미리보기</p>
+					<p class="im-stage-title" id="imageMakerSummary">프로모션 · 1200 x 675px</p>
+					<p class="im-stage-meta">점선 안전영역과 선택 표시는 다운로드 이미지에 포함되지 않습니다.</p>
+				</div>
+				<div class="im-stage-toolbar">
+					<div class="im-insert-tools" aria-label="레이어 추가">
+						<strong class="im-stage-add-label">추가</strong>
+						<button type="button" class="btn btn-sm btn-primary" data-im-add="title">타이틀</button>
+						<button type="button" class="btn btn-sm btn-outline-gray" data-im-add="body">본문</button>
+						<button type="button" class="btn btn-sm btn-outline-gray" data-im-add="button">버튼</button>
+						<button type="button" class="btn btn-sm btn-outline-gray" data-im-add="bullet">말머리</button>
+					</div>
+					<div class="im-canvas-tools">
+						<label class="check-item im-guide-toggle">
+							<input type="checkbox" id="imGuide" checked>
+							<span class="label">잘림 방지 가이드</span>
+						</label>
+						<span class="im-tip" tabindex="0" role="button" aria-label="잘림 방지 가이드 안내">?
+							<span class="im-tip-pop" role="tooltip">점선은 편집 중에만 보이는 안내선입니다. 다운로드 이미지에는 포함되지 않습니다. 제목, 핵심 문구, 버튼은 점선 안쪽에 배치하는 것을 권장합니다.</span>
+						</span>
+						<select class="form-control-sm" id="imZoom" title="확대 비율">
+							<option value="fit" selected>전체 맞춤</option>
+							<option value="width">폭 맞춤</option>
+							<option value="50">50%</option>
+							<option value="75">75%</option>
+							<option value="100">100%</option>
+							<option value="125">125%</option>
+							<option value="150">150%</option>
+							<option value="200">200%</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="im-stage-body" id="imageMakerStageBody">
+				<div class="im-canvas-shell" id="imageMakerCanvasShell">
+					<canvas id="imageMakerCanvas"></canvas>
+					<div class="im-safe-guide" id="imageMakerSafeGuide" aria-hidden="true"></div>
+				</div>
+			</div>
+			<div class="im-status-row">
+				<p id="imageMakerStatusText">프리셋을 선택하거나 오른쪽 값을 변경하면 즉시 반영됩니다.</p>
+				<p id="imageMakerAltPreview">이미지 설명은 다운로드 이미지에 들어가지 않습니다.</p>
+			</div>
+		</section>
+
+		<aside class="im-panel" aria-label="이미지 제작 설정">
+			<div class="im-panel-head">
+				<div>
+					<p class="im-kicker">설정</p>
+					<h3>제작 옵션</h3>
+				</div>
+				<button type="button" class="btn btn-sm btn-outline-gray" id="imageMakerCollapseAll">전체 접기</button>
+			</div>
+
+			<details class="im-section" open>
+				<summary>캔버스 / 이미지</summary>
+				<div class="im-section-body">
+					<p class="im-help">이미지를 올리거나 가로/세로를 직접 입력해 캔버스 기준을 잡습니다.</p>
+					<div class="im-field">
+						<span class="im-field-label">이미지 업로드</span>
+						<label class="im-upload" for="imUpload">
+							<input type="file" id="imUpload" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp">
+							<strong>이미지 업로드</strong>
+							<em>PNG, JPG/JPEG, WebP / 20MB 이하</em>
+						</label>
+						<p class="im-help">SVG, GIF, BMP, 외부 URL은 MVP에서 제외합니다.</p>
+					</div>
+					<label class="im-field">
+						<span>업로드 후 시작 방식</span>
+						<select class="form-control-sm full" id="imUploadStartMode">
+							<option value="fit" selected>캔버스를 이미지 크기에 맞춤</option>
+							<option value="contain">현재 캔버스에 이미지 전체보기</option>
+							<option value="origin">현재 캔버스에 원본 크기로 배치</option>
+						</select>
+					</label>
+					<label class="im-field">
+						<span>이미지 표시 방식</span>
+						<select class="form-control-sm full" id="imImageFit">
+							<option value="cover" selected>채우기 - 캔버스 꽉 채움</option>
+							<option value="contain">전체보기 - 이미지 전체 표시</option>
+							<option value="stretch">늘리기 - 캔버스에 맞춤</option>
+							<option value="origin">원본 크기 - 중앙 배치</option>
+						</select>
+					</label>
+					<button type="button" class="btn btn-sm btn-outline-gray" id="imageMakerClearBg" hidden>이미지 제거</button>
+					<hr class="im-separator">
+					<div class="im-row-2">
+						<label class="im-field">
+							<span>가로(px)</span>
+							<input type="number" class="form-control-sm full" id="imCanvasW" value="1200" min="200" max="5000">
+						</label>
+						<label class="im-field">
+							<span>세로(px)</span>
+							<input type="number" class="form-control-sm full" id="imCanvasH" value="675" min="120" max="5000">
+						</label>
+					</div>
+					<label class="im-field">
+						<span>크기 변경 시 레이어 처리</span>
+						<select class="form-control-sm full" id="imResizeContentMode">
+							<option value="scale" selected>레이어도 비율 맞춰 조정</option>
+							<option value="keep">레이어 위치/크기 유지</option>
+						</select>
+					</label>
+					<label class="check-item im-check-line">
+						<input type="checkbox" id="imLockRatio">
+						<span class="label">비율 고정</span>
+					</label>
+					<p class="im-help im-help--warning">이미지는 20MB 이하, 캔버스는 가로/세로 최대 5000px까지 권장합니다. 스케일 2x 다운로드 시 결과 이미지가 커질 수 있습니다.</p>
+					<div class="im-field">
+						<span class="im-field-label">추천 크기 적용</span>
+						<div class="im-size-grid" id="imageMakerSizeGrid"></div>
+					</div>
+					<hr class="im-separator">
+					<div class="im-field">
+						<span class="im-field-label">배경색 프리셋</span>
+						<div class="im-color-grid" id="imageMakerColorGrid"></div>
+					</div>
+					<div class="im-row-2">
+						<label class="im-field">
+							<span>배경색</span>
+							<input type="color" id="imBgColor" value="#ffffff">
+						</label>
+						<label class="im-field">
+							<span>어둡게</span>
+							<input type="range" id="imOverlay" min="0" max="70" value="0">
+						</label>
+					</div>
+				</div>
+			</details>
+
+			<details class="im-section">
+				<summary>레이어</summary>
+				<div class="im-section-body">
+					<p class="im-help">캔버스에서 직접 선택하거나 아래 레이어를 선택하면 해당 요소의 설정을 수정할 수 있습니다.</p>
+					<div class="im-layer-list" id="imageMakerLayerList"></div>
+					<p class="im-selected-empty" id="imageMakerLayerEmpty" hidden>레이어가 없습니다. 미리보기 상단의 추가 버튼으로 타이틀, 본문, 버튼, 말머리를 추가하세요.</p>
+				</div>
+			</details>
+
+			<details class="im-section">
+				<summary>선택 레이어</summary>
+				<div class="im-section-body">
+					<p class="im-selected-empty" id="imageMakerSelectedEmpty">캔버스 또는 레이어 목록에서 수정할 레이어를 선택하세요.</p>
+					<div id="imageMakerSelectedFields" class="im-selected-fields" hidden>
+						<div class="im-setting-group im-setting-group--content">
+							<div class="im-selected-name" id="imageMakerSelectedName">선택 레이어</div>
+							<label class="im-field">
+								<span>내용</span>
+								<textarea class="form-control-sm full" id="imLayerText" rows="3"></textarea>
+							</label>
+							<div class="im-text-style-panel">
+								<div class="im-style-target-state">
+									<span>스타일 적용 대상</span>
+									<p class="im-selection-status" id="imageMakerApplyScope">전체 텍스트 적용</p>
+								</div>
+								<button type="button" class="btn btn-sm btn-outline-gray" id="imageMakerClearTextSelection" hidden>선택 해제</button>
+							</div>
+						</div>
+						<div class="im-setting-group">
+							<p class="im-setting-title">위치 / 크기</p>
+							<div class="im-field-grid im-field-grid--quad">
+								<label class="im-field"><span>X</span><input type="number" class="form-control-sm full" id="imLayerX"></label>
+								<label class="im-field"><span>Y</span><input type="number" class="form-control-sm full" id="imLayerY"></label>
+								<label class="im-field"><span>가로</span><input type="number" class="form-control-sm full" id="imLayerW"></label>
+								<label class="im-field"><span>세로</span><input type="number" class="form-control-sm full" id="imLayerH"></label>
+							</div>
+						</div>
+						<div class="im-setting-group">
+							<p class="im-setting-title">텍스트</p>
+							<div class="im-row-2 im-row-2--font">
+								<label class="im-field im-field--font">
+									<span>글꼴</span>
+									<select class="form-control-sm full" id="imFontFamily"></select>
+								</label>
+								<label class="im-field">
+									<span>정렬</span>
+									<select class="form-control-sm full" id="imTextAlign">
+										<option value="left">좌측</option>
+										<option value="center">가운데</option>
+										<option value="right">우측</option>
+									</select>
+								</label>
+							</div>
+							<div class="im-row-3 im-row-3--text-style">
+								<label class="im-field"><span>글자 크기</span><input type="number" class="form-control-sm full" id="imFontSize" min="8" max="240"></label>
+								<label class="im-field"><span>색상</span><input type="color" id="imTextColor" value="#ffffff"></label>
+								<label class="check-item im-check-line im-check-line--style">
+									<input type="checkbox" id="imTextBold">
+									<span class="label">굵게</span>
+								</label>
+							</div>
+							<p class="im-mini-label">문자 정렬</p>
+							<div class="im-text-tools">
+								<button type="button" class="btn btn-sm btn-outline-gray" data-im-align="left">좌측</button>
+								<button type="button" class="btn btn-sm btn-outline-gray" data-im-align="center">가운데</button>
+								<button type="button" class="btn btn-sm btn-outline-gray" data-im-align="right">우측</button>
+							</div>
+						</div>
+						<div class="im-setting-group">
+							<p class="im-setting-title">빠른 스타일</p>
+							<div class="im-text-quick-actions">
+								<button type="button" class="btn btn-sm btn-outline-gray" data-im-text-style="headline">제목형</button>
+								<button type="button" class="btn btn-sm btn-outline-gray" data-im-text-style="badge">말머리형</button>
+								<button type="button" class="btn btn-sm btn-outline-gray" data-im-text-style="bullet">목록형</button>
+								<button type="button" class="btn btn-sm btn-outline-gray" data-im-text-style="period">기간형</button>
+							</div>
+						</div>
+						<div class="im-setting-group">
+							<p class="im-setting-title">레이어 배치</p>
+							<div class="im-layer-actions">
+								<button type="button" class="btn btn-sm btn-outline-gray" data-im-position="left">좌측</button>
+								<button type="button" class="btn btn-sm btn-outline-gray" data-im-position="center">가운데</button>
+								<button type="button" class="btn btn-sm btn-outline-gray" data-im-position="right">우측</button>
+								<button type="button" class="btn btn-sm btn-outline-gray" data-im-order="front">맨 앞으로</button>
+								<button type="button" class="btn btn-sm btn-outline-gray" data-im-order="back">맨 뒤로</button>
+								<button type="button" class="btn btn-sm btn-outline-gray" id="imageMakerDeleteSelected">삭제</button>
+							</div>
+						</div>
+						<p class="im-help">텍스트 일부를 드래그 선택한 뒤 글꼴/크기/색상/굵기를 바꾸면 선택 글자에만 적용됩니다. 선택 글자가 없으면 레이어 전체에 적용됩니다.</p>
+					</div>
+				</div>
+			</details>
+
+			<details class="im-section">
+				<summary>배치</summary>
+				<div class="im-section-body">
+					<div class="im-field">
+						<span class="im-field-label">텍스트 위치</span>
+						<div class="im-position-grid" id="imageMakerPositionGrid">
+							<button type="button" data-im-block-position="top-left">좌상</button>
+							<button type="button" data-im-block-position="top-center">상중</button>
+							<button type="button" data-im-block-position="top-right">우상</button>
+							<button type="button" data-im-block-position="middle-left">좌중</button>
+							<button type="button" class="is-active" data-im-block-position="center">중앙</button>
+							<button type="button" data-im-block-position="middle-right">우중</button>
+							<button type="button" data-im-block-position="bottom-left">좌하</button>
+							<button type="button" data-im-block-position="bottom-center">하중</button>
+							<button type="button" data-im-block-position="bottom-right">우하</button>
+						</div>
+					</div>
+					<div class="im-row-2">
+						<label class="im-field">
+							<span>안쪽 여백</span>
+							<input type="range" id="imPadding" min="12" max="160" value="64">
+						</label>
+						<label class="im-field">
+							<span>문단 간격</span>
+							<input type="range" id="imBlockGap" min="0" max="100" value="24">
+						</label>
+					</div>
+				</div>
+			</details>
+
+			<details class="im-section">
+				<summary>강조</summary>
+				<div class="im-section-body">
+					<p class="im-help">같은 단어가 반복될 때 한 번에 강조합니다. 일부 글자만 바꾸려면 선택 레이어에서 글자를 드래그 선택한 뒤 글꼴/크기/색상을 조정하세요.</p>
+					<div class="im-highlight-list" id="imageMakerHighlightList"></div>
+					<button type="button" class="btn btn-sm btn-outline-gray" id="imageMakerAddHighlight">같은 단어 전체 강조</button>
+				</div>
+			</details>
+
+			<details class="im-section">
+				<summary>버튼형 요소</summary>
+				<div class="im-section-body">
+					<label class="check-item im-check-line">
+						<input type="checkbox" id="imShowCta" checked>
+						<span class="label">버튼형 요소 표시</span>
+					</label>
+					<p class="im-help">버튼 레이어를 선택하지 않아도 문구와 색상을 수정할 수 있습니다. 버튼 레이어가 없으면 표시 시 새 버튼을 추가합니다.</p>
+					<div class="im-row-2">
+						<label class="im-field">
+							<span>버튼 문구</span>
+							<input type="text" class="form-control-sm full" id="imCtaText" value="자세히 보기">
+						</label>
+						<label class="im-field">
+							<span>버튼색</span>
+							<input type="color" id="imCtaColor" value="#2563eb">
+						</label>
+					</div>
+					<label class="im-field">
+						<span>버튼 스타일</span>
+						<select class="form-control-sm full" id="imCtaStyle">
+							<option value="pill" selected>라운드</option>
+							<option value="square">사각</option>
+							<option value="outline">테두리</option>
+						</select>
+					</label>
+				</div>
+			</details>
+		</aside>
+	</div>
+
+	<div class="im-modal" id="imageMakerDownloadModal" role="dialog" aria-modal="true" aria-labelledby="imageMakerDownloadTitle" hidden>
+		<div class="im-modal__dim" data-im-close-modal></div>
+		<div class="im-modal__panel">
+			<div class="im-modal__head">
+				<h3 id="imageMakerDownloadTitle">다운로드 설정</h3>
+				<button type="button" class="btn btn-sm btn-outline-gray" data-im-close-modal>닫기</button>
+			</div>
+			<div class="im-modal__body">
+				<label class="im-field">
+					<span>파일명</span>
+					<input type="text" class="form-control-sm full" id="imFileName" value="neibis-image">
+				</label>
+				<div class="im-field">
+					<span class="im-field-label">형식</span>
+					<div class="im-inline-actions">
+						<label class="check-item"><input type="radio" name="imExportFormat" value="png" checked><span class="label">PNG</span></label>
+						<label class="check-item"><input type="radio" name="imExportFormat" value="jpg"><span class="label">JPG</span></label>
+					</div>
+				</div>
+				<label class="im-field">
+					<span>JPG 품질</span>
+					<input type="range" id="imJpgQuality" min="50" max="100" value="90" disabled>
+				</label>
+				<div class="im-field">
+					<span class="im-field-label">스케일</span>
+					<div class="im-inline-actions">
+						<label class="check-item"><input type="radio" name="imExportScale" value="1"><span class="label">1x</span></label>
+						<label class="check-item"><input type="radio" name="imExportScale" value="2" checked><span class="label">2x</span></label>
+					</div>
+					<p class="im-help">2x는 캔버스 가로/세로를 각각 2배로 내보냅니다. 큰 캔버스에서는 다운로드가 느려질 수 있습니다.</p>
+				</div>
+				<label class="im-field">
+					<span>이미지 설명(대체텍스트) 메모</span>
+					<textarea class="form-control-sm full" id="imAltText" rows="3" placeholder="등록화면에 붙여넣을 대체텍스트를 작성하세요."></textarea>
+				</label>
+			</div>
+			<div class="im-modal__foot">
+				<button type="button" class="btn btn-md btn-outline-gray" id="imageMakerCopyAlt">대체텍스트 복사</button>
+				<button type="button" class="btn btn-md btn-outline-gray" data-im-close-modal>취소</button>
+				<button type="button" class="btn btn-md btn-primary" id="imageMakerExport">이미지 다운로드</button>
+			</div>
+		</div>
+	</div>
+
+	<p class="im-toast" id="imageMakerToast" role="status" aria-live="polite" hidden></p>
+	<p class="im-responsive-note">화면 폭이 좁아 편집 사용성이 제한됩니다. 설정 패널은 캔버스 아래로 배치됩니다. 1366px 이상 데스크톱을 권장합니다.</p>
+</div>
+
+<script src="../../assets/vendor/fabric/7.4.0/fabric.min.js"></script>
+<script src="../../assets/neibis/js/site/image-maker.js?v=20260601-26"></script>
+                    <!-- // 본문 영역 -->
+                </div>
+            </article>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>샘플 공공서비스 | 오시는 길</title>
+  <link rel="shortcut icon" href="../../../assets/sample/images/common/favicon.png" />
+  <link rel="stylesheet" href="../../../assets/sample/css/common.css" />
+  <link rel="stylesheet" href="../../../assets/sample/css/sub.css" />
+  <script src="../../../assets/sample/js/ui.js" defer></script>
+</head>
+<body>
+
+  <!-- 건너뛰기 링크 -->
+  <nav class="skip-nav" aria-label="바로가기">
+    <a href="#content">본문 바로가기</a>
+    <a href="#lnb">좌측메뉴 바로가기</a>
+    <a href="#footer">푸터 바로가기</a>
+  </nav>
+
+  <!-- 전체메뉴 -->
+  <div class="allmenu-dim" aria-hidden="true"></div>
+  <div class="allmenu-panel" role="dialog" aria-label="전체메뉴">
+    <div class="allmenu-panel__head">
+      <img class="allmenu-panel__logo" src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      <button class="allmenu-panel__close" type="button" data-allmenu-close aria-label="전체메뉴 닫기">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M2 2L14 14M14 2L2 14" stroke="rgba(255,255,255,0.65)" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="allmenu-panel__body">
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">기관소개</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./인사말.html">인사말</a></li>
+          <li><a class="allmenu-section__link" href="./연혁.html">연혁</a></li>
+          <li><a class="allmenu-section__link" href="./오시는-길.html">오시는 길</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">알림소식</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./게시판-목록.html">공지사항</a></li>
+          <li><a class="allmenu-section__link" href="./게시판-목록.html">보도자료</a></li>
+          <li><a class="allmenu-section__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+          <li><a class="allmenu-section__link" href="./FAQ.html">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">이용안내</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./개인정보처리방침.html">개인정보처리방침</a></li>
+        </ul>
+      </div>
+      <div class="allmenu-section">
+        <div class="allmenu-section__head">참여마당</div>
+        <ul>
+          <li><a class="allmenu-section__link" href="./고객의소리-목록.html">고객의소리</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 롤링배너 -->
+  <div class="rolling-banner" role="region" aria-label="공지 롤링배너">
+    <div class="rolling-banner__inner">
+      <span class="rolling-banner__label">알림</span>
+      <div class="rolling-banner__content">
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">공지</span>
+          <a class="rolling-banner__title" href="#">2025년 상반기 주요사업 추진 계획 안내</a>
+          <span class="rolling-banner__date">2025.04.15</span>
+        </div>
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">사업</span>
+          <a class="rolling-banner__title" href="#">디지털 행정서비스 개선 과제 공모 결과 발표</a>
+          <span class="rolling-banner__date">2025.04.10</span>
+        </div>
+        <div class="rolling-banner__item">
+          <span class="rolling-banner__tag">공지</span>
+          <a class="rolling-banner__title" href="#">정보보호의 달 운영 안내 및 보안교육 일정</a>
+          <span class="rolling-banner__date">2025.04.03</span>
+        </div>
+      </div>
+      <div class="rolling-banner__controls">
+        <button class="rolling-banner__arrow" type="button" data-rolling-prev aria-label="이전 공지">‹</button>
+        <span class="rolling-banner__count" aria-live="polite">1/3</span>
+        <button class="rolling-banner__arrow" type="button" data-rolling-next aria-label="다음 공지">›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 헤더 -->
+  <header class="site-header" role="banner">
+    <div class="site-header__inner">
+      <a class="site-logo" href="./메인.html" aria-label="샘플 공공서비스 홈으로 이동">
+        <img class="site-logo__img" src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </a>
+      <nav class="site-gnb" id="gnb" aria-label="주메뉴">
+        <ul class="site-gnb__list">
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link is-active" href="#" aria-current="page">기관소개</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./인사말.html">인사말</a></li>
+                  <li><a class="gnb-dropdown__link" href="./연혁.html">연혁</a></li>
+                  <li><a class="gnb-dropdown__link" href="./오시는-길.html">오시는 길</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">알림소식</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./게시판-목록.html">공지사항</a></li>
+                  <li><a class="gnb-dropdown__link" href="./게시판-목록.html">보도자료</a></li>
+                  <li><a class="gnb-dropdown__link" href="./포토갤러리-목록.html">포토갤러리</a></li>
+                  <li><a class="gnb-dropdown__link" href="./FAQ.html">FAQ</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">이용안내</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./개인정보처리방침.html">개인정보처리방침</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <li class="site-gnb__item" data-gnb>
+            <a class="site-gnb__link" href="#">참여마당</a>
+            <div class="gnb-dropdown" aria-hidden="true">
+              <div class="gnb-dropdown__inner">
+                <ul class="gnb-dropdown__list">
+                  <li><a class="gnb-dropdown__link" href="./고객의소리-목록.html">고객의소리</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </nav>
+      <div class="site-header__actions">
+        <a class="btn-login" href="./로그인.html">로그인</a>
+        <button class="btn-allmenu" type="button" data-allmenu-open aria-expanded="false">
+          <span class="btn-allmenu__bars" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span>전체메뉴</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 오시는 길 콘텐츠 -->
+  <main id="content">
+
+    <!-- 브레드크럼 -->
+    <div class="breadcrumb-bar">
+      <div class="breadcrumb-bar__inner">
+        <nav class="breadcrumb" aria-label="현재 위치">
+          <span class="breadcrumb__item">
+            <a href="./메인.html">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-label="홈" style="display:inline-block;vertical-align:middle;margin-bottom:1px;">
+                <path d="M1 5.5L6.5 1L12 5.5V12H8.5V8H4.5V12H1V5.5Z" stroke="#A0A8B8" stroke-width="1.2" stroke-linejoin="round"/>
+              </svg>
+              홈
+            </a>
+          </span>
+          <span class="breadcrumb__sep" aria-hidden="true">›</span>
+          <span class="breadcrumb__item"><a href="#">기관소개</a></span>
+          <span class="breadcrumb__sep" aria-hidden="true">›</span>
+          <span class="breadcrumb__item" aria-current="page">오시는 길</span>
+        </nav>
+      </div>
+    </div>
+
+    <!-- 서브 레이아웃 -->
+    <div class="sub-layout">
+      <div class="sub-layout__inner">
+
+        <!-- LNB -->
+        <aside class="lnb" id="lnb" aria-label="좌측 메뉴">
+          <div class="lnb__section-title">기관소개</div>
+          <ul class="lnb__list">
+            <li class="lnb__item"><a class="lnb__link" href="./인사말.html">인사말</a></li>
+            <li class="lnb__item"><a class="lnb__link" href="./연혁.html">연혁</a></li>
+            <li class="lnb__item"><a class="lnb__link is-active" href="./오시는-길.html" aria-current="page">오시는 길</a></li>
+          </ul>
+        </aside>
+
+        <!-- 콘텐츠 -->
+        <div class="sub-content">
+
+          <div class="sub-content__title-bar">
+            <h1 class="sub-content__title">오시는 길</h1>
+          </div>
+
+          <!-- ============================================================
+               운영 데이터 슬롯: LOCATION_MAP_SLOT
+               JSP Action: /orgn/intro/selectOrgnLocation.do
+               Model: orgn (기관 정보), mapInfo (지도 설정 정보)
+
+               지도 표시 방식 선택 (운영 환경에 맞게 하나만 활성화):
+
+               [방식 A] 지도 API (카카오맵 / 네이버지도) — 권장
+                 — mapInfo.mapApiKey, mapInfo.lat, mapInfo.lng 설정 필요
+                 — 해당 지도 API 스크립트를 <head> 또는 본문 하단에 추가
+                 — .map-api-container의 height는 CSS에서 380px (모바일 260px)
+
+               [방식 B] 정적 이미지 — API 미도입 시 대안
+                 — mapInfo.mapImgPath, mapInfo.mapImgAlt 설정 필요
+
+               [기본] 지도 데이터 없을 때 — .map-no-data 노출
+          ============================================================ -->
+
+          <!-- ── (A) 지도 API — 운영 시 주석 해제 ── -->
+          <!--
+          <div class="map-api-wrap">
+            <div class="map-api-container" id="mapContainer"
+                 role="application"
+                 aria-label="${orgn.orgnNm} 위치 지도 (카카오맵)"
+                 data-lat="${mapInfo.lat}"
+                 data-lng="${mapInfo.lng}"
+                 data-zoom="${mapInfo.zoomLevel}">
+            </div>
+          </div>
+
+          <script>
+            // 카카오맵 API 예시
+            // kakao.maps.load(function() {
+            //   var container = document.getElementById('mapContainer');
+            //   var options = {
+            //     center: new kakao.maps.LatLng(
+            //       container.dataset.lat, container.dataset.lng
+            //     ),
+            //     level: container.dataset.zoom || 3
+            //   };
+            //   var map = new kakao.maps.Map(container, options);
+            //   var marker = new kakao.maps.Marker({ position: options.center });
+            //   marker.setMap(map);
+            // });
+          </script>
+          -->
+
+          <!-- ── (B) 정적 이미지 — 운영 시 주석 해제 ── -->
+          <!--
+          <div class="map-static-wrap">
+            <img src="${mapInfo.mapImgPath}"
+                 alt="${orgn.orgnNm} 위치 지도"
+                 onerror="this.parentElement.style.display='none'" />
+          </div>
+          -->
+
+          <!-- 지도 없음 참고용 (map-no-data 클래스 — CMS 등록 범위 밖) -->
+          <!--
+          <div class="map-no-data" role="img" aria-label="지도 정보 없음">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+              <circle cx="18" cy="18" r="16" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M18 11v8M18 23v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            지도 정보를 불러올 수 없습니다.
+          </div>
+          -->
+
+          <!-- CMS_CONTENT_START: 이 아래부터 콘텐츠 본문 등록 영역 -->
+
+          <!-- 퍼블 기본 플레이스홀더 — 운영 시 위 (A) 또는 (B) 방식으로 대체 -->
+          <div class="map-wrap" role="img" aria-label="지도 영역 (운영 시 실제 지도 표시)">
+            <svg width="56" height="56" viewBox="0 0 56 56" fill="none" aria-hidden="true">
+              <path d="M28 6C19.16 6 12 13.16 12 22c0 12 16 28 16 28s16-16 16-28c0-8.84-7.16-16-16-16z" stroke="#D6DBE5" stroke-width="2"/>
+              <circle cx="28" cy="22" r="5" stroke="#D6DBE5" stroke-width="2"/>
+            </svg>
+            <span style="font-size:13px; color:#B8C0CC;">지도 영역 (운영 시 카카오맵 또는 정적 이미지로 대체)</span>
+          </div>
+
+          <!-- LOCATION_INFO_SLOT — JSP: orgn.zipNo / rdnmaAdr / dtlAdr / rprsTelno / telnoTm / faxNo / emlAddr -->
+          <p class="location-section-title">주소 안내</p>
+          <table class="location-table">
+            <tbody>
+              <tr>
+                <th scope="row">주소</th>
+                <!-- JSP: <td>(${orgn.zipNo}) ${orgn.rdnmaAdr} ${orgn.dtlAdr}</td> -->
+                <td>(00000) 서울특별시 OO구 OO로 000 샘플공공서비스빌딩</td>
+              </tr>
+              <tr>
+                <th scope="row">대표전화</th>
+                <!-- JSP: <td><span class="location-highlight">${orgn.rprsTelno}</span> (${orgn.telnoTm})</td> -->
+                <td><span class="location-highlight">02-000-0000</span> (평일 09:00~18:00)</td>
+              </tr>
+              <tr>
+                <th scope="row">팩스</th>
+                <!-- JSP: <td>${orgn.faxNo}</td> -->
+                <td>02-000-0001</td>
+              </tr>
+              <tr>
+                <th scope="row">이메일</th>
+                <!-- JSP: <td><a href="mailto:${orgn.emlAddr}">${orgn.emlAddr}</a></td> -->
+                <td><a href="mailto:contact@sample.go.kr">contact@sample.go.kr</a></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- TRANSPORT_INFO_SLOT — JSP: c:forEach var="trnsp" items="${transportList}" → trnsp.trnspNm / trnsp.trnspDc -->
+          <p class="location-section-title">교통편 안내</p>
+          <table class="location-table">
+            <tbody>
+              <tr>
+                <th scope="row">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="display:inline-block;vertical-align:middle;margin-right:4px;">
+                    <rect x="4" y="3" width="16" height="15" rx="3" stroke="#1A56B0" stroke-width="1.5"/>
+                    <path d="M4 10h16" stroke="#1A56B0" stroke-width="1.5"/>
+                    <circle cx="8" cy="19" r="2" stroke="#1A56B0" stroke-width="1.5"/>
+                    <circle cx="16" cy="19" r="2" stroke="#1A56B0" stroke-width="1.5"/>
+                  </svg>
+                  지하철
+                </th>
+                <!-- JSP: <td>${trnsp.trnspDc}</td> -->
+                <td>
+                  OO선 OO역 X번 출구 도보 5분<br/>
+                  OO선 OO역 X번 출구 도보 10분
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="display:inline-block;vertical-align:middle;margin-right:4px;">
+                    <rect x="3" y="6" width="18" height="12" rx="3" stroke="#1A56B0" stroke-width="1.5"/>
+                    <circle cx="7.5" cy="18" r="2" stroke="#1A56B0" stroke-width="1.5"/>
+                    <circle cx="16.5" cy="18" r="2" stroke="#1A56B0" stroke-width="1.5"/>
+                    <path d="M3 10h18" stroke="#1A56B0" stroke-width="1.5"/>
+                  </svg>
+                  버스
+                </th>
+                <td>
+                  간선버스 000, 000번 &mdash; OO정류장 하차 후 도보 3분<br/>
+                  지선버스 0000번 &mdash; OO앞 정류장 하차
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="display:inline-block;vertical-align:middle;margin-right:4px;">
+                    <path d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v7a2 2 0 01-2 2h-2" stroke="#1A56B0" stroke-width="1.5" stroke-linejoin="round"/>
+                    <circle cx="9" cy="19" r="2" stroke="#1A56B0" stroke-width="1.5"/>
+                    <circle cx="17" cy="19" r="2" stroke="#1A56B0" stroke-width="1.5"/>
+                  </svg>
+                  자가용
+                </th>
+                <td>
+                  OO고속도로 OO IC 진출 후 OO방향 5분<br/>
+                  <span style="color:#888; font-size:12.5px;">※ 주차 가능 (지하 1~3층, 2시간 무료)</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- CMS_CONTENT_END: 이 위까지 콘텐츠 본문 등록 영역 -->
+
+        </div>
+        <!-- /sub-content -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="site-footer" id="footer" role="contentinfo">
+    <div class="site-footer__inner">
+      <div class="site-footer__logo">
+        <img src="../../../assets/sample/images/common/img-logo.png" alt="샘플 공공서비스" />
+      </div>
+      <div class="site-footer__info">
+        <p class="site-footer__address">
+          (00000) 서울특별시 OO구 OO로 000 &nbsp;|&nbsp;
+          대표전화: 02-000-0000 &nbsp;|&nbsp;
+          팩스: 02-000-0001
+        </p>
+        <p class="site-footer__copy">Copyright &copy; 샘플 공공서비스. All Rights Reserved.</p>
+      </div>
+      <div class="site-footer__links">
+        <a class="site-footer__link is-point" href="./개인정보처리방침.html">개인정보처리방침</a>
+        <a class="site-footer__link" href="#">이용약관</a>
+        <a class="site-footer__link" href="#">사이트맵</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,94 @@
+// d-up-{bp}: {bp} 이상에서만 보임(PC 전용 요소). d-down-{bp}: {bp} 미만에서만 보임(모바일 전용 요소).
+
+.d-block {
+	display: block;
+}
+.d-inline-block {
+	display: inline-block;
+}
+.d-inline {
+	display: inline;
+}
+.d-flex {
+	display: flex;
+}
+.d-inline-flex {
+	display: inline-flex;
+}
+.d-grid {
+	display: grid;
+}
+.d-none {
+	display: none;
+}
+
+.d-up-sm {
+	@include mq-down(sm) {
+		display: none !important;
+	}
+}
+.d-down-sm {
+	@include mq-up(sm) {
+		display: none !important;
+	}
+}
+.d-up-md {
+	@include mq-down(md) {
+		display: none !important;
+	}
+}
+.d-down-md {
+	@include mq-up(md) {
+		display: none !important;
+	}
+}
+.d-up-lg {
+	@include mq-down(lg) {
+		display: none !important;
+	}
+}
+.d-down-lg {
+	@include mq-up(lg) {
+		display: none !important;
+	}
+}
+
+// Flex 유틸리티
+.flex-row {
+	flex-direction: row;
+}
+.flex-column {
+	flex-direction: column;
+}
+.flex-wrap {
+	flex-wrap: wrap;
+}
+.flex-nowrap {
+	flex-wrap: nowrap;
+}
+
+.flex-align-start {
+	align-items: flex-start;
+}
+.flex-align-center {
+	align-items: center;
+}
+.flex-align-end {
+	align-items: flex-end;
+}
+
+.flex-justify-start {
+	justify-content: flex-start;
+}
+.flex-justify-center {
+	justify-content: center;
+}
+.flex-justify-end {
+	justify-content: flex-end;
+}
+.flex-justify-between {
+	justify-content: space-between;
+}
+.flex-justify-around {
+	justify-content: space-around;
+}

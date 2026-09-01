@@ -1,0 +1,36 @@
+// .masthead(국가상징 배너)는 header와 분리된 별도 형제 요소.
+.masthead {
+	position: relative;
+	z-index: $z-masthead;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: $spacing-2;
+	height: $masthead-height;
+	font-size: $font-size-body-small;
+	background-color: $color-secondary-5;
+
+	> .inner {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: $spacing-2;
+		max-width: none;
+		padding-inline: $spacing-8;
+	}
+
+	@include mq-down(xl) {
+		> .inner {
+			padding-inline: $spacing-4;
+		}
+	}
+
+	@include mq-down(md) {
+		> .inner {
+			padding-left: $spacing-4;
+			padding-right: 0;
+		}
+	}
+}

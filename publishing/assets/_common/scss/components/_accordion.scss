@@ -1,0 +1,136 @@
+// height:auto는 트랜지션이 안 되므로, ui-global.js가 .accordion-body의 scrollHeight를 재서
+// .accordion-panel의 max-height를 0 ↔ 실제값으로 직접 지정해 애니메이션한다.
+
+.accordion-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	gap: $spacing-3;
+	padding: $spacing-4;
+	font-size: $font-size-body-medium;
+	font-weight: $font-weight-bold;
+	color: $text-basic;
+	text-align: left;
+
+	&.btn {
+		justify-content: center;
+	}
+
+	&::after {
+		content: "";
+		flex-shrink: 0;
+		@include square(map-get($icon-sizes, xl));
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: contain;
+		@include icon-set(ico_arrow_darkgray);
+		transition: transform 0.2s ease;
+	}
+
+	&[aria-expanded="true"] {
+		color: $text-primary;
+
+		&::after {
+			transform: rotate(180deg);
+		}
+	}
+}
+
+.accordion-panel {
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.25s ease;
+}
+
+.accordion-body {
+	padding: 0 $spacing-4 $spacing-4;
+}
+
+.accordion-item {
+	border: 1px solid $border-gray-light;
+	border-radius: 0.8rem;
+
+	& + .accordion-item {
+		margin-top: $spacing-2;
+	}
+}
+
+// 라인형
+.accordion-line {
+	border-top: 1px solid $border-gray-light;
+
+	.accordion-item {
+		border: 0;
+		border-radius: 0;
+		border-bottom: 1px solid $border-gray-light;
+
+		& + .accordion-item {
+			margin-top: 0;
+		}
+	}
+}
+
+// FAQ형
+.accordion-faq {
+	.accordion-toggle {
+		padding-block: 1.8rem;
+		padding-inline: 2.4rem 2.8rem;
+		gap: 2.4rem;
+
+		&::after {
+			@include square(2.4rem);
+			@include icon-set(ico_plus);
+			background-size: 2.6rem;
+		}
+
+		&[aria-expanded="true"] {
+			color: inherit;
+			background-color: $bg-primary-subtler;
+		}
+
+		&[aria-expanded="true"]::after {
+			transform: rotate(45deg);
+		}
+	}
+
+	.accordion-badge {
+		flex-shrink: 0;
+		font-weight: $font-weight-bold;
+		color: $text-primary-dark;
+	}
+
+	.accordion-toggle-text {
+		flex: 1;
+		line-height: 1.5em;
+	}
+
+	.accordion-item:has(.accordion-toggle[aria-expanded="true"]) {
+		background-color: $bg-gray-subtler;
+	}
+
+	.accordion-body {
+		display: flex;
+		gap: $spacing-3;
+		padding: $spacing-8 $spacing-15;
+
+		.accordion-badge {
+			color: $text-subtle;
+		}
+	}
+
+	@include mq-down(sm) {
+		.accordion-toggle {
+			padding: 1.2rem 1.6rem;
+			gap: 1.6rem;
+		}
+
+		.accordion-badge {
+			align-self: baseline;
+		}
+
+		.accordion-body {
+			padding: $spacing-4;
+		}
+	}
+}

@@ -1,0 +1,175 @@
+// 탭 (Tab)
+
+.tab {
+	display: flex;
+	width: 100%;
+}
+
+.tab-list {
+	display: flex;
+	gap: $spacing-2;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	width: 100%;
+}
+
+.tab-item {
+	display: flex;
+	align-items: center;
+}
+
+.tab-link {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 6rem;
+	padding-top: 0.3rem;
+	padding-inline: $spacing-1;
+	font-size: $font-size-heading-xsmall;
+	font-weight: $font-weight-bold;
+	color: $text-subtle;
+	text-decoration: none;
+	border-bottom: 3px solid transparent;
+	transition: color 0.15s ease, border-color 0.15s ease;
+
+	&:hover {
+		color: $text-primary;
+	}
+
+	&.is-active,
+	&[aria-selected="true"] {
+		color: $color-secondary-80;
+		border-bottom-color: $color-secondary-80;
+	}
+}
+
+// 둥근 캡슐 / 필 형태 탭 (tab-pills)
+.tab-pills {
+	.tab-list {
+		gap: $spacing-2;
+	}
+
+	.tab-link {
+		height: 4rem;
+		padding-inline: 1.6rem;
+		border-radius: 2rem;
+		border: 1px solid $border-gray-light;
+		background-color: $bg-white;
+		font-size: $font-size-body-small;
+
+		&.is-active,
+		&[aria-selected="true"] {
+			color: $text-inverse;
+			background-color: $color-primary-50;
+			border-color: $color-primary-50;
+		}
+	}
+}
+
+// 박스 채움 형태 탭 (tab-fill)
+.tab-fill {
+	display: flex;
+	width: 100%;
+	background-color: $bg-white;
+	overflow: hidden;
+	border-radius: 0.8rem;
+
+	.tab-list {
+		display: flex;
+		width: 100%;
+		gap: 0;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.tab-item {
+		flex: 1;
+		min-width: 0;
+		display: flex;
+		overflow: hidden;
+		transition: border-color 0.15s ease, color 0.15s ease;
+
+		& + .tab-item {
+			border-style: solid;
+			border-width: 1px 1px 1px 0;
+			border-color: $border-gray;
+		}
+
+		&:first-child {
+			border: 1px solid $border-gray;
+			border-radius: 0.8rem 0 0 0.8rem;
+		}
+
+		&:last-child {
+			border-radius: 0 0.8rem 0.8rem 0;
+		}
+
+		&:hover {
+			.tab-link {
+				color: $text-primary;
+				background-color: $bg-primary-subtler;
+			}
+		}
+
+		&:has(.is-active),
+		&:has([aria-selected="true"]) {
+			border-color: $color-secondary-70;
+			.tab-link {
+				color: $text-inverse;
+				background-color: $color-secondary-70;
+			}
+		}
+	}
+
+	.tab-link {
+		width: 100%;
+		height: 5.6rem;
+		padding-inline: 1.6rem;
+		font-size: $font-size-heading-xsmall;
+		font-weight: $font-weight-bold;
+		color: $text-subtle;
+		text-align: center;
+		border-bottom: 0;
+		border-radius: 0;
+		background-color: transparent;
+		transition: background-color 0.15s ease, color 0.15s ease;
+	}
+
+	@include mq-down(md) {
+		overflow-x: auto;
+		overflow-y: hidden;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+
+		&::-webkit-scrollbar {
+			display: none;
+		}
+
+		.tab-list {
+			width: max-content;
+			min-width: 100%;
+			flex-wrap: nowrap;
+			gap: 0.8rem;
+		}
+
+		.tab-item {
+			flex: 0 0 auto;
+			border-radius: 0.6rem !important;
+			border: none !important;
+		}
+
+		.tab-link {
+			white-space: nowrap;
+			padding-inline: 1.2rem;
+			height: 4.8rem;
+		}
+	}
+}
+
+// 탭 패널 숨김 상태 CSS 우선순위 보장
+[data-tab-panel][hidden],
+[data-tab-panel]:not(.is-active) {
+	display: none !important;
+}

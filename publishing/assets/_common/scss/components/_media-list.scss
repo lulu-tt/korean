@@ -1,0 +1,109 @@
+// 미디어 리스트 (Media List - 사진 생활어 등)
+
+.media-list {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+
+	.text-primary-dark {
+		font-weight: $font-weight-bold;
+	}
+}
+
+.media-list-item {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 2.4rem;
+	padding-block: 2.4rem;
+	border-bottom: 1px solid $border-gray-light;
+
+	&:first-child {
+		padding-top: 0;
+	}
+
+	&:hover {
+		text-decoration: underline;
+		text-underline-offset: 0.4rem;
+	}
+
+	@include mq-down(md) {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 2.4rem;
+	}
+}
+
+.media-list-thumb {
+	flex-shrink: 0;
+	width: 18rem;
+	height: 13rem;
+	border-radius: 1.2rem;
+	overflow: hidden;
+	background-color: $bg-gray-subtle;
+
+	img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+}
+
+.media-list-content {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 1.2rem;
+}
+
+.media-list-title {
+	font-size: $font-size-heading-small;
+	font-weight: $font-weight-bold;
+	color: $text-basic;
+
+	a {
+		&::after {
+			content: "";
+			position: absolute;
+			inset: 0;
+		}
+	}
+}
+
+.media-list-desc {
+	color: $text-subtle;
+	line-height: 1.6;
+	@include line-clamp(2);
+
+	@include mq-down(md) {
+		@include line-clamp(3);
+	}
+}
+
+.media-list-meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 1.2rem;
+	font-size: $font-size-body-small;
+	color: $text-subtle;
+	margin-top: 0.4rem;
+	@include mq-down(md) {
+		flex-direction: column;
+		align-items: flex-start;
+		row-gap: 0.4rem;
+	}
+}
+
+.media-list-meta-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	margin: 0;
+
+	dt,
+	dd {
+		margin: 0;
+	}
+}
