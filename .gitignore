@@ -19,3 +19,5 @@ data/dialect_phonology_compare/
 *.json.bak
 .DS_Store
 sm_*_big.png
+.vercel
+.env*

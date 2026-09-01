@@ -283,7 +283,12 @@
       "Bash(grep -n \"mapId:\\\\|Ctx = {\\\\|Ctx={\\\\|hoverRegion\\\\|updateMapWithSearchResults\\\\|lastRegionData =\\\\|inlineMapCtx\\\\|vocabMapCtx\\\\|= {\\\\s*$\" vocab_dialect.html)",
       "Bash(grep -rEn \"pk\\\\.[A-Za-z0-9_-]{10,}\" .)",
       "Bash(curl -k -s --max-time 25 \"https://dialect.inseq.co.kr:9443/dialect/map/dialect\" -o /tmp/dialect_map_live.html -w \"HTTP %{http_code} | size %{size_download} bytes | %{url_effective}\\\\n\")",
-      "Bash(grep -oEn \"access_token=[A-Za-z0-9._-]*|pk\\\\.[A-Za-z0-9._-]{20,}|sk\\\\.[A-Za-z0-9._-]{20,}|apikey[=\\\\\"': ]+[A-Za-z0-9._-]+|apiKey[=\\\\\"': ]+[A-Za-z0-9._-]+|key[=\\\\\"': ]+[A-Za-z0-9._-]{15,}|vworld[^\\\\\"'<> ]*|ncpKeyId[^\\\\\"'<> ]*|X-NCP-APIGW[^\\\\\"'<> ]*|dawul[^\\\\\"'<> ]*\" dialect_map_live.html)"
+      "Bash(grep -oEn \"access_token=[A-Za-z0-9._-]*|pk\\\\.[A-Za-z0-9._-]{20,}|sk\\\\.[A-Za-z0-9._-]{20,}|apikey[=\\\\\"': ]+[A-Za-z0-9._-]+|apiKey[=\\\\\"': ]+[A-Za-z0-9._-]+|key[=\\\\\"': ]+[A-Za-z0-9._-]{15,}|vworld[^\\\\\"'<> ]*|ncpKeyId[^\\\\\"'<> ]*|X-NCP-APIGW[^\\\\\"'<> ]*|dawul[^\\\\\"'<> ]*\" dialect_map_live.html)",
+      "Bash(curl -sS -m 20 -o gadm_PRK_2.json.zip -w 'HTTP %{http_code}  size=%{size_download}\\\\n' https://geodata.ucdavis.edu/gadm/gadm4.1/json/gadm41_PRK_2.json.zip)",
+      "Bash(unzip -o -q gadm_PRK_2.json.zip)",
+      "Bash(awk '{print $5}')",
+      "Bash(node convert_nk.js)",
+      "Bash(cp nkorea-municipalities.js /Users/aaa/inseq/korean/nkorea-municipalities.js)"
     ]
   }
 }
