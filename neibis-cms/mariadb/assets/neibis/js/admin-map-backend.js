@@ -70,8 +70,39 @@
     return hits[0].id;
   }
 
+  /* 정적 배포(Vercel·GitHub Pages)에는 CMS API 가 없다 — 404 다.
+     그때는 내보내 둔 표제어별 사본으로 물러난다.
+     scripts/export_cms_static.py 가 게시중 표제어만 뽑아 둔다(비게시는 사본이 없다).
+     사본으로 뜬 경우 STATIC 을 세워, 화면이 저장·삭제를 막고 그 사실을 알린다. */
+  var STATIC_BASE = '/neibis-cms/mariadb/neibis/data/cms';
+  var staticCache = {};
+
+  function staticMapUrl(hn) { return STATIC_BASE + '/map/' + encodeURIComponent(hn) + '.json'; }
+
+  function loadStaticMap(hn) {
+    if (staticCache[hn]) return Promise.resolve(staticCache[hn]);
+    return fetch(staticMapUrl(hn), { headers: { 'Accept': 'application/json' } })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (d) { staticCache[hn] = d; return d; });
+  }
+
   function getJSON(url) {
-    return fetch(url, { headers: { 'Accept': 'application/json' } }).then(function (r) { return r.json(); });
+    return fetch(url, { headers: { 'Accept': 'application/json' } })
+      .then(function (r) {
+        if (!r.ok) throw new Error(r.status);
+        return r.json();
+      })
+      .catch(function () {
+        // API 가 없다 → 사본에서 같은 조각을 꺼내 준다
+        var m = String(url).match(/headwordNo=([^&]+)/);
+        if (!m) return { ok: false };
+        var hn = decodeURIComponent(m[1]);
+        var part = url.indexOf('/dialect/list') >= 0 ? 'dialect' : 'detail';
+        return loadStaticMap(hn).then(function (d) {
+          Backend.STATIC = true;
+          return (d && d[part]) || { ok: false };
+        }).catch(function () { return { ok: false }; });
+      });
   }
   function postJSON(path, body) {
     return fetch(API + path, {

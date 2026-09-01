@@ -103,6 +103,58 @@ SPECS = [
 BBS_IDS = ['246', '251', '252', '253', '254', '256']
 
 
+def export_map_previews(m):
+    """표제어별 지도 미리보기 자료 — 게시중인 것만.
+
+    dialect-editor.html 의 AdminMapBackend.hydrate() 가 표제어마다
+    headword/detail 과 dialect/list 를 부른다. 표제어당 1KB 안팎이라
+    파일로 쪼개 둔다. 전체 2,556개는 2.6MB — 배포본은 열람용이므로
+    실제로 보여 줄 게시중 항목만 담는다.
+    """
+    det = getattr(m, 'api_headword_detail', None)
+    dia = getattr(m, 'api_dialect_list', None)
+    if det is None or dia is None:
+        print('  map/                   건너뜀 — headword_detail·dialect_list 가 없음')
+        return
+
+    lst = m.api_headword_list({'SearchType': ['3'], 'page': ['1'], 'pageSize': ['300'], 'status': ['published']})
+    nos, page = [], 1
+    while True:
+        r = m.api_headword_list({'SearchType': ['3'], 'page': [str(page)],
+                                 'pageSize': ['300'], 'status': ['published']})
+        got = r.get('list') or []
+        nos.extend(x['headwordNo'] for x in got)
+        if len(nos) >= (r.get('total') or 0) or not got:
+            break
+        page += 1
+
+    d = os.path.join(OUT, 'map')
+    os.makedirs(d, exist_ok=True)
+    total = 0
+    for no in nos:
+        try:
+            a = det({'headwordNo': [str(no)]})
+            b = dia({'headwordNo': [str(no)], 'full': ['1']})
+        except Exception:
+            continue
+        blob = {'detail': a, 'dialect': b}
+        fp = os.path.join(d, '%s.json' % no)
+        io.open(fp, 'w', encoding='utf-8').write(
+            json.dumps(blob, ensure_ascii=False, separators=(',', ':')))
+        total += os.path.getsize(fp)
+    print('  map/*.json             %6d개  %7.1f KB  (게시중만)' % (len(nos), total / 1024))
+
+    cat = getattr(m, 'api_symbol_catalog', None)
+    if cat is not None:
+        try:
+            fp = os.path.join(OUT, 'symbol_catalog.json')
+            io.open(fp, 'w', encoding='utf-8').write(
+                json.dumps(cat({}), ensure_ascii=False, separators=(',', ':')))
+            print('  symbol_catalog.json           %7.1f KB' % (os.path.getsize(fp) / 1024))
+        except Exception as e:
+            print('  symbol_catalog.json    실패 —', e)
+
+
 def main():
     m = load_serve()
     print('정적 대체본 생성')
@@ -117,6 +169,8 @@ def main():
             raise
         except Exception as e:
             print('  %-22s 실패 — %s' % (name, e))
+
+    export_map_previews(m)
 
     fn = getattr(m, 'api_board_post_list', None)
     if fn is not None:

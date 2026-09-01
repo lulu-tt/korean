@@ -6,6 +6,8 @@
     }
   },
   "rewrites": [
+    { "source": "/user-map/:path*", "destination": "/:path*" },
+
     { "source": "/api/weather/:act",  "destination": "/api/index?action=weather-:act" },
     { "source": "/api/wordcard/:act", "destination": "/api/index?action=wordcard-:act" },
 

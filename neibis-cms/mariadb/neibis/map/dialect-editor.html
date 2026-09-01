@@ -1976,6 +1976,36 @@ const getMngrFail = function (xhr, status, error) {
       .catch(function(){ alert('삭제 API 호출 실패'); });
   }
 
+  /* 정적 배포에서는 저장 API 가 없다. 눌러 봐야 실패하므로 아예 막고 먼저 알린다.
+     읽기 전용으로 두어도 지도·범례·부호는 그대로 보인다. */
+  function applyReadOnly(){
+    if (document.getElementById('aeReadOnly')) return;
+    // 저장·삭제 계열을 모두 막는다 (id 로 잡히는 것 + 글자로 잡히는 것)
+    var ids = ['ae-hdr-del','btn-hw-save','btn-df-del','btn-df-save','btn-rg-del'];
+    var targets = [];
+    ids.forEach(function(id){ var e = document.getElementById(id); if(e) targets.push(e); });
+    Array.prototype.forEach.call(document.querySelectorAll('button, a.btn'), function(b){
+      if (/저장|삭제/.test(b.textContent || '')) targets.push(b);
+    });
+    targets.forEach(function(b){
+      b.disabled = true;
+      b.style.opacity = .4;
+      b.style.pointerEvents = 'none';
+      b.setAttribute('aria-disabled', 'true');
+      b.title = '이 배포에서는 저장할 수 없습니다';
+    });
+    var host = document.querySelector('.mm-main') || document.querySelector('.contents')
+            || document.querySelector('article') || document.body;
+    var p = document.createElement('p');
+    p.id = 'aeReadOnly';
+    p.style.cssText = 'margin:0 0 10px;padding:9px 12px;border-radius:8px;background:#eff6ff;'
+      + 'border:1px solid #bfdbfe;color:#1e40af;font-size:12.5px';
+    p.innerHTML = '<b>읽기 전용</b>입니다 — 이 배포에는 관리 API 가 없어'
+      + ' 내려받은 사본으로 보고 있습니다. 저장·삭제는 되지 않습니다.'
+      + ' 게시 중인 표제어만 사본이 있습니다.';
+    host.insertBefore(p, host.firstChild);
+  }
+
   if (!window.MyMapStore || !window.AdminMapBackend){
     alert('의존 스크립트 로드 실패');
     return;
@@ -1999,7 +2029,14 @@ const getMngrFail = function (xhr, status, error) {
   // 부호 카탈로그를 DB(symbol.html 와 동일 소스)에서 로드 → 편집기 부팅 전에 교체
   function loadSymbolCatalog(){
     return fetch('/mariadb/neibis-api/symbol/catalog', { headers:{ 'Accept':'application/json' } })
-      .then(function(r){ return r.json(); })
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .catch(function(){
+        /* 정적 배포에는 CMS API 가 없다 — 내보내 둔 카탈로그 사본을 쓴다 */
+        return fetch('/neibis-cms/mariadb/neibis/data/cms/symbol_catalog.json',
+                     { headers:{ 'Accept':'application/json' } })
+          .then(function(r){ return r.ok ? r.json() : { ok:false }; })
+          .catch(function(){ return { ok:false }; });
+      })
       .then(function(res){
         if(res && res.ok && res.list && res.list.length && MyMapStore.setSymbolCatalog){
           MyMapStore.setSymbolCatalog(res.list.map(function(s){
@@ -2015,6 +2052,7 @@ const getMngrFail = function (xhr, status, error) {
     if (hn){
       var hdrDel = document.getElementById('ae-hdr-del'); if(hdrDel) hdrDel.style.display = '';
       AdminMapBackend.hydrate(hn).then(function(){
+        if (AdminMapBackend.STATIC) applyReadOnly();
         MyMapStore.setSelectedHeadwordNo(hn);
         injectEditor();
       }).catch(function(e){
