@@ -1390,55 +1390,61 @@ const getMngrFail = function (xhr, status, error) {
 		<!-- Modal Popup : 변이형 항목 일괄 등록 -->
 
 		<style>
+			/* .vb- 접두사 고정 — 공통 테마 클래스와 겹치면 레이아웃이 조용히 무너진다 */
 			#layer-variant-bulk .popup-inner{
-				width: 440px;
+				width: 620px;
 				max-width: calc(100% - 40px);
 				margin-left: auto;
 				margin-right: auto;
 			}
-			#layer-variant-bulk .table-form-basic th{
+			/* 판별 결과 안에도 표(.vb-counts)가 들어가므로 폼 표 규칙은 바깥
+			   표의 직계 행에만 건다. 안 그러면 안쪽 표의 라벨까지 같이 밀린다. */
+			#layer-variant-bulk .table-form-basic > .table-inner > table > tbody > tr > th{
 				width: 130px !important;
 				white-space: nowrap;
+				/* th 는 flex-wrap:wrap 이라 align-items 가 먹지 않는다 — 줄 배치를
+				   정하는 건 align-content 쪽이다. 내용이 긴 행에서 라벨이 한복판에
+				   내려앉지 않게 한다. */
+				align-content: flex-start;
+				padding-top: 14px;
 			}
 			#layer-variant-bulk .file-picker{
 				display: inline-flex;
 				align-items: center;
 				gap: 8px;
+				position: relative;
 				cursor: pointer;
-				margin: 0;
 			}
 			#layer-variant-bulk .file-picker input[type="file"]{
 				position: absolute;
-				width: 1px;
-				height: 1px;
-				padding: 0;
-				margin: -1px;
-				overflow: hidden;
-				clip: rect(0 0 0 0);
-				border: 0;
+				inset: 0;
+				width: 100%;
+				height: 100%;
+				opacity: 0;
+				cursor: pointer;
 			}
 			#layer-variant-bulk .file-picker .file-btn{
-				display: inline-block;
-				padding: 5px 12px;
+				display: inline-flex;
+				align-items: center;
+				height: 34px;
+				padding: 0 14px;
 				border: 1px solid #d1d5db;
-				border-radius: 6px;
+				border-radius: 4px;
 				background: #f3f4f6;
-				color: #374151;
 				font-size: 13px;
-				line-height: 1.4;
+				color: #374151;
 				white-space: nowrap;
 			}
 			#layer-variant-bulk .file-picker:hover .file-btn{ background: #e5e7eb; }
 			#layer-variant-bulk .file-name{
-				color: #6b7280;
 				font-size: 13px;
+				color: #9ca3af;
 			}
 			#layer-variant-bulk .file-name.has-file{ color: #374151; }
-			#layer-variant-bulk .input-addon{ color: #374151; }
-			#layer-variant-bulk #bulkKindGroup{
+			#layer-variant-bulk .vb-tpl{
 				display: flex;
 				flex-wrap: wrap;
-				gap: 6px 18px;
+				gap: 6px;
 			}
 			#layer-variant-bulk .bulk-kind-desc{
 				margin: 6px 0 0;
@@ -1446,6 +1452,89 @@ const getMngrFail = function (xhr, status, error) {
 				font-size: 12px;
 				line-height: 1.5;
 			}
+
+			/* 판별 결과 */
+			#layer-variant-bulk .vb-result{ margin: 0; }
+			#layer-variant-bulk .vb-status{
+				font-size: 13px;
+				color: #6b7280;
+			}
+			#layer-variant-bulk .vb-file{
+				border: 1px solid #e5e7eb;
+				border-radius: 6px;
+				padding: 12px 14px;
+				margin-bottom: 8px;
+				background: #fff;
+			}
+			#layer-variant-bulk .vb-file + .vb-file{ margin-top: 0; }
+			#layer-variant-bulk .vb-fname{
+				font-size: 12px;
+				color: #6b7280;
+				word-break: break-all;
+				margin: 0 0 6px;
+			}
+			#layer-variant-bulk .vb-kind{
+				font-size: 14px;
+				font-weight: 700;
+				color: #111827;
+				margin: 0 0 2px;
+			}
+			#layer-variant-bulk .vb-kind .vb-meta{
+				font-weight: 400;
+				color: #4b5563;
+				font-size: 13px;
+			}
+			#layer-variant-bulk .vb-unit + .vb-unit{
+				margin-top: 12px;
+				padding-top: 12px;
+				border-top: 1px dashed #e5e7eb;
+			}
+			/* 표가 아니라 그리드다 — 테마가 tr 을 flex-wrap 으로 그려서
+			   안쪽에 <table> 을 쓰면 라벨과 값이 제멋대로 줄바꿈된다. */
+			#layer-variant-bulk .vb-counts{
+				margin: 8px 0 0;
+				font-size: 13px;
+			}
+			#layer-variant-bulk .vb-row{
+				display: grid;
+				grid-template-columns: 56px minmax(0, 1fr);
+				gap: 0 8px;
+				padding: 3px 0;
+			}
+			#layer-variant-bulk .vb-lb{ color: #6b7280; font-weight: 500; }
+			#layer-variant-bulk .vb-vl{ color: #374151; min-width: 0; }
+			#layer-variant-bulk .vb-new{ color: #1d4ed8; font-weight: 700; }
+			#layer-variant-bulk .vb-zero{ color: #9ca3af; font-weight: 400; }
+			#layer-variant-bulk .vb-names{
+				display: block;
+				margin-top: 3px;
+				color: #4b5563;
+				font-size: 12px;
+				line-height: 1.6;
+			}
+			#layer-variant-bulk .vb-warn{
+				margin: 8px 0 0;
+				padding: 8px 10px;
+				border-radius: 4px;
+				background: #fef3c7;
+				border: 1px solid #fde68a;
+				color: #92400e;
+				font-size: 12px;
+				line-height: 1.6;
+			}
+			#layer-variant-bulk .vb-err{
+				background: #fee2e2;
+				border-color: #fecaca;
+				color: #991b1b;
+			}
+			#layer-variant-bulk .vb-fix{ margin-top: 10px; }
+			#layer-variant-bulk .vb-fix > summary{
+				cursor: pointer;
+				font-size: 12px;
+				color: #6b7280;
+				list-style: revert;
+			}
+			#layer-variant-bulk .vb-fix > div{ padding: 10px 0 0 14px; }
 		</style>
 
 		<div class="modal-popup modal-lg hide" id="layer-variant-bulk">
@@ -1460,56 +1549,52 @@ const getMngrFail = function (xhr, status, error) {
 							<table>
 								<caption class="sr-only">변이형 비교 일괄 등록</caption>
 								<colgroup>
-									<col style="width:150px" />
+									<col style="width:130px" />
 									<col />
 								</colgroup>
 								<tbody>
 									<tr>
-										<th scope="row" style="white-space:nowrap"><span>업로드 유형<i class="req">필수입력</i></span></th>
-										<td>
-											<div class="check-group" id="bulkKindGroup">
-												<label class="check-item"><input type="radio" name="bulkKind" value="item" checked /><span class="label">① 항목(비교단위)</span></label>
-												<label class="check-item"><input type="radio" name="bulkKind" value="site" /><span class="label">② 조사지점</span></label>
-												<label class="check-item"><input type="radio" name="bulkKind" value="resp" /><span class="label">③ 지점 응답(통합자료)</span></label>
-												<label class="check-item"><input type="radio" name="bulkKind" value="respOne" /><span class="label">③-1 지점 응답(개별)</span></label>
-											</div>
-											<p class="bulk-kind-desc" id="bulkKindDesc"></p>
-										</td>
-									</tr>
-									<tr>
-										<th scope="row" style="white-space:nowrap"><span>대상 도(道)</span></th>
-										<td>
-											<select class="form-control" id="bulkProvince" style="max-width:220px">
-												<option value="">파일에서 자동 판별</option>
-												<option value="GG">경기</option>
-												<option value="GW">강원</option>
-												<option value="CB">충북</option>
-												<option value="CN">충남</option>
-												<option value="JB">전북</option>
-												<option value="JN">전남</option>
-												<option value="GB">경북</option>
-												<option value="GN">경남</option>
-												<option value="JJ">제주</option>
-											</select>
-											<p class="bulk-kind-desc">파일명으로 도를 판별합니다. 파일명을 바꿔 올리는 경우 여기서 지정하세요.</p>
-										</td>
-									</tr>
-									<tr>
-										<th scope="row" style="white-space:nowrap"><span>엑셀파일등록<i class="req">필수입력</i></span></th>
+										<th scope="row"><span>엑셀파일등록<i class="req">필수입력</i></span></th>
 										<td>
 											<label class="file-picker">
-												<input type="file" id="bulkExcelFileVariant" name="excelFile" accept=".xls,.xlsx" required onchange="bulkFileName(this,'bulkExcelNameVariant')" />
+												<input type="file" id="bulkExcelFileVariant" name="excelFile" accept=".xls,.xlsx" multiple required onchange="bulkFileName(this,'bulkExcelNameVariant'); vbPreview();" />
 												<span class="file-btn">파일 선택</span>
 												<span class="file-name" id="bulkExcelNameVariant">선택된 파일 없음</span>
 											</label>
-											<p class="bulk-kind-desc">국립국어원 지역어조사보고서 통합자료(.xls/.xlsx)는 변형 없이 «③ 지점 응답» 유형으로 그대로 올릴 수 있습니다.</p>
+											<p class="bulk-kind-desc">국립국어원 지역어조사보고서 통합자료(.xls/.xlsx)를 변형 없이 그대로 올릴 수 있습니다. 여러 개를 한 번에 골라도 됩니다.<br />읽는 시트는 <strong>「음운」 한 장</strong>입니다 &mdash; A·B열이 항목, 2행 헤더가 조사지점, 나머지 셀이 응답입니다. 도(道)는 파일명에서 자동 판별합니다.</p>
+										</td>
+									</tr>
+									<tr id="bulkResultRow" style="display:none">
+										<th scope="row"><span>반영 예정</span></th>
+										<td>
+											<div class="vb-result" id="bulkResult"></div>
+											<details class="vb-fix" id="bulkFix">
+												<summary>자동 판별이 틀렸다면 여기서 바로잡기</summary>
+												<div>
+													<select class="form-control" id="bulkProvince" style="max-width:220px">
+														<option value="">대상 도 &mdash; 파일에서 자동 판별</option>
+														<option value="GG">경기</option>
+														<option value="GW">강원</option>
+														<option value="CB">충북</option>
+														<option value="CN">충남</option>
+														<option value="JB">전북</option>
+														<option value="JN">전남</option>
+														<option value="GB">경북</option>
+														<option value="GN">경남</option>
+														<option value="JJ">제주</option>
+													</select>
+													<p class="bulk-kind-desc">도는 파일명으로 판별합니다. 파일명을 바꿔 올린 경우에만 지정하세요.</p>
+												</div>
+											</details>
 										</td>
 									</tr>
 									<tr>
 										<th scope="row">서식 파일</th>
 										<td>
-											<button type="button" class="btn btn-sm btn-outline-gray" onclick="bulkTemplateDown()"><i class="ico ico-download-gray-md"></i><span>저장</span></button>
-											<p class="bulk-kind-desc">유형 4종의 시트와 작성 규칙이 한 파일에 들어 있습니다.</p>
+											<div class="vb-tpl">
+												<button type="button" class="btn btn-sm btn-outline-gray" onclick="bulkTemplateDown()"><i class="ico ico-download-gray-md"></i><span>서식 내려받기 (9개 도, zip)</span></button>
+											</div>
+											<p class="bulk-kind-desc">압축을 풀면 도별 9개 파일이 나옵니다. <strong>조사지점(2행 C열부터)은 이미 채워져 있으니</strong> 3행부터 항목번호·표준어·응답만 적으면 됩니다 &mdash; 지점 헤더는 고치지 마세요(글자가 달라지면 새 지점이 됩니다).<br />채운 칸만 반영되고 <strong>적지 않은 칸은 건드리지 않습니다.</strong> 필요한 도만 골라 올려도 됩니다.<br />결측은 빈칸 또는 «*», 한 지점에 이형태가 둘 이상이면 «|»로 구분합니다. <strong>데이터 아래에 메모를 적지 마세요</strong> &mdash; 데이터 행으로 읽힙니다.</p>
 										</td>
 									</tr>
 								</tbody>
@@ -1520,7 +1605,7 @@ const getMngrFail = function (xhr, status, error) {
 				<div class="popup-footer">
 					<div class="btn-group-center">
 						<button type="button" class="btn btn-lg btn-outline-gray" data-modal="close">취소</button>
-						<button type="button" class="btn btn-lg btn-primary" onclick="variantBulkSave()"><i class="ico ico-save-white-md"></i><span>저장</span></button>
+						<button type="button" class="btn btn-lg btn-primary" id="bulkSaveBtn" onclick="variantBulkSave()"><i class="ico ico-save-white-md"></i><span>저장</span></button>
 					</div>
 				</div>
 			</form>
@@ -1539,8 +1624,9 @@ const getMngrFail = function (xhr, status, error) {
 				span.classList.remove('has-file');
 			}
 		}
-		// 일괄등록 서식(xlsx). 생성 스크립트: scripts/make_variant_bulk_template.py
-		var BULK_TEMPLATE_FILE = '변이형비교_일괄등록_양식.xlsx';
+		// 도별 9개 파일을 zip 하나로. 생성 스크립트: scripts/make_variant_bulk_template.py
+		// 파일 1개 = 도 1개 = 「음운」 시트 1장 — 국립국어원 통합자료와 같은 모양이다.
+		var BULK_TEMPLATE_FILE = '지역별이형태_일괄등록_양식.zip';
 		function bulkTemplateDown(){
 			var a = document.createElement('a');
 			a.href = 'data/' + encodeURIComponent(BULK_TEMPLATE_FILE);
@@ -1549,61 +1635,269 @@ const getMngrFail = function (xhr, status, error) {
 			a.click();
 			document.body.removeChild(a);
 		}
-		function bulkExcelSave(excelInputId, kind){
-			var xls = document.getElementById(excelInputId);
-			if(!xls || !xls.files || xls.files.length === 0){
-				if(window.Message){ Message.alert({icon:'warning', message:'엑셀 파일을 등록해 주세요.'}); }
-				else { alert('엑셀 파일을 등록해 주세요.'); }
-				if(xls) xls.focus();
-				return;
-			}
-			var kindText = (kind && kind.info)
-				? (kind.info.label + ' — 「' + kind.info.sheet + '」 시트')
-				: '';
-			var doneMsg = function(){
-				var msg = '정적 프로토타입입니다. 실제 업로드는 수행되지 않습니다.'
-					+ (kindText ? ('\n선택한 유형: ' + kindText) : '');
-				if(window.Message){ Message.alert({icon:'info', message:msg}); }
-				else { alert(msg); }
-			};
-			if(window.Message){
-				Message.confirm({
-					icon:'warning',
-					title:'일괄 등록하시겠어요?',
-					message:(kindText ? (kindText + '(으)로 처리합니다. ') : '') + '등록하시려면 ‘확인’을 눌러주세요.'
-				}, doneMsg);
-			}else if(confirm('일괄 등록하시겠어요?' + (kindText ? ('\n' + kindText) : ''))){
-				doneMsg();
-			}
-		}
 		</script>
 
 		<script>
-		// 업로드 유형 = 일괄등록의 '단위'. 서식(xlsx)의 시트와 1:1 대응한다.
-		var BULK_KINDS = {
-			item:    { label: '① 항목(비교단위)',      sheet: '①항목',          unit: '한 행 = 한 항목' },
-			site:    { label: '② 조사지점',            sheet: '②조사지점',      unit: '한 행 = 한 지점' },
-			resp:    { label: '③ 지점 응답(통합자료)', sheet: '③응답(음운)',    unit: '행 = 항목, 열 = 지점' },
-			respOne: { label: '③-1 지점 응답(개별)',   sheet: '③-1응답(개별)', unit: '한 행 = 한 응답' }
-		};
-		function bulkKind(){
-			var el = document.querySelector('input[name=bulkKind]:checked');
-			var key = el ? el.value : 'item';
-			return { key: key, info: BULK_KINDS[key] || BULK_KINDS.item };
+		// 업로드 유형은 묻지 않는다. 시트 이름만으로 갈리는 값이고(원본은 '음운',
+		// 서식은 '①항목'…), 도(道)는 파일명에서 나온다. 대신 반영 예정 내역 —
+		// 특히 새로 생길 지점 — 을 미리 보여주고 확인받는다.
+		var VB_PREVIEW_API = '/mariadb/neibis-api/survey/variant/bulk-preview';
+		var VB_COMMIT_API  = '/mariadb/neibis-api/survey/variant/bulk-commit';
+		var vbLast = null;   // 마지막 미리보기 응답
+		// 테마가 select 변경을 한 번 더 흘려 보내 요청이 겹친다. 순번을 붙여
+		// 늦게 온 헌 응답이 새 결과를 덮어쓰지 못하게 한다(9개 동시 업로드에서 특히).
+		var vbSeq = 0;
+		var vbAbort = null;
+
+		function vbNum(n){ return (n || 0).toLocaleString('ko-KR'); }
+		function vbEsc(s){
+			return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+				return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c];
+			});
 		}
-		function bulkKindDescSync(){
-			var k = bulkKind();
-			var el = document.getElementById('bulkKindDesc');
-			if(el){ el.textContent = '서식의 「' + k.info.sheet + '」 시트를 사용합니다. ' + k.info.unit + '.'; }
+		// 신규는 파랑·굵게, 0은 흐리게 — 눈이 '새로 생기는 것'에 먼저 가야 한다
+		function vbCount(nNew, labelNew, nOld, labelOld){
+			var a = '<span class="' + (nNew ? 'vb-new' : 'vb-zero') + '">'
+				+ labelNew + ' ' + vbNum(nNew) + '</span>';
+			return nOld == null ? a : (a + ' <span class="vb-zero">/</span> ' + labelOld + ' ' + vbNum(nOld));
 		}
+
+		function vbUnitHtml(u, prov){
+			if(!u.ok){
+				return '<div class="vb-unit"><div class="vb-warn vb-err">'
+					+ vbEsc(u.message || '해석하지 못했습니다.') + '</div></div>';
+			}
+			var meta = [];
+			if(prov && prov.name) meta.push(vbEsc(prov.name));
+			meta.push('「' + vbEsc(u.sheet) + '」 시트');
+			if(u.rows != null) meta.push(vbNum(u.rows) + '행');
+
+			var row = function (label, body) {
+				return '<div class="vb-row"><span class="vb-lb">' + label
+					+ '</span><span class="vb-vl">' + body + '</span></div>';
+			};
+			var h = '<div class="vb-unit">'
+				+ '<p class="vb-kind">' + vbEsc(u.kindLabel)
+				+ ' <span class="vb-meta">· ' + meta.join(' · ') + '</span></p>'
+				+ '<div class="vb-counts">';
+
+			if(u.items){
+				h += row('항목', vbCount(u.items['new'], '신규', u.items.update, '갱신'));
+			}
+			if(u.sites){
+				var v = vbCount(u.sites['new'], '신규', u.sites.exist, '기존');
+				// 새 지점은 이름까지 보여 준다. 무통제 생성을 막는 건 유형 선택이 아니라 이 목록이다.
+				if((u.sites.newList || []).length){
+					v += '<span class="vb-names">' + u.sites.newList.map(vbEsc).join(' · ') + '</span>';
+				}
+				h += row('지점', v);
+			}
+			if(u.responses){
+				var w = vbCount(u.responses['new'], '신규', u.responses.overwrite, '덮어씀');
+				if(u.responses.filled != null){
+					w += '<span class="vb-names">응답 있음 ' + vbNum(u.responses.filled)
+						+ ' · 결측 ' + vbNum(u.responses.missing)
+						// 이 파일에 없는 칸은 건드리지 않는다 — 일부만 채워 올려도 안전하다
+						+ (u.responses.keep ? (' · 손대지 않음 ' + vbNum(u.responses.keep)) : '')
+						+ '</span>';
+				}
+				h += row('응답', w);
+			}
+			h += '</div>';
+			(u.warnings || []).forEach(function (w) {
+				h += '<div class="vb-warn">' + vbEsc(w) + '</div>';
+			});
+			return h + '</div>';
+		}
+
+		function vbRender(res){
+			var box = document.getElementById('bulkResult');
+			if(!box) return;
+			var h = '';
+			(res.warnings || []).forEach(function (w) {
+				h += '<div class="vb-warn">' + vbEsc(w) + '</div>';
+			});
+			(res.files || []).forEach(function (f) {
+				h += '<div class="vb-file"><p class="vb-fname">' + vbEsc(f.fileName) + '</p>';
+				if(!f.ok && !(f.units || []).length){
+					h += '<div class="vb-warn vb-err">' + vbEsc(f.message || '해석하지 못했습니다.') + '</div>';
+				}else{
+					(f.units || []).forEach(function (u) { h += vbUnitHtml(u, u.province || f.province); });
+				}
+				(f.warnings || []).forEach(function (w) {
+					h += '<div class="vb-warn">' + vbEsc(w) + '</div>';
+				});
+				h += '</div>';
+			});
+			box.innerHTML = h || '<p class="vb-status">표시할 내용이 없습니다.</p>';
+		}
+
+		// 팝업을 비우는 유일한 지점. 취소·ESC·바깥클릭 등 닫는 경로가 여러 개라
+		// «닫을 때»가 아니라 «열 때»도 반드시 여기를 지나게 한다.
+		function vbResetBulk(){
+			vbSeq++;                      // 떠 있는 미리보기 응답을 무효로 만든다
+			if(vbAbort){ vbAbort.abort(); vbAbort = null; }
+			vbLast = null;
+			var f = document.getElementById('bulkExcelFileVariant');
+			if(f){ f.value = ''; bulkFileName(f, 'bulkExcelNameVariant'); }
+			var prov = document.getElementById('bulkProvince');
+			if(prov) prov.value = '';
+			var fix = document.getElementById('bulkFix');
+			if(fix) fix.removeAttribute('open');
+			var box = document.getElementById('bulkResult');
+			if(box) box.innerHTML = '';
+			var row = document.getElementById('bulkResultRow');
+			if(row) row.style.display = 'none';
+			var btn = document.getElementById('bulkSaveBtn');
+			if(btn) btn.disabled = false;
+		}
+		window.vbResetBulk = vbResetBulk;
+
+		function vbSetBusy(msg){
+			document.getElementById('bulkResultRow').style.display = '';
+			document.getElementById('bulkResult').innerHTML =
+				'<p class="vb-status">' + vbEsc(msg) + '</p>';
+		}
+
+		function vbPreview(){
+			var input = document.getElementById('bulkExcelFileVariant');
+			var row = document.getElementById('bulkResultRow');
+			vbLast = null;
+			if(!input || !input.files || !input.files.length){
+				row.style.display = 'none';
+				return;
+			}
+			vbSetBusy('파일을 읽는 중입니다…');
+			var fd = new FormData();
+			for(var i = 0; i < input.files.length; i++){ fd.append('excelFile', input.files[i]); }
+			var prov = document.getElementById('bulkProvince');
+			if(prov && prov.value) fd.append('province', prov.value);
+
+			var seq = ++vbSeq;
+			if(vbAbort) vbAbort.abort();
+			vbAbort = (window.AbortController ? new AbortController() : null);
+
+			fetch(VB_PREVIEW_API, { method: 'POST', body: fd, signal: vbAbort && vbAbort.signal })
+				.then(function (r) { return r.json(); })
+				.then(function (res) {
+					if(seq !== vbSeq) return;          // 그 사이 새 요청이 떴다
+					vbLast = res;
+					if(res.ok === false && !(res.files || []).length){
+						document.getElementById('bulkResult').innerHTML =
+							'<div class="vb-warn vb-err">' + vbEsc(res.message || '읽지 못했습니다.') + '</div>';
+						return;
+					}
+					vbRender(res);
+				})
+				.catch(function (e) {
+					if(seq !== vbSeq || e.name === 'AbortError') return;
+					document.getElementById('bulkResult').innerHTML =
+						'<div class="vb-warn vb-err">미리보기를 불러오지 못했습니다: ' + vbEsc(e.message) + '</div>';
+				});
+		}
+
+		// 확인 문구는 화면에 뜬 숫자를 그대로 되읽는다 — 다른 근거로 만들지 않는다
+		function vbSummary(res){
+			var t = { item: 0, site: 0, resp: 0 }, sites = [], files = 0;
+			(res.files || []).forEach(function (f) {
+				if(!f.ok) return;
+				files++;
+				(f.units || []).forEach(function (u) {
+					if(u.items) t.item += u.items['new'] || 0;
+					if(u.sites){ t.site += u.sites['new'] || 0; sites = sites.concat(u.sites.newList || []); }
+					if(u.responses) t.resp += u.responses['new'] || 0;
+				});
+			});
+			return { files: files, totals: t, sites: sites };
+		}
+
 		function variantBulkSave(){
-			var k = bulkKind();
-			bulkExcelSave('bulkExcelFileVariant', k);
+			var input = document.getElementById('bulkExcelFileVariant');
+			if(!input || !input.files || !input.files.length){
+				if(window.Message){ Message.alert({icon:'warning', message:'엑셀 파일을 등록해 주세요.'}); }
+				else { alert('엑셀 파일을 등록해 주세요.'); }
+				return;
+			}
+			if(!vbLast){
+				if(window.Message){ Message.alert({icon:'warning', message:'판별이 끝나기를 기다려 주세요.'}); }
+				else { alert('판별이 끝나기를 기다려 주세요.'); }
+				return;
+			}
+			var s = vbSummary(vbLast);
+			if(!s.files){
+				if(window.Message){ Message.alert({icon:'warning', message:'해석에 성공한 파일이 없습니다. 위 내용을 확인해 주세요.'}); }
+				else { alert('해석에 성공한 파일이 없습니다.'); }
+				return;
+			}
+			var lines = [
+				'파일 ' + s.files + '개 · 신규 항목 ' + vbNum(s.totals.item)
+					+ ' · 신규 지점 ' + vbNum(s.totals.site)
+					+ ' · 신규 응답 ' + vbNum(s.totals.resp)
+			];
+			if(s.sites.length){
+				lines.push('새로 생기는 지점: ' + s.sites.slice(0, 12).join(', ')
+					+ (s.sites.length > 12 ? (' 외 ' + (s.sites.length - 12) + '곳') : ''));
+			}
+			var msg = lines.join('\n');
+			if(window.Message){
+				Message.confirm({ icon:'warning', title:'이대로 반영하시겠어요?', message: msg }, vbCommit);
+			}else if(confirm('이대로 반영하시겠어요?\n' + msg)){
+				vbCommit();
+			}
 		}
-		document.addEventListener('DOMContentLoaded', function(){
-			var g = document.getElementById('bulkKindGroup');
-			if(g){ g.addEventListener('change', bulkKindDescSync); }
-			bulkKindDescSync();
+
+		function vbAlert(icon, message){
+			if(window.Message){ Message.alert({icon: icon, message: message}); }
+			else { alert(message); }
+		}
+
+		// 적재는 미리보기와 같은 파일·같은 해석기를 쓴다. 보여 준 숫자와 갈리지 않는다.
+		function vbCommit(){
+			var input = document.getElementById('bulkExcelFileVariant');
+			var btn = document.getElementById('bulkSaveBtn');
+			if(!input || !input.files || !input.files.length) return;
+
+			var fd = new FormData();
+			for(var i = 0; i < input.files.length; i++){ fd.append('excelFile', input.files[i]); }
+			var prov = document.getElementById('bulkProvince');
+			if(prov && prov.value) fd.append('province', prov.value);
+
+			btn.disabled = true;
+			vbSetBusy('적재하는 중입니다… 항목·지점·응답을 다시 내보내느라 시간이 걸립니다.');
+
+			fetch(VB_COMMIT_API, { method: 'POST', body: fd })
+				.then(function (r) { return r.json(); })
+				.then(function (res) {
+					btn.disabled = false;
+					if(!res.ok){
+						vbRender({ files: res.files || [] });
+						vbAlert('warning', res.message || '적재하지 못했습니다.');
+						return;
+					}
+					var t = res.totals || {};
+					vbAlert('success', '적재를 마쳤습니다.\n'
+						+ '파일 ' + res.applied + '개 · 목록 ' + vbNum(res.seedItems) + '항목\n'
+						+ '전체: 항목 ' + vbNum(t.items) + ' · 지점 ' + vbNum(t.sites)
+						+ ' · 응답 ' + vbNum(t.responses));
+					// 목록은 DB 기준으로 다시 세운다
+					if(window.vbReloadSeed) window.vbReloadSeed();
+					if(window.closeBulk) window.closeBulk();
+				})
+				.catch(function (e) {
+					btn.disabled = false;
+					document.getElementById('bulkResult').innerHTML =
+						'<div class="vb-warn vb-err">적재하지 못했습니다: ' + vbEsc(e.message) + '</div>';
+				});
+		}
+
+		$(function(){
+			// 테마가 select 를 커스텀 위젯으로 바꾸므로 네이티브 이벤트 대신 jQuery 로 받는다
+			$('#bulkProvince').on('change', vbPreview);
+			// 취소 버튼은 테마의 data-modal="close" 가 처리한다 — 우리 초기화를 부르지
+			// 않으므로 여기서 따로 받는다.
+			$('#layer-variant-bulk').on('click', '[data-modal="close"]', vbResetBulk);
+			// 닫는 경로를 다 못 잡아도 열 때 비우면 지난 파일이 남지 않는다.
+			$('#btnBulkOpen').on('click', vbResetBulk);
 		});
 		</script>
 
@@ -1626,16 +1920,22 @@ const getMngrFail = function (xhr, status, error) {
     var d = new Date();
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
   }
-  function loadLocal() {
+  function loadLocalRaw() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return null;
-      var data = JSON.parse(raw);
-      return Array.isArray(data.items) ? data.items : null;
+      return raw ? JSON.parse(raw) : null;
     } catch (e) { return null; }
   }
+  function loadLocal() {
+    var d = loadLocalRaw();
+    return d && Array.isArray(d.items) ? d.items : null;
+  }
   function saveLocal() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ items: state.items, updated: today() }));
+    // seedRev = 이 캐시가 어느 시드에서 나왔는지. 일괄 적재로 시드가 바뀌면
+    // 값이 달라져서, 옛 캐시를 붙들고 옛 목록을 보여 주는 일을 막는다.
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      items: state.items, updated: today(), seedRev: state.seedRev || ''
+    }));
   }
   function nextId() {
     var max = 0;
@@ -1669,10 +1969,12 @@ const getMngrFail = function (xhr, status, error) {
     };
   }
   function loadSeed(force) {
-    return fetch(SEED_URL).then(function (r) {
+    // force 면 캐시를 건너뛴다 — 적재 직후 옛 시드를 다시 읽으면 화면이 안 바뀐다
+    return fetch(SEED_URL + (force ? ('?t=' + Date.now()) : '')).then(function (r) {
       if (!r.ok) throw new Error('seed HTTP ' + r.status);
       return r.json();
     }).then(function (data) {
+      state.seedRev = String(data.revision || data.updated || '');
       var items = (data.items || []).map(normalizeItem);
       if (force || !loadLocal()) {
         state.items = items;
@@ -2174,10 +2476,17 @@ const getMngrFail = function (xhr, status, error) {
     });
     saveLocal();
   }
+  // 일괄 적재 뒤 목록을 DB 기준으로 다시 세운다. localStorage 를 남겨 두면
+  // 적재해도 화면이 그대로라 "안 들어갔다"로 보인다.
+  window.vbReloadSeed = function () {
+    localStorage.removeItem(STORAGE_KEY);
+    procCache = {};
+    return loadSeed(true);
+  };
+
   window.closeBulk = function () {
     $('#layer-variant-bulk').addClass('hide').removeClass('show');
-    var f = document.getElementById('bulkExcelFileVariant');
-    if (f) { f.value = ''; bulkFileName(f, 'bulkExcelNameVariant'); }
+    if (window.vbResetBulk) window.vbResetBulk();
   };
 
   function saveForm() {
@@ -2383,13 +2692,28 @@ const getMngrFail = function (xhr, status, error) {
       else if (act === 'del') deleteIds([id]);
     });
 
-    var local = loadLocal();
-    if (local && local.length) {
-      state.items = local.map(normalizeItem);
+    // 캐시가 있어도 시드를 먼저 확인한다. 예전에는 캐시가 있으면 시드를 아예
+    // 읽지 않아, 일괄 적재나 전체 삭제를 해도 그 브라우저에는 옛 목록이 남았다.
+    var cached = loadLocalRaw();
+    var cachedItems = cached && Array.isArray(cached.items) ? cached.items : null;
+    fetch(SEED_URL + '?t=' + Date.now()).then(function (r) {
+      if (!r.ok) throw new Error('seed HTTP ' + r.status);
+      return r.json();
+    }).then(function (data) {
+      var rev = String(data.revision || data.updated || '');
+      state.seedRev = rev;
+      if (!cachedItems || String(cached.seedRev || '') !== rev) {
+        state.items = (data.items || []).map(normalizeItem);   // 서버 쪽이 바뀌었다
+        saveLocal();
+      } else {
+        state.items = cachedItems.map(normalizeItem);
+      }
       applyFilter(true);
-    } else {
-      loadSeed(true);
-    }
+    }).catch(function (err) {
+      console.warn(err);
+      state.items = (cachedItems || []).map(normalizeItem);
+      applyFilter(true);
+    });
   });
 })();
 		</script>

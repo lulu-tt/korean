@@ -6110,6 +6110,521 @@ def api_weather_delete(body: dict) -> dict:
             "message": f"{n}건 삭제되었습니다. 집계 재계산이 필요합니다."}
 
 
+# ── 지역별 이형태(음운) 일괄등록 ──────────────────────────────────
+# 유형은 사용자가 고를 값이 아니다. 음운 시트 한 장에 항목(A·B열)·지점(헤더행)·
+# 응답(나머지 셀)이 모두 들어 있고, 원본 통합자료인지 서식인지는 시트 이름만으로
+# 갈린다. 대신 반영 예정 내역 — 특히 새로 생길 지점 — 을 미리 보여주고 확인받는다.
+VARIANT_DB = USER_MAP_ROOT / "data" / "processed" / "dialect_phonology.db"
+
+VB_KIND_LABEL = {"resp": "지점 응답(통합자료)"}
+VB_PROV_NAME = {
+    "GG": "경기", "GW": "강원", "CB": "충북", "CN": "충남", "JB": "전북",
+    "JN": "전남", "GB": "경북", "GN": "경남", "JJ": "제주",
+}
+
+
+def _variant_etl():
+    """음운 ETL — 시트 해석·파싱·site_id 규칙이 모두 거기 한 곳에 있다."""
+    import importlib.util
+    path = USER_MAP_ROOT / "scripts" / "etl_phonology.py"
+    if not path.is_file():
+        raise FileNotFoundError(f"ETL 스크립트를 찾을 수 없습니다: {path}")
+    spec = importlib.util.spec_from_file_location("etl_phonology", str(path))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def _vb_norm(s) -> str:
+    return unicodedata.normalize("NFC", str(s if s is not None else "")).strip()
+
+
+def _vb_rows(E, path: Path, sheet: str) -> list:
+    gen = E.iter_sheet_rows(path, sheet)
+    if gen is None:
+        return []
+    return list(gen)
+
+
+def _vb_sheet_of(E, path: Path):
+    """
+    읽을 시트는 「음운」 한 장뿐이다. 원본 통합자료는 정확히 '음운',
+    구버전 서식은 '③응답(음운)' 처럼 이름이 늘어난 경우가 있어 포함도 받는다.
+    """
+    names = E.sheet_names_of(path)
+    if "음운" in names:
+        return "음운"
+    for n in names:
+        if "음운" in _vb_norm(n):
+            return n
+    return None
+
+
+def _vb_units(E, path: Path) -> list:
+    """처리할 (유형, 시트). 데이터가 한 줄도 없으면 단위로 치지 않는다 —
+    빈 서식을 그대로 올렸을 때 헤더행만 읽고 지점을 만들어 버리면 안 된다."""
+    sheet = _vb_sheet_of(E, path)
+    if not sheet:
+        return []
+    rows = _vb_rows(E, path, sheet)
+    if not any(E.norm_code(c[0]) for _, c in rows[2:] if c):
+        return []
+    return [("resp", sheet)]
+
+
+def _vb_no_unit_message(E, path: Path, sheets: list) -> str:
+    """시트가 없는 것과 비어 있는 것은 다르다 — 갈라서 말한다."""
+    sheet = _vb_sheet_of(E, path)
+    if sheet:
+        return ("「%s」 시트는 찾았지만 데이터가 없습니다. 3행부터 입력한 뒤 "
+                "다시 올려 주세요." % sheet)
+    return "「음운」 시트를 찾지 못했습니다. 시트: %s" % (", ".join(sheets) or "없음")
+
+
+def _vb_db():
+    if not VARIANT_DB.is_file():
+        return None
+    con = sqlite3.connect(str(VARIANT_DB))
+    con.row_factory = sqlite3.Row
+    return con
+
+
+def _vb_site_index(con) -> dict:
+    """
+    기존 지점을 (도, 헤더)로 색인한다. 문자열은 NFC 로 맞춰서 비교한다 —
+    macOS 파일명·헤더가 NFD 일 수 있어 그냥 비교하면 있는 지점을 못 찾는다.
+    """
+    by_hdr = {}
+    if con is None:
+        return by_hdr
+    for r in con.execute(
+        "SELECT site_id, province_code, raw_header, source_file FROM survey_site"
+    ):
+        by_hdr.setdefault((r["province_code"], _vb_norm(r["raw_header"])), []).append(r)
+    return by_hdr
+
+
+def _vb_resolve_sites(E, con, pc, headers: list, fname: str) -> dict:
+    """
+    헤더 → site_id.
+    지점의 정체성은 **(도, 헤더)** 다. 파일명은 출처일 뿐 열쇠가 아니다 —
+    파일명을 열쇠에 넣으면 같은 지점을 다른 파일(서식·리네임본)로 올릴 때마다
+    한 벌씩 더 생긴다. 운영 54지점은 (도,헤더)가 모두 유일함을 확인했다.
+    """
+    by_hdr = _vb_site_index(con)
+    fn = _vb_norm(fname)
+    resolved, new, moved = {}, [], []
+    exist = 0
+    for h in headers:
+        rows = by_hdr.get((pc, _vb_norm(h))) or []
+        if rows:
+            resolved[h] = rows[0]["site_id"]
+            exist += 1
+            if _vb_norm(rows[0]["source_file"]) != fn:
+                moved.append("%s(기존 출처 %s)" % (h, rows[0]["source_file"]))
+            continue
+        resolved[h] = E.site_id_for(pc, "%s|%s" % (h, fname))
+        new.append(h)
+    return {"map": resolved, "new": new, "exist": exist, "moved": moved}
+
+
+def _vb_have_responses(con, site_ids) -> set:
+    """이 지점들에 이미 붙어 있는 응답 키. source_file 로 거르지 않는다(NFD 함정)."""
+    sids = [s for s in set(site_ids) if s]
+    if con is None or not sids:
+        return set()
+    out = set()
+    for k in range(0, len(sids), 400):
+        chunk = sids[k:k + 400]
+        q = "SELECT item_code, site_id FROM response WHERE site_id IN (%s)" % (
+            ",".join("?" * len(chunk)))
+        out |= {(r[0], r[1]) for r in con.execute(q, chunk)}
+    return out
+
+
+def _vb_preview_resp(E, con, path: Path, fname: str, prov_code, prov_name) -> dict:
+    """통합자료형(wide) — 항목·지점·응답 세 가지를 한 번에 계산한다."""
+    parsed = E.parse_phonology_sheet(path)
+    if not parsed.get("ok"):
+        return {"ok": False, "message": parsed.get("error") or "시트를 해석하지 못했습니다."}
+
+    warn = []
+    # 파일명 판별이 실패했거나 화면에서 도를 지정한 경우 파싱 결과를 덮어쓴다
+    if prov_code and prov_code != parsed.get("province_code"):
+        parsed["province_code"] = prov_code
+        parsed["province_name"] = prov_name
+    if not parsed.get("province_code"):
+        warn.append("파일명에서 도(道)를 판별하지 못했습니다. 「대상 도」를 지정해 주세요.")
+    pc = parsed.get("province_code")
+
+    # 지점: 파일명을 바꿔 올리면 같은 지점이 새 지점으로 한 벌 더 생긴다 —
+    # 여기서 잡아야 할 사고다.
+    sr = _vb_resolve_sites(E, con, pc, parsed["site_headers"], fname)
+    if sr["moved"]:
+        warn.append("이미 등록된 지점 %d곳을 이 파일 것으로 갱신합니다(새로 만들지 "
+                    "않습니다): %s" % (len(sr["moved"]), " / ".join(sr["moved"][:6])))
+
+    have_items = {r[0] for r in con.execute("SELECT item_code FROM item")} if con else set()
+    have_resp = _vb_have_responses(con, sr["map"].values())
+
+    codes = list(parsed["items"].keys())
+    item_new = [c for c in codes if c not in have_items]
+    resp_new = resp_over = 0
+    for r in parsed["responses"]:
+        if (r["item_code"], sr["map"].get(r["raw_header"])) in have_resp:
+            resp_over += 1
+        else:
+            resp_new += 1
+    # 이 파일에 없는 (항목×지점)은 건드리지 않는다(병합). 서식에 일부만 채워
+    # 올려도 나머지가 날아가지 않아야 하기 때문이다.
+    resp_keep = max(0, len(have_resp) - resp_over)
+
+    st = parsed["stats"]
+    if st.get("empty_code_rows"):
+        warn.append("항목번호가 없는 행 %d개는 건너뜁니다. 데이터 아래에 메모를 "
+                    "적으면 데이터 행으로 읽히니 확인해 주세요." % st["empty_code_rows"])
+
+    return {
+        "ok": True,
+        "headerRow": parsed["header_row"],
+        "rows": st["data_rows"],
+        "items": {"new": len(item_new), "update": len(codes) - len(item_new),
+                  "newList": item_new[:20]},
+        "sites": {"new": len(sr["new"]), "exist": sr["exist"], "newList": sr["new"]},
+        "responses": {"new": resp_new, "overwrite": resp_over, "keep": resp_keep,
+                      "filled": st["n_filled"], "missing": st["n_missing"]},
+        "province": {"code": pc, "name": parsed.get("province_name")},
+        "warnings": warn,
+    }
+
+
+def api_variant_bulk_preview(raw: bytes, ctype: str) -> dict:
+    """
+    올린 파일만 보고 유형·도·반영 예정 내역을 계산한다. 쓰기는 하지 않는다.
+    화면이 유형을 묻지 않는 근거가 여기에 있다.
+    """
+    mp = _parse_multipart(raw, ctype)
+    files = mp.get("files") or []
+    if not files:
+        return {"ok": False, "message": "엑셀 파일이 첨부되지 않았습니다."}
+
+    prov_force = _vb_norm(mp.get("fields", {}).get("province"))
+    E = _variant_etl()
+    con = _vb_db()
+    top_warn = []
+    if con is None:
+        top_warn.append("음운 DB(%s)가 없어 기존 자료와 대조하지 못했습니다. "
+                        "아래 건수는 모두 신규로 셉니다." % VARIANT_DB.name)
+
+    import tempfile
+    out_files = []
+    try:
+        for up in files:
+            fname = up["filename"]
+            suf = Path(fname).suffix.lower()
+            entry = {"fileName": fname, "units": [], "warnings": []}
+            if suf not in (".xls", ".xlsx"):
+                entry["ok"] = False
+                entry["message"] = "xls/xlsx 파일만 올릴 수 있습니다."
+                out_files.append(entry)
+                continue
+
+            with tempfile.NamedTemporaryFile(suffix=suf, delete=False) as tf:
+                tf.write(up["data"])
+                tmp = Path(tf.name)
+            try:
+                pc, pn = E.detect_province(fname)
+                if prov_force:
+                    pc, pn = prov_force, VB_PROV_NAME.get(prov_force)
+                entry["province"] = {
+                    "code": pc, "name": pn,
+                    "auto": not prov_force and bool(pc),
+                }
+                entry["sheets"] = E.sheet_names_of(tmp)
+                units = _vb_units(E, tmp)
+                if not units:
+                    entry["ok"] = False
+                    entry["message"] = _vb_no_unit_message(E, tmp, entry["sheets"])
+                    out_files.append(entry)
+                    continue
+                for kind, sheet in units:
+                    u = _vb_preview_resp(E, con, tmp, fname, pc, pn)
+                    u["kind"] = kind
+                    u["kindLabel"] = VB_KIND_LABEL[kind]
+                    u["sheet"] = sheet
+                    entry["units"].append(u)
+                entry["ok"] = all(u.get("ok") for u in entry["units"])
+            finally:
+                try:
+                    tmp.unlink()
+                except OSError:
+                    pass
+            out_files.append(entry)
+    finally:
+        if con is not None:
+            con.close()
+
+    return {"ok": any(f.get("ok") for f in out_files),
+            "files": out_files, "warnings": top_warn}
+
+
+# ── 적재 ──────────────────────────────────────────────────────────
+# 미리보기와 같은 _vb_resolve_sites 를 쓴다. 화면에 보여 준 숫자와 실제로
+# 들어가는 내용이 갈리면 미리보기가 있으나 마나이기 때문이다.
+VARIANT_OUT_DIR = USER_MAP_ROOT / "data" / "processed"
+VARIANT_SEED_JSON = ROOT / "mariadb/neibis/survey/data/variant-items-seed.json"
+VB_BAND_LABEL = {"310": "체언 대립", "320": "활용", "321": "활용",
+                 "322": "활용", "323": "활용"}
+
+
+def _vb_open_db(E):
+    VARIANT_DB.parent.mkdir(parents=True, exist_ok=True)
+    con = sqlite3.connect(str(VARIANT_DB))
+    con.row_factory = sqlite3.Row
+    con.executescript(E.SCHEMA)          # CREATE TABLE IF NOT EXISTS — 있으면 그대로
+    con.execute("PRAGMA foreign_keys=ON")
+    return con
+
+
+def _vb_batch_row(con, fname, pc, pn, sheet, header_row, st, now):
+    cur = con.execute(
+        """INSERT INTO import_batch
+           (source_file, province_code, province_name, sheet_name, header_row,
+            n_sites, n_items, n_responses, n_filled, n_missing, imported_at, status, error)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,'ok',NULL)""",
+        (fname, pc, pn, sheet, header_row, st.get("n_sites", 0), st.get("n_items", 0),
+         st.get("n_responses", 0), st.get("n_filled", 0), st.get("n_missing", 0), now))
+    return cur.lastrowid
+
+
+def _vb_put_site(con, E, sid, pc, pn, hdr, fname):
+    g = E.parse_site_header(hdr)
+    con.execute(
+        """INSERT INTO survey_site
+           (site_id, province_code, province_name, raw_header, place_name, survey_year, source_file)
+           VALUES (?,?,?,?,?,?,?)
+           ON CONFLICT(site_id) DO UPDATE SET
+             province_code=excluded.province_code,
+             province_name=excluded.province_name,
+             raw_header=excluded.raw_header,
+             place_name=excluded.place_name,
+             survey_year=excluded.survey_year,
+             source_file=excluded.source_file""",
+        (sid, pc, pn, hdr, g["place_name"], g["survey_year"], fname))
+
+
+def _vb_put_item(con, E, code, std):
+    con.execute(
+        """INSERT INTO item (item_code, domain, standard_form, parent_code, is_parent)
+           VALUES (?,?,?,?,?)
+           ON CONFLICT(item_code) DO UPDATE SET
+             standard_form=CASE WHEN excluded.standard_form != ''
+                                THEN excluded.standard_form ELSE item.standard_form END,
+             parent_code=excluded.parent_code,
+             is_parent=excluded.is_parent""",
+        (code, E.DOMAIN, std or "", E.parent_code_of(code),
+         1 if E.is_parent_code(code) else 0))
+
+
+def _vb_apply_resp(E, con, path: Path, fname: str, pc, pn, now) -> dict:
+    """통합자료형(wide) 적재. 이 파일이 맡은 지점의 응답은 통째로 갈아끼운다."""
+    parsed = E.parse_phonology_sheet(path)
+    if not parsed.get("ok"):
+        return {"ok": False, "message": parsed.get("error") or "시트를 해석하지 못했습니다."}
+    if pc:
+        parsed["province_code"], parsed["province_name"] = pc, pn
+    pc = parsed["province_code"]
+    pn = parsed["province_name"]
+
+    sr = _vb_resolve_sites(E, con, pc, parsed["site_headers"], fname)
+    st = parsed["stats"]
+    batch_id = _vb_batch_row(con, fname, pc, pn, "음운", parsed["header_row"], st, now)
+
+    for h in parsed["site_headers"]:
+        _vb_put_site(con, E, sr["map"][h], pc, pn, h, fname)
+    for code, std in parsed["items"].items():
+        _vb_put_item(con, E, code, std)
+
+    # 지우지 않고 덮어쓰기만 한다(병합). 도별 서식에 일부만 채워 올렸을 때
+    # 그 지점의 나머지 응답이 통째로 날아가면 안 된다. 지우는 일은 화면에서 한다.
+    con.executemany(
+        """INSERT INTO response
+           (item_code, site_id, raw_text, is_missing, source_file, source_row, import_batch_id)
+           VALUES (?,?,?,?,?,?,?)
+           ON CONFLICT(item_code, site_id, source_file) DO UPDATE SET
+             raw_text=excluded.raw_text, is_missing=excluded.is_missing,
+             source_row=excluded.source_row, import_batch_id=excluded.import_batch_id""",
+        [(r["item_code"], sr["map"][r["raw_header"]], r["raw_text"], r["is_missing"],
+          fname, r["source_row"], batch_id) for r in parsed["responses"]])
+
+    return {"ok": True, "sheet": "음운", "rows": st["data_rows"],
+            "items": len(parsed["items"]), "sites": len(parsed["site_headers"]),
+            "sitesNew": len(sr["new"]), "responses": len(parsed["responses"]),
+            "province": {"code": pc, "name": pn}}
+
+
+def _vb_site_map_rows(con) -> list:
+    """site_map.json 은 DB 전체로 다시 쓴다. 이번 배치만 쓰면 나머지 도가 날아간다."""
+    return [{
+        "site_id": r["site_id"], "province_code": r["province_code"],
+        "province_name": r["province_name"], "raw_header": r["raw_header"],
+        "place_name": r["place_name"], "survey_year": r["survey_year"],
+        "source_file": r["source_file"],
+    } for r in con.execute(
+        "SELECT * FROM survey_site ORDER BY province_code, raw_header")]
+
+
+def _vb_code_key(code: str):
+    """31001 → (31001,) / 31001-0-2 → (31001, 0, 2). 원본 시트 행 순서와 같다."""
+    out = []
+    for part in str(code).split("-"):
+        out.append(int(part) if part.isdigit() else -1)
+    return tuple(out)
+
+
+def _vb_write_seed(con, today: str) -> int:
+    """관리자 목록이 읽는 시드를 DB 기준으로 다시 쓴다. 안 하면 화면이 그대로다."""
+    prev = {}
+    if VARIANT_SEED_JSON.is_file():
+        try:
+            for it in json.loads(VARIANT_SEED_JSON.read_text(encoding="utf-8")).get("items", []):
+                prev[it.get("item_code")] = it.get("regDt")
+        except Exception:
+            prev = {}
+
+    kids = {}
+    parents = []
+    for r in con.execute(
+            "SELECT item_code, standard_form, parent_code, is_parent FROM item"):
+        if r["is_parent"]:
+            parents.append(r)
+        elif r["parent_code"]:
+            kids.setdefault(r["parent_code"], []).append(r)
+    parents.sort(key=lambda r: _vb_code_key(r["item_code"]))
+
+    items = []
+    for i, p in enumerate(parents, 1):
+        code = p["item_code"]
+        band = code[:3]
+        ch = sorted(kids.get(code, []), key=lambda r: _vb_code_key(r["item_code"]))
+        items.append({
+            "id": i,
+            "item_code": code,
+            "standard_form": p["standard_form"] or "",
+            "band": band,
+            "band_label": VB_BAND_LABEL.get(band, "기타"),
+            "is_parent": True,
+            "useYn": "Y",
+            "sortOrdr": i,
+            "rmrk": "",
+            "children": [{
+                "item_code": c["item_code"],
+                "standard_form": c["standard_form"] or "",
+                "sortOrdr": j,
+                "useYn": "Y",
+            } for j, c in enumerate(ch, 1)],
+            "regDt": prev.get(code) or today,
+            "updDt": today,
+        })
+
+    VARIANT_SEED_JSON.parent.mkdir(parents=True, exist_ok=True)
+    VARIANT_SEED_JSON.write_text(json.dumps({
+        "source": "data/processed/dialect_phonology.db",
+        "domain": "phonology",
+        "updated": today,
+        # 브라우저 캐시가 뒤처졌는지 판별하는 열쇠. 날짜만으로는 같은 날 두 번
+        # 적재했을 때 안 바뀐다.
+        "revision": datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+        "note": "부모 항목(비교 단위) + 하위 환경 표제어. 지점 응답 원문은 "
+                "dialect_phonology.db / items/*.json 참고.",
+        "items": items,
+    }, ensure_ascii=False, indent=1), encoding="utf-8")
+    return len(items)
+
+
+def api_variant_bulk_commit(raw: bytes, ctype: str) -> dict:
+    """
+    미리보기와 같은 해석으로 실제 적재까지 한다.
+    DB(dialect_phonology.db) → JSON 재출력(items/*.json 등) → 관리자 시드 순.
+    """
+    mp = _parse_multipart(raw, ctype)
+    files = mp.get("files") or []
+    if not files:
+        return {"ok": False, "message": "엑셀 파일이 첨부되지 않았습니다."}
+
+    prov_force = _vb_norm(mp.get("fields", {}).get("province"))
+    E = _variant_etl()
+    now = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    import tempfile
+    con = _vb_open_db(E)
+    results, applied = [], 0
+    try:
+        with con:                       # 한 파일이라도 터지면 통째로 되돌린다
+            for up in files:
+                fname = up["filename"]
+                suf = Path(fname).suffix.lower()
+                entry = {"fileName": fname, "units": []}
+                if suf not in (".xls", ".xlsx"):
+                    entry["ok"] = False
+                    entry["message"] = "xls/xlsx 파일만 올릴 수 있습니다."
+                    results.append(entry)
+                    continue
+                with tempfile.NamedTemporaryFile(suffix=suf, delete=False) as tf:
+                    tf.write(up["data"])
+                    tmp = Path(tf.name)
+                try:
+                    pc, pn = E.detect_province(fname)
+                    if prov_force:
+                        pc, pn = prov_force, VB_PROV_NAME.get(prov_force)
+                    units = _vb_units(E, tmp)
+                    if not units:
+                        entry["ok"] = False
+                        entry["message"] = _vb_no_unit_message(E, tmp, E.sheet_names_of(tmp))
+                        results.append(entry)
+                        continue
+                    for kind, sheet in units:
+                        u = _vb_apply_resp(E, con, tmp, fname, pc, pn, now)
+                        u["kind"] = kind
+                        u["kindLabel"] = VB_KIND_LABEL[kind]
+                        entry["units"].append(u)
+                    entry["ok"] = all(u.get("ok") for u in entry["units"])
+                    if entry["ok"]:
+                        applied += 1
+                finally:
+                    try:
+                        tmp.unlink()
+                    except OSError:
+                        pass
+                results.append(entry)
+
+            if not applied:
+                raise RuntimeError("적재할 수 있는 파일이 없습니다.")
+
+        # 커밋된 뒤에 내보낸다 — 화면이 읽는 건 DB 가 아니라 이 JSON 들이다
+        paths = E.export_json(con, VARIANT_OUT_DIR, _vb_site_map_rows(con), now)
+        seed_n = _vb_write_seed(con, today)
+        totals = {
+            "sites": con.execute("SELECT COUNT(*) FROM survey_site").fetchone()[0],
+            "items": con.execute("SELECT COUNT(*) FROM item").fetchone()[0],
+            "responses": con.execute("SELECT COUNT(*) FROM response").fetchone()[0],
+        }
+    except Exception as e:
+        con.close()
+        return {"ok": False, "message": "적재하지 못했습니다: %s" % e, "files": results}
+    con.close()
+
+    return {
+        "ok": True,
+        "files": results,
+        "applied": applied,
+        "seedItems": seed_n,
+        "totals": totals,
+        "exported": sorted(str(Path(v).name) for v in paths.values()),
+    }
+
+
 class Handler(http.server.SimpleHTTPRequestHandler):
     def translate_path(self, path):
         # strip query for file mapping
@@ -6196,6 +6711,26 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 self._send_json(api_std_vocab_bulk(raw, ctype))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/survey/variant/bulk-commit",
+            "/mariadb/neibis-api/variant/bulk-commit",
+        ):
+            try:
+                self._send_json(api_variant_bulk_commit(raw, ctype))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/survey/variant/bulk-preview",
+            "/mariadb/neibis-api/variant/bulk-preview",
+        ):
+            try:
+                self._send_json(api_variant_bulk_preview(raw, ctype))
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return
