@@ -288,7 +288,8 @@
       "mcp__Claude_Code_Remote__get_session",
       "mcp__Claude_Code_Remote__create_session",
       "mcp__Claude_Code_Remote__send_later",
-      "mcp__Claude_Code_Remote__archive_session"
+      "mcp__Claude_Code_Remote__archive_session",
+      "mcp__Claude_Code_Remote__delete_trigger"
     ]
   }
 }
