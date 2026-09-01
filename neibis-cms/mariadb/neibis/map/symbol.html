@@ -888,11 +888,63 @@ function searchList(page){
     renderPager(res.page, res.totalPages);
     $('#chkAll').prop('checked', false);
   }).fail(function(xhr){
-    var msg = 'DB API 호출 실패';
-    if(xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
-    else if(xhr.status) msg += ' (HTTP ' + xhr.status + ')';
-    $('#symbol-list-body').html('<tr><td colspan="5" class="text-center" style="padding:24px;color:#b91c1c">' + escHtml(msg) + '<br><span style="font-size:12px;color:#64748b">serve.py 를 재시작했는지 확인해 주세요.</span></td></tr>');
+    /* 정적 배포에는 CMS API 함수가 없다 — 내보내 둔 전량 JSON 으로 물러난다. */
+    symStaticList(function(res){
+      if(!res){
+        var msg = 'DB API 호출 실패';
+        if(xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+        else if(xhr.status) msg += ' (HTTP ' + xhr.status + ')';
+        $('#symbol-list-body').html('<tr><td colspan="5" class="text-center" style="padding:24px;color:#b91c1c">' + escHtml(msg) + '<br><span style="font-size:12px;color:#64748b">serve.py 를 재시작했는지 확인해 주세요.</span></td></tr>');
+        return;
+      }
+      symbolState.total = res.total; symbolState.page = res.page;
+      symbolState.pageSize = res.pageSize; symbolState.totalPages = res.totalPages;
+      $('#totalCnt').text(res.total.toLocaleString());
+      $('#pageInfo').text('(' + res.page + '/' + res.totalPages + ' page)');
+      renderRows(res.list, res.page, res.pageSize);
+      renderPager(res.page, res.totalPages);
+      $('#chkAll').prop('checked', false);
+      symStaticNotice();
+    });
   });
+}
+
+/* ── 정적 대체본 ──────────────────────────────────────────────── */
+var SYM_STATIC = null;
+var SYM_STATIC_URL = './data/cms/symbol_list.json';
+
+function symStaticList(cb){
+  if(SYM_STATIC){ cb(symStaticSlice()); return; }
+  $.ajax({ url: SYM_STATIC_URL, method:'GET', dataType:'json' })
+    .done(function(res){
+      if(!res || !res.list){ cb(null); return; }
+      SYM_STATIC = res; cb(symStaticSlice());
+    })
+    .fail(function(){ cb(null); });
+}
+
+function symStaticSlice(){
+  var kw = ($('#searchValue').val() || '').trim();
+  var rows = SYM_STATIC.list.filter(function(r){
+    if(!kw) return true;
+    return String(r.symbolId||'').indexOf(kw) >= 0
+        || String(r.symbolNm||'').indexOf(kw) >= 0
+        || String(r.comment||'').indexOf(kw) >= 0;
+  });
+  var size = parseInt($('#pageItm').val(), 10) || 10;
+  var pages = Math.max(1, Math.ceil(rows.length / size));
+  var page = Math.min(Math.max(1, symbolState.page || 1), pages);
+  return { ok:true, total:rows.length, page:page, pageSize:size, totalPages:pages,
+           list: rows.slice((page - 1) * size, page * size) };
+}
+
+function symStaticNotice(){
+  if($('#symStaticNote').length) return;
+  $('#symbol-list-body').closest('.table').before(
+    '<p id="symStaticNote" style="margin:0 0 10px;padding:9px 12px;border-radius:8px;'
+    + 'background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;font-size:12.5px">'
+    + '자료를 <b>내려받은 사본</b>으로 보고 있습니다 — 이 배포에는 관리 API 가 없어'
+    + ' 등록·수정·삭제는 되지 않습니다.</p>');
 }
 
 $(function(){

@@ -1030,11 +1030,87 @@ function searchList(page){
     renderPager(res.page, res.totalPages);
     $('#chkAll').prop('checked', false);
   }).fail(function(xhr){
-    var msg = 'DB API 호출 실패';
-    if(xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
-    else if(xhr.status) msg += ' (HTTP '+xhr.status+')';
-    $('#headword-list-body').html('<tr><td colspan="13" class="text-center" style="padding:24px;color:#b91c1c">'+escHtml(msg)+'<br><span style="font-size:12px;color:#64748b">serve.py 재시작 여부를 확인해 주세요.</span></td></tr>');
+    /* 정적 배포(Vercel·GitHub Pages)에는 CMS API 함수가 없다 — 404 다.
+       그때는 내보내 둔 전량 JSON 을 한 번 받아 화면에서 거르고 자른다.
+       렌더는 위와 같은 함수를 그대로 쓴다. */
+    staticList(function(res){
+      if(!res){
+        var msg = 'DB API 호출 실패';
+        if(xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+        else if(xhr.status) msg += ' (HTTP '+xhr.status+')';
+        $('#headword-list-body').html('<tr><td colspan="13" class="text-center" style="padding:24px;color:#b91c1c">'+escHtml(msg)+'<br><span style="font-size:12px;color:#64748b">serve.py 재시작 여부를 확인해 주세요.</span></td></tr>');
+        return;
+      }
+      hwState.total = res.total; hwState.page = res.page;
+      hwState.pageSize = res.pageSize; hwState.totalPages = res.totalPages;
+      $('#totalCnt').text(res.total.toLocaleString());
+      $('#pageInfo').text('('+res.page+'/'+res.totalPages+' page)');
+      renderCounts(res.counts);
+      renderRows(res.list, res.page, res.pageSize);
+      renderPager(res.page, res.totalPages);
+      $('#chkAll').prop('checked', false);
+      staticNotice();
+    });
   });
+}
+
+/* ── 정적 대체본 ────────────────────────────────────────────────
+   scripts/export_cms_static.py 가 serve.py 의 api_headword_list 로 뽑은 전량.
+   거르는 규칙은 서버 SQL 과 같은 뜻으로 맞춘다(관리자 제작 판별 포함). */
+var HW_STATIC = null;
+var HW_STATIC_URL = './data/cms/headword_list.json';
+var ADMIN_IDS = ['isskor','iss','admin','diquest'];
+
+function isAdminMade(usid){
+  var u = (usid == null ? '' : String(usid)).trim();
+  return u === '' || u.indexOf('map') === 0 || ADMIN_IDS.indexOf(u) >= 0;
+}
+
+function staticList(cb){
+  if(HW_STATIC){ cb(staticSlice()); return; }
+  $.ajax({ url: HW_STATIC_URL, method:'GET', dataType:'json' })
+    .done(function(res){
+      if(!res || !res.list){ cb(null); return; }
+      HW_STATIC = res; cb(staticSlice());
+    })
+    .fail(function(){ cb(null); });
+}
+
+function staticSlice(){
+  var all = HW_STATIC.list;
+  var kw = ($('#searchText').val() || '').trim();
+  var st = hwState.status || '';
+  var ty = $('#SearchType').val() || '3';
+  var writer = ($('#writer').val() || '').trim();
+
+  var rows = all.filter(function(r){
+    if(kw && String(r.headword||'').indexOf(kw) < 0
+           && String(r.headwordNo||'').indexOf(kw) < 0) return false;
+    if(writer && String(r.usid||'') !== writer) return false;
+    if(ty === '1' && !isAdminMade(r.usid)) return false;
+    if(ty === '2' &&  isAdminMade(r.usid)) return false;
+    if(ty === '4' && !(r.appro === 'Y' || r.useYn === 'Y')) return false;
+    if(st && String(r.status||'') !== st) return false;
+    return true;
+  });
+
+  var size = parseInt($('#pageItm').val(), 10) || 10;
+  var pages = Math.max(1, Math.ceil(rows.length / size));
+  var page = Math.min(Math.max(1, hwState.page || 1), pages);
+  return {
+    ok: true, total: rows.length, page: page, pageSize: size, totalPages: pages,
+    counts: HW_STATIC.counts,
+    list: rows.slice((page - 1) * size, page * size)
+  };
+}
+
+function staticNotice(){
+  if($('#hwStaticNote').length) return;
+  $('#headword-list-body').closest('.table').before(
+    '<p id="hwStaticNote" style="margin:0 0 10px;padding:9px 12px;border-radius:8px;'
+    + 'background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;font-size:12.5px">'
+    + '자료를 <b>내려받은 사본</b>으로 보고 있습니다 — 이 배포에는 관리 API 가 없어'
+    + ' 등록·수정·상태 변경은 되지 않습니다.</p>');
 }
 
 $(function(){
