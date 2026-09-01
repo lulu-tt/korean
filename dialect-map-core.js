@@ -743,6 +743,8 @@
       }
       return null;
     }
+    // 면색(choropleth)은 남한 시군구만 필요(북한은 조사 데이터 없음). 북한 세분화는
+    // "시·군·구 경계" 토글 시 korea-map 의 boundary 로더에서만 지연 로드/병합한다.
     function loadMunicipalities(cb) {
       if (global.KOREA_MUNICIPALITIES) { cb(true); return; }
       var s = document.createElement('script');

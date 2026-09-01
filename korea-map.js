@@ -35,6 +35,7 @@
 
     // ── 지역명 라벨 / 시·군·구 옵션 ──
     muniSrc: 'skorea-municipalities.js',  // 시·군·구 경계 데이터(지연 로드 대상). null 이면 지연 로드 안 함
+    nkMuniSrc: 'nkorea-municipalities.js', // 북한 시·군 경계(SK 로드 직후 체이닝 병합). null 이면 북한 세분화 안 함
     muniMinZoom: 8,          // 이 줌 이상에서 시·군·구 경계·라벨 표시 (그 아래는 시·도 라벨)
     muniStroke: '#cbd5e1',   // 시·군·구 경계선 색(얇게)
     muniStrokeWidth: 0.8,
@@ -139,11 +140,24 @@
   function createMunicipalityLayer(opts) {
     var o = merge(DEFAULTS, opts);
     if (!ready() || !global.KOREA_MUNICIPALITIES) return null;
+    var muniStrokeStyle = new ol.style.Stroke({ color: o.muniStroke, width: o.muniStrokeWidth });
     var layer = new ol.layer.Vector({
       source: new ol.source.Vector({ features: readFeatures(global.KOREA_MUNICIPALITIES) }),
-      style: new ol.style.Style({
-        stroke: new ol.style.Stroke({ color: o.muniStroke, width: o.muniStrokeWidth })
-      }),
+      // 남한 시·군 라벨은 KOREA_LABELS(라벨 레이어)에서 나오지만, 북한 시·군은 라벨 데이터가
+      // 없으므로 경계 레이어에서 직접 이름을 그린다(nk 플래그가 있는 피처만).
+      style: function (f) {
+        if (!f.get('nk')) return new ol.style.Style({ stroke: muniStrokeStyle });
+        return new ol.style.Style({
+          stroke: muniStrokeStyle,
+          text: new ol.style.Text({
+            text: f.get('name') || '',
+            font: '600 ' + o.sigunguSize + 'px ' + o.labelFont,
+            fill: new ol.style.Fill({ color: o.sigunguColor }),
+            stroke: new ol.style.Stroke({ color: 'rgba(255,255,255,0.85)', width: 2.5 }),
+            overflow: true
+          })
+        });
+      },
       minZoom: o.muniMinZoom - 0.01   // 이 줌 이상에서만 표시
     });
     layer.setZIndex(o.muniZIndex);
@@ -214,9 +228,18 @@
         muni = createMunicipalityLayer(o);   // layer.minZoom 으로 확대 시에만 렌더
         if (muni) { muni.setVisible(state.sigungu); map.addLayer(muni); }
       }
-      if (global.KOREA_MUNICIPALITIES) { build(); return; }
+      // 북한 시·군 데이터를 KOREA_MUNICIPALITIES 에 병합(있으면)한 뒤 build
+      function withNk(done) {
+        if (!o.nkMuniSrc || (global.KOREA_MUNICIPALITIES && global.KOREA_MUNICIPALITIES.__nkMerged)) { done(); return; }
+        if (global.__nkMergeMunicipalities) { global.__nkMergeMunicipalities(); done(); return; }
+        loadScript(o.nkMuniSrc, function () {
+          if (global.__nkMergeMunicipalities) global.__nkMergeMunicipalities();
+          done();
+        });
+      }
+      if (global.KOREA_MUNICIPALITIES) { withNk(build); return; }
       if (!o.muniSrc) return;
-      loadScript(o.muniSrc, function (ok) { if (ok && !muni) build(); });
+      loadScript(o.muniSrc, function (ok) { if (ok && !muni) withNk(build); });
     }
 
     function setSido(show) {

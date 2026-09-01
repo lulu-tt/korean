@@ -159,10 +159,12 @@
       }
     }
 
-    // 북한 도 단위 추가
+    // 북한: 시·군 데이터(NKOREA)가 병합돼 있으면 위 muni 루프에서 이미 시·군 단위로 등록됨 →
+    // 도(province) 단위 중복 등록을 건너뛴다. 병합 전이면 기존처럼 도 단위로 등록(폴백).
     var nkCount = 0;
     var prov = global.KOREA_PROVINCES;
-    if (prov && prov.features) {
+    var nkMuniMerged = !!(fc && fc.__nkMerged);
+    if (!nkMuniMerged && prov && prov.features) {
       for (var p = 0; p < prov.features.length; p++) {
         var pname = (prov.features[p].properties && prov.features[p].properties.name) || '';
         if (!isNorthProvince(p, pname)) continue;
