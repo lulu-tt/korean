@@ -637,6 +637,19 @@
 .wcf-note{display:flex;gap:10px;align-items:flex-start;margin:0 0 14px;padding:12px 14px;border:1px solid #dbeafe;background:#f8fbff;border-radius:8px;font-size:13px;line-height:1.6;color:#334155}
 .wcf-note b{color:#1d4ed8}
 .wcf-hint{display:block;margin-top:5px;font-size:12px;color:#94a3b8;line-height:1.5}
+/* 계산 안내 — 넣은 숫자가 앞단 어느 그래프의 어떤 값이 되는지 적어 둔다 */
+.wcf-calc{margin-top:12px;border:1px solid #dbeafe;background:#f8fbff;border-radius:8px;padding:12px 16px}
+.wcf-calc__t{margin:0 0 4px;font-size:12.5px;font-weight:800;color:#1d4ed8;line-height:1.45}
+.wcf-calc dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 26px;margin:0}
+.wcf-calc dl > div{display:grid;grid-template-columns:126px 1fr;gap:10px;align-items:baseline;
+  padding:7px 0;border-top:1px solid #e6effa}
+.wcf-calc dt{font-size:12.5px;font-weight:700;color:#334155;line-height:1.45}
+.wcf-calc dt span{display:block;margin-top:2px;font-size:11px;font-weight:600;color:#94a3b8}
+.wcf-calc dd{margin:0;font-size:12.5px;color:#475569;line-height:1.5}
+.wcf-calc dd b{color:#0f172a;font-weight:700}
+.wcf-calc dd em{display:block;margin-top:2px;font-style:normal;font-size:11.5px;color:#94a3b8}
+@media (max-width:1200px){ .wcf-calc dl{grid-template-columns:1fr} }
+@media (max-width:640px){ .wcf-calc dl > div{grid-template-columns:1fr;gap:2px} }
 
 /* 교차표 — 표 자체가 미리보기다. 합계가 입력하는 즉시 따라온다 */
 .wcf-ctwrap{width:100%;overflow-x:auto}
@@ -731,6 +744,35 @@
 </tfoot>
 </table>
 </div>
+<div class="wcf-calc">
+  <p class="wcf-calc__t">넣은 숫자로 앞단 그래프가 이렇게 계산됩니다 — 아래 값은 따로 입력하지 않습니다</p>
+  <dl>
+    <div>
+      <dt>세대 합계</dt>
+      <dd><b>남 + 여</b><em>같은 세대의 남·여 네 칸을 범주별로 더합니다</em></dd>
+    </div>
+    <div>
+      <dt>지역어를 쓰는 사람<span>한눈에 보기 · 막대</span></dt>
+      <dd><b>(지역어를 씀 + 둘 다 씀) ÷ 세대 합계</b><em>둘 다 쓰는 사람도 그 말을 쓰는 사람으로 셉니다</em></dd>
+    </div>
+    <div>
+      <dt>세대 감소폭<span>한눈에 보기 · 큰 숫자</span></dt>
+      <dd><b>70대 비율 − 20대 비율</b> (%p)<em>목록에서 단어를 늘어놓는 순서이기도 합니다</em></dd>
+    </div>
+    <div>
+      <dt>세대별 구성비<span>세대별로 자세히 · 도넛</span></dt>
+      <dd><b>각 범주 ÷ 세대 합계 × 100</b><em>반올림 오차는 가장 큰 범주에 더해 합계 100%를 맞춥니다</em></dd>
+    </div>
+    <div>
+      <dt>남녀 비율<span>남녀 차이 · 실루엣</span></dt>
+      <dd><b>(지역어를 씀 + 둘 다 씀) ÷ 그 성별 합계</b><em>남 또는 여 한쪽이 비면 그 세대는 그리지 않습니다</em></dd>
+    </div>
+    <div>
+      <dt>앞단 노출</dt>
+      <dd><b>교차표에 숫자가 하나라도 있으면 노출</b><em>비워 두면 자료로만 보관되고 앞단에는 나오지 않습니다</em></dd>
+    </div>
+  </dl>
+</div>
 </td>
 </tr>
 </tbody>
@@ -742,7 +784,7 @@
 <div class="btn-group-between">
 <div class="left">
 <button type="button" class="btn btn-lg btn-outline-gray" onclick="goList()"><i class="ico ico-undo-darkgray-md"></i><span>목록</span></button>
-<a class="btn btn-lg btn-outline-gray" id="btnFront" style="display:none" target="_blank" rel="noopener"><i class="ico ico-externallink-darkgray-md"></i><span>앞단에서 이 카드 보기</span></a>
+<a class="btn btn-lg btn-outline-gray" id="btnFront" style="display:none" target="_blank" rel="noopener"><i class="ico ico-externallink-darkgray-md"></i><span>사용자 미리보기</span></a>
 </div>
 <div class="right">
 <button type="button" class="btn btn-lg btn-gray btn-delete" id="btnDelete" style="display:none" onclick="removeWordcard()"><i class="ico ico-trash-white-md"></i><span>삭제</span></button>
