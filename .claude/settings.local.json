@@ -283,7 +283,11 @@
       "Bash(grep -n \"mapId:\\\\|Ctx = {\\\\|Ctx={\\\\|hoverRegion\\\\|updateMapWithSearchResults\\\\|lastRegionData =\\\\|inlineMapCtx\\\\|vocabMapCtx\\\\|= {\\\\s*$\" vocab_dialect.html)",
       "Bash(grep -rEn \"pk\\\\.[A-Za-z0-9_-]{10,}\" .)",
       "Bash(curl -k -s --max-time 25 \"https://dialect.inseq.co.kr:9443/dialect/map/dialect\" -o /tmp/dialect_map_live.html -w \"HTTP %{http_code} | size %{size_download} bytes | %{url_effective}\\\\n\")",
-      "Bash(grep -oEn \"access_token=[A-Za-z0-9._-]*|pk\\\\.[A-Za-z0-9._-]{20,}|sk\\\\.[A-Za-z0-9._-]{20,}|apikey[=\\\\\"': ]+[A-Za-z0-9._-]+|apiKey[=\\\\\"': ]+[A-Za-z0-9._-]+|key[=\\\\\"': ]+[A-Za-z0-9._-]{15,}|vworld[^\\\\\"'<> ]*|ncpKeyId[^\\\\\"'<> ]*|X-NCP-APIGW[^\\\\\"'<> ]*|dawul[^\\\\\"'<> ]*\" dialect_map_live.html)"
+      "Bash(grep -oEn \"access_token=[A-Za-z0-9._-]*|pk\\\\.[A-Za-z0-9._-]{20,}|sk\\\\.[A-Za-z0-9._-]{20,}|apikey[=\\\\\"': ]+[A-Za-z0-9._-]+|apiKey[=\\\\\"': ]+[A-Za-z0-9._-]+|key[=\\\\\"': ]+[A-Za-z0-9._-]{15,}|vworld[^\\\\\"'<> ]*|ncpKeyId[^\\\\\"'<> ]*|X-NCP-APIGW[^\\\\\"'<> ]*|dawul[^\\\\\"'<> ]*\" dialect_map_live.html)",
+      "mcp__Claude_Code_Remote__list_environments",
+      "mcp__Claude_Code_Remote__get_session",
+      "mcp__Claude_Code_Remote__create_session",
+      "mcp__Claude_Code_Remote__send_later"
     ]
   }
 }
