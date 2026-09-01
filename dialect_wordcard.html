@@ -82,7 +82,11 @@ body{ background:#ffffff; }
 #wordcard-root .wc-sh__row{ display:grid; grid-template-columns:66px 1fr 64px; align-items:center; gap:12px; }
 #wordcard-root .wc-sh__g{ font-size:15px; font-weight:800; color:#0f172a; }
 #wordcard-root .wc-sh__g small{ display:block; font-size:11px; font-weight:600; color:#64748b; margin-top:1px; }
-#wordcard-root .wc-sh__track{ height:26px; border-radius:8px; background:#eef2f7; overflow:hidden; }
+#wordcard-root .wc-sh__track{ height:26px; border-radius:8px; background:#eef2f7; overflow:hidden;
+  /* 0~100% 절대 척도 — 25% 마다 옅은 눈금 */
+  background-image:linear-gradient(90deg, transparent calc(25% - 1px), #dde4ec 25%, transparent calc(25% + 1px)),
+                   linear-gradient(90deg, transparent calc(50% - 1px), #dde4ec 50%, transparent calc(50% + 1px)),
+                   linear-gradient(90deg, transparent calc(75% - 1px), #dde4ec 75%, transparent calc(75% + 1px)); }
 #wordcard-root .wc-sh__fill{ display:block; height:100%; border-radius:8px;
   background:linear-gradient(90deg,#D9922B,#BA7517); transition:width .5s cubic-bezier(.22,1,.36,1); }
 #wordcard-root .wc-sh__v{ font-size:20px; font-weight:800; color:#BA7517; text-align:right; letter-spacing:-.02em; }
@@ -293,12 +297,12 @@ body{ background:#ffffff; }
     /* ── 세대 온도계 ────────────────────────────────── */
     /* 한눈에 — 이 단어의 핵심은 '지역어를 쓰는 사람이 세대마다 얼마나 줄었나' 하나다 */
     function shiftHTML(w){
-      const b=w.shift.by, max=Math.max(b[70].live,b[50].live,b[20].live,0.01);
+      const b=w.shift.by;
       const row=(g,label)=>{
         const v=b[g].live, pctv=Math.round(v*100);
         return `<div class="wc-sh__row">
           <span class="wc-sh__g">${g}대<small>${label}</small></span>
-          <span class="wc-sh__track"><span class="wc-sh__fill" style="width:${Math.round(v/max*100)}%"></span></span>
+          <span class="wc-sh__track"><span class="wc-sh__fill" style="width:${(v*100).toFixed(1)}%"></span></span>
           <b class="wc-sh__v">${pctv}<i>%</i></b>
         </div>`;
       };
