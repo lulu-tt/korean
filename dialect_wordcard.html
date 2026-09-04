@@ -65,8 +65,13 @@ body{ background:#ffffff; }
 #wordcard-root .wc-pick__label{ font-size:14px; font-weight:800; color:#0f172a; display:inline-flex; align-items:center; gap:6px; margin:0; }
 #wordcard-root .wc-pick__label i{ color:#2563eb; }
 #wordcard-root .wc-pick__count{ font-size:11px; font-weight:700; color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; padding:3px 9px; border-radius:99px; }
-#wordcard-root .wc-pick__reset{ margin-left:auto; border:1px solid var(--wc-line); background:#fff; border-radius:9px; padding:5px 11px; font-family:inherit; font-size:11.5px; font-weight:700; color:#64748b; cursor:pointer; }
-#wordcard-root .wc-pick__reset:hover{ border-color:#93c5fd; color:#2563eb; }
+#wordcard-root .wc-pick__toggle{ margin-left:auto; display:inline-flex; align-items:center; gap:4px; border:1px solid var(--wc-line); background:#fff; border-radius:9px; padding:5px 11px; font-family:inherit; font-size:11.5px; font-weight:700; color:#64748b; cursor:pointer; transition:.15s; }
+#wordcard-root .wc-pick__toggle:hover{ border-color:#93c5fd; color:#2563eb; background:#f8fbff; }
+#wordcard-root .wc-pick__chev{ font-size:14px; color:#94a3b8; transition:transform .2s; }
+#wordcard-root .wc-pick.is-collapsed .wc-pick__chev{ transform:rotate(180deg); }
+#wordcard-root .wc-pick.is-collapsed .wc-pick__body{ display:none; }
+/* 접었을 때 검색칸 아래 구분선만 덩그러니 남지 않게 */
+#wordcard-root .wc-pick.is-collapsed .wc-search{ margin-bottom:0; padding-bottom:0; border-bottom:0; }
 #wordcard-root .wc-search{ position:relative; margin:0 0 14px; padding-bottom:14px; border-bottom:1px solid #f1f5f9; }
 #wordcard-root .wc-search input{ width:100%; height:40px; padding:0 14px 0 36px; border:1px solid var(--wc-line); border-radius:11px; background:#fff; font-size:13px; font-weight:600; color:#0f172a; font-family:inherit; outline:none; box-sizing:border-box; transition:.15s; }
 #wordcard-root .wc-search input:focus{ border-color:#93c5fd; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
@@ -242,7 +247,7 @@ body{ background:#ffffff; }
 
     const DATA_URL = './data/processed/word_stories.json';
     let DB = null, CODING = null;
-    let keyword = '', currentId = null;
+    let keyword = '', currentId = null, pickCollapsed = false;
 
     const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
     const sum = a => a.reduce((x,y)=>x+y,0);
@@ -475,16 +480,21 @@ body{ background:#ffffff; }
             </div>
           </div>
         </div>
-        <div class="wc-pick">
+        <div class="wc-pick${pickCollapsed?' is-collapsed':''}" id="wcPick">
           <div class="wc-pick__head">
             <p class="wc-pick__label"><i class="ti ti-list-search" aria-hidden="true"></i>단어 고르기</p>
             <span class="wc-pick__count" id="wcCount">${filtered().length}개</span>
-            <button class="wc-pick__reset" id="wcReset">전체 보기</button>
+            <button type="button" class="wc-pick__toggle" id="wcPickToggle" aria-expanded="${!pickCollapsed}" aria-controls="wcPickBody">
+              <span id="wcPickToggleLabel">${pickCollapsed?'목록 펼치기':'목록 접기'}</span>
+              <i class="ti ti-chevron-down wc-pick__chev" aria-hidden="true"></i>
+            </button>
           </div>
           <div class="wc-search"><i class="ti ti-search" aria-hidden="true"></i>
             <input id="wcSearch" type="search" placeholder="단어로 찾기 (예: 부추)" value="${esc(keyword)}">
           </div>
-          <div class="wc-grid" id="wcGrid" role="tablist">${gridHTML()}</div>
+          <div class="wc-pick__body" id="wcPickBody">
+            <div class="wc-grid" id="wcGrid" role="tablist">${gridHTML()}</div>
+          </div>
         </div>
         <div id="wcDetail">${w?detailHTML(w):''}</div>`;
       bind();
@@ -500,15 +510,21 @@ body{ background:#ffffff; }
     function bind(){
       const root = document.getElementById('wordcard-root');
 
-      const reset = document.getElementById('wcReset');
-      if(reset) reset.addEventListener('click',()=>{
-        keyword='';
-        const s=document.getElementById('wcSearch'); if(s) s.value='';
-        rerenderList();
-      });
+      /* 목록 접기·펼치기 — 검색칸은 접어도 남겨 둔다(접힌 채로도 찾을 수 있게) */
+      const pick = document.getElementById('wcPick');
+      const pickToggle = document.getElementById('wcPickToggle');
+      const setPick = on => {
+        pickCollapsed = on;
+        if(pick) pick.classList.toggle('is-collapsed', on);
+        if(pickToggle) pickToggle.setAttribute('aria-expanded', String(!on));
+        const lbl = document.getElementById('wcPickToggleLabel');
+        if(lbl) lbl.textContent = on ? '목록 펼치기' : '목록 접기';
+      };
+      if(pickToggle) pickToggle.addEventListener('click', ()=> setPick(!pickCollapsed));
 
       const search = document.getElementById('wcSearch');
-      if(search) search.addEventListener('input',e=>{ keyword=e.target.value.trim(); rerenderList(); });
+      // 접힌 상태에서 검색하면 결과를 볼 수 있게 저절로 펼친다
+      if(search) search.addEventListener('input',e=>{ keyword=e.target.value.trim(); if(pickCollapsed) setPick(false); rerenderList(); });
 
       const grid = document.getElementById('wcGrid');
       if(grid) grid.addEventListener('click',e=>{
