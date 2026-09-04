@@ -143,8 +143,11 @@
       var feats = fc.features;
       muniCount = feats.length;
       for (var i = 0; i < feats.length; i++) {
-        var name = (feats[i].properties && feats[i].properties.name) || ('구역' + i);
-        var sido = resolveSidoForGeom(feats[i].geometry);
+        var props = feats[i].properties || {};
+        var name = props.name || ('구역' + i);
+        // 북한 시·군(nk)은 데이터에 확정된 도(통일부 기준)를 그대로 사용,
+        // 남한은 기존대로 지오메트리로 도 판정.
+        var sido = (props.nk && props.sido) ? props.sido : resolveSidoForGeom(feats[i].geometry);
         var ref = {
           id: 'muni_' + i,
           name: name,

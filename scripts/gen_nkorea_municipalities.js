@@ -77,7 +77,46 @@ const KO = {
   // 'Unsan' 은 동명(자강/평남) → 아래에서 도로 구분
 };
 
-// ── 도(sido) 판정: point-in-polygon ──
+// ── 도(sido) 배정: 통일부 13광역 현행 기준 authoritative 목록 (shapeName 기준) ──
+// point-in-polygon 은 접경 시군을 다수 오배정(안주시→평북, 재령→황북 등)하므로 명시 목록 사용.
+// 'Unsan' 동명 2건은 아래 특례로 도 구분(자강측=운산군/평북, 평남측=은산군/평남).
+const PROV_MEMBERS = {
+  '평양직할시': ['Kangdong','Kangnam','Unjong Dist.','Pyongyang'],
+  '남포특별시': ['Nampo City','Kangso','Taean','Chollima','Ryonggang','Onchon'],
+  '라선특별시': ['Rason City'],
+  '개성특별시': ['Kaesong City','Jangphung'],
+  '평안남도': ['Anju City','Kaechon City','Mundok','Maengsan','Taedong','Jungsan','Pyongsong City',
+    'Chongnam','Nyongwon','Pukchang','Pyongwon','Sinyang','Songchon','Sukchon','Sunchon City',
+    'Tokchon City','Tukjang','Yangdok'],
+  '평안북도': ['Changsong','Cholsan','Chonma','Jongju City','Kujang','Kusong City','Kwaksan',
+    'Nyongbyon','Pakchon','Phihyon','Pyokdong','Ryongchon','Sakju','Sindo','Sinuiju City',
+    'Sonchon','Taegwan','Thaechon','Tongchang','Tongrim','Uiju','Unjon','Yomju','Hyangsan'],
+  '자강도': ['Chosan','Huichon City','Hwaphyong','Janggang','Jasong','Jonchon','Junggang',
+    'Kanggye City','Kophung','Manpho City','Rangrim','Ryongrim','Sijung','Songgan','Songwon',
+    'Tongsin','Usi','Wiwon'],
+  '량강도': ['Hyesan City','Kabsan','Kim Hyong Gwon','Kim Hyong Jik','Kim Jong Suk','Paekam',
+    'Phungso','Pochon','Samjiyon','Samsu','Unhung','Taehongdan'],
+  '함경남도': ['Hamhung City','Hamju','Hongwon','Jongphyong','Kumho','Pukchong','Rakwon','Riwon',
+    'Sinhung','Sinpho City','Sudong','Yodok','Yonggwang','Jangjin','Pujon','Kowon','Kumya',
+    'Taehung','Toksong','Hochon','Tanchon City'],
+  '함경북도': ['Chongjin City','Hoeryong City','Hwadae','Kilju','Kim Chaek City','Kyonghung',
+    'Kyongsong','Kyongwon','Musan','Myongchon','Myonggan','Onsong','Orang','Puryong','Yonsa'],
+  '황해남도': ['Anak','Chongdan','Haeju City','Jangyon','Kangryong','Kwail','Ongjin','Pyoksong',
+    'Ryongyon','Samchon','Sinchon','Sinwon','Songhwa','Thaethan','Unchon','Unryul','Yonan',
+    'Jaerong','Paechon','Pongchon'],
+  '황해북도': ['Hoechang','Hwangju','Junghwa','Koksan','Kumchon','Phyongsan','Pongsan','Rinsan',
+    'Sangwon','Sariwon City','Sohung','Songrim City','Suan','Unpha','Yonsan','Yonthan',
+    'Sinkye','Sinphyong','Thosan'],
+  '강원도': ['Anbyon','Changdo','Cholwon','Chonnae','Hoeyang','Ichon','Kimhwa','Kosan','Kosong',
+    'Kumgang','Munchon City','Phangyo','Phyonggang','Popdong','Sepho','Thongchon','Wonsan City']
+};
+const SN2SIDO = {};
+for (const p of Object.keys(PROV_MEMBERS)) for (const sn of PROV_MEMBERS[p]) {
+  if (SN2SIDO[sn]) throw new Error('PROV 중복: ' + sn);
+  SN2SIDO[sn] = p;
+}
+
+// ── 도(sido) 판정(폴백/검증용): point-in-polygon ──
 function ringContains(ring,x,y){let ins=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/((yj-yi)||1e-12)+xi))ins=!ins;}return ins;}
 function polyC(c,x,y){if(!ringContains(c[0],x,y))return false;for(let h=1;h<c.length;h++)if(ringContains(c[h],x,y))return false;return true;}
 function geomC(g,x,y){if(g.type==='Polygon')return polyC(g.coordinates,x,y);if(g.type==='MultiPolygon')return g.coordinates.some(pc=>polyC(pc,x,y));return false;}
@@ -98,11 +137,15 @@ function ringArea(r){let a=0;for(let i=0,j=r.length-1;i<r.length;j=i++)a+=(r[j][
 
 const gj=JSON.parse(fs.readFileSync(SRC,'utf8'));
 const EPS=0.0018, MINAREA=0.00015;
-const out=[]; let hangul=0,roman=0; const romanList=[];
+const out=[]; let hangul=0,roman=0; const romanList=[]; const noProv=[];
 
 for(const f of gj.features){
   const sn=f.properties.shapeName;
-  const sido=sidoOf(f);
+  const pipSido=sidoOf(f);                       // 폴백/검증용
+  // 도: authoritative 목록 우선, 동명 Unsan 은 pip 로 좌우 구분
+  let sido;
+  if(sn==='Unsan') sido=(pipSido==='평안남도')?'평안남도':'평안북도';
+  else { sido=SN2SIDO[sn]; if(!sido){ sido=pipSido; noProv.push(sn); } }
   let name=KO[sn];
   if(sn==='Unsan') name=(sido==='평안남도')?'은산군':'운산군';
   if(name) hangul++; else { name=sn; roman++; romanList.push(sido+'/'+sn); }
@@ -152,4 +195,13 @@ window.NKOREA_MUNICIPALITIES = ${JSON.stringify(fc)};
 fs.writeFileSync(OUT,body);
 console.log('features:',out.length,'(hangul',hangul,'/ roman',roman+')');
 if(romanList.length) console.log('roman:',romanList.join(', '));
+// 검증: authoritative 목록에 없는 shapeName(폴백 사용) — 있으면 목록 보완 필요
+if(noProv.length) console.log('⚠ 도목록 누락(pip 폴백):',noProv.join(', ')); else console.log('✔ 179개 전부 authoritative 도 배정');
+// 도별 분포
+const byS={}; out.forEach(o=>byS[o.properties.sido]=(byS[o.properties.sido]||0)+1);
+console.log('도별:',JSON.stringify(byS));
+// PROV_MEMBERS 에 있으나 데이터에 없는 이름(오타 감지)
+const dataNames=new Set(gj.features.map(f=>f.properties.shapeName));
+const ghost=Object.keys(SN2SIDO).filter(n=>!dataNames.has(n));
+if(ghost.length) console.log('⚠ 목록엔 있으나 데이터에 없음(오타?):',ghost.join(', '));
 console.log('bytes:',fs.statSync(OUT).size);
