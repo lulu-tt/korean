@@ -6,6 +6,7 @@
  *   var mapApi = DialectMap.create({
  *     target: 'olmap',
  *     dataBase: './data/processed/map/',
+ *     pointBase: './data/processed/map_points/',  // API 없을 때 쓰는 제보자 사본
  *     formListId: 'dfList',          // 없으면 범례 목록 미렌더
  *     legendSelector: '#maplegend .maplegend__list',
  *     statusId: 'mapDataStatus',
@@ -29,6 +30,8 @@
   var DEFAULTS = {
     target: 'olmap',
     dataBase: './data/processed/map/',
+    // API(/api/map_point)가 없는 정적 배포에서 팝업 제보자 목록을 채우는 사본
+    pointBase: './data/processed/map_points/',
     center: [127.8, 38.1],
     zoom: 6.4,
     stackStepLng: 0.065,
@@ -1186,41 +1189,99 @@
 
       // DB에서 제보자·연도·일련번호 보강
       var reqId = ++popupReqSeq;
-      var qs = new URLSearchParams({
+
+      function draw(picked, note) {
+        if (reqId !== popupReqSeq) return;
+        if (picked && picked.length) {
+          popupContent.innerHTML = renderPopupHtml(v, g, placeLabel, buildPopupRows(baseRows), {
+            showAudioPlaceholder: true,
+            informants: informantList(picked)
+          });
+        } else {
+          popupContent.innerHTML = renderPopupHtml(v, g, placeLabel, buildPopupRows(baseRows),
+            { note: note || '이 지점의 제보자 정보가 없습니다.' });
+        }
+        bindCloser();
+      }
+
+      // API 응답에서 이 방언형에 해당하는 줄만 추린다. 하나도 없으면 지점 전체.
+      function pick(rows) {
+        var matched = (rows || []).filter(function (d) {
+          return d.dltTp === v.word || (d.dltTp && d.dltTp.indexOf(v.word) === 0);
+        });
+        return matched.length ? matched : (rows || []);
+      }
+
+      // API 가 없는 정적 배포(깃허브 페이지·Vercel)용 사본
+      function fallback(note) {
+        loadStaticPoints(payload.headword_no, function (points) {
+          var rows = staticInformants(points, v.word, pl);
+          draw(rows, rows && rows.length ? null : note);
+        });
+      }
+
+      fetch('/api/map_point?' + new URLSearchParams({
         word: v.word || '',
         std: payload.headword || '',
         sido: (pl && pl.sido) || '',
         sigungu: (pl && pl.sigungu) || '',
         region: placeLabel || ''
-      });
-      fetch('/api/map_point?' + qs.toString())
-        .then(function (r) { return r.json(); })
+      }).toString())
+        .then(function (r) {
+          if (!r.ok) throw new Error('no api');
+          return r.json();
+        })
         .then(function (res) {
           if (reqId !== popupReqSeq) return;
-          if (!res || res.status !== 'success' || !res.data || !res.data.length) {
-            popupContent.innerHTML = renderPopupHtml(v, g, placeLabel, buildPopupRows(baseRows),
-              { note: '이 지점의 제보자 정보가 없습니다.' });
-            bindCloser();
-            return;
-          }
-          // 방언형이 일치하는 것만 추린다. 하나도 없으면 지점 전체를 보여 준다.
-          var matched = res.data.filter(function (d) {
-            return d.dltTp === v.word || (d.dltTp && d.dltTp.indexOf(v.word) === 0);
-          });
-          var picked = matched.length ? matched : res.data;
-          var enriched = buildPopupRows(baseRows);
-          popupContent.innerHTML = renderPopupHtml(v, g, placeLabel, enriched, {
-            showAudioPlaceholder: true,
-            informants: informantList(picked)
-          });
-          bindCloser();
+          if (!res || res.status !== 'success') { fallback('제보자 정보를 불러오지 못했습니다.'); return; }
+          if (!res.data || !res.data.length) { fallback(null); return; }
+          draw(pick(res.data));
         })
         .catch(function () {
           if (reqId !== popupReqSeq) return;
-          popupContent.innerHTML = renderPopupHtml(v, g, placeLabel, buildPopupRows(baseRows),
-            { note: '제보자 정보를 불러오지 못했습니다.' });
-          bindCloser();
+          fallback('제보자 정보를 불러오지 못했습니다.');
         });
+    }
+
+    // ── 정적 제보자 사본 (scripts/export_map_points.py 가 만든다) ──
+    var staticPoints = {};
+
+    function loadStaticPoints(no, cb) {
+      var key = String(no || '');
+      if (!key) { cb(null); return; }
+      if (staticPoints.hasOwnProperty(key)) {
+        var hit = staticPoints[key];
+        if (hit && hit.pending) { hit.waiting.push(cb); return; }
+        cb(hit);
+        return;
+      }
+      var slot = { pending: true, waiting: [cb] };
+      staticPoints[key] = slot;
+      function settle(val) {
+        staticPoints[key] = val;
+        slot.waiting.forEach(function (fn) { fn(val); });
+      }
+      fetch((opts.pointBase || './data/processed/map_points/') + encodeURIComponent(key) + '.json')
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) { settle((j && j.points) || null); })
+        .catch(function () { settle(null); });
+    }
+
+    function staticInformants(points, word, pl) {
+      if (!points) return null;
+      var k = [word || '', (pl && pl.sido) || '', (pl && pl.sigungu) || ''].join('\u2502');
+      var arr = points[k];
+      if (!arr || !arr.length) return null;
+      // API 응답과 같은 모양으로 되돌린다 — informantList 가 그대로 쓴다.
+      return arr.map(function (x) {
+        return {
+          basisYear: x.y || '',
+          sex: x.s || '',
+          age: x.a || '',
+          fileMemo: x.m || '',
+          dltTp: (x.f || word || '').split('|')[0]
+        };
+      });
     }
 
     // 원본 심볼 PNG 아이콘 스타일 (symbolFile 있을 때 사용). 크기는 운영과 동일(~13px)로 정규화.
