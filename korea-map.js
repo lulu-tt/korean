@@ -210,11 +210,28 @@
    * 기존 ol.Map에 시·군·구 경계 + 지역명 라벨 레이어를 얹고, 토글 컨트롤러를 반환한다.
    * @returns {object} { municipalityLayer, labelLayer, showLabels(bool), toggleLabels(), labelsVisible() }
    */
+  // 지도 데이터 출처 표기(라이선스 준수: 북한 geoBoundaries = CC BY 3.0 IGO)
+  function addDataCredit(map) {
+    if (!map || !map.getTargetElement) return;
+    var el = map.getTargetElement();
+    if (!el || el.querySelector('.km-credit')) return;
+    if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+    var c = document.createElement('div');
+    c.className = 'km-credit';
+    c.textContent = '데이터 출처: 남한 통계청(KOSTAT)·southkorea-maps · 북한 geoBoundaries(WFP·OCHA), CC BY 3.0 IGO';
+    c.style.cssText = 'position:absolute;right:6px;bottom:6px;z-index:5;pointer-events:none;'
+      + 'background:rgba(255,255,255,.82);color:#64748b;font-size:10px;line-height:1.3;'
+      + 'padding:3px 7px;border-radius:6px;max-width:78%;text-align:right;font-family:inherit;';
+    el.appendChild(c);
+  }
+
   function attachRegionLayers(map, opts) {
     var o = merge(DEFAULTS, opts);
 
     // 시·도/시·군·구 표시 상태(라벨 스타일 함수가 실시간 참조)
     var state = { sido: o.sidoVisible === true, sigungu: o.sigunguVisible === true };
+
+    addDataCredit(map);
 
     // 지역명 라벨(작음, 37KB)은 즉시 얹는다. 실제 표시는 state 로 제어.
     var labels = createLabelLayer(o, state);
