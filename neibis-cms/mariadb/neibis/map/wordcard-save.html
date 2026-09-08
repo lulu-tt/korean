@@ -648,7 +648,7 @@
 .wcf-i[aria-expanded="true"]{background:#2563eb;border-color:#2563eb;color:#fff}
 
 .wcf-pop{position:absolute;z-index:40;display:none;
-  left:calc(100% + 14px);top:-16px;width:min(820px, calc(100vw - 480px));
+  left:calc(100% + 14px);top:-16px;width:min(560px, calc(100vw - 480px));
   border:1px solid #bfdbfe;background:#f8fbff;border-radius:10px;
   padding:14px 16px 15px;box-shadow:0 12px 32px rgba(15,23,42,.14);
   text-align:left;white-space:normal}
@@ -664,7 +664,7 @@
 
 .wcf-calc{padding-right:22px}
 .wcf-calc__t{margin:0 0 10px;font-size:12.5px;font-weight:800;color:#1d4ed8;line-height:1.45}
-.wcf-calc__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 26px}
+.wcf-calc__grid{display:grid;grid-template-columns:1fr;gap:14px}
 .wcf-cg h4{margin:0 0 6px;font-size:12.5px;font-weight:800;color:#0f172a;line-height:1.4;
   display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
 .wcf-cg h4 span{font-size:11px;font-weight:600;color:#94a3b8}
@@ -680,7 +680,6 @@
     border-left:7px solid transparent;border-right:7px solid transparent;
     border-top:0;border-bottom:8px solid #bfdbfe}
   .wcf-pop::after{top:-13px;border-bottom-color:#f8fbff}
-  .wcf-calc__grid{grid-template-columns:1fr}
 }
 
 /* 교차표 — 표 자체가 미리보기다. 합계가 입력하는 즉시 따라온다 */
@@ -795,16 +794,6 @@
         <li><b>아래 'n명 중 m명'</b> = 그 집단 응답자 수와 쓰는 사람 수</li>
         <li><b>세대 묶음 생략</b> = 남 또는 여 한쪽 줄이 비면 그 세대는 그리지 않음
           <em>모두 0명이면 빈 실루엣으로 그립니다(0%와 없음은 다릅니다)</em></li>
-      </ul>
-    </section>
-
-    <section class="wcf-cg">
-      <h4>단어 목록<span>화면 위 단어 고르기</span></h4>
-      <ul>
-        <li><b>늘어놓는 순서</b> = 세대 감소폭이 큰 순
-          <em>변화가 심한 단어가 앞에 옵니다</em></li>
-        <li><b>노출 여부</b> = 교차표에 숫자가 하나라도 있으면 노출
-          <em>비워 두면 자료로만 보관되고 사용자 화면에는 나오지 않습니다</em></li>
       </ul>
     </section>
 
