@@ -1312,7 +1312,7 @@ const getMngrFail = function (xhr, status, error) {
 		<script>
 (function () {
   var STORAGE_KEY = 'neibis.searchTopic.v1';
-  var SEED_URL = '/mariadb/neibis/survey/data/search-topic.json';
+  var SEED_URL = 'data/search-topic.json'; // 페이지 기준 상대경로: 스프링(.do)·정적 배포 모두에서 동작
   var state = { items: [], filtered: [], page: 1, pageSize: 10, editId: null };
 
   function today() {
