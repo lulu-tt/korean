@@ -637,18 +637,50 @@
 .wcf-note{display:flex;gap:10px;align-items:flex-start;margin:0 0 14px;padding:12px 14px;border:1px solid #dbeafe;background:#f8fbff;border-radius:8px;font-size:13px;line-height:1.6;color:#334155}
 .wcf-note b{color:#1d4ed8}
 .wcf-hint{display:block;margin-top:5px;font-size:12px;color:#94a3b8;line-height:1.5}
-/* 계산 안내 — 넣은 숫자가 앞단 어느 그래프의 어떤 값이 되는지 적어 둔다 */
-.wcf-calc{margin-top:12px;border:1px solid #dbeafe;background:#f8fbff;border-radius:8px;padding:12px 16px}
+/* 계산 안내 — 핵심 수치 라벨 옆 (i) 버튼을 누르면 말풍선으로 펼친다 */
+.wcf-ihold{position:relative;display:inline-flex;align-items:center;gap:6px}
+.wcf-i{flex:0 0 auto;width:19px;height:19px;padding:0;border-radius:50%;
+  border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;
+  font-family:inherit;font-size:11.5px;font-weight:800;line-height:1;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;transition:.15s}
+.wcf-i:hover{background:#2563eb;border-color:#2563eb;color:#fff}
+.wcf-i:focus-visible{outline:2px solid #93c5fd;outline-offset:2px}
+.wcf-i[aria-expanded="true"]{background:#2563eb;border-color:#2563eb;color:#fff}
+
+.wcf-pop{position:absolute;z-index:40;display:none;
+  left:calc(100% + 14px);top:-16px;width:min(820px, calc(100vw - 480px));
+  border:1px solid #bfdbfe;background:#f8fbff;border-radius:10px;
+  padding:14px 16px 15px;box-shadow:0 12px 32px rgba(15,23,42,.14);
+  text-align:left;white-space:normal}
+.wcf-pop.is-open{display:block}
+/* 말풍선 꼬리 — 테두리 위에 겹쳐 그린다 */
+.wcf-pop::before,.wcf-pop::after{content:"";position:absolute;top:20px;width:0;height:0;
+  border-top:7px solid transparent;border-bottom:7px solid transparent}
+.wcf-pop::before{left:-8px;border-right:8px solid #bfdbfe}
+.wcf-pop::after{left:-7px;border-right:8px solid #f8fbff}
+.wcf-pop__close{position:absolute;top:8px;right:9px;width:22px;height:22px;padding:0;
+  border:0;background:none;color:#94a3b8;font-family:inherit;font-size:15px;line-height:1;cursor:pointer}
+.wcf-pop__close:hover{color:#1d4ed8}
+
+.wcf-calc{padding-right:22px}
 .wcf-calc__t{margin:0 0 4px;font-size:12.5px;font-weight:800;color:#1d4ed8;line-height:1.45}
-.wcf-calc dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 26px;margin:0}
-.wcf-calc dl > div{display:grid;grid-template-columns:126px 1fr;gap:10px;align-items:baseline;
+.wcf-calc dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px;margin:0}
+.wcf-calc dl > div{display:grid;grid-template-columns:118px 1fr;gap:10px;align-items:baseline;
   padding:7px 0;border-top:1px solid #e6effa}
 .wcf-calc dt{font-size:12.5px;font-weight:700;color:#334155;line-height:1.45}
 .wcf-calc dt span{display:block;margin-top:2px;font-size:11px;font-weight:600;color:#94a3b8}
 .wcf-calc dd{margin:0;font-size:12.5px;color:#475569;line-height:1.5}
 .wcf-calc dd b{color:#0f172a;font-weight:700}
 .wcf-calc dd em{display:block;margin-top:2px;font-style:normal;font-size:11.5px;color:#94a3b8}
-@media (max-width:1200px){ .wcf-calc dl{grid-template-columns:1fr} }
+/* 좁은 화면에서는 오른쪽에 펼칠 자리가 없다 → 라벨 아래로 내리고 한 줄로 */
+@media (max-width:1100px){
+  .wcf-pop{left:0;top:calc(100% + 10px);width:min(86vw,520px)}
+  .wcf-pop::before,.wcf-pop::after{top:-14px;left:14px;
+    border-left:7px solid transparent;border-right:7px solid transparent;
+    border-top:0;border-bottom:8px solid #bfdbfe}
+  .wcf-pop::after{top:-13px;border-bottom-color:#f8fbff}
+  .wcf-calc dl{grid-template-columns:1fr}
+}
 @media (max-width:640px){ .wcf-calc dl > div{grid-template-columns:1fr;gap:2px} }
 
 /* 교차표 — 표 자체가 미리보기다. 합계가 입력하는 즉시 따라온다 */
@@ -721,29 +753,13 @@
 </td>
 </tr>
 <tr>
-<th scope="row"><label>핵심 수치</label></th>
-<td colspan="3">
-<div class="wcf-ctwrap">
-<table class="wcf-ct">
-<caption class="sr-only">세대·성별 응답자 수 교차표</caption>
-<thead>
-<tr>
-<th rowspan="2">세대·성별</th>
-<th colspan="4">응답자 수 (명)</th>
-<th rowspan="2">합계</th>
-</tr>
-<tr id="wcCtHead"></tr>
-</thead>
-<tbody id="wcCtBody"></tbody>
-<tfoot>
-<tr>
-<th>전체</th>
-<td id="wcFoot0">0</td><td id="wcFoot1">0</td><td id="wcFoot2">0</td><td id="wcFoot3">0</td>
-<td id="wcFootSum">0</td>
-</tr>
-</tfoot>
-</table>
-</div>
+<th scope="row">
+<span class="wcf-ihold">
+<label>핵심 수치</label>
+<button type="button" class="wcf-i" id="wcCalcBtn" aria-expanded="false" aria-controls="wcCalcPop"
+        title="계산 방법 보기"><span aria-hidden="true">i</span><span class="sr-only">계산 방법 보기</span></button>
+<div class="wcf-pop" id="wcCalcPop" role="dialog" aria-label="핵심 수치 계산 방법">
+<button type="button" class="wcf-pop__close" id="wcCalcClose" title="닫기"><span aria-hidden="true">×</span><span class="sr-only">닫기</span></button>
 <div class="wcf-calc">
   <p class="wcf-calc__t">넣은 숫자로 앞단 그래프가 이렇게 계산됩니다 — 아래 값은 따로 입력하지 않습니다</p>
   <dl>
@@ -772,6 +788,31 @@
       <dd><b>교차표에 숫자가 하나라도 있으면 노출</b><em>비워 두면 자료로만 보관되고 앞단에는 나오지 않습니다</em></dd>
     </div>
   </dl>
+</div>
+</div>
+</span>
+</th>
+<td colspan="3">
+<div class="wcf-ctwrap">
+<table class="wcf-ct">
+<caption class="sr-only">세대·성별 응답자 수 교차표</caption>
+<thead>
+<tr>
+<th rowspan="2">세대·성별</th>
+<th colspan="4">응답자 수 (명)</th>
+<th rowspan="2">합계</th>
+</tr>
+<tr id="wcCtHead"></tr>
+</thead>
+<tbody id="wcCtBody"></tbody>
+<tfoot>
+<tr>
+<th>전체</th>
+<td id="wcFoot0">0</td><td id="wcFoot1">0</td><td id="wcFoot2">0</td><td id="wcFoot3">0</td>
+<td id="wcFootSum">0</td>
+</tr>
+</tfoot>
+</table>
 </div>
 </td>
 </tr>
@@ -840,6 +881,30 @@ function wcfRebuildDropdown(id, css){
   $sel.next('.dropdown').remove();
   $sel.attr('style', css);
   $sel.selectToDropdown();
+}
+
+/* ── 계산 안내 말풍선 ────────────────────────────────── */
+function wcfWireCalcPop(){
+  var $btn = $('#wcCalcBtn'), $pop = $('#wcCalcPop');
+  if(!$btn.length || !$pop.length) return;
+  function setOpen(on){
+    $pop.toggleClass('is-open', on);
+    $btn.attr('aria-expanded', String(on));
+  }
+  $btn.on('click', function(e){
+    e.stopPropagation();
+    setOpen(!$pop.hasClass('is-open'));
+  });
+  $('#wcCalcClose').on('click', function(){ setOpen(false); $btn.focus(); });
+  // 말풍선 밖을 누르거나 Esc 를 누르면 닫는다
+  $(document).on('click', function(e){
+    if(!$pop.hasClass('is-open')) return;
+    if($(e.target).closest('#wcCalcPop, #wcCalcBtn').length) return;
+    setOpen(false);
+  });
+  $(document).on('keydown', function(e){
+    if(e.key === 'Escape' && $pop.hasClass('is-open')){ setOpen(false); $btn.focus(); }
+  });
 }
 
 /* ── 교차표 ─────────────────────────────────────────── */
@@ -1017,6 +1082,7 @@ function removeWordcard(){
 $(function(){
   wcfBuildCT();
   $('#wcCtBody').on('input', '.wcf-cell', wcfRefreshCT);
+  wcfWireCalcPop();
 
   wcfLoadMeta().always(function(){
     if(wcfMode === 'M'){
