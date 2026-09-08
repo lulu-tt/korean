@@ -354,11 +354,19 @@ def wordcard_detail(qs):
 
 
 class handler(BaseHTTPRequestHandler):
+    # 판정을 부를 때마다 다시 하므로 awareness 한 번이 7초쯤 걸린다(60,559행 읽기 4초
+    # + 조립 2초). max-age 60 만 두면 1분에 한 명씩 그 7초를 그대로 기다렸다.
+    #   s-maxage        CDN 이 이만큼은 그대로 내준다
+    #   stale-while-revalidate  만료 뒤에도 낡은 것을 즉시 내주고 뒤에서 새로 만든다
+    #                   → 자료를 올린 뒤 첫 열람이 최대 5분까지 옛 값일 수 있다.
+    #                     쓰기가 막힌 배포본이라 그 사이 값이 어긋날 일은 없다.
+    CACHE = "public, max-age=60, s-maxage=300, stale-while-revalidate=86400"
+
     def _json(self, obj, code=200):
         body = json.dumps(obj, ensure_ascii=False).encode("utf-8")
         self.send_response(code)
         self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Cache-Control", "public, max-age=60")
+        self.send_header("Cache-Control", self.CACHE if code == 200 else "no-store")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)

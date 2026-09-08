@@ -341,7 +341,7 @@ def build_output(recs, nfiles):
             informants = sorted({(r['year'], r['age'], r['sx']) for r in rows})
 
             # 제보자별 지역어형 최선 등급(작을수록 살아 있음)
-            best, bestform, bestrid, forms = {}, {}, {}, collections.Counter()
+            best, bestform, forms = {}, {}, collections.Counter()
             for key in informants:
                 mine = [(int(r['g']), r['form'], r.get('rid')) for r in rows
                         if r['g'] and is_dialect(it, r['form'])
@@ -350,27 +350,7 @@ def build_output(recs, nfiles):
                     lo = min(mine, key=lambda x: (x[0], x[1] or ''))
                     best[key] = lo[0]
                     bestform[key] = lo[1]
-                    bestrid[key] = lo[2]
                     forms[lo[1]] += 1
-
-            # 명부 전원을 한 줄씩 — 관리자 그리드가 '칸 하나 = 사람 한 명'으로
-            # 편집할 수 있게, 집계 이전의 원자료 상태를 그대로 남긴다.
-            #   d 지역어형 응답(등급 있음) · s 표준어형만 응답 · x 등급 미기입/무응답
-            panel = []
-            for inf in roster.get(rg, []):
-                key = (inf['year'], inf['age'], inf['sex'])
-                base = {'id': inf['id'], 'age': inf['age'], 'sex': inf['sex']}
-                mine = [r for r in rows if (r['year'], r['age'], r['sx']) == key]
-                if key in best:
-                    base.update({'st': 'd', 'grade': best[key], 'form': bestform[key]})
-                    if bestrid.get(key) is not None:
-                        base['rid'] = bestrid[key]      # 편집 대상 행 (DB 원천일 때만)
-                elif mine and not [r for r in mine if is_dialect(it, r['form'])]:
-                    base['st'] = 's'
-                else:
-                    d = [r for r in mine if is_dialect(it, r['form'])]
-                    base.update({'st': 'x', 'form': d[0]['form'] if d else None})
-                panel.append(base)
 
             # 그 지역에서 실제로 적힌 표준어형·방언형(기저형). 등급 유무와 무관하게 원문 그대로.
             heads, bases = collections.Counter(), collections.Counter()
@@ -443,7 +423,6 @@ def build_output(recs, nfiles):
             cell['graded'] = sum(1 for r in rows if r['g'])            # 그중 등급이 적힌 행
             cell['people'] = len(informants)                           # 조사된 제보자
             cell['edited'] = sum(1 for r in rows if r.get('upt'))      # 관리자가 고친 행
-            cell['panel'] = panel
             entry['regions'][rg] = cell
             tally[state] += 1
         items.append(entry)
