@@ -128,7 +128,54 @@ def load_records():
     return files, recs
 
 
+# ── 미리 계산해 둔 결과 ────────────────────────────────────────────────────
+#   요청마다 60,559행을 읽어 판정하면 7초쯤 걸린다. 적재할 때 한 번 계산해
+#   wb_weather_built* 에 넣어 두고, 여기서는 그것만 꺼내 온다.
+#   sig(응답 행수 + 파일 최종 등록시각)가 지금 자료와 다르면 캐시를 버리고
+#   직접 계산한다 — 낡은 값을 조용히 내려주지 않는다.
+CACHE_KEY = "awareness"
+
+
+def live_sig(rows=None, dt=None):
+    """지금 자료의 지문. 적재 스크립트와 같은 식이어야 한다."""
+    return "%s|%s" % (rows, dt or "")
+
+
+def read_built():
+    """미리 계산한 결과를 꺼낸다. 없거나 자료와 어긋나면 None."""
+    try:
+        nrows, cdt, meta, parts = turso([
+            "SELECT COUNT(*) FROM wb_weather_response",
+            "SELECT MAX(reg_dt) FROM wb_weather_file",
+            "SELECT sig, built_dt, parts FROM wb_weather_built"
+            " WHERE cache_key = " + _sq(CACHE_KEY),
+            "SELECT payload FROM wb_weather_built_part"
+            " WHERE cache_key = " + _sq(CACHE_KEY) + " ORDER BY seq",
+        ])
+    except Exception:
+        return None                      # 표가 아직 없다 — 직접 계산한다
+    if not meta or not parts:
+        return None
+    sig = live_sig(cell(nrows[0][0]), cell(cdt[0][0]))
+    if cell(meta[0][0]) != sig:
+        return None                      # 자료가 바뀌었는데 다시 계산되지 않았다
+    if len(parts) != int(cell(meta[0][2]) or 0):
+        return None                      # 조각이 덜 들어왔다
+    try:
+        out = json.loads("".join(cell(r[0]) for r in parts))
+    except Exception:
+        return None
+    out.setdefault("meta", {})
+    out["meta"]["source"] = "Turso (미리 계산)"
+    out["meta"]["origin"] = "turso"
+    out["meta"]["builtDt"] = cell(meta[0][1])
+    return out
+
+
 def build():
+    cached = read_built()
+    if cached is not None:
+        return cached, None, None
     files, recs = load_records()
     E = etl()
     out = E.build_output(recs, len(files))
