@@ -141,14 +141,30 @@
     var o = merge(DEFAULTS, opts);
     if (!ready() || !global.KOREA_MUNICIPALITIES) return null;
     var muniStrokeStyle = new ol.style.Stroke({ color: o.muniStroke, width: o.muniStrokeWidth });
+    // 북한 라벨 위치: MultiPolygon(예: 라선시=라진+선봉)은 조각마다 라벨이 찍히므로,
+    // 가장 큰 조각의 내부점 1곳에만 라벨을 그린다.
+    function nkLabelPoint(f) {
+      var g = f.getGeometry();
+      if (g.getType() === 'MultiPolygon') {
+        var polys = g.getPolygons(), best = polys[0], bestA = -1;
+        for (var i = 0; i < polys.length; i++) {
+          var a = polys[i].getArea();
+          if (a > bestA) { bestA = a; best = polys[i]; }
+        }
+        return best.getInteriorPoint();
+      }
+      if (g.getType() === 'Polygon') return g.getInteriorPoint();
+      return g;
+    }
     var layer = new ol.layer.Vector({
       source: new ol.source.Vector({ features: readFeatures(global.KOREA_MUNICIPALITIES) }),
       // 남한 시·군 라벨은 KOREA_LABELS(라벨 레이어)에서 나오지만, 북한 시·군은 라벨 데이터가
       // 없으므로 경계 레이어에서 직접 이름을 그린다(nk 플래그가 있는 피처만).
       style: function (f) {
-        if (!f.get('nk')) return new ol.style.Style({ stroke: muniStrokeStyle });
-        return new ol.style.Style({
-          stroke: muniStrokeStyle,
+        var strokeStyle = new ol.style.Style({ stroke: muniStrokeStyle });
+        if (!f.get('nk')) return strokeStyle;
+        var textStyle = new ol.style.Style({
+          geometry: nkLabelPoint(f),   // 조각별 중복 라벨 방지(1회만)
           text: new ol.style.Text({
             text: f.get('name') || '',
             font: '600 ' + o.sigunguSize + 'px ' + o.labelFont,
@@ -157,6 +173,7 @@
             overflow: true
           })
         });
+        return [strokeStyle, textStyle];
       },
       minZoom: o.muniMinZoom - 0.01   // 이 줌 이상에서만 표시
     });
