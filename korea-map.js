@@ -35,7 +35,7 @@
 
     // ── 지역명 라벨 / 시·군·구 옵션 ──
     muniSrc: 'skorea-municipalities.js',  // 시·군·구 경계 데이터(지연 로드 대상). null 이면 지연 로드 안 함
-    nkMuniSrc: 'nkorea-municipalities.js?v=20260910nk', // 북한 시·군 경계(SK 로드 직후 체이닝 병합). null 이면 북한 세분화 안 함
+    nkMuniSrc: 'nkorea-municipalities.js?v=20260910nk2', // 북한 시·군 경계(SK 로드 직후 체이닝 병합). null 이면 북한 세분화 안 함
     muniMinZoom: 8,          // 이 줌 이상에서 시·군·구 경계·라벨 표시 (그 아래는 시·도 라벨)
     muniStroke: '#cbd5e1',   // 시·군·구 경계선 색(얇게)
     muniStrokeWidth: 0.8,
