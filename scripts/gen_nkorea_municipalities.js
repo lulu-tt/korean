@@ -135,6 +135,21 @@ function dp(pts,eps){if(pts.length<3)return pts;let dm=0,idx=0;const a=pts[0],b=
 function cleanRing(ring,eps){let r=ring.map(c=>[r3(c[0]),r3(c[1])]);const d=[];for(const c of r){const l=d[d.length-1];if(!l||l[0]!==c[0]||l[1]!==c[1])d.push(c);}let s=dp(d,eps);if(s.length&&(s[0][0]!==s[s.length-1][0]||s[0][1]!==s[s.length-1][1]))s.push(s[0]);return s;}
 function ringArea(r){let a=0;for(let i=0,j=r.length-1;i<r.length;j=i++)a+=(r[j][0]*r[i][1]-r[i][0]*r[j][1]);return Math.abs(a/2);}
 
+// ── 통일부 NKMap 표기 반영 (정책: 통일부 기준, 2026-09) ──
+//  두음법칙(남한식) 적용 + 개명 지역 처리. KO 는 북한 철자로 두고 여기서 통일부 표기로 변환.
+const SOUTH_SIDO = { '량강도':'양강도', '라선특별시':'나선특별시' };
+// 단일 표기(두음/개명): 우리 북한철자 → 통일부 단일 표기
+const SOUTH_NAME = {
+  '룡천군':'용천군','녕변군':'영변군','녕원군':'영원군','락원군':'낙원군','랑림군':'낭림군',
+  '라선시':'나선시','린산군':'인산군','리원군':'이원군','룡강군':'용강군','룡림군':'용림군',
+  '룡연군':'용연군','은률군':'은율군','경원군':'새별군','경흥군':'은덕군'
+};
+// 병기(전통명 대표 + 개명명 괄호): 김일성 일가 개명 등 5곳 — NKMap 방식
+const BYEONGGI = {
+  '김책시':['성진시','김책시'], '김형직군':['후창군','김형직군'], '김정숙군':['신파군','김정숙군'],
+  '김형권군':['풍산군','김형권군'], '영광군':['오로군','영광군']
+};
+
 const gj=JSON.parse(fs.readFileSync(SRC,'utf8'));
 const EPS=0.0018, MINAREA=0.00015;
 const out=[]; let hangul=0,roman=0; const romanList=[]; const noProv=[];
@@ -150,6 +165,12 @@ for(const f of gj.features){
   if(sn==='Unsan') name=(sido==='평안남도')?'은산군':'운산군';
   if(name) hangul++; else { name=sn; roman++; romanList.push(sido+'/'+sn); }
 
+  // 통일부 표기로 변환: 도명 남한식 + 지명 두음/개명 + 병기(alt)
+  if (SOUTH_SIDO[sido]) sido = SOUTH_SIDO[sido];
+  let alt = null;
+  if (BYEONGGI[name]) { alt = BYEONGGI[name][1]; name = BYEONGGI[name][0]; }
+  else if (SOUTH_NAME[name]) name = SOUTH_NAME[name];
+
   const polys=[]; const src=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;
   for(const poly of src){
     const rings=[];
@@ -163,7 +184,9 @@ for(const f of gj.features){
   }
   if(!polys.length) continue;
   const geometry=polys.length===1?{type:'Polygon',coordinates:polys[0]}:{type:'MultiPolygon',coordinates:polys};
-  out.push({type:'Feature',geometry:geometry,properties:{name:name,code:f.properties.shapeID,sido:sido,name_en:sn,nk:true}});
+  const props={name:name,code:f.properties.shapeID,sido:sido,name_en:sn,nk:true};
+  if(alt) props.alt=alt;
+  out.push({type:'Feature',geometry:geometry,properties:props});
 }
 
 const fc={type:'FeatureCollection',features:out};

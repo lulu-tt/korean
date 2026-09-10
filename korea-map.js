@@ -163,10 +163,13 @@
       style: function (f) {
         var strokeStyle = new ol.style.Style({ stroke: muniStrokeStyle });
         if (!f.get('nk')) return strokeStyle;
+        // 통일부 NKMap 방식: 개명 지역은 전통명(개명명) 병기, 그 외는 단일. 예: 성진시(김책시)
+        var nkName = f.get('name') || '';
+        var nkAlt = f.get('alt');
         var textStyle = new ol.style.Style({
           geometry: nkLabelPoint(f),   // 조각별 중복 라벨 방지(1회만)
           text: new ol.style.Text({
-            text: f.get('name') || '',
+            text: nkAlt ? (nkName + '(' + nkAlt + ')') : nkName,
             font: '600 ' + o.sigunguSize + 'px ' + o.labelFont,
             fill: new ol.style.Fill({ color: o.sigunguColor }),
             stroke: new ol.style.Stroke({ color: 'rgba(255,255,255,0.85)', width: 2.5 }),
