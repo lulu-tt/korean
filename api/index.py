@@ -16,6 +16,7 @@
   저장·삭제·업로드는 로컬 관리자(serve.py)에서 한다.
 """
 from http.server import BaseHTTPRequestHandler
+import collections
 import importlib.util
 import json
 import os
@@ -291,7 +292,47 @@ def responses(item):
         })
     out.sort(key=lambda r: (order.get(r["region"], 99), r["age"] or 0,
                             r["sex"] or "", r["file"], r["lineNo"] or 0))
-    return {"ok": True, "item": item, "total": len(out), "rows": out}
+
+    # 제보자별 계산값과 보정값 — serve.py 의 api_weather_responses 와 같은 모양이어야
+    # 화면이 보정 칸을 그릴 수 있다. 규칙(대표 표제어·표준어형 제외·최선 등급)은
+    # etl 의 것을 그대로 쓴다.
+    E = etl()
+    hw = ""
+    c = collections.Counter(r["headword"] for r in out if r["headword"])
+    if c:
+        hw = c.most_common(1)[0][0]
+    calc, forms = {}, {}
+    for r in out:
+        g = (r["grade"] or "").strip()
+        if not g:
+            continue
+        f = E.norm(r["shown"])
+        if not f or f in E.head_forms(hw):
+            continue                            # 표준어형은 판정에서 빠진다
+        k = r["file"]
+        if k not in calc or int(g) < calc[k]:
+            calc[k] = int(g)
+            forms[k] = r["shown"]
+    adj = {}
+    try:
+        arows, = turso(["SELECT file_nm, grade FROM wb_weather_adjust"
+                        " WHERE item_base=" + _sq(item)])
+        adj = {cell(x[0]): str(cell(x[1]) or "") for x in arows}
+    except Exception:
+        pass
+    people, seen = [], set()
+    for r in out:
+        if r["file"] in seen:
+            continue
+        seen.add(r["file"])
+        people.append({
+            "file": r["file"], "region": r["region"], "regionNm": r["regionNm"],
+            "year": r["year"], "age": r["age"], "sex": r["sex"],
+            "calc": calc.get(r["file"], ""), "calcForm": forms.get(r["file"], ""),
+            "adjust": adj.get(r["file"], ""),
+        })
+    return {"ok": True, "item": item, "headword": hw, "total": len(out),
+            "rows": out, "people": people}
 
 
 READONLY = {"ok": False, "message":
