@@ -626,12 +626,13 @@
 
 						<!-- ══════════ 목록 화면 ══════════ -->
 						<!-- ══════════ 화면 전환 탭 ══════════ -->
-						<div class="pt-tabs" role="tablist">
-							<button type="button" class="pt-tab is-on" data-view="list" role="tab">항목 목록</button>
-							<button type="button" class="pt-tab" data-view="upload" role="tab">업로드</button>
-							<span class="pt-tabs-spacer"></span>
-							<span class="pt-dbline" id="ptDbLine">불러오는 중…</span>
-						</div>
+						<nav class="tabmenu tabmenu-type2">
+							<ul class="tab-list type2">
+								<li class="on"><a href="#;" class="pt-tab" data-view="list" title="선택됨"><span>항목 목록</span></a></li>
+								<li><a href="#;" class="pt-tab" data-view="upload"><span>업로드</span></a></li>
+							</ul>
+							<div class="data-summary" id="ptDbLine"></div>
+						</nav>
 
 						<!-- ══════════ ① 항목 목록 ══════════ -->
 						<div id="ptList">
@@ -712,15 +713,12 @@
 
 						<!-- ══════════ ①-b 응답 목록 (항목 하나의 원자료) ══════════ -->
 						<div id="ptResp" style="display:none">
-							<div class="pt-rhead">
-								<button type="button" class="pt-back" id="ptBack">← 목록으로</button>
-								<h3 class="pt-rtitle" id="ptRTitle">—</h3>
-								<span class="pt-rmeta" id="ptRMeta"></span>
-								<a href="#;" class="pt-rlink" id="ptRFront" target="_blank">이용자 화면에서 보기</a>
-							</div>
-
-							<h3 class="title1 text-primary mt-md-4 ml-md-4">응답 검색영역</h3>
 							<div class="card">
+								<h3 class="title1 mt-4">
+									<span id="ptRTitle">—</span>
+									<span class="text-sm text-medium text-lightgray ml-2" id="ptRMeta"></span>
+									<a href="#;" class="text-sm ml-2" id="ptRFront" target="_blank">이용자 화면에서 보기</a>
+								</h3>
 								<div class="table table-form-basic">
 									<div class="table-inner">
 										<table>
@@ -771,7 +769,7 @@
 								<div class="btn-group-center">
 									<button type="button" class="btn btn-md btn-outline-gray" id="prReset"><i class="ico ico-undo-darkgray-md"></i><span class="text">초기화</span></button>
 									<button type="button" class="btn btn-md btn-primary" id="prSearch"><i class="ico ico-search-white-md"></i><span class="text">검색</span></button>
-									<button type="button" class="btn btn-md" style="background:#217346;border-color:#217346;color:#fff" id="prExcel"><i class="ico ico-fileexcel-white-md"></i><span class="text">엑셀 다운</span></button>
+									<a href="#;" class="btn btn-md btn-xls" id="prExcel" download=""><i class="ico ico-fileexcel-white-md"></i><span>엑셀 다운</span></a>
 								</div>
 							</div>
 
@@ -779,10 +777,11 @@
 								<div class="list-control">
 									<div class="left">
 										<p class="total" id="prCount">총 <strong class="text-primary">0</strong>건</p>
-										<span class="pt-legend">
-											<span><em class="lg-sub">한 줄 = 엑셀 한 행</em></span>
-											<span><i class="lg-none"></i>등급 미기입</span>
-										</span>
+										<ul class="list-legend">
+											<li class="list-legend-item"><span>한 줄 = 엑셀 한 행</span></li>
+											<li class="list-legend-item"><span class="legend-mark type-yellow"></span><span>등급 미기입</span></li>
+											<li class="list-legend-item"><span class="legend-mark type-purple"></span><span>보정됨</span></li>
+										</ul>
 									</div>
 									<div class="right">
 										<select class="form-control-sm" style="min-width:100px" title="목록 수" id="prSize">
@@ -795,7 +794,7 @@
 									</div>
 								</div>
 
-								<div class="table table-list">
+								<div class="table table-dialect-type1 table-scroll-x">
 									<div class="table-inner">
 										<table>
 											<caption class="sr-only">항목별 응답 목록</caption>
@@ -824,12 +823,34 @@
 
 								<div class="pagination" id="prPager"></div>
 
-								<div class="pt-savebar" id="ptSaveBar">
-									<span class="msg" id="ptSaveMsg"></span>
-									<button type="button" class="pt-btn-sm" id="ptRevert" disabled>되돌리기</button>
-									<button type="button" class="btn btn-sm btn-primary" id="ptSaveAll" disabled><span>저장</span></button>
+								<div class="btn-group-between">
+									<div class="left">
+										<button type="button" class="btn btn-lg btn-outline-gray" id="ptBack">
+											<i class="ico ico-chevron-left-gray-md"></i><span>목록</span>
+										</button>
+									</div>
+									<div class="right">
+										<button type="button" class="btn btn-lg btn-outline-primary" id="ptRevert" disabled>
+											<i class="ico ico-undo-primary-md"></i><span>초기화</span>
+										</button>
+										<button type="button" class="btn btn-lg btn-primary" id="ptSaveAll" disabled>
+											<i class="ico ico-save-white-md"></i><span>저장</span>
+										</button>
+									</div>
 								</div>
-							</div>
+								</div>
+								<!-- 상단 고정 액션 — 한 항목에 83행을 오가며 고치므로 저장이 늘 손에 닿아야 한다 -->
+								<div class="btn-group-fixed type-desc" id="ptSaveBar">
+									<button type="button" class="btn btn-lg btn-outline-primary" id="ptRevert2" disabled>
+										<i class="ico ico-undo-primary-md"></i><span>초기화</span>
+									</button>
+									<button type="button" class="btn btn-lg btn-primary" id="ptSaveAll2" disabled>
+										<i class="ico ico-save-white-md"></i><span>저장</span>
+									</button>
+									<div class="btn-group-fixed-desc">
+										<p class="text-lightgray" id="ptSaveMsg"></p>
+									</div>
+								</div>
 						</div>
 
 						<!-- ══════════ ② 업로드 ══════════ -->
@@ -1283,14 +1304,6 @@ const getMngrFail = function (xhr, status, error) {
 <style>
 /* ══════════ 기상도 관리자 프로토타입 ══════════
    클래스는 모두 pt- 로 접두. 공통 테마 클래스와 절대 겹치지 않게 한다. */
-.pt-tabs{ display:flex; align-items:center; gap:4px; border-bottom:2px solid #e2e8f0; margin:4px 0 18px; }
-.pt-tab{ border:0; background:none; font-family:inherit; font-size:14.5px; font-weight:700; color:#94a3b8;
-	padding:10px 18px 11px; cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; }
-.pt-tab:hover{ color:#475569; }
-.pt-tab.is-on{ color:#1f3864; border-bottom-color:#2563eb; }
-.pt-tabs-spacer{ flex:1; }
-.pt-dbline{ font-size:12.5px; color:#64748b; padding-right:4px; }
-.pt-dbline b{ color:#1f3864; }
 
 
 /* 응답 목록의 지역 필터 띠 */
@@ -1368,9 +1381,8 @@ const getMngrFail = function (xhr, status, error) {
 .pt-nosn{ color:#cbd5e1; }
 .pt-dash{ color:#cbd5e1; }
 /* 원자료 칸은 읽기 전용 — 고칠 수 있는 것은 보정 칸뿐이라는 게 눈에 보여야 한다 */
-.pt-ic{ font-variant-numeric:tabular-nums; color:#64748b; white-space:nowrap; }
+.pt-ic{ font-variant-numeric:tabular-nums; white-space:nowrap; }
 .pt-ro{ color:#334155; }
-.pt-ro.is-blank{ color:#92400e; }
 .pt-rr.is-std .pt-ro{ color:#94a3b8; }   /* 표준어형이라 판정에서 빠지는 행 — 흐리게만 */
 .pt-adjw{ display:flex; align-items:center; gap:7px; }
 .pt-calc{ flex:0 0 auto; font-size:12px; color:#64748b; white-space:nowrap; }
@@ -1464,11 +1476,18 @@ function asJson(r){
   function load(){
     var applyData = function(j){
       DB=j; RO=j.regionOrder||[]; RN=j.regionNames||{};
+      /* 응답 목록 블록은 별도 IIFE 라 DB 를 못 본다. 탭 옆 요약에 쓸 수치만 내보낸다. */
+      window.__ptQC = (j.meta && j.meta.qc) || {};
       SITES=j.regionSites||{}; ROSTER=j.regionRoster||{};
       rows = (j.items||[]).map(function(it,i){ return build(it,i); });
       var qc=(j.meta&&j.meta.qc)||{};
-      $('ptDbLine').innerHTML = '제보자 <b>'+(qc.files||0)+'명</b> · 응답 <b>'
-        + (qc.rowsTotal||0).toLocaleString() + '행</b> · 표출 항목 <b>'+(qc.coreItems||0)+'개</b>';
+      $('ptDbLine').innerHTML = [
+        ['제보자', (qc.files||0)+'명'],
+        ['응답', (qc.rowsTotal||0).toLocaleString()+'행'],
+        ['표출 항목', (qc.coreItems||0)+'개']
+      ].map(function(x){
+        return '<dl class="summary-item"><dt>'+x[0]+'</dt><dd>'+x[1]+'</dd></dl>';
+      }).join('');
       headHTML(); fillSearch(); render();
     };
 
@@ -1613,9 +1632,13 @@ function asJson(r){
   /* ── 조작 ── */
   document.addEventListener('DOMContentLoaded', function(){
     /* 탭 */
-    document.querySelector('.pt-tabs').addEventListener('click', function(e){
+    document.querySelector('.tabmenu .tab-list').addEventListener('click', function(e){
       var b=e.target.closest('.pt-tab'); if(!b) return;
-      document.querySelectorAll('.pt-tab').forEach(function(x){ x.classList.toggle('is-on', x===b); });
+      e.preventDefault();
+      /* 테마는 활성 표시를 <li class="on"> 으로 한다 */
+      document.querySelectorAll('.tabmenu .tab-list > li').forEach(function(li){
+        li.classList.toggle('on', li.contains(b));
+      });
       var v=b.dataset.view;
       $('ptList').style.display   = v==='list'   ? '' : 'none';
       $('ptUpload').style.display = v==='upload' ? '' : 'none';
@@ -1949,7 +1972,7 @@ function asJson(r){
     var calc = p.calc ? '계산 '+gradeLabel(p.calc).replace(/ .*/,'') : '계산 없음';
     return '<div class="pt-adjw">'
       + '<span class="pt-calc" title="'+esc(p.calcForm||'')+'">'+esc(calc)+'</span>'
-      + '<select class="pt-adj'+(a?' is-on':'')+'">'
+      + '<select class="form-control-sm pt-adj'+(a?' is-on':'')+'" title="판정에 쓸 값">'
       +   '<option value=""'+(a?'':' selected')+'>계산값 그대로</option>'
       +   GRADE.map(function(o){ return '<option value="'+o[0]+'"'+(a===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('')
       +   '<option value="X"'+(a==='X'?' selected':'')+'>이 제보자 제외</option>'
@@ -1978,16 +2001,16 @@ function asJson(r){
       var a = curAdj(r.file), dirty = (r.file in ADJ) && ADJ[r.file] !== adjOf(r.file);
       return '<tr class="pt-rr'+(head?' is-head':'')+(dirty?' is-dirty':'')
            + (a?' is-edited':'')+(std?' is-std':'')+'" data-rid="'+r.rid+'" data-file="'+esc(r.file)+'">'
-        + '<td class="pt-sn">'+(r.serialNo ? esc(r.serialNo)
+        + '<td class="pt-sn">'+(r.serialNo ? '<span class="text-gray text-sm">'+esc(r.serialNo)+'</span>'
               : '<span class="pt-nosn" title="원자료에 일련번호가 비어 있습니다">번호 없음</span>')+'</td>'
         /* 일련번호가 빈 행이 8.6% 라, 하위코드(-A-1)를 알 수 있는 건 이 칸뿐이다 */
-        + '<td class="pt-ic">'+esc(r.itemCd||'')+'</td>'
+        + '<td class="pt-ic"><span class="text-gray text-sm">'+esc(r.itemCd||'')+'</span></td>'
         + '<td>'+(head?esc(r.regionNm):'')+'</td>'
         + '<td>'+(head?esc(who):'')+'</td>'
         + '<td class="pt-ro">'+esc(r.headword||'')+'</td>'
         + '<td class="pt-ro">'+(r.form ? esc(r.form)
               : '<span class="pt-nosn" title="원자료에 방언형(기저형)이 비어 있습니다">비어 있음</span>')+'</td>'
-        + '<td class="pt-ro'+(r.grade?'':' is-blank')+'">'+(r.grade ? esc(gradeLabel(r.grade)) : '— 미기입')+'</td>'
+        + '<td class="pt-ro'+(r.grade?'':' is-unselect')+'">'+(r.grade ? esc(gradeLabel(r.grade)) : '— 미기입')+'</td>'
         + '<td>'+(head ? adjCell(r.file) : '')+'</td></tr>';
     }).join('');
     renderPagerR(pages);
@@ -2013,14 +2036,16 @@ function asJson(r){
   function pending(){
     return Object.keys(ADJ).filter(function(f){ return ADJ[f] !== adjOf(f); });
   }
+  /* 저장·초기화는 하단(btn-group-between)과 상단 고정(btn-group-fixed) 두 곳에 있다.
+     한 항목에 83행을 오가며 고치므로 위에도 손이 닿아야 한다 — 상태는 함께 움직인다. */
   function syncSaveBar(){
-    var n=pending().length, bar=$('ptSaveBar');
-    bar.classList.toggle('is-dirty', !!n);
+    var n=pending().length;
+    ['ptSaveAll','ptSaveAll2','ptRevert','ptRevert2'].forEach(function(id){
+      var el=$(id); if(el) el.disabled = !n;
+    });
     $('ptSaveMsg').innerHTML = n
-      ? '<b>'+n+'명</b>의 보정을 바꿨습니다 — 저장하지 않으면 사라집니다.'
+      ? '<strong class="text-primary">'+n+'명</strong>의 보정을 바꿨습니다 — 저장하지 않으면 사라집니다.'
       : '원자료는 고칠 수 없습니다. 판정에 쓸 값만 보정해 저장하세요.';
-    $('ptSaveAll').disabled = !n;
-    $('ptRevert').disabled = !n;
   }
 
   /* 고친 줄만 한 번에 보낸다. rid 와 함께 (파일명, 행번호)도 보내
@@ -2029,7 +2054,8 @@ function asJson(r){
     var files=pending();
     if(!files.length) return;
     var btn=$('ptSaveAll'), label=btn.innerHTML;
-    btn.disabled=true; btn.innerHTML='<span>저장 중…</span>';
+    var btn2=$('ptSaveAll2'), label2=btn2?btn2.innerHTML:'';
+    [btn, btn2].forEach(function(b){ if(b){ b.disabled=true; b.innerHTML='<span>저장 중…</span>'; } });
     var payload = files.map(function(f){ return { file:f, grade:ADJ[f] }; });
     fetch('/mariadb/neibis-api/weather/adjust', {
         method:'POST', headers:{'Content-Type':'application/json'},
