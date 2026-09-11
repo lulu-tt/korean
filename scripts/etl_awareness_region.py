@@ -294,13 +294,23 @@ def build_output(recs, nfiles):
     구조와 판정이 두 곳으로 갈라지면 화면이 달라지므로 조립은 반드시 여기 한 곳에서만 한다."""
     print('제보자 파일 %d개 / 레코드 %d건' % (nfiles, len(recs)))
 
-    # 9개 지역 전부에서 등급이 관측된 항목만 서비스 대상으로 삼는다 (=101개)
-    seen = collections.defaultdict(set)
+    # 서비스 대상 — '9개 지역이 모두 조사됐고, 어느 한 지역에서든 등급이 관측된 항목'.
+    #
+    # 예전에는 '9개 지역 전부에서 등급이 관측된 항목' 이었다. 그러면 제보자가 표준어형만
+    # 답한 지역이 자료 없음으로 취급되어 항목 전체가 탈락했다 — 제주에서 '귀지·벌·누에·
+    # 우박·뚜껑' 이 그렇게 5개 사라졌다. 표준어형만 답한 것은 구멍이 아니라 std(표준어권)
+    # 이라는 판정이고, 지도에 칠할 상태가 이미 있다. 그 지역을 뺄 이유가 없다.
+    #
+    # 조사 자체가 안 된 지역이 있으면 여전히 제외한다 — 자료 없는 칸을 칠하지 않는다.
+    surveyed = collections.defaultdict(set)      # 그 항목이 조사된 지역(행이 있음)
+    graded = collections.defaultdict(set)        # 등급이 관측된 지역
     for r in recs:
+        surveyed[r['it']].add(r['rg'])
         if r['g']:
-            seen[r['it']].add(r['rg'])
-    core = sorted(it for it, s in seen.items() if len(s) == len(REGION_ORDER))
-    print('전 지역 관측 항목: %d개' % len(core))
+            graded[r['it']].add(r['rg'])
+    core = sorted(it for it, s in surveyed.items()
+                  if len(s) == len(REGION_ORDER) and graded[it])
+    print('서비스 대상 항목: %d개' % len(core))
 
     headword = {}
     for it in core:
