@@ -19,6 +19,7 @@ from http.server import BaseHTTPRequestHandler
 import importlib.util
 import json
 import os
+import re
 import urllib.parse
 import urllib.request
 
@@ -136,17 +137,21 @@ def load_records():
 CACHE_KEY = "awareness"
 
 
-def live_sig(rows=None, dt=None):
-    """지금 자료의 지문. 적재 스크립트와 같은 식이어야 한다."""
-    return "%s|%s" % (rows, dt or "")
+def live_sig(rows=None, dt=None, an=None, ad=None):
+    """지금 자료의 지문. 적재 스크립트의 live_sig() 와 같은 식이어야 한다.
+
+    보정만 바뀌어도 다시 계산해야 하므로 보정 상태도 넣는다.
+    """
+    return "%s|%s|%s|%s" % (rows, dt or "", an, ad or "")
 
 
 def read_built():
     """미리 계산한 결과를 꺼낸다. 없거나 자료와 어긋나면 None."""
     try:
-        nrows, cdt, meta, parts = turso([
+        nrows, cdt, adj, meta, parts = turso([
             "SELECT COUNT(*) FROM wb_weather_response",
             "SELECT MAX(reg_dt) FROM wb_weather_file",
+            "SELECT COUNT(*), MAX(IFNULL(upt_dt,'')) FROM wb_weather_adjust",
             "SELECT sig, built_dt, parts FROM wb_weather_built"
             " WHERE cache_key = " + _sq(CACHE_KEY),
             "SELECT payload FROM wb_weather_built_part"
@@ -156,7 +161,8 @@ def read_built():
         return None                      # 표가 아직 없다 — 직접 계산한다
     if not meta or not parts:
         return None
-    sig = live_sig(cell(nrows[0][0]), cell(cdt[0][0]))
+    sig = live_sig(cell(nrows[0][0]), cell(cdt[0][0]),
+                   cell(adj[0][0]), cell(adj[0][1]))
     if cell(meta[0][0]) != sig:
         return None                      # 자료가 바뀌었는데 다시 계산되지 않았다
     if len(parts) != int(cell(meta[0][2]) or 0):
@@ -172,13 +178,33 @@ def read_built():
     return out
 
 
+def load_adjust():
+    """보정값 — {(지역, 연차, 세대, 성별, 항목): 등급}.
+
+    미리 계산본이 없어 직접 계산할 때 쓴다. 그 경로도 보정을 반영해야
+    캐시가 있을 때와 없을 때 값이 달라지지 않는다.
+    """
+    try:
+        rows, = turso(["SELECT file_nm, item_base, grade FROM wb_weather_adjust"])
+    except Exception:
+        return {}
+    out = {}
+    for r in rows:
+        fn = str(cell(r[0]) or "")
+        m = re.match(r"^([A-Z]{2})(\d{2})(\d{2})([MF])", fn)
+        if m:
+            rg, yr, age, sx = m.groups()
+            out[(rg, yr, int(age), sx, cell(r[1]))] = str(cell(r[2]))
+    return out
+
+
 def build():
     cached = read_built()
     if cached is not None:
         return cached, None, None
     files, recs = load_records()
     E = etl()
-    out = E.build_output(recs, len(files))
+    out = E.build_output(recs, len(files), load_adjust())
     q = out["meta"]["qc"]
     q["files"] = len(files)
     # 로컬 fill_db_qc 와 같은 값이어야 한다 — 그쪽은 표의 전체 행을 센다.

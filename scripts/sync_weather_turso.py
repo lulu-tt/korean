@@ -81,22 +81,40 @@ CREATE TABLE IF NOT EXISTS wb_weather_built_part (
 """
 
 
-def live_sig(con):
-    """지금 자료의 지문. api/index.py 의 live_sig() 와 같은 식이어야 한다."""
-    n = con.execute("SELECT COUNT(*) FROM wb_weather_response").fetchone()[0]
-    d = con.execute("SELECT MAX(reg_dt) FROM wb_weather_file").fetchone()[0]
-    return "%s|%s" % (n, d or "")
+ACOL = ["file_nm", "item_base", "grade", "src_sig", "reg_dt", "upt_dt"]
 
 
-def built_payload(con):
-    """판정까지 끝낸 결과. 조립은 etl 의 build_output() 한 곳에서만 한다."""
+def etl_mod():
     import importlib.util
     path = os.path.join(BASE, "scripts", "etl_awareness_region.py")
     spec = importlib.util.spec_from_file_location("etl_awareness_region", path)
-    E = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(E)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def live_sig(con):
+    """지금 자료의 지문. api/index.py 의 live_sig() 와 같은 식이어야 한다.
+
+    보정만 바뀌어도 다시 계산해야 하므로 보정 상태도 넣는다.
+    """
+    con.executescript(etl_mod().ADJUST_DDL)
+    n = con.execute("SELECT COUNT(*) FROM wb_weather_response").fetchone()[0]
+    d = con.execute("SELECT MAX(reg_dt) FROM wb_weather_file").fetchone()[0]
+    an, ad = con.execute(
+        "SELECT COUNT(*), MAX(IFNULL(upt_dt,'')) FROM wb_weather_adjust").fetchone()
+    return "%s|%s|%s|%s" % (n, d or "", an, ad or "")
+
+
+def built_payload(con):
+    """판정까지 끝낸 결과. 조립은 etl 의 build_output() 한 곳에서만 한다.
+
+    보정(wb_weather_adjust)을 반영해 계산한다 — 배포본은 이 결과를 그대로 내려주므로,
+    여기서 빠뜨리면 배포본만 보정 없는 값을 보여준다.
+    """
+    E = etl_mod()
     recs, nfiles = E.load_records_from_db(DB)
-    out = E.build_output(recs, nfiles)
+    out = E.build_output(recs, nfiles, E.load_adjust(DB))
     E.fill_db_qc(out, DB)
     return json.dumps(out, ensure_ascii=False)
 
@@ -112,6 +130,17 @@ def statements(con):
             vals = ",".join("(" + ",".join(lit(r[c]) for c in cols) + ")"
                             for r in rows[i:i + per])
             yield "INSERT INTO %s (%s) VALUES %s;" % (table, ",".join(cols), vals)
+
+    # 보정 표. 배포본이 직접 계산하는 경로로 떨어져도 같은 값이 나와야 한다.
+    for stmt in etl_mod().ADJUST_DDL.strip().split(";"):
+        if stmt.strip():
+            yield stmt.strip() + ";"
+    yield "DELETE FROM wb_weather_adjust;"
+    arows = con.execute("SELECT %s FROM wb_weather_adjust" % ",".join(ACOL)).fetchall()
+    for i in range(0, len(arows), PER_FILE):
+        vals = ",".join("(" + ",".join(lit(r[c]) for c in ACOL) + ")"
+                        for r in arows[i:i + PER_FILE])
+        yield "INSERT INTO wb_weather_adjust (%s) VALUES %s;" % (",".join(ACOL), vals)
 
     # 미리 계산한 결과. 자료를 넣은 바로 뒤에 같은 실행에서 만들어, 둘이 어긋날 수 없게 한다.
     for stmt in BUILT_DDL.strip().split(";"):
@@ -179,6 +208,7 @@ def main():
                    " UNION ALL SELECT 'wordcard(건드리지 않음)', COUNT(*)"
                    " FROM wb_wordcard").rstrip())
     print(ask(cli, "SELECT cache_key, parts, built_dt, sig FROM wb_weather_built").rstrip())
+    print(ask(cli, "SELECT COUNT(*) AS adjust FROM wb_weather_adjust").rstrip())
 
 
 if __name__ == "__main__":
