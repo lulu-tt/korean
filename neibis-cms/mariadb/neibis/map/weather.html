@@ -755,7 +755,7 @@
 													<td colspan="3">
 														<label class="check-item"><input type="radio" name="prState" value="" checked /><span class="label">전체</span></label>
 														<label class="check-item"><input type="radio" name="prState" value="blank" /><span class="label">등급 미기입</span></label>
-														<label class="check-item"><input type="radio" name="prState" value="edit" /><span class="label">관리자가 고침</span></label>
+														<label class="check-item"><input type="radio" name="prState" value="edit" /><span class="label">보정됨</span></label>
 													</td>
 												</tr>
 												<tr>
@@ -800,16 +800,18 @@
 										<table>
 											<caption class="sr-only">항목별 응답 목록</caption>
 											<colgroup>
-												<col style="width:196px" /><col style="width:78px" /><col style="width:108px" />
-												<col /><col style="width:172px" />
+												<col style="width:150px" /><col style="width:70px" /><col style="width:96px" />
+												<col /><col /><col style="width:150px" /><col style="width:210px" />
 											</colgroup>
 											<thead>
 												<tr>
 													<th scope="col">일련번호</th>
 													<th scope="col">지역</th>
 													<th scope="col">제보자</th>
-													<th scope="col">지역어형</th>
+													<th scope="col">표제어형</th>
+													<th scope="col">방언형(기저형)</th>
 													<th scope="col">사용도/인지도</th>
+													<th scope="col">판정에 쓸 값(보정)</th>
 												</tr>
 											</thead>
 											<tbody id="ptRespRows"></tbody>
@@ -1362,6 +1364,16 @@ const getMngrFail = function (xhr, status, error) {
 .pt-sn{ font-size:11.5px; color:#64748b; letter-spacing:-.2px; }
 .pt-nosn{ color:#cbd5e1; }
 .pt-dash{ color:#cbd5e1; }
+/* 원자료 칸은 읽기 전용 — 고칠 수 있는 것은 보정 칸뿐이라는 게 눈에 보여야 한다 */
+.pt-ro{ color:#334155; }
+.pt-ro.is-blank{ color:#92400e; }
+.pt-rr.is-std .pt-ro{ color:#94a3b8; }   /* 표준어형이라 판정에서 빠지는 행 — 흐리게만 */
+.pt-adjw{ display:flex; align-items:center; gap:7px; }
+.pt-calc{ flex:0 0 auto; font-size:12px; color:#64748b; white-space:nowrap; }
+.pt-adj{ flex:1 1 auto; min-width:0; height:30px; border:1px solid #cbd5e1; border-radius:7px;
+  padding:0 7px; font-size:13px; background:#fff; }
+.pt-adj.is-on{ border-color:#7c3aed; background:#f5f3ff; color:#5b21b6; font-weight:600; }
+.pt-adj:focus{ border-color:#2563eb; outline:none; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
 .pt-fi{ width:100%; max-width:250px; height:30px; border:1px solid #cbd5e1; border-radius:7px;
 	padding:0 9px; font-size:12.5px; font-family:inherit; color:#0f172a; box-sizing:border-box; }
 .pt-gi{ width:100%; height:30px; border:1px solid #cbd5e1; border-radius:7px; padding:0 7px;
@@ -1844,11 +1856,13 @@ function asJson(r){
              return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
   var GRADE=[['1','① 지금도 씀'],['2','② 써봤으나 안 씀'],['3','③ 들어는 봄'],['4','④ 처음 들음']];
 
-  var ROWS=[], ITEM=null, DIRTY={};
+  /* 원본(wb_weather_response)은 읽기만 한다. 담당자가 고치는 것은 '판정에 쓸 값' 뿐이고
+     그것은 wb_weather_adjust 에 제보자·항목 단위로 따로 담긴다. */
+  var ROWS=[], PEOPLE=[], ITEM=null, HEADWORD='', ADJ={};
   var F={rg:{}, age:{}, sex:'', st:'', q:''}, PAGE=1, SIZE=50;
 
   window.__ptOpenResp = function(code, word){
-    ITEM={code:code, word:word}; DIRTY={}; PAGE=1;
+    ITEM={code:code, word:word}; ADJ={}; PEOPLE=[]; HEADWORD=''; PAGE=1;
     F={rg:{}, age:{}, sex:'', st:'', q:''}; resetForm(); syncSaveBar();
     $('ptList').style.display='none'; $('ptResp').style.display='';
     $('ptRTitle').textContent = word + ' · 응답 목록';
@@ -1861,7 +1875,8 @@ function asJson(r){
       .then(asJson)
       .then(function(j){
         if(!j.ok) throw new Error(j.message||'불러오기 실패');
-        ROWS=j.rows||[]; fillRgChecks(); renderResp();
+        ROWS=j.rows||[]; PEOPLE=j.people||[]; HEADWORD=j.headword||'';
+        fillRgChecks(); renderResp();
       })
       .catch(function(e){ $('ptRespRows').innerHTML =
         '<tr><td colspan="5" class="pt-empty">'+esc(e.message)+'</td></tr>'; });
@@ -1898,13 +1913,41 @@ function asJson(r){
       if(rgs.length && !F.rg[r.region]) return false;
       if(ages.length && !F.age[String(r.age)]) return false;
       if(F.sex && r.sex!==F.sex) return false;
-      var d=DIRTY[r.rid];
-      if(F.st==='blank' && (d?d.grade:r.grade)) return false;
-      if(F.st==='edit'  && !d && !r.edited) return false;   /* 저장 전 수정 + 저장된 수정 둘 다 */
-      if(F.q && (r.shown||'').toLowerCase().indexOf(F.q)<0
+      if(F.st==='blank' && r.grade) return false;
+      /* 보정은 제보자 단위라 그 제보자의 모든 행을 보여준다 (저장 전 + 저장된 것) */
+      if(F.st==='edit' && !curAdj(r.file)) return false;
+      if(F.q && (r.form||'').toLowerCase().indexOf(F.q)<0
+             && (r.headword||'').toLowerCase().indexOf(F.q)<0
              && (r.serialNo||'').toLowerCase().indexOf(F.q)<0) return false;
       return true;
     });
+  }
+
+  /* 제보자별 보정·계산값. PEOPLE 은 서버가 계산해 준 것, ADJ 는 저장 전 변경분이다. */
+  function personOf(file){
+    for(var i=0;i<PEOPLE.length;i++) if(PEOPLE[i].file===file) return PEOPLE[i];
+    return null;
+  }
+  function adjOf(file){ var p=personOf(file); return p ? String(p.adjust||'') : ''; }
+  function curAdj(file){ return (file in ADJ) ? ADJ[file] : adjOf(file); }
+  /* 표준어형 판정용 정규화 — ETL 의 norm() 과 같아야 한다(괄호 안·공백·콜론 제거) */
+  function nk(v){ return String(v||'').replace(/\([^)]*\)/g,'').replace(/[:\s]/g,''); }
+  function gradeLabel(g){
+    for(var i=0;i<GRADE.length;i++) if(GRADE[i][0]===String(g)) return GRADE[i][1];
+    return String(g||'');
+  }
+  /* 보정 칸 — 제보자 한 명의 첫 줄에만 둔다. 계산값을 옆에 적어 무엇을 바꿨는지 보이게. */
+  function adjCell(file){
+    var p=personOf(file); if(!p) return '';
+    var a=curAdj(file);
+    var calc = p.calc ? '계산 '+gradeLabel(p.calc).replace(/ .*/,'') : '계산 없음';
+    return '<div class="pt-adjw">'
+      + '<span class="pt-calc" title="'+esc(p.calcForm||'')+'">'+esc(calc)+'</span>'
+      + '<select class="pt-adj'+(a?' is-on':'')+'">'
+      +   '<option value=""'+(a?'':' selected')+'>계산값 그대로</option>'
+      +   GRADE.map(function(o){ return '<option value="'+o[0]+'"'+(a===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('')
+      +   '<option value="X"'+(a==='X'?' selected':'')+'>이 제보자 제외</option>'
+      + '</select></div>';
   }
 
   function renderResp(){
@@ -1922,22 +1965,22 @@ function asJson(r){
     var prev=null;
     $('ptRespRows').innerHTML = span.map(function(r){
       var who = r.age + '대 ' + (r.sex==='F'?'여':'남');
-      var head = (prev !== r.region + '|' + who);   /* 제보자가 바뀌는 줄에만 이름을 쓴다 */
-      prev = r.region + '|' + who;
-      var d = DIRTY[r.rid];
-      var g = d ? d.grade : r.grade;
-      var f = d ? d.form  : r.shown;
-      return '<tr class="pt-rr'+(head?' is-head':'')+(d?' is-dirty':'')+(r.edited?' is-edited':'')+'" data-rid="'+r.rid+'">'
+      var head = (prev !== r.file);        /* 제보자가 바뀌는 줄에만 이름과 보정 칸을 둔다 */
+      prev = r.file;
+      /* 표준어형 행은 판정에서 빠진다 — 그 항목의 대표 표제어와 같은지로 가른다 */
+      var std = nk(r.form || r.headword) === nk(HEADWORD);
+      var a = curAdj(r.file), dirty = (r.file in ADJ) && ADJ[r.file] !== adjOf(r.file);
+      return '<tr class="pt-rr'+(head?' is-head':'')+(dirty?' is-dirty':'')
+           + (a?' is-edited':'')+(std?' is-std':'')+'" data-rid="'+r.rid+'" data-file="'+esc(r.file)+'">'
         + '<td class="pt-sn">'+(r.serialNo ? esc(r.serialNo)
               : '<span class="pt-nosn" title="원자료에 일련번호가 비어 있습니다">번호 없음</span>')+'</td>'
         + '<td>'+(head?esc(r.regionNm):'')+'</td>'
         + '<td>'+(head?esc(who):'')+'</td>'
-        + '<td><input type="text" class="pt-fi" value="'+esc(f)+'" />'
-        + '</td>'
-        + '<td><select class="pt-gi'+(g?'':' is-blank')+'">'
-        +     '<option value=""'+(g?'':' selected')+'>— 미기입</option>'
-        +     GRADE.map(function(o){ return '<option value="'+o[0]+'"'+(g===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('')
-        +   '</select></td></tr>';
+        + '<td class="pt-ro">'+esc(r.headword||'')+'</td>'
+        + '<td class="pt-ro">'+(r.form ? esc(r.form)
+              : '<span class="pt-nosn" title="원자료에 방언형(기저형)이 비어 있습니다">비어 있음</span>')+'</td>'
+        + '<td class="pt-ro'+(r.grade?'':' is-blank')+'">'+(r.grade ? esc(gradeLabel(r.grade)) : '— 미기입')+'</td>'
+        + '<td>'+(head ? adjCell(r.file) : '')+'</td></tr>';
     }).join('');
     renderPagerR(pages);
   }
@@ -1959,12 +2002,15 @@ function asJson(r){
      아래 고정 바에 '몇 건 고쳤는지'를 계속 띄운다. */
   /* 저장 바는 늘 보인다. 고친 게 없으면 버튼만 비활성 —
      안 보이면 이 화면이 고칠 수 있는 화면인지 알 수 없다. */
+  function pending(){
+    return Object.keys(ADJ).filter(function(f){ return ADJ[f] !== adjOf(f); });
+  }
   function syncSaveBar(){
-    var n=Object.keys(DIRTY).length, bar=$('ptSaveBar');
+    var n=pending().length, bar=$('ptSaveBar');
     bar.classList.toggle('is-dirty', !!n);
     $('ptSaveMsg').innerHTML = n
-      ? '<b>'+n+'건</b> 고쳤습니다 — 저장하지 않으면 사라집니다.'
-      : '지역어형과 사용도/인지도를 고친 뒤 저장하세요.';
+      ? '<b>'+n+'명</b>의 보정을 바꿨습니다 — 저장하지 않으면 사라집니다.'
+      : '원자료는 고칠 수 없습니다. 판정에 쓸 값만 보정해 저장하세요.';
     $('ptSaveAll').disabled = !n;
     $('ptRevert').disabled = !n;
   }
@@ -1972,34 +2018,31 @@ function asJson(r){
   /* 고친 줄만 한 번에 보낸다. rid 와 함께 (파일명, 행번호)도 보내
      화면을 연 뒤 재업로드로 자리가 바뀌었으면 서버가 거르게 한다. */
   function save(){
-    var ids=Object.keys(DIRTY);
-    if(!ids.length) return;
+    var files=pending();
+    if(!files.length) return;
     var btn=$('ptSaveAll'), label=btn.innerHTML;
     btn.disabled=true; btn.innerHTML='<span>저장 중…</span>';
-    var payload = ids.map(function(k){
-      var rid=+k, row=ROWS.filter(function(x){ return x.rid===rid; })[0]||{};
-      return { rid:rid, file:row.file, lineNo:row.lineNo,
-               grade:DIRTY[k].grade, form:DIRTY[k].form };
-    });
-    fetch('/mariadb/neibis-api/weather/responses/save', {
+    var payload = files.map(function(f){ return { file:f, grade:ADJ[f] }; });
+    fetch('/mariadb/neibis-api/weather/adjust', {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ rows: payload })
+        body: JSON.stringify({ item: ITEM.code, rows: payload })
       })
       .then(asJson)
       .then(function(j){
         btn.disabled=false; btn.innerHTML=label;
         if(!j.ok) throw new Error(j.message||'저장 실패');
-        var msg = j.saved + '건 저장했습니다.';
+        var msg = j.message || (j.saved + '건 저장했습니다.');
         if((j.skipped||[]).length){
           msg += '\n\n건너뛴 ' + j.skipped.length + '건:\n'
                + j.skipped.slice(0,5).map(function(x){ return '· ' + x.why; }).join('\n');
         }
         if(window.Message) Message.alert({icon:(j.skipped||[]).length?'warning':'success', message:msg});
-        DIRTY={};
+        ADJ={};
         /* 저장한 값이 실제로 들어갔는지 다시 읽어 확인한다 */
         return fetch('/mariadb/neibis-api/weather/responses?item=' + encodeURIComponent(ITEM.code))
           .then(asJson)
-          .then(function(k){ if(k.ok){ ROWS=k.rows||[]; fillRgChecks(); } renderResp(); syncSaveBar();
+          .then(function(k){ if(k.ok){ ROWS=k.rows||[]; PEOPLE=k.people||[]; HEADWORD=k.headword||''; fillRgChecks(); }
+                           renderResp(); syncSaveBar();
                              if(window.__ptReload) window.__ptReload(); });
       })
       .catch(function(e){
@@ -2010,14 +2053,14 @@ function asJson(r){
 
   document.addEventListener('DOMContentLoaded', function(){
     $('ptBack').addEventListener('click', function(){
-      var go=function(){ DIRTY={}; syncSaveBar();
+      var go=function(){ ADJ={}; syncSaveBar();
         $('ptResp').style.display='none'; $('ptList').style.display=''; window.scrollTo(0,0); };
-      var n=Object.keys(DIRTY).length;
+      var n=pending().length;
       if(!n) return go();
-      ptAsk('목록으로 돌아갈까요?', '저장하지 않은 수정 '+n+'건이 사라집니다.', go);
+      ptAsk('목록으로 돌아갈까요?', '저장하지 않은 보정 '+n+'건이 사라집니다.', go);
     });
     $('ptRevert').addEventListener('click', function(){
-      DIRTY={}; renderResp(); syncSaveBar(); });
+      ADJ={}; renderResp(); syncSaveBar(); });
     $('ptSaveAll').addEventListener('click', save);
     /* 검색 — 항목 목록과 같은 규약 */
     function doSearchR(){ readForm(); PAGE=1; renderResp(); }
@@ -2044,13 +2087,12 @@ function asJson(r){
     pairAll('prRgAll', '.pr-rg');
     pairAll('prAgeAll', '.pr-age');
     $('ptRespRows').addEventListener('change', function(e){
+      if(!e.target.classList || !e.target.classList.contains('pt-adj')) return;
       var tr=e.target.closest('.pt-rr'); if(!tr) return;
-      var rid=+tr.dataset.rid;
-      var row=ROWS.filter(function(x){ return x.rid===rid; })[0];
-      var g=tr.querySelector('.pt-gi').value, f=tr.querySelector('.pt-fi').value;
-      /* 원래 값으로 되돌려 놓으면 수정으로 세지 않는다 */
-      if(row && g===row.grade && f===row.shown) delete DIRTY[rid];
-      else DIRTY[rid] = { grade:g, form:f };
+      var file=tr.dataset.file, v=e.target.value;
+      /* 저장된 값으로 되돌려 놓으면 변경으로 세지 않는다 */
+      if(v === adjOf(file)) delete ADJ[file];
+      else ADJ[file] = v;
       renderResp(); syncSaveBar();      /* PAGE 는 그대로 — 고치던 쪽에 머문다 */
     });
   });

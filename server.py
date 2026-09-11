@@ -394,7 +394,13 @@ def api_weather_awareness(year=None):
         try:
             n = con.execute('SELECT COUNT(*) FROM wb_weather_response').fetchone()[0]
             d = con.execute('SELECT MAX(reg_dt) FROM wb_weather_file').fetchone()[0]
-            sig = (n, d, os.path.getmtime(WEATHER_DB_PATH), year)
+            # 보정만 바뀌어도 다시 계산해야 하므로 지문에 함께 넣는다
+            try:
+                a = con.execute('SELECT COUNT(*), MAX(upt_dt), MAX(reg_dt)'
+                                ' FROM wb_weather_adjust').fetchone()
+            except Exception:
+                a = None
+            sig = (n, d, os.path.getmtime(WEATHER_DB_PATH), year, a)
         finally:
             con.close()
     if sig and _WEATHER_CACHE['sig'] == sig and _WEATHER_CACHE['data'] is not None:
@@ -402,7 +408,7 @@ def api_weather_awareness(year=None):
 
     etl = _load_etl()
     recs, nfiles = etl.load_records_from_db(WEATHER_DB_PATH, year)
-    out = etl.build_output(recs, nfiles)
+    out = etl.build_output(recs, nfiles, etl.load_adjust(WEATHER_DB_PATH))
     etl.fill_db_qc(out, WEATHER_DB_PATH, year)
     _WEATHER_CACHE['sig'] = sig
     _WEATHER_CACHE['data'] = out

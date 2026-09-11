@@ -287,7 +287,45 @@ def fill_db_qc(out, db_path=None, year=None):
     return out
 
 
-def build_output(recs, nfiles):
+ADJUST_DDL = """
+CREATE TABLE IF NOT EXISTS wb_weather_adjust (
+  file_nm   TEXT NOT NULL,          -- 제보자 (파일명이 지역·연차·세대·성별을 담는다)
+  item_base TEXT NOT NULL,          -- 항목 5자리
+  grade     TEXT NOT NULL,          -- 1~4 또는 'X'(이 제보자를 이 항목 판정에서 뺀다)
+  src_sig   TEXT,                   -- 보정할 때 본 응답 지문. 원본이 바뀌면 달라진다
+  reg_dt    TEXT, upt_dt TEXT,
+  PRIMARY KEY (file_nm, item_base));
+"""
+
+
+def load_adjust(db_path=None):
+    """보정값 — {(지역, 연차, 세대, 성별, 항목): 등급}.
+
+    원본(wb_weather_response)은 건드리지 않고 여기에만 담는다. 제보자·항목으로
+    가리키므로 원본을 고쳐 재업로드해도 보정이 살아남는다(행번호로 잡으면 밀린다).
+    """
+    import re as _re
+    import sqlite3
+    path = db_path or WEATHER_DB
+    if not os.path.exists(path):
+        return {}
+    con = sqlite3.connect(path)
+    try:
+        con.executescript(ADJUST_DDL)
+        rows = con.execute(
+            "SELECT file_nm, item_base, grade FROM wb_weather_adjust").fetchall()
+    finally:
+        con.close()
+    out = {}
+    for fn, it, g in rows:
+        m = _re.match(r'^([A-Z]{2})(\d{2})(\d{2})([MF])', str(fn or ''))
+        if m:
+            rg, yr, age, sx = m.groups()
+            out[(rg, yr, int(age), sx, it)] = str(g)
+    return out
+
+
+def build_output(recs, nfiles, adjust=None):
     """레코드 목록 → awareness_by_region.json 과 같은 구조.
 
     원자료 엑셀(load_records)에서도, DB(wb_weather_response)에서도 같은 함수를 쓴다.
@@ -350,12 +388,29 @@ def build_output(recs, nfiles):
             rows = [r for r in by_item[it] if r['rg'] == rg]  # H 대신 is_dialect() 사용
             informants = sorted({(r['year'], r['age'], r['sx']) for r in rows})
 
-            # 제보자별 지역어형 최선 등급(작을수록 살아 있음)
+            # 제보자별 대표 등급. 기본은 지역어형 중 최선(작을수록 살아 있음)이고,
+            # 담당자 보정값이 있으면 그것을 쓴다 — 'X' 면 그 제보자를 뺀다.
+            # 보정은 원본을 고치지 않고 wb_weather_adjust 에만 담긴다.
             best, bestform, forms = {}, {}, collections.Counter()
+            adjusted = {}
             for key in informants:
                 mine = [(int(r['g']), r['form'], r.get('rid')) for r in rows
                         if r['g'] and is_dialect(it, r['form'])
                         and (r['year'], r['age'], r['sx']) == key]
+                adj = (adjust or {}).get((rg, key[0], key[1], key[2], it))
+                if adj == 'X':
+                    continue
+                if adj in ('1', '2', '3', '4'):
+                    best[key] = int(adj)
+                    # 보정 등급과 같은 어형이 있으면 그것을, 없으면 최선 어형을 대표로 둔다
+                    same = [x for x in mine if x[0] == int(adj)]
+                    pick = (min(same, key=lambda x: x[1] or '') if same
+                            else (min(mine, key=lambda x: (x[0], x[1] or '')) if mine else None))
+                    bestform[key] = pick[1] if pick else ''
+                    if bestform[key]:
+                        forms[bestform[key]] += 1
+                    adjusted[key] = int(adj)
+                    continue
                 if mine:
                     lo = min(mine, key=lambda x: (x[0], x[1] or ''))
                     best[key] = lo[0]
@@ -380,8 +435,9 @@ def build_output(recs, nfiles):
                 cell = {'state': state, 'n': n, 'score': score,
                         'dist': {str(k): sum(1 for v in best.values() if v == k) for k in (1, 2, 3, 4)},
                         'forms': [{'form': f, 'n': c} for f, c in forms.most_common()],
-                        'cases': [{'id': '%s%s%02d%s' % (rg, y, a, s), 'age': a, 'sex': s,
-                                   'grade': best[(y, a, s)], 'form': bestform[(y, a, s)]}
+                        'cases': [dict({'id': '%s%s%02d%s' % (rg, y, a, s), 'age': a, 'sex': s,
+                                        'grade': best[(y, a, s)], 'form': bestform[(y, a, s)]},
+                                       **({'adj': True} if (y, a, s) in adjusted else {}))
                                   for (y, a, s) in sorted(best)]}
                 # 세대 칸, 그리고 세대×성별 칸.
                 # 담당자가 '70대 남 / 70대 여' 를 나눠 보길 원해서 성별 축을 함께 낸다.
@@ -528,9 +584,10 @@ def main(argv=None):
 
     if a.from_db:
         recs, nfiles = load_records_from_db(a.db, a.year)
+        adj = load_adjust(a.db)
         print('DB 원천%s — 제보자 %d명 / 레코드 %d건'
               % ((' (연차 %s)' % a.year) if a.year else '', nfiles, len(recs)))
-        out = build_output(recs, nfiles)
+        out = build_output(recs, nfiles, adj)
         fill_db_qc(out, a.db, a.year)
     else:
         recs, nfiles = load_records()

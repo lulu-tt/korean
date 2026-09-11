@@ -5916,7 +5916,7 @@ def api_weather_awareness(qs: dict) -> dict:
         return _WEATHER_AWARE_CACHE[sig]
     etl = _weather_etl()
     recs, nfiles = etl.load_records_from_db(str(WEATHER_DB), year)
-    out = etl.build_output(recs, nfiles)
+    out = etl.build_output(recs, nfiles, etl.load_adjust(str(WEATHER_DB)))
     etl.fill_db_qc(out, str(WEATHER_DB), year)
     _WEATHER_AWARE_CACHE.clear()
     _WEATHER_AWARE_CACHE[sig] = out
@@ -6062,7 +6062,129 @@ def api_weather_responses(qs: dict) -> dict:
         })
     out.sort(key=lambda x: (order.get(x["region"], 99), x["age"] or 0,
                             x["sex"] or "", x["file"], x["lineNo"]))
-    return {"ok": True, "item": item, "total": len(out), "rows": out}
+
+    # 제보자별 계산값과 보정값. 화면이 '무엇을 바꿨는지' 를 보여줄 수 있어야 한다.
+    etl = _weather_etl()
+    hw = _wb_headword(item)
+    calc, forms = {}, {}
+    for x in out:
+        g = (x["grade"] or "").strip()
+        if not g:
+            continue
+        f = etl.norm(x["shown"])
+        if not f or f in etl.head_forms(hw):
+            continue                                  # 표준어형은 판정에서 빠진다
+        k = x["file"]
+        if k not in calc or int(g) < calc[k]:
+            calc[k] = int(g)
+            forms[k] = x["shown"]
+    adj = _wb_adjust_map(item)
+    people = []
+    seen = set()
+    for x in out:
+        if x["file"] in seen:
+            continue
+        seen.add(x["file"])
+        people.append({
+            "file": x["file"], "region": x["region"], "regionNm": x["regionNm"],
+            "year": x["year"], "age": x["age"], "sex": x["sex"],
+            "calc": calc.get(x["file"], ""),          # 규칙이 고른 대표 등급
+            "calcForm": forms.get(x["file"], ""),
+            "adjust": adj.get(x["file"], ""),         # 담당자 보정 ('1'~'4' 또는 'X')
+        })
+    return {"ok": True, "item": item, "headword": hw, "total": len(out),
+            "rows": out, "people": people}
+
+
+def _wb_headword(item: str) -> str:
+    """그 항목의 대표 표제어 — build_output 과 같은 규칙(전국 다수결)."""
+    con = weather_db()
+    try:
+        rows = con.execute(
+            """SELECT r.headword h, COUNT(*) n FROM wb_weather_response r
+               JOIN wb_weather_file f USING(weather_file_id)
+               WHERE r.item_base=? AND r.use_yn='Y' AND f.use_yn='Y'
+                 AND r.headword IS NOT NULL AND TRIM(r.headword)<>''
+               GROUP BY r.headword ORDER BY n DESC, r.headword""", (item,)).fetchall()
+    finally:
+        con.close()
+    return (rows[0]["h"] or "").strip() if rows else ""
+
+
+def _wb_adjust_map(item: str) -> dict:
+    """{파일명: 보정등급} — 그 항목에 걸린 보정."""
+    con = weather_db()
+    try:
+        con.executescript(_weather_etl().ADJUST_DDL)
+        rows = con.execute(
+            "SELECT file_nm, grade FROM wb_weather_adjust WHERE item_base=?",
+            (item,)).fetchall()
+    finally:
+        con.close()
+    return {r["file_nm"]: (r["grade"] or "") for r in rows}
+
+
+def api_weather_adjust_save(body: dict) -> dict:
+    """보정값 저장 — 원본(wb_weather_response)은 건드리지 않는다.
+
+    단위는 (제보자 파일명, 항목번호) 하나다. 계산은 제보자당 한 값을 쓰므로
+    보정도 제보자당 하나여야 한다. 행번호로 잡으면 원본이 고쳐질 때 밀린다.
+    빈 값을 보내면 보정을 지운다(규칙이 고른 계산값으로 돌아간다).
+    """
+    item = re.sub(r"[^0-9]", "", str(body.get("item") or ""))
+    rows = body.get("rows") or []
+    if not item:
+        return {"ok": False, "message": "항목코드가 필요합니다."}
+    if not isinstance(rows, list) or not rows:
+        return {"ok": False, "message": "저장할 내용이 없습니다."}
+    now = time.strftime("%Y-%m-%d %H:%M:%S")
+    con = weather_db()
+    saved = cleared = 0
+    skipped = []
+    try:
+        con.executescript(_weather_etl().ADJUST_DDL)
+        for r in rows:
+            r = r or {}
+            fn = str(r.get("file") or "").strip()
+            g = str(r.get("grade") or "").strip().translate(WB_FULLWIDTH).upper()
+            if not fn:
+                skipped.append({"file": fn, "why": "제보자 파일명이 없습니다."})
+                continue
+            if not con.execute("SELECT 1 FROM wb_weather_file WHERE file_nm=?",
+                               (fn,)).fetchone():
+                skipped.append({"file": fn, "why": "그 제보자 자료가 없습니다."})
+                continue
+            if g and g not in WB_VALID_GRADE and g != "X":
+                skipped.append({"file": fn, "why": "보정값은 1~4 또는 제외여야 합니다."})
+                continue
+            if not g:
+                con.execute("DELETE FROM wb_weather_adjust WHERE file_nm=? AND item_base=?",
+                            (fn, item))
+                cleared += 1
+                continue
+            # 보정할 때 본 응답 지문 — 원본이 바뀌면 달라져 '확인 필요' 를 띄울 수 있다
+            sig = con.execute(
+                """SELECT GROUP_CONCAT(IFNULL(r.dialect_form,'')||'/'||IFNULL(r.grade,''), '|')
+                   FROM wb_weather_response r JOIN wb_weather_file f USING(weather_file_id)
+                   WHERE f.file_nm=? AND r.item_base=? AND r.use_yn='Y'
+                   ORDER BY r.line_no""", (fn, item)).fetchone()[0] or ""
+            con.execute(
+                """INSERT INTO wb_weather_adjust (file_nm,item_base,grade,src_sig,reg_dt,upt_dt)
+                   VALUES (?,?,?,?,?,?)
+                   ON CONFLICT(file_nm,item_base) DO UPDATE SET
+                     grade=excluded.grade, src_sig=excluded.src_sig, upt_dt=excluded.upt_dt""",
+                (fn, item, g, sig, now, now))
+            saved += 1
+        con.commit()
+    finally:
+        con.close()
+    _WEATHER_AWARE_CACHE.clear()
+    msg = "보정 %d건 저장" % saved
+    if cleared:
+        msg += " · %d건 해제" % cleared
+    if skipped:
+        msg += " · %d건 건너뜀" % len(skipped)
+    return {"ok": True, "saved": saved, "cleared": cleared, "skipped": skipped, "message": msg}
 
 
 def api_weather_files(qs: dict) -> dict:
@@ -6383,6 +6505,16 @@ def _vb_open_db(E):
     con.row_factory = sqlite3.Row
     con.executescript(E.SCHEMA)          # CREATE TABLE IF NOT EXISTS — 있으면 그대로
     con.execute("PRAGMA foreign_keys=ON")
+    # 응답 한 칸의 정체성은 (항목, 지점)이다. 원래 스키마는 여기에 source_file 까지
+    # 넣었는데, 지점 대조를 (도, 헤더)로 바꾼 뒤로는 파일명만 다른 같은 칸이 새 행으로
+    # 들어가 응답이 두 벌씩 쌓인다. 아래 인덱스가 그걸 막고 upsert 의 대상이 된다.
+    try:
+        con.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_response_item_site "
+                    "ON response(item_code, site_id)")
+    except sqlite3.IntegrityError:
+        raise RuntimeError(
+            "응답에 (항목×지점) 중복이 있어 적재할 수 없습니다. "
+            "scripts/repair_phonology_dupes.py 로 정리한 뒤 다시 시도하세요.")
     return con
 
 
@@ -6451,8 +6583,9 @@ def _vb_apply_resp(E, con, path: Path, fname: str, pc, pn, now) -> dict:
         """INSERT INTO response
            (item_code, site_id, raw_text, is_missing, source_file, source_row, import_batch_id)
            VALUES (?,?,?,?,?,?,?)
-           ON CONFLICT(item_code, site_id, source_file) DO UPDATE SET
+           ON CONFLICT(item_code, site_id) DO UPDATE SET
              raw_text=excluded.raw_text, is_missing=excluded.is_missing,
+             source_file=excluded.source_file,
              source_row=excluded.source_row, import_batch_id=excluded.import_batch_id""",
         [(r["item_code"], sr["map"][r["raw_header"]], r["raw_text"], r["is_missing"],
           fname, r["source_row"], batch_id) for r in parsed["responses"]])
@@ -6853,6 +6986,16 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 self._send_json(api_weather_responses_save(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/weather/adjust",
+            "/mariadb/neibis-api/v1/weather/adjust",
+        ):
+            try:
+                self._send_json(api_weather_adjust_save(body))
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return
