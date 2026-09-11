@@ -800,12 +800,15 @@
 										<table>
 											<caption class="sr-only">항목별 응답 목록</caption>
 											<colgroup>
-												<col style="width:150px" /><col style="width:70px" /><col style="width:96px" />
-												<col /><col /><col style="width:150px" /><col style="width:210px" />
+												<col style="width:192px" /><col style="width:104px" />
+												<col style="width:64px" /><col style="width:92px" />
+												<col style="width:124px" /><col style="width:124px" />
+												<col style="width:144px" /><col style="width:206px" />
 											</colgroup>
 											<thead>
 												<tr>
 													<th scope="col">일련번호</th>
+													<th scope="col">항목번호</th>
 													<th scope="col">지역</th>
 													<th scope="col">제보자</th>
 													<th scope="col">표제어형</th>
@@ -1365,6 +1368,7 @@ const getMngrFail = function (xhr, status, error) {
 .pt-nosn{ color:#cbd5e1; }
 .pt-dash{ color:#cbd5e1; }
 /* 원자료 칸은 읽기 전용 — 고칠 수 있는 것은 보정 칸뿐이라는 게 눈에 보여야 한다 */
+.pt-ic{ font-variant-numeric:tabular-nums; color:#64748b; white-space:nowrap; }
 .pt-ro{ color:#334155; }
 .pt-ro.is-blank{ color:#92400e; }
 .pt-rr.is-std .pt-ro{ color:#94a3b8; }   /* 표준어형이라 판정에서 빠지는 행 — 흐리게만 */
@@ -1868,7 +1872,7 @@ function asJson(r){
     $('ptRTitle').textContent = word + ' · 응답 목록';
     $('ptRMeta').textContent = '항목코드 ' + code;
     $('ptRFront').href = './dialect_gisangdo.html#/word/' + encodeURIComponent(word);
-    $('ptRespRows').innerHTML = '<tr><td colspan="5" class="pt-empty">불러오는 중…</td></tr>';
+    $('ptRespRows').innerHTML = '<tr><td colspan="8" class="pt-empty">불러오는 중…</td></tr>';
     window.scrollTo(0,0);
 
     fetch('/mariadb/neibis-api/weather/responses?item=' + encodeURIComponent(code))
@@ -1879,7 +1883,7 @@ function asJson(r){
         fillRgChecks(); renderResp();
       })
       .catch(function(e){ $('ptRespRows').innerHTML =
-        '<tr><td colspan="5" class="pt-empty">'+esc(e.message)+'</td></tr>'; });
+        '<tr><td colspan="8" class="pt-empty">'+esc(e.message)+'</td></tr>'; });
   };
 
   /* 지역 체크박스는 그 항목에 실제로 있는 지역만, 건수를 달아 만든다.
@@ -1918,6 +1922,7 @@ function asJson(r){
       if(F.st==='edit' && !curAdj(r.file)) return false;
       if(F.q && (r.form||'').toLowerCase().indexOf(F.q)<0
              && (r.headword||'').toLowerCase().indexOf(F.q)<0
+             && (r.itemCd||'').toLowerCase().indexOf(F.q)<0
              && (r.serialNo||'').toLowerCase().indexOf(F.q)<0) return false;
       return true;
     });
@@ -1959,7 +1964,7 @@ function asJson(r){
       + (list.length!==ROWS.length ? ' <span class="pt-of">전체 '+ROWS.length+'</span>' : '');
     var span=list.slice((PAGE-1)*SIZE, PAGE*SIZE);
     if(!span.length){
-      $('ptRespRows').innerHTML='<tr><td colspan="5" class="pt-empty">해당하는 응답이 없습니다.</td></tr>';
+      $('ptRespRows').innerHTML='<tr><td colspan="8" class="pt-empty">해당하는 응답이 없습니다.</td></tr>';
       $('prPager').innerHTML=''; return;
     }
     var prev=null;
@@ -1974,6 +1979,8 @@ function asJson(r){
            + (a?' is-edited':'')+(std?' is-std':'')+'" data-rid="'+r.rid+'" data-file="'+esc(r.file)+'">'
         + '<td class="pt-sn">'+(r.serialNo ? esc(r.serialNo)
               : '<span class="pt-nosn" title="원자료에 일련번호가 비어 있습니다">번호 없음</span>')+'</td>'
+        /* 일련번호가 빈 행이 8.6% 라, 하위코드(-A-1)를 알 수 있는 건 이 칸뿐이다 */
+        + '<td class="pt-ic">'+esc(r.itemCd||'')+'</td>'
         + '<td>'+(head?esc(r.regionNm):'')+'</td>'
         + '<td>'+(head?esc(who):'')+'</td>'
         + '<td class="pt-ro">'+esc(r.headword||'')+'</td>'
