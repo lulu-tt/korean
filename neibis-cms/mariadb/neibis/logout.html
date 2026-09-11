@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<meta name="format-detection" content="telephone=no" />
+		<title id="neibisTopTitle">로그아웃 | 관리시스템</title>
+		<link rel="shortcut icon" href="../../mariadb/assets/neibis/images/favicon.png" />
+		<link rel="stylesheet" href="../../mariadb/assets/neibis/css/style.css" />
+
+		<script src="../../mariadb/assets/neibis/lib/jquery/jquery-3.6.0.min.js"></script>
+		<style>
+			/* 테마의 login-area 를 그대로 쓰고, 문구만 다르게 둔다 */
+			.lo-note{ margin:14px 0 0; color:#64748b; font-size:13.5px; line-height:1.7; }
+			.lo-btns{ display:flex; gap:9px; justify-content:center; margin-top:22px; flex-wrap:wrap; }
+			.lo-back{ font-size:12.5px; color:#94a3b8; margin-top:16px; }
+			.lo-back code{ background:#f1f5f9; border-radius:4px; padding:1px 5px; }
+		</style>
+	</head>
+	<body class="layout-type-sub">
+		<div class="wrapper">
+			<div id="container">
+				<article id="content">
+					<div class="content-body">
+						<div class="login-area">
+							<div class="cont-area">
+								<div class="logo-area">
+									<img src="../../mariadb/assets/neibis/images/img-logo.png" alt="샘플 로고" />
+									<span class="text-system">관리시스템</span>
+								</div>
+								<h1 class="title" id="loTitle">로그아웃되었습니다</h1>
+								<p class="subject" id="loSub">안전하게 종료했습니다.</p>
+								<p class="lo-note" id="loNote"></p>
+
+								<div class="lo-btns">
+									<button type="button" class="btn btn-lg btn-primary" id="loBack">이전 화면으로</button>
+									<a href="./index.html" class="btn btn-lg btn-outline-gray">관리시스템 첫 화면</a>
+								</div>
+
+								<p class="lo-back" id="loWhere"></p>
+							</div>
+						</div>
+					</div>
+				</article>
+			</div>
+		</div>
+
+		<script>
+		(function(){
+			var p = new URLSearchParams(location.search);
+			var timer = p.get('type') === 'timerlogout';
+
+			if(timer){
+				/* 테마의 화면마다 붙은 1시간 타이머가 여기로 보낸다.
+				   이 프로토타입에는 인증이 없으므로 실제로 끊긴 세션은 없다 —
+				   그 사실을 알려 주지 않으면 자료가 사라진 줄 알고 당황한다. */
+				document.getElementById('loTitle').textContent = '자리를 비운 사이 시간이 지났습니다';
+				document.getElementById('loSub').textContent = '화면을 열어 둔 채 1시간이 지나 자동으로 나왔습니다.';
+				document.getElementById('loNote').innerHTML =
+					'이 관리시스템에는 별도 인증이 없어 <b>바로 다시 들어갈 수 있습니다.</b><br />'
+					+ '저장하지 않은 입력만 사라집니다 — 적재된 자료는 그대로입니다.';
+			} else {
+				document.getElementById('loNote').textContent = '다시 이용하시려면 아래에서 들어가 주세요.';
+			}
+
+			/* 돌아갈 곳 — 타이머가 보낸 경우에만 referrer 가 원래 화면이다 */
+			var back = document.referrer;
+			var same = false;
+			try { same = back && new URL(back).origin === location.origin
+			             && back.indexOf('logout.html') < 0; } catch(e){ same = false; }
+
+			var btn = document.getElementById('loBack');
+			if(same){
+				document.getElementById('loWhere').innerHTML =
+					'돌아갈 곳 <code>' + back.replace(location.origin, '') + '</code>';
+				btn.addEventListener('click', function(){ location.replace(back); });
+			} else {
+				/* 어디서 왔는지 모르면 히스토리로, 그것도 없으면 첫 화면으로 */
+				btn.addEventListener('click', function(){
+					if(history.length > 1) history.back();
+					else location.replace('./index.html');
+				});
+			}
+		})();
+		</script>
+	</body>
+</html>

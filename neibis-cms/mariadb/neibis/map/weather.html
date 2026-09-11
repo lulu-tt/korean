@@ -1525,7 +1525,7 @@ function asJson(r){
       if(el){ var sp=el.parentNode.querySelector('.label'); sp.textContent = x[1]+' ('+x[2]+')'; }
     });
     $('ptLegend').innerHTML =
-        '<span>칸 = <b>응답</b><em class="lg-sub">/</em><em class="lg-sub">등급이 적힌 행</em></span>'
+        '<span>칸 = <b>제보자</b><em class="lg-sub">/</em><em class="lg-sub">응답 행</em></span>'
       + '<span><i class="lg-none"></i>지역어형 등급 없음 — 지도에 안 나옴</span>'
       + '<span><i class="lg-std"></i>표준어형만 나옴</span>';
   }
@@ -1583,17 +1583,18 @@ function asJson(r){
                       + '<a href="javascript:void(0);" data-p="'+pages+'">끝</a>';
     $('ptPager').innerHTML=h;
   }
-  /* 지역 한 칸 = 그 지역에 쌓인 응답 행수.
+  /* 지역 한 칸 = 제보자 수 / 응답 행수.
      '있다/없다'로는 정보가 없다 — 909칸 전부 자료가 있어 모두 ● 가 된다.
      대신 등급이 하나도 안 붙은 칸(=지도에서 '관측 없음')만 색으로 세운다. */
   function cellHTML(r, rg){
-    var c=r.regions[rg]||{}, n=c.rows||0, g=c.graded||0;
+    var c=r.regions[rg]||{}, p=c.people||0, n=c.rows||0;
     var cls = c.state==='w0' ? ' is-none' : (c.state==='std' ? ' is-std' : '');
-    var tip = (RN[rg]||rg)+' — 응답 '+n+'행 · 등급 '+g+'행 · 제보자 '+(c.people||0)+'명'
+    var tip = (RN[rg]||rg)+' — 제보자 '+p+'명 · 응답 '+n+'행 · 등급 '+(c.graded||0)+'행'
+            + ' · 판정에 든 제보자 '+(c.n||0)+'명'
             + (c.state==='w0' ? ' · 지역어형 등급이 없어 지도에 안 나옴'
             : (c.state==='std' ? ' · 표준어형만 나옴' : ''));
     return '<td class="pt-c'+cls+'" title="'+esc(tip)+'">'
-         + '<b>'+n+'</b><span class="sl">/</span><i>'+g+'</i></td>';
+         + '<b>'+p+'</b><span class="sl">/</span><i>'+n+'</i></td>';
   }
   function headHTML(){
     var h='<th scope="col">번호</th><th scope="col">항목코드</th><th scope="col">표준어(항목)</th>'
