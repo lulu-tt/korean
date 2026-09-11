@@ -1653,14 +1653,22 @@ function asJson(r){
       var b=e.target.closest('.pt-tab'); if(!b) return;
       e.preventDefault();
       var v=b.dataset.view;
-      /* 테마는 활성 표시를 <li class="on"> 으로 한다 */
-      document.querySelectorAll('.tabmenu .tab-list > li').forEach(function(li){
-        var a=li.querySelector('.pt-tab');
-        li.classList.toggle('on', !!a && a.dataset.view===v);
-      });
-      var v=b.dataset.view;
-      $('ptList').style.display   = v==='list'   ? '' : 'none';
-      $('ptUpload').style.display = v==='upload' ? '' : 'none';
+      var go=function(){
+        if(window.__ptRespDiscard) window.__ptRespDiscard();
+        /* 테마는 활성 표시를 <li class="on"> 으로 한다 */
+        document.querySelectorAll('.tabmenu .tab-list > li').forEach(function(li){
+          var a=li.querySelector('.pt-tab');
+          li.classList.toggle('on', !!a && a.dataset.view===v);
+        });
+        /* 응답 목록에서 눌렀을 수도 있다 — 그 화면도 함께 닫아야 이동이 된다 */
+        $('ptResp').style.display   = 'none';
+        $('ptList').style.display   = v==='list'   ? '' : 'none';
+        $('ptUpload').style.display = v==='upload' ? '' : 'none';
+        window.scrollTo(0,0);
+      };
+      var n = window.__ptRespPending ? window.__ptRespPending() : 0;
+      if(!n) return go();
+      ptAsk('화면을 옮길까요?', '저장하지 않은 보정 '+n+'건이 사라집니다.', go);
     });
 
     /* 검색 — 테마 표준 버튼 규약(검색/초기화/엑셀 다운) */
@@ -2055,6 +2063,12 @@ function asJson(r){
   function pending(){
     return Object.keys(ADJ).filter(function(f){ return ADJ[f] !== adjOf(f); });
   }
+  /* 탭 전환은 목록 블록이 처리한다. 블록이 각각 IIFE 라 변수를 공유하지 못하므로,
+     미저장 보정을 확인하고 버릴 수 있게 두 가지만 내보낸다. */
+  window.__ptRespPending = function(){
+    return $('ptResp').style.display === 'none' ? 0 : pending().length;
+  };
+  window.__ptRespDiscard = function(){ ADJ={}; syncSaveBar(); };
   /* 저장·초기화는 하단(btn-group-between)과 상단 고정(btn-group-fixed) 두 곳에 있다.
      한 항목에 83행을 오가며 고치므로 위에도 손이 닿아야 한다 — 상태는 함께 움직인다. */
   function syncSaveBar(){
