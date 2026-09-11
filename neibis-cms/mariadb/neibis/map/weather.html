@@ -625,19 +625,19 @@
 					<div class="content-body">
 
 						<!-- ══════════ 목록 화면 ══════════ -->
-						<!-- ══════════ 화면 전환 탭 ══════════ -->
-						<nav class="tabmenu tabmenu-type2">
-							<ul class="tab-list type2">
-								<li class="on"><a href="#;" class="pt-tab" data-view="list" title="선택됨"><span>항목 목록</span></a></li>
-								<li><a href="#;" class="pt-tab" data-view="upload"><span>업로드</span></a></li>
-							</ul>
-							<div class="data-summary" id="ptDbLine"></div>
-						</nav>
 
 						<!-- ══════════ ① 항목 목록 ══════════ -->
 						<div id="ptList">
-							<h3 class="title1 text-primary mt-md-4 ml-md-4">지역어 기상도 검색영역</h3>
 							<div class="card">
+							<nav class="tabmenu tabmenu-type2">
+								<ul class="tab-list type2">
+									<li class="on"><a href="#;" class="pt-tab" data-view="list" title="선택됨"><span>항목 목록</span></a></li>
+									<li><a href="#;" class="pt-tab" data-view="upload"><span>업로드</span></a></li>
+								</ul>
+								<div class="data-summary pt-sum"></div>
+							</nav>
+								<h3 class="title1 mt-4">지역어 기상도 · 항목 목록</h3>
+								<div class="search-wrap">
 								<div class="table table-form-basic">
 									<div class="table-inner">
 										<table>
@@ -676,6 +676,7 @@
 									<button type="button" class="btn btn-md" style="background:#217346;border-color:#217346;color:#fff" id="ptExcel"><i class="ico ico-fileexcel-white-md"></i><span class="text">엑셀 다운</span></button>
 								</div>
 							</div>
+								</div>
 
 							<div class="card">
 							<div class="list-control">
@@ -714,6 +715,13 @@
 						<!-- ══════════ ①-b 응답 목록 (항목 하나의 원자료) ══════════ -->
 						<div id="ptResp" style="display:none">
 							<div class="card">
+							<nav class="tabmenu tabmenu-type2">
+								<ul class="tab-list type2">
+									<li class="on"><a href="#;" class="pt-tab" data-view="list" title="선택됨"><span>항목 목록</span></a></li>
+									<li><a href="#;" class="pt-tab" data-view="upload"><span>업로드</span></a></li>
+								</ul>
+								<div class="data-summary pt-sum"></div>
+							</nav>
 								<h3 class="title1 mt-4">
 									<span id="ptRTitle">—</span>
 									<span class="text-sm text-medium text-lightgray ml-2" id="ptRMeta"></span>
@@ -856,6 +864,13 @@
 						<!-- ══════════ ② 업로드 ══════════ -->
 						<div id="ptUpload" style="display:none">
 							<div class="pt-card">
+								<nav class="tabmenu tabmenu-type2">
+									<ul class="tab-list type2">
+										<li><a href="#;" class="pt-tab" data-view="list"><span>항목 목록</span></a></li>
+										<li class="on"><a href="#;" class="pt-tab" data-view="upload" title="선택됨"><span>업로드</span></a></li>
+									</ul>
+									<div class="data-summary pt-sum"></div>
+								</nav>
 								<h3 class="pt-h3">엑셀 적재</h3>
 								<p class="pt-note">
 									<b>한 파일 = 제보자 한 명.</b> 파일 이름에서 지역·연차·세대·성별을 읽습니다
@@ -1481,13 +1496,14 @@ function asJson(r){
       SITES=j.regionSites||{}; ROSTER=j.regionRoster||{};
       rows = (j.items||[]).map(function(it,i){ return build(it,i); });
       var qc=(j.meta&&j.meta.qc)||{};
-      $('ptDbLine').innerHTML = [
+      var sumHTML = [
         ['제보자', (qc.files||0)+'명'],
         ['응답', (qc.rowsTotal||0).toLocaleString()+'행'],
         ['표출 항목', (qc.coreItems||0)+'개']
       ].map(function(x){
         return '<dl class="summary-item"><dt>'+x[0]+'</dt><dd>'+x[1]+'</dd></dl>';
       }).join('');
+      document.querySelectorAll('.pt-sum').forEach(function(el){ el.innerHTML = sumHTML; });
       headHTML(); fillSearch(); render();
     };
 
@@ -1632,12 +1648,15 @@ function asJson(r){
   /* ── 조작 ── */
   document.addEventListener('DOMContentLoaded', function(){
     /* 탭 */
-    document.querySelector('.tabmenu .tab-list').addEventListener('click', function(e){
+    /* 탭 바는 화면마다 카드 안에 하나씩 있다(시안 구조). 어느 바를 눌러도 같이 움직인다. */
+    document.addEventListener('click', function(e){
       var b=e.target.closest('.pt-tab'); if(!b) return;
       e.preventDefault();
+      var v=b.dataset.view;
       /* 테마는 활성 표시를 <li class="on"> 으로 한다 */
       document.querySelectorAll('.tabmenu .tab-list > li').forEach(function(li){
-        li.classList.toggle('on', li.contains(b));
+        var a=li.querySelector('.pt-tab');
+        li.classList.toggle('on', !!a && a.dataset.view===v);
       });
       var v=b.dataset.view;
       $('ptList').style.display   = v==='list'   ? '' : 'none';
