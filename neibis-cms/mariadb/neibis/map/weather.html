@@ -722,11 +722,15 @@
 								</ul>
 								<div class="data-summary pt-sum"></div>
 							</nav>
-								<h3 class="title1 mt-4">
-									<span id="ptRTitle">—</span>
-									<span class="text-sm text-medium text-lightgray ml-2" id="ptRMeta"></span>
-									<a href="#;" class="text-sm ml-2" id="ptRFront" target="_blank">이용자 화면에서 보기</a>
-								</h3>
+								<div class="pt-rtitle-row">
+									<h3 class="title1 mt-4">
+										<span id="ptRTitle">—</span>
+										<span class="text-sm text-medium text-lightgray ml-2" id="ptRMeta"></span>
+									</h3>
+									<a href="#;" class="btn btn-sm btn-outline-gray" id="ptRFront" target="_blank" title="새창">
+										<i class="ico ico-externallink-gray-md"></i><span>이용자 화면에서 보기</span>
+									</a>
+								</div>
 								<div class="table table-form-basic">
 									<div class="table-inner">
 										<table>
@@ -1396,6 +1400,13 @@ const getMngrFail = function (xhr, status, error) {
 .pt-nosn{ color:#cbd5e1; }
 .pt-dash{ color:#cbd5e1; }
 /* 원자료 칸은 읽기 전용 — 고칠 수 있는 것은 보정 칸뿐이라는 게 눈에 보여야 한다 */
+/* 제목 줄 — 제목·항목코드는 왼쪽, 이용자 화면 링크는 오른쪽 끝 */
+.pt-rtitle-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.pt-rtitle-row .title1{ margin-bottom:0; }
+
+/* 상단 고정 액션의 안내문 — 테마가 버튼 아래 absolute 로 붙이므로 한 줄이어야 한다.
+   접히면 헤더(80px)를 넘어 아래 카드와 겹친다. */
+.btn-group-fixed.type-desc .btn-group-fixed-desc{ white-space:nowrap; }
 .pt-ic{ font-variant-numeric:tabular-nums; white-space:nowrap; }
 .pt-ro{ color:#334155; }
 .pt-rr.is-std .pt-ro{ color:#94a3b8; }   /* 표준어형이라 판정에서 빠지는 행 — 흐리게만 */
@@ -1921,7 +1932,7 @@ function asJson(r){
     F={rg:{}, age:{}, sex:'', st:'', q:''}; resetForm(); syncSaveBar();
     $('ptList').style.display='none'; $('ptResp').style.display='';
     $('ptRTitle').textContent = word + ' · 응답 목록';
-    $('ptRMeta').textContent = '항목코드 ' + code;
+    $('ptRMeta').textContent = '(항목코드 ' + code + ')';
     $('ptRFront').href = './dialect_gisangdo.html#/word/' + encodeURIComponent(word);
     $('ptRespRows').innerHTML = '<tr><td colspan="8" class="pt-empty">불러오는 중…</td></tr>';
     window.scrollTo(0,0);
@@ -2076,9 +2087,11 @@ function asJson(r){
     ['ptSaveAll','ptSaveAll2','ptRevert','ptRevert2'].forEach(function(id){
       var el=$(id); if(el) el.disabled = !n;
     });
+    /* 상단 고정 바의 안내는 한 줄짜리 캡션이다(테마가 absolute 로 버튼 아래 붙인다).
+       길면 두 줄이 되어 헤더를 넘고 아래 내용과 겹친다. */
     $('ptSaveMsg').innerHTML = n
-      ? '<strong class="text-primary">'+n+'명</strong>의 보정을 바꿨습니다 — 저장하지 않으면 사라집니다.'
-      : '원자료는 고칠 수 없습니다. 판정에 쓸 값만 보정해 저장하세요.';
+      ? '<strong class="text-primary">'+n+'명</strong> 보정 — 저장해야 반영됩니다.'
+      : '판정에 쓸 값만 보정할 수 있습니다.';
   }
 
   /* 고친 줄만 한 번에 보낸다. rid 와 함께 (파일명, 행번호)도 보내
