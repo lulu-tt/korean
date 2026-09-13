@@ -40,9 +40,10 @@ def _pipeline_url(u):
     return u
 
 
-TURSO_URL = _pipeline_url(os.environ.get(
-    "TURSO_DATABASE_URL",
-    "https://korean-weather-lulu-tt.aws-ap-northeast-1.turso.io/v2/pipeline"))
+# 기본값을 두지 않는다. 예전에 폐기한 DB 주소를 기본값으로 갖고 있었는데,
+# 환경변수가 빠지면 없는 DB 로 조용히 붙어 원인을 찾기 어려웠다.
+_TURSO_URL_RAW = os.environ.get("TURSO_DATABASE_URL", "").strip()
+TURSO_URL = _pipeline_url(_TURSO_URL_RAW) if _TURSO_URL_RAW else ""
 TURSO_TOKEN = os.environ.get("TURSO_AUTH_TOKEN", "")
 
 _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -63,8 +64,9 @@ def etl():
 
 def turso(sqls):
     """SELECT 여러 개를 한 번에. 각 결과의 rows 목록을 돌려준다."""
-    if not TURSO_TOKEN:
-        raise RuntimeError("TURSO_AUTH_TOKEN 환경변수가 없습니다 (Vercel 프로젝트 설정에 추가)")
+    for name, val in (("TURSO_DATABASE_URL", TURSO_URL), ("TURSO_AUTH_TOKEN", TURSO_TOKEN)):
+        if not val:
+            raise RuntimeError("%s 환경변수가 없습니다 (Vercel 프로젝트 설정에 추가)" % name)
     body = {"requests": [{"type": "execute", "stmt": {"sql": s}} for s in sqls]
                         + [{"type": "close"}]}
     req = urllib.request.Request(
