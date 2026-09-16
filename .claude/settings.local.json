@@ -289,7 +289,8 @@
       "mcp__Claude_Code_Remote__create_session",
       "mcp__Claude_Code_Remote__send_later",
       "mcp__Claude_Code_Remote__archive_session",
-      "mcp__Claude_Code_Remote__delete_trigger"
+      "mcp__Claude_Code_Remote__delete_trigger",
+      "Bash(SP=/tmp/claude-0/-home-user-korean/7a23e86d-2421-5f49-b930-b0fb94e4b9cf/scratchpad *)"
     ]
   }
 }
