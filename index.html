@@ -504,7 +504,9 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   display: flex;
   flex-direction: column;
-  height: 560px; /* 고정 높이로 그리드 균형 확보 */
+  /* 이미지를 걷어낸 뒤로는 내용이 높이를 정한다.
+     .today-track 이 flex(stretch) 라서 한 줄의 카드들은 자동으로 같은 높이가 된다. */
+  min-height: 360px;
   padding: 32px 28px;
   position: relative;
   overflow: hidden;
@@ -650,6 +652,7 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
   color: #ef4444; 
 }
 .quiz-submit { 
+  margin-top: auto; 
   width: 100%; 
   background: var(--indigo); 
   color: white; 
@@ -663,26 +666,139 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
   transition: background 0.2s; 
 }
 .quiz-submit:hover { background: var(--indigo-mid); }
- 
-/* 카드 하단 둥근 이미지 박스 (포스웰 핵심 아이덴티티) */
-.card-img-box {
-  width: 100%;
-  height: 180px;
-  border-radius: 16px;
-  overflow: hidden;
+
+/* ── 단어 카드: 표준어 · 근거 (전부 DB 값) ── */
+.word-std {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 14px;
+}
+.word-std span {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-light);
+}
+/* 카드 아래 근거 블록 — 그림 대신 쓰이는 곳·출처를 싣는다 */
+.word-source {
   margin-top: auto;
-  position: relative;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  display: grid;
+  gap: 8px;
+}
+.word-source-row {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-mid);
+}
+.word-source-row span {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-light);
+  padding-top: 1px;
+}
+/* 단어 카드는 이미지가 없으므로 본문이 위에서부터 차곡차곡 쌓인다 */
+.today-card.word-type .word-actions { margin-bottom: 16px; }
+.word-actions a.action-btn { text-decoration: none; }
+
+/* 지역 표기가 길어도 표제어가 줄바꿈되지 않게 한다 */
+.word-title-row { flex-wrap: wrap; }
+.word-big { white-space: nowrap; }
+
+/* ── tb_quiz 원문항 카드 (scripts/export_today_quiz.py 산출물) ── */
+.quiz-word-region {
+  display: inline-block;
+  background: var(--indigo-pale);
+  color: var(--indigo);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+/* 문제문 — 원문항을 그대로 싣는다 */
+.quiz-question {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-mid);
+  margin-bottom: 10px;
+}
+/* 보기 해설(quiz_dtl_exp) — 보기를 고르거나 정답을 열면 나온다 */
+.quiz-explain {
+  display: none;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-mid);
+  background: var(--indigo-pale);
+  border-radius: 8px;
+  padding: 7px 10px;
+  margin-bottom: 8px;
+}
+.quiz-explain.on {
+  display: block;
+  max-height: 40px;      /* 두 줄까지만 — 열 때 카드가 크게 튀지 않게 */
+  overflow-y: auto;
+}
+/* 주관식 — 보기가 없어 정답 자리를 비워 둔다 */
+.quiz-short-slot {
+  border: 1px dashed var(--border-strong);
+  border-radius: 8px;
+  padding: 14px 12px;
+  margin-bottom: 12px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-light);
+}
+.quiz-short-slot.on {
+  border-style: solid;
+  border-color: var(--indigo);
+  background: var(--indigo-pale);
+  color: var(--indigo);
+  font-size: 20px;
+  font-weight: 700;
+  font-family: var(--display);
+  padding: 10px 12px;
+}
+/* 보기 4~5개짜리 문항은 이미지 칸을 줄여 고정 높이 안에 넣는다 */
+.today-card.quiz-type.opts-many .quiz-option { padding: 6px 10px; font-size: 11.5px; }
+.today-card.quiz-type.opts-many .quiz-options { gap: 5px; margin-bottom: 10px; }
+
+/* ── 관련 방언형 칩 (같은 표준어를 가리키는 다른 지역의 말) ── */
+.word-related {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.related-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  background: var(--bg-warm);
   border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-dark);
 }
-.card-img-box img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
+.related-chip span {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--text-light);
 }
-.today-card:hover .card-img-box img {
-  transform: scale(1.05);
-}
+ 
 
 /* 하단 중앙 정렬 통합 컨트롤 (재생/정지 + 닷들) */
 .today-controls-row {
@@ -774,8 +890,6 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
     height: auto;
     padding: 22px 16px;
   }
-  /* 하단 둥근 이미지 박스는 모바일에서 노출하지 않음 */
-  .card-img-box { display: none; }
 
   .word-big,
   .quiz-word-display { font-size: 24px; }
@@ -785,6 +899,15 @@ body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-d
   .action-btn { font-size: 9px; padding: 5px 7px; }
   .quiz-option { font-size: 11px; padding: 7px 10px; }
   .quiz-submit { font-size: 11px; }
+  .quiz-question { font-size: 11.5px; }
+  .quiz-explain { font-size: 10px; padding: 6px 8px; }
+  .quiz-short-slot { padding: 10px; font-size: 11px; }
+  .quiz-short-slot.on { font-size: 17px; }
+  .related-chip { font-size: 10.5px; padding: 3px 8px; }
+  .related-chip span { font-size: 9px; }
+  .word-std { font-size: 16px; margin-bottom: 10px; }
+  /* 카드가 좁아지면 라벨을 값 위로 올린다 (옆으로 두면 값이 한 글자씩 끊긴다) */
+  .word-source-row { font-size: 10px; grid-template-columns: 1fr; gap: 2px; }
 }
 
 /* ── MAP SECTION (POSWEL TAB STYLE) ── */
@@ -2192,8 +2315,11 @@ playPauseBtn.addEventListener('click', () => {
 // 초기화
 startSlideInterval();
 
-/* ── 오늘의 지역어 데이터 및 캐러셀 ── */
-const wordData = [
+/* ── 오늘의 지역어 데이터 및 캐러셀 ──
+   실데이터는 data/processed/today_quiz.json 에서 읽는다.
+   (scripts/export_today_quiz.py 가 dialect_local.db 의 tb_quiz 30문항을 원문항 그대로 내보낸다)
+   아래 배열은 JSON 을 못 읽는 배포에서 화면이 비지 않게 두는 대비책이다. */
+var wordData = [
   { word:'부삭', region:'전라남도', pos:'명사', meaning:'아궁이. 불을 때는 구멍.', example:'"부삭에 불을 때서 방을 따뜻하게 덥혔다."', related:[{w:'아궁이',r:'표준어'},{w:'부뚜막',r:'경상도'},{w:'부넹기',r:'제주도'}] },
   { word:'가스나', region:'경상남도', pos:'명사', meaning:'계집아이. 여자아이를 낮잡아 이르는 말.', example:'"가스나가 울면 안 된다."', related:[{w:'계집아이',r:'표준어'},{w:'가시나',r:'경북'},{w:'가시내',r:'강원'}] },
   { word:'낭구', region:'경기도', pos:'명사', meaning:'나무. 목재 또는 나무를 이르는 말.', example:'"낭구 한 짐 해다가 땔감으로 써야겠다."', related:[{w:'나무',r:'표준어'},{w:'낭기',r:'강원도'},{w:'낭',r:'제주도'}] },
@@ -2204,7 +2330,7 @@ const wordData = [
   { word:'마등', region:'경상도', pos:'명사', meaning:'마루. 집 안의 나무로 된 넓은 공간.', example:'"그림자가 마등으로 들어섰다."', related:[{w:'마루',r:'표준어'},{w:'대청',r:'전라도'}] },
 ];
 
-const quizData = [
+var quizData = [
   { word:'억시기', region:'경상도 지역어', opts:['매우, 몹시','억울하게','어기적어기적'], ans:0 },
   { word:'워메', region:'전라도 지역어', opts:['어머나, 이런','왜 그러니','어서 오게'], ans:0 },
   { word:'북새', region:'함경도 지역어', opts:['소란스러운 상황','북쪽 새','차가운 바람'], ans:0 },
@@ -2220,70 +2346,147 @@ function getVisibleCount() { return window.innerWidth <= 640 ? 2 : 4; }
 var VISIBLE = getVisibleCount();
 const CARD_GAP = 20;
 
-// 'dialect_' 로 시작하는 지역어 이미지 풀 (퀴즈 배너 제외)
-const DIALECT_IMAGES = [
-  './image/dialect_gyeonggi.png',
-  './image/dialect_gyeongsang.png',
-  './image/dialect_gyeongsang (1).png',
-  './image/dialect_jeju.png',
-  './image/dialect_jeolla.png',
-  './image/dialect_jeolla (1).png',
-];
-function randomDialectImg() {
-  const path = DIALECT_IMAGES[Math.floor(Math.random() * DIALECT_IMAGES.length)];
-  return encodeURI(path); // 파일명의 공백/괄호 안전 처리
-}
-
 function makeWordCardHTML(d, i) {
-  const rel = d.related.map(r => '<span class="related-chip">' + r.w + '<span>' + r.r + '</span></span>').join('');
-  return '<div class="today-card">' +
-    '<div class="card-category">Today\'s Word</div>' +
-    '<div class="word-title-row"><div class="word-big">' + d.word + '</div><span class="region-pill">' + d.region + '</span></div>' +
-    '<div class="word-meaning">' + d.meaning + '</div>' +
-    '<div class="word-example">' + d.example + '</div>' +
-    '<div class="word-actions">' +
-      '<button class="action-btn" onclick="alert(\'발음 음성을 로드 중입니다.\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="5,3 19,12 5,21"/></svg>발음 듣기</button>' +
-      '<button class="action-btn" onclick="location.href=\'./dialect_map.html\'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>지도 보기</button>' +
-    '</div>' +
-    '<div class="card-img-box"><img src="' + randomDialectImg() + '" alt="' + d.region + ' 지역어 이미지"></div>' +
-  '</div>';
-}
-
-const nums = ['①','②','③'];
-function makeQuizCardHTML(d, i) {
-  const opts = d.opts.map(function(opt, j) {
-    return '<button class="quiz-option" onclick="pickOpt(this,' + i + ',' + j + ',' + d.ans + ')">' + nums[j] + ' ' + opt + '</button>';
+  /* 여기 나오는 값은 전부 tb_quiz / tb_quiz_detail 에서 온 것이다.
+     뜻풀이 문장·예문·품사·발음 음성은 DB에 없으므로 만들지 않는다. */
+  var rel = (d.related || []).map(function (r) {
+    return '<span class="related-chip">' + esc(r.w) + '<span>' + esc(r.r) + '</span></span>';
   }).join('');
-  return '<div class="today-card quiz-type">' +
-    '<div class="card-category">Quiz</div>' +
-    '<div class="quiz-word-display">' + d.word + '</div>' +
-    '<div class="quiz-word-region">' + d.region + '</div>' +
-    '<div class="quiz-options" id="qopts-' + i + '">' + opts + '</div>' +
-    '<button class="quiz-submit" onclick="revealOpt(' + i + ',' + d.ans + ')">정답 확인하기</button>' +
-    '<div class="card-img-box"><img src="./image/dialect_quiz.png" alt="방언 퀴즈 이미지"></div>' +
+  var std = d.std ? '<div class="word-std"><span>표준어</span>' + esc(d.std) + '</div>' : '';
+  var related = rel ? '<div class="word-related">' + rel + '</div>' : '';
+  var region = d.region || '';
+  /* 카드 아래는 근거 — 쓰이는 곳 원문(quiz_dtl_exp)과 출처(quiz_origin) */
+  var note = (d.regionNote || d.source)
+    ? '<div class="word-source">' +
+        (d.regionNote ? '<div class="word-source-row"><span>쓰이는 곳</span>' + esc(d.regionNote) + '</div>' : '') +
+        (d.source ? '<div class="word-source-row"><span>출처</span>' + esc(d.source) + '</div>' : '') +
+      '</div>'
+    : '';
+  /* 지도는 표제어 153개만 export 돼 있다. 없는 단어에는 버튼을 걸지 않는다
+     (걸어 두면 엉뚱하게 지도 첫 표제어가 열린다). */
+  var mapHref = d.headwordNo
+    ? './dialect_map.html?no=' + encodeURIComponent(d.headwordNo) + '&word=' + encodeURIComponent(d.std || '')
+    : '';
+  var actions = mapHref
+    ? '<div class="word-actions">' +
+        '<a class="action-btn" href="' + mapHref + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>‘' + esc(d.std || '') + '’ 지도 보기</a>' +
+      '</div>'
+    : '';
+  return '<div class="today-card word-type">' +
+    '<div class="card-category">Today\'s Word</div>' +
+    '<div class="word-title-row"><div class="word-big">' + esc(d.word) + '</div>' +
+      (region ? '<span class="region-pill">' + esc(region) + '</span>' : '') + '</div>' +
+    std + related + actions + note +
   '</div>';
 }
 
-function pickOpt(btn, quizIdx, optIdx, ans) {
-  var wrap = document.getElementById('qopts-' + quizIdx);
-  wrap.querySelectorAll('.quiz-option').forEach(function(o){ o.classList.remove('correct','wrong'); });
-  btn.classList.add(optIdx === ans ? 'correct' : 'wrong');
+var NUMS = ['①','②','③','④','⑤','⑥'];
+var QUIZ_VIEW = [];   /* 화면에 올라간 퀴즈 원본 — 핸들러가 인덱스로 찾아 쓴다 */
+
+function esc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function revealOpt(quizIdx, ans) {
-  var wrap = document.getElementById('qopts-' + quizIdx);
-  wrap.querySelectorAll('.quiz-option').forEach(function(o, i){ o.classList.remove('correct','wrong'); if(i===ans) o.classList.add('correct'); });
+/* tb_quiz 원문항을 그대로 렌더링한다.
+   choice = 보기 2~5개(부정형·긍정형·역방향), short = 보기 없는 주관식 */
+function makeQuizCardHTML(d, i) {
+  QUIZ_VIEW[i] = d;
+  var region = d.region
+    ? '<span class="quiz-word-region">' + esc(d.region) + '</span>' : '';
+  var head =
+    '<div class="card-category">Quiz' + (d.type === 'short' ? ' · 주관식' : '') + '</div>' +
+    '<div class="quiz-word-display">' + esc(d.focus || d.word) + '</div>' +
+    region +
+    '<div class="quiz-question">' + esc(d.question || '') + '</div>';
+  var foot =
+    '<div class="quiz-explain" id="qexp-' + i + '"></div>' +
+    '<button class="quiz-submit" onclick="revealOpt(' + i + ')">정답 확인하기</button>';
+
+  if (d.type === 'short') {
+    return '<div class="today-card quiz-type quiz-short">' + head +
+      '<div class="quiz-short-slot" id="qopts-' + i + '">눌러서 정답 보기</div>' +
+      foot + '</div>';
+  }
+
+  var opts = (d.opts || []).map(function(o, j) {
+    var label = (o && o.t != null) ? o.t : o;   /* 대비책 배열은 문자열이다 */
+    return '<button class="quiz-option" onclick="pickOpt(this,' + i + ',' + j + ')">' +
+      NUMS[j] + ' ' + esc(label) + '</button>';
+  }).join('');
+  var many = (d.opts || []).length >= 4 ? ' opts-many' : '';
+  return '<div class="today-card quiz-type' + many + '">' + head +
+    '<div class="quiz-options" id="qopts-' + i + '">' + opts + '</div>' +
+    foot + '</div>';
+}
+
+/* 보기 해설(quiz_dtl_exp)을 카드 아래 한 줄로 보여 준다 */
+function showExp(i, text) {
+  var box = document.getElementById('qexp-' + i);
+  if (!box) return;
+  box.textContent = text || '';
+  box.classList.toggle('on', !!text);
+}
+
+function pickOpt(btn, i, optIdx) {
+  var d = QUIZ_VIEW[i] || {};
+  var wrap = document.getElementById('qopts-' + i);
+  wrap.querySelectorAll('.quiz-option').forEach(function(o){ o.classList.remove('correct','wrong'); });
+  btn.classList.add(optIdx === d.ans ? 'correct' : 'wrong');
+  var o = (d.opts || [])[optIdx];
+  showExp(i, o && o.exp ? o.exp : '');
+}
+
+function revealOpt(i) {
+  var d = QUIZ_VIEW[i] || {};
+  if (d.type === 'short') {
+    var slot = document.getElementById('qopts-' + i);
+    if (slot) { slot.textContent = d.answer || ''; slot.classList.add('on'); }
+    showExp(i, d.source || '');
+    return;
+  }
+  var wrap = document.getElementById('qopts-' + i);
+  wrap.querySelectorAll('.quiz-option').forEach(function(o, j){
+    o.classList.remove('correct','wrong');
+    if (j === d.ans) o.classList.add('correct');
+  });
+  var a = (d.opts || [])[d.ans];
+  showExp(i, (a && a.exp) ? a.exp : (d.source || ''));
 }
 
 var track = document.getElementById('tTrack');
 var dotsWrap = document.getElementById('tDots');
-var totalCards = wordData.length + quizData.length; /* 16 cards */
+var totalCards = 0;
 var offset = 0; /* current first-visible index */
-var maxOffset = totalCards - VISIBLE;
+var maxOffset = 0;
 
-for (var i = 0; i < wordData.length; i++) {
-  track.innerHTML += makeWordCardHTML(wordData[i], i);
-  track.innerHTML += makeQuizCardHTML(quizData[i] || quizData[0], i);
+var DAILY_PAIRS = 8;   /* 하루에 노출할 단어·퀴즈 짝 수 */
+
+/* 날짜를 시드로 풀에서 잘라 쓴다 — 날이 바뀌면 다른 문제가 나오고,
+   같은 날에는 새로고침해도 같은 문제가 나온다. */
+function todaySlice(pool, n) {
+  if (!pool || !pool.length) return [];
+  var day = Math.floor(Date.now() / 86400000);
+  var out = [];
+  for (var k = 0; k < Math.min(n, pool.length); k++) out.push(pool[(day * n + k) % pool.length]);
+  return out;
+}
+
+function buildTrack() {
+  var words = todaySlice(wordData, DAILY_PAIRS);
+  var quizzes = todaySlice(quizData, DAILY_PAIRS);
+  var pairs = Math.max(words.length, quizzes.length);
+  var html = '';
+  QUIZ_VIEW = [];
+  for (var i = 0; i < pairs; i++) {
+    if (words[i]) html += makeWordCardHTML(words[i], i);
+    if (quizzes[i]) html += makeQuizCardHTML(quizzes[i], i);
+  }
+  track.innerHTML = html;
+  totalCards = track.children.length;
+  offset = 0;
+  buildDots();
+  goTo(0);
 }
 
 // VISIBLE 값에 맞춰 페이지 닷을 다시 그림 (반응형 대응)
@@ -2300,7 +2503,18 @@ function buildDots() {
     dotsWrap.appendChild(dot);
   }
 }
-buildDots();
+buildTrack();
+
+/* 실데이터 연결 — scripts/export_today_quiz.py 가 만든 tb_quiz 원문항 30개.
+   파일이 없으면(정적 배포·미생성) 위쪽 대비책 배열이 그대로 남는다. */
+fetch('./data/processed/today_quiz.json', { cache: 'no-cache' })
+  .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(function (d) {
+    if (d && d.quizzes && d.quizzes.length) quizData = d.quizzes;
+    if (d && d.words && d.words.length) wordData = d.words;
+    buildTrack();
+  })
+  .catch(function () { /* 대비책 유지 */ });
 
 function getCardWidth() {
   var vw = track.parentElement.offsetWidth;
