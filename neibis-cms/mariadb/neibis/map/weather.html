@@ -655,8 +655,8 @@
 													<th scope="row">자료 상태</th>
 													<td colspan="3">
 														<label class="check-item"><input type="radio" name="ptState" value="" checked /><span class="label">전체</span></label>
-														<label class="check-item"><input type="radio" name="ptState" value="miss" /><span class="label">등급 비어 못 칠한 지역 있음</span></label>
-														<label class="check-item"><input type="radio" name="ptState" value="edit" /><span class="label">보정한 항목</span></label>
+														<label class="check-item"><input type="radio" name="ptState" value="miss" /><span class="label">등급없음</span></label>
+														<label class="check-item"><input type="radio" name="ptState" value="edit" /><span class="label">관리자 보정</span></label>
 													</td>
 												</tr>
 												<tr>
@@ -1564,8 +1564,8 @@ function asJson(r){
     }
     var c=counts();
     /* 상태 라디오에 건수를 달아 어디에 일이 있는지 보이게 한다 */
-    [['','전체',rows.length],['miss','등급 비어 못 칠한 지역 있음',c.miss],
-     ['edit','보정한 항목',c.edit]].forEach(function(x){
+    [['','전체',rows.length],['miss','등급없음',c.miss],
+     ['edit','관리자 보정',c.edit]].forEach(function(x){
       var el=document.querySelector('input[name=ptState][value="'+x[0]+'"]');
       if(el){ var sp=el.parentNode.querySelector('.label'); sp.textContent = x[1]+' ('+x[2]+')'; }
     });
