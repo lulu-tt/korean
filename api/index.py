@@ -241,15 +241,17 @@ def file_list():
     """적재 현황 — serve.py 의 api_weather_files 와 같은 질의를 그대로 쓴다.
 
     30,043행을 다 끌어오지 않고 개수는 DB 에서 센다. editedCnt·gradeBadCnt 는
-    화면이 재업로드 경고와 자료 오류를 띄우는 근거라 비워 두면 안 된다.
+    화면이 보정 표시와 자료 오류를 띄우는 근거라 비워 두면 안 된다.
     """
     rows, edited, resp, bad = turso([
         "SELECT weather_file_id, file_nm, region_cd, region_nm, research_year,"
         " generation, sex, row_cnt, item_cnt, src_layout, use_yn, reg_dt"
         " FROM wb_weather_file"
         " ORDER BY reg_dt DESC, region_cd, generation, sex",   # 최근에 올린 것이 위로
-        "SELECT weather_file_id, COUNT(*) FROM wb_weather_response"
-        " WHERE upt_dt IS NOT NULL GROUP BY weather_file_id",
+        # 보정은 wb_weather_adjust 에만 담긴다. 원본 행의 upt_dt 를 세면 늘 0 이다.
+        "SELECT f.weather_file_id, COUNT(*) FROM wb_weather_adjust a"
+        " JOIN wb_weather_file f ON f.file_nm = a.file_nm"
+        " GROUP BY f.weather_file_id",
         "SELECT COUNT(*) FROM wb_weather_response",
         "SELECT COUNT(*) FROM wb_weather_response"
         " WHERE grade IS NOT NULL AND grade<>'*' AND grade_valid_yn='N'",

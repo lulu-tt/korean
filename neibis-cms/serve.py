@@ -6198,10 +6198,13 @@ def api_weather_files(qs: dict) -> dict:
                   sex,row_cnt,item_cnt,src_layout,use_yn,reg_dt
            FROM wb_weather_file
            ORDER BY reg_dt DESC, region_cd, generation, sex""")]
-    # 관리자가 고친 행 — 재업로드하면 엑셀 값으로 되돌아가므로 화면이 미리 경고해야 한다
+    # 담당자가 보정한 항목 수. 원본 행의 upt_dt 를 세면 안 된다 — 보정을
+    # wb_weather_adjust 로 옮긴 뒤로 원본은 영영 안 바뀌어 늘 0 이 된다.
+    con.executescript(_weather_etl().ADJUST_DDL)
     edited = dict(con.execute(
-        """SELECT weather_file_id, COUNT(*) FROM wb_weather_response
-           WHERE upt_dt IS NOT NULL GROUP BY weather_file_id"""))
+        """SELECT f.weather_file_id, COUNT(*) FROM wb_weather_adjust a
+           JOIN wb_weather_file f ON f.file_nm = a.file_nm
+           GROUP BY f.weather_file_id"""))
     resp = con.execute("SELECT COUNT(*) c FROM wb_weather_response").fetchone()
     bad = con.execute(
         """SELECT COUNT(*) c FROM wb_weather_response

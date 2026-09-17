@@ -399,6 +399,7 @@ def build_output(recs, nfiles, adjust=None):
                         and (r['year'], r['age'], r['sx']) == key]
                 adj = (adjust or {}).get((rg, key[0], key[1], key[2], it))
                 if adj == 'X':
+                    adjusted[key] = 'X'      # 뺀 것도 담당자가 손댄 것이다
                     continue
                 if adj in ('1', '2', '3', '4'):
                     best[key] = int(adj)
@@ -488,7 +489,9 @@ def build_output(recs, nfiles, adjust=None):
             cell['rows'] = len(rows)                                   # 그 지역의 응답 행
             cell['graded'] = sum(1 for r in rows if r['g'])            # 그중 등급이 적힌 행
             cell['people'] = len(informants)                           # 조사된 제보자
-            cell['edited'] = sum(1 for r in rows if r.get('upt'))      # 관리자가 고친 행
+            # 담당자가 보정한 제보자. 응답 행의 upt_dt 를 세면 안 된다 — 보정을
+            # wb_weather_adjust 로 옮긴 뒤로 원본 행은 영영 안 바뀌어 늘 0 이 된다.
+            cell['edited'] = len(adjusted)
             entry['regions'][rg] = cell
             tally[state] += 1
         items.append(entry)
