@@ -52,10 +52,29 @@ def turso_cli():
     sys.exit("turso CLI 를 찾지 못했습니다. curl -sSfL https://get.tur.so/install.sh | bash")
 
 
+NOT_LOGGED_IN = "not logged in"
+
+
+def require_login(cli):
+    """반영을 시작하기 전에 로그인을 확인한다.
+
+    turso db shell 은 로그인하지 않은 상태에서도 종료코드 0 을 낸다. 그래서
+    한 문장도 보내지 못했는데 '37/37 전송 완료' 로 보이는 일이 있었다.
+    """
+    r = subprocess.run([cli, "auth", "whoami"], capture_output=True, text=True)
+    out = (r.stdout + r.stderr).strip()
+    if r.returncode or NOT_LOGGED_IN in out.lower():
+        sys.exit("Turso 에 로그인되어 있지 않습니다.\n"
+                 "  turso auth login\n"
+                 "을 실행한 뒤 다시 시도하세요. (받은 말: %s)" % out)
+    return out
+
+
 def ask(cli, sql):
     r = subprocess.run([cli, "db", "shell", TURSO_DB, sql],
                        capture_output=True, text=True)
-    if r.returncode:
+    out = r.stdout + r.stderr
+    if r.returncode or NOT_LOGGED_IN in out.lower():
         sys.exit("Turso 조회 실패: %s" % (r.stderr.strip() or r.stdout.strip()))
     return r.stdout
 
@@ -167,6 +186,7 @@ def main():
     a = ap.parse_args()
 
     cli = turso_cli()
+    print("  로그인 %s" % require_login(cli))
     con = sqlite3.connect(DB)
     con.row_factory = sqlite3.Row
     nf = con.execute("SELECT COUNT(*) FROM wb_weather_file").fetchone()[0]
@@ -193,7 +213,8 @@ def main():
             with open(p, encoding="utf-8") as f:
                 r = subprocess.run([cli, "db", "shell", TURSO_DB],
                                    stdin=f, capture_output=True, text=True)
-            if r.returncode:
+            out = r.stdout + r.stderr
+            if r.returncode or NOT_LOGGED_IN in out.lower():
                 sys.exit("\n  %d/%d 실패: %s" % (i, len(parts),
                                                  r.stderr.strip() or r.stdout.strip()))
             if i % 20 == 0 or i == len(parts):
