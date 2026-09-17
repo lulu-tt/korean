@@ -325,6 +325,8 @@ def responses(item):
     except Exception:
         pass
     people, seen = [], set()
+    # 등급을 하나라도 매긴 제보자. serve.py 와 같은 값을 보내야 화면이 같게 나온다.
+    graded = {r["file"] for r in out if str(r.get("grade") or "").strip()}
     for r in out:
         if r["file"] in seen:
             continue
@@ -332,6 +334,7 @@ def responses(item):
         people.append({
             "file": r["file"], "region": r["region"], "regionNm": r["regionNm"],
             "year": r["year"], "age": r["age"], "sex": r["sex"],
+            "graded": r["file"] in graded,
             "calc": calc.get(r["file"], ""), "calcForm": forms.get(r["file"], ""),
             "adjust": adj.get(r["file"], ""),
         })

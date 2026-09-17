@@ -6079,6 +6079,9 @@ def api_weather_responses(qs: dict) -> dict:
             calc[k] = int(g)
             forms[k] = x["shown"]
     adj = _wb_adjust_map(item)
+    # 등급을 하나라도 매긴 제보자. calc 가 비었을 때 '지역어형 없음'(표준어형만 답함)과
+    # '관측 없음'(등급 미기입)을 화면이 가려 말할 수 있어야 한다.
+    graded = {x["file"] for x in out if (x["grade"] or "").strip()}
     people = []
     seen = set()
     for x in out:
@@ -6090,6 +6093,7 @@ def api_weather_responses(qs: dict) -> dict:
             "year": x["year"], "age": x["age"], "sex": x["sex"],
             "calc": calc.get(x["file"], ""),          # 규칙이 고른 대표 등급
             "calcForm": forms.get(x["file"], ""),
+            "graded": x["file"] in graded,
             "adjust": adj.get(x["file"], ""),         # 담당자 보정 ('1'~'4' 또는 'X')
         })
     return {"ok": True, "item": item, "headword": hw, "total": len(out),

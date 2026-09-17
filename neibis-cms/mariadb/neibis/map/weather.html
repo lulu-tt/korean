@@ -1410,7 +1410,9 @@ const getMngrFail = function (xhr, status, error) {
 .pt-ro{ color:#334155; }
 .pt-rr.is-std .pt-ro{ color:#94a3b8; }   /* 표준어형이라 판정에서 빠지는 행 — 흐리게만 */
 .pt-adjw{ display:flex; align-items:center; gap:7px; }
-.pt-calc{ flex:0 0 auto; font-size:12px; color:#64748b; white-space:nowrap; }
+.pt-calc{ flex:0 0 auto; font-size:12px; color:#475569; white-space:nowrap; }
+.pt-wx{ width:9px; height:9px; border-radius:50%; display:inline-block; margin-right:5px;
+        vertical-align:-1px; border:1px solid rgba(15,23,42,.14); }
 .pt-adj{ flex:1 1 auto; min-width:0; height:30px; border:1px solid #cbd5e1; border-radius:7px;
   padding:0 7px; font-size:13px; background:#fff; }
 .pt-adj.is-on{ border-color:#7c3aed; background:#f5f3ff; color:#5b21b6; font-weight:600; }
@@ -1490,8 +1492,6 @@ function asJson(r){
   var DB=null, RO=[], RN={}, SITES={}, ROSTER={};
   var rows=[], filter='', q='', YEAR='', PAGE=1, SIZE=20;
 
-  /* 등급 = 조사표의 4단계 그대로. 숫자 대신 말로 고른다. */
-  var GRADE = [ ['1','지금도 씀'], ['2','써봤으나 안 씀'], ['3','들어는 봄'], ['4','처음 들음'] ];
   var STCLS = { w1:'wx1', w2:'wx2', w3:'wx3', w4:'wx4', std:'wxs', w0:'wx0' };
   var STNM  = { w1:'지금도 씀', w2:'써봤으나 안 씀', w3:'들어는 봄', w4:'처음 들음',
                 std:'지역어형 없음', w0:'관측 없음' };
@@ -1915,7 +1915,12 @@ function asJson(r){
   var $  = function(id){ return document.getElementById(id); };
   var esc= function(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){
              return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
-  var GRADE=[['1','① 지금도 씀'],['2','② 써봤으나 안 씀'],['3','③ 들어는 봄'],['4','④ 처음 들음']];
+  /* [등급, 일기도 표현, 색, 조사표 표현]
+     보정은 '이 등급이 지도에서 무엇이 되는가' 를 고르는 일이라 일기도 표현으로 보여준다.
+     이름·색은 프론트 기상도(etl 의 states)와 같아야 한다 — 어긋나면 담당자가 고른 것과
+     이용자가 보는 것이 달라진다. */
+  var GRADE=[['1','맑음','wx1','지금도 씀'],       ['2','구름조금','wx2','써봤으나 안 씀'],
+             ['3','흐리고 비','wx3','들어는 봄'], ['4','천둥번개','wx4','처음 들음']];
 
   /* 원본(wb_weather_response)은 읽기만 한다. 담당자가 고치는 것은 '판정에 쓸 값' 뿐이고
      그것은 wb_weather_adjust 에 제보자·항목 단위로 따로 담긴다. */
@@ -1994,17 +1999,32 @@ function asJson(r){
   function curAdj(file){ return (file in ADJ) ? ADJ[file] : adjOf(file); }
   /* 표준어형 판정용 정규화 — ETL 의 norm() 과 같아야 한다(괄호 안·공백·콜론 제거) */
   function nk(v){ return String(v||'').replace(/\([^)]*\)/g,'').replace(/[:\s]/g,''); }
+  function gradeRow(g){
+    for(var i=0;i<GRADE.length;i++) if(GRADE[i][0]===String(g)) return GRADE[i];
+    return null;
+  }
+  /* 원본 '사용도/인지도' 칸은 조사표 표현을 그대로 둔다 — 원자료를 보여주는 칸이고,
+     한 줄은 지도의 한 칸이 아니라 일기도 표현을 붙일 대상이 아니다. */
   function gradeLabel(g){
-    for(var i=0;i<GRADE.length;i++) if(GRADE[i][0]===String(g)) return GRADE[i][1];
-    return String(g||'');
+    var r=gradeRow(g); return r ? r[3] : String(g||'');
+  }
+  /* 계산값이 없는 두 경우를 가려 말한다 —
+     등급을 매겼는데 지역어형이 아니면 '지역어형 없음', 아예 안 매겼으면 '관측 없음'. */
+  function calcWx(p){
+    var r=gradeRow(p.calc);
+    if(r) return { nm:r[1], cls:r[2], tip:r[3]+' (등급 '+r[0]+')' };
+    return p.graded ? { nm:'지역어형 없음', cls:'wxs', tip:'표준어형에만 답했습니다' }
+                    : { nm:'관측 없음',   cls:'wx0', tip:'사용도/인지도가 비어 있습니다' };
   }
   /* 보정 칸 — 제보자 한 명의 첫 줄에만 둔다. 계산값을 옆에 적어 무엇을 바꿨는지 보이게. */
   function adjCell(file){
     var p=personOf(file); if(!p) return '';
     var a=curAdj(file);
-    var calc = p.calc ? '계산 '+gradeLabel(p.calc).replace(/ .*/,'') : '계산 없음';
+    var w=calcWx(p);
+    var tip=w.tip + (p.calcForm ? ' — '+p.calcForm : '');
     return '<div class="pt-adjw">'
-      + '<span class="pt-calc" title="'+esc(p.calcForm||'')+'">'+esc(calc)+'</span>'
+      + '<span class="pt-calc" title="'+esc(tip)+'">'
+      +   '<i class="pt-wx '+w.cls+'"></i>'+esc(w.nm)+'</span>'
       + '<select class="form-control-sm pt-adj'+(a?' is-on':'')+'" title="판정에 쓸 값">'
       +   '<option value=""'+(a?'':' selected')+'>계산값 그대로</option>'
       +   GRADE.map(function(o){ return '<option value="'+o[0]+'"'+(a===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('')
