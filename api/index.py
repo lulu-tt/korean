@@ -276,7 +276,8 @@ def responses(item):
     rows = turso([
         "SELECT r.response_id, r.line_no, r.serial_no, r.item_cd, r.headword,"
         " r.dialect_form, r.grade, r.grade_valid_yn, r.upt_dt,"
-        " f.file_nm, f.region_cd, f.region_nm, f.research_degree, f.generation, f.sex"
+        " f.file_nm, f.region_cd, f.region_nm, f.research_degree, f.generation, f.sex,"
+        " f.research_year"
         " FROM wb_weather_response r JOIN wb_weather_file f USING(weather_file_id)"
         " WHERE r.item_base='%s' AND r.use_yn='Y' AND f.use_yn='Y'" % item.replace("'", "")
     ])[0]
@@ -293,9 +294,11 @@ def responses(item):
             "file": cell(x[9]), "region": cell(x[10]),
             "regionNm": cell(x[11]) or cell(x[10]),
             "year": cell(x[12]) or "", "age": cell(x[13]), "sex": cell(x[14]),
+            "researchYear": cell(x[15]) or "",   # 화면이 추측하지 않게 연도를 함께
         })
-    out.sort(key=lambda r: (order.get(r["region"], 99), r["age"] or 0,
-                            r["sex"] or "", r["file"], r["lineNo"] or 0))
+    # 연도가 쌓이므로 연도를 가장 앞 키로 둔다 — serve.py 와 같아야 한다
+    out.sort(key=lambda r: (r["researchYear"] or 0, order.get(r["region"], 99),
+                            r["age"] or 0, r["sex"] or "", r["file"], r["lineNo"] or 0))
 
     # 제보자별 계산값과 보정값 — serve.py 의 api_weather_responses 와 같은 모양이어야
     # 화면이 보정 칸을 그릴 수 있다. 규칙(대표 표제어·표준어형 제외·최선 등급)은
@@ -333,7 +336,8 @@ def responses(item):
         seen.add(r["file"])
         people.append({
             "file": r["file"], "region": r["region"], "regionNm": r["regionNm"],
-            "year": r["year"], "age": r["age"], "sex": r["sex"],
+            "year": r["year"], "researchYear": r["researchYear"],
+            "age": r["age"], "sex": r["sex"],
             "graded": r["file"] in graded,
             "calc": calc.get(r["file"], ""), "calcForm": forms.get(r["file"], ""),
             "adjust": adj.get(r["file"], ""),

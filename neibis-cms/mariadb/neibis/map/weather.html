@@ -736,6 +736,13 @@
 											<caption class="sr-only">응답 검색조건</caption>
 											<tbody>
 												<tr>
+													<th scope="row">조사 연도</th>
+													<td colspan="3">
+														<label class="check-item"><input type="checkbox" id="prYrAll" checked /><span class="label">전체</span></label>
+														<span id="prYrChecks"></span>
+													</td>
+												</tr>
+												<tr>
 													<th scope="row">조사 지역</th>
 													<td colspan="3">
 														<label class="check-item"><input type="checkbox" id="prRgAll" checked /><span class="label">전체</span></label>
@@ -810,16 +817,17 @@
 										<table>
 											<caption class="sr-only">항목별 응답 목록</caption>
 											<colgroup>
-												<col style="width:104px" /><col style="width:180px" />
-												<col style="width:64px" /><col style="width:92px" />
-												<col style="width:110px" /><col style="width:118px" />
-												<col style="width:118px" /><col style="width:138px" />
-												<col style="width:200px" />
+												<col style="width:100px" /><col style="width:168px" />
+												<col style="width:58px" /><col style="width:58px" />
+												<col style="width:88px" /><col style="width:104px" />
+												<col style="width:112px" /><col style="width:112px" />
+												<col style="width:132px" /><col style="width:192px" />
 											</colgroup>
 											<thead>
 												<tr>
 													<th scope="col">항목번호</th>
 													<th scope="col">일련번호</th>
+													<th scope="col">연도</th>
 													<th scope="col">지역</th>
 													<th scope="col">제보자</th>
 													<th scope="col">표준어</th>
@@ -1928,16 +1936,17 @@ function asJson(r){
   /* 원본(wb_weather_response)은 읽기만 한다. 담당자가 고치는 것은 '판정에 쓸 값' 뿐이고
      그것은 wb_weather_adjust 에 제보자·항목 단위로 따로 담긴다. */
   var ROWS=[], PEOPLE=[], ITEM=null, HEADWORD='', ADJ={};
-  var F={rg:{}, age:{}, sex:'', st:'', q:''}, PAGE=1, SIZE=50;
+  function blankF(){ return {yr:{}, rg:{}, age:{}, sex:'', st:'', q:''}; }
+  var F=blankF(), PAGE=1, SIZE=50;
 
   window.__ptOpenResp = function(code, word){
     ITEM={code:code, word:word}; ADJ={}; PEOPLE=[]; HEADWORD=''; PAGE=1;
-    F={rg:{}, age:{}, sex:'', st:'', q:''}; resetForm(); syncSaveBar();
+    F=blankF(); resetForm(); syncSaveBar();
     $('ptList').style.display='none'; $('ptResp').style.display='';
     $('ptRTitle').textContent = word + ' · 응답 목록';
     $('ptRMeta').textContent = '(항목코드 ' + code + ')';
     $('ptRFront').href = './dialect_gisangdo.html#/word/' + encodeURIComponent(word);
-    $('ptRespRows').innerHTML = '<tr><td colspan="9" class="pt-empty">불러오는 중…</td></tr>';
+    $('ptRespRows').innerHTML = '<tr><td colspan="10" class="pt-empty">불러오는 중…</td></tr>';
     window.scrollTo(0,0);
 
     fetch('/mariadb/neibis-api/weather/responses?item=' + encodeURIComponent(code))
@@ -1948,7 +1957,7 @@ function asJson(r){
         fillRgChecks(); renderResp();
       })
       .catch(function(e){ $('ptRespRows').innerHTML =
-        '<tr><td colspan="9" class="pt-empty">'+esc(e.message)+'</td></tr>'; });
+        '<tr><td colspan="10" class="pt-empty">'+esc(e.message)+'</td></tr>'; });
   };
 
   /* 지역 체크박스는 그 항목에 실제로 있는 지역만, 건수를 달아 만든다.
@@ -1959,15 +1968,23 @@ function asJson(r){
     $('prRgChecks').innerHTML = order.map(function(r){
       return '<label class="check-item"><input type="checkbox" class="pr-rg" value="'+r.region+'" />'
            + '<span class="label">'+esc(r.regionNm)+' ('+c[r.region]+')</span></label>'; }).join('');
+    /* 연도 선택지도 자료에서 만든다 — 연차가 쌓이면 저절로 늘어난다 */
+    var y={};
+    ROWS.forEach(function(r){ var k=String(r.researchYear||r.year||''); if(k) y[k]=(y[k]||0)+1; });
+    $('prYrChecks').innerHTML = Object.keys(y).sort().map(function(k){
+      return '<label class="check-item"><input type="checkbox" class="pr-yr" value="'+esc(k)+'" />'
+           + '<span class="label">'+esc(k)+'년 ('+y[k]+')</span></label>'; }).join('');
   }
   function resetForm(){
-    $('prQ').value=''; $('prRgAll').checked=true; $('prAgeAll').checked=true;
-    [].forEach.call(document.querySelectorAll('.pr-rg, .pr-age'), function(c){ c.checked=false; });
+    $('prQ').value=''; $('prYrAll').checked=true; $('prRgAll').checked=true; $('prAgeAll').checked=true;
+    [].forEach.call(document.querySelectorAll('.pr-yr, .pr-rg, .pr-age'), function(c){ c.checked=false; });
     var a=document.querySelector('input[name=prSex][value=""]'); if(a) a.checked=true;
     var b=document.querySelector('input[name=prState][value=""]'); if(b) b.checked=true;
   }
   function readForm(){
-    F.rg={}; F.age={};
+    F.yr={}; F.rg={}; F.age={};
+    if(!$('prYrAll').checked)
+      [].forEach.call(document.querySelectorAll('.pr-yr:checked'), function(c){ F.yr[c.value]=1; });
     if(!$('prRgAll').checked)
       [].forEach.call(document.querySelectorAll('.pr-rg:checked'), function(c){ F.rg[c.value]=1; });
     if(!$('prAgeAll').checked)
@@ -1977,8 +1994,9 @@ function asJson(r){
     F.q = $('prQ').value.trim().toLowerCase();
   }
   function filtered(){
-    var rgs=Object.keys(F.rg), ages=Object.keys(F.age);
+    var yrs=Object.keys(F.yr), rgs=Object.keys(F.rg), ages=Object.keys(F.age);
     return ROWS.filter(function(r){
+      if(yrs.length && !F.yr[String(r.researchYear||r.year||'')]) return false;
       if(rgs.length && !F.rg[r.region]) return false;
       if(ages.length && !F.age[String(r.age)]) return false;
       if(F.sex && r.sex!==F.sex) return false;
@@ -2044,7 +2062,7 @@ function asJson(r){
       + (list.length!==ROWS.length ? ' <span class="pt-of">전체 '+ROWS.length+'</span>' : '');
     var span=list.slice((PAGE-1)*SIZE, PAGE*SIZE);
     if(!span.length){
-      $('ptRespRows').innerHTML='<tr><td colspan="9" class="pt-empty">해당하는 응답이 없습니다.</td></tr>';
+      $('ptRespRows').innerHTML='<tr><td colspan="10" class="pt-empty">해당하는 응답이 없습니다.</td></tr>';
       $('prPager').innerHTML=''; return;
     }
     var prev=null;
@@ -2062,6 +2080,8 @@ function asJson(r){
         + '<td class="pt-ic"><span class="text-gray text-sm">'+esc(r.itemCd||'')+'</span></td>'
         + '<td class="pt-sn">'+(r.serialNo ? '<span class="text-gray text-sm">'+esc(r.serialNo)+'</span>'
               : '<span class="pt-nosn" title="원자료에 일련번호가 비어 있습니다">번호 없음</span>')+'</td>'
+        /* 연도·지역·제보자는 제보자마다 하나뿐이라 첫 줄에만 적는다 */
+        + '<td>'+(head?esc(r.researchYear||r.year||''):'')+'</td>'
         + '<td>'+(head?esc(r.regionNm):'')+'</td>'
         + '<td>'+(head?esc(who):'')+'</td>'
         /* 항목의 표준어형. 줄마다 같은 값이지만, 옆의 표제어형·방언형과 나란히 놓여야
@@ -2186,6 +2206,7 @@ function asJson(r){
         $(allId).checked = !document.querySelectorAll(cls+':checked').length;
       });
     }
+    pairAll('prYrAll', '.pr-yr');
     pairAll('prRgAll', '.pr-rg');
     pairAll('prAgeAll', '.pr-age');
     $('ptRespRows').addEventListener('change', function(e){

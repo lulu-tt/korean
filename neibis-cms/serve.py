@@ -6061,7 +6061,7 @@ def api_weather_responses(qs: dict) -> dict:
             """SELECT r.response_id, r.line_no, r.serial_no, r.item_cd, r.headword,
                       r.dialect_form, r.grade, r.grade_valid_yn, r.upt_dt,
                       f.file_nm, f.region_cd, f.region_nm, f.research_degree,
-                      f.generation, f.sex
+                      f.research_year, f.generation, f.sex
                FROM wb_weather_response r JOIN wb_weather_file f USING(weather_file_id)
                WHERE r.item_base=? AND r.use_yn='Y' AND f.use_yn='Y'""", (item,)).fetchall()
     finally:
@@ -6080,6 +6080,7 @@ def api_weather_responses(qs: dict) -> dict:
             "region": r["region_cd"],
             "regionNm": r["region_nm"] or WB_REGION_NAMES.get(r["region_cd"], r["region_cd"]),
             "year": r["research_degree"] or "",
+            "researchYear": r["research_year"] or "",   # 화면이 추측하지 않게 연도를 함께
             "age": r["generation"],
             "sex": r["sex"],
             "headword": pres,
@@ -6091,8 +6092,9 @@ def api_weather_responses(qs: dict) -> dict:
             # 관리자가 고친 행. 화면의 '관리자가 고침' 검색이 저장된 것까지 찾으려면 필요하다
             "edited": bool(r["upt_dt"]),
         })
-    out.sort(key=lambda x: (order.get(x["region"], 99), x["age"] or 0,
-                            x["sex"] or "", x["file"], x["lineNo"]))
+    # 연도가 쌓이므로 연도를 가장 앞 키로 둔다 — 같은 지역의 해마다 응답이 붙어 보인다
+    out.sort(key=lambda x: (x["researchYear"] or 0, order.get(x["region"], 99),
+                            x["age"] or 0, x["sex"] or "", x["file"], x["lineNo"]))
 
     # 제보자별 계산값과 보정값. 화면이 '무엇을 바꿨는지' 를 보여줄 수 있어야 한다.
     etl = _weather_etl()
@@ -6121,7 +6123,8 @@ def api_weather_responses(qs: dict) -> dict:
         seen.add(x["file"])
         people.append({
             "file": x["file"], "region": x["region"], "regionNm": x["regionNm"],
-            "year": x["year"], "age": x["age"], "sex": x["sex"],
+            "year": x["year"], "researchYear": x["researchYear"],
+            "age": x["age"], "sex": x["sex"],
             "calc": calc.get(x["file"], ""),          # 규칙이 고른 대표 등급
             "calcForm": forms.get(x["file"], ""),
             "graded": x["file"] in graded,
