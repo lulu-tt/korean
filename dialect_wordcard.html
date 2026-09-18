@@ -95,6 +95,9 @@ body{ background:#ffffff; }
 #wordcard-root .wc-sh__fill{ display:block; height:100%; border-radius:8px;
   background:linear-gradient(90deg,#D9922B,#BA7517); transition:width .5s cubic-bezier(.22,1,.36,1); }
 #wordcard-root .wc-sh__v{ font-size:20px; font-weight:800; color:#BA7517; text-align:right; letter-spacing:-.02em; }
+/* 응답자가 없어 비율을 낼 수 없는 자리 — 0% 와 헷갈리지 않게 회색 글자로 */
+#wordcard-root .wc-sh__v.is-none{ font-size:12.5px; font-weight:700; color:#94a3b8; letter-spacing:0; }
+#wordcard-root .wc-sh__none{ display:block; font-size:13px; font-weight:700; color:#94a3b8; line-height:1.1; margin:2px 0 0; }
 #wordcard-root .wc-sh__v i{ font-style:normal; font-size:12px; margin-left:1px; }
 #wordcard-root .wc-sh__drop{ text-align:center; border-left:1px solid #e2e8f0; padding:6px 0 6px 24px; }
 @media (max-width:900px){ #wordcard-root .wc-sh__drop{ border-left:0; border-top:1px solid #e2e8f0; padding:14px 0 0; } }
@@ -107,6 +110,11 @@ body{ background:#ffffff; }
 #wordcard-root .wc-dn{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
 @media (max-width:1000px){ #wordcard-root .wc-dn{ grid-template-columns:1fr; gap:24px; } }
 #wordcard-root .wc-dn__panel{ display:flex; flex-direction:column; align-items:center; min-width:0; }
+#wordcard-root .wc-dn__empty{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  width:140px; height:140px; border-radius:50%; border:2px dashed #e2e8f0; background:#f8fafc; }
+#wordcard-root .wc-dn__empty b{ font-size:19px; font-weight:800; color:#94a3b8; letter-spacing:-.02em; }
+#wordcard-root .wc-dn__empty span{ font-size:12px; font-weight:700; color:#cbd5e1; }
+#wordcard-root .wc-dn__empty em{ font-style:normal; font-size:12px; font-weight:700; color:#94a3b8; }
 #wordcard-root .wc-dn__svg{ width:168px; height:168px; transform:rotate(-90deg); }
 #wordcard-root .wc-dn__bg{ fill:none; stroke:#eef2f7; stroke-width:24; }
 #wordcard-root .wc-dn__arc{ fill:none; stroke-width:24; transition:stroke-dasharray .5s cubic-bezier(.22,1,.36,1); }
@@ -123,6 +131,8 @@ body{ background:#ffffff; }
 #wordcard-root .wc-fg__grp{ display:flex; flex-direction:column; align-items:center; flex:1; min-width:190px; }
 #wordcard-root .wc-fg__pair{ display:flex; align-items:flex-end; justify-content:center; gap:22px; }
 #wordcard-root .wc-fg__col{ display:flex; flex-direction:column; align-items:center; }
+#wordcard-root .wc-fg__col.is-empty .wc-fig{ opacity:.35; }
+#wordcard-root .wc-fg__val.is-none{ font-size:12.5px; font-weight:700; color:#94a3b8; letter-spacing:0; }
 #wordcard-root .wc-fg__val{ font-size:19px; font-weight:800; letter-spacing:-.02em; margin-bottom:6px; }
 #wordcard-root .wc-fg__val i{ font-style:normal; font-size:12px; margin-left:1px; }
 #wordcard-root .wc-fg__val.is-m{ color:#2563eb; }
@@ -263,13 +273,16 @@ body{ background:#ffffff; }
     /* 세대별 합계 (남+여) */
     /* 교차표에서 파생 — 조사값을 고치지 않고 합·비율만 계산한다.
        '지역어를 쓰는 사람' = 지역어 사용(2) + 혼용(3). 혼용도 그 말을 쓰는 사람이다. */
+    /* 응답자가 0명인 세대는 비율을 낼 수 없다 → null(자료 없음).
+       0명 응답(비율 0%)과 자료 없음은 다르므로 0 으로 눕히지 않는다. */
     function computeShift(w){
       const by = {};
       [70,50,20].forEach(g=>{
         const t = genTotals(w.ct, g), n = sum(t);
-        by[g] = { n, std:t[0]/n, dia:t[1]/n, mix:t[2]/n, non:t[3]/n, live:(t[1]+t[2])/n };
+        by[g] = { n, live: n ? (t[1]+t[2])/n : null };
       });
-      w.shift = { by, drop: by[70].live - by[20].live };
+      const a = by[70].live, z = by[20].live;
+      w.shift = { by, drop: (a==null || z==null) ? null : a - z };
     }
 
     function genTotals(ct, g){
@@ -304,14 +317,20 @@ body{ background:#ffffff; }
     function shiftHTML(w){
       const b=w.shift.by;
       const row=(g,label)=>{
-        const v=b[g].live, pctv=Math.round(v*100);
+        const v=b[g].live;
+        const bar = v==null ? '' : `<span class="wc-sh__fill" style="width:${(v*100).toFixed(1)}%"></span>`;
+        const val = v==null ? `<b class="wc-sh__v is-none">자료 없음</b>`
+                            : `<b class="wc-sh__v">${Math.round(v*100)}<i>%</i></b>`;
         return `<div class="wc-sh__row">
           <span class="wc-sh__g">${g}대<small>${label}</small></span>
-          <span class="wc-sh__track"><span class="wc-sh__fill" style="width:${(v*100).toFixed(1)}%"></span></span>
-          <b class="wc-sh__v">${pctv}<i>%</i></b>
+          <span class="wc-sh__track">${bar}</span>
+          ${val}
         </div>`;
       };
-      const drop=Math.round(w.shift.drop*100);
+      const d = w.shift.drop;
+      const dropHTML = d==null
+        ? `<b class="wc-sh__none">자료 없음</b>`
+        : `<b>${d>=0?'−':'+'}${Math.abs(Math.round(d*100))}<i>%p</i></b>`;
       return `<section class="wc-sec wc-shift">
         <div class="wc-sec__head"><h3>한눈에 보기</h3>
           <span>이 지역어를 <b>지금 쓰는 사람</b>의 비율 — 지역어만 쓰거나, 표준어와 섞어 쓰는 사람</span></div>
@@ -319,7 +338,7 @@ body{ background:#ffffff; }
           <div class="wc-sh__bars">${row(70,'노년')}${row(50,'중년')}${row(20,'청년')}</div>
           <div class="wc-sh__drop">
             <em>70대 → 20대</em>
-            <b>${drop>=0?'−':'+'}${Math.abs(drop)}<i>%p</i></b>
+            ${dropHTML}
           </div>
         </div>
       </section>`;
@@ -346,6 +365,9 @@ body{ background:#ffffff; }
     function genSectionHTML(w){
       const panels = GEN.map(x=>{
         const t = genTotals(w.ct, x.g), n = sum(t);
+        if(!n) return `<div class="wc-dn__panel">
+          <div class="wc-dn__empty"><b>${x.label}</b><span>0명</span><em>자료 없음</em></div>
+        </div>`;
         let cells = t.map(v => Math.round(v/n*100));
         const gap = 100 - cells.reduce((a,b)=>a+b,0);
         if(gap) cells[cells.indexOf(Math.max(...cells))] += gap;
@@ -385,10 +407,14 @@ body{ background:#ffffff; }
     function sexSectionHTML(w){
       const live = k => { const r=w.ct[k]; if(!r) return null; const t=sum(r); return t?(r[1]+r[2])/t:0; };
       const cnt  = k => { const r=w.ct[k]; return r?sum(r):0; };
-      const data = GEN.map(x=>({ g:x.g, m:live(x.g+'M'), f:live(x.g+'F'), mn:cnt(x.g+'M'), fn:cnt(x.g+'F') }))
-                      .filter(d=>d.m!=null && d.f!=null);
-      if(!data.length) return '';
-      const col=(v,n,sex)=>`
+      const data = GEN.map(x=>({ g:x.g, m:live(x.g+'M'), f:live(x.g+'F'), mn:cnt(x.g+'M'), fn:cnt(x.g+'F') }));
+      if(!data.some(d=>d.m!=null || d.f!=null)) return '';
+      const col=(v,n,sex)=> v==null ? `
+        <div class="wc-fg__col is-empty">
+          <b class="wc-fg__val is-none">자료 없음</b>
+          ${figureHTML(0,sex)}
+          <small class="wc-fg__n">0명</small>
+        </div>` : `
         <div class="wc-fg__col">
           <b class="wc-fg__val is-${sex}">${Math.round(v*100)}<i>%</i></b>
           ${figureHTML(v,sex)}
@@ -559,7 +585,14 @@ body{ background:#ffffff; }
         // 보고서 4.2 교차표가 있는 항목만 — 나머지는 차트를 그릴 근거가 없다
         DB.words = DB.words.filter(w => w.hasCT);
         DB.words.forEach(computeShift);
-        DB.words.sort((a,b) => b.shift.drop - a.shift.drop);
+        // 감소폭을 낼 수 없는 단어(70대·20대 응답자 없음)는 뒤로 보낸다
+        DB.words.sort((a,b) => {
+          const x=a.shift.drop, y=b.shift.drop;
+          if(x==null && y==null) return 0;
+          if(x==null) return 1;
+          if(y==null) return -1;
+          return y - x;
+        });
         render();
         window.addEventListener('hashchange', route);
         route();

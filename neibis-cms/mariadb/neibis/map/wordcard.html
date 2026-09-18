@@ -640,6 +640,14 @@
 .wcm-id{font-size:13px;color:#475569;font-variant-numeric:tabular-nums}
 .wcm-hook{display:block;color:#475569;font-size:13px;line-height:1.5;text-align:left;
   overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+/* 조사 개요 — 단어와 무관한 조사 전체 규모 값이라 목록 화면에 한 번만 둔다 */
+.wcm-ov{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;margin:0 0 14px;
+  padding:11px 14px;border:1px solid #e2e8f0;background:#fff;border-radius:8px}
+.wcm-ov__t{margin:0;font-size:13px;font-weight:800;color:#0f172a;white-space:nowrap}
+.wcm-ov__f{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:#475569}
+.wcm-ov__f input{height:30px;padding:0 9px;border:1px solid #e2e8f0;border-radius:6px;
+  font-family:inherit;font-size:12.5px;color:#0f172a;background:#fff}
+.wcm-ov__hint{font-size:11.5px;color:#94a3b8;line-height:1.5;flex:1 1 220px;min-width:180px}
 .wcm-act{white-space:nowrap}
 .wcm-act .btn{margin:0 2px}
 .wcm-sub{display:block;font-size:11px;color:#94a3b8;margin-top:3px}
@@ -654,6 +662,16 @@
     저장하면 곧바로 앞단에 반영됩니다.<br>
     <span id="wcmPath" style="color:#94a3b8"></span>
   </div>
+</div>
+
+<div class="wcm-ov">
+  <p class="wcm-ov__t">조사 개요</p>
+  <label class="wcm-ov__f" for="ovYears">조사 기간
+    <input type="text" id="ovYears" maxlength="40" style="width:130px" placeholder="예: 2021-2025" title="조사 기간을 입력해주세요." /></label>
+  <label class="wcm-ov__f" for="ovInformants">제보자 수
+    <input type="number" id="ovInformants" min="0" max="99999" style="width:90px" title="제보자 수를 입력해주세요." />명</label>
+  <button type="button" class="btn btn-xs btn-outline-gray" onclick="saveOverview()">저장</button>
+  <span class="wcm-ov__hint">사용자 화면 상단에 그대로 나옵니다. 단어마다 응답자가 달라 자료에서 계산할 수 없는 값이라 따로 관리합니다. 단어 수는 공개 단어 수로 자동 계산됩니다.</span>
 </div>
 
 <h3 class="title1 text-primary mt-md-4 ml-md-4">세대별 지역어 변화 검색영역</h3>
@@ -926,6 +944,30 @@ function searchList(page){
   });
 }
 
+/* 조사 개요 — 사용자 화면 상단 값. 저장하면 앞단 자료도 함께 갱신된다 */
+function saveOverview(){
+  var years = ($('#ovYears').val() || '').trim();
+  var informants = ($('#ovInformants').val() || '').trim();
+  if(!years){ wcmAlert('warning', '조사 기간을 입력해주세요.', function(){ $('#ovYears').focus(); }); return; }
+  if(informants === ''){ wcmAlert('warning', '제보자 수를 입력해주세요.', function(){ $('#ovInformants').focus(); }); return; }
+  $.ajax({
+    url: '/mariadb/neibis-api/wordcard/meta-save',
+    method: 'POST',
+    contentType: 'application/json; charset=utf-8',
+    data: JSON.stringify({ surveyYears: years, informants: informants })
+  }).done(function(res){
+    if(!res || !res.ok){
+      wcmAlert('error', (res && res.message) || '조사 개요를 저장하지 못했습니다.');
+      return;
+    }
+    wcmAlert('success', res.message || '저장되었습니다.');
+  }).fail(function(xhr){
+    var msg = '조사 개요 저장 실패 (HTTP ' + xhr.status + ')';
+    if(xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+    wcmAlert('error', msg);
+  });
+}
+
 /* 자료 파일 경로를 안내문에 적어 준다 */
 function loadMeta(){
   return $.ajax({ url:'/mariadb/neibis-api/wordcard/meta', method:'GET', dataType:'json' })
@@ -933,6 +975,9 @@ function loadMeta(){
       if(!res || !res.ok) return;
       // 원본은 DB, 앞단이 읽는 파일은 저장할 때마다 다시 내보낸다 — 둘 다 적어 준다
       var where = [];
+      var m = res.meta || {};
+      $('#ovYears').val(m.surveyYears || '');
+      $('#ovInformants').val(m.informants == null ? '' : m.informants);
       if(res.path) where.push('DB ' + res.path);
       if(res.exportPath) where.push('앞단 자료 ' + res.exportPath);
       $('#wcmPath').text(where.join('  ·  '));

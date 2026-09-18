@@ -5571,6 +5571,37 @@ def api_wordcard_detail(qs: dict) -> dict:
         con.close()
 
 
+def api_wordcard_meta_save(body: dict) -> dict:
+    """조사 개요(조사 기간·제보자 수) — 단어가 늘어도 그대로인 조사 전체 규모 값.
+    단어 자료에서 계산할 수 없어(단어마다 응답자가 다르다) 따로 관리한다."""
+    years = str(body.get("surveyYears") or "").strip()
+    raw = str(body.get("informants") or "").strip()
+    if not years:
+        return {"ok": False, "message": "조사 기간을 입력해주세요."}
+    try:
+        informants = int(raw)
+    except Exception:
+        return {"ok": False, "message": "제보자 수는 숫자로 입력해주세요."}
+    if informants < 0:
+        return {"ok": False, "message": "제보자 수는 0 이상이어야 합니다."}
+
+    con = wordcard_db()
+    try:
+        meta = _wc_meta(con, "meta", {}) or {}
+        meta["surveyYears"] = years
+        meta["informants"] = informants
+        con.execute(
+            "INSERT OR REPLACE INTO wb_wordcard_meta (cfg_key, cfg_val) VALUES ('meta', ?)",
+            (json.dumps(meta, ensure_ascii=False),),
+        )
+        con.commit()
+        _wc_export_json(con)                                  # 프론트 자료 갱신
+    finally:
+        con.close()
+    return {"ok": True, "surveyYears": years, "informants": informants,
+            "message": "조사 개요가 저장되었습니다."}
+
+
 def api_wordcard_save(body: dict) -> dict:
     mode = str(body.get("mode") or "").upper()
     wid = str(body.get("id") or "").strip()
@@ -7013,6 +7044,16 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 self._send_json(api_weather_delete(body))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/wordcard/meta-save",
+            "/mariadb/neibis-api/v1/wordcard/meta-save",
+        ):
+            try:
+                self._send_json(api_wordcard_meta_save(body))
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return
