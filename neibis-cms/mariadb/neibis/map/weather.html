@@ -1413,7 +1413,7 @@ const getMngrFail = function (xhr, status, error) {
 .pt-rr.is-std .pt-ro{ color:#94a3b8; }   /* 표준어형이라 판정에서 빠지는 행 — 흐리게만 */
 .pt-adjw{ display:flex; align-items:center; gap:7px; }
 .pt-calc{ flex:0 0 auto; font-size:12px; color:#475569; white-space:nowrap; }
-.pt-std{ color:#94a3b8; }
+.pt-std{ color:#64748b; }
 .pt-wx{ width:9px; height:9px; border-radius:50%; display:inline-block; margin-right:5px;
         vertical-align:-1px; border:1px solid rgba(15,23,42,.14); }
 .pt-adj{ flex:1 1 auto; min-width:0; height:30px; border:1px solid #cbd5e1; border-radius:7px;
@@ -2066,7 +2066,7 @@ function asJson(r){
         + '<td>'+(head?esc(who):'')+'</td>'
         /* 항목의 표준어형. 줄마다 같은 값이지만, 옆의 표제어형·방언형과 나란히 놓여야
            그 줄이 표준어를 적은 것인지 지역어를 적은 것인지 바로 보인다. */
-        + '<td class="pt-std"><span class="text-gray text-sm">'+esc(HEADWORD)+'</span></td>'
+        + '<td class="pt-std">'+esc(HEADWORD)+'</td>'
         + '<td class="pt-ro">'+esc(r.headword||'')+'</td>'
         + '<td class="pt-ro">'+(r.form ? esc(r.form)
               : '<span class="pt-nosn" title="원자료에 방언형(기저형)이 비어 있습니다">비어 있음</span>')+'</td>'
