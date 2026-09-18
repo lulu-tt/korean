@@ -810,17 +810,19 @@
 										<table>
 											<caption class="sr-only">항목별 응답 목록</caption>
 											<colgroup>
-												<col style="width:192px" /><col style="width:104px" />
+												<col style="width:104px" /><col style="width:180px" />
 												<col style="width:64px" /><col style="width:92px" />
-												<col style="width:124px" /><col style="width:124px" />
-												<col style="width:144px" /><col style="width:206px" />
+												<col style="width:110px" /><col style="width:118px" />
+												<col style="width:118px" /><col style="width:138px" />
+												<col style="width:200px" />
 											</colgroup>
 											<thead>
 												<tr>
-													<th scope="col">일련번호</th>
 													<th scope="col">항목번호</th>
+													<th scope="col">일련번호</th>
 													<th scope="col">지역</th>
 													<th scope="col">제보자</th>
+													<th scope="col">표준어</th>
 													<th scope="col">표제어형</th>
 													<th scope="col">방언형(기저형)</th>
 													<th scope="col">사용도/인지도</th>
@@ -1411,6 +1413,7 @@ const getMngrFail = function (xhr, status, error) {
 .pt-rr.is-std .pt-ro{ color:#94a3b8; }   /* 표준어형이라 판정에서 빠지는 행 — 흐리게만 */
 .pt-adjw{ display:flex; align-items:center; gap:7px; }
 .pt-calc{ flex:0 0 auto; font-size:12px; color:#475569; white-space:nowrap; }
+.pt-std{ color:#94a3b8; }
 .pt-wx{ width:9px; height:9px; border-radius:50%; display:inline-block; margin-right:5px;
         vertical-align:-1px; border:1px solid rgba(15,23,42,.14); }
 .pt-adj{ flex:1 1 auto; min-width:0; height:30px; border:1px solid #cbd5e1; border-radius:7px;
@@ -1934,7 +1937,7 @@ function asJson(r){
     $('ptRTitle').textContent = word + ' · 응답 목록';
     $('ptRMeta').textContent = '(항목코드 ' + code + ')';
     $('ptRFront').href = './dialect_gisangdo.html#/word/' + encodeURIComponent(word);
-    $('ptRespRows').innerHTML = '<tr><td colspan="8" class="pt-empty">불러오는 중…</td></tr>';
+    $('ptRespRows').innerHTML = '<tr><td colspan="9" class="pt-empty">불러오는 중…</td></tr>';
     window.scrollTo(0,0);
 
     fetch('/mariadb/neibis-api/weather/responses?item=' + encodeURIComponent(code))
@@ -1945,7 +1948,7 @@ function asJson(r){
         fillRgChecks(); renderResp();
       })
       .catch(function(e){ $('ptRespRows').innerHTML =
-        '<tr><td colspan="8" class="pt-empty">'+esc(e.message)+'</td></tr>'; });
+        '<tr><td colspan="9" class="pt-empty">'+esc(e.message)+'</td></tr>'; });
   };
 
   /* 지역 체크박스는 그 항목에 실제로 있는 지역만, 건수를 달아 만든다.
@@ -2041,7 +2044,7 @@ function asJson(r){
       + (list.length!==ROWS.length ? ' <span class="pt-of">전체 '+ROWS.length+'</span>' : '');
     var span=list.slice((PAGE-1)*SIZE, PAGE*SIZE);
     if(!span.length){
-      $('ptRespRows').innerHTML='<tr><td colspan="8" class="pt-empty">해당하는 응답이 없습니다.</td></tr>';
+      $('ptRespRows').innerHTML='<tr><td colspan="9" class="pt-empty">해당하는 응답이 없습니다.</td></tr>';
       $('prPager').innerHTML=''; return;
     }
     var prev=null;
@@ -2054,12 +2057,16 @@ function asJson(r){
       var a = curAdj(r.file), dirty = (r.file in ADJ) && ADJ[r.file] !== adjOf(r.file);
       return '<tr class="pt-rr'+(head?' is-head':'')+(dirty?' is-dirty':'')
            + (a?' is-edited':'')+(std?' is-std':'')+'" data-rid="'+r.rid+'" data-file="'+esc(r.file)+'">'
+        /* 항목번호를 앞에 둔다 — 일련번호가 빈 행이 22% 라 줄을 가리키는 건 이 칸이다.
+           하위코드(-A-1)도 여기서 보인다. */
+        + '<td class="pt-ic"><span class="text-gray text-sm">'+esc(r.itemCd||'')+'</span></td>'
         + '<td class="pt-sn">'+(r.serialNo ? '<span class="text-gray text-sm">'+esc(r.serialNo)+'</span>'
               : '<span class="pt-nosn" title="원자료에 일련번호가 비어 있습니다">번호 없음</span>')+'</td>'
-        /* 일련번호가 빈 행이 8.6% 라, 하위코드(-A-1)를 알 수 있는 건 이 칸뿐이다 */
-        + '<td class="pt-ic"><span class="text-gray text-sm">'+esc(r.itemCd||'')+'</span></td>'
         + '<td>'+(head?esc(r.regionNm):'')+'</td>'
         + '<td>'+(head?esc(who):'')+'</td>'
+        /* 항목의 표준어형. 줄마다 같은 값이지만, 옆의 표제어형·방언형과 나란히 놓여야
+           그 줄이 표준어를 적은 것인지 지역어를 적은 것인지 바로 보인다. */
+        + '<td class="pt-std"><span class="text-gray text-sm">'+esc(HEADWORD)+'</span></td>'
         + '<td class="pt-ro">'+esc(r.headword||'')+'</td>'
         + '<td class="pt-ro">'+(r.form ? esc(r.form)
               : '<span class="pt-nosn" title="원자료에 방언형(기저형)이 비어 있습니다">비어 있음</span>')+'</td>'
