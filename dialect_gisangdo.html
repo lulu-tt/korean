@@ -67,6 +67,13 @@ body{ background:#ffffff; }
 #jiyeoeo-gisangdo-root .gs-pick.is-collapsed .gs-pick__chev{ transform:rotate(180deg); }
 #jiyeoeo-gisangdo-root .gs-pick.is-collapsed .gs-pick__body{ display:none; }
 
+#jiyeoeo-gisangdo-root .gs-yearrow{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0 0 12px; }
+#jiyeoeo-gisangdo-root .gs-yearrow__label{ font-size:12.5px; font-weight:700; color:#64748b; display:inline-flex; align-items:center; gap:5px; margin-right:4px; }
+#jiyeoeo-gisangdo-root .gs-ybtn{ appearance:none; flex:0 0 auto; white-space:nowrap; height:30px; border:1px solid var(--gs-line); background:#fff; border-radius:8px; padding:0 12px; font-size:12.5px; font-weight:700; color:#334155; cursor:pointer; font-family:inherit; transition:.12s; }
+#jiyeoeo-gisangdo-root .gs-ybtn:hover{ border-color:#93c5fd; background:#eff6ff; color:#1d4ed8; }
+#jiyeoeo-gisangdo-root .gs-ybtn.is-all{ border-color:#c7d2fe; background:#eef2ff; color:#3730a3; }
+#jiyeoeo-gisangdo-root .gs-ybtn.is-all:hover{ border-color:#818cf8; background:#e0e7ff; }
+#jiyeoeo-gisangdo-root .gs-ybtn.is-active{ border-color:#2563eb; background:#2563eb; color:#fff; box-shadow:0 2px 8px rgba(37,99,235,.3); }
 #jiyeoeo-gisangdo-root .gs-searchrow{ display:flex; margin-bottom:14px; max-width:640px; }
 #jiyeoeo-gisangdo-root .gs-searchrow .gs-wordsearch__input{ border-radius:11px 0 0 11px; border-right:0; height:42px; }
 #jiyeoeo-gisangdo-root .gs-searchrow .gs-searchbtn{ border-radius:0 11px 11px 0; height:42px; }
@@ -614,13 +621,20 @@ body{ background:#ffffff; }
        두 경로의 구조와 판정은 etl_awareness_region.build_output() 한 곳에서 나온다. */
     let AWARE_BY_ID = {};      // 항목번호 → API 항목
     let AWARE_ORIGIN = null;   // 'db' | null
-    function loadAware(){
+    /* 보고 있는 조사 연차. '' = 전체(누적), '25' = 25년차.
+       처음에는 'latest' 로 불러 서버가 가장 최근 연차를 풀어 주게 한다 —
+       연차 목록을 받으려고 한 번 더 부르지 않아도 된다. */
+    let currentYear = 'latest';
+    const AWARE_CACHE = {};    // 연차별로 받아 둔다. 오갈 때 다시 부르지 않게.
+    function loadAware(year){
       const apply = (j, origin)=>{
         AWARE_ORIGIN = origin;
         window.__AWARE_ORIGIN = origin;   // 진단용
         SITE_NAMES = j.regionSites || {};
         ROSTER = j.regionRoster || {};
         AWARE_META = j.meta || {};
+        // 서버가 실제로 내려준 연차. 'latest' 를 보냈으면 여기서 풀린다.
+        currentYear = (AWARE_META.year || '');
         const items = j.items || [];
 
         // 표제어가 겹치는 단어를 먼저 찾아 둔다 (목록에 이름표를 달기 위해)
@@ -652,9 +666,16 @@ body{ background:#ffffff; }
       };
       /* 서버가 계산해 준 것만 쓴다. Vercel 배포에서는 /api/index.py 가 Turso 를 읽어
          로컬 server.py 와 같은 결과를 돌려준다. 판정을 화면에서 다시 하지 않는다. */
-      return fetch('/api/weather/awareness')
+      const y = (year===undefined||year===null) ? currentYear : year;
+      const key = String(y);
+      if(AWARE_CACHE[key]){ apply(AWARE_CACHE[key],'db'); return Promise.resolve(); }
+      const qs = y ? ('?year=' + encodeURIComponent(y)) : '';
+      return fetch('/api/weather/awareness' + qs)
         .then(r=> r.ok ? r.json() : Promise.reject(new Error(r.status)))
         .then(j=>{ if(!j || j.status==='error' || !(j.items||[]).length) throw new Error('빈 응답');
+                   AWARE_CACHE[key] = j;
+                   // 서버가 푼 연차로도 찾을 수 있게 같은 자료를 한 번 더 걸어 둔다
+                   if(j.meta && j.meta.year!=null) AWARE_CACHE[String(j.meta.year)] = j;
                    apply(j,'db'); })
         .catch(()=>{ AWARE_BY_ID={}; WORDS.length=0; AWARE_ORIGIN=null; });
     }
@@ -1444,6 +1465,7 @@ body{ background:#ffffff; }
             <i class="ti ti-chevron-down gs-pick__chev" aria-hidden="true"></i>
           </button>
         </div>
+        ${yearRowHTML()}
         <div class="gs-searchrow">
           <div class="gs-wordsearch ${pickQuery?'has-value':''}" id="gsWSWrap">
             <i class="ti ti-search gs-wordsearch__ico" aria-hidden="true"></i>
@@ -1457,6 +1479,21 @@ body{ background:#ffffff; }
           <div class="gs-wordgrid" id="gsWordGrid" role="listbox" aria-label="단어 목록">${gridHTML(filterWords())}</div>
         </div>
       </div>`;
+    }
+    /* 조사 연도 고르기. [전체] 가 맨 앞의 누적 보기이고, 나머지는 자료에 있는 연차.
+       선택지를 하드코딩하지 않는다 — 연차가 쌓이면 저절로 늘어난다. */
+    function yearRowHTML(){
+      const ys = (AWARE_META.years || []);
+      if(!ys.length) return '';
+      const cur = String(currentYear || '');
+      const chip = (deg, label, all)=>
+        `<button type="button" class="gs-ybtn${all?' is-all':''}${String(deg)===cur?' is-active':''}"`
+        + ` data-year="${deg}" aria-pressed="${String(deg)===cur}">${label}</button>`;
+      return `<div class="gs-yearrow" role="group" aria-label="조사 연도 고르기">
+          <span class="gs-yearrow__label"><i class="ti ti-calendar" aria-hidden="true"></i> 조사 연도</span>
+          ${chip('', '전체', true)}
+          ${ys.map(y=>chip(y.degree, `${y.year}년`)).join('')}
+        </div>`;
     }
     function regrid(){
       const g=document.getElementById('gsWordGrid'); if(g) g.innerHTML=gridHTML(filterWords());
@@ -1482,6 +1519,17 @@ body{ background:#ffffff; }
           else if(e.key==='Escape'){ ws.value=''; pickQuery=''; wsWrap.classList.remove('has-value'); regrid(); }
         });
       }
+      /* 조사 연도 — 누르면 그 연차 자료를 받아 화면을 다시 그린다.
+         고른 단어가 그 연차에 없으면 apply() 가 알아서 기본 단어를 잡는다. */
+      const yrow=root.querySelector('.gs-yearrow');
+      if(yrow) yrow.addEventListener('click', e=>{
+        const b=e.target.closest('.gs-ybtn'); if(!b) return;
+        const y=b.dataset.year||'';
+        if(String(currentYear||'')===y) return;
+        yrow.querySelectorAll('.gs-ybtn').forEach(x=>{
+          const on=x===b; x.classList.toggle('is-active',on); x.setAttribute('aria-pressed',String(on)); });
+        loadAware(y).then(route);
+      });
       const searchBtn=root.querySelector('#gsSearchBtn');
       if(searchBtn) searchBtn.addEventListener('click', doSearch);
       if(wsClear) wsClear.addEventListener('click',()=>{ pickQuery=''; ws.value=''; wsWrap.classList.remove('has-value'); regrid(); ws.focus(); });

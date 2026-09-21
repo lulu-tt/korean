@@ -379,7 +379,8 @@ def _load_etl():
     return m
 
 
-_WEATHER_CACHE = {'sig': None, 'data': None}
+# 연도별로 하나씩 담는다. 한 칸이면 연도를 오갈 때마다 7초씩 다시 계산한다.
+_WEATHER_CACHE = {}
 
 
 def api_weather_awareness(year=None):
@@ -387,7 +388,20 @@ def api_weather_awareness(year=None):
     import re as _re
     import sqlite3
 
-    year = _re.sub(r'\D', '', str(year or ''))[-2:]
+    # 'latest' 는 '가장 최근 연차' 를 뜻한다. 화면이 연차 목록을 받으려고 한 번 더
+    # 부르지 않아도 되게, 서버가 풀어 준다.
+    want_latest = str(year or '').strip().lower() == 'latest'
+    year = '' if want_latest else _re.sub(r'\D', '', str(year or ''))[-2:]
+    if want_latest and os.path.exists(WEATHER_DB_PATH):
+        _c = sqlite3.connect(WEATHER_DB_PATH)
+        try:
+            _r = _c.execute("SELECT MAX(research_degree) FROM wb_weather_file"
+                            " WHERE use_yn='Y'").fetchone()
+            year = (_r[0] or '') if _r else ''
+        except Exception:
+            year = ''
+        finally:
+            _c.close()
     sig = None
     if os.path.exists(WEATHER_DB_PATH):
         con = sqlite3.connect(WEATHER_DB_PATH)
@@ -403,15 +417,15 @@ def api_weather_awareness(year=None):
             sig = (n, d, os.path.getmtime(WEATHER_DB_PATH), year, a)
         finally:
             con.close()
-    if sig and _WEATHER_CACHE['sig'] == sig and _WEATHER_CACHE['data'] is not None:
-        return _WEATHER_CACHE['data']
+    hit = _WEATHER_CACHE.get(year)
+    if sig and hit and hit['sig'] == sig:
+        return hit['data']
 
     etl = _load_etl()
     recs, nfiles = etl.load_records_from_db(WEATHER_DB_PATH, year)
     out = etl.build_output(recs, nfiles, etl.load_adjust(WEATHER_DB_PATH))
     etl.fill_db_qc(out, WEATHER_DB_PATH, year)
-    _WEATHER_CACHE['sig'] = sig
-    _WEATHER_CACHE['data'] = out
+    _WEATHER_CACHE[year] = {'sig': sig, 'data': out}
     return out
 
 

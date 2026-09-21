@@ -106,16 +106,20 @@ def cell(c):
     return v
 
 
-def load_records():
+def load_records(year=""):
     """Turso → build_output() 이 받는 레코드. server.py 의 load_records_from_db 와 같은 모양."""
+    y = re.sub(r"\D", "", str(year or ""))[-2:]
+    fw = " AND f.research_degree = " + _sq(y) if y else ""
     files, rows = turso([
         "SELECT weather_file_id, file_nm, region_cd, research_degree, generation, sex,"
         " row_cnt, item_cnt, src_layout, reg_dt, region_nm"
-        " FROM wb_weather_file WHERE use_yn='Y' ORDER BY region_cd, generation, sex",
+        " FROM wb_weather_file WHERE use_yn='Y'"
+        + (" AND research_degree = " + _sq(y) if y else "")
+        + " ORDER BY region_cd, generation, sex",
         "SELECT r.response_id, f.region_cd, f.research_degree, f.generation, f.sex,"
         " r.item_base, r.headword, r.dialect_form, r.grade, r.upt_dt"
         " FROM wb_weather_response r JOIN wb_weather_file f USING(weather_file_id)"
-        " WHERE r.item_base IS NOT NULL AND r.use_yn='Y' AND f.use_yn='Y'",
+        " WHERE r.item_base IS NOT NULL AND r.use_yn='Y' AND f.use_yn='Y'" + fw,
     ])
     E = etl()
     recs = []
@@ -148,17 +152,33 @@ def live_sig(rows=None, dt=None, an=None, ad=None):
     return "%s|%s|%s|%s" % (rows, dt or "", an, ad or "")
 
 
-def read_built():
+def built_key(year=""):
+    """연차별 미리 계산본의 열쇠. 전체는 'awareness', 25년차는 'awareness:25'."""
+    y = re.sub(r"\D", "", str(year or ""))[-2:]
+    return CACHE_KEY + (":" + y if y else "")
+
+
+def latest_degree():
+    """가장 최근 연차. 화면이 목록을 받으려고 한 번 더 부르지 않게 서버가 풀어 준다."""
+    try:
+        r, = turso(["SELECT MAX(research_degree) FROM wb_weather_file WHERE use_yn='Y'"])
+        return str(cell(r[0][0]) or "") if r else ""
+    except Exception:
+        return ""
+
+
+def read_built(year=""):
     """미리 계산한 결과를 꺼낸다. 없거나 자료와 어긋나면 None."""
+    key = built_key(year)
     try:
         nrows, cdt, adj, meta, parts = turso([
             "SELECT COUNT(*) FROM wb_weather_response",
             "SELECT MAX(reg_dt) FROM wb_weather_file",
             "SELECT COUNT(*), MAX(IFNULL(upt_dt,'')) FROM wb_weather_adjust",
             "SELECT sig, built_dt, parts FROM wb_weather_built"
-            " WHERE cache_key = " + _sq(CACHE_KEY),
+            " WHERE cache_key = " + _sq(key),
             "SELECT payload FROM wb_weather_built_part"
-            " WHERE cache_key = " + _sq(CACHE_KEY) + " ORDER BY seq",
+            " WHERE cache_key = " + _sq(key) + " ORDER BY seq",
         ])
     except Exception:
         return None                      # 표가 아직 없다 — 직접 계산한다
@@ -201,26 +221,35 @@ def load_adjust():
     return out
 
 
-def build():
-    cached = read_built()
+def build(year=""):
+    if str(year or "").strip().lower() == "latest":
+        year = latest_degree()
+    year = re.sub(r"\D", "", str(year or ""))[-2:]
+    cached = read_built(year)
     if cached is not None:
+        cached.setdefault("meta", {})["year"] = year
         return cached, None, None
-    files, recs = load_records()
+    files, recs = load_records(year)
     E = etl()
     out = E.build_output(recs, len(files), load_adjust())
     q = out["meta"]["qc"]
     q["files"] = len(files)
     # 로컬 fill_db_qc 와 같은 값이어야 한다 — 그쪽은 표의 전체 행을 센다.
     # 항목번호가 5자리가 아닌 행(item_base NULL)이 판정에서는 빠지지만 행수에는 든다.
-    nrows, = turso(["SELECT COUNT(*) FROM wb_weather_response"])
+    # 연차를 걸렀으면 QC 도 그 연차 기준이어야 한다 — server.py 의 fill_db_qc 와 같은 값.
+    rw = (" WHERE weather_file_id IN (SELECT weather_file_id FROM wb_weather_file"
+          " WHERE use_yn='Y' AND research_degree = " + _sq(year) + ")") if year else ""
+    nrows, = turso(["SELECT COUNT(*) FROM wb_weather_response" + rw])
     q["rowsTotal"] = cell(nrows[0][0])
     q["gradeFilled"] = sum(1 for r in recs if r["g"])
     # 로컬은 fill_db_qc(sqlite) 가 채우는 자리다. 여기서 같은 값을 Turso 로 채운다.
     # meta.years 는 관리자 검색의 연차 선택지를 만드는 근거라 비면 그 칸이 빈다.
     bad, lay, cdt, yrs = turso([
         "SELECT COUNT(*) FROM wb_weather_response"
-        " WHERE grade IS NOT NULL AND grade<>'*' AND grade_valid_yn='N'",
-        "SELECT COUNT(DISTINCT src_layout) FROM wb_weather_file WHERE use_yn='Y'",
+        + (rw + " AND " if rw else " WHERE ")
+        + "grade IS NOT NULL AND grade<>'*' AND grade_valid_yn='N'",
+        "SELECT COUNT(DISTINCT src_layout) FROM wb_weather_file WHERE use_yn='Y'"
+        + (" AND research_degree = " + _sq(year) if year else ""),
         "SELECT MAX(reg_dt) FROM wb_weather_file",
         "SELECT research_degree, MAX(research_year), COUNT(*) FROM wb_weather_file"
         " WHERE use_yn='Y' GROUP BY research_degree ORDER BY research_degree",
@@ -229,7 +258,7 @@ def build():
     q["layouts"] = cell(lay[0][0])
     q["calcDt"] = cell(cdt[0][0])
     q.pop("layoutOdd", None)
-    out["meta"]["year"] = ""
+    out["meta"]["year"] = year
     out["meta"]["years"] = [{"degree": cell(r[0]), "year": cell(r[1]), "files": cell(r[2])}
                             for r in yrs]
     out["meta"]["source"] = "Turso (wb_weather_*)"
@@ -509,7 +538,7 @@ class handler(BaseHTTPRequestHandler):
                 act = seg[-2] + "-" + seg[-1]
         try:
             if act in ("weather-awareness", "awareness"):
-                out, _, _ = build()
+                out, _, _ = build((qs.get("year") or [""])[0])
                 return self._json(out)
             if act in ("weather-files", "files"):
                 return self._json(file_list())
