@@ -682,13 +682,20 @@ body{ background:#ffffff; }
       }
       return { state:'w0', n:0, score:null, forms:[], cases:[], note:'실측 자료를 불러오지 못했습니다' };
     }
-    /* 지도 마커·표에 쓸 짧은 라벨 — 점수는 적지 않는다.
-       기호와 색이 이미 상태를 말하고, 숫자는 읽는 사람에게 없는 척도를 만든다.
-       대신 그 칸이 몇 명에 기댄 값인지를 적는다. */
+    /* 지도 마커에 붙일 짧은 라벨.
+       점수도 명수도 적지 않는다 — 점수는 없는 척도를 만들고, 명수는 분모가 없어
+       '6명 중 4명'과 '4명 중 4명'이 똑같이 '4명'으로 보였다.
+       기호와 색이 상태를 말하고, 자세한 것은 지역을 누르면 나온다. */
     function cellLabel(c){                                 // 좁은 칸용 짧은 라벨
       if(c.state==='std') return '없음';
       if(c.state==='w0')  return '—';
-      return (c.n||0) + '명';
+      return '';
+    }
+    /* 지도를 못 그렸을 때처럼 글로만 알려야 하는 자리 — 여기서는 상태 이름을 쓴다 */
+    function stateName(c){
+      if(c.state==='std') return '지역어형 없음';
+      if(c.state==='w0')  return '관측 없음';
+      return (WEATHERS[c.state]||{}).label || '';
     }
     function cellText(c){                                  // 지도 마커용 풀어 쓴 말
       if(c.state==='std') return '지역어형 없음';
@@ -1063,7 +1070,7 @@ body{ background:#ffffff; }
             el.title=(REGION_NAMES[code]||code)+(SITE_NAMES[code]?`(${SITE_NAMES[code]})`:'')+' · '+WEATHERS[wk].label+(casesText(cel)?' · '+casesText(cel):'');
             el.innerHTML = isPlain(wk)
               ? `<div class="gs-olring"><div class="gs-ollabel gs-ollabel--plain"><span class="nm">${REGION_NAMES[code]||code}</span> <span class="gs-olnote">${cellText(cel)}</span></div></div>`
-              : `<div class="gs-olring"><div class="gs-olemoji">${EMOJI[wk]}</div><div class="gs-ollabel"><span class="nm">${REGION_NAMES[code]||code}</span> <span class="gs-olpct" style="color:${HEXVAR[wk]}">${cellLabel(cel)}</span></div></div>`;
+              : `<div class="gs-olring"><div class="gs-olemoji">${EMOJI[wk]}</div><div class="gs-ollabel"><span class="nm">${REGION_NAMES[code]||code}</span>${(()=>{ const l=cellLabel(cel); return l?` <span class="gs-olpct" style="color:${HEXVAR[wk]}">${l}</span>`:''; })()}</div></div>`;
             const ov=new ol.Overlay({ element:el, stopEvent:false, positioning:'center-center' });
             ov.setPosition(c);
             map.addOverlay(ov); markers.push(ov);
@@ -1113,7 +1120,7 @@ body{ background:#ffffff; }
         const fb=document.getElementById('gsMapFallback');
         if(fb){ fb.style.display='flex';
           fb.innerHTML = '지도를 불러오지 못했습니다. 지역별 현황: '
-            + REGION_ORDER.map(c=>`${REGION_NAMES[c]} ${cellLabel(cellOf(w,0,c))}`).join(' · '); }
+            + REGION_ORDER.map(c=>`${REGION_NAMES[c]} ${stateName(cellOf(w,0,c))}`).join(' · '); }
         return;
       }
       olMap=adapter.map;
@@ -1231,6 +1238,7 @@ body{ background:#ffffff; }
             const cel=cellOf(w, currentGen, code); const wk=cel.state;
             const plain=isPlain(wk); const lab=plain?cellText(cel):cellLabel(cel);
             if(!plain){ ctx.font='26px sans-serif'; ctx.fillStyle='#000'; ctx.fillText(EMOJI[wk], px[0], px[1]-6); }
+            if(!lab) return;                               // 기호만 있는 칸은 글을 얹지 않는다
             ctx.font=(plain?'':'bold ')+'12px sans-serif'; ctx.lineWidth=3; ctx.strokeStyle='rgba(255,255,255,.92)';
             ctx.strokeText(lab, px[0], px[1]+16);
             ctx.fillStyle=plain?'#94a3b8':'#0f172a'; ctx.fillText(lab, px[0], px[1]+16);
