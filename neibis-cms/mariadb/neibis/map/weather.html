@@ -1793,8 +1793,11 @@ function asJson(r){
       var k=m[1]+m[2]+m[3]+m[4];              /* 연차 포함 — 빼면 23·24년이 중복으로 잡힌다 */
       if(seenKey[k]){ dup.push(f.name); return; }
       seenKey[k]=1; seenRg[m[1]]=1; ok.push({name:f.name, rg:m[1]});
-      if(HAVE[f.name]) exist.push(f.name);
-      if(EDITED[f.name]) edited.push(f.name+' ('+EDITED[f.name]+'건)');
+      /* 제보자 열쇠 — 'CB2570FVE_사용도인지도.xlsx' 도 'CB2570FVE.xlsx' 와 같은 사람.
+         서버 _wb_file_key() 와 같은 규칙이어야 교체 경고가 빠지지 않는다. */
+      var fk=m[0]+'.xlsx', shown=(fk===f.name)?f.name:(f.name+' → '+m[0]);
+      if(HAVE[fk]) exist.push(shown);
+      if(EDITED[fk]) edited.push(shown+' ('+EDITED[fk]+'건)');
     });
     /* 적재는 덧붙이기다. 막아야 할 것은 '이번 파일에 빠진 지역' 이 아니라
        '적재를 마쳤을 때도 여전히 자료가 없는 지역' 이다. */
@@ -1867,6 +1870,12 @@ function asJson(r){
           + ng.map(function(r){ return '· '+r.fileName+' — '+r.message; }).join('\n');
         if((d.issues||[]).length) msg+='\n\n사용도/인지도가 1~4 가 아닌 행 '+d.issues.length
           + '건 — 집계에서 빠집니다.';
+        var ws=d.warnings||[];
+        if(ws.length) msg+='\n\n확인할 곳 '+ws.length+'건 — 적재는 했습니다:\n'
+          + ws.slice(0,8).map(function(w){
+              return '· '+w.fileName+(w.lineNo?' '+w.lineNo+'행':'')+' — '+w.message
+                   + (w.headword?' ('+w.headword+')':''); }).join('\n')
+          + (ws.length>8?'\n· 외 '+(ws.length-8)+'건':'');
         if(window.Message) Message.alert({icon:ng.length?'warning':'success', message:msg});
         picked=[]; showFiles(); $('ptVerifyCard').style.display='none';
         loadHave(); if(window.__ptReload) window.__ptReload();

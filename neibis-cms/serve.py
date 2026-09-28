@@ -5780,16 +5780,36 @@ def _wb_parse_filename(fname: str):
             "generation": int(gen), "sex": sx}
 
 
+def _wb_file_key(fname: str) -> str | None:
+    """제보자 식별 열쇠 — 'CB2570FVE_사용도인지도.xlsx' → 'CB2570FVE.xlsx'.
+
+    wb_weather_file.file_nm 과 wb_weather_adjust.file_nm 은 파일명이 아니라
+    '이 제보자' 를 가리킨다. 2026-09 새 서식은 파일명 뒤에 _사용도인지도 가 붙어
+    오는데, 이름을 그대로 쓰면 같은 제보자가 새 사람으로 잡혀 기존 행 옆에
+    한 벌이 더 쌓이고, 저장된 보정도 떨어져 나간다.
+    """
+    m = re.match(r"^([A-Z]{2})(\d{2})(\d{2})([MF])VE", os.path.basename(fname or ""))
+    return (m.group(0) + ".xlsx") if m else None
+
+
 def _wb_item_base(code) -> str | None:
     m = re.match(r"^(\d{5})", str(code or "").strip())
     return m.group(1) if m else None
 
 
-def _wb_read_sheet(data: bytes):
-    """업로드된 xlsx → (레이아웃, [행dict]). 첫 시트만 읽는다."""
+def _wb_read_sheet(data: bytes, info: dict | None = None):
+    """업로드된 xlsx → (레이아웃, [행dict]). 첫 시트만 읽는다.
+
+    info 를 넘기면 판독하며 본 것을 채워 준다 —
+      informants  : 제보자 칸에 적힌 값들 (새 서식)
+      otherSheets : 값이 든 다른 시트 이름 (첫 시트만 읽으므로 알려야 한다)
+    """
+    info = info if info is not None else {}
     sheets = _read_xlsx(data)
     if not sheets:
         return "UNKNOWN", []
+    info["otherSheets"] = [nm for nm, gr in sheets[1:]
+                           if any(any(v not in (None, "") for v in (row or [])) for row in (gr or []))]
     _name, grid = sheets[0]
     if not grid:
         return "UNKNOWN", []
@@ -5798,7 +5818,9 @@ def _wb_read_sheet(data: bytes):
     for i, name in enumerate(hdr):
         if name and name not in idx:
             idx[name] = i
-    layout = "V5" if len(hdr) <= 6 else "RAW"
+    # V6 = 2026-09 새 서식 (제보자 칸이 맨 앞에 붙는다). 서식 종류를 세는 QC 가
+    # 옛 V5 와 섞였는지 알 수 있게 따로 둔다.
+    layout = "V6" if "제보자" in idx else ("V5" if len(hdr) <= 6 else "RAW")
 
     def g(row, key):
         i = idx.get(key)
@@ -5812,6 +5834,9 @@ def _wb_read_sheet(data: bytes):
         if not row or all(v is None or str(v).strip() == "" for v in row):
             continue
         n += 1
+        who = g(row, "제보자")
+        if who:
+            info.setdefault("informants", set()).add(who)
         out.append({"line_no": n, "serial_no": g(row, "일련번호") or None,
                     "item_cd": g(row, "항목번호"), "headword": g(row, "표제어형"),
                     "dialect_form": g(row, "방언형(기저형)"), "grade": g(row, "사용도/인지도")})
@@ -5823,10 +5848,11 @@ def api_weather_upload(raw: bytes, ctype: str) -> dict:
     mp = _parse_multipart(raw, ctype)
     if not mp["files"]:
         return {"ok": False, "message": "업로드된 파일이 없습니다."}
-    results, issues = [], []
+    results, issues, warnings = [], [], []
     con = weather_db()
     for f in mp["files"]:
         fname = f["filename"]
+        fkey = _wb_file_key(fname)
         meta = _wb_parse_filename(fname)
         if not meta:
             results.append({"ok": False, "fileName": fname,
@@ -5839,8 +5865,9 @@ def api_weather_upload(raw: bytes, ctype: str) -> dict:
                             "message": "지역코드 '%s' 는 조사 지역이 아닙니다 (%s)"
                                        % (meta["region_cd"], " ".join(WB_REGION_ORDER))})
             continue
+        info = {}
         try:
-            layout, rows = _wb_read_sheet(f["data"])
+            layout, rows = _wb_read_sheet(f["data"], info)
         except Exception as e:
             results.append({"ok": False, "fileName": fname, "message": f"엑셀 읽기 실패: {e}"})
             continue
@@ -5850,22 +5877,41 @@ def api_weather_upload(raw: bytes, ctype: str) -> dict:
             results.append({"ok": False, "fileName": fname,
                             "message": "항목번호가 있는 행이 없습니다. 첫 시트를 확인해 주세요."})
             continue
+        # 새 서식은 제보자 칸이 있다 — 파일명과 다른 사람이 섞였으면 받지 않는다.
+        # 섞인 채로 넣으면 다른 사람의 응답이 이 제보자 몫으로 세어진다.
+        who = {w for w in info.get("informants", set())}
+        stem = fkey[:-5]
+        if who and who != {stem}:
+            results.append({"ok": False, "fileName": fname,
+                            "message": "제보자 칸이 파일명(%s)과 다릅니다: %s"
+                                       % (stem, ", ".join(sorted(who - {stem})[:5]))})
+            continue
+        # 하위코드가 표준어형 칸으로 새어 들어간 줄 — 받되 알린다(고쳐 받을 대상)
+        for r in kept:
+            if re.search(r"-A-\d", r["headword"] or ""):
+                warnings.append({"fileName": fname, "lineNo": r["line_no"] + 1,
+                                 "itemCd": r["item_cd"], "headword": r["headword"],
+                                 "message": "표준어형 칸에 하위코드가 섞였습니다"})
+        for nm in info.get("otherSheets", []):
+            warnings.append({"fileName": fname, "sheet": nm,
+                             "message": "첫 시트만 읽었습니다 — '%s' 시트에 값이 남아 있습니다" % nm})
 
-        # 같은 파일명은 재업로드로 보고 기존 행을 지운다
-        old = con.execute("SELECT weather_file_id FROM wb_weather_file WHERE file_nm=?",
-                          (fname,)).fetchone()
-        replaced = bool(old)
-        if old:
-            con.execute("DELETE FROM wb_weather_response WHERE weather_file_id=?",
-                        (old["weather_file_id"],))
-            con.execute("DELETE FROM wb_weather_file WHERE weather_file_id=?",
-                        (old["weather_file_id"],))
+        # 같은 제보자는 재업로드로 보고 기존 행을 지운다.
+        # 파일명이 아니라 제보자 열쇠로 찾는다 — 옛 이름(CB2570FVE.xlsx)과
+        # 새 이름(CB2570FVE_사용도인지도.xlsx)이 같은 사람이어야 한다.
+        olds = [r["weather_file_id"] for r in con.execute(
+                    "SELECT weather_file_id, file_nm FROM wb_weather_file").fetchall()
+                if _wb_file_key(r["file_nm"]) == fkey]
+        replaced = bool(olds)
+        for oid in olds:
+            con.execute("DELETE FROM wb_weather_response WHERE weather_file_id=?", (oid,))
+            con.execute("DELETE FROM wb_weather_file WHERE weather_file_id=?", (oid,))
         cur = con.execute(
             """INSERT INTO wb_weather_file
                (file_nm,region_cd,region_nm,research_year,research_degree,generation,sex,
                 row_cnt,item_cnt,src_layout,use_yn,reg_id,reg_dt)
                VALUES (?,?,?,?,?,?,?,?,?,?,'Y','admin',datetime('now'))""",
-            (fname, meta["region_cd"], meta["region_nm"], meta["research_year"],
+            (fkey, meta["region_cd"], meta["region_nm"], meta["research_year"],
              meta["research_degree"], meta["generation"], meta["sex"], len(kept),
              len({_wb_item_base(r["item_cd"]) for r in kept} - {None}), layout))
         fid = cur.lastrowid
@@ -5888,7 +5934,7 @@ def api_weather_upload(raw: bytes, ctype: str) -> dict:
                 dialect_form,grade,grade_valid_yn,use_yn,reg_dt)
                VALUES (?,?,?,?,?,?,?,?,?,'Y',datetime('now'))""", batch)
         results.append({
-            "ok": True, "fileName": fname, "region": meta["region_nm"],
+            "ok": True, "fileName": fname, "fileKey": fkey, "region": meta["region_nm"],
             "year": meta["research_year"], "generation": f'{meta["generation"]}대',
             "sex": "여" if meta["sex"] == "F" else "남", "layout": layout,
             "rows": len(kept), "dropped": dropped, "gradeBad": bad, "replaced": replaced,
@@ -5899,7 +5945,10 @@ def api_weather_upload(raw: bytes, ctype: str) -> dict:
     msg = f"{okn}개 파일 적재" + (f" · 실패 {len(results)-okn}개" if okn < len(results) else "")
     if issues:
         msg += f" · 등급 이상값 {len(issues)}건"
-    return {"ok": True, "message": msg, "results": results, "issues": issues[:100]}
+    if warnings:
+        msg += f" · 확인할 곳 {len(warnings)}건"
+    return {"ok": True, "message": msg, "results": results, "issues": issues[:100],
+            "warnings": warnings[:100]}
 
 
 def _weather_etl():
