@@ -1832,10 +1832,27 @@ body { background: #ffffff; }
     regionLayers = dialectMapApi.getRegionLayers();
     overlays = dialectMapApi.getOverlays();
 
-    // 초기 표제어 로드
+    // 초기 표제어 로드 — ?no=50299&word=간장 으로 넘어오면 그 표제어부터 연다
     var active = document.querySelector('.witem.is-active');
     var word = active ? (active.dataset.word || '가을') : '가을';
     var id = active ? (active.dataset.id || '50526') : '50526';
+
+    var qs = new URLSearchParams(location.search);
+    var qNo = (qs.get('no') || '').trim();
+    if (qNo) {
+      var target = document.querySelector('.witem[data-id="' + qNo.replace(/"/g, '') + '"]');
+      if (target) {
+        document.querySelectorAll('.witem.is-active').forEach(function (el) {
+          el.classList.remove('is-active');
+          el.setAttribute('aria-selected', 'false');
+        });
+        target.classList.add('is-active');
+        target.setAttribute('aria-selected', 'true');
+        target.scrollIntoView({ block: 'nearest' });
+        word = target.dataset.word || word;
+        id = qNo;
+      }
+    }
     selectWord(word, id);
   })();
 

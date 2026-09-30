@@ -114,52 +114,57 @@ def _next_id(con, table, col) -> int:
     return (row[0] or 0) + 1
 
 
+def _survey_def(con, row):
+    sid = str(row["survey_no"])
+    questions = []
+    for q in con.execute(
+        """SELECT question_no, question_title, question_order
+           FROM tb_survey_question_new WHERE survey_no=?
+           ORDER BY CAST(question_order AS INTEGER), CAST(question_no AS INTEGER)""",
+        (sid,),
+    ).fetchall():
+        examples = [
+            {"exampleNo": str(e["example_no"]), "exampleTitle": e["example_title"] or ""}
+            for e in con.execute(
+                """SELECT example_no, example_title FROM tb_survey_example_new
+                   WHERE question_no=? ORDER BY CAST(example_no AS INTEGER)""",
+                (q["question_no"],),
+            ).fetchall()
+        ]
+        questions.append({
+            "questionNo": str(q["question_no"]),
+            "questionTitle": q["question_title"] or "",
+            "examples": examples,
+        })
+    return {
+        "surveyNo": sid,
+        "surveyTitle": row["survey_title"] or "",
+        "surveyCntnts": row["survey_cntnts"] or "",
+        "startDate": _epoch_ms_to_date(row["start_date"]),
+        "endDate": _epoch_ms_to_date(row["end_date"]),
+        "prsnlInputYn": (row["prsnl_input_yn"] or "N").upper(),
+        "prsnlInfoCntnts": row["prsnl_info_cntnts"] or "",
+        "questionCnt": len(questions),
+        "questions": questions,
+    }
+
+
 def api_survey_active():
-    """메인 노출용 — 현재 진행 중인 설문 1건(가장 최근 등록)."""
+    """메인 노출용 — 현재 진행 중인 설문 전체(최근 등록순).
+    data 는 첫 설문(하위 호환), surveys 는 진행 중 설문 배열."""
     now_ms = int(time.time() * 1000)
     with _db_connect() as con:
-        row = con.execute(
+        rows = con.execute(
             """SELECT * FROM tb_survey_new
                WHERE CAST(start_date AS INTEGER) <= ?
                  AND CAST(end_date AS INTEGER) >= ?
-               ORDER BY CAST(survey_no AS INTEGER) DESC
-               LIMIT 1""",
+               ORDER BY CAST(survey_no AS INTEGER) DESC""",
             (now_ms, now_ms),
-        ).fetchone()
-        if not row:
-            return {"status": "success", "data": None}
-        sid = str(row["survey_no"])
-        questions = []
-        for q in con.execute(
-            """SELECT question_no, question_title, question_order
-               FROM tb_survey_question_new WHERE survey_no=?
-               ORDER BY CAST(question_order AS INTEGER), CAST(question_no AS INTEGER)""",
-            (sid,),
-        ).fetchall():
-            examples = [
-                {"exampleNo": str(e["example_no"]), "exampleTitle": e["example_title"] or ""}
-                for e in con.execute(
-                    """SELECT example_no, example_title FROM tb_survey_example_new
-                       WHERE question_no=? ORDER BY CAST(example_no AS INTEGER)""",
-                    (q["question_no"],),
-                ).fetchall()
-            ]
-            questions.append({
-                "questionNo": str(q["question_no"]),
-                "questionTitle": q["question_title"] or "",
-                "examples": examples,
-            })
-        return {"status": "success", "data": {
-            "surveyNo": sid,
-            "surveyTitle": row["survey_title"] or "",
-            "surveyCntnts": row["survey_cntnts"] or "",
-            "startDate": _epoch_ms_to_date(row["start_date"]),
-            "endDate": _epoch_ms_to_date(row["end_date"]),
-            "prsnlInputYn": (row["prsnl_input_yn"] or "N").upper(),
-            "prsnlInfoCntnts": row["prsnl_info_cntnts"] or "",
-            "questionCnt": len(questions),
-            "questions": questions,
-        }}
+        ).fetchall()
+        surveys = [_survey_def(con, r) for r in rows]
+        return {"status": "success",
+                "data": surveys[0] if surveys else None,
+                "surveys": surveys}
 
 
 def api_survey_answer_save(body: dict):

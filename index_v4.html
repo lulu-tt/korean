@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>지역어 종합 정보 — 국립국어원</title>
+  <meta name="description" content="전국의 지역어를 검색하고 지도, 목소리, 문학과 생활 속 기록으로 만나는 국립국어원 지역어 종합 정보.">
+  <link rel="shortcut icon" href="./favicon.ico">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./index_v4.css?v=20260929-video-toggle">
+  <link rel="preload" href="./assets/renewal-v4/hero-family-conversation.png" as="image">
+  <link rel="preload" href="./assets/renewal-v4/hero-archive-graphic.png" as="image">
+  <link rel="preload" href="./assets/renewal-v4/service-cards-sprite.webp" as="image">
+  <script src="./gnb.js" defer></script>
+  <script src="./footer.js" defer></script>
+  <script src="./index_v4.js?v=20260929-video-toggle" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main-content">본문 바로가기</a>
+  <div id="gnb-common"></div>
+
+  <main id="main-content" class="v4-main">
+    <section class="v4-hero" aria-label="지역어 주요 이야기" aria-roledescription="캐러셀">
+      <div class="v4-hero-track">
+        <article class="v4-hero-slide is-active" id="v4-slide-1" role="group" aria-label="1 / 2, 사람과 생활" data-slide data-hero-kind="life">
+          <div class="v4-shell v4-hero-grid">
+            <div class="v4-hero-copy">
+              <p class="v4-kicker">지역의 말과 삶을 잇는 기록</p>
+              <h1>지역의 말과 삶을<br><em>한곳에서 만납니다.</em></h1>
+              <p class="v4-lead">가족의 대화에서 시작된 지역어를<br>전국의 조사 기록과 함께 만나 보세요.</p>
+              <div class="v4-actions">
+                <a class="v4-btn v4-btn-primary" href="#v4-search">지역어 이야기 만나보기</a>
+                <a class="v4-link" href="./region_culture.html">생활어 기록 보기</a>
+              </div>
+            </div>
+            <figure class="v4-hero-figure">
+              <img src="./assets/renewal-v4/hero-family-conversation.png" alt="따뜻한 집 안에서 마주 앉아 대화하는 조부모와 손주" width="1536" height="1024" fetchpriority="high">
+              <figcaption><span>세대가 이어 온 우리말</span><strong>가족의 대화</strong><span>삶의 장면 · 지역의 말</span></figcaption>
+            </figure>
+          </div>
+        </article>
+
+        <article class="v4-hero-slide" id="v4-slide-2" role="group" aria-label="2 / 2, 국가 언어 아카이브" data-slide data-hero-kind="archive" aria-hidden="true" inert>
+          <div class="v4-shell v4-hero-grid">
+            <div class="v4-hero-copy">
+              <p class="v4-kicker">전국의 말과 목소리를 모은 기록</p>
+              <h2>지역어 자료를<br><em>쉽고 깊이 있게 살펴봅니다.</em></h2>
+              <p class="v4-lead">지역마다 다른 표현부터 생생한 음성·구술 자료까지,<br>우리말의 다양성을 한곳에서 탐색해 보세요.</p>
+              <div class="v4-actions">
+                <a class="v4-btn v4-btn-primary" href="./data_room.html">자료 둘러보기</a>
+                <a class="v4-link" href="./about_coverage.html">조사 범위 보기</a>
+              </div>
+            </div>
+            <figure class="v4-hero-figure">
+              <img src="./assets/renewal-v4/hero-archive-graphic.png" alt="지도와 조사 지점, 음성 파형과 기록 카드로 구성한 지역어 아카이브 그래픽" width="1536" height="1024" decoding="async">
+              <figcaption><span>국가 언어 아카이브</span><strong>165개 조사 권역</strong><span>어휘 · 음성 · 구술 기록</span></figcaption>
+            </figure>
+          </div>
+        </article>
+      </div>
+
+      <div class="v4-shell v4-hero-controls">
+        <div class="v4-slide-status" aria-hidden="true"><b id="v4-current">01</b><span>/ 02</span></div>
+        <div class="v4-slide-dots" aria-label="주요 이야기 선택">
+          <button type="button" data-slide-to="0" aria-label="1번 사람과 생활" aria-current="true"></button>
+          <button type="button" data-slide-to="1" aria-label="2번 국가 언어 아카이브"></button>
+        </div>
+        <button class="v4-slide-toggle" type="button" aria-label="자동 재생 멈추기" id="v4-pause"><i class="ti ti-player-pause" aria-hidden="true"></i></button>
+      </div>
+    </section>
+
+    <section class="v4-search" id="v4-search" aria-labelledby="v4-search-title">
+      <div class="v4-shell v4-search-grid">
+        <div>
+          <p class="v4-kicker">지역어 통합 검색</p>
+          <h2 id="v4-search-title">어떤 말이 궁금하세요?</h2>
+        </div>
+        <div>
+          <form action="./dialect_search_prototype.html" method="get" role="search" class="v4-search-form">
+            <label class="sr-only" for="v4-query">지역어 검색어</label>
+            <i class="ti ti-search" aria-hidden="true"></i>
+            <input id="v4-query" name="q" type="search" placeholder="지역어나 표준어를 입력하세요" required maxlength="100">
+            <button type="submit">검색</button>
+          </form>
+          <div class="v4-keywords"><span>많이 찾는 말</span><a href="./dialect_search_prototype.html?q=부추">부추</a><a href="./dialect_search_prototype.html?q=정구지">정구지</a><a href="./dialect_search_prototype.html?q=가새">가새</a><a href="./dialect_search_prototype.html?q=감자">감자</a></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="v4-stats" aria-labelledby="v4-stats-title">
+      <div class="v4-shell">
+        <div class="v4-section-intro" data-reveal>
+          <div><p class="v4-kicker">지역어 조사 기록</p><h2 id="v4-stats-title">지역의 말을 찾아,<br>기록해 온 시간.</h2></div>
+        </div>
+        <div class="v4-stat-grid">
+          <article class="v4-stat v4-stat-feature" data-reveal>
+            <span class="v4-stat-overline">현장의 말이 자료가 되기까지</span>
+            <div class="v4-record-art" aria-hidden="true">
+              <span class="v4-record-sheet v4-record-sheet-back"></span>
+              <span class="v4-record-sheet v4-record-sheet-front"></span>
+              <svg viewBox="0 0 240 80" fill="none" preserveAspectRatio="none"><path d="M0 40h18l5-13 8 28 8-42 8 53 8-31 6 5h18l7-20 7 39 8-58 8 63 8-29 6 5h24l7-14 7 29 8-44 8 48 8-25 6 6h26" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="v4-stat-feature-body">
+              <p class="v4-stat-value"><strong data-count="305660">305,660</strong><span>건</span></p>
+              <h3>쌓여 온 조사 항목</h3>
+              <small>구술 · 어휘 · 음운 · 문법의 기록</small>
+            </div>
+          </article>
+          <article class="v4-stat v4-stat-year" data-reveal>
+            <span class="v4-stat-overline">이어 온 시간</span>
+            <p class="v4-stat-value"><strong data-count="23">23</strong><span>년</span></p>
+            <h3>지속된 조사 사업</h3><small>2004년부터 현재까지</small>
+            <div class="v4-stat-timeline" aria-hidden="true"><span>2004</span><i></i><span>현재</span></div>
+          </article>
+          <article class="v4-stat" data-reveal>
+            <span class="v4-stat-overline">전국의 현장</span>
+            <p class="v4-stat-value"><strong data-count="165">165</strong><span>개</span></p>
+            <h3>국내 조사 지점</h3><small>전국 9개 권역</small>
+          </article>
+          <article class="v4-stat" data-reveal>
+            <span class="v4-stat-overline">국경 밖 우리말</span>
+            <p class="v4-stat-value"><strong data-count="10">10</strong><span>개</span></p>
+            <h3>국외 한민족 지점</h3><small>중국과 중앙아시아</small>
+          </article>
+          <article class="v4-stat" data-reveal>
+            <span class="v4-stat-overline">말의 분포를 읽는 자료</span>
+            <p class="v4-stat-value"><strong data-count="155">155</strong><span>장</span></p>
+            <h3>어휘별 지역어 지도</h3><small>전문가 해설 수록</small>
+          </article>
+        </div>
+        <a class="v4-underlink" href="./about_coverage.html">조사 사업과 수록 범위 알아보기</a>
+      </div>
+    </section>
+
+    <section class="v4-services" aria-labelledby="v4-services-title">
+      <div class="v4-shell">
+        <div class="v4-section-intro" data-reveal><p class="v4-kicker">자료를 만나는 여섯 가지 방법</p><h2 id="v4-services-title">찾고, 듣고, 읽으며<br>지역어를 이해합니다.</h2></div>
+        <div class="v4-service-cards">
+          <a class="v4-service-card" href="./dialect_map.html" data-reveal>
+            <div class="v4-service-card-inner">
+              <div class="v4-service-face v4-service-front"><div class="v4-service-image v4-service-image-1" role="img" aria-label="종이 지도와 조사 지점으로 표현한 지역어 지도"></div><div><span>지역어 지도</span><h3>말의 분포를<br>지도에서 비교합니다.</h3></div></div>
+              <div class="v4-service-face v4-service-back"><span>지역어 지도</span><h3>지역에 따라 달라지는<br>말의 분포를 살펴보세요.</h3><p>같은 뜻이 지역마다 어떤 표현으로 나타나는지 지도에서 한눈에 비교할 수 있습니다.</p><strong>지도 열기</strong></div>
+            </div>
+          </a>
+          <a class="v4-service-card" href="./vocab_dialect.html" data-reveal>
+            <div class="v4-service-card-inner">
+              <div class="v4-service-face v4-service-front"><div class="v4-service-image v4-service-image-2" role="img" aria-label="조사 카드와 돋보기로 표현한 어휘 조사 자료"></div><div><span>어휘 조사 자료</span><h3>지역마다 달라지는<br>낱말과 표현</h3></div></div>
+              <div class="v4-service-face v4-service-back"><span>어휘 조사 자료</span><h3>표준어와 지역어형을<br>조사 지점별로 비교하세요.</h3><p>낱말의 뜻과 실제 지역별 표현, 조사 위치를 연결해 자세히 찾아볼 수 있습니다.</p><strong>어휘 찾기</strong></div>
+            </div>
+          </a>
+          <a class="v4-service-card" href="./oral_dialect.html" data-reveal>
+            <div class="v4-service-card-inner">
+              <div class="v4-service-face v4-service-front"><div class="v4-service-image v4-service-image-3" role="img" aria-label="녹음기와 음성 파형으로 표현한 구술 발화 자료"></div><div><span>구술 발화 자료</span><h3>목소리로 듣는<br>생생한 지역의 말</h3></div></div>
+              <div class="v4-service-face v4-service-back"><span>구술 발화 자료</span><h3>말하는 사람의 억양과<br>이야기를 직접 들어보세요.</h3><p>현지 제보자의 발화에 담긴 지역의 생활과 언어적 특징을 음성으로 확인할 수 있습니다.</p><strong>발화 듣기</strong></div>
+            </div>
+          </a>
+          <a class="v4-service-card" href="./literature_dialect.html" data-reveal>
+            <div class="v4-service-card-inner">
+              <div class="v4-service-face v4-service-front"><div class="v4-service-image v4-service-image-4" role="img" aria-label="책과 지도 자료로 표현한 문학 속 지역어"></div><div><span>문학 속 지역어</span><h3>작품의 문맥에서<br>말의 온도를 읽습니다.</h3></div></div>
+              <div class="v4-service-face v4-service-back"><span>문학 속 지역어</span><h3>문장 속 지역어의<br>뜻과 쓰임을 읽어보세요.</h3><p>소설과 시의 배경과 인물을 생생하게 만드는 지역어를 문맥과 함께 살펴봅니다.</p><strong>문학 자료 읽기</strong></div>
+            </div>
+          </a>
+          <a class="v4-service-card" href="./dialect_my_map.html" data-reveal>
+            <div class="v4-service-card-inner">
+              <div class="v4-service-face v4-service-front"><div class="v4-service-image v4-service-image-5" role="img" aria-label="투명 지도와 표식으로 표현한 나만의 지도"></div><div><span>나만의 지도</span><h3>내가 알고 있는 말로<br>지도를 완성합니다.</h3></div></div>
+              <div class="v4-service-face v4-service-back"><span>나만의 지도</span><h3>익숙한 지역어를 골라<br>나의 언어 지도를 만드세요.</h3><p>내가 쓰거나 알고 있는 표현을 선택해 지역별 말의 차이를 직접 기록할 수 있습니다.</p><strong>지도 만들기</strong></div>
+            </div>
+          </a>
+          <a class="v4-service-card" href="./data_room.html" data-reveal>
+            <div class="v4-service-card-inner">
+              <div class="v4-service-face v4-service-front"><div class="v4-service-image v4-service-image-6" role="img" aria-label="문서 보관함과 보고서로 표현한 지역어 자료실"></div><div><span>지역어 자료실</span><h3>조사 보고서와<br>원문 자료를 찾습니다.</h3></div></div>
+              <div class="v4-service-face v4-service-back"><span>지역어 자료실</span><h3>연구에 필요한 발간물과<br>조사 자료를 열람하세요.</h3><p>지역어 조사 결과와 원문, 연구 보고서를 유형과 발행 연도에 따라 찾아볼 수 있습니다.</p><strong>자료실 열기</strong></div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="v4-today" aria-labelledby="v4-today-title">
+      <div class="v4-shell">
+        <div class="v4-today-head" data-reveal>
+          <div><h2 id="v4-today-title">오늘의 지역어 &amp; 퀴즈</h2><p>지역의 말 한 가지를 만나고, 가벼운 퀴즈도 풀어보세요.</p></div>
+          <div class="v4-today-controls" aria-label="오늘의 카드 이동">
+            <span class="v4-today-status" aria-live="polite">오늘의 카드 <b id="v4-today-current">1</b> / <span id="v4-today-total">1</span></span>
+            <button type="button" id="v4-today-prev" aria-label="이전 카드"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
+            <button type="button" id="v4-today-pause" aria-label="자동 넘김 멈추기"><i class="ti ti-player-pause" aria-hidden="true"></i></button>
+            <button type="button" id="v4-today-next" aria-label="다음 카드"><i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="v4-today-viewport" id="v4-today-viewport" role="region" aria-label="오늘의 지역어와 퀴즈 카드" tabindex="0">
+        <div class="v4-today-track" id="v4-today-track"></div>
+      </div>
+    </section>
+
+    <section class="v4-records" aria-labelledby="v4-records-title">
+      <div class="v4-shell">
+        <div class="v4-section-intro" data-reveal><p class="v4-kicker">탐색으로 만나는 지역어</p><h2 id="v4-records-title">지역마다, 세대마다<br>달라지는 말을 만나보세요.</h2></div>
+        <div class="v4-record-grid">
+          <article class="v4-record" data-reveal>
+            <figure class="v4-record-media"><video class="v4-record-video" poster="./assets/renewal-v4/gisangdo-paper-poster.webp?v=20260929b" width="1040" height="800" muted loop playsinline preload="none" aria-label="종이로 오린 남한 지도 위로 맑음, 비, 눈, 갬으로 날씨가 바뀌며 시·도마다 색이 뒤집혀 바뀌는 기상도 종이 모션 영상"><source src="./assets/renewal-v4/gisangdo-paper.webm?v=20260929b" type="video/webm; codecs=av01.0.05M.08"><source src="./assets/renewal-v4/gisangdo-paper.mp4?v=20260929b" type="video/mp4"></video><button class="v4-video-toggle" type="button" aria-label="영상 멈추기"><i class="ti ti-player-pause" aria-hidden="true"></i></button></figure>
+            <div><span>지역어 기상도</span><h3>우리 동네 말의<br>날씨는 어떨까요?</h3><p>어휘를 고르면 지역마다 그 말을 얼마나 쓰고 알고 있는지, 기상도처럼 한눈에 볼 수 있어요.</p><a class="v4-underlink" href="./dialect_gisangdo.html">지역어 기상도 살펴보기</a></div>
+          </article>
+          <article class="v4-record v4-record-reverse" data-reveal>
+            <figure class="v4-record-media"><video class="v4-record-video" poster="./assets/renewal-v4/generations-paper-poster.webp?v=20260929b" width="1040" height="800" muted loop playsinline preload="none" aria-label="산속 초가집에서 전통마을, 근대화, 저층 도시, 현대 도시, 초고층 스카이라인으로 바뀌며 70대·50대·20대의 시대를 보여 주는 종이 모션 영상"><source src="./assets/renewal-v4/generations-paper.webm?v=20260929b" type="video/webm; codecs=av01.0.05M.08"><source src="./assets/renewal-v4/generations-paper.mp4?v=20260929b" type="video/mp4"></video><button class="v4-video-toggle" type="button" aria-label="영상 멈추기"><i class="ti ti-player-pause" aria-hidden="true"></i></button></figure>
+            <div><span>세대별 지역어 변화</span><h3>같은 말도 세대에 따라<br>다르게 살아갑니다.</h3><p>70대·50대·20대의 사용과 인식을 비교하며 지역어가 이어지고 변화하는 모습을 발견해 보세요.</p><a class="v4-underlink" href="./dialect_wordcard.html">세대별 변화 살펴보기</a></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="v4-open" aria-labelledby="v4-open-title">
+      <div class="v4-shell v4-open-grid" data-reveal>
+        <div class="v4-open-copy">
+          <p class="v4-kicker">연구와 활용</p>
+          <h2 id="v4-open-title">지역어 데이터를<br>연구와 서비스에 활용해 보세요.</h2>
+          <p>축적된 조사 자료를 조회하고, 공개된 API로 필요한 데이터를 연결할 수 있습니다.</p>
+          <div class="v4-open-meta" aria-label="제공 형식"><span>지역어 데이터</span><span>REST API</span><span>JSON 형식</span></div>
+        </div>
+        <div class="v4-open-actions">
+          <a class="v4-open-action v4-open-action-primary" href="./openapi_intro.html"><span>개발자를 위한 데이터 연동</span><strong>Open API 이용 안내</strong></a>
+          <a class="v4-open-action" href="./data_room.html"><span>발간물과 원문 자료 검색</span><strong>조사 자료 살펴보기</strong></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer-common"></div>
+</body>
+</html>
