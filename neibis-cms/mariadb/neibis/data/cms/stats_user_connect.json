@@ -1,0 +1,16 @@
+{
+ "ok": true,
+ "total": 1,
+ "list": [
+  {
+   "accessMonth": "2026-07",
+   "homeCnt": 4,
+   "mapCoopsearchCnt": 1,
+   "mapDialectCnt": 6,
+   "pubRegionCultureCnt": 3,
+   "pubTransCnt": 0,
+   "pubLiteratureCnt": 0,
+   "boardDiskCnt": 0
+  }
+ ]
+}

@@ -4615,6 +4615,337 @@ def _api_dt_range_ms(d: str, end=False):
         return None
 
 
+# 사용자 접속 현황 — 운영 관리자(통계 > 사용자 접속 현황)와 같은 열 구성.
+# pt_page_access 를 월별로 세어 메뉴 열에 나눈다. 메뉴는 page_id 또는 request_url 로 가른다
+# (page_id 표기가 메뉴마다 달라 url 도 함께 본다).
+USER_CONNECT_COLS = [
+    ("homeCnt", "첫화면", ("home",), ()),
+    ("mapCoopsearchCnt", "지역어 찾기", ("map_coopsearch",), ("/search/coopsearch",)),
+    ("mapDialectCnt", "지역어 지도", ("map_dialect",), ("/map/dialect",)),
+    ("pubTransCnt", "지역어 이야기 자료", ("pub_trans", "trans"), ("/pub/trans",)),
+    ("pubLiteratureCnt", "문학 속 지역어", ("pub_literature", "literature"), ("/pub/literature",)),
+    ("pubRegionCultureCnt", "사진으로 보는 생활어", ("region_culture", "pub_region_culture"), ("/pub/region_culture",)),
+    ("boardDiskCnt", "자료실", ("board_disk", "disk"), ("/board/disk",)),
+]
+
+
+def _user_connect_key(page_id, url):
+    for key, _, pids, urls in USER_CONNECT_COLS:
+        if page_id in pids or any(u in (url or "") for u in urls):
+            return key
+    return None
+
+
+def _user_connect_demo_rows(months: int = 12) -> list:
+    """프로토타입 화면용 «예시» 접속 현황 — 실제 집계가 아니다.
+    이번 달까지 최근 12개월을 달마다 같은 값이 나오도록(달 문자열로 시드) 만든다."""
+    import random
+    from datetime import date
+    today = date.today()
+    y, m = today.year, today.month
+    seq = []
+    for _ in range(months):
+        seq.append("%04d%02d" % (y, m))
+        m -= 1
+        if m == 0:
+            y, m = y - 1, 12
+    base = {"homeCnt": 320, "mapCoopsearchCnt": 210, "mapDialectCnt": 260, "pubTransCnt": 90,
+            "pubLiteratureCnt": 70, "pubRegionCultureCnt": 110, "boardDiskCnt": 40}
+    rows = []
+    for i, ym in enumerate(seq):                 # seq[0] 이 최신 달
+        rnd = random.Random(int(ym))
+        trend = 1.0 + 0.045 * (months - 1 - i)   # 갈수록 늘어나는 추세
+        season = 1.25 if int(ym[4:]) in (3, 4, 9, 10) else 1.0   # 학기 초 접속이 많은 것으로
+        row = {"accessMonth": ym[:4] + "-" + ym[4:]}
+        for key, v in base.items():
+            row[key] = int(v * trend * season * rnd.uniform(0.8, 1.2))
+        rows.append(row)
+    return rows
+
+
+def _user_connect_rows(qs: dict) -> list:
+    """월별 접속 건수. startNum/endNum 은 YYYYMM(숫자만) — 비우면 전체. demo=1 이면 예시 데이터."""
+    def q1(k):
+        return re.sub(r"\D", "", (qs.get(k) or [""])[0])[:6]
+    start, end = q1("startNum"), q1("endNum")
+    if (qs.get("demo") or [""])[0] == "1":
+        return [r for r in _user_connect_demo_rows()
+                if (not start or r["accessMonth"].replace("-", "") >= start)
+                and (not end or r["accessMonth"].replace("-", "") <= end)]
+    where, params = ["IFNULL(access_month,'') <> ''"], []
+    if start:
+        where.append("access_month >= ?")
+        params.append(start)
+    if end:
+        where.append("access_month <= ?")
+        params.append(end)
+    months = {}
+    with db_connect() as con:
+        for month, pid, url, cnt in con.execute(
+            "SELECT access_month, page_id, request_url, COUNT(*) FROM pt_page_access WHERE "
+            + " AND ".join(where) + " GROUP BY access_month, page_id, request_url", params):
+            row = months.setdefault(month, {"accessMonth": month[:4] + "-" + month[4:6]})
+            key = _user_connect_key(pid, url)
+            if key:
+                row[key] = row.get(key, 0) + cnt
+    out = []
+    for month in sorted(months, reverse=True):
+        row = months[month]
+        for key, _, _, _ in USER_CONNECT_COLS:
+            row.setdefault(key, 0)
+        out.append(row)
+    return out
+
+
+# ── 통계 화면(운영 관리자 통계 메뉴) ─────────────────────────────────────
+# 화면마다 «표 여러 개» 라는 같은 꼴이라 sections 로 통일해 돌려주고, 화면·엑셀이 같이 쓴다.
+#   {"ok": True, "sections": [{"title": str|None, "columns": [...], "rows": [[...], ...]}]}
+# 로컬 DB(운영 미러)에서 세며, 운영 화면과 숫자가 다를 수 있다(스냅샷 시점 차이).
+STATS_SIDO = ["강원도", "경기도", "경상남도", "경상북도", "광주광역시", "대구광역시", "대전광역시",
+              "부산광역시", "서울특별시", "울산광역시", "인천광역시", "전라남도", "전라북도",
+              "제주특별자치도", "충청남도", "충청북도"]
+
+
+def _yyyymm(qs, k):
+    return re.sub(r"\D", "", (qs.get(k) or [""])[0])[:6]
+
+
+def _pair(total, open_):
+    return "%s(%s)" % (total, open_)
+
+
+def stats_search_dialect(qs):
+    """지역어 검색 순위 — 메뉴별 상위 30 검색어."""
+    start, end = _yyyymm(qs, "startNum"), _yyyymm(qs, "endNum")
+    where, params = ["IFNULL(search_string,'') <> ''"], []
+    if start:
+        where.append("access_month >= ?"); params.append(start)
+    if end:
+        where.append("access_month <= ?"); params.append(end)
+    cols = [("지역어 찾기", ("map_coopsearch", "coopSearch"), "/search/coopsearch"),
+            ("지역어 이야기 자료", ("pub_trans", "transSearch", "trans"), "/pub/trans"),
+            ("문학 속 지역어", ("pub_literature", "literatureSearch", "literature"), "/pub/literature"),
+            ("사진으로 보는 생활어", ("region_culture", "regionCultureSearch", "pub_region_culture"), "/pub/region_culture")]
+    ranked = [[] for _ in cols]
+    with db_connect() as con:
+        for se, url, word, cnt in con.execute(
+            "SELECT search_se, request_url, search_string, COUNT(*) c FROM pt_search_access WHERE "
+            + " AND ".join(where) + " GROUP BY search_se, request_url, search_string ORDER BY c DESC, search_string", params):
+            for i, (_, ses, u) in enumerate(cols):
+                if se in ses or (url and u in url):
+                    ranked[i].append((word, cnt)); break
+    rows = []
+    for n in range(min(30, max(len(r) for r in ranked))):   # 있는 순위까지만 — 빈 행은 채우지 않는다
+        rows.append([n + 1] + [("%s(%d)" % ranked[i][n]) if n < len(ranked[i]) else "" for i in range(len(cols))])
+    return {"ok": True, "sections": [{"title": None, "columns": ["순위"] + [c[0] for c in cols], "rows": rows}]}
+
+
+def stats_download_cnt(qs):
+    """내려받기 횟수 — 월별. 내려받기는 pt_page_access 의 request_url 에 excel/sound 가 든 요청으로 센다."""
+    start, end = _yyyymm(qs, "startNum"), _yyyymm(qs, "endNum")
+    where, params = ["IFNULL(access_month,'') <> ''"], []
+    if start:
+        where.append("access_month >= ?"); params.append(start)
+    if end:
+        where.append("access_month <= ?"); params.append(end)
+    months = {}
+    with db_connect() as con:
+        for m, url, cnt in con.execute(
+            "SELECT access_month, request_url, COUNT(*) FROM pt_page_access WHERE "
+            + " AND ".join(where) + " GROUP BY access_month, request_url", params):
+            r = months.setdefault(m, [0, 0, 0, 0, 0])
+            u = (url or "").lower()
+            if "excel" not in u and "sound" not in u and "download" not in u:
+                continue
+            if "coopsearch" in u: r[0] += cnt
+            elif "/map" in u: r[1] += cnt
+            elif "trans" in u and ("sound" in u or "wav" in u): r[3] += cnt
+            elif "trans" in u: r[2] += cnt
+            elif "region_culture" in u: r[4] += cnt
+        # 월 목록은 접속이 있었던 달 전부 — 내려받기가 없어도 0 으로 보여 준다
+        for (m,) in con.execute("SELECT DISTINCT access_month FROM pt_page_access WHERE IFNULL(access_month,'')<>''"):
+            if (not start or m >= start) and (not end or m <= end):
+                months.setdefault(m, [0, 0, 0, 0, 0])
+    rows = [[m[:4] + "-" + m[4:6], r[0], r[1], "전사자료:%d / 음성자료:%d" % (r[2], r[3]), r[4]]
+            for m, r in sorted(months.items(), reverse=True)]
+    return {"ok": True, "sections": [{"title": None,
+            "columns": ["연월", "지역어 찾기", "지역어 지도", "지역어 이야기 자료", "사진으로 보는 생활어"], "rows": rows}]}
+
+
+def stats_synthesis_word(qs):
+    """지역어 찾기 — 조사 지점·지역어 항목 수(공개)."""
+    with db_connect() as con:
+        tot = con.execute("""SELECT COUNT(*), SUM(use_yn='Y'), SUM(IFNULL(dlt_tell,'')<>''),
+                                    SUM(IFNULL(dlt_tell,'')<>'' AND use_yn='Y'),
+                                    COUNT(DISTINCT sido_nm), COUNT(DISTINCT sido_nm||sigungu_nm),
+                                    SUM(IFNULL(dlt_tp,'')<>''), SUM(IFNULL(dlt_tp,'')<>'' AND use_yn='Y')
+                             FROM tb_dialect_region WHERE IFNULL(sido_nm,'')<>''""").fetchone()
+        regions = con.execute("""SELECT sido_nm, COUNT(*), SUM(use_yn='Y'), SUM(IFNULL(dlt_tell,'')<>''),
+                                        SUM(IFNULL(dlt_tell,'')<>'' AND use_yn='Y'),
+                                        SUM(IFNULL(dlt_tp,'')<>''), SUM(IFNULL(dlt_tp,'')<>'' AND use_yn='Y')
+                                 FROM tb_dialect_region WHERE IFNULL(sido_nm,'')<>'' GROUP BY sido_nm
+                                 ORDER BY sido_nm""").fetchall()
+    total, open_, snd, snd_open, ndo, nji, dlt, dlt_open = tot
+    return {"ok": True, "sections": [
+        {"title": "조사 지점 통계/전체 지역어 항목 수",
+         "columns": ["조사 지역(도) 개수", "조사 지역(시/군/구) 개수", "전체 지역어 항목 수(공개)",
+                     "전체 표준어 항목 수(공개)", "전체 음성 항목 수(공개)"],
+         "rows": [["%d 개 도" % ndo, "%d 개 지점" % nji, _pair(dlt, dlt_open), _pair(total, open_), _pair(snd, snd_open)]]},
+        {"title": "지역별 통계",
+         "columns": ["지역 명", "지역어 항목 수(공개)", "표준어 항목 수(공개)", "음성 항목 수(공개)"],
+         "rows": [[r[0], _pair(r[5], r[6]), _pair(r[1], r[2]), _pair(r[3], r[4])] for r in regions]}]}
+
+
+def stats_map(qs):
+    """지역어 지도 — 표제어 지도 수."""
+    with db_connect() as con:
+        a = con.execute("SELECT COUNT(*), SUM(map_make='Y') FROM kd_headword").fetchone()
+        b = con.execute("SELECT SUM(IFNULL(use_yn,'')<>''), SUM(use_yn='Y') FROM kd_headword").fetchone()
+    cols = ["전체 지도 수", "승인 지도 수"]
+    fmt = lambda x: "{:,} 개".format(x or 0)
+    return {"ok": True, "sections": [
+        {"title": "사용자 통계", "columns": cols, "rows": [[fmt(a[0]), fmt(a[1])]]},
+        {"title": "관리자 통계", "columns": cols, "rows": [[fmt(b[0]), fmt(b[1])]]}]}
+
+
+def stats_story(qs):
+    """지역어 이야기 자료(구술발화) — 주제·전사/음성 파일·시간."""
+    with db_connect() as con:
+        rows = con.execute("""SELECT substr(r.region_nm, 1, instr(r.region_nm||' ',' ')-1) sido,
+                                     COUNT(DISTINCT t.research_region_id||'|'||t.headword),
+                                     COUNT(DISTINCT CASE WHEN t.use_yn='Y' THEN t.research_region_id||'|'||t.headword END),
+                                     COUNT(*), SUM(t.use_yn='Y'),
+                                     SUM(IFNULL(CAST(t.wave_time AS REAL),0)),
+                                     SUM(CASE WHEN t.use_yn='Y' THEN IFNULL(CAST(t.wave_time AS REAL),0) ELSE 0 END)
+                              FROM wb_trs_file_talk t JOIN wb_research_region r
+                                ON r.research_region_id = t.research_region_id
+                              GROUP BY sido ORDER BY sido""").fetchall()
+    tt = [sum(r[i] for r in rows) for i in range(1, 7)]
+    return {"ok": True, "sections": [
+        {"title": "전체 통계",
+         "columns": ["전체 주제 수(공개)", "전체 전사 파일 수(공개)", "전체 음성 파일 수(공개)", "전체 음성 시간(공개)"],
+         "rows": [[_pair(tt[0], tt[1]), _pair(tt[2], tt[3]), _pair(tt[2], tt[3]), _pair(round(tt[4], 3), round(tt[5], 3))]]},
+        {"title": "지역별 통계",
+         "columns": ["지역 명", "주제 수(공개)", "전사 파일 수", "음성 파일 수"],
+         "rows": [[r[0], _pair(r[1], r[2]), _pair(r[3], r[4]), _pair(r[3], r[4])] for r in rows]}]}
+
+
+LITERATURE_REGIONS = ["강원", "경기", "경상", "전라", "제주", "충청", "평안", "함경", "황해"]
+
+
+def stats_literature(qs):
+    """문학 속 지역어 — 표제어·작품·작가."""
+    with db_connect() as con:
+        lit = con.execute("SELECT COUNT(*), SUM(use_yn='Y') FROM tb_literature").fetchone()
+        ex = con.execute("""SELECT COUNT(DISTINCT IFNULL(book_name,'')), COUNT(DISTINCT IFNULL(writer,'')),
+                                   COUNT(*), SUM(use_yn='Y'),
+                                   COUNT(DISTINCT CASE WHEN use_yn='Y' THEN IFNULL(book_name,'') END),
+                                   COUNT(DISTINCT CASE WHEN use_yn='Y' THEN IFNULL(writer,'') END)
+                            FROM tb_literature_example""").fetchone()
+        reg = {}
+        for nm, use in con.execute("SELECT region_nm, use_yn FROM tb_literature"):
+            for k in LITERATURE_REGIONS:
+                if k in (nm or ""):
+                    r = reg.setdefault(k, [0, 0]); r[1] += 1; r[0] += (use == "Y")
+        books = con.execute("""SELECT IFNULL(book_name,''), COUNT(DISTINCT liter_id) FROM tb_literature_example
+                               GROUP BY 1 ORDER BY 2 DESC, 1""").fetchall()
+        writers = con.execute("""SELECT IFNULL(writer,''), COUNT(DISTINCT liter_id) FROM tb_literature_example
+                                 GROUP BY 1 ORDER BY 2 DESC, 1""").fetchall()
+    def top(rows):
+        return [[(n or "(미상)"), "%d 개" % c] for n, c in rows[:200]]
+    suffix = {"강원": "강원도", "경기": "경기도", "경상": "경상도", "전라": "전라도", "제주": "제주도",
+              "충청": "충청도", "평안": "평안도", "함경": "함경도", "황해": "황해도"}
+    return {"ok": True, "sections": [
+        {"title": "전체 통계",
+         "columns": ["전체 지역 수", "전체 표제어 수(공개)", "전체 작품 수(공개)", "전체 작가 수(공개)", "전체 예문 수(공개)"],
+         "rows": [[len(reg), _pair(lit[0], lit[1]), _pair(ex[0], ex[4]), _pair(ex[1], ex[5]), _pair(ex[2], ex[3])]]},
+        {"title": "지역별 통계", "columns": ["지역(도)", "표제어 수(공개/전체)"],
+         "rows": [[suffix[k], "%d/%d 개" % tuple(reg[k])] for k in LITERATURE_REGIONS if k in reg]},
+        {"title": "작품별 통계 (상위 200)", "columns": ["작품명", "표제어 수"], "rows": top(books)},
+        {"title": "작가별 통계 (상위 200)", "columns": ["작가명", "표제어 수"], "rows": top(writers)}]}
+
+
+def stats_culture(qs):
+    """사진으로 보는 생활어 — 주제별 표제어·사진 수."""
+    with db_connect() as con:
+        tot = con.execute("SELECT COUNT(*) FROM tb_region_photo").fetchone()[0]
+        files = con.execute("SELECT COUNT(*) FROM tb_region_photo_file").fetchone()[0]
+        rows = con.execute("""SELECT IFNULL(p.subject,''), COUNT(DISTINCT p.region_photo_id), COUNT(f.file_idx)
+                              FROM tb_region_photo p LEFT JOIN tb_region_photo_file f
+                                ON f.region_photo_id = p.region_photo_id
+                              GROUP BY 1 ORDER BY 1""").fetchall()
+    return {"ok": True, "sections": [
+        {"title": None, "columns": ["전체 표제어 수", "전체 사진 항목 수"], "rows": [[tot, files]]},
+        {"title": None, "columns": ["주제", "표제어 수", "사진 항목 수"], "rows": [list(r) for r in rows]}]}
+
+
+STATS_PAGES = {
+    "search-dialect": stats_search_dialect,
+    "download-cnt": stats_download_cnt,
+    "synthesis-word": stats_synthesis_word,
+    "map": stats_map,
+    "story": stats_story,
+    "literature": stats_literature,
+    "culture": stats_culture,
+}
+
+
+def build_stats_excel(key: str, qs: dict):
+    import io
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment
+    data = STATS_PAGES[key](qs)
+    wb = Workbook()
+    ws = wb.active
+    ws.title = key[:30]
+    for sec in data["sections"]:
+        if sec.get("title"):
+            ws.append([sec["title"]])
+            ws.cell(ws.max_row, 1).font = Font(bold=True)
+        ws.append(sec["columns"])
+        for c in ws[ws.max_row]:
+            if c.value is not None:
+                c.font = Font(bold=True)
+                c.fill = PatternFill("solid", fgColor="E2E8F0")
+                c.alignment = Alignment(horizontal="center")
+        for r in sec["rows"]:
+            ws.append(r)
+        ws.append([])
+    for i in range(1, 9):
+        ws.column_dimensions[chr(64 + i)].width = 24
+    buf = io.BytesIO()
+    wb.save(buf)
+    return buf.getvalue(), key.replace("-", "_") + ".xlsx"
+
+
+def api_user_connect(qs: dict) -> dict:
+    rows = _user_connect_rows(qs)
+    return {"ok": True, "total": len(rows), "list": rows,
+            "columns": [{"key": k, "label": l} for k, l, _, _ in USER_CONNECT_COLS]}
+
+
+def build_user_connect_excel(qs: dict):
+    import io
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "사용자 접속 현황"
+    ws.append(["접속 월"] + [l for _, l, _, _ in USER_CONNECT_COLS])
+    for c in ws[1]:
+        c.font = Font(bold=True)
+        c.fill = PatternFill("solid", fgColor="E2E8F0")
+        c.alignment = Alignment(horizontal="center")
+    for r in _user_connect_rows(qs):
+        ws.append([r["accessMonth"]] + [r[k] for k, _, _, _ in USER_CONNECT_COLS])
+    ws.column_dimensions["A"].width = 12
+    for col in "BCDEFGH":
+        ws.column_dimensions[col].width = 20
+    buf = io.BytesIO()
+    wb.save(buf)
+    return buf.getvalue(), "사용자_접속_현황.xlsx"
+
+
 def api_openapi_usage_list(qs: dict) -> dict:
     """Open API 인증키 발급 현황 — 활용목적 포함."""
     def q1(k, d=""):
@@ -7208,6 +7539,53 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         ):
             try:
                 self._send_json(api_user_list(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        _m = re.match(r"^/mariadb/neibis-api/(?:v1/)?stats/(search-dialect|download-cnt|synthesis-word|map|story|literature|culture)(/excel)?$", path)
+        if _m:
+            try:
+                if _m.group(2):
+                    data, fname = build_stats_excel(_m.group(1), qs)
+                    enc = urllib.parse.quote(fname)
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    self.send_header("Content-Disposition", "attachment; filename*=UTF-8''" + enc)
+                    self.send_header("Content-Length", str(len(data)))
+                    self.send_header("Cache-Control", "no-store")
+                    self.end_headers()
+                    self.wfile.write(data)
+                else:
+                    self._send_json(STATS_PAGES[_m.group(1)](qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/stats/user-connect",
+            "/mariadb/neibis-api/v1/stats/user-connect",
+        ):
+            try:
+                self._send_json(api_user_connect(qs))
+            except Exception as e:
+                self._send_json({"ok": False, "message": str(e)}, 500)
+            return
+
+        if path in (
+            "/mariadb/neibis-api/stats/user-connect/excel",
+            "/mariadb/neibis-api/v1/stats/user-connect/excel",
+        ):
+            try:
+                data, fname = build_user_connect_excel(qs)
+                enc = urllib.parse.quote(fname)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                self.send_header("Content-Disposition", "attachment; filename*=UTF-8''" + enc)
+                self.send_header("Content-Length", str(len(data)))
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                self.wfile.write(data)
             except Exception as e:
                 self._send_json({"ok": False, "message": str(e)}, 500)
             return
