@@ -26,24 +26,8 @@ def ymd(ms):
         return ''
 
 
-def main():
-    sid = sys.argv[1] if len(sys.argv) > 1 else None
-    con = sqlite3.connect(DB)
-    con.row_factory = sqlite3.Row
-
-    if sid:
-        row = con.execute('SELECT * FROM tb_survey_new WHERE survey_no=?', (str(sid),)).fetchone()
-    else:
-        # 문항이 가장 많은 설문 = 실제로 운영된 것
-        row = con.execute("""SELECT s.* FROM tb_survey_new s
-                             ORDER BY (SELECT COUNT(*) FROM tb_survey_question_new q
-                                       WHERE q.survey_no = s.survey_no) DESC,
-                                      CAST(s.survey_no AS INTEGER) DESC
-                             LIMIT 1""").fetchone()
-    if not row:
-        sys.exit('tb_survey_new 에 설문이 없습니다.')
+def survey_def(con, row):
     sid = str(row['survey_no'])
-
     questions = []
     for q in con.execute("""SELECT question_no, question_title FROM tb_survey_question_new
                             WHERE survey_no=?
@@ -58,8 +42,7 @@ def main():
                                                  ORDER BY CAST(example_no AS INTEGER)""",
                                               (q['question_no'],))],
         })
-
-    data = {
+    return {
         'surveyNo': sid,
         'surveyTitle': row['survey_title'] or '',
         'surveyCntnts': row['survey_cntnts'] or '',
@@ -70,13 +53,39 @@ def main():
         'questionCnt': len(questions),
         'questions': questions,
     }
+
+
+def main():
+    """인자 없이 실행하면 '기간 안에 있고 문항이 있는' 설문 전체를 내보낸다.
+    설문 번호를 주면(여러 개 가능) 그 설문만 내보낸다."""
+    ids = sys.argv[1:]
+    con = sqlite3.connect(DB)
+    con.row_factory = sqlite3.Row
+
+    if ids:
+        rows = [con.execute('SELECT * FROM tb_survey_new WHERE survey_no=?', (str(i),)).fetchone()
+                for i in ids]
+        rows = [r for r in rows if r]
+    else:
+        now_ms = int(datetime.datetime.now().timestamp() * 1000)
+        rows = con.execute("""SELECT * FROM tb_survey_new
+                              WHERE CAST(start_date AS INTEGER) <= ? AND CAST(end_date AS INTEGER) >= ?
+                                AND EXISTS (SELECT 1 FROM tb_survey_question_new q
+                                            WHERE q.survey_no = tb_survey_new.survey_no)
+                              ORDER BY CAST(survey_no AS INTEGER) DESC""",
+                           (now_ms, now_ms)).fetchall()
+    if not rows:
+        sys.exit('내보낼 설문이 없습니다.')
+
+    surveys = [survey_def(con, r) for r in rows]
     io.open(OUT, 'w', encoding='utf-8').write(
-        json.dumps({'status': 'success', 'data': data, 'static': True},
+        json.dumps({'status': 'success', 'data': surveys[0], 'surveys': surveys, 'static': True},
                    ensure_ascii=False, indent=1))
-    print('설문 #%s "%s" — 문항 %d개 / 보기 %d개'
-          % (sid, data['surveyTitle'], len(questions),
-             sum(len(q['examples']) for q in questions)))
-    print('기간 %s ~ %s · 개인정보 수집 %s' % (data['startDate'], data['endDate'], data['prsnlInputYn']))
+    for d in surveys:
+        print('설문 #%s "%s" — 문항 %d개 / 보기 %d개 · 기간 %s ~ %s · 개인정보 수집 %s'
+              % (d['surveyNo'], d['surveyTitle'], len(d['questions']),
+                 sum(len(q['examples']) for q in d['questions']),
+                 d['startDate'], d['endDate'], d['prsnlInputYn']))
     print('저장:', OUT)
 
 

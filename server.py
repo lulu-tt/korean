@@ -114,52 +114,57 @@ def _next_id(con, table, col) -> int:
     return (row[0] or 0) + 1
 
 
+def _survey_def(con, row):
+    sid = str(row["survey_no"])
+    questions = []
+    for q in con.execute(
+        """SELECT question_no, question_title, question_order
+           FROM tb_survey_question_new WHERE survey_no=?
+           ORDER BY CAST(question_order AS INTEGER), CAST(question_no AS INTEGER)""",
+        (sid,),
+    ).fetchall():
+        examples = [
+            {"exampleNo": str(e["example_no"]), "exampleTitle": e["example_title"] or ""}
+            for e in con.execute(
+                """SELECT example_no, example_title FROM tb_survey_example_new
+                   WHERE question_no=? ORDER BY CAST(example_no AS INTEGER)""",
+                (q["question_no"],),
+            ).fetchall()
+        ]
+        questions.append({
+            "questionNo": str(q["question_no"]),
+            "questionTitle": q["question_title"] or "",
+            "examples": examples,
+        })
+    return {
+        "surveyNo": sid,
+        "surveyTitle": row["survey_title"] or "",
+        "surveyCntnts": row["survey_cntnts"] or "",
+        "startDate": _epoch_ms_to_date(row["start_date"]),
+        "endDate": _epoch_ms_to_date(row["end_date"]),
+        "prsnlInputYn": (row["prsnl_input_yn"] or "N").upper(),
+        "prsnlInfoCntnts": row["prsnl_info_cntnts"] or "",
+        "questionCnt": len(questions),
+        "questions": questions,
+    }
+
+
 def api_survey_active():
-    """메인 노출용 — 현재 진행 중인 설문 1건(가장 최근 등록)."""
+    """메인 노출용 — 현재 진행 중인 설문 전체(최근 등록순).
+    data 는 첫 설문(하위 호환), surveys 는 진행 중 설문 배열."""
     now_ms = int(time.time() * 1000)
     with _db_connect() as con:
-        row = con.execute(
+        rows = con.execute(
             """SELECT * FROM tb_survey_new
                WHERE CAST(start_date AS INTEGER) <= ?
                  AND CAST(end_date AS INTEGER) >= ?
-               ORDER BY CAST(survey_no AS INTEGER) DESC
-               LIMIT 1""",
+               ORDER BY CAST(survey_no AS INTEGER) DESC""",
             (now_ms, now_ms),
-        ).fetchone()
-        if not row:
-            return {"status": "success", "data": None}
-        sid = str(row["survey_no"])
-        questions = []
-        for q in con.execute(
-            """SELECT question_no, question_title, question_order
-               FROM tb_survey_question_new WHERE survey_no=?
-               ORDER BY CAST(question_order AS INTEGER), CAST(question_no AS INTEGER)""",
-            (sid,),
-        ).fetchall():
-            examples = [
-                {"exampleNo": str(e["example_no"]), "exampleTitle": e["example_title"] or ""}
-                for e in con.execute(
-                    """SELECT example_no, example_title FROM tb_survey_example_new
-                       WHERE question_no=? ORDER BY CAST(example_no AS INTEGER)""",
-                    (q["question_no"],),
-                ).fetchall()
-            ]
-            questions.append({
-                "questionNo": str(q["question_no"]),
-                "questionTitle": q["question_title"] or "",
-                "examples": examples,
-            })
-        return {"status": "success", "data": {
-            "surveyNo": sid,
-            "surveyTitle": row["survey_title"] or "",
-            "surveyCntnts": row["survey_cntnts"] or "",
-            "startDate": _epoch_ms_to_date(row["start_date"]),
-            "endDate": _epoch_ms_to_date(row["end_date"]),
-            "prsnlInputYn": (row["prsnl_input_yn"] or "N").upper(),
-            "prsnlInfoCntnts": row["prsnl_info_cntnts"] or "",
-            "questionCnt": len(questions),
-            "questions": questions,
-        }}
+        ).fetchall()
+        surveys = [_survey_def(con, r) for r in rows]
+        return {"status": "success",
+                "data": surveys[0] if surveys else None,
+                "surveys": surveys}
 
 
 def api_survey_answer_save(body: dict):
@@ -379,7 +384,8 @@ def _load_etl():
     return m
 
 
-_WEATHER_CACHE = {'sig': None, 'data': None}
+# 연도별로 하나씩 담는다. 한 칸이면 연도를 오갈 때마다 7초씩 다시 계산한다.
+_WEATHER_CACHE = {}
 
 
 def api_weather_awareness(year=None):
@@ -387,7 +393,20 @@ def api_weather_awareness(year=None):
     import re as _re
     import sqlite3
 
-    year = _re.sub(r'\D', '', str(year or ''))[-2:]
+    # 'latest' 는 '가장 최근 연차' 를 뜻한다. 화면이 연차 목록을 받으려고 한 번 더
+    # 부르지 않아도 되게, 서버가 풀어 준다.
+    want_latest = str(year or '').strip().lower() == 'latest'
+    year = '' if want_latest else _re.sub(r'\D', '', str(year or ''))[-2:]
+    if want_latest and os.path.exists(WEATHER_DB_PATH):
+        _c = sqlite3.connect(WEATHER_DB_PATH)
+        try:
+            _r = _c.execute("SELECT MAX(research_degree) FROM wb_weather_file"
+                            " WHERE use_yn='Y'").fetchone()
+            year = (_r[0] or '') if _r else ''
+        except Exception:
+            year = ''
+        finally:
+            _c.close()
     sig = None
     if os.path.exists(WEATHER_DB_PATH):
         con = sqlite3.connect(WEATHER_DB_PATH)
@@ -403,15 +422,15 @@ def api_weather_awareness(year=None):
             sig = (n, d, os.path.getmtime(WEATHER_DB_PATH), year, a)
         finally:
             con.close()
-    if sig and _WEATHER_CACHE['sig'] == sig and _WEATHER_CACHE['data'] is not None:
-        return _WEATHER_CACHE['data']
+    hit = _WEATHER_CACHE.get(year)
+    if sig and hit and hit['sig'] == sig:
+        return hit['data']
 
     etl = _load_etl()
     recs, nfiles = etl.load_records_from_db(WEATHER_DB_PATH, year)
     out = etl.build_output(recs, nfiles, etl.load_adjust(WEATHER_DB_PATH))
     etl.fill_db_qc(out, WEATHER_DB_PATH, year)
-    _WEATHER_CACHE['sig'] = sig
-    _WEATHER_CACHE['data'] = out
+    _WEATHER_CACHE[year] = {'sig': sig, 'data': out}
     return out
 
 
