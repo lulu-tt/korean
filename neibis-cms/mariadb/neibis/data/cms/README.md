@@ -26,6 +26,14 @@ SQL 을 두 벌 두면 목록 규칙이 갈라진다.
 | survey_list.json | survey/surveyList.html | 3 |
 | survey_legacy.json | survey/survey-legacy.html | 2 |
 | stats_openapi.json | stats/api.html | 27 |
+| stats_user_connect.json | stats/userConnect.html | 1 (월별) |
+| stats_search_dialect.json | stats/searchDialect.html | 표 묶음 |
+| stats_download_cnt.json | stats/downloadCnt.html | 표 묶음 |
+| stats_synthesis_word.json | stats/synthesisWord.html | 표 묶음 |
+| stats_map.json | stats/map.html | 표 묶음 |
+| stats_story.json | stats/story.html | 표 묶음 |
+| stats_literature.json | stats/literature.html | 표 묶음 |
+| stats_culture.json | stats/culture.html | 표 묶음 |
 | vocab_list.json | survey/vocab.html | **2,000 / 313,783** |
 | bbs_246·251·252·253·254·256.json | bbs/*/list.html | 각 20 |
 

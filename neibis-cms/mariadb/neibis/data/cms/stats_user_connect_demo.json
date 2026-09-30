@@ -1,0 +1,126 @@
+{
+ "ok": true,
+ "total": 12,
+ "list": [
+  {
+   "accessMonth": "2026-09",
+   "homeCnt": 547,
+   "mapCoopsearchCnt": 347,
+   "mapDialectCnt": 475,
+   "pubTransCnt": 195,
+   "pubLiteratureCnt": 152,
+   "pubRegionCultureCnt": 179,
+   "boardDiskCnt": 80
+  },
+  {
+   "accessMonth": "2026-08",
+   "homeCnt": 555,
+   "mapCoopsearchCnt": 325,
+   "mapDialectCnt": 447,
+   "pubTransCnt": 140,
+   "pubLiteratureCnt": 115,
+   "pubRegionCultureCnt": 189,
+   "boardDiskCnt": 53
+  },
+  {
+   "accessMonth": "2026-07",
+   "homeCnt": 448,
+   "mapCoopsearchCnt": 241,
+   "mapDialectCnt": 382,
+   "pubTransCnt": 125,
+   "pubLiteratureCnt": 116,
+   "pubRegionCultureCnt": 126,
+   "boardDiskCnt": 52
+  },
+  {
+   "accessMonth": "2026-06",
+   "homeCnt": 436,
+   "mapCoopsearchCnt": 244,
+   "mapDialectCnt": 350,
+   "pubTransCnt": 108,
+   "pubLiteratureCnt": 93,
+   "pubRegionCultureCnt": 157,
+   "boardDiskCnt": 63
+  },
+  {
+   "accessMonth": "2026-05",
+   "homeCnt": 497,
+   "mapCoopsearchCnt": 230,
+   "mapDialectCnt": 354,
+   "pubTransCnt": 133,
+   "pubLiteratureCnt": 84,
+   "pubRegionCultureCnt": 160,
+   "boardDiskCnt": 51
+  },
+  {
+   "accessMonth": "2026-04",
+   "homeCnt": 602,
+   "mapCoopsearchCnt": 287,
+   "mapDialectCnt": 353,
+   "pubTransCnt": 139,
+   "pubLiteratureCnt": 93,
+   "pubRegionCultureCnt": 189,
+   "boardDiskCnt": 70
+  },
+  {
+   "accessMonth": "2026-03",
+   "homeCnt": 408,
+   "mapCoopsearchCnt": 316,
+   "mapDialectCnt": 410,
+   "pubTransCnt": 147,
+   "pubLiteratureCnt": 103,
+   "pubRegionCultureCnt": 156,
+   "boardDiskCnt": 70
+  },
+  {
+   "accessMonth": "2026-02",
+   "homeCnt": 450,
+   "mapCoopsearchCnt": 231,
+   "mapDialectCnt": 271,
+   "pubTransCnt": 90,
+   "pubLiteratureCnt": 93,
+   "pubRegionCultureCnt": 144,
+   "boardDiskCnt": 43
+  },
+  {
+   "accessMonth": "2026-01",
+   "homeCnt": 418,
+   "mapCoopsearchCnt": 197,
+   "mapDialectCnt": 333,
+   "pubTransCnt": 116,
+   "pubLiteratureCnt": 87,
+   "pubRegionCultureCnt": 122,
+   "boardDiskCnt": 40
+  },
+  {
+   "accessMonth": "2025-12",
+   "homeCnt": 345,
+   "mapCoopsearchCnt": 186,
+   "mapDialectCnt": 243,
+   "pubTransCnt": 103,
+   "pubLiteratureCnt": 77,
+   "pubRegionCultureCnt": 134,
+   "boardDiskCnt": 45
+  },
+  {
+   "accessMonth": "2025-11",
+   "homeCnt": 281,
+   "mapCoopsearchCnt": 262,
+   "mapDialectCnt": 281,
+   "pubTransCnt": 83,
+   "pubLiteratureCnt": 66,
+   "pubRegionCultureCnt": 116,
+   "boardDiskCnt": 43
+  },
+  {
+   "accessMonth": "2025-10",
+   "homeCnt": 333,
+   "mapCoopsearchCnt": 216,
+   "mapDialectCnt": 264,
+   "pubTransCnt": 98,
+   "pubLiteratureCnt": 71,
+   "pubRegionCultureCnt": 119,
+   "boardDiskCnt": 55
+  }
+ ]
+}
