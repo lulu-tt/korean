@@ -6223,6 +6223,16 @@ def api_weather_upload(raw: bytes, ctype: str) -> dict:
                 warnings.append({"fileName": fname, "lineNo": r["line_no"] + 1,
                                  "itemCd": r["item_cd"], "headword": r["headword"],
                                  "message": "표준어형 칸에 하위코드가 섞였습니다"})
+        # 서비스 목록에 없는 항목번호 — 대개 옆 번호로 잘못 적은 오타다(20217 → 20218).
+        # 받되 알린다. 지도에는 나오지 않는다.
+        allow = _weather_etl().load_service_items() or set()
+        if allow:
+            for r in kept:
+                b = _wb_item_base(r["item_cd"])
+                if b and b not in allow:
+                    warnings.append({"fileName": fname, "lineNo": r["line_no"] + 1,
+                                     "itemCd": r["item_cd"], "headword": r["headword"],
+                                     "message": "서비스 목록에 없는 항목번호입니다 — 지도에 나오지 않습니다"})
         for nm in info.get("otherSheets", []):
             warnings.append({"fileName": fname, "sheet": nm,
                              "message": "첫 시트만 읽었습니다 — '%s' 시트에 값이 남아 있습니다" % nm})

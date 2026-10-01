@@ -1,0 +1,411 @@
+{
+ "설명": "지역어 기상도 서비스 대상 항목. 이 목록에 있는 항목만 지도에 나온다. 항목번호(5자리)와 표준어형. 담당자 확정표가 오면 이 파일을 그것으로 바꾼다.",
+ "기준일": "2026-10-01",
+ "출처": "2025년 적재 자료(47명)에서 서비스 중이던 101개 — 이전 기준 '9개 지역이 모두 조사되고 등급이 관측된 항목'",
+ "items": [
+  {
+   "code": "20103",
+   "standard": "흰자위"
+  },
+  {
+   "code": "20105",
+   "standard": "눈두덩"
+  },
+  {
+   "code": "20107",
+   "standard": "귀청"
+  },
+  {
+   "code": "20108",
+   "standard": "귀지"
+  },
+  {
+   "code": "20109",
+   "standard": "귀이개"
+  },
+  {
+   "code": "20113",
+   "standard": "구레나룻"
+  },
+  {
+   "code": "20116",
+   "standard": "입술"
+  },
+  {
+   "code": "20118",
+   "standard": "휘파람"
+  },
+  {
+   "code": "20122",
+   "standard": "콧구멍"
+  },
+  {
+   "code": "20124",
+   "standard": "겨드랑"
+  },
+  {
+   "code": "20134",
+   "standard": "무릎"
+  },
+  {
+   "code": "20135",
+   "standard": "복사뼈"
+  },
+  {
+   "code": "20139",
+   "standard": "배꼽"
+  },
+  {
+   "code": "20209",
+   "standard": "딸꾹질"
+  },
+  {
+   "code": "20215",
+   "standard": "졸음"
+  },
+  {
+   "code": "20217",
+   "standard": "기지개"
+  },
+  {
+   "code": "20220",
+   "standard": "혓바늘"
+  },
+  {
+   "code": "20306",
+   "standard": "미꾸라지"
+  },
+  {
+   "code": "20310",
+   "standard": "벌레"
+  },
+  {
+   "code": "20312",
+   "standard": "구더기"
+  },
+  {
+   "code": "20313",
+   "standard": "매미"
+  },
+  {
+   "code": "20314",
+   "standard": "모기"
+  },
+  {
+   "code": "20315",
+   "standard": "벌"
+  },
+  {
+   "code": "20316",
+   "standard": "파리"
+  },
+  {
+   "code": "20318",
+   "standard": "쉬슬다"
+  },
+  {
+   "code": "20319",
+   "standard": "메뚜기"
+  },
+  {
+   "code": "20321",
+   "standard": "지렁이"
+  },
+  {
+   "code": "20322",
+   "standard": "회충"
+  },
+  {
+   "code": "20323",
+   "standard": "고양이"
+  },
+  {
+   "code": "20334",
+   "standard": "모이"
+  },
+  {
+   "code": "20335",
+   "standard": "노루"
+  },
+  {
+   "code": "20336",
+   "standard": "여우"
+  },
+  {
+   "code": "20337",
+   "standard": "갈치"
+  },
+  {
+   "code": "20340",
+   "standard": "강아지"
+  },
+  {
+   "code": "20341",
+   "standard": "뱀"
+  },
+  {
+   "code": "20342",
+   "standard": "누에"
+  },
+  {
+   "code": "20343",
+   "standard": "번데기"
+  },
+  {
+   "code": "20403",
+   "standard": "억새"
+  },
+  {
+   "code": "20415",
+   "standard": "벼"
+  },
+  {
+   "code": "20418",
+   "standard": "오디"
+  },
+  {
+   "code": "20501",
+   "standard": "바위"
+  },
+  {
+   "code": "20503",
+   "standard": "모래"
+  },
+  {
+   "code": "20509",
+   "standard": "가을"
+  },
+  {
+   "code": "20510",
+   "standard": "겨울"
+  },
+  {
+   "code": "20514",
+   "standard": "글피"
+  },
+  {
+   "code": "20517",
+   "standard": "그저께"
+  },
+  {
+   "code": "20518",
+   "standard": "그끄저께"
+  },
+  {
+   "code": "20528",
+   "standard": "우박"
+  },
+  {
+   "code": "20532",
+   "standard": "노을"
+  },
+  {
+   "code": "20537",
+   "standard": "언제"
+  },
+  {
+   "code": "20543",
+   "standard": "새벽"
+  },
+  {
+   "code": "20544",
+   "standard": "회오리바람"
+  },
+  {
+   "code": "20606",
+   "standard": "아우 타다"
+  },
+  {
+   "code": "20610",
+   "standard": "계집아이"
+  },
+  {
+   "code": "20612",
+   "standard": "눕히다"
+  },
+  {
+   "code": "20704",
+   "standard": "할머니(호칭)"
+  },
+  {
+   "code": "20705",
+   "standard": "형(호칭)"
+  },
+  {
+   "code": "20718",
+   "standard": "사위(호칭)"
+  },
+  {
+   "code": "21105",
+   "standard": "호미"
+  },
+  {
+   "code": "21201",
+   "standard": "거지"
+  },
+  {
+   "code": "21302",
+   "standard": "서 되/세 되"
+  },
+  {
+   "code": "21307",
+   "standard": "꾸러미"
+  },
+  {
+   "code": "21409",
+   "standard": "짚신"
+  },
+  {
+   "code": "21501",
+   "standard": "가위"
+  },
+  {
+   "code": "21508",
+   "standard": "다리미"
+  },
+  {
+   "code": "21610",
+   "standard": "건더기"
+  },
+  {
+   "code": "21617",
+   "standard": "메밀"
+  },
+  {
+   "code": "21618",
+   "standard": "엿기름"
+  },
+  {
+   "code": "21619",
+   "standard": "고춧가루"
+  },
+  {
+   "code": "21620",
+   "standard": "달걀"
+  },
+  {
+   "code": "21701",
+   "standard": "간장"
+  },
+  {
+   "code": "21712",
+   "standard": "콩나물"
+  },
+  {
+   "code": "21803",
+   "standard": "시루"
+  },
+  {
+   "code": "21804",
+   "standard": "뚜껑"
+  },
+  {
+   "code": "21905",
+   "standard": "오이"
+  },
+  {
+   "code": "21906",
+   "standard": "무"
+  },
+  {
+   "code": "21908",
+   "standard": "부추"
+  },
+  {
+   "code": "21912",
+   "standard": "시래기"
+  },
+  {
+   "code": "22004",
+   "standard": "가"
+  },
+  {
+   "code": "22102",
+   "standard": "아궁이"
+  },
+  {
+   "code": "22103",
+   "standard": "구멍"
+  },
+  {
+   "code": "22105",
+   "standard": "그을음"
+  },
+  {
+   "code": "22106",
+   "standard": "마루"
+  },
+  {
+   "code": "22108",
+   "standard": "장독대"
+  },
+  {
+   "code": "22109",
+   "standard": "변소"
+  },
+  {
+   "code": "22110",
+   "standard": "벽"
+  },
+  {
+   "code": "22202",
+   "standard": "새끼"
+  },
+  {
+   "code": "22203",
+   "standard": "똬리"
+  },
+  {
+   "code": "22206",
+   "standard": "갈퀴"
+  },
+  {
+   "code": "22219",
+   "standard": "키"
+  },
+  {
+   "code": "22227",
+   "standard": "부지깽이"
+  },
+  {
+   "code": "22229",
+   "standard": "반짇고리"
+  },
+  {
+   "code": "22230",
+   "standard": "다듬잇돌"
+  },
+  {
+   "code": "22231",
+   "standard": "꽹과리"
+  },
+  {
+   "code": "22404",
+   "standard": "자치기"
+  },
+  {
+   "code": "22405",
+   "standard": "곤지곤지"
+  },
+  {
+   "code": "22406",
+   "standard": "그네"
+  },
+  {
+   "code": "22408",
+   "standard": "목말"
+  },
+  {
+   "code": "22409",
+   "standard": "소꿉놀이"
+  },
+  {
+   "code": "22413",
+   "standard": "쥐불놀이"
+  },
+  {
+   "code": "22602",
+   "standard": "다르다/틀리다"
+  }
+ ]
+}
