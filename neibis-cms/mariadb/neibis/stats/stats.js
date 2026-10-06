@@ -243,6 +243,8 @@
     '.stat-kpi__k{font-size:13px;color:#64748b}' +
     '.stat-kpi__v{font-size:26px;line-height:1.2;font-weight:800;color:#1e293b;letter-spacing:-.02em}' +
     '.stat-kpi__s{font-style:normal;font-size:12px;color:#2563eb;min-height:1.2em}' +
+    /* 검색 카드(form 안)와 결과 카드(#stat-sections 안)는 형제가 아니라 .card + .card 간격이 안 먹는다 */
+    '#stat-sections>*{margin-top:20px}' +
     'th.stat-sort{cursor:pointer;user-select:none;white-space:nowrap}' +
     'th.stat-sort i{display:inline-block;width:10px;margin-left:4px;font-style:normal;color:#94a3b8}' +
     'th.stat-sort:hover{background:#eef2f7}' +
