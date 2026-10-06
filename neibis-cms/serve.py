@@ -4722,8 +4722,10 @@ def stats_search_dialect(qs):
         where.append("access_month >= ?"); params.append(start)
     if end:
         where.append("access_month <= ?"); params.append(end)
-    cols = [("지역어 찾기", ("map_coopsearch", "coopSearch"), "/search/coopsearch"),
-            ("지역어 이야기 자료", ("pub_trans", "transSearch", "trans"), "/pub/trans"),
+    # 대상 게시판 5종 — 검색이 일어난 메뉴를 search_se 또는 request_url 로 가른다
+    cols = [("어휘조사자료", ("map_coopsearch", "coopSearch"), "/search/coopsearch"),
+            ("구술발화 조사 자료", ("pub_trans", "transSearch", "trans"), "/pub/trans"),
+            ("지역별 이형태", ("pub_variant", "variantSearch", "variant"), "/variant"),
             ("문학 속 지역어", ("pub_literature", "literatureSearch", "literature"), "/pub/literature"),
             ("사진으로 보는 생활어", ("region_culture", "regionCultureSearch", "pub_region_culture"), "/pub/region_culture")]
     ranked = [[] for _ in cols]
@@ -4740,60 +4742,75 @@ def stats_search_dialect(qs):
     return {"ok": True, "sections": [{"title": None, "columns": ["순위"] + [c[0] for c in cols], "rows": rows}]}
 
 
+# 내려받기 횟수 대상 6종 — (열 이름, 요청 주소에 들어 있는 표지). 화면 열 순서이며, 집계는 «비교» 를 먼저 가린다.
+DOWNLOAD_TARGETS = [
+    ("어휘조사자료", ("coopsearch", "/search/word")),
+    ("구술발화 조사 자료", ("/pub/trans", "oral")),
+    ("지역별 이형태", ("variant", "vrnt")),
+    ("지역어 지도", ("/map", "dialect_map")),
+    ("지역어 지도 비교", ("compare", "map_cmp", "mapcmp")),
+    ("지역어 기상도", ("gisangdo", "weather")),
+]
+
+
+def _download_match_order():
+    """«지역어 지도 비교» 주소에도 /map 이 들어 있어, 비교를 먼저 가려야 지도로 새지 않는다."""
+    return sorted(range(len(DOWNLOAD_TARGETS)), key=lambda i: 0 if DOWNLOAD_TARGETS[i][0].endswith("비교") else 1)
+
+
 def stats_download_cnt(qs):
-    """내려받기 횟수 — 월별. 내려받기는 pt_page_access 의 request_url 에 excel/sound 가 든 요청으로 센다."""
+    """내려받기 횟수 — 월별. 내려받기는 pt_page_access 의 request_url 에 excel/download 가 든 요청으로 센다."""
     start, end = _yyyymm(qs, "startNum"), _yyyymm(qs, "endNum")
     where, params = ["IFNULL(access_month,'') <> ''"], []
     if start:
         where.append("access_month >= ?"); params.append(start)
     if end:
         where.append("access_month <= ?"); params.append(end)
+    n = len(DOWNLOAD_TARGETS)
     months = {}
     with db_connect() as con:
         for m, url, cnt in con.execute(
             "SELECT access_month, request_url, COUNT(*) FROM pt_page_access WHERE "
             + " AND ".join(where) + " GROUP BY access_month, request_url", params):
-            r = months.setdefault(m, [0, 0, 0, 0, 0])
+            r = months.setdefault(m, [0] * n)
             u = (url or "").lower()
-            if "excel" not in u and "sound" not in u and "download" not in u:
+            if "excel" not in u and "download" not in u and "sound" not in u:
                 continue
-            if "coopsearch" in u: r[0] += cnt
-            elif "/map" in u: r[1] += cnt
-            elif "trans" in u and ("sound" in u or "wav" in u): r[3] += cnt
-            elif "trans" in u: r[2] += cnt
-            elif "region_culture" in u: r[4] += cnt
+            for i in _download_match_order():
+                if any(k in u for k in DOWNLOAD_TARGETS[i][1]):
+                    r[i] += cnt
+                    break
         # 월 목록은 접속이 있었던 달 전부 — 내려받기가 없어도 0 으로 보여 준다
         for (m,) in con.execute("SELECT DISTINCT access_month FROM pt_page_access WHERE IFNULL(access_month,'')<>''"):
             if (not start or m >= start) and (not end or m <= end):
-                months.setdefault(m, [0, 0, 0, 0, 0])
-    rows = [[m[:4] + "-" + m[4:6], r[0], r[1], "전사자료:%d / 음성자료:%d" % (r[2], r[3]), r[4]]
-            for m, r in sorted(months.items(), reverse=True)]
+                months.setdefault(m, [0] * n)
+    rows = [[m[:4] + "-" + m[4:6]] + r for m, r in sorted(months.items(), reverse=True)]
     return {"ok": True, "sections": [{"title": None,
-            "columns": ["연월", "지역어 찾기", "지역어 지도", "지역어 이야기 자료", "사진으로 보는 생활어"], "rows": rows}]}
+            "columns": ["연월"] + [t[0] for t in DOWNLOAD_TARGETS], "rows": rows}]}
 
 
 def stats_synthesis_word(qs):
-    """지역어 찾기 — 조사 지점·지역어 항목 수(공개)."""
+    """어휘조사자료 — 지역별 조사 통계(조사 지점·어휘 항목 수, 공개).
+    행 1건 = 어휘 × 조사지역(tb_dialect_region). 운영 관리자 화면과 같은 기준으로 센다(강원·광주·울산 등 대조 일치):
+      표준어 = 행 수 / 지역어 = 지역어 값이 있고 '백업예정'(자리표시)이 아닌 행 / 음성 = 음성 표기(dlt_tell)가 있는 행
+      공개 = 조사지역 행의 use_yn 이 Y 이거나 어휘 기본(tb_dialect_new)의 use_yn 이 Y — 세 열에 같은 값이 표시된다(운영도 동일)."""
+    base = """FROM tb_dialect_region r
+              LEFT JOIN (SELECT dialect_id, MAX(use_yn) u FROM tb_dialect_new GROUP BY dialect_id) m ON m.dialect_id = r.dialect_id
+              WHERE IFNULL(r.sido_nm,'') <> '' """
+    agg = """COUNT(*), SUM(r.use_yn='Y' OR m.u='Y'), SUM(IFNULL(r.dlt_tell,'')<>''),
+             SUM(IFNULL(r.dlt_tp,'')<>'' AND r.dlt_tp<>'백업예정')"""
     with db_connect() as con:
-        tot = con.execute("""SELECT COUNT(*), SUM(use_yn='Y'), SUM(IFNULL(dlt_tell,'')<>''),
-                                    SUM(IFNULL(dlt_tell,'')<>'' AND use_yn='Y'),
-                                    COUNT(DISTINCT sido_nm), COUNT(DISTINCT sido_nm||sigungu_nm),
-                                    SUM(IFNULL(dlt_tp,'')<>''), SUM(IFNULL(dlt_tp,'')<>'' AND use_yn='Y')
-                             FROM tb_dialect_region WHERE IFNULL(sido_nm,'')<>''""").fetchone()
-        regions = con.execute("""SELECT sido_nm, COUNT(*), SUM(use_yn='Y'), SUM(IFNULL(dlt_tell,'')<>''),
-                                        SUM(IFNULL(dlt_tell,'')<>'' AND use_yn='Y'),
-                                        SUM(IFNULL(dlt_tp,'')<>''), SUM(IFNULL(dlt_tp,'')<>'' AND use_yn='Y')
-                                 FROM tb_dialect_region WHERE IFNULL(sido_nm,'')<>'' GROUP BY sido_nm
-                                 ORDER BY sido_nm""").fetchall()
-    total, open_, snd, snd_open, ndo, nji, dlt, dlt_open = tot
+        tot = con.execute("SELECT " + agg + ", COUNT(DISTINCT r.sido_nm), COUNT(DISTINCT r.sido_nm||r.sigungu_nm) " + base).fetchone()
+        regions = con.execute("SELECT r.sido_nm, " + agg + " " + base + " GROUP BY r.sido_nm ORDER BY r.sido_nm").fetchall()
+    total, pub, snd, dlt, ndo, nji = tot
     return {"ok": True, "sections": [
         {"title": "조사 지점 통계/전체 지역어 항목 수",
          "columns": ["조사 지역(도) 개수", "조사 지역(시/군/구) 개수", "전체 지역어 항목 수(공개)",
                      "전체 표준어 항목 수(공개)", "전체 음성 항목 수(공개)"],
-         "rows": [["%d 개 도" % ndo, "%d 개 지점" % nji, _pair(dlt, dlt_open), _pair(total, open_), _pair(snd, snd_open)]]},
+         "rows": [["%d 개 도" % ndo, "%d 개 지점" % nji, _pair(dlt, pub), _pair(total, pub), _pair(snd, pub)]]},
         {"title": "지역별 통계",
          "columns": ["지역 명", "지역어 항목 수(공개)", "표준어 항목 수(공개)", "음성 항목 수(공개)"],
-         "rows": [[r[0], _pair(r[5], r[6]), _pair(r[1], r[2]), _pair(r[3], r[4])] for r in regions]}]}
+         "rows": [[r[0], _pair(r[4], r[2]), _pair(r[1], r[2]), _pair(r[3], r[2])] for r in regions]}]}
 
 
 def stats_map(qs):
