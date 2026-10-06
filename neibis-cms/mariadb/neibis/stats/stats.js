@@ -165,7 +165,8 @@
       html = secs.map(function (sec) { return '<div class="card">' + section(sec) + '</div>'; }).join('');
     }
     var box = document.getElementById('stat-sections');
-    if (window.STAT_KEY === 'download-cnt') html = '<div id="stat-chart"></div>' + html;
+    // 내려받기 횟수는 추이 그래프와 표를 한 카드에 담는다(그래프 위, 표 아래)
+    if (window.STAT_KEY === 'download-cnt') html = '<div class="card"><div id="stat-chart"></div><div class="stat-chart-sep">' + section(secs[0]) + '</div></div>';
     box.innerHTML = html;
     bars(box);
     if (window.STAT_KEY === 'download-cnt') downloadChart(secs[0]);
@@ -180,7 +181,7 @@
       series: sec.columns.slice(1).map(function (c, j) {
         return { name: c, values: rows.map(function (r) { return nums(r[j + 1]).reduce(function (t, v) { return t + v; }, 0); }) };
       }),
-      unit: '회', emptyText: '선택한 기간에 내려받기 기록이 없습니다.'
+      unit: '회', emptyText: '선택한 기간에 내려받기 기록이 없습니다.', bare: true
     });
   }
   function fail(msg) {
@@ -197,10 +198,12 @@
     var s = ($('#startNum').val() || '').replace(/\D/g, ''), e = ($('#endNum').val() || '').replace(/\D/g, '');
     if (s) p.set('startNum', s);
     if (e) p.set('endNum', e);
+    if ($('#statDemo').is(':checked')) p.set('demo', '1');
     return p;
   }
   function load() {
     var seq = ++reqSeq;
+    $('#stat-demo-note').toggle($('#statDemo').is(':checked'));
     fetch('/mariadb/neibis-api/stats/' + window.STAT_KEY + '?' + params().toString())
       .then(function (r) { return r.json(); })
       .then(function (d) { if (seq !== reqSeq) return; if (d && d.ok) render(d); else fail('목록을 불러오지 못했습니다.'); })
@@ -208,7 +211,7 @@
         if (seq !== reqSeq) return;
         /* 정적 배포에는 CMS API 가 없다 — 내보내 둔 사본으로 물러난다 */
         var x = new XMLHttpRequest();
-        x.open('GET', '../data/cms/stats_' + window.STAT_KEY.replace(/-/g, '_') + '.json', true);
+        x.open('GET', '../data/cms/stats_' + window.STAT_KEY.replace(/-/g, '_') + (params().get('demo') ? '_demo' : '') + '.json', true);
         x.onload = function () { if (seq !== reqSeq) return; try { render(JSON.parse(x.responseText)); } catch (e) { fail('API 호출 실패'); } };
         x.onerror = function () { if (seq === reqSeq) fail('API 호출 실패'); };
         x.send();
@@ -245,6 +248,7 @@
     '.stat-kpi__s{font-style:normal;font-size:12px;color:#2563eb;min-height:1.2em}' +
     /* 검색 카드(form 안)와 결과 카드(#stat-sections 안)는 형제가 아니라 .card + .card 간격이 안 먹는다 */
     '#stat-sections>*{margin-top:20px}' +
+    '.stat-chart-sep{margin-top:24px;padding-top:24px;border-top:1px solid #e5e7eb}' +
     'th.stat-sort{cursor:pointer;user-select:none;white-space:nowrap}' +
     'th.stat-sort i{display:inline-block;width:10px;margin-left:4px;font-style:normal;color:#94a3b8}' +
     'th.stat-sort:hover{background:#eef2f7}' +
@@ -276,6 +280,7 @@
         if (e.type === 'keydown') $li[0].focus();
         $('.stat-tab-panel').attr('hidden', true).filter('[data-panel="' + i + '"]').removeAttr('hidden');
       });
+    $('#statDemo').on('change', load);
     load();
   });
 })();
