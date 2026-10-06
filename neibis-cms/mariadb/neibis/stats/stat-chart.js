@@ -4,7 +4,8 @@
  *     title: '월별 접속 추이',
  *     labels: ['2026-06', '2026-07'],                 // 오래된 달부터
  *     series: [{ name: '첫화면', values: [3, 4] }, ...],
- *     unit: '건', emptyText: '표시할 기록이 없습니다.'
+ *     unit: '건', emptyText: '표시할 기록이 없습니다.',
+ *     bare: true      // 카드 테두리 없이 그린다(이미 카드 안에 넣을 때)
  *   });
  *
  * 값이 모두 0 이면 그래프 대신 안내 문구를 보인다. 막대는 한 달이어도 너무 굵어지지 않게 폭을 제한한다.
@@ -30,8 +31,8 @@
     });
     var head = o.title ? '<h3 class="title1 text-primary" style="margin:0 0 12px">' + esc(o.title) + '</h3>' : '';
     if (!labels.length || !totals.some(function (t) { return t > 0; })) {
-      el.innerHTML = '<div class="card">' + head + '<p class="text-center" style="padding:28px 0;color:#64748b">'
-        + esc(o.emptyText || '표시할 기록이 없습니다.') + '</p></div>';
+      var empty = head + '<p class="text-center" style="padding:28px 0;color:#64748b">' + esc(o.emptyText || '표시할 기록이 없습니다.') + '</p>';
+      el.innerHTML = o.bare ? empty : '<div class="card">' + empty + '</div>';
       return;
     }
     var W = 760, H = 240, L = 44, R = 12, T = 12, B = 30;
@@ -64,7 +65,7 @@
           return '<li style="display:flex;align-items:center;gap:6px"><i style="width:10px;height:10px;border-radius:2px;background:'
             + COLORS[k % COLORS.length] + '"></i>' + esc(s.name) + '</li>';
         }).join('') + '</ul>';
-    el.innerHTML = '<div class="card">' + head + svg + legend + '</div>';
+    el.innerHTML = o.bare ? head + svg + legend : '<div class="card">' + head + svg + legend + '</div>';
   }
 
   global.StatChart = { render: render };

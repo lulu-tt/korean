@@ -4714,9 +4714,45 @@ def _pair(total, open_):
     return "%s(%s)" % (total, open_)
 
 
+SEARCH_DEMO_WORDS = {
+    "어휘조사자료": "가위 감자 옥수수 부추 고추 메밀 호박 아버지 어머니 할머니 맑다 바람 달 소 말 고양이 쌀 보리 콩 팥 참기름 김치 국수 아궁이 부엌 마당 냇물 우물 구름 하늘".split(),
+    "구술발화 조사 자료": "결혼 농사 장례 제사 명절 놀이 학교 전쟁 이사 시장 음식 장사 어업 해녀 날씨 병 마을 집짓기 길쌈 약 고기잡이 소리 노래 무당 굿 장터 방앗간 우물 밭일 모내기".split(),
+    "지역별 이형태": "아버지 어머니 할아버지 고모 이모 오빠 언니 아기 먹다 가다 오다 하다 있다 없다 크다 작다 좋다 많다 적다 뜨겁다 차갑다 높다 낮다 길다 짧다 빠르다 느리다 맵다 달다 쓰다".split(),
+    "문학 속 지역어": "그라제 거시기 워메 아따 하모 디다 혼저옵서예 갱엿 무시 정지 살강 애기 가시나 머슴 두루마기 삽짝 정구지 부지깽이 새각시 울력 도랑 둠벙 고샅 마실 짠지 강냉이 소나기 아궁이 모탕 샘".split(),
+    "사진으로 보는 생활어": "옹기 해녀 김치 떡 젓갈 부채 한과 장 염전 죽방렴 심마니 안동포 남사당 승무 나주소반 배첩 모필 도검 두석 유기 사기장 참빗 채상 초고 호상옷 숭어들이 미역 어촌 오징어 자염".split(),
+}
+
+
+def _search_demo(start, end):
+    """프로토타입 화면용 «예시» 검색 순위 — 실제 집계가 아니다. 기간이 길수록 건수가 커지고, 같은 조건이면 같은 값이 나온다."""
+    import random
+    months = 12
+    if start and end:
+        months = max(1, (int(end[:4]) - int(start[:4])) * 12 + int(end[4:6]) - int(start[4:6]) + 1)
+    scale = 1 + months / 6.0
+    ranked = []
+    for name, words in SEARCH_DEMO_WORDS.items():
+        rnd = random.Random(hash_seed(name + (start or "") + (end or "")))
+        items = [(w, max(1, int((130 - i * 3.6) * scale * rnd.uniform(0.75, 1.25)))) for i, w in enumerate(words)]
+        items.sort(key=lambda x: (-x[1], x[0]))
+        ranked.append(items)
+    size = min(30, min(len(r) for r in ranked))      # 목록이 30개에 못 미치는 열이 있어도 깨지지 않게
+    rows = [[n + 1] + ["%s(%d)" % ranked[i][n] for i in range(len(ranked))] for n in range(size)]
+    return {"ok": True, "sections": [{"title": None, "columns": ["순위"] + list(SEARCH_DEMO_WORDS.keys()), "rows": rows}]}
+
+
+def hash_seed(text):
+    h = 2166136261
+    for ch in text:
+        h = ((h ^ ord(ch)) * 16777619) & 0xFFFFFFFF
+    return h
+
+
 def stats_search_dialect(qs):
-    """지역어 검색 순위 — 메뉴별 상위 30 검색어."""
+    """지역어 검색 순위 — 메뉴별 상위 30 검색어. demo=1 이면 예시 데이터."""
     start, end = _yyyymm(qs, "startNum"), _yyyymm(qs, "endNum")
+    if (qs.get("demo") or [""])[0] == "1":
+        return _search_demo(start, end)
     where, params = ["IFNULL(search_string,'') <> ''"], []
     if start:
         where.append("access_month >= ?"); params.append(start)
@@ -4758,9 +4794,36 @@ def _download_match_order():
     return sorted(range(len(DOWNLOAD_TARGETS)), key=lambda i: 0 if DOWNLOAD_TARGETS[i][0].endswith("비교") else 1)
 
 
+def _download_demo_rows(months=12):
+    """프로토타입 화면용 «예시» 내려받기 횟수 — 실제 집계가 아니다.
+    이번 달까지 최근 12개월, 달 문자열로 시드를 잡아 항상 같은 값이 나온다."""
+    import random
+    from datetime import date
+    y, m = date.today().year, date.today().month
+    seq = []
+    for _ in range(months):
+        seq.append("%04d%02d" % (y, m))
+        m -= 1
+        if m == 0:
+            y, m = y - 1, 12
+    base = [38, 22, 9, 31, 12, 6]          # DOWNLOAD_TARGETS 순서
+    out = []
+    for i, ym in enumerate(seq):           # seq[0] 이 최신 달
+        rnd = random.Random(int(ym) + 7)
+        trend = 1.0 + 0.05 * (months - 1 - i)
+        season = 1.3 if int(ym[4:]) in (3, 4, 9, 10) else 1.0
+        out.append([ym[:4] + "-" + ym[4:]] + [int(b * trend * season * rnd.uniform(0.7, 1.3)) for b in base])
+    return out
+
+
 def stats_download_cnt(qs):
-    """내려받기 횟수 — 월별. 내려받기는 pt_page_access 의 request_url 에 excel/download 가 든 요청으로 센다."""
+    """내려받기 횟수 — 월별. 내려받기는 pt_page_access 의 request_url 에 excel/download 가 든 요청으로 센다.
+    demo=1 이면 예시 데이터(12개월)."""
     start, end = _yyyymm(qs, "startNum"), _yyyymm(qs, "endNum")
+    if (qs.get("demo") or [""])[0] == "1":
+        rows = [r for r in _download_demo_rows()
+                if (not start or r[0].replace("-", "") >= start) and (not end or r[0].replace("-", "") <= end)]
+        return {"ok": True, "sections": [{"title": None, "columns": ["연월"] + [t[0] for t in DOWNLOAD_TARGETS], "rows": rows}]}
     where, params = ["IFNULL(access_month,'') <> ''"], []
     if start:
         where.append("access_month >= ?"); params.append(start)
