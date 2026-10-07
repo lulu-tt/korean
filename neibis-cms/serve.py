@@ -4778,10 +4778,12 @@ def stats_search_dialect(qs):
     return {"ok": True, "sections": [{"title": None, "columns": ["순위"] + [c[0] for c in cols], "rows": rows}]}
 
 
-# 내려받기 횟수 대상 6종 — (열 이름, 요청 주소에 들어 있는 표지). 화면 열 순서이며, 집계는 «비교» 를 먼저 가린다.
+# 내려받기 횟수 대상 7종 — (열 이름, 요청 주소에 들어 있는 표지). 화면 열 순서이며, 집계는 «비교»·«음성» 을 먼저 가린다.
+# 구술발화 조사 자료는 원문(전사 엑셀·텍스트)과 음성(오디오 요청)을 나눠 센다.
 DOWNLOAD_TARGETS = [
     ("어휘조사자료", ("coopsearch", "/search/word")),
-    ("구술발화 조사 자료", ("/pub/trans", "oral")),
+    ("구술발화 조사 자료(원문)", ("/pub/trans", "oral", "transfile/excel")),
+    ("구술발화 조사 자료(음성)", ("transfile/audio", "oral_audio", "trans_sound", "/wav")),
     ("지역별 이형태", ("variant", "vrnt")),
     ("지역어 지도", ("/map", "dialect_map")),
     ("지역어 지도 비교", ("compare", "map_cmp", "mapcmp")),
@@ -4790,8 +4792,9 @@ DOWNLOAD_TARGETS = [
 
 
 def _download_match_order():
-    """«지역어 지도 비교» 주소에도 /map 이 들어 있어, 비교를 먼저 가려야 지도로 새지 않는다."""
-    return sorted(range(len(DOWNLOAD_TARGETS)), key=lambda i: 0 if DOWNLOAD_TARGETS[i][0].endswith("비교") else 1)
+    """«지역어 지도 비교» 주소에도 /map 이, «음성» 주소에도 /transfile 이 들어 있어, 더 구체적인 쪽(비교·음성)을 먼저 가린다."""
+    return sorted(range(len(DOWNLOAD_TARGETS)),
+                  key=lambda i: 0 if DOWNLOAD_TARGETS[i][0].endswith(("비교", "(음성)")) else 1)
 
 
 def _download_demo_rows(months=12):
@@ -4806,7 +4809,7 @@ def _download_demo_rows(months=12):
         m -= 1
         if m == 0:
             y, m = y - 1, 12
-    base = [38, 22, 9, 31, 12, 6]          # DOWNLOAD_TARGETS 순서
+    base = [38, 22, 14, 9, 31, 12, 6]      # DOWNLOAD_TARGETS 순서
     out = []
     for i, ym in enumerate(seq):           # seq[0] 이 최신 달
         rnd = random.Random(int(ym) + 7)
@@ -4837,7 +4840,7 @@ def stats_download_cnt(qs):
             + " AND ".join(where) + " GROUP BY access_month, request_url", params):
             r = months.setdefault(m, [0] * n)
             u = (url or "").lower()
-            if "excel" not in u and "download" not in u and "sound" not in u:
+            if not any(k in u for k in ("excel", "download", "sound", "audio", "wav")):
                 continue
             for i in _download_match_order():
                 if any(k in u for k in DOWNLOAD_TARGETS[i][1]):
