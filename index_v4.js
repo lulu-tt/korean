@@ -251,6 +251,53 @@
   }), {threshold:.6});
   counters.forEach(counter => countObserver.observe(counter));
 
+  /* 자료를 만나는 여섯 가지 방법
+     - 마우스가 있는 기기는 CSS 호버로 뒤집힌다.
+     - 터치하면 첫 탭에 카드가 뒤집히고(뒷면 안내), 뒤집힌 카드를 다시 탭하면 링크로 이동한다.
+     - 모바일에서는 가로 슬라이더: 좌우 버튼은 끝에서 처음/마지막으로 돌아가며 넘긴다. */
+  const serviceTrack = root.querySelector('#v4-service-cards');
+  if (serviceTrack) {
+    const serviceCards = [...serviceTrack.querySelectorAll('.v4-service-card')];
+    const serviceCurrent = root.querySelector('#v4-service-current');
+    let lastPointer = 'mouse';
+    const unflip = except => serviceCards.forEach(card => { if (card !== except) card.classList.remove('is-flipped'); });
+
+    serviceCards.forEach(card => {
+      card.addEventListener('pointerdown', e => { lastPointer = e.pointerType || 'mouse'; });
+      card.addEventListener('click', e => {
+        // 키보드(Enter)로 누른 클릭은 detail 이 0 — 바로 이동
+        if (e.detail === 0 || lastPointer === 'mouse' || card.classList.contains('is-flipped')) return;
+        e.preventDefault();
+        unflip(card);
+        card.classList.add('is-flipped');
+      });
+    });
+    document.addEventListener('pointerdown', e => { if (!e.target.closest?.('.v4-service-card')) unflip(null); });
+
+    const serviceStep = () => {
+      const first = serviceCards[0];
+      if (!first) return 1;
+      return first.offsetWidth + parseFloat(getComputedStyle(serviceTrack).columnGap || getComputedStyle(serviceTrack).gap || 0);
+    };
+    const serviceIndex = () => Math.max(0, Math.min(serviceCards.length - 1, Math.round(serviceTrack.scrollLeft / Math.max(serviceStep(), 1))));
+    const goService = index => {
+      const next = (index + serviceCards.length) % serviceCards.length;
+      serviceTrack.scrollTo({left:next * serviceStep(), behavior:reduced.matches ? 'instant' : 'smooth'});
+    };
+    root.querySelector('.v4-service-prev')?.addEventListener('click', () => goService(serviceIndex() - 1));
+    root.querySelector('.v4-service-next')?.addEventListener('click', () => goService(serviceIndex() + 1));
+    let serviceFrame = 0;
+    serviceTrack.addEventListener('scroll', () => {
+      if (serviceFrame) return;
+      serviceFrame = requestAnimationFrame(() => {
+        serviceFrame = 0;
+        const i = serviceIndex();
+        if (serviceCurrent) serviceCurrent.textContent = String(i + 1);
+        unflip(serviceCards[i]);
+      });
+    }, {passive:true});
+  }
+
   /* 세대별 지역어 변화 종이 모션 영상
      - 화면에 보일 때만 재생하고, 정지 버튼으로 언제든 멈출 수 있다(움직임 5초 이상 → 정지 기능 제공).
      - 사용자가 멈추면 스크롤·탭 전환으로 다시 재생하지 않는다.

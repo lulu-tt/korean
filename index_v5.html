@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>지역어 종합 정보 — 국립국어원</title>
+  <link rel="shortcut icon" href="./favicon.ico">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./index_v5.css?v=20261007-quiz-footer" />
+  <script src="./gnb.js" defer></script>
+  <script src="./footer.js" defer></script>
+  <meta name="description" content="전국 곳곳의 지역어를 검색하고, 지도와 목소리, 문학과 생활 속 기록으로 만나는 국립국어원 지역어 종합 정보.">
+  <link rel="preload" href="./assets/renewal-2026/banners/hero-language-banner.jpg" as="image">
+  <script src="./index_v5.js?v=20261007-coarse-pixels" defer></script>
+</head>
+<body>
+<a class="skip" href="#main-content">본문 바로가기</a>
+
+  <!-- 공통 GNB 헤더 영역 (gnb.js에 의해 동적으로 로드 및 렌더링됩니다) -->
+  <div id="gnb-common"></div>
+
+<main id="main-content" class="renewal-main r26">
+  <section class="r26-hero" aria-label="지역어 이야기" aria-roledescription="캐러셀">
+    <div class="r26-hero-layout">
+      <div class="r26-hero-main">
+    <div class="r26-hero-track">
+      <article class="r26-slide is-active" id="hero-slide-1" role="group" aria-roledescription="슬라이드" aria-label="1 / 3, 우리말의 발견">
+        <div class="r26-container r26-slide-layout">
+          <div class="r26-hero-copy">
+            <p class="r26-eyebrow"><span class="r26-dot"></span> 우리말의 새로운 발견</p>
+            <h1 class="r26-hero-title">같은 마음,<br><em>다채로운 우리말.</em></h1>
+            <p class="r26-hero-description">지역마다 다른 말 속에 담긴 새로운 이야기.<br>말과 사람을 잇는 즐거운 탐색을 시작해 보세요.</p>
+          </div>
+        </div>
+        <img class="r26-slide-background" data-parallax="0.06" src="./assets/renewal-2026/banners/hero-language-banner.jpg" alt="" aria-hidden="true" fetchpriority="high">
+      </article>
+      <article class="r26-slide" id="hero-slide-2" role="group" aria-roledescription="슬라이드" aria-label="2 / 3, 말의 지도" aria-hidden="true" inert>
+        <div class="r26-container r26-slide-layout">
+          <div class="r26-hero-copy">
+            <p class="r26-eyebrow"><span class="r26-dot"></span> 말의 지도를 펼치다</p>
+            <h2 class="r26-hero-title">지도 위에서 만나는<br><em>우리말의 모든 빛깔.</em></h2>
+            <p class="r26-hero-description">같은 뜻을 가진 말은 지역마다 어떻게 다를까요?<br>지도를 따라 우리말의 새로운 풍경을 발견하세요.</p>
+          </div>
+        </div>
+        <img class="r26-slide-background" data-parallax="0.06" src="./assets/renewal-2026/banners/hero-map-banner.jpg" alt="" aria-hidden="true" loading="lazy">
+      </article>
+      <article class="r26-slide" id="hero-slide-3" role="group" aria-roledescription="슬라이드" aria-label="3 / 3, 목소리의 기록" aria-hidden="true" inert>
+        <div class="r26-container r26-slide-layout">
+          <div class="r26-hero-copy">
+            <p class="r26-eyebrow"><span class="r26-dot"></span> 목소리에 담긴 이야기</p>
+            <h2 class="r26-hero-title">글자 너머의 생생함,<br><em>우리말을 듣다.</em></h2>
+            <p class="r26-hero-description">저마다 다른 억양과 리듬, 그 안에 담긴 삶.<br>전국의 목소리로 지역어를 더 가까이 만나 보세요.</p>
+          </div>
+        </div>
+        <img class="r26-slide-background" data-parallax="0.06" src="./assets/renewal-2026/banners/hero-voice-modern-building.jpg" alt="" aria-hidden="true" loading="lazy">
+      </article>
+    </div>
+    <div class="r26-container r26-hero-bottom">
+      <div class="r26-slider-controls" hidden>
+        <span class="sr-only" id="hero-current">01</span>
+        <div class="r26-slider-dots" aria-label="슬라이드 선택">
+          <button type="button" data-slide="0" aria-label="1번 슬라이드: 우리말의 발견" aria-current="true" aria-controls="hero-slide-1"><span></span></button>
+          <button type="button" data-slide="1" aria-label="2번 슬라이드: 말의 지도" aria-controls="hero-slide-2"><span></span></button>
+          <button type="button" data-slide="2" aria-label="3번 슬라이드: 목소리의 기록" aria-controls="hero-slide-3"><span></span></button>
+        </div>
+        <button type="button" id="hero-pause" class="r26-control" aria-describedby="banner-playback-help" aria-label="슬라이드 자동 재생 멈추기"><i class="ti ti-player-pause" aria-hidden="true"></i></button>
+      </div>
+      <a href="#home-search" class="r26-scroll-cue">아래로 내려보기 <span>↓</span></a>
+    </div>
+      </div>
+      <aside class="r26-hero-aside" aria-label="지역어 검색과 바로가기">
+        <section id="home-search" class="r26-search-section" aria-labelledby="search-title">
+          <div class="r26-container">
+            <div class="r26-search-surface" data-reveal>
+              <div class="r26-search-intro"><h2 id="search-title">어떤 말이 궁금하세요?</h2></div>
+              <div class="r26-search-content">
+                <form class="r26-search-form" action="./dialect_search_prototype.html" method="get" role="search">
+                  <label for="home-query" class="sr-only">지역어 검색어</label><i class="ti ti-search" aria-hidden="true"></i>
+                  <input id="home-query" name="q" placeholder="지역어나 표준어를 입력하세요" required maxlength="100" autocomplete="off">
+                  <button type="submit" aria-label="지역어 검색"><span>검색</span><i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+                </form>
+                <div class="r26-keywords"><span>추천 검색어</span><a href="./dialect_search_prototype.html?q=부추">#부추</a><a href="./dialect_search_prototype.html?q=정구지">#정구지</a><a href="./dialect_search_prototype.html?q=감자">#감자</a><a href="./dialect_search_prototype.html?q=가새">#가새</a></div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <nav class="r26-hero-shortcuts r26-illustrated-banners" id="quick-explore-carousel" aria-label="Open API, 지역어 기상도, 세대별 지역어변화" aria-roledescription="캐러셀" data-theme="light">
+          <div class="r26-shortcuts-track">
+            <article class="r26-shortcut-slide is-active" id="quick-slide-1" role="group" aria-roledescription="슬라이드" aria-label="1 / 3, Open API" data-theme="light">
+              <div class="r26-shortcuts-content">
+                <div class="r26-shortcut-copy">
+                  <h2>우리말의 기록이,<br>새로운 가능성으로.</h2>
+                  <a class="r26-shortcut-link" href="./openapi_intro.html">Open API 이용 안내 <span aria-hidden="true">›</span></a>
+                </div>
+                <img class="r26-shortcut-illustration" src="./assets/renewal-2026/quick-illustrations-v1/openapi.webp" width="1254" height="1254" alt="" aria-hidden="true" decoding="async">
+              </div>
+            </article>
+            <article class="r26-shortcut-slide" id="quick-slide-2" role="group" aria-roledescription="슬라이드" aria-label="2 / 3, 지역어 기상도" data-theme="light" aria-hidden="true" inert>
+              <div class="r26-shortcuts-content">
+                <div class="r26-shortcut-copy">
+                  <h2>우리 동네 말의<br>날씨는 어떨까요?</h2>
+                  <a class="r26-shortcut-link" href="./dialect_gisangdo.html">지역어 기상도 바로가기 <span aria-hidden="true">›</span></a>
+                </div>
+                <img class="r26-shortcut-illustration" src="./assets/renewal-2026/quick-illustrations-v1/weather.webp" width="1254" height="1254" alt="" aria-hidden="true" decoding="async">
+              </div>
+            </article>
+            <article class="r26-shortcut-slide" id="quick-slide-3" role="group" aria-roledescription="슬라이드" aria-label="3 / 3, 세대별 지역어변화" data-theme="light" aria-hidden="true" inert>
+              <div class="r26-shortcuts-content">
+                <div class="r26-shortcut-copy">
+                  <h2>같은 말도 세대에 따라<br>다르게 살아갑니다.</h2>
+                  <a class="r26-shortcut-link" href="./dialect_wordcard.html">세대별 지역어변화 바로가기 <span aria-hidden="true">›</span></a>
+                </div>
+                <img class="r26-shortcut-illustration" src="./assets/renewal-2026/quick-illustrations-v1/generations.webp" width="1254" height="1254" alt="" aria-hidden="true" decoding="async">
+              </div>
+            </article>
+          </div>
+          <div class="r26-shortcuts-controls" aria-label="자료 배너 재생 제어">
+            <div class="r26-shortcut-dots" aria-label="자료 배너 선택">
+              <button type="button" data-quick-slide="0" aria-label="1번 자료 배너: Open API" aria-current="true" aria-controls="quick-slide-1"><span></span></button>
+              <button type="button" data-quick-slide="1" aria-label="2번 자료 배너: 지역어 기상도" aria-controls="quick-slide-2"><span></span></button>
+              <button type="button" data-quick-slide="2" aria-label="3번 자료 배너: 세대별 지역어변화" aria-controls="quick-slide-3"><span></span></button>
+            </div>
+            <button type="button" class="r26-quick-pause" id="quick-pause" aria-describedby="banner-playback-help" aria-label="자료 배너 자동 재생 멈추기"><i class="ti ti-player-pause" aria-hidden="true"></i></button>
+          </div>
+        </nav>
+      </aside>
+    </div>
+    <p class="sr-only" id="hero-announcement" aria-live="polite" aria-atomic="true"></p>
+    <p class="sr-only" id="banner-playback-help">자동 재생과 일시정지는 큰 배너와 자료 배너에 함께 적용됩니다.</p>
+  </section>
+
+  <section class="r26-discover r26-section" aria-labelledby="discover-title">
+    <div class="r26-container">
+      <header class="r26-section-head r26-head" data-reveal><p class="r26-eyebrow">우리말을 만나는 새로운 방법</p><h2 id="discover-title">우리말을 만나는<br>새로운 즐거움</h2><p class="r26-head-desc">눈으로 보고, 귀로 듣고, 이야기로 읽는 지역어.<br>나에게 맞는 방법으로 우리말과 가까워지세요.</p></header>
+      <div class="r26-feature-grid">
+        <a class="r26-feature-card" href="./dialect_map.html" data-reveal>
+          <div class="r26-feature-image r26-service-art">
+            <img src="./assets/renewal-2026/service-cards-v2/map.webp" width="1536" height="1024" alt="접힌 종이 지도와 파란 위치 표시로 표현한 지역어 지도" loading="lazy" decoding="async">
+          </div>
+          <div class="r26-feature-body"><span class="r26-card-category">지도에서 비교하기</span><h3>지역어 지도</h3><p>같은 뜻의 말이 어디에서 어떻게 쓰이는지 지도와 해설로 살펴보세요.</p><span class="r26-text-link">지도 펼쳐보기 <span aria-hidden="true">→</span></span></div>
+        </a>
+        <a class="r26-feature-card" href="./vocab_dialect.html" data-reveal>
+          <div class="r26-feature-image r26-service-art">
+            <img src="./assets/renewal-2026/service-cards-v2/vocabulary.webp" width="1536" height="1024" alt="한글 자음 조형물과 낱말을 정리하는 종이 색인 카드" loading="lazy" decoding="async">
+          </div>
+          <div class="r26-feature-body"><span class="r26-card-category">낱말과 뜻 찾아보기</span><h3>어휘 조사 자료</h3><p>지역어와 표준어를 검색하고, 조사 지역과 낱말의 뜻을 확인하세요.</p><span class="r26-text-link">어휘 찾아보기 <span aria-hidden="true">→</span></span></div>
+        </a>
+        <a class="r26-feature-card" href="./oral_dialect.html" data-reveal>
+          <div class="r26-feature-image r26-service-art">
+            <img src="./assets/renewal-2026/service-cards-v2/audio.webp" width="1536" height="1024" alt="지역어의 목소리를 기록하고 듣는 마이크와 파란 헤드폰" loading="lazy" decoding="async">
+          </div>
+          <div class="r26-feature-body"><span class="r26-card-category">조사 음성과 전사 읽기</span><h3>구술 발화 자료</h3><p>조사한 목소리를 듣고, 전사문과 표준어 대역을 함께 살펴보세요.</p><span class="r26-text-link">목소리 들어보기 <span aria-hidden="true">→</span></span></div>
+        </a>
+        <a class="r26-feature-card" href="./literature_dialect.html" data-reveal>
+          <div class="r26-feature-image r26-service-art">
+            <img src="./assets/renewal-2026/service-cards-v2/literature.jpg" width="1536" height="1024" alt="파란 책갈피를 펼친 책과 문학 속 표현을 기록하는 만년필" loading="lazy" decoding="async">
+          </div>
+          <div class="r26-feature-body"><span class="r26-card-category">작품 속 표현 읽기</span><h3>문학 속 지역어</h3><p>작품에 쓰인 지역어와 용례를 읽고, 표준어 풀이와 출처를 확인하세요.</p><span class="r26-text-link">문학 자료 읽기 <span aria-hidden="true">→</span></span></div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="mf-impact-stats-sec r26-section" aria-label="탐색으로 만나는 지역어">
+    <div class="mf-container">
+      <div class="mf-impact-head r26-head" data-reveal><p class="r26-eyebrow">탐색으로 만나는 지역어</p>
+        <h2 class="mf-impact-title">지역마다, 세대마다<br>달라지는 말을 만나보세요</h2>
+      </div>
+      <div class="r26-record-videos">
+        <article class="r26-record-video-card" data-reveal>
+          <figure class="r26-record-media"><video class="r26-record-video" poster="./assets/renewal-v4/gisangdo-paper-poster.webp?v=20260929b" width="1040" height="800" muted loop playsinline preload="none" aria-hidden="true"><source src="./assets/renewal-v4/gisangdo-paper.webm?v=20260929b" type="video/webm; codecs=av01.0.05M.08"><source src="./assets/renewal-v4/gisangdo-paper.mp4?v=20260929b" type="video/mp4"></video><button class="r26-video-toggle" type="button" aria-label="지역어 기상도 영상 멈추기"><i class="ti ti-player-pause" aria-hidden="true"></i></button><figcaption class="sr-only">영상 설명: 종이로 오린 남한 지도 위로 맑음, 비, 눈, 갬으로 날씨가 바뀌며 시·도마다 색이 뒤집혀 바뀌는 기상도 종이 모션 영상</figcaption></figure>
+          <div class="r26-record-video-body"><span class="r26-card-category">지역어 기상도</span><h3>우리 동네 말의<br>날씨는 어떨까요?</h3><p>어휘를 고르면 지역마다 그 말을 얼마나 쓰고 알고 있는지, 기상도처럼 한눈에 볼 수 있어요.</p><a class="r26-text-link" href="./dialect_gisangdo.html">지역어 기상도 살펴보기 <span aria-hidden="true">→</span></a></div>
+        </article>
+        <article class="r26-record-video-card" data-reveal>
+          <figure class="r26-record-media"><video class="r26-record-video" poster="./assets/renewal-v4/generations-paper-poster.webp?v=20260929b" width="1040" height="800" muted loop playsinline preload="none" aria-hidden="true"><source src="./assets/renewal-v4/generations-paper.webm?v=20260929b" type="video/webm; codecs=av01.0.05M.08"><source src="./assets/renewal-v4/generations-paper.mp4?v=20260929b" type="video/mp4"></video><button class="r26-video-toggle" type="button" aria-label="세대별 지역어 변화 영상 멈추기"><i class="ti ti-player-pause" aria-hidden="true"></i></button><figcaption class="sr-only">영상 설명: 산속 초가집에서 전통마을, 근대화, 저층 도시, 현대 도시, 초고층 스카이라인으로 바뀌며 70대·50대·20대의 시대를 보여 주는 종이 모션 영상</figcaption></figure>
+          <div class="r26-record-video-body"><span class="r26-card-category">세대별 지역어 변화</span><h3>같은 말도 세대에 따라<br>다르게 살아갑니다.</h3><p>70대·50대·20대의 사용과 인식을 비교하며 지역어가 이어지고 변화하는 모습을 발견해 보세요.</p><a class="r26-text-link" href="./dialect_wordcard.html">세대별 변화 살펴보기 <span aria-hidden="true">→</span></a></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="r26-today" aria-labelledby="today-title">
+    <div class="r26-today-inner">
+      <div class="r26-today-head" data-reveal>
+        <div class="r26-head"><p class="r26-eyebrow">오늘의 지역어 &amp; 퀴즈</p><h2 id="today-title">지역의 말 한 가지를 만나고,<br>가벼운 퀴즈도 풀어보세요.</h2></div>
+        <div class="r26-today-controls" aria-label="오늘의 카드 이동">
+          <span class="r26-today-status" aria-live="polite">오늘의 카드 <b id="today-current">1</b> / <span id="today-total">1</span></span>
+          <button type="button" id="today-prev" aria-label="이전 오늘의 카드"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
+          <button type="button" id="today-pause" aria-label="자동 넘김 멈추기"><i class="ti ti-player-pause" aria-hidden="true"></i></button>
+          <button type="button" id="today-next" aria-label="다음 오늘의 카드"><i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+        </div>
+      </div>
+    </div>
+    <div class="r26-today-viewport" id="today-viewport" role="region" aria-label="오늘의 지역어와 퀴즈 카드" tabindex="0">
+      <div class="r26-today-track" id="today-track"></div>
+    </div>
+  </section>
+</main>
+<div id="footer-common"></div>
+
+
+</body>
+</html>

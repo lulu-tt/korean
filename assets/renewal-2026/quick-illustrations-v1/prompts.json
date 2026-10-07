@@ -1,0 +1,29 @@
+{
+  "tool": "Built-in GPT IMAGE (image_gen.imagegen)",
+  "date": "2026-09-30",
+  "purpose": "Symbolic simple illustrations for weather and generation dialect banners",
+  "assets": [
+    {
+      "name": "weather",
+      "prompt": "Use case: illustration-story. Asset type: simple illustration for a compact Korean dialect weather website banner. Create one minimal flat editorial illustration: a softly rounded stylized Korean peninsula silhouette in pale mint, one small golden sun peeking from a single white cloud above it, and two tiny cobalt blue speech bubbles representing regional words. Compact balanced composition centered within a square canvas, generous clear margins. Palette: muted mint, cobalt blue, soft butter yellow, white, restrained navy outlines. Matte solid colors, smooth hand-drawn curves, refined contemporary public-service illustration. Transparent background, no background scene. Keep the silhouette and objects clearly legible at 140px display size. Maximum five principal shapes. No people, rural scenery, elderly people, text, letters, numerals, place names, logos, data markers, map subdivisions, excessive decoration, glossy 3D rendering, realistic photo textures, gradients or complex shadows. This is symbolic service artwork, not a factual weather or linguistic map.",
+      "source": "/Users/aaa/.codex/generated_images/01a0810e-16c5-7043-8789-bd96702b13c5/exec-7c3c96b3-0c02-456c-b57e-16cde9da7aeb.png",
+      "original": "weather.png",
+      "web": "weather.webp"
+    },
+    {
+      "name": "generations",
+      "prompt": "Use case: illustration-story. Asset type: simple illustration for a compact Korean website banner about changes in regional words across generations. Create one minimal flat editorial illustration of two simple friendly half-body portraits facing slightly toward one another: one middle-aged adult with short dark hair and an ivory shirt, one younger adult with short dark hair and a cobalt-blue shirt. Above them, two small overlapping blank speech bubbles, one pale mint and one pale butter yellow. Compact balanced composition centered on a square canvas with generous clear margins. Use thick restrained navy outlines, smooth rounded hand-drawn curves, matte solid colors, minimal facial features, polished contemporary public-service illustration. Palette only cobalt blue, muted mint, warm ivory, butter yellow and navy. Transparent background, absolutely no background scene. Clearly legible at 140px. No elderly people, wrinkles, countryside, realistic photography, text, letters, numerals, logos, devices, books, floating confetti, complex details, glossy 3D rendering, gradients or dramatic shadows. Keep this a calm, simple conversation illustration representing two generations.",
+      "source": "/Users/aaa/.codex/generated_images/01a0810e-16c5-7043-8789-bd96702b13c5/exec-522bc555-2cc3-4e78-b275-1f91c1638c93.png",
+      "original": "generations.png",
+      "web": "generations.webp"
+    },
+    {
+      "name": "openapi",
+      "tool": "Python(PIL) 코드로 직접 그림 — openapi_illustration.py",
+      "date": "2026-10-07",
+      "description": "Open API 자료 배너용: 데이터 문서(민트)·코드 상자(코발트, 꺾쇠 한 쌍)·점선 연결선·인증키(버터옐로). weather·generations와 같은 남색 윤곽선·평면 색·투명 배경, 글자 없음.",
+      "original": "openapi.png",
+      "web": "openapi.webp"
+    }
+  ]
+}
