@@ -2475,6 +2475,14 @@ document.addEventListener('click', function (e) {
     if (!tr.contains(e.target)) tr.classList.remove('active');
   });
 });
+// 메인 화면에서 전달한 검색어를 기존 검색 흐름에 연결한다.
+document.addEventListener('DOMContentLoaded', function () {
+  const homeQuery = new URLSearchParams(location.search).get('q');
+  if (homeQuery && homeQuery.trim()) {
+    const field = document.querySelector('.search-input');
+    if (field) { field.value = homeQuery.trim().slice(0, 100); doSearch(); }
+  }
+});
 // 초기 상태: 전체 탭 기준으로 어휘 목록 제한 적용 + 음운 인덱스 로드
 document.addEventListener('DOMContentLoaded', function () {
   document.addEventListener('keydown', function (e) {

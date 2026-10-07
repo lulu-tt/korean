@@ -1,0 +1,67 @@
+{
+  "generator": "GPT IMAGE (built-in image_gen)",
+  "created": "2026-09-17",
+  "assets": [
+    {
+      "file": "hero-voices-v3.png",
+      "webFile": "hero-voices-v3.webp",
+      "created": "2026-09-21",
+      "prompt": "Use case: ads-marketing. Premium full-width website hero background for a Korean public cultural-language archive. Create a refined, cinematic editorial image expressing many regional voices across Korea gathering into one enduring language archive. Deep indigo to warm ivory atmosphere with subtle hanji paper grain; a recognizable Korean peninsula silhouette formed from layered topographic contour lines, faint archival map fragments, delicate field-recording waveform traces, and small luminous connection points. Sophisticated photorealistic mixed-media editorial art with museum-exhibition quality. Reserve the left 48% as calm dark negative space for large white Korean headline and search UI; concentrate the peninsula and warm luminous details in the right half; keep the lower center quiet for a white search panel. Midnight navy, ink blue, muted celadon, warm parchment, and restrained amber. No readable text, letters, logos, flags, watermark, UI, labels, city skyline, microphone, faces, decorative clutter, fantasy, neon, tourist-postcard styling, or pseudo-Korean glyphs."
+    },
+    {
+      "file": "hero-language.png",
+      "webFile": "hero-language.webp",
+      "prompt": "Use case: stylized-concept. Asset for a premium modern Korean dialect information website, clean youthful sophisticated art direction. High-end 3D editorial illustration, soft tactile porcelain, frosted translucent glass and satin-finish sculptural objects, luminous white studio backdrop with extremely pale blue ambient color, vivid cobalt blue #2468EF with small lavender and mint accents, beautiful soft contact shadows, editorial art direction, polished Octane-style lighting, generous breathing room. Landscape 3:2 image. No people, no countryside, no villages, no grandparents, no rustic objects, no logos, no watermarks, no UI, no English lettering, no paragraphs. One coherent scene, not a collage. Main subject: a playful sculptural assembly of real recognizable Korean Hangul consonants ㄱ ㄴ ㅁ ㅅ ㅇ in cobalt ceramic and clear icy glass, arranged on a white circular plinth, surrounded by two inflated sculptural blue and white speech bubbles. Composition balanced to the right center, substantial scale, a little camera depth of field. Express language diversity as a contemporary design collectible. Only single Hangul consonants on objects, no other text."
+    },
+    {
+      "file": "hero-map.png",
+      "webFile": "hero-map.webp",
+      "prompt": "Use case: stylized-concept. Asset for a premium modern Korean dialect information website, clean youthful sophisticated art direction. High-end 3D editorial illustration, soft tactile porcelain, frosted translucent glass and satin-finish sculptural objects, luminous white studio backdrop with extremely pale blue ambient color, vivid cobalt blue #2468EF with small lavender and mint accents, beautiful soft contact shadows, editorial art direction, polished Octane-style lighting, generous breathing room. Landscape 3:2 image. No people, no countryside, no villages, no grandparents, no rustic objects, no logos, no watermarks, no UI, no English lettering, no paragraphs. One coherent scene, not a collage. Main subject: an elegant isometric folded white paper map with abstract soft blue pathways, three large glossy cobalt map pins and a mint frosted speech bubble floating above it, on a rounded white plinth. Concept of exploring words through geography. Map is an abstract non-geographic diagram, not a literal national boundary. Composition centered, ample breathing room, striking sculptural presence."
+    },
+    {
+      "file": "hero-sound.png",
+      "webFile": "hero-sound.webp",
+      "prompt": "Use case: stylized-concept. Asset for a premium modern Korean dialect information website, clean youthful sophisticated art direction. High-end 3D editorial illustration, soft tactile porcelain, frosted translucent glass and satin-finish sculptural objects, luminous white studio backdrop with extremely pale blue ambient color, vivid cobalt blue #2468EF with small lavender and mint accents, beautiful soft contact shadows, editorial art direction, polished Octane-style lighting, generous breathing room. Landscape 3:2 image. No people, no countryside, no villages, no grandparents, no rustic objects, no logos, no watermarks, no UI, no English lettering, no paragraphs. One coherent scene, not a collage. Main subject: luxurious cobalt and pearly white over-ear headphones with soft cushion detailing, standing around an airy floating cyan and blue glass audio waveform made from rounded vertical rods, one small mint translucent speech balloon, on a low white circular pedestal. Contemporary sound archive, centered composition, beautifully rendered material detail."
+    },
+    {
+      "file": "archive-literature.png",
+      "webFile": "archive-literature.webp",
+      "prompt": "Use case: stylized-concept. Asset for a premium modern Korean dialect information website, clean youthful sophisticated art direction. High-end 3D editorial illustration, soft tactile porcelain, frosted translucent glass and satin-finish sculptural objects, luminous white studio backdrop with extremely pale blue ambient color, vivid cobalt blue #2468EF with small lavender and mint accents, beautiful soft contact shadows, editorial art direction, polished Octane-style lighting, generous breathing room. Landscape 3:2 image. No people, no countryside, no villages, no grandparents, no rustic objects, no logos, no watermarks, no UI, no English lettering, no paragraphs. One coherent scene, not a collage. Main subject: a beautifully sculpted open white book with softly curled pages, a single cobalt bookmark, and a few porcelain Korean consonants ㄱ ㅁ ㅇ rising gently above the pages, with one translucent pale lilac speech bubble. Low three-quarter camera angle, rich cobalt accents, minimal literary art direction. Only single consonants, no readable body text."
+    },
+    {
+      "file": "archive-discovery.png",
+      "webFile": "archive-discovery.webp",
+      "prompt": "Use case: stylized-concept. Asset for a premium modern Korean dialect information website, clean youthful sophisticated art direction. High-end 3D editorial illustration, soft tactile porcelain, frosted translucent glass and satin-finish sculptural objects, luminous white studio backdrop with extremely pale blue ambient color, vivid cobalt blue #2468EF with small lavender and mint accents, beautiful soft contact shadows, editorial art direction, polished Octane-style lighting, generous breathing room. Landscape 3:2 image. No people, no countryside, no villages, no grandparents, no rustic objects, no logos, no watermarks, no UI, no English lettering, no paragraphs. One coherent scene, not a collage. Main subject: a floating oversized glossy cobalt magnifying glass angled over three pearly white rounded square archival cards, each holding one sculptural embossed Korean consonant ㄱ ㄴ ㅇ, with small aqua and lilac glass discs. A modern visual metaphor for discovering and collecting language. Clean precise 3D still life, centered and spacious, no readable text other than the three consonants."
+    },
+    {
+      "file": "service-map-v3.png",
+      "webFile": "service-map-v3.webp",
+      "created": "2026-09-21",
+      "prompt": "Use case: stylized-concept. Create a premium landscape 3:2 editorial background image for the 'Regional Dialect Map' service panel on a Korean public cultural-language archive website. One cohesive sculptural still life: an elegant layered relief map inspired by the Korean peninsula, made from tactile ivory hanji paper and muted celadon ceramic contour terraces, with three restrained cobalt glass location markers and delicate luminous routes. Museum-exhibition lighting, deep ink-navy atmosphere, warm parchment highlights, subtle amber rim light, realistic paper fibers and ceramic materials, sophisticated contemporary Korean design. Keep the lower-left 45% calm and dark for white website copy; place the map and visual detail mainly center-right. No readable text, letters, labels, political borders, flags, logos, watermark, UI, people, neon, collage, or tourist postcard look."
+    },
+    {
+      "file": "service-vocabulary-v3.png",
+      "webFile": "service-vocabulary-v3.webp",
+      "created": "2026-09-21",
+      "prompt": "Use case: stylized-concept. Create a premium landscape 3:2 editorial background image for the 'Vocabulary Survey Materials' service panel on a Korean public cultural-language archive website. One cohesive archival still life: a refined dark-wood card catalogue drawer open to reveal layered blank hanji vocabulary slips, an elegant brass magnifying glass, small celadon ceramic sorting tokens, and subtle paper tabs without writing. Museum-exhibition lighting, deep ink-navy atmosphere, warm parchment and muted celadon, restrained cobalt and amber accents, tactile paper fibers, precise contemporary Korean editorial design. Keep the lower-left 45% calm and dark for white website copy; concentrate the objects center-right. No readable text, letters, pseudo-writing, logos, watermark, UI, people, clutter, neon, collage, or vintage sepia cliché."
+    },
+    {
+      "file": "service-oral-v3.png",
+      "webFile": "service-oral-v3.webp",
+      "created": "2026-09-21",
+      "prompt": "Use case: stylized-concept. Create a premium landscape 3:2 editorial background image for the 'Oral Speech Records' service panel on a Korean public cultural-language archive website. One cohesive sculptural still life: a beautifully designed unbranded field recorder and soft over-ear archive headphones resting on folded ivory hanji, with a translucent celadon-and-cobalt glass waveform rising gently through the air. Museum-exhibition lighting, deep ink-navy atmosphere, warm parchment highlights, restrained amber glow, refined material detail, sophisticated contemporary Korean cultural archive mood. Keep the lower-left 45% calm and dark for white website copy; place the recorder, headphones and waveform center-right. No readable text, device branding, logos, watermark, UI, people, faces, studio microphone, neon, collage, or music-concert styling."
+    },
+    {
+      "file": "service-my-map-v3.png",
+      "webFile": "service-my-map-v3.webp",
+      "created": "2026-09-21",
+      "prompt": "Use case: stylized-concept. Create a premium landscape 3:2 editorial background image for the 'Create My Own Map' service panel on a Korean public cultural-language archive website. One cohesive participatory scene: a single natural human hand entering from the right and gently placing a luminous cobalt ceramic marker onto a tactile layered hanji map with muted celadon routes; a small blank archival note card and brass stylus nearby. Museum-exhibition lighting, deep ink-navy atmosphere, warm parchment and restrained amber highlights, elegant contemporary Korean design, realistic materials, hopeful sense of contribution. Keep the lower-left 45% calm and dark for white website copy; concentrate the hand and map action center-right. No readable text, labels, logos, watermark, UI, faces, extra hands, distorted fingers, neon, collage, or tourist-postcard styling."
+    },
+    {
+      "file": "service-data-room-v3.png",
+      "webFile": "service-data-room-v3.webp",
+      "created": "2026-09-21",
+      "prompt": "Use case: stylized-concept. Create a premium landscape 3:2 editorial background image for the 'Regional Dialect Resource Library' service panel on a Korean public cultural-language archive website. One cohesive archival still life: a graceful stack of cloth-bound research volumes with completely blank spines, a partially opened ivory hanji document folder, a rolled map tied with a narrow indigo ribbon, and a soft brass reading lamp glow. Museum-exhibition lighting, deep ink-navy atmosphere, muted celadon, warm parchment and restrained amber accents, tactile archival materials, sophisticated contemporary Korean library design. Keep the lower-left 45% calm and dark for white website copy; place the books, folder and lamp center-right. No readable text, letters, labels, logos, watermark, UI, people, dusty clutter, neon, collage, or old-fashioned sepia look."
+    }
+  ]
+}

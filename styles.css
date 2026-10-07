@@ -661,6 +661,10 @@ body {
   margin-top: 60px;
   color: #999999;
 }
+/* Renewal home: keep the footer flush with the final content section. */
+.renewal-main + #footer-common .footer {
+  margin-top: 0;
+}
 .footer .footer__inner {
   display: flex;
   flex-direction: column;
@@ -1237,5 +1241,4 @@ body {
 .sns-item.band { background-color: #03cf5d; font-size: 12px; font-weight: 800; }
 .sns-item.x-twitter { background-color: #000000; }
 .sns-item.close { background-color: #475569; font-size: 13px; }
-
 

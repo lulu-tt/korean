@@ -9,13 +9,13 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
   <link rel="stylesheet" href="./styles.css">
-  <link rel="stylesheet" href="./index_v4.css?v=20260929-video-toggle">
+  <link rel="stylesheet" href="./index_v4.css?v=20261006-hero-photo-only">
   <link rel="preload" href="./assets/renewal-v4/hero-family-conversation.png" as="image">
   <link rel="preload" href="./assets/renewal-v4/hero-archive-graphic.png" as="image">
   <link rel="preload" href="./assets/renewal-v4/service-cards-sprite.webp" as="image">
   <script src="./gnb.js" defer></script>
   <script src="./footer.js" defer></script>
-  <script src="./index_v4.js?v=20260929-video-toggle" defer></script>
+  <script src="./index_v4.js?v=20260929-service-slider" defer></script>
 </head>
 <body>
   <a class="skip" href="#main-content">본문 바로가기</a>
@@ -29,7 +29,7 @@
             <div class="v4-hero-copy">
               <p class="v4-kicker">지역의 말과 삶을 잇는 기록</p>
               <h1>지역의 말과 삶을<br><em>한곳에서 만납니다.</em></h1>
-              <p class="v4-lead">가족의 대화에서 시작된 지역어를<br>전국의 조사 기록과 함께 만나 보세요.</p>
+              <p class="v4-lead">가족의 대화에서 시작된 지역어를 <br>전국의 조사 기록과 함께 만나 보세요.</p>
               <div class="v4-actions">
                 <a class="v4-btn v4-btn-primary" href="#v4-search">지역어 이야기 만나보기</a>
                 <a class="v4-link" href="./region_culture.html">생활어 기록 보기</a>
@@ -37,7 +37,6 @@
             </div>
             <figure class="v4-hero-figure">
               <img src="./assets/renewal-v4/hero-family-conversation.png" alt="따뜻한 집 안에서 마주 앉아 대화하는 조부모와 손주" width="1536" height="1024" fetchpriority="high">
-              <figcaption><span>세대가 이어 온 우리말</span><strong>가족의 대화</strong><span>삶의 장면 · 지역의 말</span></figcaption>
             </figure>
           </div>
         </article>
@@ -47,7 +46,7 @@
             <div class="v4-hero-copy">
               <p class="v4-kicker">전국의 말과 목소리를 모은 기록</p>
               <h2>지역어 자료를<br><em>쉽고 깊이 있게 살펴봅니다.</em></h2>
-              <p class="v4-lead">지역마다 다른 표현부터 생생한 음성·구술 자료까지,<br>우리말의 다양성을 한곳에서 탐색해 보세요.</p>
+              <p class="v4-lead">지역마다 다른 표현부터 생생한 음성·구술 자료까지, <br>우리말의 다양성을 한곳에서 탐색해 보세요.</p>
               <div class="v4-actions">
                 <a class="v4-btn v4-btn-primary" href="./data_room.html">자료 둘러보기</a>
                 <a class="v4-link" href="./about_coverage.html">조사 범위 보기</a>
@@ -55,7 +54,6 @@
             </div>
             <figure class="v4-hero-figure">
               <img src="./assets/renewal-v4/hero-archive-graphic.png" alt="지도와 조사 지점, 음성 파형과 기록 카드로 구성한 지역어 아카이브 그래픽" width="1536" height="1024" decoding="async">
-              <figcaption><span>국가 언어 아카이브</span><strong>165개 조사 권역</strong><span>어휘 · 음성 · 구술 기록</span></figcaption>
             </figure>
           </div>
         </article>
@@ -137,7 +135,9 @@
     <section class="v4-services" aria-labelledby="v4-services-title">
       <div class="v4-shell">
         <div class="v4-section-intro" data-reveal><p class="v4-kicker">자료를 만나는 여섯 가지 방법</p><h2 id="v4-services-title">찾고, 듣고, 읽으며<br>지역어를 이해합니다.</h2></div>
-        <div class="v4-service-cards">
+        <div class="v4-service-carousel">
+          <button class="v4-service-nav v4-service-prev" type="button" aria-label="이전 자료 카드" aria-controls="v4-service-cards"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
+          <div class="v4-service-cards" id="v4-service-cards">
           <a class="v4-service-card" href="./dialect_map.html" data-reveal>
             <div class="v4-service-card-inner">
               <div class="v4-service-face v4-service-front"><div class="v4-service-image v4-service-image-1" role="img" aria-label="종이 지도와 조사 지점으로 표현한 지역어 지도"></div><div><span>지역어 지도</span><h3>말의 분포를<br>지도에서 비교합니다.</h3></div></div>
@@ -174,6 +174,9 @@
               <div class="v4-service-face v4-service-back"><span>지역어 자료실</span><h3>연구에 필요한 발간물과<br>조사 자료를 열람하세요.</h3><p>지역어 조사 결과와 원문, 연구 보고서를 유형과 발행 연도에 따라 찾아볼 수 있습니다.</p><strong>자료실 열기</strong></div>
             </div>
           </a>
+          </div>
+          <button class="v4-service-nav v4-service-next" type="button" aria-label="다음 자료 카드" aria-controls="v4-service-cards"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
+          <p class="v4-service-status" aria-live="polite"><b id="v4-service-current">1</b> / 6</p>
         </div>
       </div>
     </section>

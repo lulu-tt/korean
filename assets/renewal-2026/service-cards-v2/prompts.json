@@ -1,0 +1,36 @@
+{
+  "tool": "Built-in GPT IMAGE (image_gen.imagegen)",
+  "generated_date": "2026-09-30",
+  "purpose": "Symbolic service-card artwork, not actual survey photography or factual data",
+  "assets": [
+    {
+      "name": "map",
+      "prompt": "Use case: photorealistic-natural. Asset type: landscape service-card artwork for the Korean National Institute of the Korean Language regional dialect website. Create one premium editorial still-life photograph, wide 3:2 composition. Subject: an elegant folded ivory paper atlas with a recognizable Korean peninsula shape, a few restrained cobalt-blue map pins and pale sage paper layers suggesting regional variation. Real tactile paper fibers, matte finishes, finely crafted small objects, soft natural daylight from upper left, gentle architectural shadows. Bright warm-white studio background, cobalt blue and muted sage accents, warm ivory. Large attractive central composition; keep every important object within the central 75% for responsive crops. Art-directed, refined, inviting, contemporary museum publication aesthetic. This is symbolic artwork, not a factual distribution map. No people, countryside, elderly people, interface, data labels, words, numerals, logos, watermark, shiny plastic, glass bubbles, excessive floating objects, pedestal, gradients or generic glossy 3D clipart. No text of any kind. Generate a finished beautiful standalone image.",
+      "source": "/Users/aaa/.codex/generated_images/01a0810e-16c5-7043-8789-bd96702b13c5/exec-d30a765c-a149-4391-a8bf-98e0743257e3.png",
+      "original": "map.png",
+      "web": "map.webp"
+    },
+    {
+      "name": "vocabulary",
+      "prompt": "Use case: photorealistic-natural. Asset type: landscape service-card artwork for the Korean National Institute of the Korean Language regional dialect website. Create one premium editorial still-life photograph in a wide 3:2 composition. Subject: a beautiful small ivory archival card-index box with thoughtfully arranged thick cream index cards, a few elegant cobalt-blue dividers, and three matte ceramic letterpress tiles showing only the correct isolated Hangul consonants ㄱ, ㄴ, ㅁ. Tactile paper fibers, blue linen, pale sage stationery, carefully crafted real materials. Soft natural daylight from upper left, gentle architectural shadows. Bright warm-white studio tabletop, cobalt blue and muted sage accents, warm ivory. Sophisticated contemporary museum publication aesthetic, inviting, restrained, premium art direction. Keep every important object in the central 75% for responsive crops. A symbolic visual about vocabulary and finding words, not a screenshot or an actual research record. No people, countryside, elderly people, interface, data labels, fake document text, numerals, logos, watermark, shiny plastic, glass bubbles, pedestal or generic glossy 3D clipart. Only the three isolated Hangul glyphs specified, absolutely no other text. Generate a finished beautiful standalone image.",
+      "source": "/Users/aaa/.codex/generated_images/01a0810e-16c5-7043-8789-bd96702b13c5/exec-2924f50c-8948-4199-b225-f55ecd85b386.png",
+      "original": "vocabulary.png",
+      "web": "vocabulary.webp"
+    },
+    {
+      "name": "audio",
+      "prompt": "Use case: photorealistic-natural. Asset type: landscape service-card artwork for the Korean National Institute of the Korean Language regional dialect website. Create one premium editorial still-life photograph in a wide 3:2 composition. Subject: a beautifully designed genuine silver studio recording microphone with a rounded fine metal grille and a modest ivory tabletop stand, beside soft cobalt-blue fabric over-ear headphones and an open cream notebook with blank pages, on an ivory studio tabletop. A subtle muted sage linen cloth, one small ceramic bowl and a restrained leafy branch at the edges. Real fine metal mesh, tactile paper fibers, linen fabric and matte materials, believable product photography. Soft natural daylight from upper left, gentle architectural shadows. Bright warm-white, cobalt blue, muted sage, warm ivory palette. Sophisticated contemporary museum publication aesthetic, inviting, restrained, premium art direction. Large balanced central composition; keep every important object within the central 75% for responsive crops. Symbolic visual about recording regional voices. No people, countryside, elderly people, text of any kind, numerals, logos, watermark, interface, fake audio graphs, floating objects, glass bubbles, pedestal or glossy plastic 3D clipart. Generate a finished beautiful standalone image.",
+      "source": "/Users/aaa/.codex/generated_images/01a0810e-16c5-7043-8789-bd96702b13c5/exec-54b47617-d1a2-4b19-b9ec-d3a125e2d621.png",
+      "original": "audio.png",
+      "web": "audio.webp"
+    },
+    {
+      "name": "literature",
+      "prompt": "Use case: photorealistic-natural. Asset type: landscape service-card artwork for the Korean National Institute of the Korean Language regional dialect website. Create one premium editorial still-life photograph in a wide 3:2 composition. Subject: a beautiful open ivory literary book with thick textured blank pages, an elegant deep cobalt-blue linen ribbon bookmark, a slender dark-blue fountain pen resting beside it, and two stacked blue linen-covered books. One restrained muted sage paper sheet, a small handmade cream ceramic cup and leafy branch at the edges. Real tactile paper fibers, warm linen, matte finishes. Soft natural daylight from upper left, gentle architectural shadows. Bright warm-white studio tabletop, cobalt blue and muted sage accents, warm ivory. Sophisticated contemporary museum publication aesthetic, inviting, restrained, premium art direction. Large balanced central composition; keep every important object within the central 75% for responsive crops. Symbolic visual about reading literature and discovering regional words. No people, countryside, elderly people, text of any kind, fake letters on pages, numerals, logos, watermark, interface, floating objects, glass bubbles, pedestal or glossy plastic 3D clipart. Generate a finished beautiful standalone image.",
+      "source": "/Users/aaa/.codex/generated_images/01a0810e-16c5-7043-8789-bd96702b13c5/exec-371fccdd-9bc6-434a-96d4-edf2c40a4cad.png",
+      "original": "literature.png",
+      "web": "literature.webp",
+      "browser_asset": "literature.jpg"
+    }
+  ]
+}

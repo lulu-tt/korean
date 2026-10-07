@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>지역어 종합 정보 — 국립국어원</title>
+  <link rel="shortcut icon" href="./favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&family=Nunito+Sans:ital,opsz,wght@0,6..12,400;0,6..12,600;0,6..12,700;0,6..12,800&family=Noto+Sans+KR:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spoqa-han-sans/3.4.1/css/SpoqaHanSansNeo.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.9.0/ol.css" />
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="preload" href="./assets/renewal-2026/hero-library-panorama.webp" as="image">
+  <link rel="stylesheet" href="./index_v3.css?v=20261006-insta-aoutada2" />
+  <script src="./gnb.js" defer></script>
+  <script src="./footer.js" defer></script>
+</head>
+<body>
+
+  <!-- 공통 GNB 헤더 영역 (gnb.js에 의해 동적으로 로드 및 렌더링됩니다) -->
+  <div id="gnb-common"></div>
+
+  <main id="main-content" class="v3-main">
+
+    <!-- ══════════════════════════════════════════════════════════════════
+       SECTION 1: HERO SECTION & FLOATING SEARCH BAR (풀와이드 비주얼 & 퀵 필터 바)
+       ══════════════════════════════════════════════════════════════════ -->
+    <section class="v3-hero" aria-labelledby="hero-title" aria-roledescription="carousel" aria-label="지역어 아카이브 주요 이미지">
+      <div class="v3-hero-bg v3-hero-bg--archive is-active" data-hero-slide aria-hidden="true"></div>
+      <div class="v3-hero-bg v3-hero-bg--mountains" data-hero-slide aria-hidden="true"></div>
+      <div class="v3-hero-bg v3-hero-bg--seoul" data-hero-slide aria-hidden="true"></div>
+      <div class="v3-hero-grain" aria-hidden="true"></div>
+      
+      <div class="v3-container v3-hero-inner">
+        <div class="v3-hero-content">
+          <p class="v3-hero-eyebrow">
+            <span class="v3-hero-eyebrow-mark" aria-hidden="true"></span>
+            <span id="v3HeroEyebrowText">지역의 말과 삶을 잇는 국가 언어 아카이브</span>
+          </p>
+          <h1 id="hero-title" class="v3-hero-title">
+            <span id="v3HeroTitleText">여러 지역의 <em>목소리</em>가 모여,<br>우리말의 기록이 됩니다</span>
+          </h1>
+          <p class="v3-hero-desc">
+            <span id="v3HeroDescText">전국 곳곳에서 수집한 방언 어휘와 생생한 음성, 지역별 언어 지도를 지역어 종합 정보 시스템에서 만나보세요.</span>
+          </p>
+
+          <ul class="v3-hero-stats" aria-label="지역어 아카이브 주요 현황">
+            <li><strong data-count-target="165">0</strong><span>조사 지점</span></li>
+            <li><strong data-count-target="23" data-count-suffix="년">0년</strong><span>축적 기간</span></li>
+            <li><strong data-count-target="30" data-count-suffix="만+">0만+</strong><span>지역어 자료</span></li>
+          </ul>
+        </div>
+
+        <!-- 파르나스 호텔 예약 바 스타일의 플로팅 검색 퀵바 -->
+        <form class="v3-search-floating-bar" action="./dialect_search_prototype.html" method="get" role="search">
+          <div class="v3-search-input-wrap">
+            <label for="home-query"><i class="ti ti-pencil" aria-hidden="true"></i>검색어</label>
+            <input id="home-query" name="q" placeholder="지역어를 검색해보세요 (예: 부추, 가새)" required maxlength="100" autocomplete="off">
+          </div>
+
+          <div class="v3-filter-group">
+            <div class="v3-filter-item">
+              <label for="search-region"><i class="ti ti-map-pin" aria-hidden="true"></i>지역</label>
+              <select id="search-region" name="region">
+                <option value="">전국</option>
+                <option value="GG">수도권</option>
+                <option value="GW">강원</option>
+                <option value="CC">충청</option>
+                <option value="JL">전라</option>
+                <option value="GS">경상</option>
+                <option value="JJ">제주</option>
+              </select>
+            </div>
+
+            <div class="v3-filter-item">
+              <label for="search-category"><i class="ti ti-folders" aria-hidden="true"></i>자료 유형</label>
+              <select id="search-category" name="cat">
+                <option value="">전체 자료</option>
+                <option value="vocab">어휘</option>
+                <option value="oral">구술 발화</option>
+                <option value="phonology">음운·이형태</option>
+                <option value="grammar">문법</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-lg btn-primary v3-search-btn">
+            <span>지역어 검색</span>
+            <i class="ti ti-search" aria-hidden="true"></i>
+          </button>
+        </form>
+
+        <div class="v3-hero-controls" aria-label="히어로 이미지 슬라이드 제어">
+          <span class="v3-hero-count" aria-hidden="true"><b id="v3HeroCurrent">01</b><i></i><span>03</span></span>
+          <div class="v3-hero-dots" role="group" aria-label="슬라이드 선택">
+            <button type="button" class="is-active" data-hero-dot="0" aria-label="1번 슬라이드: 우리말의 풍경" aria-pressed="true"></button>
+            <button type="button" data-hero-dot="1" aria-label="2번 슬라이드: 산맥 풍경" aria-pressed="false"></button>
+            <button type="button" data-hero-dot="2" aria-label="3번 슬라이드: 서울 한옥 풍경" aria-pressed="false"></button>
+          </div>
+          <button type="button" class="v3-hero-control-btn" id="v3HeroPrev" aria-label="이전 슬라이드">
+            <i class="ti ti-chevron-left" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="v3-hero-control-btn" id="v3HeroPause" aria-label="자동 재생 일시 정지" aria-pressed="false">
+            <i class="ti ti-player-pause-filled" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="v3-hero-control-btn" id="v3HeroNext" aria-label="다음 슬라이드">
+            <i class="ti ti-chevron-right" aria-hidden="true"></i>
+          </button>
+        </div>
+        <p class="v3-sr-only" id="v3HeroStatus" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+       SECTION 2: 5대 서비스 인터랙티브 아코디언
+       ══════════════════════════════════════════════════════════════════ -->
+    <section class="v3-accordion-sec" aria-labelledby="acc-sec-title">
+      <div class="v3-container">
+        <div class="v3-sec-head v3-service-head">
+          <h2 id="acc-sec-title" class="v3-sec-title">삶과 문화가 숨 쉬는 5가지 기록</h2>
+          <p class="v3-sec-desc">지역의 말과 목소리를 살펴보고, 직접 기록하고, 연구 자료로 이어지는 지역어 아카이브를 만나보세요.</p>
+        </div>
+
+        <div class="v3-acc-container" id="v3AccContainer" data-active-index="0">
+          <!-- 지역어 지도 -->
+          <article class="v3-acc-panel is-active" data-panel="map">
+            <button type="button" class="v3-acc-trigger" aria-expanded="true" aria-controls="v3-service-map">
+              <span class="v3-sr-only">지역어 지도 펼쳐보기</span>
+            </button>
+            <div class="v3-acc-content">
+              <div class="v3-acc-collapsed-title">지역어 지도</div>
+              <div class="v3-acc-expanded-info" id="v3-service-map">
+                <h3 class="v3-acc-title">지도로 펼쳐보는 우리말의 풍경</h3>
+                <p class="v3-acc-desc">전국 165개 조사 지점의 어휘 분포와 방언 구획을 인터랙티브 지리 정보로 직관적으로 탐색합니다.</p>
+                <a href="./dialect_map.html" class="btn btn-md btn-white v3-acc-btn">
+                  <span>지도 검색하기</span>
+                  <i class="ti ti-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- 어휘 조사 자료 -->
+          <article class="v3-acc-panel" data-panel="vocabulary">
+            <button type="button" class="v3-acc-trigger" aria-expanded="false" aria-controls="v3-service-vocabulary">
+              <span class="v3-sr-only">어휘 조사 자료 펼쳐보기</span>
+            </button>
+            <div class="v3-acc-content">
+              <div class="v3-acc-collapsed-title">어휘 조사 자료</div>
+              <div class="v3-acc-expanded-info" id="v3-service-vocabulary">
+                <h3 class="v3-acc-title">한 단어에 담긴 지역의 표정</h3>
+                <p class="v3-acc-desc">표준어와 지역별 대응 어휘, 실제 쓰임과 조사 정보를 비교하며 우리말의 다채로운 결을 발견합니다.</p>
+                <a href="./vocab_dialect.html" class="btn btn-md btn-white v3-acc-btn">
+                  <span>어휘 검색하기</span>
+                  <i class="ti ti-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- 구술 발화 자료 -->
+          <article class="v3-acc-panel" data-panel="oral">
+            <button type="button" class="v3-acc-trigger" aria-expanded="false" aria-controls="v3-service-oral">
+              <span class="v3-sr-only">구술 발화 자료 펼쳐보기</span>
+            </button>
+            <div class="v3-acc-content">
+              <div class="v3-acc-collapsed-title">구술 발화 자료</div>
+              <div class="v3-acc-expanded-info" id="v3-service-oral">
+                <h3 class="v3-acc-title">목소리로 만나는 생생한 삶의 기록</h3>
+                <p class="v3-acc-desc">지역 토박이 어르신들의 생생한 육성 음성과 표준어 대역 녹취록으로 삶과 기억의 이야기를 듣습니다.</p>
+                <a href="./oral_dialect.html" class="btn btn-md btn-white v3-acc-btn">
+                  <span>구술발화자료 듣기</span>
+                  <i class="ti ti-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- 나만의 지도 제작 -->
+          <article class="v3-acc-panel" data-panel="mymap">
+            <button type="button" class="v3-acc-trigger" aria-expanded="false" aria-controls="v3-service-mymap">
+              <span class="v3-sr-only">나만의 지도 제작 펼쳐보기</span>
+            </button>
+            <div class="v3-acc-content">
+              <div class="v3-acc-collapsed-title">나만의 지도 제작</div>
+              <div class="v3-acc-expanded-info" id="v3-service-mymap">
+                <h3 class="v3-acc-title">내 손으로 완성하는 우리 동네 말 지도</h3>
+                <p class="v3-acc-desc">내가 알고 있는 친숙한 고향 말과 쓰임새를 지도 위에 직접 기록하고 다른 사람들과 공유합니다.</p>
+                <a href="./dialect_my_map.html" class="btn btn-md btn-white v3-acc-btn">
+                  <span>나의 지도 만들기</span>
+                  <i class="ti ti-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- 지역어 자료실 -->
+          <article class="v3-acc-panel" data-panel="data">
+            <button type="button" class="v3-acc-trigger" aria-expanded="false" aria-controls="v3-service-data">
+              <span class="v3-sr-only">지역어 자료실 펼쳐보기</span>
+            </button>
+            <div class="v3-acc-content">
+              <div class="v3-acc-collapsed-title">지역어 자료실</div>
+              <div class="v3-acc-expanded-info" id="v3-service-data">
+                <h3 class="v3-acc-title">23년의 발자취가 담긴 언어 보고서</h3>
+                <p class="v3-acc-desc">어휘 조사집, 음운·문법 연구 보고서 등 국립국어원이 축적해 온 방대한 학술 원문 자료를 열람합니다.</p>
+                <a href="./data_room.html" class="btn btn-md btn-white v3-acc-btn">
+                  <span>자료 찾아보기</span>
+                  <i class="ti ti-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+       SECTION 3: TODAY'S DIALECT CARDS (오늘의 지역어 & 퀴즈 카드 캐러셀)
+       ══════════════════════════════════════════════════════════════════ -->
+    <section class="v3-today-sec" aria-labelledby="today-sec-title">
+      <div class="v3-container">
+        <div class="v3-sec-head v3-today-head">
+          <div class="v3-today-head-copy">
+            <h2 id="today-sec-title" class="v3-sec-title">오늘의 지역어 & 퀴즈</h2>
+            <p class="v3-sec-desc">정겨운 지역의 말과 가볍게 풀어보는 퀴즈를 천천히 넘겨보세요.</p>
+          </div>
+          <div class="v3-today-toolbar">
+            <span class="v3-today-count" id="v3TodayCount" aria-live="polite">오늘의 카드 1 / 10</span>
+            <div class="v3-carousel-controls" aria-label="오늘의 카드 롤링 제어">
+              <button type="button" class="v3-ctrl-btn" id="v3TodayPrev" aria-label="이전 카드">
+                <i class="ti ti-arrow-left" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="v3-ctrl-btn v3-ctrl-pause" id="v3TodayPause" aria-label="자동 롤링 일시 정지" aria-pressed="false">
+                <i class="ti ti-player-pause-filled" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="v3-ctrl-btn" id="v3TodayNext" aria-label="다음 카드">
+                <i class="ti ti-arrow-right" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="v3-today-carousel-wrap" id="v3TodayViewport" tabindex="0" aria-label="오늘의 지역어와 퀴즈 카드, 좌우로 드래그하여 탐색">
+        <div class="v3-today-track" id="v3TodayTrack">
+          <!-- JS 동적 렌더링 (today_quiz.json 기반, 10개 카드 무한 롤링) -->
+        </div>
+      </div>
+      <p class="v3-sr-only" id="v3TodayStatus" aria-live="polite"></p>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+       SECTION 4: 사진으로 보는 생활어
+       ══════════════════════════════════════════════════════════════════ -->
+    <section class="v3-culture-sec" aria-labelledby="culture-sec-title">
+      <div class="v3-container">
+        <div class="v3-culture-head">
+          <div>
+            <span class="v3-culture-kicker">생활어 기록 아카이브</span>
+            <h2 id="culture-sec-title" class="v3-sec-title">사진으로 보는 생활어</h2>
+            <p class="v3-sec-desc">한 장의 사진 속에 남은 물건과 손길, 그리고 지역의 이름을 만나보세요.</p>
+          </div>
+          <a href="./region_culture.html" class="v3-culture-more">
+            <span>자료관 둘러보기</span><i class="ti ti-arrow-up-right"></i>
+          </a>
+        </div>
+        <div class="v3-culture-grid" id="v3CultureGrid" aria-live="polite">
+          <div class="v3-culture-loading">생활어 기록을 불러오는 중입니다…</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+       SECTION 5: SNS INSTAGRAM INFINITE ROLLING FEED (인스타그램 무한 롤링)
+       ══════════════════════════════════════════════════════════════════ -->
+    <section class="v3-insta-sec" aria-labelledby="insta-sec-title">
+      <div class="v3-container">
+        <div class="v3-sec-head">
+          <div class="v3-insta-head-copy">
+            <h2 id="insta-sec-title" class="v3-sec-title">인스타그램으로 만나는 지역어 이야기</h2>
+            <p class="v3-sec-desc">카드뉴스와 숏폼 콘텐츠로 만나는 정겨운 우리말 일상 이야기</p>
+          </div>
+          <a class="v3-insta-more v3-social-cta v3-social-cta--instagram" data-social="instagram" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="인스타그램에서 더 보기 (새 창)" title="인스타그램에서 더 보기">
+            <i class="ti ti-brand-instagram v3-social-mark" aria-hidden="true"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- 무한 마키 롤링 컨테이너 -->
+      <div class="v3-marquee-container">
+        <div class="v3-marquee-track">
+          <!-- 카드 세트 1 (원본) -->
+          <div class="v3-insta-card" onclick="location.href='https://www.instagram.com/'">
+            <img class="v3-insta-img" src="./image/image1.png" alt="지역어 어휘 이야기" loading="lazy">
+            <div class="v3-insta-overlay">
+              <div class="v3-insta-top">
+                <i class="ti ti-brand-instagram v3-insta-icon"></i>
+                <span class="v3-insta-badge">어휘 카드뉴스</span>
+              </div>
+              <div>
+                <p class="v3-insta-caption">알면 알수록 신기하고 정겨운 우리 지역어 이야기</p>
+                <span class="v3-insta-tags">#국립국어원 #지역어 #사투리이야기</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="v3-insta-card" onclick="location.href='https://www.instagram.com/'">
+            <img class="v3-insta-img" src="./image/image2.png" alt="현장 구술 발화" loading="lazy">
+            <div class="v3-insta-overlay">
+              <div class="v3-insta-top">
+                <i class="ti ti-brand-instagram v3-insta-icon"></i>
+                <span class="v3-insta-badge">현장 구술</span>
+              </div>
+              <div>
+                <p class="v3-insta-caption">어르신들의 목소리로 생생하게 듣는 삶과 문화</p>
+                <span class="v3-insta-tags">#구술발화 #방언아카이브 #삶의기록</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="v3-insta-card" onclick="location.href='https://www.instagram.com/'">
+            <img class="v3-insta-img" src="./image/image3.png" alt="방언 탐험 퀴즈" loading="lazy">
+            <div class="v3-insta-overlay">
+              <div class="v3-insta-top">
+                <i class="ti ti-brand-instagram v3-insta-icon"></i>
+                <span class="v3-insta-badge">방언 퀴즈</span>
+              </div>
+              <div>
+                <p class="v3-insta-caption">재미있는 퀴즈로 만나는 전국 팔도 방언 탐험</p>
+                <span class="v3-insta-tags">#우리말퀴즈 #팔도사투리 #지역어탐방</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="v3-insta-card" onclick="location.href='https://www.instagram.com/'">
+            <img class="v3-insta-img" src="./image/image1.png" alt="생활 속 방언 유물" loading="lazy">
+            <div class="v3-insta-overlay">
+              <div class="v3-insta-top">
+                <i class="ti ti-brand-instagram v3-insta-icon"></i>
+                <span class="v3-insta-badge">생활 사물</span>
+              </div>
+              <div>
+                <p class="v3-insta-caption">옛 일상에 깃든 고유한 이름, 전통 생활 유물 아카이브</p>
+                <span class="v3-insta-tags">#생활방언 #전통사물 #언어기록</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="v3-insta-card" onclick="location.href='https://www.instagram.com/'">
+            <img class="v3-insta-img" src="./image/image2.png" alt="사투리 탐방기" loading="lazy">
+            <div class="v3-insta-overlay">
+              <div class="v3-insta-top">
+                <i class="ti ti-brand-instagram v3-insta-icon"></i>
+                <span class="v3-insta-badge">사투리 탐방</span>
+              </div>
+              <div>
+                <p class="v3-insta-caption">전국 방방곡곡 우리 조상들의 손끝에서 탄생한 말들의 역사</p>
+                <span class="v3-insta-tags">#문화아카이브 #지역어 #사투리탐방</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="v3-insta-card" onclick="location.href='https://www.instagram.com/'">
+            <img class="v3-insta-img" src="./image/image3.png" alt="지역어 종합 정보" loading="lazy">
+            <div class="v3-insta-overlay">
+              <div class="v3-insta-top">
+                <i class="ti ti-brand-instagram v3-insta-icon"></i>
+                <span class="v3-insta-badge">어휘 사전</span>
+              </div>
+              <div>
+                <p class="v3-insta-caption">지역의 온기와 정서가 오롯이 담긴 따스한 우리말</p>
+                <span class="v3-insta-tags">#지역어종합정보 #우리말사전 #방언기록</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="v3-insta-card" onclick="location.href='https://www.instagram.com/'">
+            <img class="v3-insta-img" src="./image/복사뼈.png" alt="복사뼈 지역어 이야기" loading="lazy">
+            <div class="v3-insta-overlay">
+              <div class="v3-insta-top">
+                <i class="ti ti-brand-instagram v3-insta-icon"></i>
+                <span class="v3-insta-badge">생활어 기록</span>
+              </div>
+              <div>
+                <p class="v3-insta-caption">우리 생활 속 사물에 담긴 지역의 말과 이야기</p>
+                <span class="v3-insta-tags">#생활어 #지역어자료관 #우리말</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="v3-insta-card" onclick="location.href='https://www.instagram.com/'">
+            <img class="v3-insta-img" src="./image/아우타다.png" alt="아우타다 지역어 이야기" loading="lazy">
+            <div class="v3-insta-overlay">
+              <div class="v3-insta-top">
+                <i class="ti ti-brand-instagram v3-insta-icon"></i>
+                <span class="v3-insta-badge">지역어 한마디</span>
+              </div>
+              <div>
+                <p class="v3-insta-caption">지역마다 다르게 피어나는 정겨운 우리말 한마디</p>
+                <span class="v3-insta-tags">#지역어이야기 #방언어휘 #말의풍경</span>
+              </div>
+            </div>
+          </div>
+          <div class="v3-insta-card" onclick="location.href='https://www.instagram.com/'">
+            <img class="v3-insta-img" src="./image/아우타다_2.png" alt="사라지는 우리말 아우(를)타다: 동생이 생긴 뒤에 아이가 몸이 여위다라는 뜻" loading="lazy">
+            <div class="v3-insta-overlay">
+              <div class="v3-insta-top">
+                <i class="ti ti-brand-instagram v3-insta-icon"></i>
+                <span class="v3-insta-badge">사라지는 우리말</span>
+              </div>
+              <div>
+                <p class="v3-insta-caption">동생이 생긴 뒤 아이가 여위는 것, &lsquo;아우(를)타다&rsquo;의 뜻</p>
+                <span class="v3-insta-tags">#아우타다 #사라지는우리말 #지역어이야기</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 무한 루프를 위한 복제 세트 (트랙 50% 지점에서 끊김 없이 반복) -->
+          <div class="v3-insta-card" onclick="location.href='https://www.instagram.com/'">
+            <img class="v3-insta-img" src="./image/image1.png" alt="지역어 어휘 이야기" loading="lazy">
+            <div class="v3-insta-overlay">
+              <div class="v3-insta-top">
+                <i class="ti ti-brand-instagram v3-insta-icon"></i>
+                <span class="v3-insta-badge">어휘 카드뉴스</span>
+              </div>
+              <div>
+                <p class="v3-insta-caption">알면 알수록 신기하고 정겨운 우리 지역어 이야기</p>
+                <span class="v3-insta-tags">#국립국어원 #지역어 #사투리이야기</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="v3-insta-card" onclick="location.href='https://www.instagram.com/'">
+            <img class="v3-insta-img" src="./image/image2.png" alt="현장 구술 발화" loading="lazy">
+            <div class="v3-insta-overlay">
+              <div class="v3-insta-top">
+                <i class="ti ti-brand-instagram v3-insta-icon"></i>
+                <span class="v3-insta-badge">현장 구술</span>
+              </div>
+              <div>
+                <p class="v3-insta-caption">어르신들의 목소리로 생생하게 듣는 삶과 문화</p>
+                <span class="v3-insta-tags">#구술발화 #방언아카이브 #삶의기록</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="v3-insta-card" onclick="location.href='https://www.instagram.com/'">
+            <img class="v3-insta-img" src="./image/image3.png" alt="방언 탐험 퀴즈" loading="lazy">
+            <div class="v3-insta-overlay">
+              <div class="v3-insta-top">
+                <i class="ti ti-brand-instagram v3-insta-icon"></i>
+                <span class="v3-insta-badge">방언 퀴즈</span>
+              </div>
+              <div>
+                <p class="v3-insta-caption">재미있는 퀴즈로 만나는 전국 팔도 방언 탐험</p>
+                <span class="v3-insta-tags">#우리말퀴즈 #팔도사투리 #지역어탐방</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="v3-insta-card" onclick="location.href='https://www.instagram.com/'">
+            <img class="v3-insta-img" src="./image/image1.png" alt="생활 속 방언 유물" loading="lazy">
+            <div class="v3-insta-overlay">
+              <div class="v3-insta-top">
+                <i class="ti ti-brand-instagram v3-insta-icon"></i>
+                <span class="v3-insta-badge">생활 사물</span>
+              </div>
+              <div>
+                <p class="v3-insta-caption">옛 일상에 깃든 고유한 이름, 전통 생활 유물 아카이브</p>
+                <span class="v3-insta-tags">#생활방언 #전통사물 #언어기록</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="v3-insta-card" onclick="location.href='https://www.instagram.com/'">
+            <img class="v3-insta-img" src="./image/image2.png" alt="사투리 탐방기" loading="lazy">
+            <div class="v3-insta-overlay">
+              <div class="v3-insta-top">
+                <i class="ti ti-brand-instagram v3-insta-icon"></i>
+                <span class="v3-insta-badge">사투리 탐방</span>
+              </div>
+              <div>
+                <p class="v3-insta-caption">전국 방방곡곡 우리 조상들의 손끝에서 탄생한 말들의 역사</p>
+                <span class="v3-insta-tags">#문화아카이브 #지역어 #사투리탐방</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="v3-insta-card" onclick="location.href='https://www.instagram.com/'">
+            <img class="v3-insta-img" src="./image/image3.png" alt="지역어 종합 정보" loading="lazy">
+            <div class="v3-insta-overlay">
+              <div class="v3-insta-top">
+                <i class="ti ti-brand-instagram v3-insta-icon"></i>
+                <span class="v3-insta-badge">어휘 사전</span>
+              </div>
+              <div>
+                <p class="v3-insta-caption">지역의 온기와 정서가 오롯이 담긴 따스한 우리말</p>
+                <span class="v3-insta-tags">#지역어종합정보 #우리말사전 #방언기록</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="v3-insta-card" onclick="location.href='https://www.instagram.com/'">
+            <img class="v3-insta-img" src="./image/복사뼈.png" alt="복사뼈 지역어 이야기" loading="lazy">
+            <div class="v3-insta-overlay">
+              <div class="v3-insta-top">
+                <i class="ti ti-brand-instagram v3-insta-icon"></i>
+                <span class="v3-insta-badge">생활어 기록</span>
+              </div>
+              <div>
+                <p class="v3-insta-caption">우리 생활 속 사물에 담긴 지역의 말과 이야기</p>
+                <span class="v3-insta-tags">#생활어 #지역어자료관 #우리말</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="v3-insta-card" onclick="location.href='https://www.instagram.com/'">
+            <img class="v3-insta-img" src="./image/아우타다.png" alt="아우타다 지역어 이야기" loading="lazy">
+            <div class="v3-insta-overlay">
+              <div class="v3-insta-top">
+                <i class="ti ti-brand-instagram v3-insta-icon"></i>
+                <span class="v3-insta-badge">지역어 한마디</span>
+              </div>
+              <div>
+                <p class="v3-insta-caption">지역마다 다르게 피어나는 정겨운 우리말 한마디</p>
+                <span class="v3-insta-tags">#지역어이야기 #방언어휘 #말의풍경</span>
+              </div>
+            </div>
+          </div>
+          <div class="v3-insta-card" onclick="location.href='https://www.instagram.com/'">
+            <img class="v3-insta-img" src="./image/아우타다_2.png" alt="사라지는 우리말 아우(를)타다: 동생이 생긴 뒤에 아이가 몸이 여위다라는 뜻" loading="lazy">
+            <div class="v3-insta-overlay">
+              <div class="v3-insta-top">
+                <i class="ti ti-brand-instagram v3-insta-icon"></i>
+                <span class="v3-insta-badge">사라지는 우리말</span>
+              </div>
+              <div>
+                <p class="v3-insta-caption">동생이 생긴 뒤 아이가 여위는 것, &lsquo;아우(를)타다&rsquo;의 뜻</p>
+                <span class="v3-insta-tags">#아우타다 #사라지는우리말 #지역어이야기</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+       SECTION 6: 오픈 API 간략 배너 (푸터 상단 1줄 안내 바)
+       ══════════════════════════════════════════════════════════════════ -->
+    <section class="v3-api-banner-sec" aria-label="공공 지역어 데이터 오픈 API 연계 안내">
+      <div class="v3-container">
+        <div class="v3-api-banner-bar">
+          <div class="v3-api-banner-brand" aria-label="NHN Cloud 스타일 공공 데이터 API 배너">
+            <span class="v3-api-banner-brand-word"><b>OPEN</b><em>API</em></span>
+          </div>
+          <div class="v3-api-banner-left">
+            <p class="v3-api-banner-text">
+              <strong>공공 지역어 데이터 연계</strong><span>지역어 종합정보의 방언 어휘·음성·구술 자료를 서비스에 활용해 보세요.</span>
+            </p>
+          </div>
+          <a href="./openapi_intro.html" class="v3-api-banner-btn">
+            <span>API 안내</span>
+            <i class="ti ti-arrow-up-right" aria-hidden="true"></i>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 공통 Footer 영역 -->
+  <div id="footer-common"></div>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+     SCRIPTS & DATA LOADERS
+     ══════════════════════════════════════════════════════════════════ -->
+
+  <!-- 1. 히어로 이미지 슬라이더 -->
+  <script>
+  (() => {
+    const hero = document.querySelector('.v3-hero');
+    if (!hero) return;
+
+    const slides = [...hero.querySelectorAll('[data-hero-slide]')];
+    const dots = [...hero.querySelectorAll('[data-hero-dot]')];
+    const prev = document.getElementById('v3HeroPrev');
+    const next = document.getElementById('v3HeroNext');
+    const pause = document.getElementById('v3HeroPause');
+    const currentEl = document.getElementById('v3HeroCurrent');
+    const titleText = document.getElementById('v3HeroTitleText');
+    const eyebrowText = document.getElementById('v3HeroEyebrowText');
+    const descText = document.getElementById('v3HeroDescText');
+    const status = document.getElementById('v3HeroStatus');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const messages = [
+      {
+        label: '우리말의 풍경',
+        title: '여러 지역의 <em>목소리</em>가 모여,<br>우리말의 기록이 됩니다',
+        eyebrow: '지역의 말과 삶을 잇는 국가 언어 아카이브',
+        desc: '전국 곳곳에서 수집한 방언 어휘와 생생한 음성, 지역별 언어 지도를 지역어 종합 정보 시스템에서 만나보세요.'
+      },
+      {
+        label: '겹겹이 이어진 산맥 풍경',
+        title: '지형과 삶이 빚어낸 <em>말의 결</em>,<br>지역어 지도로 살펴보세요',
+        eyebrow: '한 지역의 말에는 그곳의 지형과 시간이 담겨 있습니다',
+        desc: '같은 뜻도 지역에 따라 다른 소리와 이름으로 남습니다. 지도로 펼쳐지는 우리말의 차이를 살펴보세요.'
+      },
+      {
+        label: '서울 한옥 풍경',
+        title: '생활 속에 살아 있는 <em>지역의 말</em>,<br>오늘의 기록으로 남습니다',
+        eyebrow: '오늘의 생활 속에도 지역어의 흔적이 이어집니다',
+        desc: '생활어부터 구술 발화까지, 사람들의 목소리로 남은 우리말 기록을 찾아보세요.'
+      }
+    ];
+    const delay = 7000;
+
+    let current = 0;
+    let timer = null;
+    let userPaused = reducedMotion.matches;
+    let hoverPaused = false;
+    let focusPaused = false;
+    let visible = true;
+
+    function updatePauseButton() {
+      const icon = pause.querySelector('i');
+      pause.setAttribute('aria-pressed', String(userPaused));
+      pause.setAttribute('aria-label', userPaused ? '자동 재생 시작' : '자동 재생 일시 정지');
+      icon.className = userPaused ? 'ti ti-player-play-filled' : 'ti ti-player-pause-filled';
+    }
+
+    function schedule() {
+      window.clearTimeout(timer);
+      timer = null;
+      if (userPaused || hoverPaused || focusPaused || !visible || document.hidden || reducedMotion.matches) return;
+      timer = window.setTimeout(() => select(current + 1, false), delay);
+    }
+
+    function select(index, announce = true) {
+      current = (index + slides.length) % slides.length;
+      slides.forEach((slide, i) => slide.classList.toggle('is-active', i === current));
+      dots.forEach((dot, i) => {
+        const active = i === current;
+        dot.classList.toggle('is-active', active);
+        dot.setAttribute('aria-pressed', String(active));
+      });
+      currentEl.textContent = String(current + 1).padStart(2, '0');
+      const message = messages[current];
+      titleText.classList.add('is-changing');
+      eyebrowText.classList.add('is-changing');
+      descText.classList.add('is-changing');
+      titleText.innerHTML = message.title;
+      eyebrowText.textContent = message.eyebrow;
+      descText.textContent = message.desc;
+      window.requestAnimationFrame(() => {
+        titleText.classList.remove('is-changing');
+        eyebrowText.classList.remove('is-changing');
+        descText.classList.remove('is-changing');
+      });
+      if (announce) status.textContent = `${current + 1}번 슬라이드, ${message.label}`;
+      schedule();
+    }
+
+    prev.addEventListener('click', () => select(current - 1));
+    next.addEventListener('click', () => select(current + 1));
+    dots.forEach((dot, i) => dot.addEventListener('click', () => select(i)));
+    pause.addEventListener('click', () => {
+      userPaused = !userPaused;
+      updatePauseButton();
+      schedule();
+    });
+
+    hero.addEventListener('pointerenter', event => {
+      if (event.pointerType === 'mouse') {
+        hoverPaused = true;
+        schedule();
+      }
+    });
+    hero.addEventListener('pointerleave', () => {
+      hoverPaused = false;
+      schedule();
+    });
+    hero.addEventListener('focusin', () => {
+      focusPaused = true;
+      schedule();
+    });
+    hero.addEventListener('focusout', event => {
+      if (!hero.contains(event.relatedTarget)) {
+        focusPaused = false;
+        schedule();
+      }
+    });
+    document.addEventListener('visibilitychange', schedule);
+    reducedMotion.addEventListener?.('change', () => {
+      if (reducedMotion.matches) userPaused = true;
+      updatePauseButton();
+      schedule();
+    });
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(entries => {
+        visible = entries[0].isIntersecting;
+        schedule();
+      }, { threshold: 0.15 }).observe(hero);
+    }
+
+    updatePauseButton();
+    select(0, false);
+  })();
+  </script>
+
+  <!-- 히어로 주요 현황 카운팅 효과 -->
+  <script>
+  (() => {
+    const counters = [...document.querySelectorAll('[data-count-target]')];
+    if (!counters.length) return;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    counters.forEach(counter => {
+      const target = Number(counter.dataset.countTarget);
+      const suffix = counter.dataset.countSuffix || '';
+      if (reducedMotion) {
+        counter.textContent = `${target}${suffix}`;
+        return;
+      }
+
+      const duration = 1300;
+      const start = performance.now();
+      const tick = now => {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        counter.textContent = `${Math.floor(target * eased)}${suffix}`;
+        if (progress < 1) window.requestAnimationFrame(tick);
+        else counter.textContent = `${target}${suffix}`;
+      };
+      window.requestAnimationFrame(tick);
+    });
+  })();
+  </script>
+
+  <!-- 2. 아코디언 인터랙션 스크립트 -->
+  <script>
+  (() => {
+    const accContainer = document.getElementById('v3AccContainer');
+    if (!accContainer) return;
+    const panels = [...accContainer.querySelectorAll('.v3-acc-panel')];
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+
+    function activatePanel(target) {
+      const activeIndex = panels.indexOf(target);
+      if (activeIndex >= 0) accContainer.dataset.activeIndex = String(activeIndex);
+      panels.forEach(panel => {
+        const active = panel === target;
+        const trigger = panel.querySelector('.v3-acc-trigger');
+        const info = panel.querySelector('.v3-acc-expanded-info');
+        panel.classList.toggle('is-active', active);
+        trigger?.setAttribute('aria-expanded', String(active));
+        if (info) info.inert = !active;
+      });
+    }
+
+    panels.forEach((panel, index) => {
+      const trigger = panel.querySelector('.v3-acc-trigger');
+      panel.addEventListener('pointerenter', () => {
+        if (!finePointer.matches) return;
+        activatePanel(panel);
+      });
+      trigger?.addEventListener('focus', () => activatePanel(panel));
+      trigger?.addEventListener('click', () => {
+        activatePanel(panel);
+      });
+      trigger?.addEventListener('keydown', event => {
+        const keys = ['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp', 'Home', 'End'];
+        if (!keys.includes(event.key)) return;
+        event.preventDefault();
+        const isNext = event.key === 'ArrowRight' || event.key === 'ArrowDown';
+        const nextIndex = event.key === 'Home'
+          ? 0
+          : event.key === 'End'
+            ? panels.length - 1
+            : (index + (isNext ? 1 : -1) + panels.length) % panels.length;
+        const nextPanel = panels[nextIndex];
+        activatePanel(nextPanel);
+        nextPanel.querySelector('.v3-acc-trigger')?.focus();
+      });
+    });
+
+    activatePanel(panels.find(panel => panel.classList.contains('is-active')) || panels[0]);
+  })();
+  </script>
+
+  <!-- 2. 오늘의 지역어 & 퀴즈 무한 롤링 스크립트 (today_quiz.json 연동) -->
+  <script>
+  (() => {
+    const viewport = document.getElementById('v3TodayViewport');
+    const track = document.getElementById('v3TodayTrack');
+    const prevBtn = document.getElementById('v3TodayPrev');
+    const nextBtn = document.getElementById('v3TodayNext');
+    const pauseBtn = document.getElementById('v3TodayPause');
+    const countEl = document.getElementById('v3TodayCount');
+    const statusEl = document.getElementById('v3TodayStatus');
+    if (!viewport || !track) return;
+
+    let wordData = [
+      { word:'부삭', region:'전라남도', std:'아궁이' },
+      { word:'가스나', region:'경상남도', std:'여자아이' },
+      { word:'낭구', region:'경기도', std:'나무' },
+      { word:'드릇마농', region:'제주도', std:'달래' },
+      { word:'정구지', region:'경상도', std:'부추' }
+    ];
+    const fallbackQuizData = [
+      { focus:'억시기', region:'경상도', question:'‘억시기’는 어떤 의미로 쓰일까요?', opts:[{t:'매우, 몹시',exp:'강한 정도를 나타내는 경상도 지역어입니다.'},{t:'억울하게',exp:''},{t:'천천히',exp:''}], ans:0 },
+      { focus:'워메', region:'전라도', question:'‘워메’는 어떤 상황에서 쓰는 감탄사일까요?', opts:[{t:'놀라거나 감탄할 때',exp:'놀람이나 감탄을 나타내는 전라도 지역어입니다.'},{t:'재촉할 때',exp:''},{t:'인사할 때',exp:''}], ans:0 },
+      { focus:'드릇마농', region:'제주도', question:'‘드릇마농’은 어떤 식물을 가리킬까요?', opts:[{t:'달래',exp:'들에서 나는 마늘이라는 뜻을 담고 있습니다.'},{t:'대파',exp:''},{t:'양파',exp:''}], ans:0 },
+      { focus:'부넹기', region:'제주도', question:'‘부넹기’가 가리키는 사물은 무엇일까요?', opts:[{t:'아궁이',exp:'불을 때는 아궁이를 이르는 제주 지역어입니다.'},{t:'부뚜막',exp:''},{t:'화로',exp:''}], ans:0 },
+      { focus:'정구지', region:'경상도', question:'‘정구지’는 어떤 채소를 가리킬까요?', opts:[{t:'부추',exp:'경상도에서 널리 쓰이는 지역어입니다.'},{t:'상추',exp:''},{t:'미나리',exp:''}], ans:0 }
+    ];
+    let quizData = fallbackQuizData;
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const SPEED = 28;
+    const CARD_LIMIT = 10;
+    let uniqueCount = CARD_LIMIT;
+    let loopWidth = 0;
+    let cardStep = 0;
+    let currentCardIndex = -1;
+    let position = 0;
+    let lastFrame = 0;
+    let visible = true;
+    let hoverPaused = false;
+    let focusPaused = false;
+    let userPaused = reducedMotion.matches;
+    let dragging = false;
+    let dragStartX = 0;
+    let dragStartPosition = 0;
+    let resumeAt = 0;
+    let nudgeAnimation = null;
+
+    function esc(value) {
+      return String(value == null ? '' : value).replace(/[&<>"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[char]));
+    }
+
+    function mod(value, size) {
+      return size ? ((value % size) + size) % size : 0;
+    }
+
+    function tone(index) {
+      return `tone-${(index % 5) + 1}`;
+    }
+
+    function makeWordCard(data, index, clone = false) {
+      const word = data.word || '지역어';
+      const standard = data.std || data.meaning || '우리말';
+      const region = data.region || data.regionNote || '전국';
+      const meaning = data.std
+        ? `‘${esc(standard)}’을 이르는 ${esc(region)}의 말이에요.`
+        : esc(standard);
+      return `
+        <article class="v3-tcard word-type ${tone(index)}" role="listitem" data-card-index="${index}" ${clone ? 'aria-hidden="true"' : ''}>
+          <div class="v3-tcard-top">
+            <span class="v3-tcard-cat">오늘의 지역어</span>
+          </div>
+          <div class="v3-tcard-body">
+            <h3 class="v3-word-big">${esc(word)}</h3>
+            <p class="v3-word-meaning">${meaning}</p>
+          </div>
+          <div class="v3-tcard-footer">
+            <span class="v3-region-pill">${esc(region)}</span>
+            <a href="./dialect_search_prototype.html?q=${encodeURIComponent(word)}" class="v3-word-btn" aria-label="다른 지역 어휘 보기" ${clone ? 'tabindex="-1"' : ''}>
+              <span>다른 지역 어휘 보기</span>
+              <i class="ti ti-arrow-right" aria-hidden="true"></i>
+            </a>
+          </div>
+        </article>
+      `;
+    }
+
+    function makeQuizCard(data, quizIndex, index, clone = false) {
+      const options = data.opts || [];
+      const answerIndex = Number.isInteger(data.ans) ? data.ans : 0;
+      const answerOption = options[answerIndex];
+      const explanation = (answerOption && answerOption.exp) || data.regionNote || `${data.region || '해당 지역'}에서 쓰이는 표현입니다.`;
+      const optionButtons = options.map((option, optionIndex) => {
+        const optionLabel = option && (option.t || option);
+        return `
+          <button type="button" class="v3-quiz-option" data-option-index="${optionIndex}" data-correct="${optionIndex === answerIndex}" aria-pressed="false" ${clone ? 'tabindex="-1"' : ''}>
+            <span>${optionIndex + 1}</span>${esc(optionLabel)}
+          </button>
+        `;
+      }).join('');
+      return `
+        <article class="v3-tcard quiz-type ${tone(index)}" role="listitem" data-card-index="${index}" data-quiz-index="${quizIndex}" data-answer-index="${answerIndex}" data-explanation="${esc(explanation)}" ${clone ? 'aria-hidden="true"' : ''}>
+          <div class="v3-tcard-top">
+            <span class="v3-tcard-cat">오늘의 퀴즈</span>
+          </div>
+          <div class="v3-tcard-body">
+            <h3 class="v3-quiz-q">${esc(data.question || '이 지역어의 뜻은 무엇일까요?')}</h3>
+            <div class="v3-quiz-options" role="group" aria-label="퀴즈 선택지">
+              ${optionButtons}
+            </div>
+            <p class="v3-quiz-feedback" aria-live="polite">선택지를 골라보세요.</p>
+          </div>
+        </article>
+      `;
+    }
+
+    function buildItems() {
+      const items = [];
+      const choiceQuizzes = quizData.filter(item => Array.isArray(item.opts) && item.opts.length >= 2);
+      const quizPool = choiceQuizzes.length ? choiceQuizzes : fallbackQuizData;
+      for (let i = 0; i < 5; i++) {
+        const word = wordData[i % wordData.length];
+        const quiz = quizPool[i % quizPool.length];
+        if (word) items.push({ type:'word', data:word, sourceIndex:i });
+        if (quiz) items.push({ type:'quiz', data:quiz, sourceIndex:i });
+      }
+      return items.slice(0, CARD_LIMIT);
+    }
+
+    function render() {
+      const items = buildItems();
+      uniqueCount = items.length;
+      const cards = (clone = false) => items.map((item, index) => item.type === 'word'
+        ? makeWordCard(item.data, index, clone)
+        : makeQuizCard(item.data, item.sourceIndex, index, clone)
+      ).join('');
+      track.setAttribute('role', 'list');
+      track.innerHTML = cards(false) + cards(true);
+      if (countEl) countEl.textContent = `오늘의 카드 1 / ${uniqueCount}`;
+      currentCardIndex = 0;
+      position = 0;
+      requestAnimationFrame(measure);
+    }
+
+    function measure() {
+      const cards = track.children;
+      if (!cards.length || cards.length <= uniqueCount) return;
+      const previousWidth = loopWidth;
+      const gap = parseFloat(getComputedStyle(track).gap) || 20;
+      cardStep = cards[0].getBoundingClientRect().width + gap;
+      loopWidth = cards[uniqueCount].offsetLeft - cards[0].offsetLeft;
+      if (previousWidth && loopWidth) position = (position / previousWidth) * loopWidth;
+      position = mod(position, loopWidth);
+      applyPosition();
+    }
+
+    function applyPosition() {
+      track.style.transform = `translate3d(${-position}px, 0, 0)`;
+      if (countEl && cardStep && uniqueCount) {
+        const nextIndex = Math.floor((position + cardStep * 0.25) / cardStep) % uniqueCount;
+        if (nextIndex !== currentCardIndex) {
+          currentCardIndex = nextIndex;
+          countEl.textContent = `오늘의 카드 ${nextIndex + 1} / ${uniqueCount}`;
+        }
+      }
+    }
+
+    function isAutoPaused(now) {
+      return userPaused || reducedMotion.matches || hoverPaused || focusPaused || dragging || !visible || document.hidden || now < resumeAt;
+    }
+
+    function animate(now) {
+      if (!lastFrame) lastFrame = now;
+      const delta = Math.min(now - lastFrame, 50);
+      lastFrame = now;
+
+      if (nudgeAnimation && loopWidth) {
+        const duration = reducedMotion.matches ? 1 : 520;
+        const progress = Math.min(1, (now - nudgeAnimation.startedAt) / duration);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        position = mod(nudgeAnimation.from + nudgeAnimation.distance * eased, loopWidth);
+        if (progress >= 1) {
+          nudgeAnimation = null;
+          resumeAt = now + 1200;
+        }
+      } else if (!isAutoPaused(now) && loopWidth) {
+        position = mod(position + SPEED * delta / 1000, loopWidth);
+      }
+      applyPosition();
+      requestAnimationFrame(animate);
+    }
+
+    function nudge(direction) {
+      const firstCard = track.querySelector('.v3-tcard');
+      if (!firstCard || !loopWidth) return;
+      const gap = parseFloat(getComputedStyle(track).gap) || 20;
+      nudgeAnimation = {
+        from: position,
+        distance: direction * (firstCard.getBoundingClientRect().width + gap),
+        startedAt: performance.now()
+      };
+      statusEl.textContent = direction > 0 ? '다음 카드를 표시합니다.' : '이전 카드를 표시합니다.';
+    }
+
+    function updatePauseButton() {
+      pauseBtn.setAttribute('aria-pressed', String(userPaused));
+      pauseBtn.setAttribute('aria-label', userPaused ? '자동 롤링 재생' : '자동 롤링 일시 정지');
+      pauseBtn.innerHTML = userPaused
+        ? '<i class="ti ti-player-play-filled" aria-hidden="true"></i>'
+        : '<i class="ti ti-player-pause-filled" aria-hidden="true"></i>';
+    }
+
+    prevBtn.addEventListener('click', () => nudge(-1));
+    nextBtn.addEventListener('click', () => nudge(1));
+    pauseBtn.addEventListener('click', () => {
+      userPaused = !userPaused;
+      updatePauseButton();
+      statusEl.textContent = userPaused ? '자동 롤링을 일시 정지했습니다.' : '자동 롤링을 다시 시작했습니다.';
+    });
+
+    viewport.addEventListener('mouseenter', () => { hoverPaused = true; });
+    viewport.addEventListener('mouseleave', () => { hoverPaused = false; });
+    viewport.addEventListener('focusin', () => {
+      /* 마우스로 선택지를 클릭한 뒤 남은 포커스는 자동 롤링을 붙잡지 않습니다. */
+      if (viewport.matches(':hover')) return;
+      focusPaused = true;
+    });
+    viewport.addEventListener('focusout', event => {
+      if (!viewport.contains(event.relatedTarget)) focusPaused = false;
+    });
+    viewport.addEventListener('keydown', event => {
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        event.preventDefault();
+        nudge(event.key === 'ArrowRight' ? 1 : -1);
+      }
+    });
+
+    viewport.addEventListener('pointerdown', event => {
+      if (event.button !== 0 || event.target.closest('a, button')) return;
+      dragging = true;
+      dragStartX = event.clientX;
+      dragStartPosition = position;
+      viewport.classList.add('is-dragging');
+      viewport.setPointerCapture(event.pointerId);
+    });
+    viewport.addEventListener('pointermove', event => {
+      if (!dragging || !loopWidth) return;
+      position = mod(dragStartPosition - (event.clientX - dragStartX), loopWidth);
+      applyPosition();
+    });
+    const endDrag = event => {
+      if (!dragging) return;
+      dragging = false;
+      viewport.classList.remove('is-dragging');
+      resumeAt = performance.now() + 1400;
+      if (viewport.hasPointerCapture(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
+    };
+    viewport.addEventListener('pointerup', endDrag);
+    viewport.addEventListener('pointercancel', endDrag);
+
+    track.addEventListener('click', event => {
+      const button = event.target.closest('.v3-quiz-option');
+      if (!button) return;
+      if (event.detail > 0) focusPaused = false;
+      const card = button.closest('.v3-tcard');
+      const quizIndex = card && card.dataset.quizIndex;
+      if (quizIndex == null) return;
+      const selectedIndex = Number(button.dataset.optionIndex);
+      const answerIndex = Number(card.dataset.answerIndex);
+      const isCorrect = selectedIndex === answerIndex;
+      track.querySelectorAll(`[data-quiz-index="${quizIndex}"]`).forEach(item => {
+        const options = item.querySelectorAll('.v3-quiz-option');
+        options.forEach(option => {
+          const optionIndex = Number(option.dataset.optionIndex);
+          option.classList.toggle('is-correct', optionIndex === answerIndex);
+          option.classList.toggle('is-wrong', optionIndex === selectedIndex && !isCorrect);
+          option.setAttribute('aria-pressed', String(optionIndex === selectedIndex));
+        });
+        const correctLabel = options[answerIndex]?.textContent.replace(/^\s*\d+\s*/, '').trim() || '';
+        const feedback = item.querySelector('.v3-quiz-feedback');
+        feedback.classList.toggle('is-correct', isCorrect);
+        feedback.classList.toggle('is-wrong', !isCorrect);
+        feedback.textContent = isCorrect
+          ? `정답입니다. ${item.dataset.explanation}`
+          : `정답은 ‘${correctLabel}’입니다. ${item.dataset.explanation}`;
+      });
+    });
+
+    window.addEventListener('resize', measure);
+    reducedMotion.addEventListener?.('change', () => {
+      if (reducedMotion.matches) userPaused = true;
+      updatePauseButton();
+    });
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(entries => {
+        visible = entries[0].isIntersecting;
+      }, { threshold: 0.08 }).observe(viewport);
+    }
+
+    updatePauseButton();
+    render();
+    requestAnimationFrame(animate);
+
+    fetch('./data/processed/today_quiz.json', { cache: 'no-cache' })
+      .then(response => response.ok ? response.json() : null)
+      .then(data => {
+        if (data?.words?.length) wordData = data.words;
+        if (data?.quizzes?.length) quizData = data.quizzes;
+        render();
+      })
+      .catch(() => {});
+  })();
+  </script>
+
+  <!-- 3. 사진으로 보는 생활어 연동 스크립트 -->
+  <script>
+  /* 지역어 자료관의 대표 생활어 5개를 홈 매거진 카드로 노출합니다. */
+  (() => {
+    const grid = document.getElementById('v3CultureGrid');
+    if (!grid) return;
+    const fallback = [
+      { subject:'어촌 생활어 기초 어휘', total_count:344, regions:'전라북도,제주특별자치도,경상북도', samples:[{ title:'토하젓', mean:'민물새우를 갈아서 만든 젓갈.', img:'./image/201005233.jpg', region:'전라북도' }] },
+      { subject:'김치', total_count:320, regions:'전라북도,제주특별자치도,경상북도', samples:[{ title:'지', mean:'소금에 절인 배추나 무 따위를 양념에 버무린 음식.', img:'./image/200706001-1.jpg', region:'전라북도' }] },
+      { subject:'떡', total_count:319, regions:'강원도,경상남도,경상북도', samples:[{ title:'팥개피', mean:'팥의 껍질을 벗겨서 삶아 낸 고물.', img:'./image/200911640-1.jpg', region:'강원도' }] },
+      { subject:'옹기장', total_count:130, regions:'울산광역시,경상북도', samples:[{ title:'쌀단지', mean:'쌀을 넣어 두는 단지.', img:'./image/200708088.jpg', region:'울산광역시' }] },
+      { subject:'모필장', total_count:118, regions:'대구광역시', samples:[{ title:'붓꼬리', mean:'붓의 가장 끝부분에 위치한 매듭이 달린 부분.', img:'./image/200804003.jpg', region:'대구광역시' }] },
+      { subject:'나주소반장', total_count:115, regions:'전라남도', samples:[{ title:'나주소반', mean:'전라남도 나주시에서 생산되는 소반.', img:'./image/200710306.jpg', region:'전라남도' }] }
+    ];
+    const imageFallbacks = {
+      '어촌 생활어 기초 어휘':'./image/200811821.jpg',
+      '김치':'./image/200911701.jpg',
+      '떡':'./image/200802015-1.jpg',
+      '옹기장':'./image/200701207.jpg',
+      '모필장':'./image/200805001-1.jpg',
+      '나주소반장':'./image/200710306.jpg'
+    };
+    const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
+    const regionLabel = value => {
+      const regions = String(value || '전국').split(',').map(v => v.trim()).filter(Boolean);
+      return regions.length > 1 ? `${regions[0]} 외 ${regions.length - 1}` : (regions[0] || '전국');
+    };
+    function renderCulture(items) {
+      const cards = items.slice(0, 6);
+      grid.innerHTML = cards.map((item, index) => {
+        const sample = item.samples?.[0] || {};
+        const image = imageFallbacks[item.subject] || sample.img || './image/200911310.jpg';
+        const href = `./region_culture_list.html?cat=${encodeURIComponent(item.subject)}`;
+        return `<a class="v3-culture-card${index === 3 ? ' is-featured' : ''}" href="${href}" aria-label="${esc(item.subject)} 생활어 기록 보기">
+          <div class="v3-culture-media">
+            <img class="v3-culture-photo" src="${esc(image)}" alt="${esc(item.subject)} 사진" loading="eager" onerror="this.onerror=null;this.src='./image/200911310.jpg';">
+            <span class="v3-culture-shade"></span>
+            <div class="v3-culture-card-copy">
+              <span class="v3-culture-subject">지역의 생활 기록</span>
+              <strong>${esc(item.subject)}</strong>
+              <span class="v3-culture-meta"><span><i class="ti ti-map-pin"></i>지역 ${esc(regionLabel(item.regions || sample.region))}</span><b>어휘 ${esc(item.total_count || 0)}개</b></span>
+            </div>
+          </div>
+        </a>`;
+      }).join('');
+    }
+    fetch('./data/processed/region_culture_categories.json')
+      .then(response => response.ok ? response.json() : Promise.reject(new Error('생활어 자료를 불러오지 못했습니다.')))
+      .then(payload => renderCulture(payload.data || fallback))
+      .catch(() => renderCulture(fallback));
+    return;
+
+    /* 이전 기상도/세대별 변화 코드는 보존된 참고용 코드입니다. */
+    // 1) 기상도 단어
+    const WX_WORDS = [
+      { code:"21908", word:"부추", r:{ GG:{s:"std",f:""}, GW:{s:"w2",f:"분추"}, CB:{s:"w2",f:"정구지"}, CN:{s:"w2",f:"졸"}, JB:{s:"w2",f:"솔"}, JN:{s:"w2",f:"소불"}, GB:{s:"w1",f:"정구지"}, GN:{s:"w1",f:"정구지"}, JJ:{s:"w2",f:"세우리"} } },
+      { code:"22203", word:"똬리", r:{ GG:{s:"w3",f:"뙤리"}, GW:{s:"w1",f:"또바리"}, CB:{s:"w2",f:"뙈미"}, CN:{s:"w2",f:"똥아리"}, JB:{s:"w3",f:"또개미"}, JN:{s:"w2",f:"또바리"}, GB:{s:"w2",f:"따뱅이"}, GN:{s:"w3",f:"따반지"}, JJ:{s:"w4",f:"받침"} } },
+      { code:"21409", word:"짚신", r:{ GG:{s:"w4",f:"짚시기"}, GW:{s:"w2",f:"짚쎄기"}, CB:{s:"w3",f:"짚세기"}, CN:{s:"w1",f:"집신"}, JB:{s:"w3",f:"짚세기"}, JN:{s:"w2",f:"집세기"}, GB:{s:"w1",f:"집신"}, GN:{s:"w1",f:"집신"}, JJ:{s:"w4",f:"찍신"} } }
+    ];
+    const PROV2CODE = { '경기도':'GG','서울특별시':'GG','인천광역시':'GG','강원도':'GW','충청북도':'CB','충청남도':'CN','대전광역시':'CN','세종특별자치시':'CN','경상북도':'GB','대구광역시':'GB','경상남도':'GN','부산광역시':'GN','울산광역시':'GN','전라북도':'JB','전라남도':'JN','광주광역시':'JN','제주특별자치도':'JJ' };
+    const STATE = {
+      w1:{ emoji:'☀️', color:'#BA7517' },
+      w2:{ emoji:'🌤️', color:'#5F5E5A' },
+      w3:{ emoji:'🌧️', color:'#185FA5' },
+      w4:{ emoji:'⛈️', color:'#A32D2D' },
+      std:{ emoji:'·', color:'#5B7FA6' },
+      w0:{ emoji:'', color:'#94A3B8' }
+    };
+    const RNAME = { GG:'경기', GW:'강원', CB:'충북', CN:'충남', JB:'전북', JN:'전남', GB:'경북', GN:'경남', JJ:'제주' };
+    const ORDER = ['GG','GW','CB','CN','JB','JN','GB','GN','JJ'];
+
+    const chipsWrap = document.getElementById('v3WxWords');
+    const labelEl = document.getElementById('v3WxWordLabel');
+    let mapAdapter = null;
+
+    function initWxMap() {
+      if (!window.ol || !window.KoreaMap || !window.KOREA_PROVINCES) return null;
+      const el = document.getElementById('v3WxMap');
+      const feats = window.KOREA_PROVINCES.features
+        .filter(f => PROV2CODE[f.properties.name])
+        .filter(f => !(f.properties.name === '강원도' && geoLatCenter(f.geometry) > 38.6))
+        .map(f => ({ type:'Feature', properties:{ name:f.properties.name, color:'#E5E7EB' }, geometry:f.geometry }));
+      
+      const base = window.KoreaMap.createBaseLayer({ fill:'#eef2f6', stroke:'#c7d0da', strokeWidth:1 });
+      const fill = window.KoreaMap.createFillLayer({ type:'FeatureCollection', features:feats }, { colorProp:'color', fillAlpha:0.78, strokeAlpha:0.9, strokeWidth:1.1, zIndex:3 });
+      if (!fill) return null;
+
+      const autoCentroid = {};
+      try {
+        const bestArea = {};
+        fill.getSource().getFeatures().forEach(ft => {
+          const code = PROV2CODE[ft.get('name')];
+          const geometry = ft.getGeometry();
+          if (!code || !geometry) return;
+          let polygon = null;
+          if (geometry.getType() === 'Polygon') polygon = geometry;
+          if (geometry.getType() === 'MultiPolygon') {
+            let largest = -1;
+            geometry.getPolygons().forEach(candidate => {
+              const area = candidate.getArea();
+              if (area > largest) { largest = area; polygon = candidate; }
+            });
+          }
+          if (polygon && polygon.getArea() > (bestArea[code] || 0)) {
+            bestArea[code] = polygon.getArea();
+            autoCentroid[code] = polygon.getInteriorPoint().getCoordinates();
+          }
+        });
+      } catch (error) { /* 기본 좌표를 사용합니다. */ }
+
+      const fallbackCentroid = {
+        GG:[127.05,37.40], GW:[128.30,37.75], CB:[127.75,36.80], CN:[126.75,36.50],
+        GB:[128.75,36.35], GN:[128.20,35.30], JB:[127.10,35.70], JN:[126.90,34.85], JJ:[126.55,33.40]
+      };
+      const centroidNudge = {
+        GW:[9000,-9000], CB:[22000,-6000], CN:[-4000,-11000], GB:[9000,-9000],
+        GN:[9000,-9000], JB:[9000,-9000], JN:[9000,-9000], JJ:[9000,-9000]
+      };
+      const markerCoord = code => {
+        const fallback = fallbackCentroid[code];
+        const baseCoord = autoCentroid[code] || (fallback ? ol.proj.fromLonLat(fallback) : null);
+        if (!baseCoord) return null;
+        const nudge = centroidNudge[code];
+        return nudge ? [baseCoord[0] + nudge[0], baseCoord[1] + nudge[1]] : baseCoord;
+      };
+      
+      const map = new ol.Map({
+        target: el,
+        layers: [base, fill],
+        view: window.KoreaMap.createView({ center:[127.85, 36.15], zoom:7.25, minZoom:6, maxZoom:9 }),
+        controls: [], interactions: []
+      });
+
+      let markers = [];
+      return {
+        paint(word) {
+          markers.forEach(marker => map.removeOverlay(marker));
+          markers = [];
+          fill.getSource().getFeatures().forEach(ft => {
+            const code = PROV2CODE[ft.get('name')];
+            const cell = code && word.r[code];
+            ft.set('color', cell && STATE[cell.s] ? STATE[cell.s].color : '#E5E7EB');
+          });
+          ORDER.forEach(code => {
+            const coord = markerCoord(code);
+            const cell = word.r[code];
+            const state = cell && STATE[cell.s] ? STATE[cell.s] : STATE.w0;
+            if (!coord) return;
+            const markerEl = document.createElement('div');
+            markerEl.className = 'v3-ol-marker';
+            const isPlain = !state.emoji || state.emoji === '·';
+            markerEl.innerHTML = isPlain
+              ? `<div class="v3-ol-marker-ring"><div class="v3-ol-marker-label is-plain"><span class="name">${RNAME[code]}</span><span class="note">${cell?.s === 'std' ? '지역어형 없음' : '관측 없음'}</span></div></div>`
+              : `<div class="v3-ol-marker-ring"><div class="v3-ol-marker-emoji">${state.emoji}</div><div class="v3-ol-marker-label"><span class="name">${RNAME[code]}</span></div></div>`;
+            const overlay = new ol.Overlay({ element: markerEl, stopEvent: false, positioning: 'center-center' });
+            overlay.setPosition(coord);
+            map.addOverlay(overlay);
+            markers.push(overlay);
+          });
+        }
+      };
+    }
+
+    function geoLatCenter(geometry) {
+      let minY = Infinity;
+      let maxY = -Infinity;
+      (function scan(coords) {
+        if (typeof coords[0] === 'number') {
+          minY = Math.min(minY, coords[1]);
+          maxY = Math.max(maxY, coords[1]);
+        } else coords.forEach(scan);
+      })(geometry.coordinates);
+      return (minY + maxY) / 2;
+    }
+
+    chipsWrap.innerHTML = WX_WORDS.map((w, i) => `
+      <button type="button" class="btn btn-sm btn-default v3-gword-btn ${i===0?'is-active':''}" data-idx="${i}">${w.word}</button>
+    `).join('');
+
+    chipsWrap.addEventListener('click', e => {
+      const btn = e.target.closest('.v3-gword-btn');
+      if (!btn) return;
+      const idx = parseInt(btn.getAttribute('data-idx'), 10);
+      chipsWrap.querySelectorAll('.v3-gword-btn').forEach((b, k) => b.classList.toggle('is-active', k === idx));
+      const w = WX_WORDS[idx];
+      if (labelEl) labelEl.textContent = w.word;
+      if (mapAdapter) mapAdapter.paint(w);
+    });
+
+    // 2) 세대별 변화 데이터
+    const GEN_WORDS = [
+      { id:"20606", word:"아우타다", hook:"세대 단절이 가장 극심한 말", story:"20대는 사실상 비사용 단계에 들어섰으나 70대는 지역어 사용이 81.1%에 달합니다.", drop:81, u70:81, u50:28, u20:0 },
+      { id:"21908", word:"부추", hook:"50대는 ‘부추’와 ‘정구지’를 골라 쓴다", story:"20대는 표준어(61.5%), 70대는 지역어(52.8%)가 우세하며 50대는 혼용 비율이 높습니다.", drop:33, u70:53, u50:41, u20:20 },
+      { id:"22203", word:"똬리", hook:"70대의 79%는 지역어로 기억하는 물건", story:"현대 생활에서 보기 힘든 물건이 되면서 노년층에게만 깊이 각인되었습니다.", drop:62, u70:79, u50:35, u20:17 }
+    ];
+
+    const genChips = document.getElementById('v3GenWords');
+    const genCard = document.getElementById('v3GenCard');
+
+    function renderGenCard(w) {
+      genCard.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:14px; border-bottom:1px solid var(--v3-border);">
+          <div>
+            <div style="font-family:var(--sans); font-size:26px; font-weight:700; color:var(--v3-dark); letter-spacing:-0.03em;">${w.word}</div>
+            <p style="font-size:13.5px; font-weight:700; color:var(--v3-primary); margin-top:4px;">${w.hook}</p>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-family:var(--font-num); font-size:30px; font-weight:800; color:#DC2626; line-height:1;">−${w.drop}<i>%p</i></div>
+            <span style="font-size:11px; font-weight:600; color:var(--v3-muted);">70대 대비 20대 격차</span>
+          </div>
+        </div>
+        <p style="font-size:13px; color:var(--v3-mid); line-height:1.6;">${w.story}</p>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:8px;">
+          <div style="display:grid; grid-template-columns:50px 1fr 45px; align-items:center; gap:8px; font-size:12px;">
+            <b>70대</b>
+            <div style="height:8px; border-radius:0; background:#E2E8F0; overflow:hidden;"><div style="height:100%; width:${w.u70}%; background:var(--v3-dark);"></div></div>
+            <span style="font-family:var(--font-num); text-align:right; font-weight:700;">${w.u70}%</span>
+          </div>
+          <div style="display:grid; grid-template-columns:50px 1fr 45px; align-items:center; gap:8px; font-size:12px;">
+            <b>50대</b>
+            <div style="height:8px; border-radius:0; background:#E2E8F0; overflow:hidden;"><div style="height:100%; width:${w.u50}%; background:var(--v3-primary);"></div></div>
+            <span style="font-family:var(--font-num); text-align:right; font-weight:700;">${w.u50}%</span>
+          </div>
+          <div style="display:grid; grid-template-columns:50px 1fr 45px; align-items:center; gap:8px; font-size:12px;">
+            <b>20대</b>
+            <div style="height:8px; border-radius:0; background:#E2E8F0; overflow:hidden;"><div style="height:100%; width:${w.u20}%; background:#94A3B8;"></div></div>
+            <span style="font-family:var(--font-num); text-align:right; font-weight:700;">${w.u20}%</span>
+          </div>
+        </div>
+      `;
+    }
+
+    genChips.innerHTML = GEN_WORDS.map((w, i) => `
+      <button type="button" class="btn btn-sm btn-default v3-gen-btn ${i===0?'is-active':''}" data-idx="${i}">${w.word}</button>
+    `).join('');
+
+    genChips.addEventListener('click', e => {
+      const btn = e.target.closest('.v3-gen-btn');
+      if (!btn) return;
+      const idx = parseInt(btn.getAttribute('data-idx'), 10);
+      genChips.querySelectorAll('.v3-gen-btn').forEach((b, k) => b.classList.toggle('is-active', k === idx));
+      renderGenCard(GEN_WORDS[idx]);
+    });
+
+    setTimeout(() => {
+    mapAdapter = initWxMap();
+      if (mapAdapter) mapAdapter.paint(WX_WORDS[0]);
+      renderGenCard(GEN_WORDS[0]);
+    }, 100);
+  })();
+  </script>
+
+</body>
+</html>

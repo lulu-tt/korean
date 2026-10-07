@@ -1,0 +1,1017 @@
+<title>NEIBIS 테이블 감사</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+:root{
+  --ink:#16211f;
+  --ink-soft:#4d5b57;
+  --ink-faint:#7c8a86;
+  --paper:#eef1ec;
+  --surface:#fbfcfa;
+  --surface-sunk:#e6eae4;
+  --rule:#d3d9d1;
+  --rule-soft:#e2e7df;
+  --accent:#2c5a6b;
+  --accent-soft:#dce8ec;
+  --live:#3a6b57;
+  --live-bg:#dfeae3;
+  --legacy:#846327;
+  --legacy-bg:#f0e8d6;
+  --dead:#a04329;
+  --dead-bg:#f4e2db;
+  --bar:#4a7f92;
+  --bar-alt:#a86f4a;
+  --shadow:0 1px 2px rgba(22,33,31,.06),0 8px 24px -16px rgba(22,33,31,.18);
+
+  --f-display:"Gowun Batang",Georgia,"Noto Serif KR",serif;
+  --f-body:"IBM Plex Sans KR","Helvetica Neue",Arial,sans-serif;
+  --f-mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;
+
+  --measure:66ch;
+  --wide:1120px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#e2e7e3;
+    --ink-soft:#a5b1ad;
+    --ink-faint:#78847f;
+    --paper:#121718;
+    --surface:#1a2022;
+    --surface-sunk:#151a1c;
+    --rule:#2c3438;
+    --rule-soft:#232a2d;
+    --accent:#83b7c7;
+    --accent-soft:#1e2f36;
+    --live:#75b092;
+    --live-bg:#1b2b24;
+    --legacy:#cfa863;
+    --legacy-bg:#2c2519;
+    --dead:#dc836a;
+    --dead-bg:#31201b;
+    --bar:#5a93a7;
+    --bar-alt:#c08a62;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -18px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#e2e7e3;
+  --ink-soft:#a5b1ad;
+  --ink-faint:#78847f;
+  --paper:#121718;
+  --surface:#1a2022;
+  --surface-sunk:#151a1c;
+  --rule:#2c3438;
+  --rule-soft:#232a2d;
+  --accent:#83b7c7;
+  --accent-soft:#1e2f36;
+  --live:#75b092;
+  --live-bg:#1b2b24;
+  --legacy:#cfa863;
+  --legacy-bg:#2c2519;
+  --dead:#dc836a;
+  --dead-bg:#31201b;
+  --bar:#5a93a7;
+  --bar-alt:#c08a62;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -18px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-weight:300;
+  font-size:15.5px;
+  line-height:1.72;
+  -webkit-font-smoothing:antialiased;
+}
+.page{max-width:var(--wide);margin:0 auto;padding:0 28px 96px}
+
+/* ── 머리말 ───────────────────────────────── */
+.masthead{
+  padding:56px 0 32px;
+  border-bottom:2px solid var(--ink);
+  display:grid;
+  gap:20px;
+}
+.eyebrow{
+  font-family:var(--f-mono);
+  font-size:11.5px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin:0;
+}
+h1{
+  font-family:var(--f-display);
+  font-weight:700;
+  font-size:clamp(30px,4.6vw,48px);
+  line-height:1.14;
+  letter-spacing:-.01em;
+  margin:0;
+  text-wrap:balance;
+}
+.standfirst{
+  font-size:17px;
+  line-height:1.65;
+  color:var(--ink-soft);
+  max-width:var(--measure);
+  margin:0;
+}
+.standfirst strong{color:var(--ink);font-weight:500}
+
+.slugline{
+  display:flex;flex-wrap:wrap;gap:0 28px;
+  font-family:var(--f-mono);font-size:12px;
+  color:var(--ink-faint);
+  padding-top:4px;
+}
+.slugline span b{color:var(--ink-soft);font-weight:500}
+
+/* ── 골격 ─────────────────────────────────── */
+section{padding-top:56px}
+h2{
+  font-family:var(--f-display);
+  font-weight:700;
+  font-size:26px;
+  line-height:1.25;
+  margin:0 0 6px;
+  letter-spacing:-.005em;
+  text-wrap:balance;
+}
+h2 + .dek{
+  margin:0 0 26px;color:var(--ink-soft);
+  max-width:var(--measure);font-size:14.5px;
+}
+h3{
+  font-family:var(--f-body);font-weight:600;font-size:16px;
+  margin:32px 0 10px;letter-spacing:.005em;
+}
+h4{
+  font-family:var(--f-mono);font-weight:500;font-size:12px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);
+  margin:26px 0 10px;
+}
+p{max-width:var(--measure);margin:0 0 14px}
+.rule{border:0;border-top:1px solid var(--rule);margin:0}
+code,.mono{font-family:var(--f-mono);font-size:.88em}
+code{
+  background:var(--surface-sunk);
+  padding:.1em .34em;border-radius:3px;
+  color:var(--ink);
+}
+a{color:var(--accent)}
+strong{font-weight:500;color:var(--ink)}
+
+/* ── 판정 배지 ────────────────────────────── */
+.verdict{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--f-mono);font-size:11px;
+  letter-spacing:.06em;
+  padding:2px 8px;border-radius:2px;
+  white-space:nowrap;
+}
+.verdict::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+.v-live{color:var(--live);background:var(--live-bg)}
+.v-legacy{color:var(--legacy);background:var(--legacy-bg)}
+.v-dead{color:var(--dead);background:var(--dead-bg)}
+
+/* ── 표 ───────────────────────────────────── */
+.tablewrap{overflow-x:auto;margin:0 0 8px;border-top:1px solid var(--ink);border-bottom:1px solid var(--rule)}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:13.5px}
+thead th{
+  font-family:var(--f-mono);font-weight:500;font-size:11px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);
+  text-align:left;padding:10px 14px 9px;
+  border-bottom:1px solid var(--rule);
+  white-space:nowrap;
+}
+tbody td{padding:9px 14px;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.tname{font-family:var(--f-mono);font-size:12.5px;white-space:nowrap}
+.dt{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-soft);white-space:nowrap;font-variant-numeric:tabular-nums}
+.dim{color:var(--ink-faint)}
+tbody tr.groupstart td{border-top:1px solid var(--rule)}
+caption{
+  caption-side:bottom;text-align:left;font-size:12px;color:var(--ink-faint);
+  padding:10px 0 0;max-width:var(--measure);
+}
+
+/* ── 도시에 ─────────────────────────────── */
+.dossier{
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-left:3px solid var(--accent);
+  box-shadow:var(--shadow);
+  padding:22px 24px 24px;
+  margin:0 0 20px;
+}
+.dossier.is-legacy{border-left-color:var(--legacy)}
+.dossier.is-dead{border-left-color:var(--dead)}
+.dhead{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 14px;
+  padding-bottom:14px;margin-bottom:16px;
+  border-bottom:1px solid var(--rule-soft);
+}
+.dhead h3{margin:0;font-size:17px}
+.dhead .tables{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-faint)}
+.dossier p{margin-bottom:12px}
+.dossier p:last-child{margin-bottom:0}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(112px,1fr));
+  gap:1px;background:var(--rule-soft);
+  border:1px solid var(--rule-soft);
+  margin:0 0 18px;
+}
+.stat{background:var(--surface);padding:11px 13px}
+.stat dt{
+  font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-faint);margin:0 0 3px;
+}
+.stat dd{
+  margin:0;font-family:var(--f-mono);font-size:17px;font-weight:500;
+  font-variant-numeric:tabular-nums;line-height:1.25;
+}
+.stat dd small{font-size:11px;font-weight:400;color:var(--ink-soft);display:block;letter-spacing:0}
+
+/* ── 예시 블록 ────────────────────────────── */
+.specimen{
+  background:var(--surface-sunk);
+  border-left:2px solid var(--rule);
+  font-family:var(--f-mono);font-size:12px;line-height:1.85;
+  padding:13px 16px;margin:0 0 16px;
+  overflow-x:auto;white-space:pre;
+  color:var(--ink-soft);
+}
+.specimen b{color:var(--ink);font-weight:500}
+.specimen em{color:var(--dead);font-style:normal;font-weight:500}
+
+/* ── 막대 ─────────────────────────────────── */
+.bars{display:grid;gap:5px;margin:0 0 10px}
+.bar{
+  display:grid;
+  grid-template-columns:minmax(96px,132px) 1fr minmax(52px,auto);
+  align-items:center;gap:12px;
+}
+.bar .lab{font-size:12.5px;color:var(--ink-soft);text-align:right;line-height:1.3}
+.bar .track{background:var(--surface-sunk);height:16px;position:relative}
+.bar .fill{background:var(--bar);height:100%;min-width:2px}
+.bar.alt .fill{background:var(--bar-alt)}
+.bar .val{
+  font-family:var(--f-mono);font-size:12px;
+  font-variant-numeric:tabular-nums;color:var(--ink-soft);
+}
+.legend{
+  display:flex;flex-wrap:wrap;gap:6px 20px;
+  font-size:12px;color:var(--ink-faint);margin:12px 0 0;
+}
+.legend i{display:inline-block;width:11px;height:11px;margin-right:6px;vertical-align:-1px}
+
+/* ── 계보 도해 ────────────────────────────── */
+.lineage{
+  display:grid;gap:0;
+  border:1px solid var(--rule);background:var(--surface);
+  box-shadow:var(--shadow);margin:0 0 8px;
+}
+.track-row{padding:20px 22px}
+.track-row + .track-row{border-top:1px solid var(--rule)}
+.track-row.is-dead{background:var(--surface-sunk)}
+.track-head{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;
+  margin-bottom:14px;
+}
+.track-head .who{font-family:var(--f-body);font-weight:600;font-size:14.5px}
+.track-head .keyfmt{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-faint)}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.node{
+  font-family:var(--f-mono);font-size:11.5px;line-height:1.45;
+  border:1px solid var(--rule);background:var(--paper);
+  padding:6px 10px;white-space:nowrap;
+}
+.node b{display:block;font-weight:500;color:var(--ink);font-size:12px}
+.node span{color:var(--ink-faint)}
+.node.terminal{border-style:dashed;color:var(--ink-faint)}
+.arrow{color:var(--ink-faint);font-family:var(--f-mono);font-size:13px}
+.crossbar{
+  border-top:1px solid var(--rule);
+  padding:11px 22px;
+  font-family:var(--f-mono);font-size:12px;
+  color:var(--dead);background:var(--dead-bg);
+}
+
+/* ── 함정 목록 ────────────────────────────── */
+.traps{display:grid;gap:0;border-top:1px solid var(--ink);margin:0}
+.trap{
+  display:grid;
+  grid-template-columns:minmax(0,168px) minmax(0,1fr);
+  gap:4px 22px;
+  padding:16px 0;
+  border-bottom:1px solid var(--rule-soft);
+}
+.trap .where{font-family:var(--f-mono);font-size:11.5px;color:var(--accent);line-height:1.5;word-break:break-all}
+.trap .what{margin:0;max-width:var(--measure)}
+.trap .what b{font-weight:500}
+.trap .fix{
+  margin:6px 0 0;font-size:13px;color:var(--ink-soft);
+  padding-left:12px;border-left:2px solid var(--rule);
+  max-width:var(--measure);
+}
+
+/* ── 콜아웃 ───────────────────────────────── */
+.callout{
+  background:var(--accent-soft);
+  border-left:3px solid var(--accent);
+  padding:18px 22px;margin:0 0 22px;
+}
+.callout p{margin:0;max-width:var(--measure)}
+.callout p + p{margin-top:10px}
+.callout .k{
+  font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px;
+}
+
+/* ── 다음 할 일 ───────────────────────────── */
+.todo{list-style:none;padding:0;margin:0;display:grid;gap:14px;counter-reset:t}
+.todo li{
+  counter-increment:t;
+  display:grid;grid-template-columns:24px 1fr;gap:14px;
+  max-width:calc(var(--measure) + 38px);
+}
+.todo li::before{
+  content:counter(t);
+  font-family:var(--f-mono);font-size:12px;color:var(--accent);
+  border:1px solid var(--rule);text-align:center;
+  height:22px;line-height:20px;
+}
+.todo b{font-weight:500}
+.todo p{margin:2px 0 0;font-size:13.5px;color:var(--ink-soft)}
+
+footer{
+  margin-top:64px;padding-top:20px;border-top:1px solid var(--rule);
+  font-family:var(--f-mono);font-size:11.5px;color:var(--ink-faint);
+  display:flex;flex-wrap:wrap;gap:6px 24px;
+}
+
+@media (max-width:620px){
+  .page{padding:0 18px 72px}
+  .trap{grid-template-columns:1fr;gap:6px}
+  .bar{grid-template-columns:minmax(74px,96px) 1fr auto;gap:8px}
+  .bar .lab{font-size:11.5px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+
+<div class="page">
+
+<header class="masthead">
+  <p class="eyebrow">dialect_local.db · 테이블 감사</p>
+  <h1>NEIBIS 테이블 감사</h1>
+  <p class="standfirst">지역어 정보 시스템 DB에서 <strong>16개 테이블</strong>을 열어 무엇이 들어 있고, 언제 들어왔고, 지금 누가 읽는지 확인했습니다. 결론부터: <strong>16개 전부 현행 코드에서 참조하지 않습니다.</strong> 그중 7개는 지금 바로 쓸 수 있는 실데이터고, 9개는 기능이 대체되거나 테스트로 남은 잔재입니다.</p>
+  <div class="slugline">
+    <span>대상 <b>dialect_local.db</b> (운영 CUBRID 79테이블 전체 미러)</span>
+    <span>스냅샷 <b>2026-08-31</b></span>
+    <span>크기 <b>393 MB</b></span>
+  </div>
+</header>
+
+<section id="summary">
+  <h2>판정 요약</h2>
+  <p class="dek">건수와 날짜는 미러에서 직접 세고 epoch 밀리초를 KST로 변환한 값입니다. “코드 참조”는 <code>serve.py</code>·<code>server.py</code>·<code>oral_api.py</code>·<code>vocab_api.py</code>와 HTML·JS 전체를 grep한 결과입니다.</p>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th>테이블</th>
+          <th class="num">건수</th>
+          <th>등록</th>
+          <th>최종 수정</th>
+          <th>코드 참조</th>
+          <th>판정</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="groupstart">
+          <td class="tname">sd_survey</td>
+          <td class="num">2</td>
+          <td class="dt">2016-11-04</td>
+          <td class="dt">2018-02-14</td>
+          <td class="dim">없음</td>
+          <td><span class="verdict v-live">실데이터</span></td>
+        </tr>
+        <tr>
+          <td class="tname">sd_question</td>
+          <td class="num">84</td>
+          <td class="dt dim">날짜 컬럼 없음</td>
+          <td class="dt dim">—</td>
+          <td class="dim">없음</td>
+          <td><span class="verdict v-live">실데이터</span></td>
+        </tr>
+        <tr>
+          <td class="tname">sd_question_choice</td>
+          <td class="num">340</td>
+          <td class="dt dim">날짜 컬럼 없음</td>
+          <td class="dt dim">—</td>
+          <td class="dim">없음</td>
+          <td><span class="verdict v-live">실데이터</span></td>
+        </tr>
+        <tr>
+          <td class="tname">sd_imformant</td>
+          <td class="num">300</td>
+          <td class="dt dim">날짜 컬럼 없음</td>
+          <td class="dt dim">—</td>
+          <td class="dim">없음</td>
+          <td><span class="verdict v-live">실데이터</span></td>
+        </tr>
+        <tr>
+          <td class="tname">sd_question_answer</td>
+          <td class="num">25,200</td>
+          <td class="dt dim">날짜 컬럼 없음</td>
+          <td class="dt dim">—</td>
+          <td class="dim">없음</td>
+          <td><span class="verdict v-live">실데이터</span></td>
+        </tr>
+
+        <tr class="groupstart">
+          <td class="tname">pt_question</td>
+          <td class="num">973</td>
+          <td class="dt dim">날짜 컬럼 없음</td>
+          <td class="dt dim">—</td>
+          <td class="dim">없음</td>
+          <td><span class="verdict v-live">실데이터</span></td>
+        </tr>
+        <tr>
+          <td class="tname">pt_opendict_dialect</td>
+          <td class="num">44,271</td>
+          <td class="dt dim">날짜 컬럼 없음</td>
+          <td class="dt dim">—</td>
+          <td class="dim">없음</td>
+          <td><span class="verdict v-live">실데이터</span></td>
+        </tr>
+
+        <tr class="groupstart">
+          <td class="tname">tb_research</td>
+          <td class="num">119</td>
+          <td class="dt">2015-12-11 ~ 2017-02-17</td>
+          <td class="dt dim">없음 (upt_dt 0건)</td>
+          <td class="dim">없음</td>
+          <td><span class="verdict v-legacy">레거시</span></td>
+        </tr>
+        <tr>
+          <td class="tname">tb_research_area</td>
+          <td class="num">127</td>
+          <td class="dt">2015-12-11 ~ 2017-02-17</td>
+          <td class="dt dim">없음 (upt_dt 0건)</td>
+          <td class="dim">없음</td>
+          <td><span class="verdict v-legacy">레거시</span></td>
+        </tr>
+        <tr>
+          <td class="tname">tb_research_file</td>
+          <td class="num">5,314</td>
+          <td class="dt">2015-11-24 ~ 2017-08-23</td>
+          <td class="dt dim">없음 (upt_dt 0건)</td>
+          <td class="dim">없음</td>
+          <td><span class="verdict v-legacy">레거시</span></td>
+        </tr>
+
+        <tr class="groupstart">
+          <td class="tname">tb_quiz</td>
+          <td class="num">30</td>
+          <td class="dt">2015-11-13 ~ 2015-12-17</td>
+          <td class="dt">2016-11-03</td>
+          <td class="dim">없음</td>
+          <td><span class="verdict v-dead">테스트 잔재</span></td>
+        </tr>
+        <tr>
+          <td class="tname">tb_quiz_detail</td>
+          <td class="num">100</td>
+          <td class="dt">2015-11-13 ~ 2015-12-17</td>
+          <td class="dt dim">없음</td>
+          <td class="dim">없음</td>
+          <td><span class="verdict v-dead">테스트 잔재</span></td>
+        </tr>
+        <tr>
+          <td class="tname">tb_quiz_answer</td>
+          <td class="num">156</td>
+          <td class="dt">2015-11-13 ~ 2016-10-27</td>
+          <td class="dt dim">컬럼 없음</td>
+          <td class="dim">없음</td>
+          <td><span class="verdict v-dead">테스트 잔재</span></td>
+        </tr>
+        <tr>
+          <td class="tname">tb_greeting</td>
+          <td class="num">9</td>
+          <td class="dt">2015-10-27 ~ 2016-01-21</td>
+          <td class="dt">2016-04-06</td>
+          <td class="dim">없음</td>
+          <td><span class="verdict v-dead">테스트 잔재</span></td>
+        </tr>
+        <tr>
+          <td class="tname">pt_question_answer_info</td>
+          <td class="num">1</td>
+          <td class="dt">2018-02-13</td>
+          <td class="dt dim">없음</td>
+          <td class="dim">없음</td>
+          <td><span class="verdict v-dead">테스트 잔재</span></td>
+        </tr>
+        <tr>
+          <td class="tname">pt_question_answer</td>
+          <td class="num">34</td>
+          <td class="dt dim">날짜 컬럼 없음</td>
+          <td class="dt dim">—</td>
+          <td class="dim">없음</td>
+          <td><span class="verdict v-dead">테스트 잔재</span></td>
+        </tr>
+      </tbody>
+      <caption>날짜 컬럼이 아예 없는 테이블이 7개입니다 — 이 경우 ID 결번으로 적재 이력을 추정했습니다(아래 <em>데이터 시점</em> 참조).</caption>
+    </table>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="usable">
+  <h2>쓸 수 있는 실데이터</h2>
+  <p class="dek">화면에 안 붙어 있을 뿐, 내용이 온전하고 규모도 있는 세 덩어리입니다.</p>
+
+  <!-- sd_ -->
+  <article class="dossier">
+    <div class="dhead">
+      <h3>2015 대도시 지역 사회방언 조사</h3>
+      <span class="verdict v-live">실데이터</span>
+      <span class="tables">sd_survey · sd_question · sd_question_choice · sd_imformant · sd_question_answer</span>
+    </div>
+
+    <dl class="stats">
+      <div class="stat"><dt>제보자</dt><dd>300<small>서울 6개 구</small></dd></div>
+      <div class="stat"><dt>문항</dt><dd>84<small>음운·어휘·문법·담화</small></dd></div>
+      <div class="stat"><dt>응답</dt><dd>25,200<small>84 × 300 완전 격자</small></dd></div>
+      <div class="stat"><dt>결측</dt><dd>0<small>300명 전원 84건</small></dd></div>
+      <div class="stat"><dt>출생</dt><dd>1920~2000<small>9개 연대</small></dd></div>
+    </dl>
+
+    <p>감사한 테이블 중 <strong>가장 온전한 조사 데이터</strong>입니다. 제보자 300명이 문항 84개에 빠짐없이 답해 <code>sd_question_answer</code>가 정확히 25,200행이고, 제보자별 응답 수도 300명 전원 84건입니다. 문항 설계도 제대로 돼 있습니다 — <code>se_no</code>(음01-1 식 체계 번호), <code>entry</code>(유도 대상 어휘), <code>question</code>(질문문), <code>note</code>(조사 지침)가 모두 채워져 있고 선택지 없는 문항이 0건입니다.</p>
+
+    <div class="specimen"><b>se_no</b>    음01-1
+<b>title</b>    음운체계 - 단모음 '에/애'
+<b>entry</b>    떼
+<b>question</b> 새 여러 마리가 한꺼번에 날아가면 뭐 지어 날아간다고 합니까?
+<b>note</b>     '에/애'의 구별에 유의하여 …
+<b>choices</b>  1:e  2:*e  3:기타</div>
+
+    <h4>영역별 문항</h4>
+    <div class="bars">
+      <div class="bar"><span class="lab">어휘 (V)</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="val">35</span></div>
+      <div class="bar"><span class="lab">음운 (P)</span><span class="track"><span class="fill" style="width:77.1%"></span></span><span class="val">27</span></div>
+      <div class="bar"><span class="lab">담화 (D)</span><span class="track"><span class="fill" style="width:34.3%"></span></span><span class="val">12</span></div>
+      <div class="bar"><span class="lab">문법 (G)</span><span class="track"><span class="fill" style="width:28.6%"></span></span><span class="val">10</span></div>
+    </div>
+
+    <h4>제보자 출생 연대</h4>
+    <div class="bars">
+      <div class="bar"><span class="lab">1920년대</span><span class="track"><span class="fill" style="width:4.5%"></span></span><span class="val">3</span></div>
+      <div class="bar"><span class="lab">1930년대</span><span class="track"><span class="fill" style="width:33.3%"></span></span><span class="val">22</span></div>
+      <div class="bar"><span class="lab">1940년대</span><span class="track"><span class="fill" style="width:43.9%"></span></span><span class="val">29</span></div>
+      <div class="bar"><span class="lab">1950년대</span><span class="track"><span class="fill" style="width:34.8%"></span></span><span class="val">23</span></div>
+      <div class="bar"><span class="lab">1960년대</span><span class="track"><span class="fill" style="width:97.0%"></span></span><span class="val">64</span></div>
+      <div class="bar"><span class="lab">1970년대</span><span class="track"><span class="fill" style="width:50.0%"></span></span><span class="val">33</span></div>
+      <div class="bar"><span class="lab">1980년대</span><span class="track"><span class="fill" style="width:86.4%"></span></span><span class="val">57</span></div>
+      <div class="bar"><span class="lab">1990년대</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="val">66</span></div>
+      <div class="bar"><span class="lab">2000년대</span><span class="track"><span class="fill" style="width:4.5%"></span></span><span class="val">3</span></div>
+    </div>
+    <p class="legend"><span>세대별 표본이 20~66명 — 기상도 세대 데이터(n=1~2)와 달리 통계로 쓸 수 있는 규모입니다. 여자 170 / 남자 130.</span></p>
+
+    <p>지역은 관악 56 · 서대문 51 · 서초 50 · 영등포 50 · 노원 49 · 성북 44입니다. <strong>서울 도시 내부 변이</strong>를 보여주는 레이어로 바로 쓸 수 있는 형태입니다.</p>
+  </article>
+
+  <!-- pt_question -->
+  <article class="dossier">
+    <div class="dhead">
+      <h3>어휘 조사 질문지 정본</h3>
+      <span class="verdict v-live">실데이터</span>
+      <span class="tables">pt_question · 973건</span>
+    </div>
+
+    <dl class="stats">
+      <div class="stat"><dt>문항</dt><dd>973</dd></div>
+      <div class="stat"><dt>표제어</dt><dd>973<small>채움률 100%</small></dd></div>
+      <div class="stat"><dt>고어형</dt><dd>538</dd></div>
+      <div class="stat"><dt>뜻풀이</dt><dd>395</dd></div>
+      <div class="stat"><dt>그림 표기</dt><dd>282</dd></div>
+    </dl>
+
+    <p><code>headword_no</code>(20101~23441)가 <code>kd_topic</code>의 <code>se='2'</code> 세부주제 35개 범위에 <strong>973건 전부 정확히 매핑</strong>됩니다. 다른 <code>se</code>(구술·기타)에는 한 건도 걸리지 않아 계보가 깔끔합니다.</p>
+
+    <div class="specimen"><b>1</b>  20101  벼      이것은 무엇입니까?          논에다 모를 심어서 키운 식물.
+<b>4</b>  20104  못자리  흙을 고르고 판판하게 만든 다음, 볍씨를 뿌리려고 만든 논은…</div>
+
+    <p>다만 <code>kd_topic</code>에 정의된 <strong>민속(세시풍속·농경용품·생활용품)과 인체(얼굴·상체·하체·질병) 7개 세부주제는 문항이 0건</strong>입니다. <code>headword_no</code> 대역 215xx~221xx가 아예 없습니다 — 원본 질문지에는 있는 대역이라 미입력으로 보입니다.</p>
+
+    <p>주제별로는 가옥 168 · 동물 162 · 자연 131 · 농경 106 · 식물 100 · 음식 90 · 친족 84 · 의복 75 · 육아 57입니다.</p>
+  </article>
+
+  <!-- opendict -->
+  <article class="dossier">
+    <div class="dhead">
+      <h3>우리말샘 방언형 대응표</h3>
+      <span class="verdict v-live">실데이터</span>
+      <span class="tables">pt_opendict_dialect · 44,271건</span>
+    </div>
+
+    <dl class="stats">
+      <div class="stat"><dt>대응 행</dt><dd>44,271<small>빈 값 0</small></dd></div>
+      <div class="stat"><dt>표제어</dt><dd>1,186</dd></div>
+      <div class="stat"><dt>고유 방언형</dt><dd>30,068</dd></div>
+      <div class="stat"><dt>표제어당</dt><dd>37.3<small>최대 237 (고양이)</small></dd></div>
+      <div class="stat"><dt>지역</dt><dd>22<small>국내+중국+중앙아시아</small></dd></div>
+    </dl>
+
+    <p>“표제어 X는 Y 지역에서 Z라고 한다” 한 줄이 한 행인 단순 대응표입니다. 출처는 우리말샘(개방형 한국어 지식대사전)이고, 북한 5개 도와 중국 3성·중앙아시아까지 들어 있어 <strong>지금 공통 지도가 다루는 범위보다 넓습니다</strong>.</p>
+
+    <div class="specimen">headword_id  headword  sido_code  sido    dialect
+1            가        42         강원    가상이
+1            가        72         <em>경상도</em>  가상이   ← 광역 코드
+1            가        48         경상남도  갓</div>
+
+    <h4>지역별 건수</h4>
+    <div class="bars">
+      <div class="bar"><span class="lab">전라남도</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="val">6,050</span></div>
+      <div class="bar"><span class="lab">경상남도</span><span class="track"><span class="fill" style="width:83.9%"></span></span><span class="val">5,075</span></div>
+      <div class="bar"><span class="lab">강원</span><span class="track"><span class="fill" style="width:71.4%"></span></span><span class="val">4,319</span></div>
+      <div class="bar"><span class="lab">경상북도</span><span class="track"><span class="fill" style="width:67.0%"></span></span><span class="val">4,056</span></div>
+      <div class="bar"><span class="lab">제주특별자치도</span><span class="track"><span class="fill" style="width:51.1%"></span></span><span class="val">3,093</span></div>
+      <div class="bar"><span class="lab">충청남도</span><span class="track"><span class="fill" style="width:37.1%"></span></span><span class="val">2,245</span></div>
+      <div class="bar"><span class="lab">경기</span><span class="track"><span class="fill" style="width:36.3%"></span></span><span class="val">2,198</span></div>
+      <div class="bar alt"><span class="lab">경상도</span><span class="track"><span class="fill" style="width:36.1%"></span></span><span class="val">2,186</span></div>
+      <div class="bar alt"><span class="lab">전라도</span><span class="track"><span class="fill" style="width:29.6%"></span></span><span class="val">1,793</span></div>
+      <div class="bar"><span class="lab">충청북도</span><span class="track"><span class="fill" style="width:27.5%"></span></span><span class="val">1,664</span></div>
+      <div class="bar"><span class="lab">함경남도</span><span class="track"><span class="fill" style="width:22.8%"></span></span><span class="val">1,377</span></div>
+      <div class="bar"><span class="lab">함경북도</span><span class="track"><span class="fill" style="width:22.5%"></span></span><span class="val">1,363</span></div>
+      <div class="bar alt"><span class="lab">충청도</span><span class="track"><span class="fill" style="width:20.0%"></span></span><span class="val">1,211</span></div>
+      <div class="bar alt"><span class="lab">함경도</span><span class="track"><span class="fill" style="width:19.3%"></span></span><span class="val">1,165</span></div>
+      <div class="bar"><span class="lab">평안북도</span><span class="track"><span class="fill" style="width:19.1%"></span></span><span class="val">1,157</span></div>
+      <div class="bar alt"><span class="lab">평안도</span><span class="track"><span class="fill" style="width:18.9%"></span></span><span class="val">1,145</span></div>
+      <div class="bar"><span class="lab">황해도</span><span class="track"><span class="fill" style="width:18.8%"></span></span><span class="val">1,140</span></div>
+      <div class="bar"><span class="lab">중국 길림성</span><span class="track"><span class="fill" style="width:18.7%"></span></span><span class="val">1,129</span></div>
+      <div class="bar"><span class="lab">중국 흑룡강성</span><span class="track"><span class="fill" style="width:15.5%"></span></span><span class="val">938</span></div>
+      <div class="bar"><span class="lab">중국 요령성</span><span class="track"><span class="fill" style="width:9.4%"></span></span><span class="val">566</span></div>
+      <div class="bar"><span class="lab">평안남도</span><span class="track"><span class="fill" style="width:4.9%"></span></span><span class="val">299</span></div>
+      <div class="bar"><span class="lab">중앙아시아</span><span class="track"><span class="fill" style="width:1.7%"></span></span><span class="val">102</span></div>
+    </div>
+    <p class="legend">
+      <span><i style="background:var(--bar)"></i>도 단위 코드</span>
+      <span><i style="background:var(--bar-alt)"></i>광역 코드 — 하위 도와 <strong>중복 집계 위험</strong></span>
+    </p>
+
+    <p>출처가 우리말샘이라 자체 조사 실측치와는 반드시 구분해 표시해야 합니다. 실측 데이터의 빈 구멍을 메우는 <strong>참조 레이어</strong>로는 값이 있습니다.</p>
+  </article>
+</section>
+
+<hr class="rule">
+
+<section id="legacy">
+  <h2>레거시 — 기능이 대체됐습니다</h2>
+  <p class="dek">데이터 자체는 실사업 기록이지만, 같은 일을 하는 새 테이블이 이미 자리를 잡았습니다.</p>
+
+  <article class="dossier is-legacy">
+    <div class="dhead">
+      <h3>지역어 조사사업 3형제</h3>
+      <span class="verdict v-legacy">레거시</span>
+      <span class="tables">tb_research · tb_research_area · tb_research_file</span>
+    </div>
+
+    <dl class="stats">
+      <div class="stat"><dt>사업</dt><dd>119<small>2004~2016</small></dd></div>
+      <div class="stat"><dt>좌표</dt><dd>127<small>국내+국외 조사지</small></dd></div>
+      <div class="stat"><dt>파일 목록</dt><dd>5,314<small>wav 2,340 · trs 2,754 · pdf 220</small></dd></div>
+      <div class="stat"><dt>파일 용량</dt><dd>416 GB<small>wav가 415.7 GB</small></dd></div>
+      <div class="stat"><dt>수정 이력</dt><dd>0<small>2017-02 이후 없음</small></dd></div>
+    </dl>
+
+    <p>119개 사업 전부 <code>use_yn='Y'</code>, <code>research_tp='01'</code>(지역어 조사사업)이고 국내 104 / 국외 14로 나뉩니다. 국외는 중국 3성·우즈베키스탄·카자흐스탄·키르기스스탄까지 포함합니다. <code>basis_year</code>는 2004~2011과 2015~2016 — <strong>2012~2014년이 통째로 없습니다.</strong></p>
+
+    <p><strong>119건 전부 <code>upt_dt</code>가 비어 있습니다.</strong> <code>reg_dt</code>는 2017-02-17에서 멈춥니다. 같은 DB의 다른 테이블은 계속 살아 있습니다 — <code>pt_user</code> 2026-08-19, <code>pt_popup</code> 2026-07-19, 자료실 글 2026-01-27. 운영 화면이 붙어 있다면 9년간 수정 0건은 나오기 어렵습니다.</p>
+
+    <h4>대체된 경로</h4>
+    <div class="tablewrap">
+      <table style="min-width:600px">
+        <thead><tr><th>기능</th><th>옛 위치</th><th>현재 위치</th><th class="num">활동</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>보고서 목록</td>
+            <td class="tname">tb_research_file (R) 220</td>
+            <td class="tname">tb_board 'disk' 자료실</td>
+            <td class="num">조회 32,395</td>
+          </tr>
+          <tr>
+            <td>전사자료 목록</td>
+            <td class="tname">tb_research_file (T) 5,094</td>
+            <td class="tname">wb_trs_file 2,965</td>
+            <td class="num">고유 trs 2,877</td>
+          </tr>
+          <tr>
+            <td>조사 지역·제보자</td>
+            <td class="tname">tb_research_area (좌표만)</td>
+            <td class="tname">wb_research_region + wb_source</td>
+            <td class="num">3,467 / 691</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>자료실 게시판은 <strong>2024-11-04에 신설</strong>돼 글 31건·첨부 39건·총 조회 32,395를 기록하고 있고, 최신 글이 2026-01-27입니다. <code>tb_research_file</code>과 <strong>파일명 교집합이 0건</strong>입니다 — 게시판은 연도별 <code>.zip</code>, 옛 테이블은 사업별 <code>.pdf</code>로 서로 다른 파일입니다.</p>
+
+    <p>같은 사업의 보고서가 게시판 글로 다시 올라가 있습니다: <em>2015년 전국 방언 지도 제작 결과 보고서</em>(조회 1,558), <em>2016년 지역어 정보 활용 체계 구축 결과 보고서</em>(조회 1,239). 반면 옛 테이블의 <code>add_hit</code>은 총 238, 0이 아닌 행이 5,314건 중 87개뿐입니다.</p>
+  </article>
+
+  <h3>왜 “사용 중”처럼 보이는지 — 이름이 겹치는 두 계열</h3>
+  <p><code>research</code>가 들어간 테이블이 두 계열로 나뉘어 있고, <strong>키 공간이 완전히 다릅니다.</strong> 이 때문에 조사사업·제보자 관리 화면이 옛 테이블을 쓰는 것처럼 보입니다.</p>
+
+  <div class="lineage">
+    <div class="track-row">
+      <div class="track-head">
+        <span class="who">현행 계열</span>
+        <span class="verdict v-live">serve.py · oral_api.py 사용</span>
+        <span class="keyfmt">research_id = 1, 91, 104 (정수)</span>
+      </div>
+      <div class="chain">
+        <span class="node"><b>wb_research</b><span>사업 93</span></span>
+        <span class="arrow">→</span>
+        <span class="node"><b>wb_research_region</b><span>조사지역 3,467</span></span>
+        <span class="arrow">→</span>
+        <span class="node"><b>wb_source</b><span>제보자 691</span></span>
+        <span class="arrow">·</span>
+        <span class="node"><b>wb_trs_file</b><span>전사파일 2,965</span></span>
+        <span class="arrow">→</span>
+        <span class="node"><b>wh_trs_request</b><span>전사요청 2,300</span></span>
+      </div>
+    </div>
+
+    <div class="crossbar">두 계열의 research_id 교집합 = 0건 · 마이그레이션이 아니라 애초에 별개 시스템</div>
+
+    <div class="track-row is-dead">
+      <div class="track-head">
+        <span class="who">레거시 계열</span>
+        <span class="verdict v-legacy">참조 0곳</span>
+        <span class="keyfmt">research_id = r100001, r105 (문자)</span>
+      </div>
+      <div class="chain">
+        <span class="node"><b>tb_research</b><span>사업 119</span></span>
+        <span class="arrow">→</span>
+        <span class="node"><b>tb_research_area</b><span>좌표 127</span></span>
+        <span class="arrow">·</span>
+        <span class="node"><b>tb_research_file</b><span>파일목록 5,314</span></span>
+        <span class="arrow">→</span>
+        <span class="node terminal">이어지는 테이블 없음</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>제보자 관리도 레거시를 쓰지 않습니다</h3>
+  <p>관리자 제보자 관리 API 5종을 <code>serve.py</code>에서 전수 확인했습니다.</p>
+
+  <div class="tablewrap">
+    <table style="min-width:600px">
+      <thead><tr><th>API</th><th>라인</th><th>용도</th><th>사용 테이블</th></tr></thead>
+      <tbody>
+        <tr><td class="tname">/source/list</td><td class="dt">1665</td><td>목록</td><td class="tname">wb_source</td></tr>
+        <tr><td class="tname">/source/regions</td><td class="dt">1725</td><td>지역 캐스케이드</td><td class="tname">wb_source</td></tr>
+        <tr><td class="tname">/source/detail</td><td class="dt">1751</td><td>상세</td><td class="tname">wb_source · wb_research_region · wb_trs_file_talk</td></tr>
+        <tr><td class="tname">/source/save</td><td class="dt">1831</td><td>등록·수정</td><td class="tname">wb_source</td></tr>
+        <tr><td class="tname">/source/delete</td><td class="dt">1864</td><td>삭제</td><td class="tname">wb_source</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>키 체인을 따라가도 레거시에 닿지 않습니다. 실제 조인 결과:</p>
+
+  <div class="specimen">제보자 691명 → 조사지역 매칭 634명 → 도달하는 research_id 84개
+   그중 wb_research 에 있음 : <b>83</b>
+   그중 tb_research 에 있음 : <em>0</em></div>
+
+  <h3>운영 JSP 쪽 확인</h3>
+  <div class="callout">
+    <p><span class="k">확인 범위의 한계</span>운영 NEIBIS JSP 소스는 <strong>이 머신에 없습니다.</strong> <code>/Users/aaa/inseq</code> 아래 JSP·Java·Mapper 18,305개는 전부 다른 사업(eGovFrame 4.2 / <code>com.intermorph</code>)이고 방언 테이블을 한 건도 참조하지 않습니다. <code>tb_research</code> 문자열은 머신 어디에도 없습니다. 그래서 <strong>소스 대조는 못 했고</strong>, 아래는 운영 DB에 남은 흔적으로 내린 판정입니다.</p>
+    <p>① 운영 화면 등록부 <code>pt_menu</code> 23개 전체에 <strong>조사사업 관리도, 자료실도 없습니다</strong>(<code>pt_auth</code>에 고아 <code>menu_id</code>도 0건 — 삭제된 메뉴의 잔재조차 없음). ② 자료실은 게시판으로 따로 만들어져 있고 파일명 교집합이 0건. ③ 전사자료 목록은 <code>wb_trs_file</code>이 더 크고 버전 관리까지 됩니다. ④ 2017-02 이후 수정 0건. ⑤ 접속 로그 <code>pt_page_access</code>의 <code>page_id</code>에도 조사사업 관련 항목이 없습니다.</p>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="dead">
+  <h2>테스트 잔재</h2>
+  <p class="dek">내용을 열어보면 실데이터가 아닙니다. 통계나 이관 대상이 없습니다.</p>
+
+  <article class="dossier is-dead">
+    <div class="dhead">
+      <h3>방언 퀴즈</h3>
+      <span class="verdict v-dead">테스트 잔재</span>
+      <span class="tables">tb_quiz 30 · tb_quiz_detail 100 · tb_quiz_answer 156</span>
+    </div>
+    <p>문항 30개(객관식 20 / 주관식 10), 보기는 객관식에만 문항당 정확히 5개씩. 응답은 2015-11-13 ~ 2016-10-27 약 1년이고 <strong>이후 유입이 없습니다.</strong> 응답 156건이 앞쪽 3문항에 쏠려 있고(52·49·38건), 응답이 한 건도 없는 문항이 16개입니다.</p>
+    <p><strong>주관식 응답 내용이 전부 유실 상태입니다.</strong> 매칭 안 되는 42건은 모두 주관식 문항의 응답인데 <code>quiz_ans_no</code>가 NULL이고 <code>quiz_ans_etc</code>도 156건 전부 빈 값입니다 — “응답했다”는 사실만 남고 입력한 방언형은 어디에도 없습니다. quiz_id 3만 38건이라 적지 않은 양입니다.</p>
+  </article>
+
+  <article class="dossier is-dead">
+    <div class="dhead">
+      <h3>지역별 인사말</h3>
+      <span class="verdict v-dead">테스트 잔재</span>
+      <span class="tables">tb_greeting · 9건</span>
+    </div>
+    <p>9건이 전부입니다. 지역과 방언이 맞지 않습니다 — 제주 방언(<em>이딘 보름도 하영 불엄져</em>)이 서울 관악구·용산구로 등록돼 있고, 한 건은 표준어와 방언이 똑같고, 한 건은 <em>생일축하해 → 생축</em>입니다. 하나는 앞 행을 복사해 뒤에 <code>2</code>만 붙였습니다.</p>
+    <p><code>greeting_id 8</code>이 결번이고, 두 건은 <code>reg_id</code>·<code>reg_dt</code>가 비어 있습니다(화면을 거치지 않은 직접 INSERT). 음성 파일은 <code>file_nm</code>이 채워진 1건뿐이며 그 파일은 리포지토리에 없습니다.</p>
+  </article>
+
+  <article class="dossier is-dead">
+    <div class="dhead">
+      <h3>어휘 조사 응답 (질문지용)</h3>
+      <span class="verdict v-dead">테스트 잔재</span>
+      <span class="tables">pt_question_answer_info 1 · pt_question_answer 34</span>
+    </div>
+    <p>조사 세션 헤더가 <strong>1건</strong>뿐입니다. <code>topic_id=42</code>(농경/경작), <code>age=10</code>, 서울 강서구 방화동, 2018-02-13 14:18. 응답 34건 중 <code>content</code>가 채워진 건 1건이고 그 값이 <code>qu</code>입니다. <code>state</code>는 34건 전부 빈 값입니다.</p>
+    <p>같은 <code>question_answer_info_id=4</code>인데 1~3이 없어, 앞선 시도들이 지워진 흔적으로 보입니다. 이 헤더의 <code>question_count=34</code>는 경작 주제 문항 수와 맞습니다.</p>
+  </article>
+</section>
+
+<hr class="rule">
+
+<section id="traps">
+  <h2>쓰기 전에 알아야 할 함정</h2>
+  <p class="dek">데이터를 화면에 붙이거나 집계할 때 조용히 틀린 결과를 내는 지점들입니다.</p>
+
+  <div class="traps">
+    <div class="trap">
+      <span class="where">pt_opendict_dialect<br>sido_code</span>
+      <div>
+        <p class="what"><b>시도 코드 체계가 두 겹으로 섞여 있습니다.</b> <code>48 경상남도</code>·<code>47 경상북도</code>와 별개로 <code>72 경상도</code>가 존재합니다(전라도 71, 충청도 70, 평안도 85, 함경도 88도 동일). 우리말샘 원본에서 지역이 도 단위까지만 특정된 항목이 광역 코드로 들어온 것입니다.</p>
+        <p class="fix">그냥 시도별로 집계하면 경상도 데이터가 48+47+72로 <b>삼중 계산</b>됩니다. 광역 코드 5종(70·71·72·85·88)을 별도 취급하세요.</p>
+      </div>
+    </div>
+
+    <div class="trap">
+      <span class="where">pt_opendict_dialect<br>headword</span>
+      <div>
+        <p class="what"><b>표제어 끝에 공백이 붙은 것들이 있고, 완전 중복 표제어쌍이 있습니다.</b> <code>437 뚜껑</code>과 <code>1015 장독 뚜껑</code>은 192행 전체가 동일한 집합입니다(EXCEPT 0건). 같은 패턴이 최소 10쌍 더 있습니다 — <code>아주머니</code>/<code>아주머니&nbsp;</code>(70행), <code>삼태기</code>/<code>짚 삼태기</code>(67행), <code>아우</code>/<code>아우 보다</code>/<code>아우 타다</code>(19행 3중복).</p>
+        <p class="fix">조회 시 TRIM 필수. <code>(headword_id, sido_code, dialect)</code> 완전 중복도 33건 있습니다 — 유일 제약이 없습니다.</p>
+      </div>
+    </div>
+
+    <div class="trap">
+      <span class="where">sd_survey<br>sido_name · research_area</span>
+      <div>
+        <p class="what"><b>마스터의 지역이 실제 제보자 지역과 다릅니다.</b> <code>sd_survey</code>는 광주광역시(광산·북·서·동·남구)라고 하는데 <code>sd_imformant</code> 300명은 <b>전원 서울시</b>(관악·서대문·서초·영등포·노원·성북)입니다. 광주 제보자는 0명입니다.</p>
+        <p class="fix">지역은 반드시 <code>sd_imformant</code>를 기준으로 하세요. 마스터는 <code>iss</code>가 2018-02-14에 수정한 기록이 있어 화면에서 덮어쓴 것으로 보입니다.</p>
+      </div>
+    </div>
+
+    <div class="trap">
+      <span class="where">sd_question_answer<br>no</span>
+      <div>
+        <p class="what"><b>복수응답이 숫자 이어붙이기로 저장돼 있습니다.</b> 선택지 범위를 벗어난 응답 212건은 깨진 게 아니라 복수 선택을 자릿수로 붙인 값입니다. <code>q670 고유어 소멸</code>(선택지 1과일·2곡물·3가축·4반찬·5기타)의 응답에 <code>1234</code>(10명), <code>124</code>(45명), <code>14</code>(50명), <code>12</code>(28명)가 나옵니다.</p>
+        <p class="fix"><code>CAST(no AS INTEGER)</code>로 집계하면 엉뚱한 값이 잡힙니다 — 문자열을 자리별로 쪼개 세야 합니다. 해당 문항은 9개(q670·679·702·686·656·716·708·703·693)이고 q670이 161건으로 대부분입니다. <code>no='0'</code> 3건은 무응답으로 보입니다.</p>
+      </div>
+    </div>
+
+    <div class="trap">
+      <span class="where">sd_imformant<br>테이블명</span>
+      <div>
+        <p class="what"><b>테이블명이 오타입니다.</b> <code>informant</code>가 아니라 <code>sd_imformant</code>이고, 컬럼도 <code>imformant_id</code>입니다. <code>sd_question_answer</code>의 FK도 <code>imformant_id</code>입니다.</p>
+        <p class="fix">코드에서 <code>informant</code>로 짐작해 쓰면 조용히 실패합니다.</p>
+      </div>
+    </div>
+
+    <div class="trap">
+      <span class="where">tb_research_area<br>x_crdt · y_crdt</span>
+      <div>
+        <p class="what"><b>좌표 1건이 깨져 있고, 컬럼 네이밍이 뒤바뀌어 있습니다.</b> <code>research_area_id 312</code>(<code>r100011</code> 충남)의 <code>y_crdt</code>가 <code>2503071</code>입니다 — 정상값이면 126~127 대입니다. 그리고 <code>x_crdt</code>가 위도, <code>y_crdt</code>가 경도입니다.</p>
+        <p class="fix">지도에 그리면 이 지점만 화면 밖으로 튑니다.</p>
+      </div>
+    </div>
+
+    <div class="trap">
+      <span class="where">tb_research_file<br>org_file_nm</span>
+      <div>
+        <p class="what"><b>같은 사업 안에서 원본 파일명 중복이 큽니다.</b> 중복 그룹 1,275개, 초과 행 1,562건 — T타입 5,094건 중 약 30%입니다. <code>AKZ_TD_17.trs</code> 같은 파일은 <code>file_gubun</code>이 A와 C로 각각 들어가 4행씩 있습니다(4분류 중 어디에 속하는지 애매한 파일의 중복 등록).</p>
+        <p class="fix">목록을 그대로 화면에 뿌리면 같은 파일이 여러 번 나옵니다. wav 없는 trs도 413건 있습니다(반대는 0건).</p>
+      </div>
+    </div>
+
+    <div class="trap">
+      <span class="where">pt_question<br>headword_no 215xx~221xx</span>
+      <div>
+        <p class="what"><b>민속·인체 7개 세부주제 문항이 0건입니다.</b> <code>kd_topic</code>에는 세시풍속·농경용품·생활용품·얼굴과 머리·상체·하체·질병과 생리가 정의돼 있는데 <code>pt_question</code>에 해당 대역이 아예 없습니다.</p>
+        <p class="fix">질문지 커버리지를 “973문항 완비”로 표기하면 사실과 다릅니다.</p>
+      </div>
+    </div>
+
+    <div class="trap">
+      <span class="where">wb_source<br>research_region_id</span>
+      <div>
+        <p class="what"><b>제보자 57명이 조사지역에 붙지 않습니다.</b> 691명 중 57명은 <code>research_region_id</code>가 비어 있습니다. <code>oral_api.py</code> 주석에 이유가 적혀 있습니다 — 2022년 2차 조사 제보자 56명은 이 값이 없어 <code>residence</code> 문자열을 <code>region_nm</code>과 맞춰 우회 연결하고 있습니다.</p>
+        <p class="fix">제보자 관리 화면에서 이 57명은 지역 필터에 걸리지 않습니다. 레거시와 무관한 현행 계열 자체의 문제입니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="dating">
+  <h2>데이터 시점</h2>
+  <p class="dek">날짜 컬럼이 없는 테이블이 7개입니다. 그 경우 ID 결번과 외부 사건으로 범위를 좁혔습니다.</p>
+
+  <h3>ID 결번으로 읽은 적재 이력</h3>
+  <div class="tablewrap">
+    <table style="min-width:640px">
+      <thead><tr><th>테이블</th><th>ID 범위</th><th class="num">건수</th><th>해석</th></tr></thead>
+      <tbody>
+        <tr><td class="tname">sd_question</td><td class="dt">642 ~ 725</td><td class="num">84</td><td>앞의 <strong>641건이 삭제됨</strong> — 문항을 7~8회 다시 입력</td></tr>
+        <tr><td class="tname">sd_question_choice</td><td class="dt">343 ~ 682</td><td class="num">340</td><td>앞의 <strong>342건이 삭제됨</strong></td></tr>
+        <tr><td class="tname">sd_imformant</td><td class="dt">1 ~ 300</td><td class="num">300</td><td>결번 없음 — 한 번에 일괄 적재</td></tr>
+        <tr><td class="tname">sd_question_answer</td><td class="dt">1 ~ 25,200</td><td class="num">25,200</td><td>결번 없음 — 한 번에 일괄 적재 후 무변경</td></tr>
+      </tbody>
+    </table>
+    <caption>문항 설계를 여러 번 갈아엎은 뒤 확정된 84문항에 응답을 한 번에 부어넣은 순서로 읽힙니다. <code>sd_survey.writer</code>가 사람 ID가 아니라 <code>SYSTEM</code>인 것과 맞습니다 — 화면 입력이 아니라 배치 적재입니다.</caption>
+  </div>
+
+  <h3>2018년 2월 중순의 점검 세션</h3>
+  <p>미러 79개 테이블의 모든 epoch 날짜 컬럼을 훑어, 2018-02-13 ~ 02-15에 변경된 행을 찾았습니다. <strong>DB 전체에서 딱 8건입니다.</strong></p>
+
+  <div class="specimen">pt_question_answer_info.write_dt : 1건   ← 'qu' 테스트 응답 (02-13 14:18)
+pt_user.write_dt / update_dt     : 2건 / 3건
+tb_symbol.upt_dt                 : 1건
+sd_survey.update_dt              : <b>1건</b>   ← 02-14 10:19</div>
+
+  <p>이 이틀에 <code>iss</code>가 관리자 화면들을 돌아다니며 점검한 세션이 있었고, 그때 <code>sd_survey</code>의 지역이 서울 → 광주로 바뀐 것으로 보입니다. 위 <em>함정</em>의 지역 불일치와 시각이 맞물립니다.</p>
+
+  <h3>날짜 컬럼이 없어 확정 못 한 것</h3>
+  <p><code>pt_opendict_dialect</code> 44,271건은 <strong>테이블 자체로는 시점을 확정할 수 없습니다.</strong> 컬럼 6개에 날짜가 하나도 없고, 인덱스나 제약도 없는 맨 테이블입니다. 적재 로그성 테이블(<code>*_log</code>, <code>*_hist</code>, <code>*_batch</code>)도 79개 중에 없고 원본 엑셀·CSV도 남아 있지 않습니다.</p>
+
+  <div class="tablewrap">
+    <table style="min-width:520px">
+      <thead><tr><th>경계</th><th>근거</th></tr></thead>
+      <tbody>
+        <tr><td><strong>상한 2026-08-31</strong></td><td>미러를 뜬 시점 — 이때 이미 44,271건이 있었음</td></tr>
+        <tr><td><strong>하한 2016-10 이후</strong></td><td>출처 우리말샘이 2016년 10월 정식 개통</td></tr>
+        <tr><td>하한 보강</td><td><code>sido_code 50 = 제주특별자치도</code> → 2006년 7월 이후 명명</td></tr>
+        <tr><td class="dim">약한 근거</td><td class="dim"><code>강원</code>이 <code>강원특별자치도</code>(2023-06)가 아님 — 다만 라벨 규칙 자체가 섞여 있어 판단 근거로는 약함</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>확정하려면 우리말샘에서 특정 표제어(예: <code>고양이</code> 168개 방언형)를 조회해 건수를 대조하는 방법이 있습니다. 차이가 크면 오래된 스냅샷이라는 뜻입니다.</p>
+</section>
+
+<hr class="rule">
+
+<section id="next">
+  <h2>남은 확인과 다음 할 일</h2>
+
+  <ol class="todo">
+    <li>
+      <div>
+        <b>운영 JSP 소스에서 <code>tb_research</code> grep</b>
+        <p>판정을 100%로 굳히려면 이것 하나가 남았습니다. 운영 서버의 JSP·MyBatis 매퍼를 받아오면 바로 확인할 수 있습니다.</p>
+      </div>
+    </li>
+    <li>
+      <div>
+        <b>폐기 전 wav 805건의 물리 파일 소재 확인</b>
+        <p><code>tb_research_file</code>의 고유 trs 1,844개 중 <code>wb_trs_file</code>이 커버하는 건 1,039개입니다. 나머지 805건은 목록만 지우면 415 GB짜리 파일이 고아가 됩니다.</p>
+      </div>
+    </li>
+    <li>
+      <div>
+        <b><code>sd_*</code> 데이터를 화면에 붙이기</b>
+        <p>300명 × 84문항 완전 격자에 1920~2000년대생이 고루 분포합니다. 서울 6개 구 도시 내부 변이 레이어로 바로 쓸 수 있습니다 — 지역은 <code>sd_imformant</code> 기준, 복수응답은 자리별 파싱, 테이블명 오타 세 가지만 챙기면 됩니다.</p>
+      </div>
+    </li>
+    <li>
+      <div>
+        <b><code>pt_opendict_dialect</code>를 참조 레이어로 검토</b>
+        <p>실측 데이터의 빈 구멍을 메우는 용도로는 값이 있습니다. 단 출처가 우리말샘이라 자체 조사 실측치와 반드시 구분 표시해야 하고, 광역 코드 중복 집계를 먼저 처리해야 합니다.</p>
+      </div>
+    </li>
+    <li>
+      <div>
+        <b>주관식 응답 저장 경로 점검</b>
+        <p><code>tb_quiz_answer</code>와 <code>pt_question_answer</code> 모두 주관식 입력 내용이 저장된 흔적이 없습니다. 같은 구조를 재사용할 계획이라면 이 컬럼부터 확인해야 합니다.</p>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<footer>
+  <span>감사 기준 · dialect_local.db 2026-08-31 스냅샷</span>
+  <span>대상 16 테이블 / 전체 79 테이블</span>
+  <span>작성 2026-09-08</span>
+</footer>
+
+</div>
