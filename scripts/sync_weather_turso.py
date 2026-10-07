@@ -52,10 +52,29 @@ def turso_cli():
     sys.exit("turso CLI 를 찾지 못했습니다. curl -sSfL https://get.tur.so/install.sh | bash")
 
 
+NOT_LOGGED_IN = "not logged in"
+
+
+def require_login(cli):
+    """반영을 시작하기 전에 로그인을 확인한다.
+
+    turso db shell 은 로그인하지 않은 상태에서도 종료코드 0 을 낸다. 그래서
+    한 문장도 보내지 못했는데 '37/37 전송 완료' 로 보이는 일이 있었다.
+    """
+    r = subprocess.run([cli, "auth", "whoami"], capture_output=True, text=True)
+    out = (r.stdout + r.stderr).strip()
+    if r.returncode or NOT_LOGGED_IN in out.lower():
+        sys.exit("Turso 에 로그인되어 있지 않습니다.\n"
+                 "  turso auth login\n"
+                 "을 실행한 뒤 다시 시도하세요. (받은 말: %s)" % out)
+    return out
+
+
 def ask(cli, sql):
     r = subprocess.run([cli, "db", "shell", TURSO_DB, sql],
                        capture_output=True, text=True)
-    if r.returncode:
+    out = r.stdout + r.stderr
+    if r.returncode or NOT_LOGGED_IN in out.lower():
         sys.exit("Turso 조회 실패: %s" % (r.stderr.strip() or r.stdout.strip()))
     return r.stdout
 
@@ -106,17 +125,26 @@ def live_sig(con):
     return "%s|%s|%s|%s" % (n, d or "", an, ad or "")
 
 
-def built_payload(con):
+def built_payload(con, year=""):
     """판정까지 끝낸 결과. 조립은 etl 의 build_output() 한 곳에서만 한다.
 
     보정(wb_weather_adjust)을 반영해 계산한다 — 배포본은 이 결과를 그대로 내려주므로,
     여기서 빠뜨리면 배포본만 보정 없는 값을 보여준다.
+    year 를 주면 그 연차만 담는다.
     """
     E = etl_mod()
-    recs, nfiles = E.load_records_from_db(DB)
+    recs, nfiles = E.load_records_from_db(DB, year or None)
     out = E.build_output(recs, nfiles, E.load_adjust(DB))
-    E.fill_db_qc(out, DB)
+    E.fill_db_qc(out, DB, year or None)
     return json.dumps(out, ensure_ascii=False)
+
+
+def degrees(con):
+    """자료에 있는 연차 — 연차별 미리 계산본을 만들 목록."""
+    return [r[0] for r in con.execute(
+        "SELECT DISTINCT research_degree FROM wb_weather_file"
+        " WHERE use_yn='Y' AND research_degree IS NOT NULL AND research_degree<>''"
+        " ORDER BY research_degree")]
 
 
 def statements(con):
@@ -147,18 +175,22 @@ def statements(con):
         if stmt.strip():
             yield stmt.strip() + ";"
     sig = live_sig(con)
-    payload = built_payload(con)
-    parts = [payload[i:i + PART_CHARS] for i in range(0, len(payload), PART_CHARS)]
-    yield "DELETE FROM wb_weather_built_part WHERE cache_key = %s;" % lit(CACHE_KEY)
-    yield "DELETE FROM wb_weather_built WHERE cache_key = %s;" % lit(CACHE_KEY)
-    for i, chunk in enumerate(parts, 1):
-        yield ("INSERT INTO wb_weather_built_part (cache_key, seq, payload)"
-               " VALUES (%s,%d,%s);" % (lit(CACHE_KEY), i, lit(chunk)))
-    # 조각이 다 들어간 뒤에 머리글을 쓴다 — 중간에 끊기면 캐시가 없는 상태로 남고,
-    # API 는 그때 직접 계산한다(낡은 값을 내려주지 않는다).
-    yield ("INSERT INTO wb_weather_built (cache_key, sig, built_dt, parts)"
-           " VALUES (%s,%s,datetime('now'),%d);"
-           % (lit(CACHE_KEY), lit(sig), len(parts)))
+    # 전체(누적) 하나와 연차마다 하나. 화면이 연도를 바꿀 때마다 60,559행을 다시
+    # 판정하지 않게, 볼 수 있는 조합을 미리 만들어 둔다.
+    for yr in [""] + degrees(con):
+        key = CACHE_KEY + (":" + yr if yr else "")
+        payload = built_payload(con, yr)
+        parts = [payload[i:i + PART_CHARS] for i in range(0, len(payload), PART_CHARS)]
+        yield "DELETE FROM wb_weather_built_part WHERE cache_key = %s;" % lit(key)
+        yield "DELETE FROM wb_weather_built WHERE cache_key = %s;" % lit(key)
+        for i, chunk in enumerate(parts, 1):
+            yield ("INSERT INTO wb_weather_built_part (cache_key, seq, payload)"
+                   " VALUES (%s,%d,%s);" % (lit(key), i, lit(chunk)))
+        # 조각이 다 들어간 뒤에 머리글을 쓴다 — 중간에 끊기면 캐시가 없는 상태로 남고,
+        # API 는 그때 직접 계산한다(낡은 값을 내려주지 않는다).
+        yield ("INSERT INTO wb_weather_built (cache_key, sig, built_dt, parts)"
+               " VALUES (%s,%s,datetime('now'),%d);"
+               % (lit(key), lit(sig), len(parts)))
 
 
 def main():
@@ -167,6 +199,7 @@ def main():
     a = ap.parse_args()
 
     cli = turso_cli()
+    print("  로그인 %s" % require_login(cli))
     con = sqlite3.connect(DB)
     con.row_factory = sqlite3.Row
     nf = con.execute("SELECT COUNT(*) FROM wb_weather_file").fetchone()[0]
@@ -193,7 +226,8 @@ def main():
             with open(p, encoding="utf-8") as f:
                 r = subprocess.run([cli, "db", "shell", TURSO_DB],
                                    stdin=f, capture_output=True, text=True)
-            if r.returncode:
+            out = r.stdout + r.stderr
+            if r.returncode or NOT_LOGGED_IN in out.lower():
                 sys.exit("\n  %d/%d 실패: %s" % (i, len(parts),
                                                  r.stderr.strip() or r.stdout.strip()))
             if i % 20 == 0 or i == len(parts):

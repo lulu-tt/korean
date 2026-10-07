@@ -661,9 +661,8 @@
 													<th scope="row">자료 상태</th>
 													<td colspan="3">
 														<label class="check-item"><input type="radio" name="ptState" value="" checked /><span class="label">전체</span></label>
-														<label class="check-item"><input type="radio" name="ptState" value="miss" /><span class="label">등급 미기입 있음</span></label>
-														<label class="check-item"><input type="radio" name="ptState" value="edit" /><span class="label">관리자가 고침</span></label>
-														<label class="check-item"><input type="radio" name="ptState" value="std" /><span class="label">지역어형 없음 많음</span></label>
+														<label class="check-item"><input type="radio" name="ptState" value="miss" /><span class="label">등급없음</span></label>
+														<label class="check-item"><input type="radio" name="ptState" value="edit" /><span class="label">관리자 보정</span></label>
 													</td>
 												</tr>
 												<tr>
@@ -743,6 +742,13 @@
 											<caption class="sr-only">응답 검색조건</caption>
 											<tbody>
 												<tr>
+													<th scope="row">조사 연도</th>
+													<td colspan="3">
+														<label class="check-item"><input type="checkbox" id="prYrAll" checked /><span class="label">전체</span></label>
+														<span id="prYrChecks"></span>
+													</td>
+												</tr>
+												<tr>
 													<th scope="row">조사 지역</th>
 													<td colspan="3">
 														<label class="check-item"><input type="checkbox" id="prRgAll" checked /><span class="label">전체</span></label>
@@ -817,17 +823,20 @@
 										<table>
 											<caption class="sr-only">항목별 응답 목록</caption>
 											<colgroup>
-												<col style="width:192px" /><col style="width:104px" />
-												<col style="width:64px" /><col style="width:92px" />
-												<col style="width:124px" /><col style="width:124px" />
-												<col style="width:144px" /><col style="width:206px" />
+												<col style="width:100px" /><col style="width:168px" />
+												<col style="width:58px" /><col style="width:58px" />
+												<col style="width:88px" /><col style="width:104px" />
+												<col style="width:112px" /><col style="width:112px" />
+												<col style="width:132px" /><col style="width:192px" />
 											</colgroup>
 											<thead>
 												<tr>
-													<th scope="col">일련번호</th>
 													<th scope="col">항목번호</th>
+													<th scope="col">일련번호</th>
+													<th scope="col">연도</th>
 													<th scope="col">지역</th>
 													<th scope="col">제보자</th>
+													<th scope="col">표준어</th>
 													<th scope="col">표제어형</th>
 													<th scope="col">방언형(기저형)</th>
 													<th scope="col">사용도/인지도</th>
@@ -902,7 +911,7 @@
 								<div class="pt-vlist" id="ptVList"></div>
 								<label class="pt-force" id="ptForceWrap" style="display:none">
 									<input type="checkbox" id="ptForce" />
-									<span>관리자에서 고친 값이 <b>엑셀 값으로 되돌아가는 것</b>을 확인했습니다.</span>
+									<span>남은 보정이 <b>새 원본과 어긋날 수 있다는 것</b>을 확인했습니다.</span>
 								</label>
 								<div class="btn-group-center mt-md-4">
 									<button type="button" class="btn btn-md btn-outline-gray" id="ptVCancel">취소</button>
@@ -1417,7 +1426,10 @@ const getMngrFail = function (xhr, status, error) {
 .pt-ro{ color:#334155; }
 .pt-rr.is-std .pt-ro{ color:#94a3b8; }   /* 표준어형이라 판정에서 빠지는 행 — 흐리게만 */
 .pt-adjw{ display:flex; align-items:center; gap:7px; }
-.pt-calc{ flex:0 0 auto; font-size:12px; color:#64748b; white-space:nowrap; }
+.pt-calc{ flex:0 0 auto; font-size:12px; color:#475569; white-space:nowrap; }
+.pt-std{ color:#64748b; }
+.pt-wx{ width:9px; height:9px; border-radius:50%; display:inline-block; margin-right:5px;
+        vertical-align:-1px; border:1px solid rgba(15,23,42,.14); }
 .pt-adj{ flex:1 1 auto; min-width:0; height:30px; border:1px solid #cbd5e1; border-radius:7px;
   padding:0 7px; font-size:13px; background:#fff; }
 .pt-adj.is-on{ border-color:#7c3aed; background:#f5f3ff; color:#5b21b6; font-weight:600; }
@@ -1497,8 +1509,6 @@ function asJson(r){
   var DB=null, RO=[], RN={}, SITES={}, ROSTER={};
   var rows=[], filter='', q='', YEAR='', PAGE=1, SIZE=20;
 
-  /* 등급 = 조사표의 4단계 그대로. 숫자 대신 말로 고른다. */
-  var GRADE = [ ['1','지금도 씀'], ['2','써봤으나 안 씀'], ['3','들어는 봄'], ['4','처음 들음'] ];
   var STCLS = { w1:'wx1', w2:'wx2', w3:'wx3', w4:'wx4', std:'wxs', w0:'wx0' };
   var STNM  = { w1:'지금도 씀', w2:'써봤으나 안 씀', w3:'들어는 봄', w4:'처음 들음',
                 std:'지역어형 없음', w0:'관측 없음' };
@@ -1548,13 +1558,13 @@ function asJson(r){
   }
 
   /* ── 필터: 고칠 곳을 목록에서 바로 찾는다 ── */
+  /* 조건은 '고칠 거리가 어디 있나' 만 둔다. 표준어형만 나온 지역(std)은
+     오류가 아니라 판정 결과라 거를 대상이 아니다 — 범례로만 알린다. */
   function counts(){
-    var c={ miss:0, edit:0, std:0 };
+    var c={ miss:0, edit:0 };
     rows.forEach(function(r){
       if(r.miss) c.miss++;
       if(r.edited) c.edit++;
-      var s=0; RO.forEach(function(rg){ if((r.regions[rg]||{}).state==='std') s++; });
-      if(s>=5) c.std++;
     });
     return c;
   }
@@ -1571,8 +1581,8 @@ function asJson(r){
     }
     var c=counts();
     /* 상태 라디오에 건수를 달아 어디에 일이 있는지 보이게 한다 */
-    [['','전체',rows.length],['miss','등급 미기입 있음',c.miss],
-     ['edit','관리자가 고침',c.edit],['std','지역어형 없음 많음',c.std]].forEach(function(x){
+    [['','전체',rows.length],['miss','등급없음',c.miss],
+     ['edit','관리자 보정',c.edit]].forEach(function(x){
       var el=document.querySelector('input[name=ptState][value="'+x[0]+'"]');
       if(el){ var sp=el.parentNode.querySelector('.label'); sp.textContent = x[1]+' ('+x[2]+')'; }
     });
@@ -1588,10 +1598,6 @@ function asJson(r){
     return rows.filter(function(r){
       if(filter==='miss' && !r.miss) return false;
       if(filter==='edit' && !r.edited) return false;
-      if(filter==='std'){
-        var s=0; RO.forEach(function(rg){ if((r.regions[rg]||{}).state==='std') s++; });
-        if(s<5) return false;
-      }
       if(!kw) return true;
       return (r.word||'').toLowerCase().indexOf(kw)>=0
           || (r.code||'').indexOf(kw)>=0
@@ -1745,7 +1751,7 @@ function asJson(r){
         var L=(j.list||[]);
         L.forEach(function(f){
           HAVE[f.file_nm]=f;
-          if(f.editedCnt) EDITED[f.file_nm]=f.editedCnt;   /* 관리자가 고친 행이 있는 파일 */
+          if(f.editedCnt) EDITED[f.file_nm]=f.editedCnt;   /* 보정이 달려 있는 파일 */
         });
         renderFiles(L, j);
       });
@@ -1768,7 +1774,7 @@ function asJson(r){
         + '<td>'+esc(f.genNm||'')+'</td><td>'+esc(f.sexNm||'')+'</td>'
         + '<td>'+(f.row_cnt||0).toLocaleString()+'</td>'
         + '<td class="pt-sn">'+esc(f.reg_dt||'—')
-        +   (f.editedCnt ? ' <b style="color:#7c3aed" title="관리자가 고친 응답 '+f.editedCnt+'건">✎'+f.editedCnt+'</b>' : '')+'</td>'
+        +   (f.editedCnt ? ' <b style="color:#7c3aed" title="담당자가 보정한 항목 '+f.editedCnt+'건">✎'+f.editedCnt+'</b>' : '')+'</td>'
         + '<td><button type="button" class="btn btn-xs btn-outline-gray pf-del" data-id="'+f.weather_file_id+'" '
         +   'data-nm="'+esc(f.file_nm)+'" data-ed="'+(f.editedCnt||0)+'">삭제</button></td></tr>';
     }).join('');
@@ -1793,8 +1799,11 @@ function asJson(r){
       var k=m[1]+m[2]+m[3]+m[4];              /* 연차 포함 — 빼면 23·24년이 중복으로 잡힌다 */
       if(seenKey[k]){ dup.push(f.name); return; }
       seenKey[k]=1; seenRg[m[1]]=1; ok.push({name:f.name, rg:m[1]});
-      if(HAVE[f.name]) exist.push(f.name);
-      if(EDITED[f.name]) edited.push(f.name+' ('+EDITED[f.name]+'건)');
+      /* 제보자 열쇠 — 'CB2570FVE_사용도인지도.xlsx' 도 'CB2570FVE.xlsx' 와 같은 사람.
+         서버 _wb_file_key() 와 같은 규칙이어야 교체 경고가 빠지지 않는다. */
+      var fk=m[0]+'.xlsx', shown=(fk===f.name)?f.name:(f.name+' → '+m[0]);
+      if(HAVE[fk]) exist.push(shown);
+      if(EDITED[fk]) edited.push(shown+' ('+EDITED[fk]+'건)');
     });
     /* 적재는 덧붙이기다. 막아야 할 것은 '이번 파일에 빠진 지역' 이 아니라
        '적재를 마쳤을 때도 여전히 자료가 없는 지역' 이다. */
@@ -1816,16 +1825,18 @@ function asJson(r){
       s:'지역·연차·세대·성별이 같은 파일이 둘 이상입니다. 뒤엣것은 올리지 않습니다.', d:dup.join(', ')});
 
     /* 적재를 마쳐도 자료가 없는 지역이 남으면 표출 항목이 101개에서 0개가 된다 */
-    if(miss.length && files.length){ stop=true;
-      items.push({t:'stop', b:'반영할 수 없습니다 — 자료가 없는 지역 '+miss.length+'곳',
-        s:'표출 항목은 <b>9개 지역 전부에서 등급이 매겨진 것</b>만 대상입니다. 적재를 마쳐도 이 지역들이 비어 있어 기상도가 빈 화면이 됩니다.',
+    /* 표출 항목은 서비스 목록으로 거른다(지역 수가 아니라). 자료가 없는 지역은 지도에서
+       '관측 없음' 으로 남을 뿐 항목이 사라지지 않으므로 막지 않고 알리기만 한다. */
+    if(miss.length && files.length){
+      items.push({t:'warn', b:'적재를 마쳐도 자료가 없는 지역 '+miss.length+'곳',
+        s:'이 지역들은 지도에서 <b>관측 없음</b>으로 나옵니다.',
         d: miss.map(function(r){ return RNm[r]; }).join(', ')}); }
 
     if(exist.length) items.push({t:'warn', b:'이미 올라가 있는 파일 '+exist.length+'개',
       s:'교체하면 그 제보자의 응답이 <b>지워지고 엑셀 내용으로 다시 채워집니다</b>', d:exist.join(', ')});
     if(edited.length){
-      items.push({t:'stop', b:'관리자에서 고친 파일 '+edited.length+'개',
-        s:'DB 가 기준입니다. 교체하면 <b>고친 값이 엑셀 값으로 되돌아갑니다</b> — 그래도 올리려면 아래를 확인해 주세요.',
+      items.push({t:'stop', b:'보정이 달려 있는 파일 '+edited.length+'개',
+        s:'보정은 (파일명, 항목)에 달려 있어 <b>교체해도 그대로 남습니다</b> — 다만 원본이 바뀌면 보정한 값과 어긋날 수 있으니 아래를 확인해 주세요.',
         d:edited.join(', ')});
       $('ptForceWrap').style.display=''; $('ptForce').checked=false;
     } else { $('ptForceWrap').style.display='none'; }
@@ -1836,7 +1847,7 @@ function asJson(r){
         + '<div class="tx"><b>'+i.b+'</b><small>'+i.s+'</small>'
         + (i.d?'<div class="pt-vdetail">'+esc(i.d)+'</div>':'')+'</div></div>'; }).join('');
 
-    window.__ptBlocked = stop && !edited.length;   /* 고친 파일은 확인란으로 풀 수 있다 */
+    window.__ptBlocked = stop && !edited.length;   /* 보정 있는 파일은 확인란으로 풀 수 있다 */
     window.__ptNeedsAck = edited.length>0;
     syncApply();
     $('ptVerifyCard').style.display='';
@@ -1867,6 +1878,12 @@ function asJson(r){
           + ng.map(function(r){ return '· '+r.fileName+' — '+r.message; }).join('\n');
         if((d.issues||[]).length) msg+='\n\n사용도/인지도가 1~4 가 아닌 행 '+d.issues.length
           + '건 — 집계에서 빠집니다.';
+        var ws=d.warnings||[];
+        if(ws.length) msg+='\n\n확인할 곳 '+ws.length+'건 — 적재는 했습니다:\n'
+          + ws.slice(0,8).map(function(w){
+              return '· '+w.fileName+(w.lineNo?' '+w.lineNo+'행':'')+' — '+w.message
+                   + (w.headword?' ('+w.headword+')':''); }).join('\n')
+          + (ws.length>8?'\n· 외 '+(ws.length-8)+'건':'');
         if(window.Message) Message.alert({icon:ng.length?'warning':'success', message:msg});
         picked=[]; showFiles(); $('ptVerifyCard').style.display='none';
         loadHave(); if(window.__ptReload) window.__ptReload();
@@ -1879,12 +1896,12 @@ function asJson(r){
 
   document.addEventListener('DOMContentLoaded', function(){
     loadHave();
-    /* 파일 삭제 = 그 제보자의 응답이 통째로 사라진다. 고친 값이 있으면 한 번 더 확인받는다. */
+    /* 파일 삭제 = 그 제보자의 응답이 통째로 사라진다. 보정이 있으면 한 번 더 확인받는다. */
     $('pfRows').addEventListener('click', function(e){
       var b=e.target.closest('.pf-del'); if(!b) return;
       var ed=+b.dataset.ed;
       var msg = b.dataset.nm + ' 을(를) 삭제합니다.\n그 제보자의 응답이 모두 사라집니다.';
-      if(ed) msg += '\n\n관리자가 고친 값 ' + ed + '건도 함께 사라집니다.';
+      if(ed) msg += '\n\n보정 ' + ed + '건은 지워지지 않습니다 — 같은 파일을 다시 올리면 되살아납니다.';
       ptAsk('이 파일을 삭제할까요?', msg, function(){
         fetch('/mariadb/neibis-api/weather/delete', {method:'POST',
             headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:b.dataset.id})})
@@ -1926,21 +1943,27 @@ function asJson(r){
   var $  = function(id){ return document.getElementById(id); };
   var esc= function(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){
              return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
-  var GRADE=[['1','① 지금도 씀'],['2','② 써봤으나 안 씀'],['3','③ 들어는 봄'],['4','④ 처음 들음']];
+  /* [등급, 일기도 표현, 색, 조사표 표현]
+     보정은 '이 등급이 지도에서 무엇이 되는가' 를 고르는 일이라 일기도 표현으로 보여준다.
+     이름·색은 프론트 기상도(etl 의 states)와 같아야 한다 — 어긋나면 담당자가 고른 것과
+     이용자가 보는 것이 달라진다. */
+  var GRADE=[['1','맑음','wx1','지금도 씀'],       ['2','구름조금','wx2','써봤으나 안 씀'],
+             ['3','흐리고 비','wx3','들어는 봄'], ['4','천둥번개','wx4','처음 들음']];
 
   /* 원본(wb_weather_response)은 읽기만 한다. 담당자가 고치는 것은 '판정에 쓸 값' 뿐이고
      그것은 wb_weather_adjust 에 제보자·항목 단위로 따로 담긴다. */
   var ROWS=[], PEOPLE=[], ITEM=null, HEADWORD='', ADJ={};
-  var F={rg:{}, age:{}, sex:'', st:'', q:''}, PAGE=1, SIZE=50;
+  function blankF(){ return {yr:{}, rg:{}, age:{}, sex:'', st:'', q:''}; }
+  var F=blankF(), PAGE=1, SIZE=50;
 
   window.__ptOpenResp = function(code, word){
     ITEM={code:code, word:word}; ADJ={}; PEOPLE=[]; HEADWORD=''; PAGE=1;
-    F={rg:{}, age:{}, sex:'', st:'', q:''}; resetForm(); syncSaveBar();
+    F=blankF(); resetForm(); syncSaveBar();
     $('ptList').style.display='none'; $('ptResp').style.display='';
     $('ptRTitle').textContent = word + ' · 응답 목록';
     $('ptRMeta').textContent = '(항목코드 ' + code + ')';
     $('ptRFront').href = './dialect_gisangdo.html#/word/' + encodeURIComponent(word);
-    $('ptRespRows').innerHTML = '<tr><td colspan="8" class="pt-empty">불러오는 중…</td></tr>';
+    $('ptRespRows').innerHTML = '<tr><td colspan="10" class="pt-empty">불러오는 중…</td></tr>';
     window.scrollTo(0,0);
 
     fetch('/mariadb/neibis-api/weather/responses?item=' + encodeURIComponent(code))
@@ -1951,7 +1974,7 @@ function asJson(r){
         fillRgChecks(); renderResp();
       })
       .catch(function(e){ $('ptRespRows').innerHTML =
-        '<tr><td colspan="8" class="pt-empty">'+esc(e.message)+'</td></tr>'; });
+        '<tr><td colspan="10" class="pt-empty">'+esc(e.message)+'</td></tr>'; });
   };
 
   /* 지역 체크박스는 그 항목에 실제로 있는 지역만, 건수를 달아 만든다.
@@ -1962,15 +1985,23 @@ function asJson(r){
     $('prRgChecks').innerHTML = order.map(function(r){
       return '<label class="check-item"><input type="checkbox" class="pr-rg" value="'+r.region+'" />'
            + '<span class="label">'+esc(r.regionNm)+' ('+c[r.region]+')</span></label>'; }).join('');
+    /* 연도 선택지도 자료에서 만든다 — 연차가 쌓이면 저절로 늘어난다 */
+    var y={};
+    ROWS.forEach(function(r){ var k=String(r.researchYear||r.year||''); if(k) y[k]=(y[k]||0)+1; });
+    $('prYrChecks').innerHTML = Object.keys(y).sort().map(function(k){
+      return '<label class="check-item"><input type="checkbox" class="pr-yr" value="'+esc(k)+'" />'
+           + '<span class="label">'+esc(k)+'년 ('+y[k]+')</span></label>'; }).join('');
   }
   function resetForm(){
-    $('prQ').value=''; $('prRgAll').checked=true; $('prAgeAll').checked=true;
-    [].forEach.call(document.querySelectorAll('.pr-rg, .pr-age'), function(c){ c.checked=false; });
+    $('prQ').value=''; $('prYrAll').checked=true; $('prRgAll').checked=true; $('prAgeAll').checked=true;
+    [].forEach.call(document.querySelectorAll('.pr-yr, .pr-rg, .pr-age'), function(c){ c.checked=false; });
     var a=document.querySelector('input[name=prSex][value=""]'); if(a) a.checked=true;
     var b=document.querySelector('input[name=prState][value=""]'); if(b) b.checked=true;
   }
   function readForm(){
-    F.rg={}; F.age={};
+    F.yr={}; F.rg={}; F.age={};
+    if(!$('prYrAll').checked)
+      [].forEach.call(document.querySelectorAll('.pr-yr:checked'), function(c){ F.yr[c.value]=1; });
     if(!$('prRgAll').checked)
       [].forEach.call(document.querySelectorAll('.pr-rg:checked'), function(c){ F.rg[c.value]=1; });
     if(!$('prAgeAll').checked)
@@ -1980,8 +2011,9 @@ function asJson(r){
     F.q = $('prQ').value.trim().toLowerCase();
   }
   function filtered(){
-    var rgs=Object.keys(F.rg), ages=Object.keys(F.age);
+    var yrs=Object.keys(F.yr), rgs=Object.keys(F.rg), ages=Object.keys(F.age);
     return ROWS.filter(function(r){
+      if(yrs.length && !F.yr[String(r.researchYear||r.year||'')]) return false;
       if(rgs.length && !F.rg[r.region]) return false;
       if(ages.length && !F.age[String(r.age)]) return false;
       if(F.sex && r.sex!==F.sex) return false;
@@ -2005,17 +2037,32 @@ function asJson(r){
   function curAdj(file){ return (file in ADJ) ? ADJ[file] : adjOf(file); }
   /* 표준어형 판정용 정규화 — ETL 의 norm() 과 같아야 한다(괄호 안·공백·콜론 제거) */
   function nk(v){ return String(v||'').replace(/\([^)]*\)/g,'').replace(/[:\s]/g,''); }
+  function gradeRow(g){
+    for(var i=0;i<GRADE.length;i++) if(GRADE[i][0]===String(g)) return GRADE[i];
+    return null;
+  }
+  /* 원본 '사용도/인지도' 칸은 조사표 표현을 그대로 둔다 — 원자료를 보여주는 칸이고,
+     한 줄은 지도의 한 칸이 아니라 일기도 표현을 붙일 대상이 아니다. */
   function gradeLabel(g){
-    for(var i=0;i<GRADE.length;i++) if(GRADE[i][0]===String(g)) return GRADE[i][1];
-    return String(g||'');
+    var r=gradeRow(g); return r ? r[3] : String(g||'');
+  }
+  /* 계산값이 없는 두 경우를 가려 말한다 —
+     등급을 매겼는데 지역어형이 아니면 '지역어형 없음', 아예 안 매겼으면 '관측 없음'. */
+  function calcWx(p){
+    var r=gradeRow(p.calc);
+    if(r) return { nm:r[1], cls:r[2], tip:r[3]+' (등급 '+r[0]+')' };
+    return p.graded ? { nm:'지역어형 없음', cls:'wxs', tip:'표준어형에만 답했습니다' }
+                    : { nm:'관측 없음',   cls:'wx0', tip:'사용도/인지도가 비어 있습니다' };
   }
   /* 보정 칸 — 제보자 한 명의 첫 줄에만 둔다. 계산값을 옆에 적어 무엇을 바꿨는지 보이게. */
   function adjCell(file){
     var p=personOf(file); if(!p) return '';
     var a=curAdj(file);
-    var calc = p.calc ? '계산 '+gradeLabel(p.calc).replace(/ .*/,'') : '계산 없음';
+    var w=calcWx(p);
+    var tip=w.tip + (p.calcForm ? ' — '+p.calcForm : '');
     return '<div class="pt-adjw">'
-      + '<span class="pt-calc" title="'+esc(p.calcForm||'')+'">'+esc(calc)+'</span>'
+      + '<span class="pt-calc" title="'+esc(tip)+'">'
+      +   '<i class="pt-wx '+w.cls+'"></i>'+esc(w.nm)+'</span>'
       + '<select class="form-control-sm pt-adj'+(a?' is-on':'')+'" title="판정에 쓸 값">'
       +   '<option value=""'+(a?'':' selected')+'>계산값 그대로</option>'
       +   GRADE.map(function(o){ return '<option value="'+o[0]+'"'+(a===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('')
@@ -2032,7 +2079,7 @@ function asJson(r){
       + (list.length!==ROWS.length ? ' <span class="pt-of">전체 '+ROWS.length+'</span>' : '');
     var span=list.slice((PAGE-1)*SIZE, PAGE*SIZE);
     if(!span.length){
-      $('ptRespRows').innerHTML='<tr><td colspan="8" class="pt-empty">해당하는 응답이 없습니다.</td></tr>';
+      $('ptRespRows').innerHTML='<tr><td colspan="10" class="pt-empty">해당하는 응답이 없습니다.</td></tr>';
       $('prPager').innerHTML=''; return;
     }
     var prev=null;
@@ -2045,12 +2092,18 @@ function asJson(r){
       var a = curAdj(r.file), dirty = (r.file in ADJ) && ADJ[r.file] !== adjOf(r.file);
       return '<tr class="pt-rr'+(head?' is-head':'')+(dirty?' is-dirty':'')
            + (a?' is-edited':'')+(std?' is-std':'')+'" data-rid="'+r.rid+'" data-file="'+esc(r.file)+'">'
+        /* 항목번호를 앞에 둔다 — 일련번호가 빈 행이 22% 라 줄을 가리키는 건 이 칸이다.
+           하위코드(-A-1)도 여기서 보인다. */
+        + '<td class="pt-ic"><span class="text-gray text-sm">'+esc(r.itemCd||'')+'</span></td>'
         + '<td class="pt-sn">'+(r.serialNo ? '<span class="text-gray text-sm">'+esc(r.serialNo)+'</span>'
               : '<span class="pt-nosn" title="원자료에 일련번호가 비어 있습니다">번호 없음</span>')+'</td>'
-        /* 일련번호가 빈 행이 8.6% 라, 하위코드(-A-1)를 알 수 있는 건 이 칸뿐이다 */
-        + '<td class="pt-ic"><span class="text-gray text-sm">'+esc(r.itemCd||'')+'</span></td>'
+        /* 연도·지역·제보자는 제보자마다 하나뿐이라 첫 줄에만 적는다 */
+        + '<td>'+(head?esc(r.researchYear||r.year||''):'')+'</td>'
         + '<td>'+(head?esc(r.regionNm):'')+'</td>'
         + '<td>'+(head?esc(who):'')+'</td>'
+        /* 항목의 표준어형. 줄마다 같은 값이지만, 옆의 표제어형·방언형과 나란히 놓여야
+           그 줄이 표준어를 적은 것인지 지역어를 적은 것인지 바로 보인다. */
+        + '<td class="pt-std">'+esc(HEADWORD)+'</td>'
         + '<td class="pt-ro">'+esc(r.headword||'')+'</td>'
         + '<td class="pt-ro">'+(r.form ? esc(r.form)
               : '<span class="pt-nosn" title="원자료에 방언형(기저형)이 비어 있습니다">비어 있음</span>')+'</td>'
@@ -2170,6 +2223,7 @@ function asJson(r){
         $(allId).checked = !document.querySelectorAll(cls+':checked').length;
       });
     }
+    pairAll('prYrAll', '.pr-yr');
     pairAll('prRgAll', '.pr-rg');
     pairAll('prAgeAll', '.pr-age');
     $('ptRespRows').addEventListener('change', function(e){

@@ -48,6 +48,22 @@ def grade_of(v):
 # 표제어 → dialect_gisangdo.html WORDLIST 표기 (동음이의 구분 괄호)
 WORD_ALIAS = {'가': '가(邊)', '새끼': '새끼(繩)', '아우 타다': '아우타다', '키': '키(箕)'}
 
+# 서비스 대상 항목 목록 — 이 파일에 있는 항목만 지도에 나온다.
+# 이 모듈 옆에 둔다: 배포(api/index.py)는 data/ 를 묶지 않으므로 여기 있어야 같이 실린다.
+SERVICE_ITEMS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  'gisangdo_service_items.json')
+
+
+def load_service_items():
+    """서비스 대상 항목번호(5자리) 집합. 파일이 없거나 깨졌으면 None."""
+    try:
+        with open(SERVICE_ITEMS_FILE, encoding='utf-8') as f:
+            doc = json.load(f)
+        codes = {str(x['code']).strip() for x in doc.get('items', []) if x.get('code')}
+        return codes or None
+    except Exception:
+        return None
+
 norm = lambda s: re.sub(r'[:\s]', '', re.sub(r'\([^)]*\)', '', s or ''))
 
 
@@ -332,23 +348,34 @@ def build_output(recs, nfiles, adjust=None):
     구조와 판정이 두 곳으로 갈라지면 화면이 달라지므로 조립은 반드시 여기 한 곳에서만 한다."""
     print('제보자 파일 %d개 / 레코드 %d건' % (nfiles, len(recs)))
 
-    # 서비스 대상 — '9개 지역이 모두 조사됐고, 어느 한 지역에서든 등급이 관측된 항목'.
+    # 서비스 대상 — '서비스 목록(gisangdo_service_items.json)에 있고, 어느 지역에서든
+    # 등급이 관측된 항목'.
     #
-    # 예전에는 '9개 지역 전부에서 등급이 관측된 항목' 이었다. 그러면 제보자가 표준어형만
-    # 답한 지역이 자료 없음으로 취급되어 항목 전체가 탈락했다 — 제주에서 '귀지·벌·누에·
-    # 우박·뚜껑' 이 그렇게 5개 사라졌다. 표준어형만 답한 것은 구멍이 아니라 std(표준어권)
-    # 이라는 판정이고, 지도에 칠할 상태가 이미 있다. 그 지역을 뺄 이유가 없다.
+    # 2026-10 까지는 '9개 지역이 모두 조사된 항목' 이었다. 그 기준이 두 가지를 했다.
+    #   ① 한 지역이라도 줄이 없으면 항목을 통째로 뺐다 — 2025 새 서식에서 제주 제보자
+    #      1명의 등급 없는 줄 5개가 지워지자 귀지·벌·누에·우박·뚜껑이 전국 지도에서 빠졌다.
+    #   ② 항목번호 오타를 걸렀다 — 20217 을 20218 로 적은 한 줄짜리 '항목' 은 9개
+    #      지역을 채울 수 없어 저절로 빠졌다.
+    # ① 은 원치 않는 동작이고 ② 는 필요한 동작이라, 지역 수 대신 명시적 목록으로 거른다.
+    # 자료가 없는 지역은 관측 없음(w0)으로 남는다.
     #
-    # 조사 자체가 안 된 지역이 있으면 여전히 제외한다 — 자료 없는 칸을 칠하지 않는다.
+    # 목록 파일이 없으면 예전 기준으로 돌아간다 — 배포 묶음에서 파일이 빠져도 지도가
+    # 비지 않게. 어느 쪽을 썼는지는 meta.itemFilter 로 알린다.
     surveyed = collections.defaultdict(set)      # 그 항목이 조사된 지역(행이 있음)
     graded = collections.defaultdict(set)        # 등급이 관측된 지역
     for r in recs:
         surveyed[r['it']].add(r['rg'])
         if r['g']:
             graded[r['it']].add(r['rg'])
-    core = sorted(it for it, s in surveyed.items()
-                  if len(s) == len(REGION_ORDER) and graded[it])
-    print('서비스 대상 항목: %d개' % len(core))
+    allow = load_service_items()
+    if allow:
+        core = sorted(it for it in surveyed if it in allow and graded[it])
+        item_filter = 'list'
+    else:
+        core = sorted(it for it, s in surveyed.items()
+                      if len(s) == len(REGION_ORDER) and graded[it])
+        item_filter = 'all-regions'
+    print('서비스 대상 항목: %d개 (%s)' % (len(core), item_filter))
 
     headword = {}
     for it in core:
@@ -399,6 +426,7 @@ def build_output(recs, nfiles, adjust=None):
                         and (r['year'], r['age'], r['sx']) == key]
                 adj = (adjust or {}).get((rg, key[0], key[1], key[2], it))
                 if adj == 'X':
+                    adjusted[key] = 'X'      # 뺀 것도 담당자가 손댄 것이다
                     continue
                 if adj in ('1', '2', '3', '4'):
                     best[key] = int(adj)
@@ -488,7 +516,9 @@ def build_output(recs, nfiles, adjust=None):
             cell['rows'] = len(rows)                                   # 그 지역의 응답 행
             cell['graded'] = sum(1 for r in rows if r['g'])            # 그중 등급이 적힌 행
             cell['people'] = len(informants)                           # 조사된 제보자
-            cell['edited'] = sum(1 for r in rows if r.get('upt'))      # 관리자가 고친 행
+            # 담당자가 보정한 제보자. 응답 행의 upt_dt 를 세면 안 된다 — 보정을
+            # wb_weather_adjust 로 옮긴 뒤로 원본 행은 영영 안 바뀌어 늘 0 이 된다.
+            cell['edited'] = len(adjusted)
             entry['regions'][rg] = cell
             tally[state] += 1
         items.append(entry)
@@ -539,6 +569,8 @@ def build_output(recs, nfiles, adjust=None):
             'source': 'data/dialect_gisangdo/*.xlsx (2024년 차 어휘 조사 원자료)',
             'informants': nfiles,
             'items': len(items),
+            # 표출 항목을 무엇으로 걸렀나 — 'list' 면 서비스 목록 파일, 'all-regions' 면 옛 기준
+            'itemFilter': item_filter,
             'scale': '① 사용 100 · ② 이해 75 · ③ 인지 50 · ④ 무지 25 (어형 단위 부여)',
             'metric': '지역 점수 = 그 지역 제보자가 지역어형에 준 등급의 점수 평균 (0~100)',
             'thresholds': ('w1 ≥87.5 · w2 ≥62.5 · w3 ≥37.5 · w4 <37.5 '

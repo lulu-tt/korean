@@ -67,6 +67,13 @@ body{ background:#ffffff; }
 #jiyeoeo-gisangdo-root .gs-pick.is-collapsed .gs-pick__chev{ transform:rotate(180deg); }
 #jiyeoeo-gisangdo-root .gs-pick.is-collapsed .gs-pick__body{ display:none; }
 
+#jiyeoeo-gisangdo-root .gs-yearrow{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0 0 12px; }
+#jiyeoeo-gisangdo-root .gs-yearrow__label{ font-size:12.5px; font-weight:700; color:#64748b; display:inline-flex; align-items:center; gap:5px; margin-right:4px; }
+#jiyeoeo-gisangdo-root .gs-ybtn{ appearance:none; flex:0 0 auto; white-space:nowrap; height:30px; border:1px solid var(--gs-line); background:#fff; border-radius:8px; padding:0 12px; font-size:12.5px; font-weight:700; color:#334155; cursor:pointer; font-family:inherit; transition:.12s; }
+#jiyeoeo-gisangdo-root .gs-ybtn:hover{ border-color:#93c5fd; background:#eff6ff; color:#1d4ed8; }
+#jiyeoeo-gisangdo-root .gs-ybtn.is-all{ border-color:#c7d2fe; background:#eef2ff; color:#3730a3; }
+#jiyeoeo-gisangdo-root .gs-ybtn.is-all:hover{ border-color:#818cf8; background:#e0e7ff; }
+#jiyeoeo-gisangdo-root .gs-ybtn.is-active{ border-color:#2563eb; background:#2563eb; color:#fff; box-shadow:0 2px 8px rgba(37,99,235,.3); }
 #jiyeoeo-gisangdo-root .gs-searchrow{ display:flex; margin-bottom:14px; max-width:640px; }
 #jiyeoeo-gisangdo-root .gs-searchrow .gs-wordsearch__input{ border-radius:11px 0 0 11px; border-right:0; height:42px; }
 #jiyeoeo-gisangdo-root .gs-searchrow .gs-searchbtn{ border-radius:0 11px 11px 0; height:42px; }
@@ -505,10 +512,10 @@ body{ background:#ffffff; }
        제보자 한 명을 가리키는 말이므로 지역 색에 붙이지 않는다. */
     const GRADE_SCORE = {1:100, 2:75, 3:50, 4:25};
     const WEATHERS = {
-      w1:{ key:'w1', label:'맑음',      icon:'ti-sun',         desc:'평균 87.5점 이상 — 대체로 지금도 씀' },
-      w2:{ key:'w2', label:'구름조금',  icon:'ti-cloud',       desc:'평균 62.5~87.4점 — 쓰거나 써 본 사람이 많음' },
-      w3:{ key:'w3', label:'흐리고 비', icon:'ti-cloud-rain',  desc:'평균 37.5~62.4점 — 들어는 본 정도가 많음' },
-      w4:{ key:'w4', label:'천둥번개',  icon:'ti-cloud-bolt',  desc:'평균 37.5점 미만 — 대체로 처음 들음' },
+      w1:{ key:'w1', label:'맑음',      icon:'ti-sun',         desc:'대체로 지금도 씀' },
+      w2:{ key:'w2', label:'구름조금',  icon:'ti-cloud',       desc:'쓰거나 써 본 사람이 많음' },
+      w3:{ key:'w3', label:'흐리고 비', icon:'ti-cloud-rain',  desc:'들어는 본 정도가 많음' },
+      w4:{ key:'w4', label:'천둥번개',  icon:'ti-cloud-bolt',  desc:'대체로 처음 들음' },
       w0:{ key:'w0', label:'관측 없음', icon:'ti-cloud-off',   desc:'등급이 적히지 않아 판단할 수 없음' },
       // 제5상태 — 조사는 됐으나 지역어형이 나오지 않은 지역. 결측이 아니라 조사 결과다.
       std:{ key:'std', label:'지역어형 없음', icon:'ti-circle-check', desc:'조사됐으나 지역어형이 나오지 않음' }
@@ -559,7 +566,7 @@ body{ background:#ffffff; }
     function catOf(id){ return CATEGORY[id.slice(0,3)] || CATEGORY[id[0]] || '기타'; }
 
     /* ── 데이터 §5, §5.6 ──────────────────────────────────────────
-       서비스 대상은 API 가 정한다 — '9개 지역 전부에서 등급이 관측된 항목'.
+       서비스 대상은 API 가 정한다 — 서비스 목록(scripts/gisangdo_service_items.json)에 있고 등급이 관측된 항목.
        예전에는 아래 배열이 곧 목록이어서, 자료를 더 올려 대상이 늘어도 화면은 그대로였다.
        지금 이 배열은 목록이 아니라 큐레이션 표다 — 처음 101개의 차례와 의미 범주를
        기억해 두는 용도. 여기 없는 새 단어는 항목번호 앞3자리로 범주를 정하고 뒤에 붙는다. */
@@ -614,13 +621,20 @@ body{ background:#ffffff; }
        두 경로의 구조와 판정은 etl_awareness_region.build_output() 한 곳에서 나온다. */
     let AWARE_BY_ID = {};      // 항목번호 → API 항목
     let AWARE_ORIGIN = null;   // 'db' | null
-    function loadAware(){
+    /* 보고 있는 조사 연차. '' = 전체(누적), '25' = 25년차.
+       처음에는 'latest' 로 불러 서버가 가장 최근 연차를 풀어 주게 한다 —
+       연차 목록을 받으려고 한 번 더 부르지 않아도 된다. */
+    let currentYear = 'latest';
+    const AWARE_CACHE = {};    // 연차별로 받아 둔다. 오갈 때 다시 부르지 않게.
+    function loadAware(year){
       const apply = (j, origin)=>{
         AWARE_ORIGIN = origin;
         window.__AWARE_ORIGIN = origin;   // 진단용
         SITE_NAMES = j.regionSites || {};
         ROSTER = j.regionRoster || {};
         AWARE_META = j.meta || {};
+        // 서버가 실제로 내려준 연차. 'latest' 를 보냈으면 여기서 풀린다.
+        currentYear = (AWARE_META.year || '');
         const items = j.items || [];
 
         // 표제어가 겹치는 단어를 먼저 찾아 둔다 (목록에 이름표를 달기 위해)
@@ -652,9 +666,16 @@ body{ background:#ffffff; }
       };
       /* 서버가 계산해 준 것만 쓴다. Vercel 배포에서는 /api/index.py 가 Turso 를 읽어
          로컬 server.py 와 같은 결과를 돌려준다. 판정을 화면에서 다시 하지 않는다. */
-      return fetch('/api/weather/awareness')
+      const y = (year===undefined||year===null) ? currentYear : year;
+      const key = String(y);
+      if(AWARE_CACHE[key]){ apply(AWARE_CACHE[key],'db'); return Promise.resolve(); }
+      const qs = y ? ('?year=' + encodeURIComponent(y)) : '';
+      return fetch('/api/weather/awareness' + qs)
         .then(r=> r.ok ? r.json() : Promise.reject(new Error(r.status)))
         .then(j=>{ if(!j || j.status==='error' || !(j.items||[]).length) throw new Error('빈 응답');
+                   AWARE_CACHE[key] = j;
+                   // 서버가 푼 연차로도 찾을 수 있게 같은 자료를 한 번 더 걸어 둔다
+                   if(j.meta && j.meta.year!=null) AWARE_CACHE[String(j.meta.year)] = j;
                    apply(j,'db'); })
         .catch(()=>{ AWARE_BY_ID={}; WORDS.length=0; AWARE_ORIGIN=null; });
     }
@@ -682,12 +703,20 @@ body{ background:#ffffff; }
       }
       return { state:'w0', n:0, score:null, forms:[], cases:[], note:'실측 자료를 불러오지 못했습니다' };
     }
-    /* 지도 마커·표에 쓸 짧은 라벨 — 세대별은 점수가 아니라 제보자 수 */
+    /* 지도 마커에 붙일 짧은 라벨.
+       점수도 명수도 적지 않는다 — 점수는 없는 척도를 만들고, 명수는 분모가 없어
+       '6명 중 4명'과 '4명 중 4명'이 똑같이 '4명'으로 보였다.
+       기호와 색이 상태를 말하고, 자세한 것은 지역을 누르면 나온다. */
     function cellLabel(c){                                 // 좁은 칸용 짧은 라벨
-      if(c.score!=null) return Math.round(c.score)+'점';
       if(c.state==='std') return '없음';
       if(c.state==='w0')  return '—';
-      return (c.n||0) + '명';
+      return '';
+    }
+    /* 지도를 못 그렸을 때처럼 글로만 알려야 하는 자리 — 여기서는 상태 이름을 쓴다 */
+    function stateName(c){
+      if(c.state==='std') return '지역어형 없음';
+      if(c.state==='w0')  return '관측 없음';
+      return (WEATHERS[c.state]||{}).label || '';
     }
     function cellText(c){                                  // 지도 마커용 풀어 쓴 말
       if(c.state==='std') return '지역어형 없음';
@@ -778,10 +807,10 @@ body{ background:#ffffff; }
           <i class="ti ti-chevron-down chev" aria-hidden="true"></i>
         </button>
         <div class="gs-map-legend-acc__body">
-          <div class="row"><span class="sw" style="background:${HEXVAR.w1}"></span><span>${EMOJI.w1} <b>대체로 지금도 쓴다</b><em>맑음 · 88점 이상</em></span></div>
-          <div class="row"><span class="sw" style="background:${HEXVAR.w2}"></span><span>${EMOJI.w2} <b>써봤으나 사용하지 않는다</b><em>구름조금 · 63~87점</em></span></div>
-          <div class="row"><span class="sw" style="background:${HEXVAR.w3}"></span><span>${EMOJI.w3} <b>들어는 봤다</b><em>흐리고 비 · 38~62점</em></span></div>
-          <div class="row"><span class="sw" style="background:${HEXVAR.w4}"></span><span>${EMOJI.w4} <b>처음 들어본다</b><em>천둥번개 · 37점 이하</em></span></div>
+          <div class="row"><span class="sw" style="background:${HEXVAR.w1}"></span><span>${EMOJI.w1} <b>대체로 지금도 쓴다</b><em>맑음</em></span></div>
+          <div class="row"><span class="sw" style="background:${HEXVAR.w2}"></span><span>${EMOJI.w2} <b>써봤으나 사용하지 않는다</b><em>구름조금</em></span></div>
+          <div class="row"><span class="sw" style="background:${HEXVAR.w3}"></span><span>${EMOJI.w3} <b>들어는 봤다</b><em>흐리고 비</em></span></div>
+          <div class="row"><span class="sw" style="background:${HEXVAR.w4}"></span><span>${EMOJI.w4} <b>처음 들어본다</b><em>천둥번개</em></span></div>
           <div class="row is-muted"><span class="sw" style="background:${HEXVAR.std}"></span><span><b>지역어형 없음</b></span></div>
           <div class="row is-muted"><span class="sw" style="background:${HEXVAR.w0}"></span><span><b>관측 없음</b></span></div>
         </div>
@@ -796,8 +825,8 @@ body{ background:#ffffff; }
           <div class="gs-mapbar__title">${ isAll(w)
             ? `조사된 <b>${wordCount()}개 단어</b>를 한 장으로`
             : `‘<b>${esc(w.label||w.standard)}</b>’의 지역별 인지도/사용도` }</div>
-          ${ isAll(w) ? `<div class="gs-mapbar__sub">지역 점수 = 그 지역 제보자가
-            <b>${wordCount()}개 단어의 지역어형</b>에 준 등급의 평균</div>` : '' }
+          ${ isAll(w) ? `<div class="gs-mapbar__sub">그 지역 제보자가
+            <b>${wordCount()}개 단어의 지역어형</b>에 준 등급을 모아 나타낸 것</div>` : '' }
           ${ w.desc ? `<div class="gs-mapbar__desc">${esc(w.desc)}</div>` : '' }
         </div>
         <div class="gs-mapbar__actions">
@@ -819,7 +848,7 @@ body{ background:#ffffff; }
               <div class="gs-popmenu__sec">
                 <div class="gs-popmenu__label">표시 요소</div>
                 <label class="gs-mschk"><input type="checkbox" id="gsHideIcon"> 날씨 아이콘 숨기기</label>
-                <label class="gs-mschk"><input type="checkbox" id="gsHideArea"> 면색(점수) 숨기기</label>
+                <label class="gs-mschk"><input type="checkbox" id="gsHideArea"> 면색 숨기기</label>
               </div>
             </div>
           </div>
@@ -835,7 +864,7 @@ body{ background:#ffffff; }
       </div>
       <div class="gs-mapwrap">
         <div class="gs-card gs-mappanel">
-          <div id="gs-map" role="img" aria-label="지역별 점수 기상도"></div>
+          <div id="gs-map" role="img" aria-label="지역별 지역어 기상도"></div>
           <button type="button" class="gs-mapreset" id="gsMapReset" title="처음 위치로" aria-label="지도 위치 초기화"><i class="ti ti-refresh" aria-hidden="true"></i></button>
           <div class="gs-map-fallback" id="gsMapFallback"></div>
           <div class="gs-popover" id="gsMapPop"></div>
@@ -862,7 +891,7 @@ body{ background:#ffffff; }
                   <span class="gr-gen">전체</span>
                   <span class="gr-bar"><span style="width:${a.score!=null?Math.round(a.score):0}%;background:${CSSVAR[ak]}"></span></span>
                   <span class="gr-rate" style="color:${a.n?CSSVAR[ak]:'#94a3b8'};font-size:12px">${
-                    a.n ? `${Math.round(a.score)}점 <em class="gr-n">${a.agg?`${a.people}명`:`${a.used}/${a.n}명`}</em>` : '—'}</span>
+                    a.n ? `<em class="gr-n">${a.agg?`${a.people}명`:`${a.used}/${a.n}명`}</em>` : '—'}</span>
                 </button>`; })()}` : '' }
               ${genRowsHTML(w)}
             </div>
@@ -1062,7 +1091,7 @@ body{ background:#ffffff; }
             el.title=(REGION_NAMES[code]||code)+(SITE_NAMES[code]?`(${SITE_NAMES[code]})`:'')+' · '+WEATHERS[wk].label+(casesText(cel)?' · '+casesText(cel):'');
             el.innerHTML = isPlain(wk)
               ? `<div class="gs-olring"><div class="gs-ollabel gs-ollabel--plain"><span class="nm">${REGION_NAMES[code]||code}</span> <span class="gs-olnote">${cellText(cel)}</span></div></div>`
-              : `<div class="gs-olring"><div class="gs-olemoji">${EMOJI[wk]}</div><div class="gs-ollabel"><span class="nm">${REGION_NAMES[code]||code}</span> <span class="gs-olpct" style="color:${HEXVAR[wk]}">${cellLabel(cel)}</span></div></div>`;
+              : `<div class="gs-olring"><div class="gs-olemoji">${EMOJI[wk]}</div><div class="gs-ollabel"><span class="nm">${REGION_NAMES[code]||code}</span>${(()=>{ const l=cellLabel(cel); return l?` <span class="gs-olpct" style="color:${HEXVAR[wk]}">${l}</span>`:''; })()}</div></div>`;
             const ov=new ol.Overlay({ element:el, stopEvent:false, positioning:'center-center' });
             ov.setPosition(c);
             map.addOverlay(ov); markers.push(ov);
@@ -1112,7 +1141,7 @@ body{ background:#ffffff; }
         const fb=document.getElementById('gsMapFallback');
         if(fb){ fb.style.display='flex';
           fb.innerHTML = '지도를 불러오지 못했습니다. 지역별 현황: '
-            + REGION_ORDER.map(c=>`${REGION_NAMES[c]} ${cellLabel(cellOf(w,0,c))}`).join(' · '); }
+            + REGION_ORDER.map(c=>`${REGION_NAMES[c]} ${stateName(cellOf(w,0,c))}`).join(' · '); }
         return;
       }
       olMap=adapter.map;
@@ -1220,7 +1249,7 @@ body{ background:#ffffff; }
           ctx.drawImage(cv,0,0);
         });
         ctx.setTransform(1,0,0,1,0,0); ctx.globalAlpha=1;
-        // 날씨 이모지 + 점수
+        // 날씨 이모지 + 제보자 수
         const hideIcon=document.getElementById('gsHideIcon');
         if(!(hideIcon&&hideIcon.checked)){
           ctx.textAlign='center'; ctx.textBaseline='middle';
@@ -1230,6 +1259,7 @@ body{ background:#ffffff; }
             const cel=cellOf(w, currentGen, code); const wk=cel.state;
             const plain=isPlain(wk); const lab=plain?cellText(cel):cellLabel(cel);
             if(!plain){ ctx.font='26px sans-serif'; ctx.fillStyle='#000'; ctx.fillText(EMOJI[wk], px[0], px[1]-6); }
+            if(!lab) return;                               // 기호만 있는 칸은 글을 얹지 않는다
             ctx.font=(plain?'':'bold ')+'12px sans-serif'; ctx.lineWidth=3; ctx.strokeStyle='rgba(255,255,255,.92)';
             ctx.strokeText(lab, px[0], px[1]+16);
             ctx.fillStyle=plain?'#94a3b8':'#0f172a'; ctx.fillText(lab, px[0], px[1]+16);
@@ -1271,7 +1301,7 @@ body{ background:#ffffff; }
           <span class="gr-gen">${g}대${sx?`<em class="gr-sex">${sx==='M'?'남':'여'}</em>`:''}</span>
           <span class="gr-bar"><span style="width:${t.score!=null?Math.round(t.score):0}%;background:${CSSVAR[wk]}"></span></span>
           <span class="gr-rate" style="color:${t.n?CSSVAR[wk]:'#94a3b8'};font-size:12px">${
-            t.n ? `${Math.round(t.score)}점 <em class="gr-n">${t.agg?`${t.people}명`:`${t.used}/${t.n}명`}</em>` : '—'}</span>
+            t.n ? `<em class="gr-n">${t.agg?`${t.people}명`:`${t.used}/${t.n}명`}</em>` : '—'}</span>
         </button>`;
       }).join('');
     }
@@ -1377,7 +1407,7 @@ body{ background:#ffffff; }
       if(!list.length) return `<div class="gs-wgrid-empty">검색 결과가 없습니다</div>`;
       return list.map(w=>{
         const all = w.itemId==='__ALL__';
-        return `<button type="button" class="gs-wbtn${all?' is-all':''} ${w.itemId===currentWordId?'is-active':''}" data-id="${w.itemId}" role="option" aria-selected="${w.itemId===currentWordId}"${all?` title="조사된 ${wordCount()}개 단어를 한 장으로 — 지역별 평균 점수"`:''}>${all?`전체 ${wordCount()}개`:esc(w.label||w.standard)}</button>`;
+        return `<button type="button" class="gs-wbtn${all?' is-all':''} ${w.itemId===currentWordId?'is-active':''}" data-id="${w.itemId}" role="option" aria-selected="${w.itemId===currentWordId}"${all?` title="조사된 ${wordCount()}개 단어를 한 장으로 — 지역별 기상도"`:''}>${all?`전체 ${wordCount()}개`:esc(w.label||w.standard)}</button>`;
       }).join('');
     }
     function pickPanelHTML(){
@@ -1435,6 +1465,7 @@ body{ background:#ffffff; }
             <i class="ti ti-chevron-down gs-pick__chev" aria-hidden="true"></i>
           </button>
         </div>
+        ${yearRowHTML()}
         <div class="gs-searchrow">
           <div class="gs-wordsearch ${pickQuery?'has-value':''}" id="gsWSWrap">
             <i class="ti ti-search gs-wordsearch__ico" aria-hidden="true"></i>
@@ -1448,6 +1479,21 @@ body{ background:#ffffff; }
           <div class="gs-wordgrid" id="gsWordGrid" role="listbox" aria-label="단어 목록">${gridHTML(filterWords())}</div>
         </div>
       </div>`;
+    }
+    /* 조사 연도 고르기. [전체] 가 맨 앞의 누적 보기이고, 나머지는 자료에 있는 연차.
+       선택지를 하드코딩하지 않는다 — 연차가 쌓이면 저절로 늘어난다. */
+    function yearRowHTML(){
+      const ys = (AWARE_META.years || []);
+      if(!ys.length) return '';
+      const cur = String(currentYear || '');
+      const chip = (deg, label, all)=>
+        `<button type="button" class="gs-ybtn${all?' is-all':''}${String(deg)===cur?' is-active':''}"`
+        + ` data-year="${deg}" aria-pressed="${String(deg)===cur}">${label}</button>`;
+      return `<div class="gs-yearrow" role="group" aria-label="조사 연도 고르기">
+          <span class="gs-yearrow__label"><i class="ti ti-calendar" aria-hidden="true"></i> 조사 연도</span>
+          ${chip('', '전체', true)}
+          ${ys.map(y=>chip(y.degree, `${y.year}년`)).join('')}
+        </div>`;
     }
     function regrid(){
       const g=document.getElementById('gsWordGrid'); if(g) g.innerHTML=gridHTML(filterWords());
@@ -1473,6 +1519,17 @@ body{ background:#ffffff; }
           else if(e.key==='Escape'){ ws.value=''; pickQuery=''; wsWrap.classList.remove('has-value'); regrid(); }
         });
       }
+      /* 조사 연도 — 누르면 그 연차 자료를 받아 화면을 다시 그린다.
+         고른 단어가 그 연차에 없으면 apply() 가 알아서 기본 단어를 잡는다. */
+      const yrow=root.querySelector('.gs-yearrow');
+      if(yrow) yrow.addEventListener('click', e=>{
+        const b=e.target.closest('.gs-ybtn'); if(!b) return;
+        const y=b.dataset.year||'';
+        if(String(currentYear||'')===y) return;
+        yrow.querySelectorAll('.gs-ybtn').forEach(x=>{
+          const on=x===b; x.classList.toggle('is-active',on); x.setAttribute('aria-pressed',String(on)); });
+        loadAware(y).then(route);
+      });
       const searchBtn=root.querySelector('#gsSearchBtn');
       if(searchBtn) searchBtn.addEventListener('click', doSearch);
       if(wsClear) wsClear.addEventListener('click',()=>{ pickQuery=''; ws.value=''; wsWrap.classList.remove('has-value'); regrid(); ws.focus(); });
