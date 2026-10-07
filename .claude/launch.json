@@ -2,6 +2,14 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "korean-dev-all",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "dev.py"
+      ],
+      "port": 8765
+    },
+    {
       "name": "korean-dev",
       "runtimeExecutable": "python3",
       "runtimeArgs": [
