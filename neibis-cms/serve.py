@@ -6305,7 +6305,7 @@ def api_weather_upload(raw: bytes, ctype: str) -> dict:
             if re.search(r"-A-\d", r["headword"] or ""):
                 warnings.append({"fileName": fname, "lineNo": r["line_no"] + 1,
                                  "itemCd": r["item_cd"], "headword": r["headword"],
-                                 "message": "표준어형 칸에 하위코드가 섞였습니다"})
+                                 "message": "표제어 칸에 하위코드가 섞였습니다"})
         # 서비스 목록에 없는 항목번호 — 대개 옆 번호로 잘못 적은 오타다(20217 → 20218).
         # 받되 알린다. 지도에는 나오지 않는다.
         allow = _weather_etl().load_service_items() or set()

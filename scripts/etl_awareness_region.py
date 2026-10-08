@@ -500,7 +500,7 @@ def build_output(recs, nfiles, adjust=None):
                 state = 'std'
                 cell = {'state': state, 'n': 0, 'score': None,
                         'respondents': len(informants),
-                        'note': '조사된 %d명 모두 표준어형만 응답' % len(informants)}
+                        'note': '조사된 %d명 모두 표제어만 응답' % len(informants)}
             else:
                 state = 'w0'
                 cell = {'state': state, 'n': 0,

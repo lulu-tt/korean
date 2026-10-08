@@ -903,7 +903,7 @@ body{ background:#ffffff; }
 
           <div class="gs-card gs-rlist">
             <div class="gs-rlist__head">
-              <span class="gs-sectitle">지역별 조사된 말</span><em id="gsRegionHead">표준어형 · 방언형(기저형)</em>
+              <span class="gs-sectitle">지역별 조사된 말</span><em id="gsRegionHead">표제어 · 방언형(기저형)</em>
             </div>
             <div id="gsRegionList" class="gs-rlist__body"></div>
           </div>
@@ -926,7 +926,7 @@ body{ background:#ffffff; }
         const heads = head.heads||[], bases = head.bases||[];
         return `<div class="gs-rl">
           <b>${esc(REGION_NAMES[code])}<em>${esc(SITE_NAMES[code]||'')}</em></b>
-          <span class="gs-rl__row"><span class="gs-rl__k">표준어형</span>
+          <span class="gs-rl__row"><span class="gs-rl__k">표제어</span>
             <span class="gs-rl__v">${heads.length?chips(heads,'is-head'):'<u>—</u>'}</span></span>
           <span class="gs-rl__row"><span class="gs-rl__k">방언형</span>
             <span class="gs-rl__v">${bases.length?chips(bases,'is-base'):'<u>조사된 방언형 없음</u>'}</span></span>
@@ -937,7 +937,7 @@ body{ background:#ffffff; }
       const el=document.getElementById('gsRegionList');
       if(el) el.innerHTML=regionListHTML(w);
       const hd=document.getElementById('gsRegionHead');
-      if(hd) hd.textContent = '표준어형 · 방언형(기저형)';
+      if(hd) hd.textContent = '표제어 · 방언형(기저형)';
     }
 
 
@@ -1337,7 +1337,7 @@ body{ background:#ffffff; }
       const heads=all.heads||[], bases=all.bases||[];
       const body = isAll(w)
         ? `<div class="gs-popnote">단어를 하나 고르면 그 지역에서 조사된 말이 나옵니다.</div>`
-        : `<div class="gs-poprow"><span class="gs-rl__k">표준어형</span>
+        : `<div class="gs-poprow"><span class="gs-rl__k">표제어</span>
              <span class="gs-rl__v">${heads.length?chips(heads,'is-head'):'<u>—</u>'}</span></div>
            <div class="gs-poprow"><span class="gs-rl__k">방언형</span>
              <span class="gs-rl__v">${bases.length?chips(bases,'is-base'):'<u>조사된 방언형 없음</u>'}</span></div>`;
@@ -1469,7 +1469,7 @@ body{ background:#ffffff; }
         <div class="gs-searchrow">
           <div class="gs-wordsearch ${pickQuery?'has-value':''}" id="gsWSWrap">
             <i class="ti ti-search gs-wordsearch__ico" aria-hidden="true"></i>
-            <input type="search" class="gs-wordsearch__input" id="gsWS" placeholder="방언형·표준어형 검색 (예: 나락, 벼)" autocomplete="off" aria-label="단어 검색" value="${pickQuery.replace(/"/g,'&quot;')}">
+            <input type="search" class="gs-wordsearch__input" id="gsWS" placeholder="방언형·표제어 검색 (예: 나락, 벼)" autocomplete="off" aria-label="단어 검색" value="${pickQuery.replace(/"/g,'&quot;')}">
             <button type="button" class="gs-wordsearch__clear" id="gsWSClear" aria-label="검색어 지우기"><i class="ti ti-x" aria-hidden="true"></i></button>
           </div>
           <button type="button" class="gs-searchbtn" id="gsSearchBtn"><i class="ti ti-search" aria-hidden="true"></i> 검색</button>
