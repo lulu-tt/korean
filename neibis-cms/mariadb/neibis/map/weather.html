@@ -1589,7 +1589,7 @@ function asJson(r){
     $('ptLegend').innerHTML =
         '<span>칸 = <b>제보자</b><em class="lg-sub">/</em><em class="lg-sub">응답 행</em></span>'
       + '<span><i class="lg-none"></i>지역어형 등급 없음 — 지도에 안 나옴</span>'
-      + '<span><i class="lg-std"></i>표준어형만 나옴</span>';
+      + '<span><i class="lg-std"></i>표제어만 나옴</span>';
   }
 
   /* ── 목록 ── */
@@ -1650,7 +1650,7 @@ function asJson(r){
     var tip = (RN[rg]||rg)+' — 제보자 '+p+'명 · 응답 '+n+'행 · 등급 '+(c.graded||0)+'행'
             + ' · 판정에 든 제보자 '+(c.n||0)+'명'
             + (c.state==='w0' ? ' · 지역어형 등급이 없어 지도에 안 나옴'
-            : (c.state==='std' ? ' · 표준어형만 나옴' : ''));
+            : (c.state==='std' ? ' · 표제어만 나옴' : ''));
     return '<td class="pt-c'+cls+'" title="'+esc(tip)+'">'
          + '<b>'+p+'</b><span class="sl">/</span><i>'+n+'</i></td>';
   }
@@ -2051,7 +2051,7 @@ function asJson(r){
   function calcWx(p){
     var r=gradeRow(p.calc);
     if(r) return { nm:r[1], cls:r[2], tip:r[3]+' (등급 '+r[0]+')' };
-    return p.graded ? { nm:'지역어형 없음', cls:'wxs', tip:'표준어형에만 답했습니다' }
+    return p.graded ? { nm:'지역어형 없음', cls:'wxs', tip:'표제어에만 답했습니다' }
                     : { nm:'관측 없음',   cls:'wx0', tip:'사용도/인지도가 비어 있습니다' };
   }
   /* 보정 칸 — 제보자 한 명의 첫 줄에만 둔다. 계산값을 옆에 적어 무엇을 바꿨는지 보이게. */
