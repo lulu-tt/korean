@@ -6334,7 +6334,7 @@ def api_weather_upload(raw: bytes, ctype: str) -> dict:
             """INSERT INTO wb_weather_file
                (file_nm,region_cd,region_nm,research_year,research_degree,generation,sex,
                 row_cnt,item_cnt,src_layout,use_yn,reg_id,reg_dt)
-               VALUES (?,?,?,?,?,?,?,?,?,?,'Y','admin',datetime('now'))""",
+               VALUES (?,?,?,?,?,?,?,?,?,?,'Y','admin',datetime('now','localtime'))""",
             (fkey, meta["region_cd"], meta["region_nm"], meta["research_year"],
              meta["research_degree"], meta["generation"], meta["sex"], len(kept),
              len({_wb_item_base(r["item_cd"]) for r in kept} - {None}), layout))
@@ -6356,7 +6356,7 @@ def api_weather_upload(raw: bytes, ctype: str) -> dict:
             """INSERT INTO wb_weather_response
                (weather_file_id,line_no,serial_no,item_cd,item_base,headword,
                 dialect_form,grade,grade_valid_yn,use_yn,reg_dt)
-               VALUES (?,?,?,?,?,?,?,?,?,'Y',datetime('now'))""", batch)
+               VALUES (?,?,?,?,?,?,?,?,?,'Y',datetime('now','localtime'))""", batch)
         results.append({
             "ok": True, "fileName": fname, "fileKey": fkey, "region": meta["region_nm"],
             "year": meta["research_year"], "generation": f'{meta["generation"]}대',
@@ -6730,20 +6730,33 @@ def api_weather_files(qs: dict) -> dict:
 
 
 def api_weather_delete(body: dict) -> dict:
-    """적재 파일 삭제 (응답 행까지)."""
+    """적재 파일 삭제 — 응답 행과 그 제보자의 보정까지.
+
+    보정은 제보자·항목 열쇠라 재업로드에는 살아남게 했지만, 삭제는 '이 제보자를
+    뺀다' 는 뜻이다. 보정을 남겨 두면 같은 제보자를 나중에 다시 올렸을 때 아무도
+    기억하지 못하는 옛 보정이 되살아난다(2026-10-12 결정).
+    판정은 요청마다 다시 하므로 따로 재계산할 것은 없다.
+    """
     ids = body.get("ids") or ([body.get("id")] if body.get("id") else [])
     ids = [str(x).strip() for x in ids if str(x).strip()]
     if not ids:
         return {"ok": False, "message": "삭제할 파일을 선택해주세요."}
     con = weather_db()
     ph = ",".join("?" * len(ids))
+    keys = [r["file_nm"] for r in con.execute(
+        f"SELECT file_nm FROM wb_weather_file WHERE weather_file_id IN ({ph})", ids)]
+    con.executescript(_weather_etl().ADJUST_DDL)
+    adj = 0
+    if keys:
+        kh = ",".join("?" * len(keys))
+        adj = con.execute(f"DELETE FROM wb_weather_adjust WHERE file_nm IN ({kh})", keys).rowcount
     con.execute(f"DELETE FROM wb_weather_response WHERE weather_file_id IN ({ph})", ids)
     cur = con.execute(f"DELETE FROM wb_weather_file WHERE weather_file_id IN ({ph})", ids)
     n = cur.rowcount
     con.commit()
     con.close()
-    return {"ok": True, "deleted": n,
-            "message": f"{n}건 삭제되었습니다. 집계 재계산이 필요합니다."}
+    return {"ok": True, "deleted": n, "adjustCleared": adj,
+            "message": f"{n}건 삭제되었습니다." + (f" 보정 {adj}건도 함께 지웠습니다." if adj else "")}
 
 
 # ── 지역별 이형태(음운) 일괄등록 ──────────────────────────────────
