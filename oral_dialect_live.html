@@ -291,6 +291,10 @@
   .src-play-btn { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 99px; border: none; background: var(--wine); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2); transition: 0.2s ease; }
   .src-play-btn:hover { background: var(--wine-hover); transform: translateY(-1px); }
   .src-play-btn i { font-size: 15px; }
+  .src-dl-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 16px; border-radius: 99px; border: 1.5px solid var(--wine); background: #fff; color: var(--wine); font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; transition: 0.2s ease; }
+  .src-dl-btn:hover { background: #eff6ff; transform: translateY(-1px); }
+  .src-dl-btn i { font-size: 15px; }
+  .src-dl-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
   /* 드래그로 원하는 문장으로 이동 가능한 재생 위치 바 */
   .src-progress { position: relative; height: 6px; margin: 6px 24px 12px; border-radius: 99px; background: #e2e8f0; cursor: pointer; touch-action: none; }
   .src-progress::before { content: ''; position: absolute; left: 0; right: 0; top: -9px; bottom: -9px; } /* 클릭/드래그 영역 확대 */
@@ -761,6 +765,9 @@
           <label for="metaToggle">음성상태/비고 보기</label>
           <button type="button" class="src-play-btn" id="srcPlayBtn" onclick="toggleSourcePlay()">
             <i class="ti ti-player-play-filled" aria-hidden="true"></i> 전체 음성 듣기
+          </button>
+          <button type="button" class="src-dl-btn" id="srcDlBtn" onclick="downloadSourceAudio()">
+            <i class="ti ti-download" aria-hidden="true"></i> 음성 다운로드
           </button>
         </div>
         <div class="src-progress"><div class="src-progress-bar" id="srcProgressBar"></div></div>
@@ -1716,6 +1723,20 @@
       '</div><div class="osent-body"><div class="osent-sentences">' + sents + '</div></div></div>';
   }
 
+
+  /* ── 원문 모달: 전체 음성 파일(wav) 내려받기 ── */
+  window.downloadSourceAudio = function () {
+    const sc = document.getElementById('srcScroll');
+    const trs = sc && sc.dataset.trs;
+    if (!trs) { alert('내려받을 음성 파일이 없습니다.'); return; }
+    const a = document.createElement('a');
+    a.href = '/api/oral_audio?trsId=' + encodeURIComponent(trs);
+    a.download = sc.dataset.audioName || ('구술발화_' + trs + '.wav');
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+
   /* ── 원문 보기 ── */
   window.openOralSource = function (trsId, focusStart) {
     fetch('/api/oral_detail?trsId=' + encodeURIComponent(trsId)).then(r => r.json()).then(d => {
@@ -1732,6 +1753,7 @@
                                          : '<span style="color:#dc2626">없음</span>') + '</dd>';
       const scroll = document.getElementById('srcScroll');
       scroll.dataset.trs = trsId;
+      scroll.dataset.audioName = String(d.fileName || '').replace(/\.(eaf|trs)$/i, '') + '.wav';
       scroll.innerHTML = d.lines.map(l => {
         const inv = l.speaker.indexOf('조사자') === 0;
         return '<div class="src-item" data-s="' + l.start + '" data-e="' + l.end + '">' +
@@ -1765,6 +1787,8 @@
 
       const pb = document.getElementById('srcPlayBtn');
       if (pb) { pb.disabled = !d.audio; pb.title = d.audio ? '' : '음성 파일이 없습니다'; pb.style.opacity = d.audio ? '' : '.45'; }
+      const db = document.getElementById('srcDlBtn');
+      if (db) { db.disabled = !d.audio; db.title = d.audio ? '' : '음성 파일이 없습니다'; }
       openSourceModal();
 
       // 모달이 펼쳐져 높이가 잡힌 뒤라야 스크롤이 먹는다. 짧게 재시도한다.
