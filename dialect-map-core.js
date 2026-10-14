@@ -798,17 +798,36 @@
         }
         var byName = {};    // 정규화 시·군명 → { color, word, sido }
         var metroRep = {};  // 광역시 sido → { color, word }
-        REGIONS.forEach(function (r) {
-          matchStats.total++;
-          var sido = String(r.sido || '').trim();
-          var sg = normalizeAdminName(r.sigungu || r.region_nm || r.regionNm || '');
+        function addFace(sido, sgRaw, color, word) {
+          var sg = normalizeAdminName(sgRaw || '');
           if (sg) sg = sg.replace(/\(.*\)$/, '').trim();
-          var color = rgbHex(r.faceColor || r.color);
           if (!sg || !color) { matchStats.miss++; return; }
-          var word = (r.word && r.word !== '미조사') ? r.word : '';   // 미조사는 어형 라벨 없이 색만
-          if (!byName[sg]) byName[sg] = { color: color, word: word, sido: sido };
-          if (METRO_SIDO[sido] && !metroRep[sido]) metroRep[sido] = { color: color, word: word };
-        });
+          if (!byName[sg]) byName[sg] = { color: color, word: word || '', sido: sido };
+          if (METRO_SIDO[sido] && !metroRep[sido]) metroRep[sido] = { color: color, word: word || '' };
+        }
+        if (REGIONS.length) {
+          // (A) payload.regions 가 있으면(공식 포맷) 그걸 면색 기준으로 — 미조사 지역까지 faceColor 로 채색
+          REGIONS.forEach(function (r) {
+            matchStats.total++;
+            var sido = String(r.sido || '').trim();
+            var color = rgbHex(r.faceColor || r.color);
+            var word = (r.word && r.word !== '미조사') ? r.word : '';   // 미조사는 어형 라벨 없이 색만
+            addFace(sido, r.sigungu || r.region_nm || r.regionNm, color, word);
+          });
+        } else {
+          // (B) regions 가 없는 표제어(대부분)는 groups.variants.places + 그룹 색으로 채색.
+          //  region_id(시·군) 하나가 여러 그룹에 걸리면 '첫 face color' 규칙에 따라 먼저 만난 색을 쓴다.
+          Object.keys(GROUPS).forEach(function (gkey) {
+            var g = GROUPS[gkey];
+            var color = rgbHex(g.color);
+            (g.variants || []).forEach(function (v) {
+              (v.places || []).forEach(function (pl) {
+                matchStats.total++;
+                addFace(String(pl.sido || '').trim(), pl.sigungu || pl.region_nm, color, v.word);
+              });
+            });
+          });
+        }
         matchStats.regions = Object.keys(byName).length;
 
         // 광역시 판정 보강: 일부 폴리곤은 sido 가 비어 있어(부산·대구·대전·울산·광주 구 등)
