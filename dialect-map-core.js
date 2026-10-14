@@ -290,6 +290,7 @@
     var popupOverlay = null;
     var mapDataCache = {};
     var GROUPS = {};
+    var REGIONS = [];   // payload.regions 전체(조사+미조사) — 면색(choropleth) 소스
     var currentHeadwordNo = '';
     var variantStyles = {};
     var variantStylesBig = {};
@@ -777,83 +778,123 @@
           setMapStatus((document.getElementById(opts.statusId) && document.getElementById(opts.statusId).textContent || '') + ' · 면색: 시군구 데이터 없음', false);
           return;
         }
-        var muniBag = {};
-        var cityGuIndex = getCityGuIndex(global.KOREA_MUNICIPALITIES);
+        // 공식(국립국어원) 지도와 동일한 "region_id 통합" 채색.
+        //  좌표(point-in-polygon) 대신 조사지점의 시/군 식별자로 폴리곤을 칠한다.
+        //  → 통합시(고양·수원 등) 일반구·광역시 자치구가 모(母) 단위로 같은 색이 되어 흰색이 사라짐.
         var feats = global.KOREA_MUNICIPALITIES.features || [];
-        var provFc = global.KOREA_PROVINCES || null;
-        var provFeats = (provFc && provFc.features) || [];
-        var metroIdx = getMetroProvinceIndex(provFc);
-        var matchStats = { pip: 0, name: 0, nearest: 0, miss: 0, total: 0, cityExpand: 0, metroExpand: 0 };
+        var matchStats = { total: 0, miss: 0, regions: 0, filled: 0 };
 
-        Object.keys(GROUPS).forEach(function (gkey) {
-          var g = GROUPS[gkey];
-          g.variants.forEach(function (v) {
-            (v.points || []).forEach(function (pt, pi) {
-              matchStats.total++;
-              var place = (v.places && v.places[pi]) || placeByCoord[pt[0].toFixed(5) + ',' + pt[1].toFixed(5)] || null;
-              var hit = findMunicipality(pt[0], pt[1], global.KOREA_MUNICIPALITIES, place);
-              if (!hit) { matchStats.miss++; return; }
-              if (hit.method === 'pip') matchStats.pip++;
-              else if (hit.method === 'name') matchStats.name++;
-              else if (hit.method === 'nearest') matchStats.nearest++;
-
-              var metroKey = resolveMetroKey(place, pt[0], pt[1], provFc);
-              var cityKey = metroKey ? null : resolveCityGuKey(hit.name, place, cityGuIndex);
-              var bagKey, bagInit;
-              if (metroKey && metroIdx && metroIdx[metroKey] != null) {
-                bagKey = 'metro:' + metroKey;
-                bagInit = { metroKey: metroKey, cityKey: null, provinceIndex: metroIdx[metroKey], indices: null, name: metroKey, counts: {}, colors: {} };
-              } else if (cityKey) {
-                bagKey = 'city:' + cityKey;
-                bagInit = { metroKey: null, cityKey: cityKey, provinceIndex: null, indices: cityGuIndex[cityKey].slice(), name: cityKey, counts: {}, colors: {} };
-              } else {
-                bagKey = 'idx:' + hit.index;
-                bagInit = { metroKey: null, cityKey: null, provinceIndex: null, indices: [hit.index], name: hit.name, counts: {}, colors: {} };
-              }
-              if (!muniBag[bagKey]) {
-                muniBag[bagKey] = bagInit;
-                if (metroKey) matchStats.metroExpand++;
-                else if (cityKey) matchStats.cityExpand++;
-              }
-              muniBag[bagKey].counts[v.id] = (muniBag[bagKey].counts[v.id] || 0) + 1;
-              muniBag[bagKey].colors[v.id] = g.color;
-            });
-          });
+        // (1) 지역별 색 집계 — payload.regions 전체(조사+미조사) 기준.
+        //  공식 fillPolicy(region_id_first_face_color)와 동일하게 각 시·군의 faceColor 로 칠한다.
+        //  '미조사' 지역은 groups.variants 에 없고 regions 에만 있으므로, 반드시 regions 를 소스로 쓴다.
+        function rgbHex(s) {
+          if (!s) return null;
+          s = String(s).trim();
+          if (s.charAt(0) === '#') return s;
+          var m = s.split(',').map(function (x) { return parseInt(x, 10); });
+          if (m.length < 3 || isNaN(m[0]) || isNaN(m[1]) || isNaN(m[2])) return null;
+          function h(n) { n = Math.max(0, Math.min(255, n || 0)); return (n < 16 ? '0' : '') + n.toString(16); }
+          return '#' + h(m[0]) + h(m[1]) + h(m[2]);
+        }
+        var byName = {};    // 정규화 시·군명 → { color, word, sido }
+        var metroRep = {};  // 광역시 sido → { color, word }
+        REGIONS.forEach(function (r) {
+          matchStats.total++;
+          var sido = String(r.sido || '').trim();
+          var sg = normalizeAdminName(r.sigungu || r.region_nm || r.regionNm || '');
+          if (sg) sg = sg.replace(/\(.*\)$/, '').trim();
+          var color = rgbHex(r.faceColor || r.color);
+          if (!sg || !color) { matchStats.miss++; return; }
+          var word = (r.word && r.word !== '미조사') ? r.word : '';   // 미조사는 어형 라벨 없이 색만
+          if (!byName[sg]) byName[sg] = { color: color, word: word, sido: sido };
+          if (METRO_SIDO[sido] && !metroRep[sido]) metroRep[sido] = { color: color, word: word };
         });
+        matchStats.regions = Object.keys(byName).length;
 
+        // 광역시 판정 보강: 일부 폴리곤은 sido 가 비어 있어(부산·대구·대전·울산·광주 구 등)
+        // f.properties.sido 로는 광역시를 못 가린다. 도(광역시) 경계에 대표점 point-in-polygon 으로 판정.
+        var provFc = global.KOREA_PROVINCES || null;
+        var metroProvGeoms = [];
+        if (provFc && provFc.features) {
+          provFc.features.forEach(function (pf) {
+            var nm = pf.properties && pf.properties.name;
+            if (nm && METRO_SIDO[nm]) metroProvGeoms.push({ sido: nm, geom: pf.geometry });
+          });
+        }
+        function repPoint(geom) {
+          if (!geom) return null;
+          var ring = null;
+          if (geom.type === 'Polygon') ring = geom.coordinates[0];
+          else if (geom.type === 'MultiPolygon') {
+            var best = -1, bi = 0;
+            geom.coordinates.forEach(function (p, ix) { if (p[0] && p[0].length > best) { best = p[0].length; bi = ix; } });
+            ring = geom.coordinates[bi][0];
+          }
+          if (!ring || !ring.length) return null;
+          var sx = 0, sy = 0;
+          for (var c = 0; c < ring.length; c++) { sx += ring[c][0]; sy += ring[c][1]; }
+          return [sx / ring.length, sy / ring.length];
+        }
+        function minDistToGeom(x, y, geom) {
+          // 대표점에서 도 경계 꼭짓점까지의 최소 거리(도 단위). 섬 자치구를 모 광역시에 붙일 때만 사용.
+          var rings = [];
+          if (geom.type === 'Polygon') rings = geom.coordinates;
+          else if (geom.type === 'MultiPolygon') geom.coordinates.forEach(function (p) { rings = rings.concat(p); });
+          var best = Infinity;
+          for (var r = 0; r < rings.length; r++) {
+            var ring = rings[r];
+            for (var c = 0; c < ring.length; c++) {
+              var dx = ring[c][0] - x, dy = ring[c][1] - y;
+              var d = dx * dx + dy * dy;
+              if (d < best) best = d;
+            }
+          }
+          return Math.sqrt(best);
+        }
+        function metroOf(f) {
+          var fsido = (f.properties && f.properties.sido) || '';
+          if (METRO_SIDO[fsido]) return fsido;
+          var rp = repPoint(f.geometry);
+          if (!rp) return null;
+          for (var k = 0; k < metroProvGeoms.length; k++) {
+            if (pointInGeom(rp[0], rp[1], metroProvGeoms[k].geom)) return metroProvGeoms[k].sido;
+          }
+          // 섬 자치구(영도구 등)는 도 경계가 단순화돼 pip 실패 → 가장 가까운 광역시(0.25°≈25km 이내)에 귀속
+          var nearSido = null, nearD = 0.25;
+          for (var m = 0; m < metroProvGeoms.length; m++) {
+            var d = minDistToGeom(rp[0], rp[1], metroProvGeoms[m].geom);
+            if (d < nearD) { nearD = d; nearSido = metroProvGeoms[m].sido; }
+          }
+          return nearSido;
+        }
+
+        // (2) 폴리곤별 색: 직접 이름 → 통합시(모시) → 광역시(sido 대표). 북한은 제외(경계만)
         var fillFeatures = [];
         var fillPolyCount = 0;
-        Object.keys(muniBag).forEach(function (key) {
-          var bag = muniBag[key];
-          var bestVid = null, bestN = -1;
-          Object.keys(bag.counts).forEach(function (vid) {
-            if (bag.counts[vid] > bestN) { bestN = bag.counts[vid]; bestVid = vid; }
+        for (var fi = 0; fi < feats.length; fi++) {
+          var f = feats[fi];
+          if (f.properties && f.properties.nk) continue;   // 북한: 면색 없음(경계·이름만)
+          var rawName = muniFeatureName(f, fi);
+          var name = normalizeAdminName(rawName);
+          var fsido = (f.properties && f.properties.sido) || '';
+          var pick = null;
+          // (a) 직접 이름 매칭(시도 일치 우선) — 동두천시·강화군·종로구 등
+          if (byName[name] && (!fsido || byName[name].sido === fsido)) pick = byName[name];
+          // (b) 통합시 일반구: "OO시XX구" → "OO시" 색 (고양·수원·성남·안양·안산·용인…)
+          if (!pick) { var cm = name.match(/^(.+시)(.+구)$/); if (cm && byName[cm[1]]) pick = byName[cm[1]]; }
+          // (c) 광역시 자치구: 폴리곤이 속한 광역시의 대표색 (서울·부산 등 통째로 통합)
+          if (!pick) { var ms = metroOf(f); if (ms && metroRep[ms]) pick = metroRep[ms]; }
+          // (d) 이름만 매칭: 시도 표기 차이(제주도↔제주특별자치도)·동일명 도-군(강원·경남 고성군)
+          if (!pick && byName[name]) pick = byName[name];
+          if (!pick || !pick.color) continue;   // 조사자료 없는 곳만 흰색
+          fillPolyCount++;
+          fillFeatures.push({
+            type: 'Feature',
+            properties: { color: pick.color, name: rawName, word: pick.word || '' },
+            geometry: f.geometry
           });
-          if (!bestVid) return;
-          var color = bag.colors[bestVid];
-          if (bag.metroKey != null && bag.provinceIndex != null) {
-            var pf = provFeats[bag.provinceIndex];
-            if (pf) {
-              fillPolyCount++;
-              fillFeatures.push({
-                type: 'Feature',
-                properties: { vid: bestVid, color: color, name: bag.metroKey, metro: bag.metroKey, word: wordOfVid(bestVid) },
-                geometry: pf.geometry
-              });
-            }
-            return;
-          }
-          (bag.indices || []).forEach(function (fi) {
-            var f = feats[fi];
-            if (!f) return;
-            fillPolyCount++;
-            fillFeatures.push({
-              type: 'Feature',
-              properties: { vid: bestVid, color: color, name: muniFeatureName(f, fi), city: bag.cityKey || undefined, word: wordOfVid(bestVid) },
-              geometry: f.geometry
-            });
-          });
-        });
+        }
+        matchStats.filled = fillPolyCount;
         var fc = { type: 'FeatureCollection', features: fillFeatures };
 
         if (areaLayer) {
@@ -897,12 +938,7 @@
         if (matchStats.total > 0) {
           var statusEl = $(opts.statusId);
           var base = statusEl ? statusEl.textContent.replace(/\s*·\s*면색:[^·]*$/, '') : '';
-          var bagCount = Object.keys(muniBag).length;
-          var fillNote = '면색 ' + fillPolyCount + '폴리곤/' + bagCount + '지역';
-          var recovered = matchStats.name + matchStats.nearest;
-          if (recovered > 0) fillNote += ' (이름/근접 복구 ' + recovered + ')';
-          if (matchStats.metroExpand > 0) fillNote += ' · 광역시 ' + matchStats.metroExpand;
-          if (matchStats.cityExpand > 0) fillNote += ' · 시·구통합 ' + matchStats.cityExpand;
+          var fillNote = '면색 ' + fillPolyCount + '폴리곤/' + matchStats.regions + '지역(시·군 통합)';
           if (matchStats.miss > 0) fillNote += ' · 미매칭 ' + matchStats.miss;
           setMapStatus((base ? base + ' · ' : '') + fillNote, matchStats.miss > 0);
         }
@@ -1317,6 +1353,7 @@
       variantStylesBig = {};
       variantColors = {};
       placeByCoord = {};
+      REGIONS = (payload && payload.regions) || [];   // 면색 소스(미조사 포함)
       var groups = (payload && payload.groups) || {};
       Object.keys(groups).forEach(function (gkey) {
         var src = groups[gkey];
