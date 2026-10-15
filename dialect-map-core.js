@@ -808,29 +808,19 @@
           if (sido && !byName[sg].bySido[sido]) byName[sg].bySido[sido] = { color: color, word: word || '' };
           if (METRO_SIDO[sido] && !metroRep[sido]) metroRep[sido] = { color: color, word: word || '' };
         }
-        if (REGIONS.length) {
-          // (A) payload.regions 가 있으면(공식 포맷) 그걸 면색 기준으로 — 미조사 지역까지 faceColor 로 채색
-          REGIONS.forEach(function (r) {
-            matchStats.total++;
-            var sido = String(r.sido || '').trim();
-            var color = rgbHex(r.faceColor || r.color);
-            var word = (r.word && r.word !== '미조사') ? r.word : '';   // 미조사는 어형 라벨 없이 색만
-            addFace(sido, r.sigungu || r.region_nm || r.regionNm, color, word);
-          });
-        } else {
-          // (B) regions 가 없는 표제어(대부분)는 groups.variants.places + 그룹 색으로 채색.
-          //  region_id(시·군) 하나가 여러 그룹에 걸리면 '첫 face color' 규칙에 따라 먼저 만난 색을 쓴다.
-          Object.keys(GROUPS).forEach(function (gkey) {
-            var g = GROUPS[gkey];
-            var color = rgbHex(g.color);
-            (g.variants || []).forEach(function (v) {
-              (v.places || []).forEach(function (pl) {
-                matchStats.total++;
-                addFace(String(pl.sido || '').trim(), pl.sigungu || pl.region_nm, color, v.word);
-              });
+        // 조사 지역 색: groups.variants.places + 그룹 색(=공식 faceColor). 실측 지점이 있는 시·군만.
+        //  (payload.regions 는 과거 미조사 패딩이 섞여 있어 면색 기준으로 쓰지 않는다 — 미조사는
+        //   아래 misurveyFill 로 운영개발과 동일하게 처리). region_id 가 여러 그룹에 걸리면 첫 색.
+        Object.keys(GROUPS).forEach(function (gkey) {
+          var g = GROUPS[gkey];
+          var color = rgbHex(g.color);
+          (g.variants || []).forEach(function (v) {
+            (v.places || []).forEach(function (pl) {
+              matchStats.total++;
+              addFace(String(pl.sido || '').trim(), pl.sigungu || pl.region_nm, color, v.word);
             });
           });
-        }
+        });
         // 미조사 추정 채움(운영개발/공식 색): 조사자료가 없는 지역을 공식과 동일한 추정색으로.
         //  마커(실측 점)는 건드리지 않고 면색만 보강. 이미 조사된 지역은 그대로 둔다.
         Object.keys(MISFILL).forEach(function (k) {
