@@ -292,6 +292,7 @@
     var GROUPS = {};
     var REGIONS = [];   // payload.regions 전체(조사+미조사) — 면색(choropleth) 소스
     var MISFILL = {};   // payload.misurveyFill — 미조사 추정 채움(공식 색), 면색 전용
+    var FACEFILL = {};  // payload.faceFill — 공식 last-wins 색 override(제주 동/읍·광역시 등 집계 폴리곤)
     var currentHeadwordNo = '';
     var variantStyles = {};
     var variantStylesBig = {};
@@ -828,6 +829,15 @@
           if (!hex) return;
           if (METRO_SIDO[k]) { if (!metroRep[k]) metroRep[k] = { color: hex, word: '' }; }
           else if (!byName[k]) byName[k] = { color: hex, word: '', sido: '', bySido: {}, misurvey: true };
+        });
+        // faceFill: 공식 last-wins 색 override. 한 폴리곤이 여러 조사기록을 묶는 경우(제주 동/읍은
+        //  regionId 공유, 광역시는 여러 구)는 우리의 '첫 그룹' 색이 운영개발의 '마지막 기록' 색과
+        //  달라질 수 있어, 그 지역만 공식 색으로 덮어쓴다(동일명 다른 도는 제외돼 있음).
+        Object.keys(FACEFILL).forEach(function (k) {
+          var hex = rgbHex(FACEFILL[k]);
+          if (!hex) return;
+          if (METRO_SIDO[k]) metroRep[k] = { color: hex, word: (metroRep[k] && metroRep[k].word) || '' };
+          else byName[k] = { color: hex, word: (byName[k] && byName[k].word) || '', sido: '', bySido: {} };
         });
         matchStats.regions = Object.keys(byName).length;
 
@@ -1387,6 +1397,7 @@
       placeByCoord = {};
       REGIONS = (payload && payload.regions) || [];   // 면색 소스(미조사 포함)
       MISFILL = (payload && payload.misurveyFill) || {};   // 미조사 추정 채움(공식 색)
+      FACEFILL = (payload && payload.faceFill) || {};      // 공식 last-wins override
       var groups = (payload && payload.groups) || {};
       Object.keys(groups).forEach(function (gkey) {
         var src = groups[gkey];
