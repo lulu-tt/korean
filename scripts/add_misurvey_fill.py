@@ -49,12 +49,12 @@ for fn in files:
     path = os.path.join(a.dir, fn)
     obj = json.loads(open(path, encoding='utf-8').read())
     our = set()
+    # ourKeys 는 '실측 지점(groups.places)'만 기준 — payload.regions 의 과거 미조사 패딩은 제외.
+    #  그래야 공식이 칠하는 미조사 지역이 misurveyFill 로 제대로 들어가고, 공식이 안 칠하는 곳은 흰색.
     for gk, g in (obj.get('groups') or {}).items():
         for v in (g.get('variants') or []):
             for pl in (v.get('places') or []):
                 our.add(nk(pl.get('region_nm') or (((pl.get('sido', '') + ' ') if pl.get('sido') else '') + (pl.get('sigungu') or ''))))
-    for r in (obj.get('regions') or []):
-        our.add(nk(r.get('region_nm') or (((r.get('sido', '') + ' ') if r.get('sido') else '') + (r.get('sigungu') or r.get('regionNm') or ''))))
     mis = {}
     for k, c in off.items():
         if k and k not in our:
