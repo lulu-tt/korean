@@ -915,8 +915,12 @@
           }
           // (b) 통합시 일반구: "OO시XX구" → "OO시" 색 (고양·수원·성남·안양·안산·용인…)
           if (!pick) { var cm = name.match(/^(.+시)(.+구)$/); if (cm && byName[cm[1]]) pick = byName[cm[1]]; }
-          // (c) 광역시 자치구: 폴리곤이 속한 광역시의 대표색 (서울·부산 등 통째로 통합)
-          if (!pick) { var ms = metroOf(f); if (ms && metroRep[ms]) pick = metroRep[ms]; }
+          // (c) 광역시 자치구만 광역시 대표색에 귀속(종로구·영도구 등). '시'가 든 이름(고양시덕양구 등
+          //  통합시 일반구)이나 도-소속 시/군은 제외 — 섬 자치구용 최근접 폴백이 수도권 시를 서울·인천에
+          //  잘못 붙이던 문제 방지. 조사·추정자료 없는 시/군은 흰색으로 남긴다(운영개발과 동일).
+          if (!pick && /구$/.test(name) && name.indexOf('시') < 0) {
+            var ms = metroOf(f); if (ms && metroRep[ms]) pick = metroRep[ms];
+          }
           // (d) 이름만 매칭: 시도 표기 차이(제주도↔제주특별자치도)·동일명 도-군(강원·경남 고성군)
           if (!pick && byName[name]) pick = byName[name];
           if (!pick || !pick.color) continue;   // 조사자료 없는 곳만 흰색
