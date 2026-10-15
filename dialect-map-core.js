@@ -291,6 +291,7 @@
     var mapDataCache = {};
     var GROUPS = {};
     var REGIONS = [];   // payload.regions 전체(조사+미조사) — 면색(choropleth) 소스
+    var MISFILL = {};   // payload.misurveyFill — 미조사 추정 채움(공식 색), 면색 전용
     var currentHeadwordNo = '';
     var variantStyles = {};
     var variantStylesBig = {};
@@ -796,13 +797,15 @@
           function h(n) { n = Math.max(0, Math.min(255, n || 0)); return (n < 16 ? '0' : '') + n.toString(16); }
           return '#' + h(m[0]) + h(m[1]) + h(m[2]);
         }
-        var byName = {};    // 정규화 시·군명 → { color, word, sido }
+        var byName = {};    // 정규화 시·군명 → { color, word, sido, bySido:{sido:{color,word}} }
         var metroRep = {};  // 광역시 sido → { color, word }
         function addFace(sido, sgRaw, color, word) {
           var sg = normalizeAdminName(sgRaw || '');
           if (sg) sg = sg.replace(/\(.*\)$/, '').trim();
           if (!sg || !color) { matchStats.miss++; return; }
-          if (!byName[sg]) byName[sg] = { color: color, word: word || '', sido: sido };
+          if (!byName[sg]) byName[sg] = { color: color, word: word || '', sido: sido, bySido: {} };
+          // 동일명 다른 시도(강원 고성 vs 경남 고성 등)는 sido별로 각각 보관해 폴리곤 sido 로 정확 매칭
+          if (sido && !byName[sg].bySido[sido]) byName[sg].bySido[sido] = { color: color, word: word || '' };
           if (METRO_SIDO[sido] && !metroRep[sido]) metroRep[sido] = { color: color, word: word || '' };
         }
         if (REGIONS.length) {
@@ -828,6 +831,14 @@
             });
           });
         }
+        // 미조사 추정 채움(운영개발/공식 색): 조사자료가 없는 지역을 공식과 동일한 추정색으로.
+        //  마커(실측 점)는 건드리지 않고 면색만 보강. 이미 조사된 지역은 그대로 둔다.
+        Object.keys(MISFILL).forEach(function (k) {
+          var hex = rgbHex(MISFILL[k]);
+          if (!hex) return;
+          if (METRO_SIDO[k]) { if (!metroRep[k]) metroRep[k] = { color: hex, word: '' }; }
+          else if (!byName[k]) byName[k] = { color: hex, word: '', sido: '', bySido: {}, misurvey: true };
+        });
         matchStats.regions = Object.keys(byName).length;
 
         // 광역시 판정 보강: 일부 폴리곤은 sido 가 비어 있어(부산·대구·대전·울산·광주 구 등)
@@ -897,8 +908,11 @@
           var name = normalizeAdminName(rawName);
           var fsido = (f.properties && f.properties.sido) || '';
           var pick = null;
-          // (a) 직접 이름 매칭(시도 일치 우선) — 동두천시·강화군·종로구 등
-          if (byName[name] && (!fsido || byName[name].sido === fsido)) pick = byName[name];
+          // (a) 직접 이름 매칭: 폴리곤 sido 에 해당하는 색 우선(강원/경남 고성처럼 동일명 구분)
+          if (byName[name]) {
+            if (fsido && byName[name].bySido && byName[name].bySido[fsido]) pick = byName[name].bySido[fsido];
+            else if (!fsido || byName[name].sido === fsido) pick = byName[name];
+          }
           // (b) 통합시 일반구: "OO시XX구" → "OO시" 색 (고양·수원·성남·안양·안산·용인…)
           if (!pick) { var cm = name.match(/^(.+시)(.+구)$/); if (cm && byName[cm[1]]) pick = byName[cm[1]]; }
           // (c) 광역시 자치구: 폴리곤이 속한 광역시의 대표색 (서울·부산 등 통째로 통합)
@@ -1373,6 +1387,7 @@
       variantColors = {};
       placeByCoord = {};
       REGIONS = (payload && payload.regions) || [];   // 면색 소스(미조사 포함)
+      MISFILL = (payload && payload.misurveyFill) || {};   // 미조사 추정 채움(공식 색)
       var groups = (payload && payload.groups) || {};
       Object.keys(groups).forEach(function (gkey) {
         var src = groups[gkey];
