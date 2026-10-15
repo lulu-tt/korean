@@ -872,20 +872,24 @@
           return Math.sqrt(best);
         }
         function metroOf(f) {
-          var fsido = (f.properties && f.properties.sido) || '';
-          if (METRO_SIDO[fsido]) return fsido;
+          // 폴리곤의 실제 위치(geometry)로 광역시를 판정한다. skorea-municipalities 의 sido 속성은
+          //  자치구에서 비어 있거나 틀린 경우가 많아(예: 모든 '서구'가 sido=대전광역시) 신뢰하지 않는다.
           var rp = repPoint(f.geometry);
-          if (!rp) return null;
-          for (var k = 0; k < metroProvGeoms.length; k++) {
-            if (pointInGeom(rp[0], rp[1], metroProvGeoms[k].geom)) return metroProvGeoms[k].sido;
+          if (rp) {
+            for (var k = 0; k < metroProvGeoms.length; k++) {
+              if (pointInGeom(rp[0], rp[1], metroProvGeoms[k].geom)) return metroProvGeoms[k].sido;
+            }
+            // 섬 자치구(영도구 등)는 도 경계가 단순화돼 pip 실패 → 가장 가까운 광역시(0.25°≈25km 이내)
+            var nearSido = null, nearD = 0.25;
+            for (var m = 0; m < metroProvGeoms.length; m++) {
+              var d = minDistToGeom(rp[0], rp[1], metroProvGeoms[m].geom);
+              if (d < nearD) { nearD = d; nearSido = metroProvGeoms[m].sido; }
+            }
+            if (nearSido) return nearSido;
           }
-          // 섬 자치구(영도구 등)는 도 경계가 단순화돼 pip 실패 → 가장 가까운 광역시(0.25°≈25km 이내)에 귀속
-          var nearSido = null, nearD = 0.25;
-          for (var m = 0; m < metroProvGeoms.length; m++) {
-            var d = minDistToGeom(rp[0], rp[1], metroProvGeoms[m].geom);
-            if (d < nearD) { nearD = d; nearSido = metroProvGeoms[m].sido; }
-          }
-          return nearSido;
+          // 최후 폴백: sido 속성이 광역시면 사용
+          var fsido = (f.properties && f.properties.sido) || '';
+          return METRO_SIDO[fsido] ? fsido : null;
         }
 
         // (2) 폴리곤별 색: 직접 이름 → 통합시(모시) → 광역시(sido 대표). 북한은 제외(경계만)
@@ -898,21 +902,22 @@
           var name = normalizeAdminName(rawName);
           var fsido = (f.properties && f.properties.sido) || '';
           var pick = null;
-          // (a) 직접 이름 매칭: 폴리곤 sido 에 해당하는 색 우선(강원/경남 고성처럼 동일명 구분)
-          if (byName[name]) {
-            if (fsido && byName[name].bySido && byName[name].bySido[fsido]) pick = byName[name].bySido[fsido];
-            else if (!fsido || byName[name].sido === fsido) pick = byName[name];
-          }
-          // (b) 통합시 일반구: "OO시XX구" → "OO시" 색 (고양·수원·성남·안양·안산·용인…)
-          if (!pick) { var cm = name.match(/^(.+시)(.+구)$/); if (cm && byName[cm[1]]) pick = byName[cm[1]]; }
-          // (c) 광역시 자치구만 광역시 대표색에 귀속(종로구·영도구 등). '시'가 든 이름(고양시덕양구 등
-          //  통합시 일반구)이나 도-소속 시/군은 제외 — 섬 자치구용 최근접 폴백이 수도권 시를 서울·인천에
-          //  잘못 붙이던 문제 방지. 조사·추정자료 없는 시/군은 흰색으로 남긴다(운영개발과 동일).
-          if (!pick && /구$/.test(name) && name.indexOf('시') < 0) {
+          var isMetroGu = /구$/.test(name) && name.indexOf('시') < 0;   // 종로구·서구·영도구 등 광역시 자치구
+          if (isMetroGu) {
+            // 광역시 자치구: 소속 광역시 대표색으로만 칠한다. '구' 이름은 광역시마다 중복돼(서구·중구·동구…)
+            //  이름 매칭하면 다른 광역시 색을 잘못 가져오므로(예: 광주 서구가 대전 서구 색), 이름 매칭은 건너뛴다.
             var ms = metroOf(f); if (ms && metroRep[ms]) pick = metroRep[ms];
+          } else {
+            // (a) 직접 이름 매칭: 폴리곤 sido 에 해당하는 색 우선(강원/경남 고성처럼 동일명 구분)
+            if (byName[name]) {
+              if (fsido && byName[name].bySido && byName[name].bySido[fsido]) pick = byName[name].bySido[fsido];
+              else if (!fsido || byName[name].sido === fsido) pick = byName[name];
+            }
+            // (b) 통합시 일반구: "OO시XX구" → "OO시" 색 (고양·수원·성남·안양·안산·용인…)
+            if (!pick) { var cm = name.match(/^(.+시)(.+구)$/); if (cm && byName[cm[1]]) pick = byName[cm[1]]; }
+            // (d) 이름만 매칭: 시도 표기 차이(제주도↔제주특별자치도)·동일명 도-군(강원·경남 고성군)
+            if (!pick && byName[name]) pick = byName[name];
           }
-          // (d) 이름만 매칭: 시도 표기 차이(제주도↔제주특별자치도)·동일명 도-군(강원·경남 고성군)
-          if (!pick && byName[name]) pick = byName[name];
           if (!pick || !pick.color) continue;   // 조사자료 없는 곳만 흰색
           fillPolyCount++;
           fillFeatures.push({
