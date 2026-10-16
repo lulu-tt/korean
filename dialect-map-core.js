@@ -905,6 +905,8 @@
         // (2) 폴리곤별 색: 직접 이름 → 통합시(모시) → 광역시(sido 대표). 북한은 제외(경계만)
         var fillFeatures = [];
         var fillPolyCount = 0;
+        var coloredCentroids = [];   // 추정 채움용: 색이 정해진 남한 폴리곤의 대표점+색
+        var uncoloredFeats = [];     // 조사/공식자료로 색이 안 정해진 남한 폴리곤
         for (var fi = 0; fi < feats.length; fi++) {
           var f = feats[fi];
           if (f.properties && f.properties.nk) continue;   // 북한: 면색 없음(경계·이름만)
@@ -928,8 +930,10 @@
             // (d) 이름만 매칭: 시도 표기 차이(제주도↔제주특별자치도)·동일명 도-군(강원·경남 고성군)
             if (!pick && byName[name]) pick = byName[name];
           }
-          if (!pick || !pick.color) continue;   // 조사자료 없는 곳만 흰색
+          if (!pick || !pick.color) { uncoloredFeats.push({ f: f, rawName: rawName }); continue; }
           fillPolyCount++;
+          var cpt = repPoint(f.geometry);
+          if (cpt) coloredCentroids.push({ x: cpt[0], y: cpt[1], color: pick.color });
           fillFeatures.push({
             type: 'Feature',
             properties: { color: pick.color, name: rawName, word: pick.word || '' },
@@ -937,6 +941,32 @@
           });
         }
         matchStats.filled = fillPolyCount;
+
+        // (3) 미조사 지역 이웃 추정 채움: 조사/공식자료로 색이 없는 남한 폴리곤을 가장 가까운
+        //  채색 지역의 색으로 칠한다(운영개발과 동일하게 남한에 흰 면색을 남기지 않음).
+        var inferred = 0;
+        if (opts.inferMisurvey !== false && coloredCentroids.length) {
+          for (var ui = 0; ui < uncoloredFeats.length; ui++) {
+            var uf = uncoloredFeats[ui].f;
+            var upt = repPoint(uf.geometry);
+            if (!upt) continue;
+            var best = null, bestD = Infinity;
+            for (var ci = 0; ci < coloredCentroids.length; ci++) {
+              var dx = coloredCentroids[ci].x - upt[0], dy = coloredCentroids[ci].y - upt[1];
+              var dd = dx * dx + dy * dy;
+              if (dd < bestD) { bestD = dd; best = coloredCentroids[ci]; }
+            }
+            if (best) {
+              inferred++;
+              fillFeatures.push({
+                type: 'Feature',
+                properties: { color: best.color, name: uncoloredFeats[ui].rawName, word: '', inferred: true },
+                geometry: uf.geometry
+              });
+            }
+          }
+        }
+        matchStats.inferred = inferred;
         var fc = { type: 'FeatureCollection', features: fillFeatures };
 
         if (areaLayer) {
