@@ -837,10 +837,10 @@
 													<th scope="col">지역</th>
 													<th scope="col">제보자</th>
 													<th scope="col">표준어</th>
-													<th scope="col">표제어형</th>
+													<th scope="col">조사 어휘</th>
 													<th scope="col">방언형(기저형)</th>
 													<th scope="col">사용도/인지도</th>
-													<th scope="col">판정에 쓸 값(보정)</th>
+													<th scope="col">판정(보정)</th>
 												</tr>
 											</thead>
 											<tbody id="ptRespRows"></tbody>
@@ -1589,7 +1589,7 @@ function asJson(r){
     $('ptLegend').innerHTML =
         '<span>칸 = <b>제보자</b><em class="lg-sub">/</em><em class="lg-sub">응답 행</em></span>'
       + '<span><i class="lg-none"></i>지역어형 등급 없음 — 지도에 안 나옴</span>'
-      + '<span><i class="lg-std"></i>표제어만 나옴</span>';
+      + '<span><i class="lg-std"></i>조사 어휘만 나옴</span>';
   }
 
   /* ── 목록 ── */
@@ -1650,7 +1650,7 @@ function asJson(r){
     var tip = (RN[rg]||rg)+' — 제보자 '+p+'명 · 응답 '+n+'행 · 등급 '+(c.graded||0)+'행'
             + ' · 판정에 든 제보자 '+(c.n||0)+'명'
             + (c.state==='w0' ? ' · 지역어형 등급이 없어 지도에 안 나옴'
-            : (c.state==='std' ? ' · 표제어만 나옴' : ''));
+            : (c.state==='std' ? ' · 조사 어휘만 나옴' : ''));
     return '<td class="pt-c'+cls+'" title="'+esc(tip)+'">'
          + '<b>'+p+'</b><span class="sl">/</span><i>'+n+'</i></td>';
   }
@@ -2051,7 +2051,7 @@ function asJson(r){
   function calcWx(p){
     var r=gradeRow(p.calc);
     if(r) return { nm:r[1], cls:r[2], tip:r[3]+' (등급 '+r[0]+')' };
-    return p.graded ? { nm:'지역어형 없음', cls:'wxs', tip:'표제어에만 답했습니다' }
+    return p.graded ? { nm:'지역어형 없음', cls:'wxs', tip:'조사 어휘로만 답했습니다' }
                     : { nm:'관측 없음',   cls:'wx0', tip:'사용도/인지도가 비어 있습니다' };
   }
   /* 보정 칸 — 제보자 한 명의 첫 줄에만 둔다. 계산값을 옆에 적어 무엇을 바꿨는지 보이게. */
@@ -2063,7 +2063,7 @@ function asJson(r){
     return '<div class="pt-adjw">'
       + '<span class="pt-calc" title="'+esc(tip)+'">'
       +   '<i class="pt-wx '+w.cls+'"></i>'+esc(w.nm)+'</span>'
-      + '<select class="form-control-sm pt-adj'+(a?' is-on':'')+'" title="판정에 쓸 값">'
+      + '<select class="form-control-sm pt-adj'+(a?' is-on':'')+'" title="판정(보정)">'
       +   '<option value=""'+(a?'':' selected')+'>계산값 그대로</option>'
       +   GRADE.map(function(o){ return '<option value="'+o[0]+'"'+(a===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('')
       +   '<option value="X"'+(a==='X'?' selected':'')+'>이 제보자 제외</option>'
@@ -2150,7 +2150,7 @@ function asJson(r){
        길면 두 줄이 되어 헤더를 넘고 아래 내용과 겹친다. */
     $('ptSaveMsg').innerHTML = n
       ? '<strong class="text-primary">'+n+'명</strong> 보정 — 저장해야 반영됩니다.'
-      : '판정에 쓸 값만 보정할 수 있습니다.';
+      : '판정(보정) 칸만 고칠 수 있습니다.';
   }
 
   /* 고친 줄만 한 번에 보낸다. rid 와 함께 (파일명, 행번호)도 보내
