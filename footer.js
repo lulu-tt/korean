@@ -67,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="kfoot__loc">(07511) 서울특별시 강서구 금낭화로 154(방화동 827) 국립국어원</span>
           <dl>
             <div class="kfoot__row"><dt>대표전화</dt><dd>02-2669-9775</dd></div>
-            <div class="kfoot__row"><dt>일반문의</dt><dd>홈페이지 &gt; 기관소개 &gt; 찾아오시는 길 참조</dd></div>
           </dl>
         </address>
       </div>
