@@ -21,3 +21,6 @@ data/dialect_phonology_compare/
 sm_*_big.png
 .vercel
 .env*
+
+# dev tooling
+node_modules/
