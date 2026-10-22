@@ -1,0 +1,14 @@
+{
+  "name": "korean-dialect-web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "국립국어원 지역어 종합 정보 — 정적 웹(개발용 도구 전용 매니페스트)",
+  "scripts": {
+    "lint:css": "stylelint \"styles.css\" \"tokens.css\" \"about.css\" \"index_v*.css\"",
+    "lint:css:fix": "stylelint --fix \"styles.css\" \"tokens.css\" \"about.css\" \"index_v*.css\""
+  },
+  "devDependencies": {
+    "stylelint": "^16.10.0",
+    "stylelint-config-standard": "^36.0.1"
+  }
+}
