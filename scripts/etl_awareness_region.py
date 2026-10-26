@@ -105,7 +105,9 @@ def b_check(rows, vocab=None):
         if not v or it in hidden:
             continue
         listed = v['forms'].get(rg, [])
-        same = bool(head_forms(v['word']) & {norm(x) for x in listed})
+        # 글자 그대로 비교한다(공백만 무시). 담당자는 '할머니(호칭)'과 '할머니'를 같은 말로
+        # 보지 않아 B 를 넣지 않았다 — 괄호 주석·'/' 를 떼고 비교하면 26곳을 잘못 잡는다.
+        same = re.sub(r'\s+', '', v['word']) in {re.sub(r'\s+', '', x) for x in listed}
         b = (rg, it) in has_b
         if same and not b:
             out.append({'kind': 'B 누락 의심', 'rg': rg, 'it': it, 'word': v['word'], 'listed': listed})
