@@ -186,7 +186,7 @@ def write_xlsx(path, folder, F, file_issues, row_issues, bres, bdiff):
         ('파일 단위 문제 %d건  → "파일"' % len(file_issues), True),
         ('줄 단위 문제 %d줄  → "줄"' % len(row_issues), True),
     ] + [('   · %s %d' % (k, v), False) for k, v in collections.Counter(t[0] for t in row_issues).most_common()] + [
-        ('B 대조(기준표) — 누락 의심 %d곳 · 지역 아님 %d곳  → "B 대조"' % (miss_regions['B 누락 의심'], miss_regions['B 지역 아님']), True),
+        ('B 대조(기준표) — 기준표상 표준어와 다른 지역에 B 가 붙은 곳 %d곳  → "B 대조"' % miss_regions['B 지역 아님'], True),
         ('B 줄인데 방언형이 표준어와 다른 줄 %d  → "B 방언형 다름" (지역 단위로 붙인 것이면 그대로 둠)' % len(bdiff), False),
         ('', False), ('칸 색: 초록 = 제안 · 노랑 = 처리 결과를 적을 칸', False)]
     for i, (t, b) in enumerate(lines, 1):
@@ -199,7 +199,7 @@ def write_xlsx(path, folder, F, file_issues, row_issues, bres, bdiff):
               ['번호', '유형', '파일', '엑셀 행'] + COLS6 + ['제안', '처리 결과'], [6, 22, 32, 8, 12, 24, 12, 14, 16, 10, 40, 18])
     for n, (t, k, i, r, sg) in enumerate(sorted(row_issues, key=lambda t: (t[0], t[1], t[2])), 1):
         put(q, 4 + n, [n, t, F[k]['file'], i] + r + [sg, ''], {11: SUG, 12: EDIT}, center=(1, 4, 10))
-    b = sheet(wb, 'B 대조', '기준표(지역별 방언형)와 -B- 표기 대조 — 지역 · 항목마다 그 지역 제보자 줄을 함께 실었습니다',
+    b = sheet(wb, 'B 대조', '기준표(지역별 방언형)와 -B- 표기 대조 — 기준표상 그 지역 방언형이 표준어와 다른데 B 가 붙은 곳. 지역 · 항목마다 그 지역 제보자 줄을 함께 실었습니다',
               ['번호', '구분', '지역', '항목번호', '조사어휘', '기준표의 지역 방언형', '파일', '엑셀 행'] + COLS6 + ['확인'],
               [6, 12, 7, 10, 12, 18, 32, 8, 12, 24, 12, 14, 16, 10, 16])
     r = 5
