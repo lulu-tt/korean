@@ -117,7 +117,7 @@ def load_records(year=""):
         + (" AND research_degree = " + _sq(y) if y else "")
         + " ORDER BY region_cd, generation, sex",
         "SELECT r.response_id, f.region_cd, f.research_degree, f.generation, f.sex,"
-        " r.item_base, r.headword, r.dialect_form, r.grade, r.upt_dt"
+        " r.item_base, r.headword, r.dialect_form, r.grade, r.upt_dt, r.item_cd"
         " FROM wb_weather_response r JOIN wb_weather_file f USING(weather_file_id)"
         " WHERE r.item_base IS NOT NULL AND r.use_yn='Y' AND f.use_yn='Y'" + fw,
     ])
@@ -131,7 +131,7 @@ def load_records(year=""):
             "sx": cell(x[4]), "it": cell(x[5]), "pres": pres, "base": base,
             "form": base if base and base != "*" else pres,
             "g": E.grade_of(cell(x[8])),
-            "rid": cell(x[0]), "upt": cell(x[9]),
+            "rid": cell(x[0]), "upt": cell(x[9]), "cd": cell(x[10]) or "",
         })
     return files, recs
 
@@ -342,9 +342,8 @@ def responses(item):
         g = (r["grade"] or "").strip()
         if not g:
             continue
-        f = E.norm(r["shown"])
-        if not f or f in E.head_forms(hw):
-            continue                            # 표준어형은 판정에서 빠진다
+        if not E.counts_as_dialect(r.get("itemCd"), r["shown"], hw):
+            continue                            # 지역어형이 아닌 줄은 판정에서 빠진다(-B- 줄은 센다)
         k = r["file"]
         if k not in calc or int(g) < calc[k]:
             calc[k] = int(g)

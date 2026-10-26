@@ -64,7 +64,80 @@ def load_service_items():
     except Exception:
         return None
 
+
+REGION_VOCAB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                 'gisangdo_region_vocab.json')
+
+
+def load_region_vocab():
+    """기준표 — {항목번호: {'word': 조사어휘, 'forms': {지역: [방언형…]}}}. 없으면 {}."""
+    try:
+        with open(REGION_VOCAB_FILE, encoding='utf-8') as f:
+            doc = json.load(f)
+        return {str(x['code']): {'word': x.get('word', ''), 'forms': x.get('forms', {})}
+                for x in doc.get('items', []) if x.get('code')}
+    except Exception:
+        return {}
+
+
+def b_check(rows, vocab=None):
+    """-B- 표기를 기준표와 대조한다. rows: (지역, 항목번호(하위코드 포함)) 묶음.
+
+    -B-n 은 '그 지역 방언형이 표준어와 같은 것'이라 지역 단위로 붙는다.
+      · B 누락 의심 : 기준표에서는 그 지역 방언형이 표준어와 같은데, 그 지역 줄에 B 가 없다
+      · B 지역 아님 : 그 지역 줄에 B 가 있는데, 기준표에서는 그 지역 방언형이 표준어와 다르다
+    돌려주는 값: [{'kind','rg','it','word','listed'}]  (listed = 기준표의 그 지역 방언형)
+    """
+    vocab = load_region_vocab() if vocab is None else vocab
+    hidden = load_hidden_items()                  # 지도에 내지 않는 항목은 대조하지 않는다
+    seen, has_b = collections.defaultdict(set), set()
+    for rg, cd in rows:
+        cd = str(cd or '').strip()
+        mm = re.match(r'^(\d{5})', cd)
+        if not mm or rg not in REGION_ORDER:
+            continue
+        seen[(rg, mm.group(1))].add(cd)
+        if '-B-' in cd:
+            has_b.add((rg, mm.group(1)))
+    out = []
+    for (rg, it) in sorted(seen):
+        v = vocab.get(it)
+        if not v or it in hidden:
+            continue
+        listed = v['forms'].get(rg, [])
+        same = bool(head_forms(v['word']) & {norm(x) for x in listed})
+        b = (rg, it) in has_b
+        if same and not b:
+            out.append({'kind': 'B 누락 의심', 'rg': rg, 'it': it, 'word': v['word'], 'listed': listed})
+        elif b and not same:
+            out.append({'kind': 'B 지역 아님', 'rg': rg, 'it': it, 'word': v['word'], 'listed': listed})
+    return out
+
+
+def load_hidden_items():
+    """서비스 목록에 있지만 지도에는 내지 않는 항목(hidden: true). 업로드는 받는다."""
+    try:
+        with open(SERVICE_ITEMS_FILE, encoding='utf-8') as f:
+            doc = json.load(f)
+        return {str(x['code']).strip() for x in doc.get('items', []) if x.get('hidden')}
+    except Exception:
+        return set()
+
 norm = lambda s: re.sub(r'[:\s]', '', re.sub(r'\([^)]*\)', '', s or ''))
+
+
+def counts_as_dialect(cd, form, hw):
+    """이 줄의 등급을 지역어형 등급으로 셀지 — 판정의 기준은 이 함수 하나다.
+
+    관리자·배포 응답 API 도 이 함수를 부른다(같은 칸이 화면마다 달리 계산되지 않게).
+      · 항목번호-B-n : '조사 지역의 방언형인데 표준어와 같은 것'(2026-10 담당자 정의).
+                       글자가 표준어와 같아도 그 지역 방언형이므로 센다.
+      · 그 밖의 줄   : 조사어휘(대표 표제어)와 글자가 다르면 지역어형이다.
+    """
+    if '-B-' in str(cd or ''):
+        return True
+    f = norm(form)
+    return bool(f) and f not in head_forms(hw)
 
 
 def head_forms(hw):
@@ -104,7 +177,7 @@ def resolve_columns(ws):
 
     col = {
         'code':  find('항목번호'),
-        'head':  find('표제어', '표준어형', '표제어형', '대응표준어'),
+        'head':  find('표제어', '표준어형', '표제어형', '대응표준어', '조사어휘'),
         'base':  find('방언형(기저형)'),
         'grade': find('인지도/사용도', '사용도/인지도'),
     }
@@ -160,7 +233,8 @@ def load_records():
             if g:
                 QC['gradeFilled'] += 1
             recs.append({'rg': rg, 'year': yr, 'age': int(age), 'sx': sx,
-                         'it': mm.group(1), 'pres': pres, 'form': form, 'g': g,
+                         'it': mm.group(1), 'cd': str(code).strip(),
+                         'pres': pres, 'form': form, 'g': g,
                          # 화면이 '그 지역에서 조사된 표준어형·방언형' 을 그대로 보여줄 수 있게
                          # 두 칸을 원문대로 싣는다. form 은 둘을 합친 파생값이라 대신 못 쓴다.
                          'base': base})
@@ -229,7 +303,7 @@ def load_records_from_db(db_path=None, year=None):
         rows = con.execute(
             """SELECT r.response_id rid,
                       f.region_cd rg, f.research_degree yr, f.generation age, f.sex sx,
-                      r.item_base it, r.headword pres, r.dialect_form base, r.grade g,
+                      r.item_base it, r.item_cd cd, r.headword pres, r.dialect_form base, r.grade g,
                       r.upt_dt upt
                FROM wb_weather_response r
                JOIN wb_weather_file f ON f.weather_file_id = r.weather_file_id
@@ -249,7 +323,7 @@ def load_records_from_db(db_path=None, year=None):
         base = (r['base'] or '').strip()
         g = grade_of(r['g'])
         recs.append({'rg': r['rg'], 'year': r['yr'], 'age': int(r['age']), 'sx': r['sx'],
-                     'it': r['it'], 'pres': pres, 'base': base,
+                     'it': r['it'], 'cd': r['cd'], 'pres': pres, 'base': base,
                      'form': base if base and base != '*' else pres,
                      'g': g,
                      # 관리자 편집이 '어느 행을 고칠지' 알 수 있게 행 id 를 함께 싣는다.
@@ -368,8 +442,9 @@ def build_output(recs, nfiles, adjust=None):
         if r['g']:
             graded[r['it']].add(r['rg'])
     allow = load_service_items()
+    hidden = load_hidden_items()
     if allow:
-        core = sorted(it for it in surveyed if it in allow and graded[it])
+        core = sorted(it for it in surveyed if it in allow and it not in hidden and graded[it])
         item_filter = 'list'
     else:
         core = sorted(it for it, s in surveyed.items()
@@ -397,13 +472,9 @@ def build_output(recs, nfiles, adjust=None):
               for rg, v in _seen.items()}
 
     items, tally = [], collections.Counter()
-    def is_dialect(it, form):
-        """그 어형을 지역어형으로 볼지 — 엑셀의 표제어와 다르면 지역어형이다.
-
-        판정 근거를 원자료 안에서만 찾는다. 엑셀 밖의 판정 목록은 쓰지 않는다.
-        """
-        f = norm(form)
-        return bool(f) and f not in head_forms(headword[it])
+    def is_dialect(it, r):
+        """그 줄을 지역어형으로 볼지 — counts_as_dialect() 한 곳의 규칙을 따른다."""
+        return counts_as_dialect(r.get('cd'), r['form'], headword[it])
 
     for it in core:
         H = norm(headword[it])
@@ -422,7 +493,7 @@ def build_output(recs, nfiles, adjust=None):
             adjusted = {}
             for key in informants:
                 mine = [(int(r['g']), r['form'], r.get('rid')) for r in rows
-                        if r['g'] and is_dialect(it, r['form'])
+                        if r['g'] and is_dialect(it, r)
                         and (r['year'], r['age'], r['sx']) == key]
                 adj = (adjust or {}).get((rg, key[0], key[1], key[2], it))
                 if adj == 'X':
@@ -455,7 +526,7 @@ def build_output(recs, nfiles, adjust=None):
                 if bv and bv != '*':
                     bases[bv] += 1
 
-            dial_rows = [r for r in rows if is_dialect(it, r['form'])]
+            dial_rows = [r for r in rows if is_dialect(it, r)]
             n = len(best)
             if n:
                 score = region_score(best.values())
@@ -482,7 +553,7 @@ def build_output(recs, nfiles, adjust=None):
                                           for (y, a, sx) in sorted(sel_best)]}
                     # 등급 있는 지역어형이 없다 → 조사는 됐는데 표준어형만이면 std, 아니면 관측 없음
                     return {'state': 'std' if sel_rows and not [r for r in sel_rows
-                                                               if is_dialect(it, r['form'])] else 'w0',
+                                                               if is_dialect(it, r)] else 'w0',
                             'n': 0}
 
                 cell['gens'] = {}
@@ -500,7 +571,7 @@ def build_output(recs, nfiles, adjust=None):
                 state = 'std'
                 cell = {'state': state, 'n': 0, 'score': None,
                         'respondents': len(informants),
-                        'note': '조사된 %d명 모두 조사 어휘로만 응답' % len(informants)}
+                        'note': '조사된 %d명 모두 조사어휘로만 응답' % len(informants)}
             else:
                 state = 'w0'
                 cell = {'state': state, 'n': 0,
@@ -532,7 +603,7 @@ def build_output(recs, nfiles, adjust=None):
         grades, per_key = [], collections.defaultdict(list)
         for it in core:
             for r in by_item[it]:
-                if r['rg'] != rg or not r['g'] or not is_dialect(it, r['form']):
+                if r['rg'] != rg or not r['g'] or not is_dialect(it, r):
                     continue
                 per_key[(it, r['year'], r['age'], r['sx'])].append(int(r['g']))
         for (it, y, a, sx), gs in per_key.items():
@@ -571,6 +642,7 @@ def build_output(recs, nfiles, adjust=None):
             'items': len(items),
             # 표출 항목을 무엇으로 걸렀나 — 'list' 면 서비스 목록 파일, 'all-regions' 면 옛 기준
             'itemFilter': item_filter,
+            'hiddenItems': sorted(hidden),
             'scale': '① 사용 100 · ② 이해 75 · ③ 인지 50 · ④ 무지 25 (어형 단위 부여)',
             'metric': '지역 점수 = 그 지역 제보자가 지역어형에 준 등급의 점수 평균 (0~100)',
             'thresholds': ('w1 ≥87.5 · w2 ≥62.5 · w3 ≥37.5 · w4 <37.5 '

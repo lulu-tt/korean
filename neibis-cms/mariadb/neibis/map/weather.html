@@ -837,7 +837,7 @@
 													<th scope="col">지역</th>
 													<th scope="col">제보자</th>
 													<th scope="col">표준어</th>
-													<th scope="col">조사 어휘</th>
+													<th scope="col">조사어휘</th>
 													<th scope="col">방언형(기저형)</th>
 													<th scope="col">사용도/인지도</th>
 													<th scope="col">판정(보정)</th>
@@ -1589,7 +1589,7 @@ function asJson(r){
     $('ptLegend').innerHTML =
         '<span>칸 = <b>제보자</b><em class="lg-sub">/</em><em class="lg-sub">응답 행</em></span>'
       + '<span><i class="lg-none"></i>지역어형 등급 없음 — 지도에 안 나옴</span>'
-      + '<span><i class="lg-std"></i>조사 어휘만 나옴</span>';
+      + '<span><i class="lg-std"></i>조사어휘만 나옴</span>';
   }
 
   /* ── 목록 ── */
@@ -1650,7 +1650,7 @@ function asJson(r){
     var tip = (RN[rg]||rg)+' — 제보자 '+p+'명 · 응답 '+n+'행 · 등급 '+(c.graded||0)+'행'
             + ' · 판정에 든 제보자 '+(c.n||0)+'명'
             + (c.state==='w0' ? ' · 지역어형 등급이 없어 지도에 안 나옴'
-            : (c.state==='std' ? ' · 조사 어휘만 나옴' : ''));
+            : (c.state==='std' ? ' · 조사어휘만 나옴' : ''));
     return '<td class="pt-c'+cls+'" title="'+esc(tip)+'">'
          + '<b>'+p+'</b><span class="sl">/</span><i>'+n+'</i></td>';
   }
@@ -2051,7 +2051,7 @@ function asJson(r){
   function calcWx(p){
     var r=gradeRow(p.calc);
     if(r) return { nm:r[1], cls:r[2], tip:r[3]+' (등급 '+r[0]+')' };
-    return p.graded ? { nm:'지역어형 없음', cls:'wxs', tip:'조사 어휘로만 답했습니다' }
+    return p.graded ? { nm:'지역어형 없음', cls:'wxs', tip:'조사어휘로만 답했습니다' }
                     : { nm:'관측 없음',   cls:'wx0', tip:'사용도/인지도가 비어 있습니다' };
   }
   /* 보정 칸 — 제보자 한 명의 첫 줄에만 둔다. 계산값을 옆에 적어 무엇을 바꿨는지 보이게. */
@@ -2088,7 +2088,7 @@ function asJson(r){
       var head = (prev !== r.file);        /* 제보자가 바뀌는 줄에만 이름과 보정 칸을 둔다 */
       prev = r.file;
       /* 표준어형 행은 판정에서 빠진다 — 그 항목의 대표 표제어와 같은지로 가른다 */
-      var std = nk(r.form || r.headword) === nk(HEADWORD);
+      var std = nk(r.form || r.headword) === nk(HEADWORD) && !/-B-/.test(r.itemCd || '');   /* -B- 는 표준어와 같은 방언형이라 센다 */
       var a = curAdj(r.file), dirty = (r.file in ADJ) && ADJ[r.file] !== adjOf(r.file);
       return '<tr class="pt-rr'+(head?' is-head':'')+(dirty?' is-dirty':'')
            + (a?' is-edited':'')+(std?' is-std':'')+'" data-rid="'+r.rid+'" data-file="'+esc(r.file)+'">'

@@ -6179,7 +6179,7 @@ def _wb_norm_header(h) -> str:
     # 떼지 않으면 별칭에 걸리지 않아 그 칸이 통째로 빈 값으로 적재된다.
     s = re.sub(r"\((수정|보충|최종|검수)\)$", "", s)
     alias = {"표제어": "표제어형", "표제어형": "표제어형", "표준어형": "표제어형",
-             "대응표준어": "표제어형",
+             "대응표준어": "표제어형", "조사어휘": "표제어형",   # 2026-10 자료부터 머리글이 '조사어휘'
              "인지도/사용도": "사용도/인지도", "사용도/인지도": "사용도/인지도"}
     return alias.get(s, s)
 
@@ -6305,7 +6305,7 @@ def api_weather_upload(raw: bytes, ctype: str) -> dict:
             if re.search(r"-A-\d", r["headword"] or ""):
                 warnings.append({"fileName": fname, "lineNo": r["line_no"] + 1,
                                  "itemCd": r["item_cd"], "headword": r["headword"],
-                                 "message": "조사 어휘 칸에 하위코드가 섞였습니다"})
+                                 "message": "조사어휘 칸에 하위코드가 섞였습니다"})
         # 서비스 목록에 없는 항목번호 — 대개 옆 번호로 잘못 적은 오타다(20217 → 20218).
         # 받되 알린다. 지도에는 나오지 않는다.
         allow = _weather_etl().load_service_items() or set()
@@ -6364,6 +6364,25 @@ def api_weather_upload(raw: bytes, ctype: str) -> dict:
             "rows": len(kept), "dropped": dropped, "gradeBad": bad, "replaced": replaced,
         })
     con.commit()
+    # -B- 표기를 기준표(scripts/gisangdo_region_vocab.json)와 대조한다. B 는 지역 단위로
+    # 붙으므로 방금 올린 파일만이 아니라 그 지역·연차의 DB 줄 전체를 본다.
+    done = {(r["fileKey"][:2], r["fileKey"][2:4]) for r in results if r.get("ok")}
+    if done:
+        try:
+            where = " OR ".join("(f.region_cd=? AND f.research_degree=?)" for _ in done)
+            rows = con.execute(
+                "SELECT f.region_cd, r.item_cd FROM wb_weather_response r"
+                " JOIN wb_weather_file f USING(weather_file_id) WHERE f.use_yn='Y' AND (" + where + ")",
+                [v for pair in sorted(done) for v in pair]).fetchall()
+            for x in _weather_etl().b_check([(a, b) for a, b in rows]):
+                warnings.append({"fileName": "%s %s(기준표)" % (WB_REGION_NAMES.get(x["rg"], x["rg"]), x["it"]),
+                                 "itemCd": x["it"], "headword": x["word"],
+                                 "message": ("B 누락 의심 — 기준표에서 이 지역 방언형이 표준어와 같은데(%s) -B- 줄이 없습니다"
+                                             if x["kind"] == "B 누락 의심" else
+                                             "B 지역 아님 — -B- 줄이 있는데 기준표의 이 지역 방언형(%s)은 표준어와 다릅니다")
+                                            % "/".join(x["listed"])})
+        except Exception as e:                      # 기준표 대조 실패가 적재를 막지는 않는다
+            warnings.append({"fileName": "기준표", "message": "B 대조를 하지 못했습니다: %s" % e})
     con.close()
     okn = sum(1 for r in results if r.get("ok"))
     msg = f"{okn}개 파일 적재" + (f" · 실패 {len(results)-okn}개" if okn < len(results) else "")
@@ -6577,9 +6596,8 @@ def api_weather_responses(qs: dict) -> dict:
         g = (x["grade"] or "").strip()
         if not g:
             continue
-        f = etl.norm(x["shown"])
-        if not f or f in etl.head_forms(hw):
-            continue                                  # 표준어형은 판정에서 빠진다
+        if not etl.counts_as_dialect(x["itemCd"], x["shown"], hw):
+            continue                                  # 지역어형이 아닌 줄은 판정에서 빠진다(-B- 줄은 센다)
         k = x["file"]
         if k not in calc or int(g) < calc[k]:
             calc[k] = int(g)
