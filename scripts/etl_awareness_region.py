@@ -80,12 +80,15 @@ def load_region_vocab():
         return {}
 
 
-def b_check(rows, vocab=None):
+def b_check(rows, vocab=None, include_missing=False):
     """-B- 표기를 기준표와 대조한다. rows: (지역, 항목번호(하위코드 포함)) 묶음.
 
-    -B-n 은 '그 지역 방언형이 표준어와 같은 것'이라 지역 단위로 붙는다.
-      · B 누락 의심 : 기준표에서는 그 지역 방언형이 표준어와 같은데, 그 지역 줄에 B 가 없다
+    -B-n 은 '그 지역 방언형인데 표준어와 같은 것'을 제보자가 실제로 답했을 때만 적는다.
       · B 지역 아님 : 그 지역 줄에 B 가 있는데, 기준표에서는 그 지역 방언형이 표준어와 다르다
+                     — 기본으로 보고하는 것은 이것뿐이다.
+      · B 누락 의심 : 기준표에서는 그 지역 방언형이 표준어와 같은데 B 가 없다
+                     — 제보자가 그렇게 답하지 않았으면 없는 게 정상이라 오류가 아니다.
+                       include_missing=True 일 때만 참고용으로 낸다(2026-10-26 담당자 확인).
     돌려주는 값: [{'kind','rg','it','word','listed'}]  (listed = 기준표의 그 지역 방언형)
     """
     vocab = load_region_vocab() if vocab is None else vocab
@@ -109,7 +112,7 @@ def b_check(rows, vocab=None):
         # 보지 않아 B 를 넣지 않았다 — 괄호 주석·'/' 를 떼고 비교하면 26곳을 잘못 잡는다.
         same = re.sub(r'\s+', '', v['word']) in {re.sub(r'\s+', '', x) for x in listed}
         b = (rg, it) in has_b
-        if same and not b:
+        if same and not b and include_missing:
             out.append({'kind': 'B 누락 의심', 'rg': rg, 'it': it, 'word': v['word'], 'listed': listed})
         elif b and not same:
             out.append({'kind': 'B 지역 아님', 'rg': rg, 'it': it, 'word': v['word'], 'listed': listed})

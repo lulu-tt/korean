@@ -6364,8 +6364,9 @@ def api_weather_upload(raw: bytes, ctype: str) -> dict:
             "rows": len(kept), "dropped": dropped, "gradeBad": bad, "replaced": replaced,
         })
     con.commit()
-    # -B- 표기를 기준표(scripts/gisangdo_region_vocab.json)와 대조한다. B 는 지역 단위로
-    # 붙으므로 방금 올린 파일만이 아니라 그 지역·연차의 DB 줄 전체를 본다.
+    # -B- 표기를 기준표(scripts/gisangdo_region_vocab.json)와 대조한다 — 기준표상 그 지역
+    # 방언형이 표준어와 다른데 B 가 붙은 곳(B 지역 아님)만 알린다. B 가 없는 것은
+    # 제보자가 그렇게 답하지 않은 것이라 정상이다. 그 지역·연차의 DB 줄 전체를 본다.
     done = {(r["fileKey"][:2], r["fileKey"][2:4]) for r in results if r.get("ok")}
     if done:
         try:
