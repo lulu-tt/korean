@@ -272,20 +272,20 @@ window.CATEGORY_ROTATIONS = {
  ],
  "도검": [
   {
-   "src": "./assets/rotation/200908058-1.webp",
-   "label": "숫돌"
+   "src": "./assets/rotation/200908038.webp",
+   "label": "단조"
   },
   {
-   "src": "./assets/rotation/200908006.webp",
-   "label": "을자도"
+   "src": "./assets/rotation/200908043.webp",
+   "label": "숫돌질"
   },
   {
-   "src": "./assets/rotation/200908025.webp",
-   "label": "가락지"
+   "src": "./assets/rotation/200908001.webp",
+   "label": "도"
   },
   {
-   "src": "./assets/rotation/200908002.webp",
-   "label": "검"
+   "src": "./assets/rotation/200908035-1.webp",
+   "label": "대장장이"
   }
  ],
  "구덕과 차롱": [
