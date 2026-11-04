@@ -428,8 +428,8 @@ window.CATEGORY_ROTATIONS = {
    "label": "ㄷ자형 자물쇠"
   },
   {
-   "src": "./assets/rotation/200805027.webp",
-   "label": "감잡이"
+   "src": "./assets/rotation/200805012-1.webp",
+   "label": "통박"
   }
  ],
  "죽방렴": [
