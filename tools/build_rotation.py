@@ -21,16 +21,26 @@ def pick(t):
         if len(S) >= 4: break
         if s not in S: S.append(s)
     return S[:4]
+def is_diagram(src):
+    """국어원 설명용 사진의 노란 라벨·화살표(#f5c518 계열) 비율로 판별"""
+    im = Image.open(src).convert("RGB"); im.thumbnail((200, 200)); px = list(im.getdata())
+    y = sum(1 for r, g, b in px if r > 200 and g > 160 and b < 70 and r - b > 150)
+    return y / len(px) > 0.004
 def webp(src, dst):
     im = Image.open(src).convert("RGB"); w, h = im.size; r = W / H
     if w / h > r: nw = int(h * r); im = im.crop(((w - nw) // 2, 0, (w - nw) // 2 + nw, h))
     else: nh = int(w / r); im = im.crop((0, (h - nh) // 2, w, (h - nh) // 2 + nh))
     im.resize((W, H), Image.LANCZOS).save(dst, "WEBP", quality=Q, method=6)
 data, total = {}, 0
+POOL = "/Users/aaa/Documents/vibe-site-review/work/kordic-refs/pool/manifest.json"   # 주제 전체 목록에서 서로 다른 장면만 고른 결과(있으면 우선)
+P = json.load(open(POOL, encoding="utf-8")) if os.path.exists(POOL) else {}
 for t in M:
     items = []
-    for s in pick(t):
-        pid = os.path.splitext(os.path.basename(s["file"]))[0].split("_", 1)[-1]
+    chosen = [{"title": x["title"], "file": x["file"]} for x in P.get(t["topic"], [])] or pick(t)
+    chosen.sort(key=lambda s: is_diagram(s["file"]))   # 노란 글씨·화살표가 있는 설명용 사진은 뒤로(안정 정렬)
+    for s in chosen:
+        base = os.path.splitext(os.path.basename(s["file"]))[0]
+        pid = base.split("_", 1)[-1] if "/kordic-refs/pool/" not in s["file"] else base
         dst = os.path.join(OUT, pid + ".webp"); webp(s["file"], dst); total += os.path.getsize(dst)
         items.append({"src": "./assets/rotation/" + pid + ".webp", "label": s["title"]})
     data[t["topic"]] = items
