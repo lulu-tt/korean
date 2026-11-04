@@ -92,20 +92,20 @@ window.CATEGORY_ROTATIONS = {
  ],
  "떡": [
   {
-   "src": "./assets/rotation/200911638.webp",
-   "label": "눙그다"
+   "src": "./assets/rotation/200911807-1.webp",
+   "label": "도구통"
   },
   {
-   "src": "./assets/rotation/200911025.webp",
-   "label": "ᄈᆞᆺ다"
+   "src": "./assets/rotation/200911604-1.webp",
+   "label": "떡메"
   },
   {
-   "src": "./assets/rotation/200911631.webp",
-   "label": "가래떡"
+   "src": "./assets/rotation/200911639.webp",
+   "label": "치다"
   },
   {
-   "src": "./assets/rotation/200911404-1.webp",
-   "label": "간바가치"
+   "src": "./assets/rotation/200911928.webp",
+   "label": "대떡"
   }
  ],
  "옹기장": [
