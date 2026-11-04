@@ -614,6 +614,10 @@ window.CATEGORY_ROTATIONS = {
  ],
  "대고장": [
   {
+   "src": "./assets/rotation/200704348.webp",
+   "label": "풍물북"
+  },
+  {
    "src": "./assets/rotation/200704303.webp",
    "label": "몸통"
   },
@@ -624,10 +628,6 @@ window.CATEGORY_ROTATIONS = {
   {
    "src": "./assets/rotation/200704304-1.webp",
    "label": "테"
-  },
-  {
-   "src": "./assets/rotation/200704301.webp",
-   "label": "통면"
   }
  ],
  "사찰생활어(승려어)": [
