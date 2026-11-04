@@ -1,5 +1,77 @@
 /* 자동 생성: tools/build_rotation.py — 주제명 → 로테이션 사진(경량 WebP)과 어휘 라벨 */
 window.CATEGORY_ROTATIONS = {
+ "나주소반장": [
+  {
+   "src": "./assets/rotation/200810004.webp",
+   "label": "먹감나무"
+  },
+  {
+   "src": "./assets/rotation/200810095.webp",
+   "label": "족대 깎음질"
+  },
+  {
+   "src": "./assets/rotation/200810086.webp",
+   "label": "운각 붙이다"
+  },
+  {
+   "src": "./assets/rotation/200810101_1.webp",
+   "label": "원반"
+  }
+ ],
+ "김치": [
+  {
+   "src": "./assets/rotation/200811215.webp",
+   "label": "가을배추"
+  },
+  {
+   "src": "./assets/rotation/200811511-1.webp",
+   "label": "절이다"
+  },
+  {
+   "src": "./assets/rotation/200811246.webp",
+   "label": "김장김치"
+  },
+  {
+   "src": "./assets/rotation/200706027-1.webp",
+   "label": "묵은지"
+  }
+ ],
+ "그물 손질부터 어판장까지": [
+  {
+   "src": "./assets/rotation/201002034-1.webp",
+   "label": "손질하다"
+  },
+  {
+   "src": "./assets/rotation/201002012.webp",
+   "label": "그물"
+  },
+  {
+   "src": "./assets/rotation/201002018.webp",
+   "label": "정치망"
+  },
+  {
+   "src": "./assets/rotation/201002031.webp",
+   "label": "전복"
+  }
+ ],
+ "오징어 잡이에서 덕장까지": [
+  {
+   "src": "./assets/rotation/201202055.webp",
+   "label": "집어등"
+  },
+  {
+   "src": "./assets/rotation/201202053.webp",
+   "label": "할복"
+  },
+  {
+   "src": "./assets/rotation/201202001.webp",
+   "label": "덕장"
+  },
+  {
+   "src": "./assets/rotation/201202049-1.webp",
+   "label": "불통"
+  }
+ ],
  "어촌 생활어 기초 어휘": [
   {
    "src": "./assets/rotation/201005233.webp",

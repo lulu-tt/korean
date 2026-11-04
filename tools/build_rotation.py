@@ -34,6 +34,16 @@ for t in M:
         dst = os.path.join(OUT, pid + ".webp"); webp(s["file"], dst); total += os.path.getsize(dst)
         items.append({"src": "./assets/rotation/" + pid + ".webp", "label": s["title"]})
     data[t["topic"]] = items
+# 첫 줄 실사 영상 4편과 같은 사진·순서(영상 속 라벨 기준으로 국어원 사이트에서 원본 확보, kordic-refs/first4)
+F4 = "/Users/aaa/Documents/vibe-site-review/work/kordic-refs/first4/manifest.json"
+if os.path.exists(F4):
+    for subj, items in json.load(open(F4, encoding="utf-8")).items():
+        out = []
+        for s in items:
+            pid = os.path.splitext(os.path.basename(s["file"]))[0]
+            dst = os.path.join(OUT, pid + ".webp"); webp(s["file"], dst); total += os.path.getsize(dst)
+            out.append({"src": "./assets/rotation/" + pid + ".webp", "label": s["title"]})
+        data = {subj: out, **data}
 js = "/* 자동 생성: tools/build_rotation.py — 주제명 → 로테이션 사진(경량 WebP)과 어휘 라벨 */\nwindow.CATEGORY_ROTATIONS = " + json.dumps(data, ensure_ascii=False, indent=1) + ";\n"
 open(os.path.join(OUT, "rotation.js"), "w", encoding="utf-8").write(js)
 print(len(data), "topics", sum(len(v) for v in data.values()), "images", round(total / 1024 / 1024, 2), "MB")

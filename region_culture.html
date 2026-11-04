@@ -719,8 +719,9 @@ function catCardHTML(c, i) {
   }
   const previewImgs = subImgs.slice(0, 3);
   const regionText = formatRegionDisplay(c.region);
-  const vid = c.aiVariant || CATEGORY_VIDEOS[c.name]; // 영상 썸네일이 있는 주제만 값이 있음 (AI 카드는 aiVariant 우선)
-  const rot = !vid && window.CATEGORY_ROTATIONS ? window.CATEGORY_ROTATIONS[c.name] : null; // [추가] 사진 로테이션 주제
+  /* [변경] 실사 카드는 사진 로테이션 우선(첫 줄 실사 4편 포함, 기존 mp4는 CATEGORY_VIDEOS에 남겨 둠 — 순서 지정·되돌리기용). AI 카드는 영상 그대로 */
+  const rot = !c.aiVariant && window.CATEGORY_ROTATIONS ? window.CATEGORY_ROTATIONS[c.name] : null; // 사진 로테이션 주제
+  const vid = c.aiVariant || (rot ? null : CATEGORY_VIDEOS[c.name]); // 영상 썸네일(AI 카드, 또는 로테이션이 없는 실사 주제)
   const esc = t => String(t).replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
 
   return `
