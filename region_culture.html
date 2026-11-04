@@ -541,7 +541,9 @@ function fetchRegionCultureData() {
     const vidKeys = Object.keys(CATEGORY_VIDEOS);
     const withVid = vidKeys.map(k => CATEGORIES.find(c => c.name === k)).filter(Boolean);
     /* [추가] AI 시험 카드: 기존 주제를 복제해 실사 4개 바로 뒤(5번째~)에 삽입. 검색 결과에 원본 주제가 있을 때만 나타남 */
-    const aiCards = AI_VARIANT_CARDS
+    /* [변경 11/5] AI 시험 카드는 화면에서 뺌(목록·영상 파일은 추가 제작 대비로 남겨 둠). 다시 보이려면 SHOW_AI_CARDS를 true로 */
+    const SHOW_AI_CARDS = false;
+    const aiCards = (SHOW_AI_CARDS ? AI_VARIANT_CARDS : [])
       .map(v => { const base = CATEGORIES.find(c => c.name === v.topic); return base ? { ...base, aiVariant: v } : null; })
       .filter(Boolean);
     const rest = CATEGORIES.filter(c => !(c.name in CATEGORY_VIDEOS));
