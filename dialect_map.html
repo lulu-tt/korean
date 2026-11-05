@@ -367,6 +367,13 @@ body { background: #ffffff; }
 .toolbtn--primary:hover { background: #1d4ed8; color: #fff; }
 
 /* ── 팝오버 메뉴 (지도 설정 / 다운로드) ── */
+.dl-options { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 13px; }
+.dl-options fieldset { border: 0; padding: 0; margin: 0 0 10px; display: flex; gap: 16px; }
+.dl-options legend { font-weight: 700; margin-bottom: 6px; }
+.dl-options label { cursor: pointer; }
+.dl-options input { accent-color: #2563eb; }
+.dl-options select { width: 100%; padding: 7px; margin: 5px 0 10px; border: 1px solid #cbd5e1; border-radius: 6px; font: inherit; }
+.dl-options [hidden] { display: none; }
 .popwrap { position: relative; }
 .popmenu { position: absolute; top: calc(100% + 8px); right: 0; z-index: 50; background: #fff; border: 1px solid #cbd5e1; border-radius: 14px; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.14); padding: 16px; min-width: 260px; }
 .popmenu[hidden] { display: none; }
@@ -1127,10 +1134,25 @@ body { background: #ffffff; }
           <div class="popwrap">
             <button class="toolbtn toolbtn--primary" type="button" id="btnDownload" aria-haspopup="true" aria-expanded="false"><i class="ti ti-download" aria-hidden="true"></i> 다운로드</button>
             <div class="popmenu" id="popDownload" hidden>
+              <div class="dl-options" aria-label="다운로드 조건">
+                <fieldset><legend>대상</legend>
+                  <label><input type="radio" name="downloadScope" value="all" checked> 전체</label>
+                  <label><input type="radio" name="downloadScope" value="area"> 지역</label>
+                </fieldset>
+                <label id="downloadRegionWrap" hidden>지역(도별)
+                  <select id="downloadRegion">
+                    <option>강원도</option><option>경기도</option><option>경상남도</option><option>경상북도</option><option>전라남도</option><option>전라북도</option><option>제주특별자치도</option><option>충청남도</option><option>충청북도</option>
+                  </select>
+                </label>
+                <fieldset><legend>해설</legend>
+                  <label><input type="radio" name="downloadCommentary" value="yes" checked> 포함</label>
+                  <label><input type="radio" name="downloadCommentary" value="no"> 제외</label>
+                </fieldset>
+              </div>
               <button class="dlmenu__item" type="button" id="dlImage"><i class="ti ti-photo" aria-hidden="true"></i> 지도 이미지 (PNG)</button>
-              <button class="dlmenu__item" type="button" id="dlPdf"><i class="ti ti-file-text" aria-hidden="true"></i> 인쇄용 지도 (PDF)</button>
+              <button class="dlmenu__item" type="button" id="dlPdf"><i class="ti ti-file-text" aria-hidden="true"></i> 인쇄 / PDF 저장</button>
               <button class="dlmenu__item" type="button" id="dlCsv"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> 방언형 자료 (CSV)</button>
-              <div class="dlmenu__note"><i class="ti ti-info-circle" aria-hidden="true"></i> 이미지·PDF에는 단어명, 범례, 출처(국립국어원)가 함께 담겨 수업·연구 자료로 바로 쓸 수 있습니다.</div>
+              <div class="dlmenu__note"><i class="ti ti-info-circle" aria-hidden="true"></i> 이미지·인쇄에는 선택한 지역의 지도, 표시 중인 범례와 출처가 담깁니다.</div>
             </div>
           </div>
         </div>
@@ -1269,6 +1291,7 @@ body { background: #ffffff; }
 <script src="dialect-fill.js"></script>
 <!-- 시·군·구 경계(skorea-municipalities.js)는 줌인 시 korea-map.js가 지연 로드함 -->
 <script src="korea-map.js?v=20261015sido"></script>
+<script src="map-download.js"></script>
 <script src="dialect-map-core.js?v=20261016infer"></script>
 <script>
 /* ────────────── 지역어 지도 상호작용 (app.js 대체 인라인 스크립트) ────────────── */
@@ -1416,6 +1439,7 @@ body { background: #ffffff; }
     var mw = $('mapWord'); if (mw) mw.textContent = word;   // 지도 카드 제목 연동
     addRecent(word);
     resetCommentary();
+    if (!downloadPayload || String(downloadPayload.headword_no) !== String(headwordNo)) downloadPayload = null;
     if (headwordNo && dialectMapApi) dialectMapApi.loadHeadword(headwordNo, word);
     loadExamples(headwordNo, word);
   }
@@ -1790,6 +1814,7 @@ body { background: #ffffff; }
 
   /* ─ 방언 지도 공통 모듈 (dialect-map-core.js) ─────────────────────────── */
   var dialectMapApi = null;
+  var downloadPayload = null;
 
   (function setupDialectMap() {
     var target = document.getElementById('olmap');
@@ -1825,7 +1850,7 @@ body { background: #ffffff; }
       lblSidoId: 'lblSido',
       lblSigunguId: 'lblSigungu',
       // 지도 payload에 kd_headword 의미·해설이 함께 실려온다 → 해설 탭 렌더링
-      onLoad: function (payload) { renderCommentary(payload); }
+      onLoad: function (payload) { downloadPayload = payload; renderCommentary(payload); }
     });
     // 페이지 전역 호환 (줌 버튼 등)
     olMap = dialectMapApi.getMap();
@@ -1859,83 +1884,14 @@ body { background: #ffffff; }
   function getMapGroups() {
     return dialectMapApi ? dialectMapApi.getGroups() : {};
   }
-  /* ─ 지도 다운로드 (이미지 / PDF / CSV) ─ */
-  function withMapCanvas(cb) {
-    if (!olMap) return;
-    olMap.once('rendercomplete', function () {
-      var size = olMap.getSize();
-      var out = document.createElement('canvas');
-      out.width = size[0];
-      out.height = size[1];
-      var ctx = out.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, out.width, out.height);
-      document.querySelectorAll('#olmap canvas').forEach(function (canvas) {
-        if (canvas.width === 0) return;
-        var op = canvas.parentNode.style.opacity || canvas.style.opacity;
-        ctx.globalAlpha = op === '' ? 1 : Number(op);
-        var t = canvas.style.transform;
-        var m = /^matrix\(([^\)]*)\)$/.exec(t);
-        if (m) {
-          var v = m[1].split(',').map(Number);
-          ctx.setTransform(v[0], v[1], v[2], v[3], v[4], v[5]);
-        } else {
-          ctx.setTransform(1, 0, 0, 1, 0, 0);
-        }
-        ctx.drawImage(canvas, 0, 0);
-      });
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.globalAlpha = 1;
-      cb(out);
-    });
-    olMap.renderSync();
-  }
-
-  function triggerDownload(href, filename) {
-    var a = document.createElement('a');
-    a.href = href;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  }
-
-  if ($('dlImage')) $('dlImage').addEventListener('click', function () {
-    withMapCanvas(function (canvas) {
-      triggerDownload(canvas.toDataURL('image/png'), '지역어지도_가을.png');
-    });
-  });
-
-  if ($('dlPdf')) $('dlPdf').addEventListener('click', function () {
-    withMapCanvas(function (canvas) {
-      var url = canvas.toDataURL('image/png');
-      var w = window.open('', '_blank');
-      if (!w) { alert('팝업이 차단되어 PDF 저장 창을 열 수 없습니다.'); return; }
-      w.document.write('<html><head><title>지역어 지도 - 가을</title></head>' +
-        '<body style="margin:0"><img src="' + url + '" style="width:100%" ' +
-        'onload="setTimeout(function(){window.focus();window.print();},300)"></body></html>');
-      w.document.close();
-    });
-  });
-
-  if ($('dlCsv')) $('dlCsv').addEventListener('click', function () {
-    var groups = getMapGroups();
-    var rows = [['계열', '방언형', '건수']];
-    Object.keys(groups).forEach(function (gkey) {
-      var g = groups[gkey];
-      (g.variants || []).forEach(function (v) {
-        rows.push([g.label || gkey, v.word, String(v.n).replace(/,/g, '')]);
-      });
-    });
-    var csv = '\uFEFF' + rows.map(function (r) {
-      return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(',');
-    }).join('\r\n');
-    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    var url = URL.createObjectURL(blob);
-    var mw = $('mapWord');
-    var fname = '지역어_' + (mw ? mw.textContent : 'map') + '_방언형.csv';
-    triggerDownload(url, fname);
-    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  /* 지도 다운로드: 구현은 별도 파일에서 로드 */
+  setupMapDownloads({
+    getMap: function () { return olMap; },
+    getPayload: function () { return downloadPayload; },
+    getGroups: getMapGroups,
+    getActive: function () { return dialectMapApi ? dialectMapApi.getActiveVariants() : {}; },
+    center: MAP_CENTER,
+    zoom: MAP_ZOOM
   });
 
   /* ─ 좌우 박스 높이 정렬 ─
@@ -1986,6 +1942,7 @@ body { background: #ffffff; }
       e.stopPropagation();
       var willOpen = pop.hidden;
       document.querySelectorAll('.popmenu').forEach(function (p) { p.hidden = true; });
+      document.querySelectorAll('.popwrap > button[aria-expanded]').forEach(function (b) { b.setAttribute('aria-expanded', 'false'); });
       pop.hidden = !willOpen;
       btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
     });
@@ -1995,6 +1952,7 @@ body { background: #ffffff; }
   bindPop('btnDownload', 'popDownload');
   document.addEventListener('click', function () {
     document.querySelectorAll('.popmenu').forEach(function (p) { p.hidden = true; });
+    document.querySelectorAll('.popwrap > button[aria-expanded]').forEach(function (b) { b.setAttribute('aria-expanded', 'false'); });
   });
 
   /* ─ 첫 방문 코치 바 닫기 ─ */
