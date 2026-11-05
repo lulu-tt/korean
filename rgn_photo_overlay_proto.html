@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>시안: 사진으로 보는 생활어 - 레이어 뒤 사진 롤링 (개발서버 카드 구조 유지)</title>
+<!--
+  목적: 리뉴얼 개발 서버(/dialect/ko/proj/98/rgn-photo/list.do)의 카드 마크업·CSS·호버 레이어를 그대로 두고,
+        "마우스를 올리면 레이어가 입혀지고 뒤에서 사진이 롤링"되는 방식만 덧붙인 시안입니다.
+  기존과 같은 것: li.img-item > a.img-item-link > .img-item-view(img, .view-name) + .img-item-cont(설명 레이어)
+                  호버/포커스/모바일 첫 탭(.is-active) 시 레이어 표시, 둘째 탭 이동
+  추가한 것(퍼블 작업 범위):
+    1) .img-item-view 안에 img를 최대 4장 겹침(첫 장 외에는 data-src로 지연 로딩)
+    2) CSS: .img-item-view img 겹치기·전환 페이드 몇 줄
+    3) JS: 레이어가 보이는 동안(PC 마우스 호버, 모바일 .is-active)만 2초 간격으로 다음 사진, 벗어나면 첫 장으로
+  접근성 완화(최소): 키보드 포커스로는 롤링하지 않음 / 움직임 줄이기 설정이면 롤링 안 함 / 목록 위 「사진 자동 전환 정지」
+  ※ 심사지침 15번(정지 기능) 판정은 윤영준 책임 확인 필요
+-->
+<style>
+  html { font-size: 62.5%; }
+  body { margin: 0; font-family: "Pretendard", -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; font-size: 1.6rem; color: #1e2124; background: #fff; }
+  .inner { max-width: 128rem; margin: 0 auto; padding: 4rem 2.4rem 8rem; }
+  h1 { font-size: 3.2rem; text-align: center; margin: 2rem 0 4rem; }
+  .proto-note { margin: 0 0 2.4rem; padding: 1.2rem 1.6rem; border-radius: .8rem; background: #f4f5f6; font-size: 1.4rem; line-height: 1.6; color: #464c53; }
+  .list-head { display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; margin-bottom: 1.6rem; flex-wrap: wrap; }
+  .total-count { font-size: 1.6rem; }
+  .text-primary-dark { color: #0b50d0; font-weight: 700; }
+
+  /* ===== 개발 서버 style.css 원본(카드 부분, 그대로 복사) ===== */
+  .img-item-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.4rem; list-style: none; margin: 0; padding: 0; }
+  @media (max-width: 1279px) { .img-item-list { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 1023px) { .img-item-list { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 767px) { .img-item-list { grid-template-columns: 1fr; } }
+  .img-item { position: relative; aspect-ratio: 1/1.4; border-radius: 1.2rem; overflow: hidden; background-color: #e6e8ea; }
+  .img-item-list:not(.type-middle) .img-item:focus-within .img-item-view img, .img-item-list:not(.type-middle) .img-item.is-active .img-item-view img { transform: scale(1.08); }
+  .img-item-list:not(.type-middle) .img-item:focus-within .view-name, .img-item-list:not(.type-middle) .img-item.is-active .view-name { opacity: 0; transform: translateY(0.6rem); }
+  .img-item-list:not(.type-middle) .img-item:focus-within .img-item-cont, .img-item-list:not(.type-middle) .img-item.is-active .img-item-cont { opacity: 1; visibility: visible; transform: scale(1); }
+  @media (hover: hover) and (pointer: fine) {
+    .img-item-list:not(.type-middle) .img-item:hover .img-item-view img { transform: scale(1.08); }
+    .img-item-list:not(.type-middle) .img-item:hover .view-name { opacity: 0; transform: translateY(0.6rem); }
+    .img-item-list:not(.type-middle) .img-item:hover .img-item-cont { opacity: 1; visibility: visible; transform: scale(1); }
+  }
+  .img-item-link { display: block; width: 100%; height: 100%; color: inherit; text-decoration: none; }
+  .img-item-link:focus-visible { outline: 2px solid #0b50d0; outline-offset: -1px; }
+  .img-item-view { position: relative; width: 100%; height: 100%; }
+  .img-item-view img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s ease; }
+  .img-item-view::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.7) 4%, rgba(0,0,0,0) 25%); pointer-events: none; }
+  .view-name { position: absolute; bottom: 0; left: 0; padding: 1.2rem; text-align: center; z-index: 1; width: 100%; min-height: 6rem; box-sizing: border-box; font-weight: 700; color: #fff; background-color: rgba(0,0,0,.35); transition: opacity .25s ease, transform .25s ease; }
+  .img-item-cont { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem; padding: 2rem; padding-inline: 3.2rem; text-align: center; color: #fff; background: linear-gradient(180deg, rgba(0,0,0,.65) 0%, rgba(0,0,0,.75) 100%); backdrop-filter: blur(1px); -webkit-backdrop-filter: blur(1px); opacity: 0; visibility: hidden; transform: scale(1.04); transition: opacity .3s ease, transform .3s ease, visibility .3s ease; }
+  .img-item-cont::before { content: ""; flex-shrink: 0; width: 5rem; height: 5rem; margin-bottom: .4rem; border: 1px solid rgba(255,255,255,.2); border-radius: 50%; background-color: rgba(255,255,255,.15); }
+  .cont-name { font-size: 2.4rem; margin-top: .8rem; font-weight: 700; }
+  .cont-desc { font-size: 1.7rem; display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .cont-tags { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .8rem; width: 100%; border-top: 1px solid rgba(255,255,255,.2); margin-top: 1.2rem; padding-top: 1.6rem; }
+  .cont-tags .tag { display: inline-flex; width: 100%; box-sizing: border-box; align-items: center; gap: .8rem; padding: .2rem 3.8rem; border-radius: 999px; border: 1px solid rgba(255,255,255,.2); background-color: rgba(255,255,255,.15); font-size: 1.3rem; }
+  .cont-tags .tag b { font-weight: 700; }
+  .cont-tags .tag em { font-style: normal; }
+  /* ===== 원본 끝 ===== */
+
+  /* ===== [추가] 레이어 뒤 사진 롤링 ===== */
+  .img-item-view img.rot { position: absolute; inset: 0; opacity: 0; transition: transform .35s ease, opacity .6s ease; }
+  .img-item-view img.rot.is-on { opacity: 1; }
+  .rot-word { position: absolute; z-index: 3; top: 1.2rem; left: 1.2rem; padding: .2rem 1rem; border-radius: 999px; font-size: 1.3rem; font-weight: 600; color: #fff; background: rgba(0,0,0,.45); opacity: 0; transition: opacity .3s ease; pointer-events: none; }
+  .img-item.is-rolling .rot-word { opacity: 1; }
+  .rot-toggle { display: inline-flex; align-items: center; gap: .6rem; min-height: 3.6rem; padding: .6rem 1.6rem; border: 1px solid #c6cacf; border-radius: 999px; background: #fff; color: #1e2124; font-size: 1.4rem; font-weight: 600; cursor: pointer; }
+  .rot-toggle:hover { background: #f4f5f6; }
+  .rot-toggle:focus-visible { outline: 2px solid #0b50d0; outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { .rot-toggle { display: none; } .img-item-view img.rot { transition: none; } }
+</style>
+</head>
+<body>
+<div class="inner">
+  <h1>사진으로 보는 생활어</h1>
+  <p class="proto-note">시안: 개발 서버 카드 구조·스타일·레이어 동작은 그대로 두고, <b>레이어가 보이는 동안 뒤에서 사진만 2초 간격으로 넘어가도록</b> 덧붙였습니다. PC는 마우스를 올려 보세요. 모바일은 카드를 한 번 탭하면 레이어와 롤링이 시작되고, 한 번 더 탭하면 이동합니다. 키보드 초점으로는 레이어만 열리고 사진은 넘어가지 않습니다.</p>
+  <div class="list-head">
+    <div class="total-count">총 <span class="text-primary-dark" id="cnt">0</span>개의 생활어 주제 분류</div>
+    <button type="button" class="rot-toggle" id="rotToggle" aria-pressed="false"><span aria-hidden="true" id="rotIcon">❚❚</span><span id="rotText">사진 자동 전환 정지</span></button>
+  </div>
+  <ul class="img-item-list" id="rgnPhotoTopicList"></ul>
+</div>
+
+<script src="./assets/rotation/rotation.js"></script>
+<script>
+(function () {
+  const list = document.getElementById('rgnPhotoTopicList');
+  const esc = v => String(v == null ? '' : v).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[c]);
+  const ROT = window.CATEGORY_ROTATIONS || {};
+
+  fetch('./data/processed/region_culture_categories.json').then(r => r.json()).then(j => {
+    const cats = (j.data || []).filter(c => ROT[c.subject]);
+    document.getElementById('cnt').textContent = cats.length;
+    list.innerHTML = cats.map(c => {
+      const photos = ROT[c.subject].slice(0, 4);
+      const regions = (c.regions || '').split(',').filter(Boolean);
+      const region = regions.length ? regions[0] + (regions.length > 1 ? ' 외 ' + (regions.length - 1) : '') : '-';
+      const url = 'https://dev.neibis.inseq.co.kr:8443/dialect/ko/proj/98/rgn-photo/word-list.do?searchTpcNm=' + encodeURIComponent(c.subject);
+      // [추가] 첫 장은 기존처럼 img(alt=주제명), 2~4장은 장식(alt="")이며 data-src로 지연 로딩
+      const imgs = photos.map((p, k) => k === 0
+        ? `<img class="rot is-on" src="${esc(p.src)}" alt="${esc(c.subject)}" data-word="${esc(p.label)}">`
+        : `<img class="rot" data-src="${esc(p.src)}" alt="" data-word="${esc(p.label)}">`).join('');
+      return `<li class="img-item">
+  <a href="${url}" class="img-item-link" aria-label="${esc(c.subject)} 분류 바로가기">
+    <div class="img-item-view">${imgs}<span class="view-name">${esc(c.subject)}</span></div>
+    <span class="rot-word" aria-hidden="true">${esc(photos[0].label)}</span>
+    <div class="img-item-cont">
+      <div class="cont-name">${esc(c.subject)}</div>
+      <div class="cont-desc">「${esc(c.subject)}」 주제 설명 자리(코드설정의 코드설명)</div>
+      <div class="cont-tags"><span class="tag"><b>지역</b><em>${esc(region)}</em></span><span class="tag"><b>어휘</b><em>${Number(c.total_count || 0)}개</em></span></div>
+    </div>
+  </a>
+</li>`;
+    }).join('');
+  });
+
+  /* ===== 기존 개발 서버 동작(그대로): 터치 기기에서 첫 탭은 레이어(.is-active), 둘째 탭 이동 ===== */
+  const hasHover = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  document.addEventListener('click', e => {
+    const link = e.target.closest('#rgnPhotoTopicList .img-item-link');
+    if (link) e.preventDefault();          // 시안에서는 이동 막음(개발 서버에서는 이 줄 없음)
+    if (!link || hasHover()) return;
+    const item = link.closest('.img-item');
+    if (!item.classList.contains('is-active')) {
+      list.querySelectorAll('.img-item.is-active').forEach(o => { if (o !== item) { o.classList.remove('is-active'); stopRoll(o); } });
+      item.classList.add('is-active');
+      startRoll(item);
+    }
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('#rgnPhotoTopicList .img-item')) return;
+    list.querySelectorAll('.img-item.is-active').forEach(o => { o.classList.remove('is-active'); stopRoll(o); });
+  });
+
+  /* ===== [추가] 레이어 뒤 사진 롤링 ===== */
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let paused = false; try { paused = localStorage.getItem('rgnRotPaused') === '1'; } catch (e) {}
+  let active = null, timer = 0;
+  function imgs(item) { return [...item.querySelectorAll('.img-item-view img.rot')]; }
+  function startRoll(item) {
+    if (paused || reduce.matches || !item) return;
+    if (active && active !== item) stopRoll(active);
+    const all = imgs(item); if (all.length < 2) return;
+    all.forEach(im => { if (im.dataset.src) { im.src = im.dataset.src; delete im.dataset.src; } });   // 처음 올릴 때 나머지 로딩
+    active = item; item.classList.add('is-rolling');
+    let k = 0;
+    clearInterval(timer);
+    timer = setInterval(() => {
+      all[k].classList.remove('is-on'); k = (k + 1) % all.length; all[k].classList.add('is-on');
+      item.querySelector('.rot-word').textContent = all[k].dataset.word;
+    }, 2000);
+  }
+  function stopRoll(item) {
+    if (!item) return;
+    if (active === item) { clearInterval(timer); timer = 0; active = null; }
+    item.classList.remove('is-rolling');
+    const all = imgs(item); all.forEach((im, i) => im.classList.toggle('is-on', i === 0));
+    const w = item.querySelector('.rot-word'); if (w && all[0]) w.textContent = all[0].dataset.word;
+  }
+  // PC 마우스 호버에서만 롤링(키보드 포커스로는 레이어만, 롤링 없음)
+  list.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse' && e.target.classList && e.target.classList.contains('img-item')) startRoll(e.target); }, true);
+  list.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && e.target.classList && e.target.classList.contains('img-item')) stopRoll(e.target); }, true);
+  document.addEventListener('visibilitychange', () => { if (document.hidden && active) stopRoll(active); });
+
+  // 목록 위 정지/재생
+  const btn = document.getElementById('rotToggle');
+  function render() {
+    btn.setAttribute('aria-pressed', paused ? 'true' : 'false');
+    document.getElementById('rotIcon').textContent = paused ? '▶' : '❚❚';
+    document.getElementById('rotText').textContent = paused ? '사진 자동 전환 재생' : '사진 자동 전환 정지';
+  }
+  btn.addEventListener('click', () => {
+    paused = !paused; try { localStorage.setItem('rgnRotPaused', paused ? '1' : '0'); } catch (e) {}
+    if (paused && active) stopRoll(active);
+    render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>
