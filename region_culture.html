@@ -16,6 +16,7 @@
 <script src="./gnb.js" defer></script>
 <script src="./share.js" defer></script>
 <script src="./footer.js" defer></script>
+<script src="./assets/rotation/rotation.js"></script>
 
 <style>
 html { overflow-y: scroll; } /* 세로 스크롤바 항상 표시하여 폭 변화(흔들림) 방지 */
@@ -160,6 +161,22 @@ body {
 /* [추가] 영상 카드: 호버 시 이미지 축소·하단 썸네일 노출 없이 제자리에서 영상만 재생 (그림자·테두리·포커스는 유지) */
 .rc-cat.rc-cat--video:hover .rc-cat__media, .rc-cat.rc-cat--video.is-hover .rc-cat__media { height: 100%; }
 .rc-cat.rc-cat--video:hover .rc-cat__hover-area, .rc-cat.rc-cat--video.is-hover .rc-cat__hover-area { height: 0; border-top: 0; }
+
+/* [추가] 사진 로테이션 카드(실사 4장 교차 전환) — 영상 카드와 같은 호버 규칙(.rc-cat--video)을 함께 씀.
+   되돌리려면 이 블록·catCardHTML의 rot 부분·initCardRotations 블록·rotation.js 스크립트 태그를 지우면 됩니다. */
+.rc-cat__rot { position: absolute; inset: 0; z-index: 0; pointer-events: none; background: #0f172a; }
+.rc-cat__rot-item { position: absolute; inset: 0; opacity: 0; transition: opacity 0.8s ease; }
+.rc-cat__rot-item.is-on { opacity: 1; }
+.rc-cat__rot-item img { width: 100%; height: 100%; object-fit: cover; display: block; transform: scale(1.0); transition: transform 3.2s ease-out; }
+.rc-cat--rot.is-playing .rc-cat__rot-item.is-on img { transform: scale(1.06); } /* 호버 즉시 줌 시작(재생 중일 때만) */
+.rc-cat__rot-label { position: absolute; top: 16px; left: 16px; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; line-height: 1.5; color: #fff; background: rgba(60, 60, 66, 0.55); }
+.rc-result-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.rc-rotctl { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 6px 14px; border: 1px solid #c9ced6; border-radius: 999px; background: #fff; color: #1f2937; font-size: 14px; font-weight: 600; line-height: 1.4; cursor: pointer; }
+.rc-rotctl:hover { background: #f3f4f6; }
+.rc-rotctl:focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
+.rc-rotctl__icon { font-size: 11px; letter-spacing: -1px; }
+@media (prefers-reduced-motion: reduce) { .rc-rotctl { display: none; } }
+@media (prefers-reduced-motion: reduce) { .rc-cat__rot-item, .rc-cat__rot-item img { transition: none; } .rc-cat--rot.is-playing .rc-cat__rot-item.is-on img { transform: none; } }
 
 /* 대분류 카드뉴스 히어로 이미지 배너 */
 .rc-cat__media {
@@ -463,7 +480,11 @@ body {
 
     <!-- LEVEL 1: 대분류 갤러리 -->
     <section class="rc-view is-active" id="rcViewCats" aria-label="생활어 대분류">
-      <p class="rc-result" id="rcCatResult" style="margin-top: 10px;"></p>
+      <div class="rc-result-row">
+        <p class="rc-result" id="rcCatResult" style="margin-top: 10px;"></p>
+        <!-- [추가 11/5] 웹 접근성: 사진 자동 전환 정지/재생(PC·모바일 공통, 상태는 브라우저에 기억) -->
+        <button type="button" class="rc-rotctl" id="rcRotToggle" aria-pressed="false"><span class="rc-rotctl__icon" aria-hidden="true">❚❚</span><span class="rc-rotctl__text">사진 자동 전환 정지</span></button>
+      </div>
       <div class="rc-grid" id="rcCatGrid"></div>
       <div class="rc-more" id="rcMore"></div>
     </section>
@@ -530,7 +551,9 @@ function fetchRegionCultureData() {
     const vidKeys = Object.keys(CATEGORY_VIDEOS);
     const withVid = vidKeys.map(k => CATEGORIES.find(c => c.name === k)).filter(Boolean);
     /* [추가] AI 시험 카드: 기존 주제를 복제해 실사 4개 바로 뒤(5번째~)에 삽입. 검색 결과에 원본 주제가 있을 때만 나타남 */
-    const aiCards = AI_VARIANT_CARDS
+    /* [변경 11/5] AI 시험 카드는 화면에서 뺌(목록·영상 파일은 추가 제작 대비로 남겨 둠). 다시 보이려면 SHOW_AI_CARDS를 true로 */
+    const SHOW_AI_CARDS = false;
+    const aiCards = (SHOW_AI_CARDS ? AI_VARIANT_CARDS : [])
       .map(v => { const base = CATEGORIES.find(c => c.name === v.topic); return base ? { ...base, aiVariant: v } : null; })
       .filter(Boolean);
     const rest = CATEGORIES.filter(c => !(c.name in CATEGORY_VIDEOS));
@@ -586,6 +609,25 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
    터치 기기(hover 없음)는 화면 중앙에 가장 가까운 카드 1개만 재생. 동시 재생은 항상 1개. */
 const touchOnly = window.matchMedia('(hover: none)');
 let activeVideo = null;
+let activeRot = null, rotTimer = 0; // [추가] 사진 로테이션 상태
+/* [추가 11/5] 사진 자동 전환 정지/재생 — 웹 접근성(자동 변경 콘텐츠 정지 기능). 상태는 localStorage에 기억 */
+let rotPaused = false;
+try { rotPaused = localStorage.getItem('rcRotPaused') === '1'; } catch (e) {}
+const rotToggle = document.getElementById('rcRotToggle');
+function renderRotToggle() {
+  if (!rotToggle) return;
+  rotToggle.setAttribute('aria-pressed', rotPaused ? 'true' : 'false');
+  rotToggle.querySelector('.rc-rotctl__icon').textContent = rotPaused ? '▶' : '❚❚';
+  rotToggle.querySelector('.rc-rotctl__text').textContent = rotPaused ? '사진 자동 전환 재생' : '사진 자동 전환 정지';
+}
+if (rotToggle) rotToggle.addEventListener('click', () => {
+  rotPaused = !rotPaused;
+  try { localStorage.setItem('rcRotPaused', rotPaused ? '1' : '0'); } catch (e) {}
+  renderRotToggle();
+  if (rotPaused) { if (activeRot) stopRot(activeRot); stopCard(activeVideo); }
+  else if (typeof scheduleRotPick === 'function') scheduleRotPick();
+});
+renderRotToggle();
 function stopCard(v) {
   if (!v) return;
   v.pause();
@@ -593,8 +635,9 @@ function stopCard(v) {
   if (activeVideo === v) activeVideo = null;
 }
 function playCard(v) {
-  if (!v || reduceMotion.matches || document.hidden) return;
+  if (!v || reduceMotion.matches || document.hidden || rotPaused) return;
   if (activeVideo && activeVideo !== v) stopCard(activeVideo);   // 항상 1개만
+  if (activeRot) stopRot(activeRot);              // [추가] 사진 로테이션과도 동시에 1개만
   activeVideo = v;
   v.play().catch(() => {});                       // 차단돼도 포스터는 그대로 보임
 }
@@ -656,6 +699,45 @@ reduceMotion.addEventListener && reduceMotion.addEventListener('change', () => {
   if (reduceMotion.matches) catGrid.querySelectorAll('video.rc-cat__video').forEach(stopCard);
 });
 
+/* [추가] 사진 로테이션 제어 — 한 번에 1개 카드만 2.6초 간격으로 전환. 움직임 줄이기 설정이면 첫 장만 표시 */
+function stopRot(card) {
+  if (!card) return;
+  if (activeRot === card) { clearTimeout(rotTimer); clearInterval(rotTimer); rotTimer = 0; activeRot = null; }
+  card.classList.remove('is-playing');
+  const items = card.querySelectorAll('.rc-cat__rot-item');
+  items.forEach((it, k) => it.classList.toggle('is-on', k === 0));
+}
+function playRot(card) {
+  if (!card || reduceMotion.matches || document.hidden || rotPaused) return;
+  if (activeRot === card) return;
+  if (activeRot) stopRot(activeRot);
+  stopCard(activeVideo);
+  const items = card.querySelectorAll('.rc-cat__rot-item');
+  if (items.length < 2) { card.classList.add('is-playing'); activeRot = card; return; }
+  activeRot = card; let k = 0;
+  card.classList.add('is-playing');                // 호버 즉시 현재 사진 줌 시작
+  const next = () => { items[k].classList.remove('is-on'); k = (k + 1) % items.length; items[k].classList.add('is-on'); };
+  rotTimer = setTimeout(() => { if (activeRot !== card) return; next(); rotTimer = setInterval(next, 2200); }, 700); // 0.7초 만에 첫 전환, 이후 2.2초 간격
+}
+const rotCard = el => (el && el.closest ? el.closest('.rc-cat--rot') : null);
+catGrid.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch' && e.target.classList && e.target.classList.contains('rc-cat--rot')) playRot(e.target); }, true);
+catGrid.addEventListener('pointerleave', e => { if (e.pointerType !== 'touch' && e.target.classList && e.target.classList.contains('rc-cat--rot')) stopRot(e.target); }, true);
+/* [변경 11/5] 키보드 포커스로는 자동 전환을 시작하지 않음(웹 접근성: 사용자가 요청하지 않은 움직임 방지) */
+catGrid.addEventListener('focusout', e => { const c = rotCard(e.target); if (c && !c.contains(e.relatedTarget)) stopRot(c); });
+let rotPickRaf = 0;
+function pickCenterRot() {
+  rotPickRaf = 0;
+  if (!touchOnly.matches || reduceMotion.matches) return;
+  const mid = window.innerHeight / 2; let best = null, bd = Infinity;
+  catGrid.querySelectorAll('.rc-cat--rot').forEach(c => { const r = c.getBoundingClientRect(); if (r.bottom < 0 || r.top > window.innerHeight) return; const d = Math.abs((r.top + r.bottom) / 2 - mid); if (d < bd) { bd = d; best = c; } });
+  if (best) playRot(best); else if (activeRot) stopRot(activeRot);
+}
+function scheduleRotPick() { if (!rotPickRaf) rotPickRaf = requestAnimationFrame(pickCenterRot); }
+window.addEventListener('scroll', scheduleRotPick, { passive: true });
+window.addEventListener('resize', scheduleRotPick);
+document.addEventListener('visibilitychange', () => { if (document.hidden && activeRot) stopRot(activeRot); });
+function initCardRotations() { scheduleRotPick(); }
+
 function formatRegionDisplay(regionStr) {
   if (!regionStr || regionStr === '전국') return '전국';
   const list = regionStr.split(',').map(s => s.trim()).filter(Boolean);
@@ -670,12 +752,16 @@ function catCardHTML(c, i) {
   }
   const previewImgs = subImgs.slice(0, 3);
   const regionText = formatRegionDisplay(c.region);
-  const vid = c.aiVariant || CATEGORY_VIDEOS[c.name]; // 영상 썸네일이 있는 주제만 값이 있음 (AI 카드는 aiVariant 우선)
+  /* [변경] 실사 카드는 사진 로테이션 우선(첫 줄 실사 4편 포함, 기존 mp4는 CATEGORY_VIDEOS에 남겨 둠 — 순서 지정·되돌리기용). AI 카드는 영상 그대로 */
+  const rot = !c.aiVariant && window.CATEGORY_ROTATIONS ? window.CATEGORY_ROTATIONS[c.name] : null; // 사진 로테이션 주제
+  const vid = c.aiVariant || (rot ? null : CATEGORY_VIDEOS[c.name]); // 영상 썸네일(AI 카드, 또는 로테이션이 없는 실사 주제)
+  const esc = t => String(t).replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
 
   return `
-    <div class="rc-cat${vid ? ' rc-cat--video' : ''}" role="button" tabindex="0" data-cat="${encodeURIComponent(c.name)}" onclick="location.href='./region_culture_list.html?cat=${encodeURIComponent(c.name)}'" style="animation-delay:${(i % PAGE) * 55}ms" aria-label="${c.name} 분류 열기">
-      <div class="rc-cat__media" style="${vid ? `background-image: url('${c.img}');` : `background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.3) 0%, rgba(15, 23, 42, 0.7) 100%), url('${c.img}');`}">
+    <div class="rc-cat${vid || rot ? ' rc-cat--video' : ''}${rot ? ' rc-cat--rot' : ''}" role="button" tabindex="0" data-cat="${encodeURIComponent(c.name)}" onclick="location.href='./region_culture_list.html?cat=${encodeURIComponent(c.name)}'" style="animation-delay:${(i % PAGE) * 55}ms" aria-label="${c.name} 분류 열기">
+      <div class="rc-cat__media" style="${vid || rot ? `background-image: url('${c.img}');` : `background-image: linear-gradient(180deg, rgba(15, 23, 42, 0.3) 0%, rgba(15, 23, 42, 0.7) 100%), url('${c.img}');`}">
         ${vid ? `<video class="rc-cat__video" src="${vid.src}" poster="${vid.poster}" muted loop playsinline preload="metadata" aria-hidden="true" tabindex="-1" onerror="this.style.opacity=0"></video><div class="rc-cat__media-shade"></div>` : ''}
+        ${rot ? `<div class="rc-cat__rot" aria-hidden="true">${rot.map((r, k) => `<div class="rc-cat__rot-item${k === 0 ? ' is-on' : ''}"><img src="${r.src}" alt="" loading="lazy" decoding="async"><span class="rc-cat__rot-label">${esc(r.label)}</span></div>`).join('')}</div><div class="rc-cat__media-shade"></div>` : ''}
         ${c.aiVariant ? `<span class="rc-cat__ai-label">AI 생성 영상</span>` : ''}
         <div class="rc-cat__hero-body">
           <div class="rc-cat__name">${c.name}</div>
@@ -725,6 +811,7 @@ function renderCategories() {
   catGrid.innerHTML = pageList.map((c, i) => catCardHTML(c, i)).join('');
   bindCats();
   initCardVideos();
+  initCardRotations();
 
   const more = $('rcMore');
   if (shown < total) {
