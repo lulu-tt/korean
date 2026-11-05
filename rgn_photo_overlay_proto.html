@@ -61,6 +61,10 @@
   .img-item-cont { justify-content: flex-end; padding: 2.4rem 2rem; padding-inline: 2rem; background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.55) 55%, rgba(0,0,0,.85) 100%); backdrop-filter: none; -webkit-backdrop-filter: none; }
   .img-item-cont::before { content: none; display: none; }
   .cont-name { margin-top: 0; }
+  /* [변경 11/5 대표님] 레이어 내용 좌측 정렬 */
+  .img-item-cont { align-items: flex-start; text-align: left; }
+  .cont-tags { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; align-items: center; }
+  .cont-tags .tag { width: auto; padding: .2rem 1.2rem; }
   .img-item-view img.rot { position: absolute; inset: 0; opacity: 0; transition: transform .35s ease, opacity .6s ease; }
   .img-item-view img.rot.is-on { opacity: 1; }
   .rot-word { position: absolute; z-index: 3; top: 1.2rem; left: 1.2rem; padding: .2rem 1rem; border-radius: 999px; font-size: 1.3rem; font-weight: 600; color: #fff; background: rgba(0,0,0,.45); opacity: 0; transition: opacity .3s ease; pointer-events: none; }
