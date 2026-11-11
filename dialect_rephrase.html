@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>방언 바꿔 말하기 — 국립국어원</title>
+<!-- 시안: 초등 5-2 국어 「표준어와 방언을 알아봐요」([6국04-02]) 수업용.
+     문장은 구술발화조사자료(wb_trs_line_talk) 실측 전사·표준어 대역·음성 구간에서 골랐다.
+     장음(:)·성조(')·아래아(/) 표기만 아이 화면용으로 지웠고, 낱말은 바꾸지 않았다. -->
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="./styles.css">
+<script src="./gnb.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+/* 모든 클래스는 bm- 접두사로 스코프 (공통 .card/.wrap 충돌 방지) */
+.bm-page { max-width: 1080px; margin: 0 auto; padding: 40px 20px 80px; }
+.bm-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+.bm-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--blue); background: var(--blue-light); padding: 5px 10px; border-radius: 999px; }
+.bm-title { font-size: 32px; font-weight: 800; letter-spacing: -0.03em; margin: 10px 0 6px; color: var(--text); }
+.bm-sub { color: var(--muted); font-size: 16px; margin: 0; }
+.bm-tools { display: flex; gap: 8px; }
+.bm-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 44px; padding: 0 18px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+.bm-btn:hover { border-color: #cbd5e1; background: #f8fafc; }
+.bm-btn:focus-visible { outline: none; box-shadow: var(--focus); }
+.bm-btn--primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+.bm-btn--primary:hover { background: var(--blue-hover); border-color: var(--blue-hover); }
+.bm-btn--primary:disabled { background: #cbd5e1; border-color: #cbd5e1; cursor: not-allowed; }
+.bm-btn--lg { height: 56px; font-size: 17px; padding: 0 26px; border-radius: 14px; }
+.bm-btn i { font-size: 20px; }
+.bm-btn[aria-pressed="true"] { background: var(--blue-light); border-color: var(--blue); color: var(--blue); }
+.bm-count { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--blue); color: #fff; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; }
+
+.bm-panel { background: var(--card); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); padding: 32px; }
+.bm-panel[hidden] { display: none; }
+
+/* 1. 지역 고르기 — 타일 지도 */
+.bm-home { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 32px; align-items: start; }
+.bm-q { font-size: 22px; font-weight: 800; margin: 0 0 6px; letter-spacing: -0.02em; }
+.bm-hint { color: var(--muted); margin: 0 0 22px; font-size: 15px; }
+.bm-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; max-width: 520px; }
+.bm-tile { position: relative; min-height: 92px; border-radius: 16px; border: 2px solid var(--line); background: #fff; font: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px; transition: transform .12s, border-color .12s; }
+.bm-tile:hover { border-color: var(--blue); transform: translateY(-2px); }
+.bm-tile:focus-visible { outline: none; box-shadow: var(--focus); border-color: var(--blue); }
+.bm-tile__name { font-size: 19px; font-weight: 800; color: var(--text); }
+.bm-tile__meta { font-size: 12px; color: var(--muted); }
+.bm-tile--empty { visibility: hidden; }
+.bm-tile.is-done { border-color: #a7f3d0; background: #ecfdf5; }
+.bm-tile__stamp { position: absolute; top: -8px; right: -8px; width: 30px; height: 30px; border-radius: 50%; background: #10b981; color: #fff; display: none; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 6px rgba(16,185,129,.4); transform: rotate(-12deg); }
+.bm-tile.is-done .bm-tile__stamp { display: flex; }
+.bm-side { background: #f8fafc; border-radius: 16px; padding: 22px; }
+.bm-side h3 { margin: 0 0 12px; font-size: 16px; font-weight: 800; }
+.bm-how { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.bm-how li { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; color: #334155; }
+.bm-how b { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--blue-light); color: var(--blue); display: inline-flex; align-items: center; justify-content: center; font-size: 13px; }
+.bm-progress { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 15px; color: #334155; }
+.bm-bar { height: 10px; border-radius: 999px; background: #e2e8f0; margin-top: 8px; overflow: hidden; }
+.bm-bar span { display: block; height: 100%; background: #10b981; border-radius: 999px; transition: width .3s; }
+
+/* 활동 단계 표시 */
+.bm-steps { display: flex; gap: 6px; margin: 0 0 26px; padding: 0; list-style: none; flex-wrap: wrap; }
+.bm-steps li { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: #94a3b8; padding: 6px 12px 6px 6px; border-radius: 999px; background: #f1f5f9; }
+.bm-steps li span { width: 24px; height: 24px; border-radius: 50%; background: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; }
+.bm-steps li.is-active { background: var(--blue); color: #fff; }
+.bm-steps li.is-active span { color: var(--blue); }
+.bm-steps li.is-done { background: #ecfdf5; color: #059669; }
+
+.bm-where { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; font-size: 14px; color: var(--muted); }
+.bm-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; background: #f1f5f9; color: #334155; font-weight: 700; font-size: 13px; }
+.bm-back { margin-left: auto; }
+
+/* 2. 듣기 카드 */
+.bm-listen { text-align: center; padding: 10px 0 4px; }
+.bm-speaker { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.bm-avatar { width: 54px; height: 54px; border-radius: 50%; background: #fef3c7; color: #b45309; display: inline-flex; align-items: center; justify-content: center; font-size: 28px; }
+.bm-speaker__txt { text-align: left; }
+.bm-speaker__txt b { display: block; font-size: 17px; }
+.bm-speaker__txt span { font-size: 14px; color: var(--muted); }
+.bm-quote { font-size: 30px; line-height: 1.55; font-weight: 800; letter-spacing: -0.02em; color: var(--text); margin: 0 auto 26px; max-width: 760px; word-break: keep-all; }
+.bm-quote::before { content: '“'; color: #cbd5e1; margin-right: 4px; }
+.bm-quote::after { content: '”'; color: #cbd5e1; margin-left: 4px; }
+.bm-play { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.bm-playbtn { width: 76px; height: 76px; border-radius: 50%; border: none; background: var(--blue); color: #fff; font-size: 36px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 6px 18px rgba(37,99,235,.3); }
+.bm-playbtn:focus-visible { outline: none; box-shadow: var(--focus), 0 6px 18px rgba(37,99,235,.3); }
+.bm-playbtn.is-playing { background: #f59e0b; box-shadow: 0 6px 18px rgba(245,158,11,.35); }
+.bm-play__side { display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+.bm-play__side .bm-btn { height: 34px; font-size: 13px; padding: 0 12px; }
+.bm-audio-note { margin: 16px auto 0; max-width: 520px; font-size: 13px; color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 8px 12px; }
+.bm-audio-note[hidden] { display: none; }
+
+/* 3. 바꿔 쓰기 */
+.bm-mini { font-size: 18px; font-weight: 700; color: #334155; background: #f8fafc; border-radius: 12px; padding: 14px 16px; margin: 0 0 20px; line-height: 1.6; word-break: keep-all; }
+.bm-mini small { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 2px; }
+.bm-pick { font-size: 21px; line-height: 2.4; font-weight: 700; word-break: keep-all; }
+.bm-blank { display: inline-flex; gap: 6px; vertical-align: middle; flex-wrap: wrap; padding: 4px 6px; border: 2px dashed #93c5fd; border-radius: 12px; background: #f8fbff; margin: 0 4px; line-height: 1.2; }
+.bm-blank button { border: 1px solid var(--line); background: #fff; border-radius: 9px; padding: 6px 10px; font: inherit; font-size: 16px; font-weight: 700; cursor: pointer; color: #334155; }
+.bm-blank button[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: #fff; }
+.bm-blank.is-set { border-style: solid; border-color: var(--blue); }
+.bm-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 26px; flex-wrap: wrap; }
+
+/* 4. 비교하기 */
+.bm-compare { display: grid; gap: 12px; }
+.bm-row { border-radius: 14px; padding: 16px 18px; border: 1px solid var(--line); }
+.bm-row small { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 800; color: var(--muted); margin-bottom: 6px; }
+.bm-row p { margin: 0; font-size: 21px; font-weight: 700; line-height: 1.6; word-break: keep-all; }
+.bm-row--d { background: #fffbeb; border-color: #fde68a; }
+.bm-row--me { background: #fff; }
+.bm-row--s { background: #eff6ff; border-color: #bfdbfe; }
+.bm-row mark { background: transparent; padding: 0 2px; border-radius: 4px; box-shadow: inset 0 -0.45em 0 rgba(245,158,11,.35); color: inherit; }
+.bm-row--s mark { box-shadow: inset 0 -0.45em 0 rgba(37,99,235,.25); }
+.bm-row--me mark { box-shadow: inset 0 -0.45em 0 rgba(16,185,129,.35); }
+.bm-pairs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.bm-pair { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: #fff; border: 1px solid var(--line); font-weight: 700; font-size: 15px; }
+.bm-pair i { color: #94a3b8; }
+.bm-pair.is-hit { border-color: #6ee7b7; background: #ecfdf5; }
+.bm-cheer { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 800; color: #047857; margin: 18px 0 0; }
+.bm-cheer i { font-size: 26px; }
+
+/* 5. 느낌 고르기 */
+.bm-feel { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.bm-feelbox { border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
+.bm-feelbox h4 { margin: 0 0 4px; font-size: 14px; color: var(--muted); }
+.bm-feelbox p { margin: 0 0 14px; font-size: 18px; font-weight: 800; line-height: 1.5; word-break: keep-all; }
+.bm-feelbox--d { background: #fffbeb; border-color: #fde68a; }
+.bm-feelbox--s { background: #eff6ff; border-color: #bfdbfe; }
+.bm-feelopts { display: flex; flex-wrap: wrap; gap: 8px; }
+.bm-feelopts button { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 8px 14px; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; color: #334155; }
+.bm-feelopts button[aria-pressed="true"] { background: #111827; border-color: #111827; color: #fff; }
+
+/* 6. 내 활동지 */
+.bm-sheet-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.bm-sheet-head h2 { margin: 0; font-size: 22px; font-weight: 800; }
+.bm-sheet-name { display: flex; gap: 8px; align-items: center; font-size: 15px; color: #334155; }
+.bm-sheet-name input { height: 40px; border: 1px solid var(--line); border-radius: 10px; padding: 0 12px; font: inherit; width: 140px; }
+.bm-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.bm-table th, .bm-table td { border: 1px solid var(--line); padding: 10px 12px; text-align: left; vertical-align: top; word-break: keep-all; }
+.bm-table th { background: #f8fafc; font-size: 13px; color: var(--muted); }
+.bm-empty { text-align: center; color: var(--muted); padding: 40px 0; }
+.bm-note-box { margin-top: 18px; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 14px 16px; color: #334155; font-size: 15px; min-height: 80px; }
+.bm-proto { margin-top: 28px; font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+/* 크게 보기(교사 전자칠판) */
+body.bm-big .bm-quote { font-size: 44px; }
+body.bm-big .bm-mini, body.bm-big .bm-row p { font-size: 28px; }
+body.bm-big .bm-pick { font-size: 28px; }
+body.bm-big .bm-tile__name { font-size: 24px; }
+
+@media (max-width: 860px) {
+  .bm-home { grid-template-columns: 1fr; }
+  .bm-feel { grid-template-columns: 1fr; }
+  .bm-title { font-size: 26px; }
+  .bm-quote { font-size: 23px; }
+  .bm-panel { padding: 22px 18px; }
+  .bm-tools .bm-btn span.bm-lbl { display: none; }
+}
+@media print {
+  #gnb-common, #footer-common, .bm-head, .bm-noprint, .bm-panel:not(#bm-sheet) { display: none !important; }
+  #bm-sheet { display: block !important; border: none; box-shadow: none; padding: 0; }
+  .bm-page { padding: 0; }
+}
+</style>
+</head>
+<body>
+<div id="gnb-common"></div>
+
+<main class="bm-page">
+  <header class="bm-head">
+    <div>
+      <span class="bm-eyebrow"><i class="ti ti-school"></i>초등 5학년 국어 · 표준어와 방언을 알아봐요</span>
+      <h1 class="bm-title">방언 바꿔 말하기</h1>
+      <p class="bm-sub">우리 동네 어르신의 진짜 목소리를 듣고, 표준어로 바꿔 말해 보아요.</p>
+    </div>
+    <div class="bm-tools bm-noprint">
+      <button type="button" class="bm-btn" id="bm-big" aria-pressed="false" title="전자칠판용으로 글자를 크게 봅니다"><i class="ti ti-zoom-in"></i><span class="bm-lbl">크게 보기</span></button>
+      <button type="button" class="bm-btn" id="bm-open-sheet"><i class="ti ti-notebook"></i><span class="bm-lbl">내 활동지</span><span class="bm-count" id="bm-sheet-count">0</span></button>
+    </div>
+  </header>
+
+  <!-- 1. 지역 고르기 -->
+  <section class="bm-panel" id="bm-home" aria-labelledby="bm-home-q">
+    <div class="bm-home">
+      <div>
+        <h2 class="bm-q" id="bm-home-q">어느 지역 어르신 말을 들어 볼까요?</h2>
+        <p class="bm-hint">지역을 누르면 그 지역 어르신의 말 한마디가 나와요.</p>
+        <div class="bm-tiles" id="bm-tiles"></div>
+      </div>
+      <aside class="bm-side">
+        <h3>이렇게 해요</h3>
+        <ol class="bm-how">
+          <li><b>1</b>어르신 목소리를 들어요</li>
+          <li><b>2</b>표준어 낱말을 골라요</li>
+          <li><b>3</b>표준어와 비교해 봐요</li>
+          <li><b>4</b>어르신 말의 느낌을 골라요</li>
+        </ol>
+        <div class="bm-progress">
+          <span id="bm-progress-txt">아직 다녀온 지역이 없어요</span>
+          <div class="bm-bar"><span id="bm-progress-bar" style="width:0%"></span></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- 2~5. 활동 카드 -->
+  <section class="bm-panel" id="bm-card" hidden aria-live="polite">
+    <ol class="bm-steps" id="bm-steps">
+      <li data-s="1"><span>1</span>듣기</li>
+      <li data-s="2"><span>2</span>낱말 고르기</li>
+      <li data-s="3"><span>3</span>비교하기</li>
+      <li data-s="4"><span>4</span>느낌 고르기</li>
+    </ol>
+    <div class="bm-where">
+      <span class="bm-chip"><i class="ti ti-map-pin"></i><span id="bm-where-region"></span></span>
+      <span class="bm-chip"><i class="ti ti-bowl"></i><span id="bm-where-topic"></span></span>
+      <button type="button" class="bm-btn bm-back" id="bm-to-home"><i class="ti ti-map"></i>다른 지역</button>
+    </div>
+    <div id="bm-step-body"></div>
+  </section>
+
+  <!-- 6. 내 활동지 -->
+  <section class="bm-panel" id="bm-sheet" hidden>
+    <div class="bm-sheet-head">
+      <h2>방언 바꿔 말하기 활동지</h2>
+      <div class="bm-sheet-name">이름 <input type="text" id="bm-name" placeholder="이름 쓰기" autocomplete="off"></div>
+    </div>
+    <div id="bm-sheet-body"></div>
+    <div class="bm-note-box"><b>생각 정리</b> — 방언과 표준어는 각각 언제 쓰면 좋을까요?<br><br></div>
+    <div class="bm-actions bm-noprint">
+      <button type="button" class="bm-btn" id="bm-sheet-back"><i class="ti ti-arrow-left"></i>지역 고르기</button>
+      <div style="display:flex;gap:8px">
+        <button type="button" class="bm-btn" id="bm-sheet-clear"><i class="ti ti-eraser"></i>처음부터</button>
+        <button type="button" class="bm-btn bm-btn--primary" onclick="window.print()"><i class="ti ti-printer"></i>인쇄 · PDF 저장</button>
+      </div>
+    </div>
+  </section>
+
+  <p class="bm-proto bm-noprint">시안 안내 · 문장은 국립국어원 지역어 조사 구술발화 자료의 실제 전사와 표준어 대역입니다(장음·성조 표기만 정리). 제보자 이름은 보여 주지 않습니다. 내 답은 이 기기의 브라우저에만 저장되고 서버로 보내지 않습니다.</p>
+</main>
+
+<div id="footer-common"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  // 구술발화 실측 문장 — trsId·구간(초)은 wb_trs_line_talk 기준. keys: 방언 낱말 → 표준어, opts는 '낱말 고르기' 보기.
+  var SENTS = [
+    { id: 'gg', prov: '경기', region: '경기도 포천시', topic: '세시 풍속', trsId: '2870', s: 2766.98, e: 2772.53,
+      d: '헌데 관광에 댕기다 보니까는 그런 점도 이써.', std: '한데 관광에 다니다 보니까는 그런 점도 있어.',
+      keys: [{ d: '댕기다', s: '다니다', opts: ['다니다', '당기다', '데리다'] }, { d: '이써', s: '있어', opts: ['있어', '잇어', '익어'] }] },
+    { id: 'gw', prov: '강원', region: '강원도 평창군', topic: '세시 풍속', trsId: '2851', s: 13.49, e: 16.18,
+      d: '이월 한식또 이꾸. 사멀 한식뚜 이꾸.', std: '이월 한식도 있고. 삼월 한식도 있고.',
+      keys: [{ d: '사멀', s: '삼월', opts: ['삼월', '사월', '사막'] }, { d: '이꾸', s: '있고', opts: ['있고', '익고', '잇고'] }] },
+    { id: 'cn', prov: '충남', region: '충청남도 예산군', topic: '식생활', trsId: '3114', s: 590.54, e: 595.16,
+      d: '그르고 그 시대는 애기 엄마나 데야 미여꾹.', std: '그리고 그 시대는 애기 엄마나 돼야 미역국.',
+      keys: [{ d: '데야', s: '돼야', opts: ['돼야', '데워', '대야'] }, { d: '미여꾹', s: '미역국', opts: ['미역국', '미숫가루', '미꾸라지'] }] },
+    { id: 'dj', prov: '대전', region: '대전광역시 서구', topic: '옛이야기', trsId: '2960', s: 1144.35, e: 1148.66,
+      d: '새퍼러케 시퍼러케 이케 뱌 저게 호랭이부리라능 겨.', std: '새파랗게, 시퍼렇게 이렇게 보여, 저게 호랑이불이라는 거야.',
+      keys: [{ d: '이케', s: '이렇게', opts: ['이렇게', '이게', '이제'] }, { d: '호랭이부리라능 겨', s: '호랑이불이라는 거야', opts: ['호랑이불이라는 거야', '호랑이 부리라는 거야', '호랑이 뿔이라는 거야'] }] },
+    { id: 'cb', prov: '충북', region: '충청북도 충주시', topic: '식생활', trsId: '2969', s: 3.84, e: 7.26,
+      d: '헤헤, 소태다가 시루 다마가주 찌지유 머, 허허.', std: '허허, 솥에다가 시루에 담아 가지고 찌지요 뭐, 허허.',
+      keys: [{ d: '소태다가', s: '솥에다가', opts: ['솥에다가', '소에다가', '속에다가'] }, { d: '찌지유', s: '찌지요', opts: ['찌지요', '찢지요', '지지요'] }] },
+    { id: 'jb', prov: '전북', region: '전라북도 군산시', topic: '식생활', trsId: '3138', s: 917.78, e: 922.34,
+      d: '엳 고꼬, 힌떡 인저 빼고.', std: '엿 고고, 흰떡 이제 빼고.',
+      keys: [{ d: '엳 고꼬', s: '엿 고고', opts: ['엿 고고', '엿 꽂고', '옆 고고'] }, { d: '힌떡', s: '흰떡', opts: ['흰떡', '찐떡', '힘떡'] }] },
+    { id: 'gb1', prov: '경북', region: '경상북도 상주시', topic: '식생활', trsId: '3182', s: 19.6, e: 24.77,
+      d: '기본쩌그로 쭈로운 멍는 음시근 처째 바비라여.', std: '기본적으로 주로 먹는 음식은 첫째 밥이에요.',
+      keys: [{ d: '음시근', s: '음식은', opts: ['음식은', '음악은', '얼음은'] }, { d: '바비라여', s: '밥이에요', opts: ['밥이에요', '바빠요', '바위예요'] }] },
+    { id: 'gb2', prov: '경북', region: '경상북도 청도군', topic: '세시 풍속', trsId: '3152', s: 1257.36, e: 1260.97,
+      d: '주로 윤노리 이월따레 하고, 그른 행살 하지, 인자.', std: '주로 윷놀이 이월에 하고, 그런 행사를 하지, 인제.',
+      keys: [{ d: '윤노리', s: '윷놀이', opts: ['윷놀이', '연날리기', '줄넘기'] }, { d: '행살', s: '행사를', opts: ['행사를', '햇살을', '화살을'] }] },
+    { id: 'jn', prov: '전남', region: '전라남도 광양시', topic: '생활 풍습', trsId: '3060', s: 108.89, e: 114.06,
+      d: '그 아페다가 호바글 큰 호바글 하나 앙꼬 가요.', std: '그 앞에다가 호박을 큰 호박을 하나 안고 가요.',
+      keys: [{ d: '호바글', s: '호박을', opts: ['호박을', '호밀을', '하늘을'] }, { d: '앙꼬', s: '안고', opts: ['안고', '앉고', '알고'] }] },
+    { id: 'gn', prov: '경남', region: '경상남도 하동군', topic: '식생활', trsId: '3125', s: 454.57, e: 457.97,
+      d: '소풀 내나 지라가꼬 소풀 지리묵꾸.', std: '부추 내나 길러 가지고 부추 길러 먹고.',
+      keys: [{ d: '소풀', s: '부추', opts: ['부추', '소금', '잡초'] }, { d: '지리묵꾸', s: '길러 먹고', opts: ['길러 먹고', '지려 먹고', '저려 먹고'] }] },
+    { id: 'jj', prov: '제주', region: '제주특별자치도 제주시', topic: '식생활', trsId: '3195', s: 228.32, e: 232.85,
+      d: '또 메역 헤당으네 뽀랑 저 무쳥도 먹꼭 국 끌렁도 먹꼭.', std: '또 미역 해다가 빨아서 저 무쳐서도 먹고 국 끓여서도 먹고.',
+      keys: [{ d: '메역', s: '미역', opts: ['미역', '메기', '매실'] }, { d: '먹꼭', s: '먹고', opts: ['먹고', '묵고', '먹곡'] }] }
+  ];
+
+  // 타일 지도 배치 (3열, 대략의 지리 위치)
+  var LAYOUT = [null, '경기', '강원', '충남', '대전', '충북', '전북', null, '경북', '전남', null, '경남', '제주', null, null];
+  var FEELS = ['정겨워요', '구수해요', '생생해요', '따뜻해요', '재미있어요', '낯설어요'];
+  var STORE = 'bm-rephrase-v1';
+
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); };
+  var norm = function (s) { return String(s || '').replace(/[\s.,!?·~]/g, ''); };
+
+  var state = load();
+  var cur = null;     // 현재 문장
+  var step = 1;       // 1 듣기 2 바꿔 쓰기 3 비교 4 느낌
+  var draft = {};     // 현재 문장 작업본 { picks, feelD, slow, answer }
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(STORE)) || { done: {}, name: '' }; } catch (e) { return { done: {}, name: '' }; }
+  }
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) { /* 저장 불가 환경은 세션 중에만 유지 */ }
+  }
+
+  function markWords(text, words, cls) {
+    var out = esc(text);
+    words.slice().sort(function (a, b) { return b.length - a.length; }).forEach(function (w) {
+      if (!w) return;
+      out = out.split(esc(w)).join('<mark' + (cls ? ' class="' + cls + '"' : '') + '>' + esc(w) + '</mark>');
+    });
+    return out;
+  }
+
+  // ── 화면 전환 ──
+  function show(id) {
+    ['bm-home', 'bm-card', 'bm-sheet'].forEach(function (p) { $(p).hidden = (p !== id); });
+    stopAudio();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── 1. 지역 고르기 ──
+  function renderHome() {
+    var html = LAYOUT.map(function (prov) {
+      if (!prov) return '<div class="bm-tile bm-tile--empty" aria-hidden="true"></div>';
+      var list = SENTS.filter(function (x) { return x.prov === prov; });
+      var done = list.filter(function (x) { return state.done[x.id]; }).length;
+      var all = done === list.length;
+      return '<button type="button" class="bm-tile' + (all ? ' is-done' : '') + '" data-prov="' + prov + '" aria-label="' + prov + ' 어르신 말 듣기' + (all ? ' (다녀옴)' : '') + '">' +
+        '<span class="bm-tile__stamp"><i class="ti ti-check"></i></span>' +
+        '<span class="bm-tile__name">' + prov + '</span>' +
+        '<span class="bm-tile__meta">' + (list.length > 1 ? done + ' / ' + list.length + ' 문장' : (all ? '다녀왔어요' : '한 문장')) + '</span></button>';
+    }).join('');
+    $('bm-tiles').innerHTML = html;
+    var n = SENTS.filter(function (x) { return state.done[x.id]; }).length;
+    $('bm-progress-txt').textContent = n ? n + ' / ' + SENTS.length + ' 문장 바꿔 말했어요' : '아직 다녀온 지역이 없어요';
+    $('bm-progress-bar').style.width = Math.round(n / SENTS.length * 100) + '%';
+    $('bm-sheet-count').textContent = n;
+  }
+
+  $('bm-tiles').addEventListener('click', function (e) {
+    var t = e.target.closest('.bm-tile[data-prov]');
+    if (!t) return;
+    var list = SENTS.filter(function (x) { return x.prov === t.dataset.prov; });
+    var next = list.filter(function (x) { return !state.done[x.id]; })[0] || list[0];
+    openSentence(next);
+  });
+
+  // ── 2~5. 활동 카드 ──
+  function openSentence(s) {
+    cur = s; step = 1;
+    var prev = state.done[s.id];
+    draft = prev ? JSON.parse(JSON.stringify(prev)) : { picks: {} };
+    if (!draft.picks) draft.picks = {};
+    $('bm-where-region').textContent = s.region;
+    $('bm-where-topic').textContent = s.topic;
+    show('bm-card');
+    renderStep();
+  }
+
+  function renderStep() {
+    stopAudio();
+    Array.prototype.forEach.call($('bm-steps').children, function (li) {
+      var n = +li.dataset.s;
+      li.className = n === step ? 'is-active' : (n < step ? 'is-done' : '');
+      li.setAttribute('aria-current', n === step ? 'step' : 'false');
+    });
+    var b = $('bm-step-body');
+    if (step === 1) b.innerHTML = stepListen();
+    if (step === 2) b.innerHTML = stepWrite();
+    if (step === 3) b.innerHTML = stepCompare();
+    if (step === 4) b.innerHTML = stepFeel();
+    bindStep();
+  }
+
+  function stepListen() {
+    return '<div class="bm-listen">' +
+      '<div class="bm-speaker"><span class="bm-avatar"><i class="ti ti-old"></i></span>' +
+      '<span class="bm-speaker__txt"><b>' + esc(cur.region.split(' ').slice(-1)[0]) + ' 어르신</b><span>' + esc(cur.region) + '</span></span></div>' +
+      '<p class="bm-quote">' + esc(cur.d) + '</p>' +
+      '<div class="bm-play">' +
+        '<button type="button" class="bm-playbtn" id="bm-play" aria-label="어르신 목소리 듣기"><i class="ti ti-player-play-filled"></i></button>' +
+        '<div class="bm-play__side"><button type="button" class="bm-btn" id="bm-slow" aria-pressed="false"><i class="ti ti-gauge"></i>천천히</button>' +
+        '<button type="button" class="bm-btn" id="bm-replay"><i class="ti ti-reload"></i>다시 듣기</button></div>' +
+      '</div>' +
+      '<p class="bm-audio-note" id="bm-audio-note" hidden></p>' +
+      '</div>' +
+      '<div class="bm-actions"><span></span><button type="button" class="bm-btn bm-btn--primary bm-btn--lg" data-go="2">표준어로 바꿔 보기<i class="ti ti-arrow-right"></i></button></div>';
+  }
+
+  // 바꿔 말하기 = 낱말 고르기 한 가지 (직접 쓰기는 초등 수업에 어려워 제외)
+  function allPicked() { return cur.keys.every(function (k, i) { return draft.picks[i] != null; }); }
+  function stepWrite() {
+    return '<p class="bm-mini"><small>어르신 말</small>' + esc(cur.d) + ' <button type="button" class="bm-btn" id="bm-play" style="height:32px;padding:0 10px;font-size:13px;vertical-align:middle" aria-label="다시 듣기"><i class="ti ti-volume" style="font-size:16px"></i></button></p>' +
+      '<p class="bm-hint">빈칸에 들어갈 표준어 낱말을 골라 보세요.</p>' +
+      '<div class="bm-pick" id="bm-pickarea">' + pickSentence() + '</div>' +
+      '<p class="bm-audio-note" id="bm-audio-note" hidden></p>' +
+      '<div class="bm-actions"><button type="button" class="bm-btn" data-go="1"><i class="ti ti-arrow-left"></i>다시 듣기</button>' +
+      '<button type="button" class="bm-btn bm-btn--primary bm-btn--lg" id="bm-to-compare" data-go="3"' + (allPicked() ? '' : ' disabled') + '>표준어와 비교하기<i class="ti ti-arrow-right"></i></button></div>';
+  }
+
+  // 표준어 대역을 기준으로, 핵심 낱말 자리에 보기 묶음을 넣는다
+  function pickSentence() {
+    // 같은 낱말이 두 번 나오면 모든 자리를 빈칸으로(답이 드러나지 않게). 자리표 → 보기 묶음 순서로 치환해 보기 글자끼리 다시 치환되는 일을 막는다.
+    var html = esc(cur.std);
+    cur.keys.forEach(function (k, i) { html = html.split(esc(k.s)).join('\u0000' + i + '\u0000'); });
+    cur.keys.forEach(function (k, i) {
+      var opts = shuffled(k.opts, cur.id + i);
+      var picked = draft.picks[i];
+      var group = '<span class="bm-blank' + (picked != null ? ' is-set' : '') + '" role="group" aria-label="' + esc(k.d) + '은(는) 표준어로?">' +
+        opts.map(function (o) { return '<button type="button" data-k="' + i + '" data-v="' + esc(o) + '" aria-pressed="' + (picked === o) + '">' + esc(o) + '</button>'; }).join('') + '</span>';
+      html = html.split('\u0000' + i + '\u0000').join(group);
+    });
+    return html;
+  }
+  function shuffled(arr, seed) {
+    var a = arr.slice(), h = 0;
+    for (var i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+    for (var j = a.length - 1; j > 0; j--) { h = (h * 1103515245 + 12345) >>> 0; var r = h % (j + 1); var t = a[j]; a[j] = a[r]; a[r] = t; }
+    return a;
+  }
+  function myAnswer() {
+    var txt = cur.std;
+    cur.keys.forEach(function (k, i) { txt = txt.split(k.s).join('\u0000' + i + '\u0000'); });
+    cur.keys.forEach(function (k, i) { txt = txt.split('\u0000' + i + '\u0000').join(draft.picks[i] != null ? draft.picks[i] : '(   )'); });
+    return txt;
+  }
+
+  function stepCompare() {
+    var mine = myAnswer();
+    var nm = norm(mine);
+    var hits = cur.keys.map(function (k) { return nm.indexOf(norm(k.s)) !== -1; });
+    var nHit = hits.filter(Boolean).length;
+    var cheer = nHit === cur.keys.length ? '바뀐 말을 모두 찾아냈어요!' : (nHit ? '바뀐 말 ' + cur.keys.length + '개 중 ' + nHit + '개를 찾아냈어요.' : '어떤 말이 바뀌었는지 함께 살펴봐요.');
+    return '<div class="bm-compare">' +
+      '<div class="bm-row bm-row--d"><small><i class="ti ti-old"></i>어르신 말</small><p>' + markWords(cur.d, cur.keys.map(function (k) { return k.d; })) + '</p></div>' +
+      '<div class="bm-row bm-row--me"><small><i class="ti ti-pencil"></i>내가 바꾼 말</small><p>' + (mine ? markWords(mine, cur.keys.filter(function (k, i) { return hits[i]; }).map(function (k) { return k.s; })) : '<span style="color:#94a3b8">아직 쓰지 않았어요</span>') + '</p></div>' +
+      '<div class="bm-row bm-row--s"><small><i class="ti ti-book"></i>표준어로 바꾸면</small><p>' + markWords(cur.std, cur.keys.map(function (k) { return k.s; })) + '</p></div>' +
+      '</div>' +
+      '<div class="bm-pairs" style="margin-top:16px">' + cur.keys.map(function (k, i) {
+        return '<span class="bm-pair' + (hits[i] ? ' is-hit' : '') + '">' + esc(k.d) + '<i class="ti ti-arrow-right"></i>' + esc(k.s) + (hits[i] ? ' <i class="ti ti-circle-check-filled" style="color:#10b981"></i>' : '') + '</span>';
+      }).join('') + '</div>' +
+      '<p class="bm-cheer"><i class="ti ti-sparkles"></i>' + cheer + '</p>' +
+      '<div class="bm-actions"><button type="button" class="bm-btn" data-go="2"><i class="ti ti-arrow-left"></i>다시 고르기</button>' +
+      '<button type="button" class="bm-btn bm-btn--primary bm-btn--lg" data-go="4">느낌 고르기<i class="ti ti-arrow-right"></i></button></div>';
+  }
+
+  // 느낌은 어르신 말(방언) 쪽만 고른다. 표준어는 나란히 보여 주기만 해서 '비교하며' 고르게 한다.
+  function stepFeel() {
+    var sel = draft.feelD || [];
+    return '<h2 class="bm-q">표준어와 비교하면, 어르신 말은 어떤 느낌이에요?</h2><p class="bm-hint">어울리는 느낌을 모두 골라 보세요. 정답은 없어요.</p>' +
+      '<div class="bm-feel">' +
+        '<div class="bm-feelbox bm-feelbox--d"><h4>어르신 말</h4><p>' + esc(cur.d) + '</p>' +
+          '<div class="bm-feelopts" data-side="feelD">' + FEELS.map(function (f) {
+            return '<button type="button" data-f="' + f + '" aria-pressed="' + (sel.indexOf(f) !== -1) + '">' + f + '</button>';
+          }).join('') + '</div></div>' +
+        '<div class="bm-feelbox bm-feelbox--s"><h4>표준어</h4><p>' + esc(cur.std) + '</p></div>' +
+      '</div>' +
+      '<div class="bm-actions"><button type="button" class="bm-btn" data-go="3"><i class="ti ti-arrow-left"></i>비교로 돌아가기</button>' +
+      '<button type="button" class="bm-btn bm-btn--primary bm-btn--lg" id="bm-finish"><i class="ti ti-rubber-stamp"></i>활동지에 담기</button></div>';
+  }
+
+  function bindStep() {
+    var b = $('bm-step-body');
+    b.querySelectorAll('[data-go]').forEach(function (el) {
+      el.addEventListener('click', function () { step = +el.dataset.go; renderStep(); });
+    });
+    var play = $('bm-play');
+    if (play) play.addEventListener('click', function () { togglePlay(play); });
+    var rep = $('bm-replay');
+    if (rep) rep.addEventListener('click', function () { stopAudio(); togglePlay($('bm-play')); });
+    var slow = $('bm-slow');
+    if (slow) {
+      slow.setAttribute('aria-pressed', String(!!draft.slow));
+      slow.addEventListener('click', function () { draft.slow = !draft.slow; slow.setAttribute('aria-pressed', String(draft.slow)); if (audio) audio.playbackRate = draft.slow ? 0.75 : 1; });
+    }
+    var pa = $('bm-pickarea');
+    if (pa) pa.addEventListener('click', function (e) {
+      var o = e.target.closest('button[data-k]');
+      if (!o) return;
+      draft.picks[o.dataset.k] = o.dataset.v;
+      pa.innerHTML = pickSentence();
+      $('bm-to-compare').disabled = !allPicked();
+    });
+    b.querySelectorAll('.bm-feelopts').forEach(function (g) {
+      g.addEventListener('click', function (e) {
+        var o = e.target.closest('button[data-f]');
+        if (!o) return;
+        var side = g.dataset.side, arr = draft[side] || (draft[side] = []), f = o.dataset.f, i = arr.indexOf(f);
+        if (i === -1) arr.push(f); else arr.splice(i, 1);
+        o.setAttribute('aria-pressed', String(i === -1));
+      });
+    });
+    var fin = $('bm-finish');
+    if (fin) fin.addEventListener('click', function () {
+      draft.answer = myAnswer();
+      state.done[cur.id] = draft;
+      save();
+      renderHome();
+      show('bm-home');
+    });
+  }
+
+  // ── 음성: 운영 API(/api/oral_audio) 구간 재생 ──
+  var audio = null, stopAt = 0;
+  function togglePlay(btn) {
+    if (audio && !audio.paused) { stopAudio(); return; }
+    if (!audio) {
+      audio = new Audio();
+      audio.addEventListener('timeupdate', function () { if (audio.currentTime >= stopAt) stopAudio(); });
+    }
+    var note = $('bm-audio-note');
+    var src = '/api/oral_audio?trsId=' + encodeURIComponent(cur.trsId);
+    audio.onerror = function () {
+      stopAudio();
+      if (note) { note.hidden = false; note.textContent = '이 컴퓨터에는 어르신 목소리 파일이 없어 들려줄 수 없어요. (운영 서버에서는 원본 음성이 재생됩니다)'; }
+    };
+    if (audio.dataset.src !== src) { audio.src = src; audio.dataset.src = src; }
+    stopAt = cur.e;
+    var go = function () {
+      audio.currentTime = cur.s;
+      audio.playbackRate = draft.slow ? 0.75 : 1;
+      audio.play().then(function () { setPlaying(true); }).catch(function () {});
+    };
+    if (audio.readyState >= 1) go(); else audio.addEventListener('loadedmetadata', go, { once: true });
+    audio.load && audio.readyState < 1 && audio.load();
+  }
+  function setPlaying(on) {
+    var btn = $('bm-play');
+    if (!btn) return;
+    btn.classList.toggle('is-playing', on);
+    var i = btn.querySelector('i');
+    if (i && btn.classList.contains('bm-playbtn')) i.className = on ? 'ti ti-player-pause-filled' : 'ti ti-player-play-filled';
+  }
+  function stopAudio() { if (audio) audio.pause(); setPlaying(false); }
+
+  // ── 6. 내 활동지 ──
+  function renderSheet() {
+    var rows = SENTS.filter(function (x) { return state.done[x.id]; });
+    $('bm-name').value = state.name || '';
+    if (!rows.length) { $('bm-sheet-body').innerHTML = '<p class="bm-empty">아직 담은 문장이 없어요. 지역을 골라 바꿔 말해 보세요.</p>'; return; }
+    $('bm-sheet-body').innerHTML = '<table class="bm-table"><thead><tr><th style="width:15%">지역</th><th>어르신 말</th><th>내가 바꾼 말</th><th style="width:18%">어르신 말의 느낌</th></tr></thead><tbody>' +
+      rows.map(function (x) {
+        var r = state.done[x.id];
+        var feel = esc((r.feelD || []).join(', ') || '-');
+        return '<tr><td>' + esc(x.region) + '</td><td>' + esc(x.d) + '</td><td>' + esc(r.answer || '') + '</td><td>' + feel + '</td></tr>';
+      }).join('') + '</tbody></table>';
+  }
+
+  $('bm-to-home').addEventListener('click', function () { renderHome(); show('bm-home'); });
+  $('bm-open-sheet').addEventListener('click', function () { renderSheet(); show('bm-sheet'); });
+  $('bm-sheet-back').addEventListener('click', function () { renderHome(); show('bm-home'); });
+  $('bm-name').addEventListener('input', function (e) { state.name = e.target.value; save(); });
+  $('bm-sheet-clear').addEventListener('click', function () {
+    if (!confirm('지금까지 바꿔 쓴 내용을 모두 지울까요?')) return;
+    state = { done: {}, name: '' }; save(); renderHome(); renderSheet();
+  });
+  $('bm-big').addEventListener('click', function () {
+    var on = document.body.classList.toggle('bm-big');
+    this.setAttribute('aria-pressed', String(on));
+  });
+
+  renderHome();
+})();
+</script>
+</body>
+</html>
