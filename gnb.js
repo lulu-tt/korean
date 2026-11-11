@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="mega-menu__item"><a href="./region_culture.html" class="mega-menu__link">사진으로 보는 생활어</a></div>
                 <div class="mega-menu__item"><a href="./dialect_rephrase.html" class="mega-menu__link">방언 바꿔 말하기</a></div>
                 <div class="mega-menu__item"><a href="./dialect_town_words.html" class="mega-menu__link">우리 동네 말 찾기</a></div>
+                <div class="mega-menu__item"><a href="./dialect_grandma_story.html" class="mega-menu__link">할머니 말 이야기</a></div>
                 <div class="mega-menu__item"><a href="./data_room.html" class="mega-menu__link">자료실</a></div>
                 <div class="mega-menu__item"><a href="./openapi_intro.html" class="mega-menu__link">Open API</a></div>
               </div>
@@ -182,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
     activeMenuId = "menu-search";
   } else if (currentPath.includes('dialect_map.html') || currentPath.includes('dialect_awareness.html') || currentPath.includes('dialect_our_town.html') || currentPath.includes('dialect_gisangdo.html') || currentPath.includes('dialect_my_map.html')) {
     activeMenuId = "menu-map";
-  } else if (currentPath.includes('region_culture.html') || currentPath.includes('literature_dialect.html') || currentPath.includes('dialect_rephrase.html') || currentPath.includes('dialect_town_words.html') || currentPath.includes('data_room.html') || currentPath.includes('data_room_detail.html') || currentPath.includes('openapi_')) {
+  } else if (currentPath.includes('region_culture.html') || currentPath.includes('literature_dialect.html') || currentPath.includes('dialect_rephrase.html') || currentPath.includes('dialect_town_words.html') || currentPath.includes('dialect_grandma_story.html') || currentPath.includes('data_room.html') || currentPath.includes('data_room_detail.html') || currentPath.includes('openapi_')) {
     activeMenuId = "menu-archive";
   } else if (currentPath.includes('notice.html') || currentPath.includes('faq.html')) {
     activeMenuId = "menu-board";

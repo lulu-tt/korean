@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>할머니 말 이야기 — 국립국어원</title>
+<!-- 시안: 초등 5-2 국어 「표준어와 방언을 알아봐요」 활동 ③ '방언의 가치' 보고서용 카드뉴스(만화+움직이는 그래프).
+     지어낸 문장·수치는 없다. 모두 기존 자료를 불러온다.
+       · 할머니 대사   data/processed/examples/{지도번호}.json  — 구술발화 실제 발화(방언 전사·표준어 대역)
+       · 뜻·전국 방언형 data/processed/map/{지도번호}.json       — 표제어 뜻풀이, 계열별 방언형
+       · 세대 그래프   data/processed/word_stories.json          — 2025 세대별·성별 지역어 변이 조사 교차표(실측)
+     이 페이지가 가진 것은 '어떤 낱말을, 어느 발화로' 보여 줄지(STORIES)뿐이다. -->
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="./styles.css">
+<script src="./gnb.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+/* 모든 클래스는 gs- 접두사로 스코프 */
+.gs-page { max-width: 1080px; margin: 0 auto; padding: 32px 20px 80px; }
+.gs-head { position: relative; overflow: hidden; border-radius: 24px; padding: 28px 32px; margin-bottom: 24px; background: linear-gradient(120deg, #fff1e6 0%, #fef9c3 50%, #e0f2fe 100%); }
+.gs-head::after { content: ''; position: absolute; width: 180px; height: 180px; border-radius: 50%; right: -40px; top: -60px; background: #fed7aa; opacity: .6; }
+.gs-head > * { position: relative; z-index: 1; }
+.gs-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 800; color: #c2410c; background: #fff; padding: 5px 12px; border-radius: 999px; box-shadow: 0 2px 0 rgba(194,65,12,.15); }
+.gs-title { display: flex; align-items: center; gap: 10px; font-size: 34px; font-weight: 900; letter-spacing: -0.03em; margin: 12px 0 6px; color: #1e293b; }
+.gs-title i { font-size: 38px; color: #ea580c; transform: rotate(-8deg); }
+.gs-sub { color: #475569; font-size: 16px; margin: 0; font-weight: 600; }
+.gs-panel { background: #fff; border: 2px solid #eef2f7; border-radius: 24px; box-shadow: 0 8px 30px rgba(15,23,42,.06); padding: 30px; }
+.gs-panel[hidden] { display: none; }
+.gs-q { font-size: 24px; font-weight: 900; margin: 0 0 6px; color: #1e293b; }
+.gs-hint { color: #64748b; margin: 0 0 22px; font-size: 15px; font-weight: 600; }
+.gs-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 46px; padding: 0 18px; border-radius: 14px; border: 2px solid #e2e8f0; background: #fff; color: #1e293b; font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; text-decoration: none; box-shadow: 0 3px 0 #e2e8f0; }
+.gs-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #e2e8f0; }
+.gs-btn:focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
+.gs-btn i { font-size: 20px; }
+.gs-btn--primary { background: #ea580c; border-color: #ea580c; color: #fff; box-shadow: 0 4px 0 #9a3412; }
+
+/* 책장: 표지에는 할머니 말만(뜻은 숨김) */
+.gs-shelf { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.gs-cover { position: relative; border: none; border-radius: 22px; padding: 22px 18px 18px; min-height: 190px; font: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 6px 0 rgba(15,23,42,.12); transition: transform .15s; overflow: hidden; }
+.gs-cover:hover { transform: translateY(-4px) rotate(-1deg); }
+.gs-cover:focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+.gs-cover__num { font-size: 13px; font-weight: 900; color: rgba(15,23,42,.55); }
+.gs-cover__bubble { align-self: flex-start; position: relative; background: #fff; border-radius: 18px; padding: 10px 16px; font-size: 26px; font-weight: 900; color: #1e293b; box-shadow: 0 3px 0 rgba(15,23,42,.1); margin: 10px 0; }
+.gs-cover__bubble::after { content: ''; position: absolute; left: 22px; bottom: -10px; border: 6px solid transparent; border-top: 10px solid #fff; }
+.gs-cover__foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+.gs-cover__where { font-size: 13px; font-weight: 800; color: rgba(15,23,42,.6); }
+.gs-cover svg { width: 64px; height: 64px; flex: none; }
+.gs-cover.is-seen::before { content: '봤어요'; position: absolute; top: 14px; right: 14px; font-size: 12px; font-weight: 900; color: #fff; background: #16a34a; padding: 3px 10px; border-radius: 999px; }
+.gs-cover--all { background: #1e293b !important; color: #fff; }
+.gs-cover--all .gs-cover__num, .gs-cover--all .gs-cover__where { color: #cbd5e1; }
+.gs-c0 { background: #fde68a; } .gs-c1 { background: #fbcfe8; } .gs-c2 { background: #a7f3d0; }
+.gs-c3 { background: #bae6fd; } .gs-c4 { background: #ddd6fe; } .gs-c5 { background: #fed7aa; }
+
+/* 카드뉴스 보기 */
+.gs-viewer { max-width: 760px; margin: 0 auto; }
+.gs-progress { display: flex; gap: 6px; margin-bottom: 14px; }
+.gs-progress span { flex: 1; height: 6px; border-radius: 3px; background: #e2e8f0; overflow: hidden; }
+.gs-progress span i { display: block; height: 100%; width: 0; background: #ea580c; }
+.gs-progress span.is-done i { width: 100%; }
+.gs-progress span.is-now i { width: 100%; transition: width 6s linear; }
+.gs-progress span.is-now.is-paused i { transition: none; }
+.gs-topbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.gs-topbar b { font-size: 15px; color: #475569; }
+.gs-stage { position: relative; aspect-ratio: 4 / 5; max-height: 76vh; margin: 0 auto; border-radius: 28px; overflow: hidden; box-shadow: 0 12px 40px rgba(15,23,42,.14); }
+.gs-cut { position: absolute; inset: 0; padding: 30px 28px; display: flex; flex-direction: column; animation: gs-in .45s ease-out; }
+.gs-cut__tag { align-self: flex-start; font-size: 13px; font-weight: 900; color: #fff; background: rgba(15,23,42,.75); padding: 5px 12px; border-radius: 999px; margin-bottom: 14px; }
+.gs-cut h2 { font-size: 28px; font-weight: 900; line-height: 1.35; margin: 0 0 12px; color: #1e293b; letter-spacing: -0.02em; word-break: keep-all; }
+.gs-cut__src { margin-top: auto; font-size: 12px; font-weight: 700; color: rgba(15,23,42,.55); }
+.gs-nav { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 16px; }
+.gs-tapl, .gs-tapr { position: absolute; top: 0; bottom: 0; width: 28%; z-index: 3; background: transparent; border: none; cursor: pointer; }
+.gs-tapl { left: 0; } .gs-tapr { right: 0; }
+.gs-tapl:focus-visible, .gs-tapr:focus-visible { outline: 3px solid #2563eb; outline-offset: -3px; }
+
+/* 1컷: 만화 — 어르신 말풍선 */
+.gs-comic { flex: 1; display: grid; grid-template-rows: 1fr auto; gap: 10px; }
+.gs-say { align-self: center; position: relative; background: #fff; border: 3px solid #1e293b; border-radius: 26px; padding: 18px 20px; font-size: 22px; font-weight: 800; line-height: 1.55; color: #1e293b; word-break: keep-all; animation: gs-pop .5s .2s both; }
+.gs-say::after { content: ''; position: absolute; left: 50px; bottom: -22px; border: 12px solid transparent; border-top: 20px solid #1e293b; }
+.gs-say mark { background: #fde047; padding: 0 4px; border-radius: 6px; }
+.gs-people { display: flex; align-items: flex-end; justify-content: space-between; }
+.gs-people svg { width: 120px; height: 120px; }
+.gs-think { position: relative; background: #fff; border-radius: 20px; padding: 10px 14px; font-size: 17px; font-weight: 900; color: #1e293b; margin-bottom: 70px; animation: gs-pop .5s .9s both; box-shadow: 0 3px 0 rgba(15,23,42,.1); }
+.gs-think::after { content: ''; position: absolute; right: 30px; bottom: -16px; width: 14px; height: 14px; border-radius: 50%; background: #fff; }
+
+/* 2컷: 뒤집기 카드 */
+.gs-flipwrap { flex: 1; display: flex; align-items: center; justify-content: center; perspective: 1200px; }
+.gs-flip { width: 82%; aspect-ratio: 3 / 4; position: relative; transform-style: preserve-3d; transition: transform .8s cubic-bezier(.3,1.4,.5,1); cursor: pointer; border: none; background: none; padding: 0; font: inherit; }
+.gs-flip.is-flipped { transform: rotateY(180deg); }
+.gs-flip:focus-visible { outline: 3px solid #2563eb; outline-offset: 6px; border-radius: 24px; }
+.gs-face { position: absolute; inset: 0; border-radius: 24px; backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 18px; text-align: center; box-shadow: 0 8px 0 rgba(15,23,42,.12); }
+.gs-face--front { background: #1e293b; color: #fff; }
+.gs-face--front b { font-size: 52px; font-weight: 900; }
+.gs-face--front span { margin-top: 12px; font-size: 15px; font-weight: 700; color: #cbd5e1; }
+.gs-face--back { background: #fff; transform: rotateY(180deg); color: #1e293b; }
+.gs-face--back .gs-pic { width: 100%; aspect-ratio: 4 / 3; border-radius: 16px; overflow: hidden; background: repeating-linear-gradient(45deg, #fff7ed 0 12px, #ffedd5 12px 24px); display: flex; align-items: center; justify-content: center; color: #ea580c; margin-bottom: 12px; }
+.gs-face--back .gs-pic img { width: 100%; height: 100%; object-fit: cover; }
+.gs-face--back .gs-pic i { font-size: 72px; }
+.gs-face--back small { font-size: 14px; font-weight: 800; color: #64748b; }
+.gs-face--back b { font-size: 40px; font-weight: 900; color: #ea580c; line-height: 1.2; }
+.gs-face--back p { margin: 8px 0 0; font-size: 13px; color: #475569; line-height: 1.5; max-height: 4.5em; overflow: hidden; }
+
+/* 3컷: 바꿔 말하기 */
+.gs-swap { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
+.gs-swap__row { border-radius: 20px; padding: 16px 18px; font-size: 21px; font-weight: 800; line-height: 1.55; word-break: keep-all; }
+.gs-swap__row small { display: block; font-size: 13px; font-weight: 900; margin-bottom: 4px; }
+.gs-swap__row--d { background: #fff; border: 3px dashed #f59e0b; animation: gs-in .5s .1s both; }
+.gs-swap__row--d small { color: #b45309; }
+.gs-swap__row--s { background: #1e293b; color: #fff; animation: gs-in .5s .9s both; }
+.gs-swap__row--s small { color: #93c5fd; }
+.gs-swap__row mark { background: #fde047; color: #1e293b; padding: 0 4px; border-radius: 6px; }
+.gs-swap__arrow { text-align: center; font-size: 34px; color: #ea580c; animation: gs-bounce 1s .5s infinite; }
+
+/* 4컷: 세대 그래프(움직임) */
+.gs-gen { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
+.gs-genrow { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 12px; align-items: center; }
+.gs-genwho { display: flex; flex-direction: column; align-items: center; font-size: 13px; font-weight: 900; color: #334155; }
+.gs-genwho svg { width: 56px; height: 56px; }
+.gs-bar { display: flex; height: 40px; border-radius: 12px; overflow: hidden; background: #f1f5f9; }
+.gs-bar span { width: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; font-weight: 900; white-space: nowrap; overflow: hidden; transition: width 1.1s cubic-bezier(.2,.9,.3,1); }
+.gs-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; font-weight: 800; color: #334155; }
+.gs-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+.gs-hook { background: #fff; border-radius: 18px; padding: 14px 16px; font-size: 17px; font-weight: 900; line-height: 1.5; color: #9a3412; box-shadow: 0 3px 0 rgba(15,23,42,.08); word-break: keep-all; animation: gs-pop .5s 1.2s both; }
+
+/* 5컷: 전국에서는 */
+.gs-forms { display: flex; flex-wrap: wrap; gap: 10px; margin: 6px 0 18px; }
+.gs-forms span { padding: 10px 16px; border-radius: 999px; background: #fff; font-size: 20px; font-weight: 900; box-shadow: 0 3px 0 rgba(15,23,42,.1); animation: gs-pop .4s both; }
+.gs-links { display: grid; gap: 8px; margin-top: auto; }
+.gs-links .gs-btn { justify-content: flex-start; }
+
+/* 모아 보기: 사라져 가는 말 */
+.gs-sum { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 9px; }
+.gs-sumrow { display: grid; grid-template-columns: 76px minmax(0, 1fr) 46px; gap: 10px; align-items: center; font-size: 14px; font-weight: 900; color: #e2e8f0; }
+.gs-sumrow em { font-style: normal; text-align: right; color: #fca5a5; }
+.gs-sumtrack { position: relative; height: 22px; border-radius: 11px; background: rgba(255,255,255,.12); }
+.gs-sumtrack span { position: absolute; top: 0; height: 100%; border-radius: 11px; transition: width 1.2s cubic-bezier(.2,.9,.3,1); width: 0; }
+.gs-sumtrack .old { background: #f59e0b; }
+.gs-sumtrack .young { background: #60a5fa; height: 10px; top: 6px; }
+
+@keyframes gs-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes gs-pop { 0% { opacity: 0; transform: scale(.7); } 70% { opacity: 1; transform: scale(1.06); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes gs-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+
+.gs-loading { color: #64748b; padding: 40px 0; text-align: center; font-weight: 700; }
+.gs-proto { margin-top: 28px; font-size: 13px; color: #94a3b8; line-height: 1.6; }
+.gs-warn { background: #fffbeb; border: 2px solid #fde68a; color: #92400e; border-radius: 14px; padding: 12px 14px; font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+
+@media (max-width: 860px) {
+  .gs-head { padding: 22px 20px; }
+  .gs-title { font-size: 27px; }
+  .gs-shelf { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .gs-cover { min-height: 160px; padding: 16px 14px 14px; }
+  .gs-cover__bubble { font-size: 21px; }
+  .gs-cover svg { width: 48px; height: 48px; }
+  .gs-panel { padding: 18px 12px; }
+  .gs-stage { aspect-ratio: auto; height: 74vh; max-height: none; border-radius: 22px; }
+  .gs-cut { padding: 22px 18px; }
+  .gs-cut h2 { font-size: 23px; }
+  .gs-say { font-size: 18px; }
+  .gs-people svg { width: 92px; height: 92px; }
+  .gs-swap__row { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gs-page *, .gs-page *::before, .gs-page *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div id="gnb-common"></div>
+
+<main class="gs-page">
+  <header class="gs-head">
+    <span class="gs-eyebrow"><i class="ti ti-school"></i>초등 5학년 국어 · 표준어와 방언을 알아봐요</span>
+    <h1 class="gs-title"><i class="ti ti-message-heart" aria-hidden="true"></i>할머니 말 이야기</h1>
+    <p class="gs-sub">어르신들이 실제로 하신 말을 만화로 보고, 세대마다 얼마나 달라졌는지 알아보아요.</p>
+  </header>
+
+  <!-- 책장 -->
+  <section class="gs-panel" id="gs-shelf-panel">
+    <h2 class="gs-q">어떤 이야기부터 볼까요?</h2>
+    <p class="gs-hint">말풍선 속 말은 어르신들이 실제로 쓰시는 말이에요. 무슨 뜻인지는 이야기 속에서 알려 줄게요.</p>
+    <div class="gs-shelf" id="gs-shelf"><p class="gs-loading">이야기를 불러오는 중이에요…</p></div>
+  </section>
+
+  <!-- 카드뉴스 -->
+  <section class="gs-panel" id="gs-view-panel" hidden>
+    <div class="gs-viewer">
+      <div class="gs-topbar">
+        <button type="button" class="gs-btn" id="gs-close"><i class="ti ti-layout-grid"></i>이야기 목록</button>
+        <b id="gs-count"></b>
+        <button type="button" class="gs-btn" id="gs-auto" aria-pressed="false"><i class="ti ti-player-play"></i>자동 넘기기</button>
+      </div>
+      <div class="gs-progress" id="gs-progress"></div>
+      <div class="gs-stage" id="gs-stage" aria-live="polite"></div>
+      <div class="gs-nav">
+        <button type="button" class="gs-btn" id="gs-prev"><i class="ti ti-arrow-left"></i>이전</button>
+        <button type="button" class="gs-btn gs-btn--primary" id="gs-next">다음<i class="ti ti-arrow-right"></i></button>
+      </div>
+    </div>
+  </section>
+
+  <p class="gs-proto">시안 안내 · 어르신 말은 국립국어원 지역어 조사 구술발화의 실제 전사와 표준어 대역(장음 표시 등만 정리), 세대 그래프는 「2025년 세대별·성별 지역어 변이 조사」 교차표 실측값, 전국 방언형은 지역어 지도 자료입니다.</p>
+</main>
+
+<div id="footer-common"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  // 이 페이지의 유일한 설정: 어떤 낱말을, 어느 실제 발화로 보여 줄지.
+  //  ws = 세대별 조사 항목 id(word_stories.json)   no = 지역어 지도 번호(map/·examples/)
+  //  ex = 구술발화 예문 "trs_id/line_no"(examples/{no}.json 에서 찾음)   img = 이 PC에 있는 생활어 사진(없으면 icon)
+  var STORIES = [
+    { ws: '21409', no: '50482', ex: '383/2084',  icon: 'ti-shoe' },          // 짚신
+    { ws: '22102', no: '50467', ex: '2096/400',  icon: 'ti-flame' },         // 아궁이
+    { ws: '21908', no: '50297', ex: '316/130',   icon: 'ti-plant-2', img: './image/200811816.jpg' }, // 부추
+    { ws: '20306', no: '50550', ex: '2945/780',  icon: 'ti-fish' },          // 미꾸라지
+    { ws: '22203', no: '50608', ex: '611/1768',  icon: 'ti-circle-dashed' }, // 똬리
+    { ws: '21501', no: '50308', ex: '3248/1056', icon: 'ti-scissors', img: './image/200804022.jpg' }, // 가위
+    { ws: '20135', no: '50388', ex: '2140/1984', icon: 'ti-shoe' },          // 복사뼈
+    { ws: '20107', no: '50292', ex: '3096/1022', icon: 'ti-ear' },           // 귀청
+    { ws: '22230', no: '50473', ex: '1896/1454', icon: 'ti-hammer' }         // 다듬잇돌
+  ];
+  var WS_URL = './data/processed/word_stories.json';
+  var MAP_URL = './data/processed/map/';
+  var EX_URL = './data/processed/examples/';
+  var CUT_MS = 6000;
+  var STORE = 'gs-grandma-v1';
+
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); };
+  var seen = (function () { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; } })();
+  function saveSeen() { try { localStorage.setItem(STORE, JSON.stringify(seen)); } catch (e) { /* 저장 불가 */ } }
+
+  // 전사 정리: 화자 번호·이어진 다음 발화(} @ …)·장음(:)·물결(~)·주석 괄호 제거. 낱말은 바꾸지 않는다.
+  function clean(t) {
+    t = String(t || '').split(/[}@]/)[0];
+    t = t.replace(/^\s*\d+\s+/, '').replace(/\(\(.*?\)\)|\(웃음\)|\('[^)]*\)/g, '').replace(/[:~]/g, '').replace(/\s+/g, ' ').trim();
+    return t;
+  }
+
+  // ── 자료 불러오기 ──
+  var WS = null, CODING = null;
+  function loadWS() {
+    if (WS) return Promise.resolve();
+    return fetch(WS_URL).then(function (r) { if (!r.ok) throw new Error('ws'); return r.json(); }).then(function (j) {
+      WS = {}; j.words.forEach(function (w) { WS[w.id] = w; });
+      CODING = j.coding;   // [표준어 · 지역어 · 둘 다 · 모름] 순서와 공식 색
+    });
+  }
+  var cache = {};
+  function loadStory(s) {
+    if (cache[s.no]) return Promise.resolve(cache[s.no]);
+    return Promise.all([
+      loadWS(),
+      fetch(MAP_URL + s.no + '.json').then(function (r) { if (!r.ok) throw new Error('map'); return r.json(); }),
+      fetch(EX_URL + s.no + '.json').then(function (r) { if (!r.ok) throw new Error('ex'); return r.json(); })
+    ]).then(function (res) {
+      var m = res[1], exj = res[2];
+      var key = s.ex.split('/');
+      var ex = (exj.examples || []).filter(function (e) { return String(e.trs_id) === key[0] && String(e.line_no) === key[1]; })[0];
+      var w = WS[s.ws];
+      var forms = [];
+      Object.keys(m.groups || {}).forEach(function (gk) { (m.groups[gk].variants || []).forEach(function (v) { forms.push(v); }); });
+      forms.sort(function (a, b) { return b.n - a.n; });
+      var d = {
+        word: m.headword, meaning: String(m.meaning || '').replace(/「\d+」/g, '').trim(),
+        variant: ex ? ex.variant : (forms[0] && forms[0].word), key: ex ? ex.matched_key : '',
+        dialect: ex ? clean(ex.dialect) : '', standard: ex ? clean(ex.standard) : '',
+        where: ex ? (String(ex.sido || '').trim() + ' ' + String(ex.sigungu || '').trim()).trim() : '',
+        year: ex ? ex.year : '', ct: w ? w.ct : null, hook: w ? w.hook : '',
+        forms: forms.filter(function (v, k) {   // 표제어 자신과, 여러 계열에 같은 형태가 있을 때의 중복 제외
+          return v.word !== m.headword && forms.findIndex(function (x) { return x.word === v.word; }) === k;
+        }).slice(0, 8)
+      };
+      cache[s.no] = d;
+      return d;
+    });
+  }
+
+  // ── 그림(직접 그린 간단한 얼굴) ──
+  function face(kind) {
+    var skin = '#fcd9b6';
+    var hair = { grandma: '#cbd5e1', mom: '#3f2a1d', kid: '#5b3a1e' }[kind];
+    var extra = '';
+    if (kind === 'grandma') extra = '<circle cx="50" cy="16" r="11" fill="' + hair + '"/><circle cx="38" cy="52" r="7" fill="none" stroke="#475569" stroke-width="2.5"/><circle cx="62" cy="52" r="7" fill="none" stroke="#475569" stroke-width="2.5"/><line x1="45" y1="52" x2="55" y2="52" stroke="#475569" stroke-width="2.5"/>';
+    if (kind === 'mom') extra = '<path d="M20 50 Q18 80 30 88 L30 50 Z" fill="' + hair + '"/><path d="M80 50 Q82 80 70 88 L70 50 Z" fill="' + hair + '"/>';
+    if (kind === 'kid') extra = '<circle cx="82" cy="40" r="9" fill="' + hair + '"/><circle cx="18" cy="40" r="9" fill="' + hair + '"/>';
+    var eyes = kind === 'grandma' ? '' : '<circle cx="39" cy="54" r="3.5" fill="#1e293b"/><circle cx="61" cy="54" r="3.5" fill="#1e293b"/>';
+    return '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<path d="M20 100 Q20 78 50 76 Q80 78 80 100 Z" fill="' + (kind === 'grandma' ? '#a78bfa' : kind === 'mom' ? '#60a5fa' : '#fb923c') + '"/>' +
+      '<circle cx="50" cy="52" r="27" fill="' + skin + '"/>' +
+      '<path d="M23 48 Q25 22 50 22 Q75 22 77 48 Q66 34 50 34 Q34 34 23 48 Z" fill="' + hair + '"/>' + extra + eyes +
+      '<circle cx="33" cy="63" r="4" fill="#fca5a5" opacity=".7"/><circle cx="67" cy="63" r="4" fill="#fca5a5" opacity=".7"/>' +
+      '<path d="M42 66 Q50 72 58 66" stroke="#9a3412" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>';
+  }
+
+  // ── 책장 ──
+  function renderShelf() {
+    var box = $('gs-shelf');
+    box.innerHTML = STORIES.map(function (s, i) {
+      return '<button type="button" class="gs-cover gs-c' + (i % 6) + (seen[s.no] ? ' is-seen' : '') + '" data-i="' + i + '">' +
+        '<span class="gs-cover__num">이야기 ' + (i + 1) + '</span>' +
+        '<span class="gs-cover__bubble js-v">…</span>' +
+        '<span class="gs-cover__foot"><span class="gs-cover__where js-w"></span>' + face('grandma') + '</span></button>';
+    }).join('') +
+      '<button type="button" class="gs-cover gs-cover--all" data-all="1"><span class="gs-cover__num">모아 보기</span>' +
+      '<span class="gs-cover__bubble" style="font-size:20px">사라져 가는 말</span>' +
+      '<span class="gs-cover__foot"><span class="gs-cover__where">할머니 세대와 우리 세대 비교</span><i class="ti ti-chart-bar" style="font-size:44px;color:#fbbf24"></i></span></button>';
+    STORIES.forEach(function (s, i) {
+      loadStory(s).then(function (d) {
+        var el = box.querySelector('[data-i="' + i + '"]');
+        el.querySelector('.js-v').textContent = d.variant;
+        el.querySelector('.js-w').textContent = d.where + ' 어르신';
+        el.setAttribute('aria-label', '이야기 ' + (i + 1) + ', ' + d.where + ' 어르신이 쓰는 말 ' + d.variant);
+      }).catch(function () { box.querySelector('[data-i="' + i + '"] .js-v').textContent = '불러오지 못했어요'; });
+    });
+  }
+  $('gs-shelf').addEventListener('click', function (e) {
+    var b = e.target.closest('.gs-cover');
+    if (!b) return;
+    if (b.dataset.all) openSummary(); else openStory(+b.dataset.i);
+  });
+
+  // ── 카드뉴스 보기 ──
+  var cur = null;   // { cuts: [fn], i, story }
+  var timer = null, auto = false;
+
+  function openStory(i) {
+    var s = STORIES[i];
+    $('gs-stage').innerHTML = '<p class="gs-loading">이야기를 불러오는 중이에요…</p>';
+    showViewer();
+    loadStory(s).then(function (d) {
+      cur = { story: i, i: 0, cuts: [cutComic, cutFlip, cutSwap, cutGen, cutNation].map(function (f) { return function () { return f(d, s); }; }), title: '이야기 ' + (i + 1) };
+      seen[s.no] = 1; saveSeen();
+      renderCut();
+    }).catch(function () { $('gs-stage').innerHTML = '<p class="gs-loading">자료를 불러오지 못했어요. 개발 서버 주소(http://127.0.0.1:8765/dialect_grandma_story.html)로 열어 주세요.</p>'; });
+  }
+  function openSummary() {
+    $('gs-stage').innerHTML = '<p class="gs-loading">모으는 중이에요…</p>';
+    showViewer();
+    Promise.all(STORIES.map(loadStory)).then(function (all) {
+      cur = { story: -1, i: 0, cuts: [function () { return cutSummary(all); }], title: '모아 보기' };
+      renderCut();
+    });
+  }
+  function showViewer() { $('gs-shelf-panel').hidden = true; $('gs-view-panel').hidden = false; window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  function closeViewer() { stopAuto(); $('gs-view-panel').hidden = true; $('gs-shelf-panel').hidden = false; renderShelf(); }
+
+  function renderCut() {
+    clearTimeout(timer);
+    var n = cur.cuts.length;
+    $('gs-progress').innerHTML = cur.cuts.map(function (c, k) {
+      return '<span class="' + (k < cur.i ? 'is-done' : k === cur.i ? 'is-now' + (auto ? '' : ' is-paused') : '') + '"><i></i></span>';
+    }).join('');
+    $('gs-count').textContent = cur.title + ' · ' + (cur.i + 1) + ' / ' + n;
+    $('gs-stage').innerHTML = cur.cuts[cur.i]() +
+      '<button type="button" class="gs-tapl" aria-label="이전 장면"></button><button type="button" class="gs-tapr" aria-label="다음 장면"></button>';
+    $('gs-prev').disabled = cur.i === 0;
+    $('gs-next').innerHTML = cur.i === n - 1 ? '목록으로<i class="ti ti-layout-grid"></i>' : '다음<i class="ti ti-arrow-right"></i>';
+    afterCut();
+    if (auto) {
+      requestAnimationFrame(function () { var p = document.querySelector('.gs-progress .is-now'); if (p) p.classList.remove('is-paused'); });
+      timer = setTimeout(next, CUT_MS);
+    }
+  }
+  function next() { if (!cur) return; if (cur.i < cur.cuts.length - 1) { cur.i++; renderCut(); } else closeViewer(); }
+  function prev() { if (cur && cur.i > 0) { cur.i--; renderCut(); } }
+  function stopAuto() { auto = false; clearTimeout(timer); $('gs-auto').setAttribute('aria-pressed', 'false'); $('gs-auto').innerHTML = '<i class="ti ti-player-play"></i>자동 넘기기'; }
+
+  $('gs-next').addEventListener('click', next);
+  $('gs-prev').addEventListener('click', prev);
+  $('gs-close').addEventListener('click', closeViewer);
+  $('gs-auto').addEventListener('click', function () {
+    if (auto) { stopAuto(); renderCut(); return; }
+    auto = true; this.setAttribute('aria-pressed', 'true'); this.innerHTML = '<i class="ti ti-player-pause"></i>멈추기';
+    renderCut();
+  });
+  $('gs-stage').addEventListener('click', function (e) {
+    if (e.target.closest('.gs-tapr')) next();
+    else if (e.target.closest('.gs-tapl')) prev();
+  });
+  document.addEventListener('keydown', function (e) {
+    if ($('gs-view-panel').hidden) return;
+    if (e.key === 'ArrowRight') next();
+    if (e.key === 'ArrowLeft') prev();
+    if (e.key === 'Escape') closeViewer();
+  });
+  // 손가락으로 넘기기
+  var tx = null;
+  $('gs-stage').addEventListener('touchstart', function (e) { tx = e.touches[0].clientX; }, { passive: true });
+  $('gs-stage').addEventListener('touchend', function (e) {
+    if (tx == null) return;
+    var dx = e.changedTouches[0].clientX - tx; tx = null;
+    if (dx < -40) next(); else if (dx > 40) prev();
+  });
+
+  // 컷이 그려진 뒤 움직임 시작(그래프 늘리기·카드 뒤집기)
+  function afterCut() {
+    var bars = document.querySelectorAll('#gs-stage [data-w]');
+    setTimeout(function () { bars.forEach(function (b) { b.style.width = b.dataset.w + '%'; }); }, 120);
+    var flip = document.querySelector('#gs-stage .gs-flip');
+    if (flip) {
+      flip.addEventListener('click', function (e) { e.stopPropagation(); flip.classList.toggle('is-flipped'); });
+      setTimeout(function () { flip.classList.add('is-flipped'); }, 1800);
+    }
+  }
+
+  function bg(k) { return ['#fef3c7', '#fce7f3', '#dcfce7', '#e0f2fe', '#ede9fe', '#ffedd5'][k % 6]; }
+  // 낱말에 형광펜: 실제 말은 '소풀→소푸른'처럼 활용돼 있어 원형이 없으면 앞부분(검색 키·한 글자 뺀 형태)으로 찾는다
+  function mark(text, w, alt) {
+    var t = esc(text);
+    var keys = [w, alt, w && w.length > 2 ? w.slice(0, -1) : null, w && w.length > 1 ? w.slice(0, -1) : null];
+    for (var i = 0; i < keys.length; i++) {
+      var v = esc(keys[i] || '');
+      if (v && t.indexOf(v) !== -1) return t.split(v).join('<mark>' + v + '</mark>');
+    }
+    return t;
+  }
+  // 받침에 맞는 조사(이/가, 을/를)
+  function josa(word, pair) {
+    var c = String(word || '').charCodeAt(String(word || '').length - 1);
+    var has = c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 !== 0;
+    return word + (has ? pair[0] : pair[1]);
+  }
+
+  // 1컷 — 만화: 어르신의 실제 말
+  function cutComic(d, s) {
+    var say = d.dialect || d.variant;
+    return '<div class="gs-cut" style="background:' + bg(cur ? cur.story : 0) + '">' +
+      '<span class="gs-cut__tag">어르신이 하신 말</span>' +
+      '<div class="gs-comic"><p class="gs-say">“' + mark(say, d.variant, d.key) + '”</p>' +
+      '<div class="gs-people">' + face('grandma') + '<span class="gs-think">' + esc(josa('‘' + d.variant, ['’이', '’가'])).replace(/^‘/, '‘') + ' 뭐지?</span>' + face('kid') + '</div></div>' +
+      '<span class="gs-cut__src">' + esc(d.where) + (d.year ? ' · ' + esc(d.year) + '년' : '') + ' 지역어 조사 구술발화(실제 녹음 전사)</span></div>';
+  }
+  // 2컷 — 뜻 뒤집기 카드
+  function cutFlip(d, s) {
+    var pic = s.img ? '<img src="' + esc(s.img) + '" alt="' + esc(d.word) + ' 사진" onerror="this.outerHTML=\'<i class=&quot;ti ' + esc(s.icon) + '&quot;></i>\'">' : '<i class="ti ' + esc(s.icon) + '" aria-hidden="true"></i>';
+    return '<div class="gs-cut" style="background:#fff7ed">' +
+      '<span class="gs-cut__tag">무슨 뜻일까?</span>' +
+      '<div class="gs-flipwrap"><button type="button" class="gs-flip" aria-label="카드 뒤집기">' +
+        '<span class="gs-face gs-face--front"><b>' + esc(d.variant) + '</b><span>눌러서 뒤집어 보세요</span></span>' +
+        '<span class="gs-face gs-face--back"><span class="gs-pic">' + pic + '</span><small>표준어로는</small><b>' + esc(d.word) + '</b><p>' + esc(d.meaning) + '</p></span>' +
+      '</button></div></div>';
+  }
+  // 3컷 — 표준어로 바꿔 말하기 (실제 표준어 대역)
+  function cutSwap(d) {
+    if (!d.standard) return cutFlip(d, {});
+    return '<div class="gs-cut" style="background:#ecfeff">' +
+      '<span class="gs-cut__tag">표준어로 바꾸면</span><h2>같은 말, 다른 느낌!</h2>' +
+      '<div class="gs-swap">' +
+        '<div class="gs-swap__row gs-swap__row--d"><small>어르신 말</small>' + mark(d.dialect, d.variant, d.key) + '</div>' +
+        '<div class="gs-swap__arrow" aria-hidden="true"><i class="ti ti-arrow-big-down-filled"></i></div>' +
+        '<div class="gs-swap__row gs-swap__row--s"><small>표준어</small>' + mark(d.standard, d.word) + '</div>' +
+      '</div><span class="gs-cut__src">표준어 문장은 조사 자료의 표준어 대역입니다.</span></div>';
+  }
+  // 4컷 — 움직이는 세대 그래프 (교차표 실측)
+  function cutGen(d) {
+    if (!d.ct) return '<div class="gs-cut"><p class="gs-loading">세대 자료가 없어요.</p></div>';
+    var rows = [['70', '할머니 세대', 'grandma'], ['50', '부모님 세대', 'mom'], ['20', '언니·형 세대', 'kid']];
+    var html = rows.map(function (r) {
+      var c = [0, 0, 0, 0];
+      ['M', 'F'].forEach(function (g) { (d.ct[r[0] + g] || []).forEach(function (v, k) { c[k] += v; }); });
+      var tot = c.reduce(function (a, b) { return a + b; }, 0) || 1;
+      return '<div class="gs-genrow"><span class="gs-genwho">' + face(r[2]) + r[0] + '대</span><div class="gs-bar" role="img" aria-label="' + r[0] + '대: ' +
+        CODING.map(function (cd, k) { return cd.label + ' ' + Math.round(c[k] / tot * 100) + '%'; }).join(', ') + '">' +
+        CODING.map(function (cd, k) {
+          var pct = Math.round(c[k] / tot * 100);
+          return '<span data-w="' + (c[k] / tot * 100).toFixed(1) + '" style="background:' + cd.color + '">' + (pct >= 12 ? pct + '%' : '') + '</span>';
+        }).join('') + '</div></div>';
+    }).join('');
+    return '<div class="gs-cut" style="background:#f8fafc">' +
+      '<span class="gs-cut__tag">세대마다 달라요</span><h2>' + esc(josa('‘' + d.word, ['’을', '’를'])) + ' 뭐라고 부르나요?</h2>' +
+      '<div class="gs-gen">' + html +
+      '<div class="gs-legend">' + CODING.map(function (cd) { return '<span><i style="background:' + cd.color + '"></i>' + esc(cd.label) + '</span>'; }).join('') + '</div>' +
+      (d.hook ? '<p class="gs-hook">' + esc(d.hook) + '</p>' : '') + '</div>' +
+      '<span class="gs-cut__src">2025년 세대별·성별 지역어 변이 조사(20·50·70대 남녀 응답, 실측)</span></div>';
+  }
+  // 5컷 — 전국에서는 이렇게도 불러요 + 다른 화면 연결
+  function cutNation(d, s) {
+    return '<div class="gs-cut" style="background:#fef9c3">' +
+      '<span class="gs-cut__tag">전국에서는</span><h2>' + esc(josa('‘' + d.word, ['’을', '’를'])) + ' 이렇게도 불러요</h2>' +
+      '<div class="gs-forms">' + d.forms.map(function (v, k) { return '<span style="animation-delay:' + (k * 0.12) + 's">' + esc(v.word) + '</span>'; }).join('') + '</div>' +
+      '<div class="gs-links">' +
+        '<a class="gs-btn" href="./dialect_map.html?no=' + encodeURIComponent(s.no) + '"><i class="ti ti-map-2"></i>지역어 지도에서 보기</a>' +
+        '<a class="gs-btn" href="./dialect_wordcard.html"><i class="ti ti-users"></i>세대별 지역어 변화 더 보기</a>' +
+        '<a class="gs-btn" href="./dialect_rephrase.html"><i class="ti ti-message-2"></i>방언 바꿔 말하기 해 보기</a>' +
+      '</div><span class="gs-cut__src">지역어 지도 자료에서 많이 나온 순서입니다.</span></div>';
+  }
+  // 모아 보기 — 사라져 가는 말(70대 vs 20대 지역어 사용 비율)
+  function cutSummary(all) {
+    var rows = all.map(function (d) {
+      function dia(age) {
+        var c = [0, 0, 0, 0];
+        ['M', 'F'].forEach(function (g) { (d.ct[age + g] || []).forEach(function (v, k) { c[k] += v; }); });
+        var t = c.reduce(function (a, b) { return a + b; }, 0) || 1;
+        return (c[1] + c[2]) / t * 100;   // 지역어를 씀 + 둘 다 씀
+      }
+      return { word: d.word, old: dia('70'), young: dia('20') };
+    }).sort(function (a, b) { return (b.old - b.young) - (a.old - a.young); });
+    return '<div class="gs-cut" style="background:#1e293b">' +
+      '<span class="gs-cut__tag" style="background:#ea580c">모아 보기</span><h2 style="color:#fff">할머니 세대는 쓰는데<br>우리 세대는 안 쓰는 말</h2>' +
+      '<div class="gs-legend" style="color:#e2e8f0"><span><i style="background:#f59e0b"></i>70대 지역어 사용</span><span><i style="background:#60a5fa"></i>20대 지역어 사용</span></div>' +
+      '<div class="gs-sum">' + rows.map(function (r) {
+        return '<div class="gs-sumrow"><span>' + esc(r.word) + '</span><span class="gs-sumtrack">' +
+          '<span class="old" data-w="' + r.old.toFixed(1) + '"></span><span class="young" data-w="' + r.young.toFixed(1) + '"></span></span>' +
+          '<em>' + Math.round(r.old - r.young) + '%p</em></div>';
+      }).join('') + '</div>' +
+      '<span class="gs-cut__src" style="color:#94a3b8">오른쪽 숫자 = 두 세대의 차이. ‘둘 다 씀’도 지역어 사용에 넣었어요. 2025년 세대별·성별 지역어 변이 조사.</span></div>';
+  }
+
+  // ── 시작 ──
+  if (!/^https?:$/.test(location.protocol)) {
+    var warn = document.createElement('p');
+    warn.className = 'gs-warn';
+    warn.innerHTML = '이 화면은 자료 파일을 불러와야 해서 파일로 바로 열면 동작하지 않아요. 개발 서버 주소로 열어 주세요: <a href="http://127.0.0.1:8765/dialect_grandma_story.html">http://127.0.0.1:8765/dialect_grandma_story.html</a>';
+    document.querySelector('.gs-head').after(warn);
+  }
+  renderShelf();
+})();
+</script>
+</body>
+</html>
