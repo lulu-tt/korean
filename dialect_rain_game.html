@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>방언 소나기 — 국립국어원</title>
+<!-- 시안: 초등 5-2 국어 「표준어와 방언을 알아봐요」 마무리 놀이. 떨어지는 방언 빗방울의 표준어를 입력(또는 선택)해 터뜨린다.
+     낱말 짝은 지역어 지도 자료(data/processed/map/{번호}.json)의 방언형을 그대로 불러온다(조사 지점 8곳 이상인 형태만).
+     이 페이지가 가진 것은 '어떤 표제어를 쓰고, 어떤 형태는 뺄지'(WORDS)뿐이다. -->
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="./styles.css">
+<script src="./gnb.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+/* 모든 클래스는 rg- 접두사로 스코프 */
+.rg-page { max-width: 1080px; margin: 0 auto; padding: 32px 20px 80px; }
+.rg-head { position: relative; overflow: hidden; border-radius: 24px; padding: 28px 32px; margin-bottom: 24px; background: linear-gradient(120deg, #dbeafe 0%, #e0f2fe 50%, #ede9fe 100%); }
+.rg-head::after { content: ''; position: absolute; width: 170px; height: 170px; border-radius: 50%; right: -40px; top: -60px; background: #93c5fd; opacity: .5; }
+.rg-head > * { position: relative; z-index: 1; }
+.rg-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 800; color: #1d4ed8; background: #fff; padding: 5px 12px; border-radius: 999px; box-shadow: 0 2px 0 rgba(29,78,216,.15); }
+.rg-title { display: flex; align-items: center; gap: 10px; font-size: 34px; font-weight: 900; letter-spacing: -0.03em; margin: 12px 0 6px; color: #1e293b; }
+.rg-title i { font-size: 38px; color: #2563eb; transform: rotate(-8deg); }
+.rg-sub { color: #475569; font-size: 16px; margin: 0; font-weight: 600; }
+.rg-panel { background: #fff; border: 2px solid #eef2f7; border-radius: 24px; box-shadow: 0 8px 30px rgba(15,23,42,.06); padding: 30px; }
+.rg-panel[hidden] { display: none; }
+.rg-q { font-size: 22px; font-weight: 900; margin: 0 0 12px; color: #1e293b; }
+.rg-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 46px; padding: 0 18px; border-radius: 14px; border: 2px solid #e2e8f0; background: #fff; color: #1e293b; font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; text-decoration: none; box-shadow: 0 3px 0 #e2e8f0; }
+.rg-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #e2e8f0; }
+.rg-btn:focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
+.rg-btn i { font-size: 20px; }
+.rg-btn--primary { background: #2563eb; border-color: #2563eb; color: #fff; box-shadow: 0 4px 0 #1e3a8a; }
+.rg-btn--lg { height: 60px; font-size: 19px; padding: 0 30px; border-radius: 18px; }
+.rg-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* 시작 화면 */
+.rg-setup { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.rg-choices { display: grid; gap: 10px; }
+.rg-choice { display: flex; align-items: center; gap: 14px; text-align: left; border: 3px solid #e2e8f0; border-radius: 18px; padding: 14px 16px; background: #fff; font: inherit; cursor: pointer; }
+.rg-choice[aria-pressed="true"] { border-color: #2563eb; background: #eff6ff; }
+.rg-choice:focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
+.rg-choice i { font-size: 34px; color: #3b82f6; flex: none; }
+.rg-choice b { display: block; font-size: 18px; font-weight: 900; color: #1e293b; }
+.rg-choice span { font-size: 14px; color: #64748b; font-weight: 600; }
+.rg-start { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 26px; }
+.rg-start small { color: #64748b; font-weight: 700; }
+
+/* 놀이 화면: 비 오는 마을 */
+.rg-stage { position: relative; height: 560px; border-radius: 24px; overflow: hidden; background: linear-gradient(#94a3b8 0%, #cbd5e1 45%, #e2e8f0 100%); user-select: none; touch-action: manipulation; }
+.rg-stage.is-calm { background: linear-gradient(#bae6fd 0%, #e0f2fe 60%, #f0f9ff 100%); }
+.rg-cloud { position: absolute; top: -20px; height: 70px; border-radius: 999px; background: #f8fafc; opacity: .9; box-shadow: 40px 10px 0 -6px #f8fafc, -40px 12px 0 -10px #f8fafc; }
+.rg-streak { position: absolute; top: -40px; width: 2px; height: 26px; background: rgba(255,255,255,.55); border-radius: 2px; animation: rg-streak linear infinite; }
+.rg-hud { position: absolute; left: 14px; right: 14px; top: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; z-index: 5; }
+.rg-hud__box { background: rgba(255,255,255,.88); border-radius: 999px; padding: 6px 14px; font-weight: 900; font-size: 15px; color: #1e293b; display: inline-flex; align-items: center; gap: 6px; }
+.rg-rainbow { width: 180px; height: 12px; border-radius: 6px; background: rgba(255,255,255,.7); overflow: hidden; }
+.rg-rainbow span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ef4444, #f59e0b, #eab308, #22c55e, #3b82f6, #6366f1, #a855f7); transition: width .3s; }
+.rg-pause { width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,255,255,.88); font-size: 20px; cursor: pointer; }
+.rg-drop { position: absolute; top: 0; left: 0; z-index: 3; transform: translate(-50%, 0); display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+.rg-drop__body { position: relative; min-width: 84px; padding: 16px 16px 12px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: linear-gradient(160deg, #e0f2fe, #7dd3fc); border: 3px solid #fff; box-shadow: 0 6px 14px rgba(14,116,144,.25); text-align: center; }
+.rg-drop__body::before { content: ''; position: absolute; left: 50%; top: -16px; transform: translateX(-50%); border: 12px solid transparent; border-bottom: 18px solid #fff; border-top: 0; }
+.rg-drop__word { font-size: 21px; font-weight: 900; color: #0c4a6e; white-space: nowrap; }
+.rg-drop__hint { font-size: 13px; font-weight: 800; color: #0369a1; margin-top: 2px; }
+.rg-drop.is-target .rg-drop__body { background: linear-gradient(160deg, #fef9c3, #fde047); }
+.rg-drop.is-target .rg-drop__word { color: #713f12; }
+.rg-pop { position: absolute; z-index: 4; transform: translate(-50%, -50%); pointer-events: none; font-weight: 900; font-size: 18px; color: #1e3a8a; background: #fff; padding: 6px 12px; border-radius: 999px; box-shadow: 0 4px 10px rgba(15,23,42,.15); animation: rg-float 1.3s ease-out forwards; white-space: nowrap; }
+.rg-burst { position: absolute; z-index: 4; width: 10px; height: 10px; border-radius: 50%; background: #7dd3fc; pointer-events: none; animation: rg-burst .5s ease-out forwards; }
+.rg-village { position: absolute; left: 0; right: 0; bottom: 0; height: 120px; z-index: 2; background: linear-gradient(#86efac, #4ade80); display: flex; justify-content: space-around; align-items: flex-end; padding: 0 30px 70px; }
+.rg-village::before { content: ''; position: absolute; left: 0; right: 0; top: -30px; height: 40px; background: radial-gradient(circle at 20% 100%, #4ade80 40px, transparent 41px), radial-gradient(circle at 60% 100%, #22c55e 55px, transparent 56px), radial-gradient(circle at 90% 100%, #4ade80 38px, transparent 39px); }
+.rg-umb { position: relative; font-size: 46px; line-height: 1; transition: transform .3s; }
+.rg-umb.is-closed { transform: rotate(160deg) scale(.7); opacity: .35; filter: grayscale(1); }
+.rg-u0 { color: #ef4444; } .rg-u1 { color: #f59e0b; } .rg-u2 { color: #22c55e; } .rg-u3 { color: #3b82f6; } .rg-u4 { color: #a855f7; }
+.rg-inputbar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; padding: 12px 16px; display: flex; gap: 10px; justify-content: center; }
+.rg-input { width: min(420px, 100%); height: 52px; border-radius: 16px; border: 3px solid #fff; box-shadow: 0 4px 0 rgba(15,23,42,.15); padding: 0 16px; font: inherit; font-size: 22px; font-weight: 800; text-align: center; }
+.rg-input:focus { outline: none; border-color: #2563eb; }
+.rg-input.is-no { border-color: #ef4444; animation: rg-shake .3s; }
+.rg-taps { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.rg-tap { min-width: 110px; height: 54px; border-radius: 16px; border: none; font: inherit; font-size: 21px; font-weight: 900; cursor: pointer; background: #fff; color: #1e293b; box-shadow: 0 4px 0 rgba(15,23,42,.15); padding: 0 16px; }
+.rg-tap:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(15,23,42,.15); }
+.rg-tap.is-no { background: #fecaca; animation: rg-shake .3s; }
+.rg-overlay { position: absolute; inset: 0; z-index: 8; display: flex; align-items: center; justify-content: center; background: rgba(15,23,42,.45); }
+.rg-overlay[hidden] { display: none; }
+.rg-overlay__box { background: #fff; border-radius: 22px; padding: 26px 30px; text-align: center; max-width: 420px; }
+.rg-overlay__box h3 { margin: 0 0 8px; font-size: 24px; font-weight: 900; }
+.rg-overlay__box p { margin: 0 0 16px; color: #475569; font-weight: 700; }
+.rg-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* 결과 */
+.rg-result-top { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-bottom: 18px; }
+.rg-score { font-size: 54px; font-weight: 900; color: #2563eb; line-height: 1; }
+.rg-result-top p { margin: 0; font-size: 17px; font-weight: 800; color: #334155; }
+.rg-met { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.rg-met a { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 14px; border-radius: 14px; background: #f0f9ff; text-decoration: none; color: #0c4a6e; font-weight: 900; font-size: 17px; border: 2px solid #e0f2fe; }
+.rg-met a.is-miss { background: #fff7ed; border-color: #fed7aa; color: #9a3412; }
+.rg-met a small { font-size: 12px; font-weight: 800; opacity: .7; }
+.rg-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+.rg-loading { color: #64748b; padding: 30px 0; text-align: center; font-weight: 700; }
+.rg-warn { background: #fffbeb; border: 2px solid #fde68a; color: #92400e; border-radius: 14px; padding: 12px 14px; font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+.rg-proto { margin-top: 28px; font-size: 13px; color: #94a3b8; line-height: 1.6; }
+
+@keyframes rg-streak { from { transform: translateY(0) rotate(12deg); } to { transform: translateY(640px) rotate(12deg); } }
+@keyframes rg-float { 0% { opacity: 0; transform: translate(-50%, -30%) scale(.7); } 20% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); } 100% { opacity: 0; transform: translate(-50%, -160%) scale(1); } }
+@keyframes rg-burst { to { transform: translate(var(--dx), var(--dy)) scale(.2); opacity: 0; } }
+@keyframes rg-shake { 0%, 100% { transform: translateX(0); } 33% { transform: translateX(-6px); } 66% { transform: translateX(6px); } }
+
+@media (max-width: 860px) {
+  .rg-head { padding: 22px 20px; }
+  .rg-title { font-size: 27px; }
+  .rg-panel { padding: 20px 14px; }
+  .rg-setup { grid-template-columns: 1fr; }
+  .rg-stage { height: 70vh; min-height: 460px; }
+  .rg-rainbow { width: 90px; }
+  .rg-drop__word { font-size: 18px; }
+  .rg-tap { min-width: 90px; font-size: 18px; }
+  .rg-met { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rg-umb { font-size: 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rg-streak, .rg-burst { display: none; }
+  .rg-pop { animation-duration: .01s; }
+}
+</style>
+</head>
+<body>
+<div id="gnb-common"></div>
+
+<main class="rg-page">
+  <header class="rg-head">
+    <span class="rg-eyebrow"><i class="ti ti-school"></i>초등 5학년 국어 · 표준어와 방언을 알아봐요</span>
+    <h1 class="rg-title"><i class="ti ti-cloud-rain" aria-hidden="true"></i>방언 소나기</h1>
+    <p class="rg-sub">방언 빗방울이 떨어져요! 바닥에 닿기 전에 표준어로 바꿔서 터뜨려 보세요.</p>
+  </header>
+
+  <!-- 시작 -->
+  <section class="rg-panel" id="rg-setup-panel">
+    <div class="rg-setup">
+      <div>
+        <h2 class="rg-q">비가 얼마나 올까요?</h2>
+        <div class="rg-choices" id="rg-level">
+          <button type="button" class="rg-choice" data-v="easy" aria-pressed="true"><i class="ti ti-droplet"></i><span><b>이슬비</b><span>천천히 하나씩, 첫 글자 힌트가 있어요</span></span></button>
+          <button type="button" class="rg-choice" data-v="mid" aria-pressed="false"><i class="ti ti-cloud-rain"></i><span><b>소나기</b><span>조금 빠르게, 힌트 없이</span></span></button>
+          <button type="button" class="rg-choice" data-v="hard" aria-pressed="false"><i class="ti ti-cloud-storm"></i><span><b>장대비</b><span>여러 개가 한꺼번에 쏟아져요</span></span></button>
+        </div>
+      </div>
+      <div>
+        <h2 class="rg-q">어떻게 터뜨릴까요?</h2>
+        <div class="rg-choices" id="rg-mode">
+          <button type="button" class="rg-choice" data-v="tap" aria-pressed="true"><i class="ti ti-hand-finger"></i><span><b>누르기</b><span>아래 보기 중에서 표준어를 눌러요 (태블릿 추천)</span></span></button>
+          <button type="button" class="rg-choice" data-v="type" aria-pressed="false"><i class="ti ti-keyboard"></i><span><b>타자</b><span>표준어를 치고 Enter를 눌러요</span></span></button>
+        </div>
+      </div>
+    </div>
+    <div class="rg-start">
+      <button type="button" class="rg-btn rg-btn--primary rg-btn--lg" id="rg-go" disabled><i class="ti ti-umbrella"></i>비 내리기 시작</button>
+      <small id="rg-ready">낱말을 모으는 중이에요…</small>
+    </div>
+  </section>
+
+  <!-- 놀이 -->
+  <section class="rg-panel" id="rg-play-panel" hidden style="padding:14px">
+    <div class="rg-stage" id="rg-stage">
+      <div class="rg-hud">
+        <span class="rg-hud__box"><i class="ti ti-droplet-filled" style="color:#0ea5e9"></i><span id="rg-score">0</span>개</span>
+        <span class="rg-hud__box"><span class="rg-rainbow" title="무지개 점수"><span id="rg-bow"></span></span><span id="rg-lv">1단계</span></span>
+        <span style="display:inline-flex;gap:8px">
+          <button type="button" class="rg-pause" id="rg-pause" aria-label="잠깐 멈추기" title="잠깐 멈추기"><i class="ti ti-player-pause-filled"></i></button>
+          <button type="button" class="rg-pause" id="rg-quit" aria-label="그만하고 처음 화면으로" title="처음 화면으로"><i class="ti ti-home"></i></button>
+        </span>
+      </div>
+      <div id="rg-sky"></div>
+      <div class="rg-village" id="rg-village"></div>
+      <div class="rg-inputbar" id="rg-inputbar"></div>
+      <div class="rg-overlay" id="rg-overlay" hidden><div class="rg-overlay__box"><h3>잠깐 쉬어요</h3><p>준비되면 다시 시작해요.</p><span style="display:inline-flex;gap:8px;flex-wrap:wrap;justify-content:center"><button type="button" class="rg-btn" id="rg-quit2"><i class="ti ti-home"></i>처음 화면으로</button><button type="button" class="rg-btn rg-btn--primary" id="rg-resume"><i class="ti ti-player-play-filled"></i>계속하기</button></span></div></div>
+      <p class="rg-sr" aria-live="polite" id="rg-live"></p>
+    </div>
+  </section>
+
+  <!-- 결과 -->
+  <section class="rg-panel" id="rg-result-panel" hidden>
+    <div class="rg-result-top">
+      <span class="rg-score" id="rg-final">0</span>
+      <p id="rg-final-msg"></p>
+    </div>
+    <h2 class="rg-q">오늘 만난 방언</h2>
+    <div class="rg-met" id="rg-met"></div>
+    <div class="rg-actions">
+      <button type="button" class="rg-btn" id="rg-again-setup"><i class="ti ti-settings"></i>단계 바꾸기</button>
+      <button type="button" class="rg-btn rg-btn--primary" id="rg-again"><i class="ti ti-refresh"></i>한 번 더</button>
+      <a class="rg-btn" href="./dialect_grandma_story.html"><i class="ti ti-message-heart"></i>할머니 말 이야기</a>
+    </div>
+  </section>
+
+  <p class="rg-proto">시안 안내 · 빗방울의 방언은 국립국어원 지역어 조사 '지역어 지도' 자료에서 조사 지점이 8곳 이상인 방언형만 가져왔습니다. 낱말을 누르면 지역어 지도에서 어디서 쓰는 말인지 볼 수 있어요.</p>
+</main>
+
+<div id="footer-common"></div>
+
+<!-- SNAPSHOT:BEGIN -->
+<script type="application/json" id="class-snapshot">{"./data/processed/map/50308.json":{"headword":"가위","meaning":"「001」 옷감, 종이, 머리털 따위를 자르는 기구. 날이 있는 두 개의 쇠를 교차시켜 가운데 사북을 박고, 지레의 원리를 이용하여 다리를 벌렸다 오므렸다 하여 자른다.","groups":{"g1":{"label":"가위계","color":"#CB5942","variants":[{"word":"가위","n":40},{"word":"가이","n":13},{"word":"가우이","n":4},{"word":"가외","n":4},{"word":"가우","n":2},{"word":"가왜","n":1}]},"g2":{"label":"가새계","color":"#4A86E8","variants":[{"word":"가새","n":84},{"word":"새","n":7},{"word":"가세","n":3},{"word":"까새","n":1}]},"g3":{"label":"가시개계","color":"#37C94C","variants":[{"word":"가시개","n":32},{"word":"까시개","n":6},{"word":"가시깨","n":2},{"word":"가시캐","n":1},{"word":"가씨개","n":1}]},"g4":{"label":"까깨계","color":"#FFCB31","variants":[{"word":"까깨","n":2},{"word":"깎개","n":1}]}}},"./data/processed/map/50526.json":{"headword":"가을","meaning":"「001」한 해의 네 철 가운데 셋째 철. 여름과 겨울의 사이이며, 달로는 9~11월, 절기(節氣)로는 입추부터 입동 전까지를 이른다.","groups":{"g1":{"label":"가을계","color":"#FF0000","variants":[{"word":"가을","n":117},{"word":"갈","n":8},{"word":"가을철","n":3},{"word":"가으을","n":1},{"word":"가얼","n":1},{"word":"가알","n":1}]},"g2":{"label":"가실계","color":"#00FF00","variants":[{"word":"가실","n":39},{"word":"가시일","n":1}]},"g3":{"label":"가을ㄱ계","color":"#0000FF","variants":[{"word":"가을ㄱ","n":5},{"word":"가읅","n":3},{"word":"갉","n":2},{"word":"가앍","n":1},{"word":"가싥","n":1},{"word":"가실ㄱ","n":1}]},"g4":{"label":"슬계","color":"#FFFF00","variants":[{"word":"슬","n":3},{"word":"을","n":2},{"word":"실","n":1}]}}},"./data/processed/map/50552.json":{"headword":"갈치","meaning":"「001」길고 납작한 모양의 은백색의 바닷물고기.","groups":{"g1":{"label":"갈치계","color":"#0000FF","variants":[{"word":"갈치","n":88}]},"g2":{"label":"칼치계","color":"#FF0000","variants":[{"word":"칼치","n":55}]},"g3":{"label":"깔치계","color":"#FF00FF","variants":[{"word":"깔치","n":14}]}}},"./data/processed/map/50398.json":{"headword":"감기","meaning":"「004」주로 바이러스로 말미암아 걸리는 호흡 계통의 병. 보통 코가 막히고 열이 나며 머리가 아프다.","groups":{"g0":{"label":"개짓대가리(=개짓'대'가'리)계","color":"#F42020","variants":[{"word":"개짓대가리(=개짓'대'가'리)","n":1}]},"g1":{"label":"감기계","color":"#F42020","variants":[{"word":"감기","n":110},{"word":"가암기","n":14},{"word":"가암한","n":1}]},"g2":{"label":"고뿔계","color":"#0718F6","variants":[{"word":"고뿔","n":63},{"word":"코뿔","n":3},{"word":"고풀","n":2},{"word":"괴뿔","n":1},{"word":"게뿔","n":1},{"word":"고뿔감기","n":1},{"word":"꼬뿔","n":1},{"word":"미조사2","n":1}]},"g3":{"label":"개짐머리계","color":"#00FF00","variants":[{"word":"개짐머리","n":8},{"word":"개점머리","n":1},{"word":"개전머리","n":1}]},"g4":{"label":"개짓대가리계","color":"#FF9900","variants":[{"word":"개짓대가리","n":2},{"word":"개지잇대가리","n":1},{"word":"개좆대가리","n":1},{"word":"개지뿌리","n":1},{"word":"갯다리","n":1},{"word":"갯대가리","n":1},{"word":"개애집꼽재기","n":1}]},"g5":{"label":"해숫병계","color":"#000000","variants":[{"word":"해숫병","n":1}]}}},"./data/processed/map/50506.json":{"headword":"강아지","meaning":"「001」개의 새끼.","groups":{"g1":{"label":"강아지계","color":"#FF0000","variants":[{"word":"강아지","n":104},{"word":"강아지새끼","n":1},{"word":"강이지","n":1},{"word":"깡아지","n":1},{"word":"강안지","n":1}]},"g2":{"label":"갱아지계","color":"#00FF00","variants":[{"word":"갱아지","n":20}]},"g3":{"label":"간지계","color":"#0000FF","variants":[{"word":"간지","n":3},{"word":"가지","n":2}]},"g4":{"label":"강생이계","color":"#0000FF","variants":[{"word":"강생이","n":22},{"word":"강섕이","n":1}]},"g5":{"label":"개새끼계","color":"#00FFFF","variants":[{"word":"개새끼","n":11},{"word":"개섀끼","n":3},{"word":"가이새끼","n":1}]}}},"./data/processed/map/50561.json":{"headword":"개미","meaning":"「003」주로 기어 다니며 땅 속에 굴을 파고 떼를 지어 사는, 작고 허리가 가는 곤충.","groups":{"g1":{"label":"개미계","color":"#0000FF","variants":[{"word":"개미","n":114},{"word":"개애미","n":26},{"word":"깨미","n":8},{"word":"깨애미","n":6}]},"g2":{"label":"게염지계","color":"#FF0000","variants":[{"word":"게염지","n":6},{"word":"게엠지","n":2}]}}},"./data/processed/map/50307.json":{"headword":"거지","meaning":"「001」남에게 빌어먹고 사는 사람.","groups":{"g1":{"label":"거지계","color":"#FF0032","variants":[{"word":"거지","n":53},{"word":"그지","n":27},{"word":"거어지","n":5}]},"g2":{"label":"걸뱅이계","color":"#FF00CB","variants":[{"word":"걸뱅이","n":27},{"word":"걸빙이","n":4},{"word":"거렁뱅이","n":4},{"word":"거랭이","n":3},{"word":"껄뱅이","n":2},{"word":"걸인","n":2},{"word":"거얼빙이","n":1},{"word":"글뱅이","n":1},{"word":"껄빙이","n":1},{"word":"거르뱅이","n":1},{"word":"거름뱅이","n":1},{"word":"거리뱅이","n":1},{"word":"거링이","n":1}]},"g3":{"label":"거러지계","color":"#0000FF","variants":[{"word":"거러지","n":21},{"word":"거라시","n":4},{"word":"걸버시","n":3},{"word":"거러시","n":1},{"word":"걸바시","n":1},{"word":"걸박시","n":1},{"word":"그라지","n":1},{"word":"꺼러지","n":1}]},"g4":{"label":"동낭치계","color":"#3EF705","variants":[{"word":"동낭치","n":18},{"word":"동냥아치","n":7},{"word":"동녕바치","n":6},{"word":"동낭아치","n":3},{"word":"동냥바치","n":3},{"word":"동냥치","n":2},{"word":"동낭키","n":2},{"word":"똥녕바치","n":1},{"word":"동냥배기","n":1}]},"g5":{"label":"비랭이계","color":"#FCE5CD","variants":[{"word":"비랭이","n":3},{"word":"비렁거지","n":2},{"word":"비렁뱅이","n":1},{"word":"비럼박지","n":1},{"word":"각설이","n":1},{"word":"읃어배기","n":1},{"word":"품바","n":1}]}}},"./data/processed/map/50320.json":{"headword":"고양이","meaning":"고양잇과의 하나. 원래 아프리카의 리비아살쾡이를 길들인 것으로, 턱과 송곳니가 특히 발달해서 육식을 주로 한다. 발톱은 자유롭게 감추거나 드러낼 수 있으며, 눈은 어두운 곳에서도 잘 볼 수 있다. 애완동물로도 육종하여 여러 품종이 있다.","groups":{"g1":{"label":"고양이계","color":"#FF0000","variants":[{"word":"고양이","n":75},{"word":"괭이","n":29},{"word":"고얭이","n":14},{"word":"겡이","n":10},{"word":"고앵이","n":4},{"word":"굉이","n":3},{"word":"궹이","n":3},{"word":"귀앵이","n":1},{"word":"귀엥이","n":1},{"word":"귕이","n":1},{"word":"갱이","n":1},{"word":"괴양이","n":1},{"word":"게양이","n":1},{"word":"게얭이","n":1}]},"g2":{"label":"고냉이계","color":"#0000FF","variants":[{"word":"고냉이","n":8},{"word":"고넹이","n":7},{"word":"고내기","n":7},{"word":"고냥이","n":5},{"word":"고넁이","n":2},{"word":"꼬내기","n":2},{"word":"고낭이","n":1},{"word":"괴외냉이","n":1}]},"g3":{"label":"괴데기계","color":"#00FF00","variants":[{"word":"괴데기","n":5},{"word":"게","n":2},{"word":"괴냉이","n":2},{"word":"게데기","n":2},{"word":"괴","n":1},{"word":"게냉이","n":1},{"word":"깨냉이","n":1},{"word":"께냉이","n":1},{"word":"게네기","n":1},{"word":"께내기","n":1},{"word":"구이","n":1}]},"g4":{"label":"나비계","color":"#CC4125","variants":[{"word":"나비","n":2},{"word":"살찌니","n":1},{"word":"쬐께미","n":1},{"word":"앵고","n":1}]}}},"./data/processed/map/50507.json":{"headword":"고기","meaning":"「001」식용하는 온갖 동물의 살. [肉]","groups":{"g1":{"label":"고기계","color":"#FF9C07","variants":[{"word":"고기","n":101},{"word":"괴기","n":24},{"word":"게기","n":10},{"word":"궤기","n":7},{"word":"기기","n":6},{"word":"귀기","n":2},{"word":"괘기","n":1},{"word":"고이기","n":1},{"word":"꼬기","n":1},{"word":"고기살","n":1},{"word":"살괴기","n":1}]},"g2":{"label":"육고기계","color":"#C27BA0","variants":[{"word":"육고기","n":8},{"word":"육괴기","n":1},{"word":"육게기","n":1}]},"g3":{"label":"육미계","color":"#D5A6BD","variants":[{"word":"육미","n":2},{"word":"육","n":1},{"word":"육류","n":1}]}}},"./data/processed/map/50433.json":{"headword":"구멍","meaning":"「001」뚫어지거나 파낸 자리.","groups":{"g1":{"label":"구멍계","color":"#FF0000","variants":[{"word":"구멍","n":47},{"word":"고망","n":6},{"word":"구뭉","n":5},{"word":"문구멍","n":1}]},"g2":{"label":"구먹계","color":"#FF00FF","variants":[{"word":"구먹","n":14},{"word":"구묵","n":1}]},"g3":{"label":"구녕계","color":"#0000FF","variants":[{"word":"구녕","n":30},{"word":"구영","n":20},{"word":"구넝","n":2},{"word":"고냥","n":2},{"word":"궤영","n":1},{"word":"꾸영","n":1},{"word":"구늉","n":1}]},"g4":{"label":"구녁계","color":"#00FFFF","variants":[{"word":"구녁","n":47},{"word":"꾸녁","n":1},{"word":"구역","n":1},{"word":"구넉","n":1}]},"g5":{"label":"구무계","color":"#00FF00","variants":[{"word":"구무","n":3},{"word":"궁기","n":1}]},"g6":{"label":"구정계","color":"#666666","variants":[{"word":"구정","n":1}]}}},"./data/processed/map/50405.json":{"headword":"그네","meaning":"「002」민속놀이의 하나. 또는 그 놀이 기구. 큰 나무의 가지나, 두 기둥 사이로 가로지른 막대에 두 가닥의 줄을 매어 늘이고, 줄의 맨 아래에 밑싣개를 걸쳐 놓고 올라서서 몸을 움직여 앞뒤로 왔다 갔다 하면서 논다.","groups":{"g1":{"label":"그네계","color":"#F42020","variants":[{"word":"그네","n":91},{"word":"구네","n":8},{"word":"근네","n":3},{"word":"그니","n":3},{"word":"그늘","n":3},{"word":"건네","n":3},{"word":"그누","n":2},{"word":"구누","n":1},{"word":"근니","n":1},{"word":"그느","n":1},{"word":"구눌","n":1},{"word":"근너","n":1},{"word":"거네","n":1},{"word":"궈니","n":1},{"word":"미조사1","n":1}]},"g2":{"label":"군데계","color":"#0718F6","variants":[{"word":"군데","n":20},{"word":"군디","n":19},{"word":"군지","n":7},{"word":"근디","n":5},{"word":"군두","n":3},{"word":"근데","n":2},{"word":"군뒤","n":1},{"word":"권디","n":1},{"word":"곤디","n":1},{"word":"구운디","n":1},{"word":"꾼디","n":1}]},"g3":{"label":"훈지계","color":"#F6B26B","variants":[{"word":"훈지","n":1}]},"g4":{"label":"주천계","color":"#04A304","variants":[{"word":"주천","n":3},{"word":"춘천","n":2}]},"g5":{"label":"굴메계","color":"#FF00FF","variants":[{"word":"굴메","n":4}]},"g6":{"label":"둥구계","color":"#434343","variants":[{"word":"둥구","n":1}]}}},"./data/processed/map/50426.json":{"headword":"기지개","meaning":"「001」피곤할 때에 몸을 쭉 펴고 팔다리를 뻗는 일.","groups":{"g1":{"label":"기지개계","color":"#F42020","variants":[{"word":"기지개","n":54},{"word":"기지기","n":3},{"word":"기이지개","n":3},{"word":"기저기","n":1},{"word":"기주개","n":1},{"word":"그지개","n":1},{"word":"기이지기","n":1},{"word":"미조사1","n":1}]},"g2":{"label":"지지개계","color":"#0718F6","variants":[{"word":"지지개","n":62},{"word":"지지기","n":17},{"word":"지이지개","n":5},{"word":"지지리","n":2},{"word":"지제기","n":1},{"word":"지지리기","n":1},{"word":"지질개","n":1},{"word":"디지개","n":1}]},"g4":{"label":"질계","color":"#47BC14","variants":[{"word":"질","n":5},{"word":"지들기","n":1},{"word":"기","n":1}]}}},"./data/processed/map/50323.json":{"headword":"노을","meaning":"해가 뜨거나 질 무렵에, 하늘이 햇빛에 물들어 벌겋게 보이는 현상.","groups":{"g1":{"label":"노을계","color":"#FF0000","variants":[{"word":"노을","n":47},{"word":"놀","n":18},{"word":"너울","n":6},{"word":"노올","n":3},{"word":"노리","n":3},{"word":"농오리","n":2},{"word":"노얼","n":1},{"word":"노오리","n":1},{"word":"노울","n":1},{"word":"농올","n":1},{"word":"농울","n":1},{"word":"저녁노올","n":1},{"word":"지넉놀","n":1},{"word":"저녁너울","n":1}]},"g2":{"label":"뿔새계","color":"#0000FF","variants":[{"word":"뿔새","n":9},{"word":"불새","n":1},{"word":"뿔살","n":1},{"word":"불살","n":1}]},"g3":{"label":"북새계","color":"#00FF00","variants":[{"word":"북새","n":48},{"word":"북살","n":4},{"word":"북섀","n":3},{"word":"뿍새","n":1},{"word":"욱새","n":1}]},"g4":{"label":"나부리계","color":"#FF00FF","variants":[{"word":"나부리","n":2},{"word":"나불","n":1},{"word":"나구리","n":1},{"word":"나울","n":1},{"word":"나올","n":1},{"word":"나오리","n":1}]},"g5":{"label":"해지기계","color":"#FFFF00","variants":[{"word":"해지기","n":3},{"word":"헤야지","n":1},{"word":"햇발","n":1},{"word":"해그늘","n":1},{"word":"햇그늘","n":1},{"word":"석양","n":1}]}}},"./data/processed/map/50440.json":{"headword":"달걀","meaning":"「001」닭이 낳은 알. 알껍데기, 노른자, 흰자 따위로 이루어져 있다.","groups":{"g1":{"label":"달걀계","color":"#FF0000","variants":[{"word":"달걀","n":38},{"word":"달기알","n":6},{"word":"기알","n":1},{"word":"달결","n":1}]},"g2":{"label":"달갈계","color":"#FF00FF","variants":[{"word":"달갈","n":56},{"word":"달괄","n":3},{"word":"다알갈","n":1},{"word":"달가알","n":1},{"word":"달구알","n":1},{"word":"달가리","n":1}]},"g3":{"label":"닥알계","color":"#00FF00","variants":[{"word":"닥알","n":18},{"word":"달알","n":4},{"word":"알","n":1}]},"g4":{"label":"세기계","color":"#FF9900","variants":[{"word":"세기","n":7}]},"g5":{"label":"계란계","color":"#0000FF","variants":[{"word":"계란","n":54},{"word":"겨란","n":22},{"word":"게란","n":4}]},"g6":{"label":"계랄계","color":"#00FFFF","variants":[{"word":"계랄","n":16},{"word":"게랄","n":2},{"word":"겨랄","n":1},{"word":"기랄","n":1}]},"g7":{"label":"당갈계","color":"#666666","variants":[{"word":"당갈","n":6},{"word":"달개이","n":1},{"word":"달가락","n":1}]}}},"./data/processed/map/50554.json":{"headword":"돼지","meaning":"「001」멧돼짓과의 포유류. 몸무게는 200~250kg이며, 다리와 꼬리가 짧고 주둥이가 삐죽하다. 잡식성으로 온순하며 건강하다. 임신 4개월 만에 8~15마리의 새끼를 낳는다. 멧돼지를 길들여 가축으로 만든 것인데, 중요한 축산 동물의 하나로 모양과 색깔이 다른 여러 품종이 있다.","groups":{"g1":{"label":"돼지계","color":"#0000FF","variants":[{"word":"돼지","n":66},{"word":"대애지","n":24},{"word":"대지","n":19},{"word":"돼애지","n":4},{"word":"뒈지","n":3},{"word":"되지","n":2},{"word":"데지","n":1}]},"g2":{"label":"도야지계","color":"#FF00FF","variants":[{"word":"도야지","n":11},{"word":"되아지","n":11},{"word":"되야지","n":10},{"word":"대아지","n":2},{"word":"두아지","n":2},{"word":"뒤야지","n":2},{"word":"뒈야지","n":2},{"word":"디야지","n":1},{"word":"대야지","n":1},{"word":"뒤아지","n":1},{"word":"도얘지","n":1}]},"g3":{"label":"도세기계","color":"#FF0000","variants":[{"word":"도세기","n":7},{"word":"돗","n":3},{"word":"도새기","n":1}]}}},"./data/processed/map/50560.json":{"headword":"매미","meaning":"「002」매밋과의 곤충을 통틀어 이르는 말. 몸의 길이가 1.2~8cm로 투명한 날개가 있고, 수컷이 ‘맴맴’ 소리를 내며 주로 여름에 나무에 붙어서 산다.","groups":{"g1":{"label":"매미계","color":"#0000FF","variants":[{"word":"매미","n":114},{"word":"매애미","n":20},{"word":"매암","n":1},{"word":"맴미","n":1},{"word":"매아미","n":1}]},"g2":{"label":"매링이계","color":"#FF0000","variants":[{"word":"매링이","n":8},{"word":"매랭이","n":3},{"word":"매롱","n":3},{"word":"매용이","n":3},{"word":"매래이","n":1},{"word":"매래미","n":1},{"word":"매레미","n":1},{"word":"매룡이","n":1},{"word":"매애용이","n":1}]},"g3":{"label":"재열계","color":"#000000","variants":[{"word":"재열","n":5},{"word":"재","n":1},{"word":"잴","n":1},{"word":"왕","n":1}]},"g4":{"label":"뚤래미계","color":"#9900FF","variants":[{"word":"뚤래미","n":2},{"word":"뜰레미","n":1},{"word":"떨래미","n":1}]},"g5":{"label":"와가리계","color":"#000000","variants":[{"word":"와가리","n":1},{"word":"아가리","n":1},{"word":"와나리","n":1}]},"g6":{"label":"쓰르라미계","color":"#0000FF","variants":[{"word":"쓰르라미","n":1},{"word":"씨라링이","n":1}]},"g7":{"label":"미라주계","color":"#0000FF","variants":[{"word":"미라주","n":1},{"word":"대미라주","n":1}]},"g8":{"label":"왕치계","color":"#0000FF","variants":[{"word":"왕치","n":1}]}}},"./data/processed/map/50551.json":{"headword":"메뚜기","meaning":"「003」메뚜깃과의 곤충. 몸의 길이는 3cm 정도이며, 누런 녹색이고 머리와 가슴은 누런 갈색이다. 앞가슴 양측에 갈색 세로줄이 있다. 한 해에 한 번 발생하고 볏잎을 갉아 먹는 큰 해충으로 조, 밀, 수수 따위에 해를 끼친다. 한국, 일본, 중국 등지에 분포한다.","groups":{"g1":{"label":"메뚜기계","color":"#0000FF","variants":[{"word":"메뚜기","n":73},{"word":"메띠기","n":29},{"word":"메떼기","n":15},{"word":"메뛰기","n":9},{"word":"미띠기","n":7},{"word":"메뙤기","n":6},{"word":"메또기","n":3},{"word":"미뚜기","n":3},{"word":"며뚜기","n":3},{"word":"나락메떼기","n":3},{"word":"나락메뚜기","n":1},{"word":"나락미띠기","n":1},{"word":"논메뚜기","n":1},{"word":"메뚜리","n":1},{"word":"베메뚜기","n":1},{"word":"풀메뚜기","n":1},{"word":"매띠기","n":1},{"word":"뫼뙤기","n":1},{"word":"뫼뚜기","n":1},{"word":"미또기","n":1},{"word":"모때기","n":1},{"word":"나락메띠기","n":1},{"word":"나락며뚜기","n":1},{"word":"소옹장미띠기","n":1}]},"g2":{"label":"밀띠기계","color":"#FF0000","variants":[{"word":"밀띠기","n":2},{"word":"나락밀띠기","n":2},{"word":"나락멜떼기","n":1},{"word":"나락멜띠기","n":1},{"word":"말떼기","n":1},{"word":"멜떼기","n":1},{"word":"멜띠기","n":1},{"word":"미일띠기","n":1},{"word":"밀뛰기","n":1}]},"g3":{"label":"만촉계","color":"#000000","variants":[{"word":"만촉","n":1},{"word":"만축","n":1},{"word":"말축","n":1},{"word":"축","n":1},{"word":"말축","n":1},{"word":"물말축","n":1},{"word":"심방말축","n":1}]},"g4":{"label":"땅개비계","color":"#FF00FF","variants":[{"word":"땅개비","n":1},{"word":"땡개비","n":1}]},"g5":{"label":"나락땅구계","color":"#0000FF","variants":[{"word":"나락땅구","n":1},{"word":"메띵이","n":1},{"word":"멥떼기","n":1},{"word":"질또기","n":1},{"word":"풀뭉치","n":1},{"word":"땅구","n":1}]},"g6":{"label":"모꿀레계","color":"#0000FF","variants":[{"word":"모꿀레","n":1}]}}},"./data/processed/map/50508.json":{"headword":"모기","meaning":"「001」모깃과의 곤충을 통틀어 이르는 말.","groups":{"g1":{"label":"모기계","color":"#93C47D","variants":[{"word":"모기","n":98},{"word":"모구","n":49},{"word":"모오구","n":4},{"word":"모오기","n":3}]},"g2":{"label":"모겡이계","color":"#00FF00","variants":[{"word":"모겡이","n":11},{"word":"모갱이","n":4},{"word":"모개","n":4},{"word":"모깅이","n":1},{"word":"모개이","n":1},{"word":"모게이","n":1}]},"g3":{"label":"머구계","color":"#00FFFF","variants":[{"word":"머구","n":10},{"word":"머기","n":4}]},"g4":{"label":"머겡이계","color":"#0000FF","variants":[{"word":"머겡이","n":1}]}}},"./data/processed/map/50524.json":{"headword":"모래","meaning":"「001」자연히 잘게 부스러진 돌 부스러기.","groups":{"g1":{"label":"모래계","color":"#FF0000","variants":[{"word":"모래","n":124},{"word":"모레","n":2},{"word":"모래미","n":1}]},"g2":{"label":"몰개계","color":"#0000FF","variants":[{"word":"몰개","n":18},{"word":"몰개미","n":3},{"word":"모올개","n":2},{"word":"몰기","n":1}]},"g3":{"label":"모새계","color":"#00FF00","variants":[{"word":"모새","n":31},{"word":"모섀","n":1}]},"g4":{"label":"모살계","color":"#FFFF00","variants":[{"word":"모살","n":7},{"word":"몰레","n":6}]},"g5":{"label":"목새계","color":"#FF00FF","variants":[{"word":"목새","n":4},{"word":"목섀","n":1}]},"g6":{"label":"자갈가루계","color":"#CCCCCC","variants":[{"word":"자갈가루","n":1},{"word":"자갈","n":1}]}}},"./data/processed/map/50295.json":{"headword":"무","meaning":"「002」십자화과의 한해살이풀 또는 두해살이풀. 줄기는 높이가 60~100cm이며, 잎은 깃 모양으로 뿌리에서 뭉쳐나고 뿌리는 둥글고 길다. 뿌리는 잎과 함께 식용하며 비타민, 단백질의 함유량이 많아 약용하기도 한다. 중앙아시아가 원산지로 아시아, 유럽 등지의 온대에서 많은 품종이 재배된다.","groups":{"g1":{"label":"무계","color":"#FF0000","variants":[{"word":"무","n":52},{"word":"무우","n":25},{"word":"무유","n":1},{"word":"총각무","n":1},{"word":"무이","n":1}]},"g2":{"label":"무시계","color":"#0000FF","variants":[{"word":"무시","n":56},{"word":"무수","n":43},{"word":"무숙","n":1},{"word":"무시이","n":1}]},"g3":{"label":"무꾸계","color":"#00FF00","variants":[{"word":"무꾸","n":12}]},"g4":{"label":"삐계","color":"#FF9900","variants":[{"word":"삐","n":4},{"word":"놈삐","n":1}]},"g5":{"label":"노물계","color":"#060505","variants":[{"word":"노물","n":1}]}}},"./data/processed/map/50411.json":{"headword":"무릎","meaning":"「001」넙다리와 정강이의 사이에 앞쪽으로 둥글게 튀어나온 부분.","groups":{"g1":{"label":"무릅계","color":"#F42020","variants":[{"word":"무릅","n":45},{"word":"무룹","n":21},{"word":"무릎","n":18},{"word":"무뤂","n":4},{"word":"무럽","n":3},{"word":"무렆","n":1},{"word":"무롭","n":1},{"word":"무롶","n":1}]},"g2":{"label":"물팍계","color":"#04A304","variants":[{"word":"물팍","n":42},{"word":"뭄팍","n":1}]},"g3":{"label":"무르팍계","color":"#00FF00","variants":[{"word":"무르팍","n":22},{"word":"무루팍","n":12},{"word":"무룸팍","n":3},{"word":"무름팍","n":2},{"word":"무르팡","n":2},{"word":"무릉팍","n":1},{"word":"미조사3","n":1}]},"g4":{"label":"고뱅이계","color":"#0718F6","variants":[{"word":"고뱅이","n":7},{"word":"꼬뱅이","n":1},{"word":"고빙이","n":1},{"word":"무릎꼬방이","n":1}]},"g5":{"label":"장갱이계","color":"#4A86E8","variants":[{"word":"장갱이","n":5},{"word":"종갱이","n":1},{"word":"장강","n":1}]},"g6":{"label":"종지계","color":"#980000","variants":[{"word":"종지","n":1},{"word":"종지뼈","n":1},{"word":"종지뻬","n":1},{"word":"종지기뻬","n":1},{"word":"물종지","n":1},{"word":"종줏굽","n":1}]},"g7":{"label":"깍젱이뻬계","color":"#7F6000","variants":[{"word":"깍젱이뻬","n":1},{"word":"절벤꽝","n":1}]},"g8":{"label":"무릎고뱅이계","color":"#3D85C6","variants":[{"word":"무릎고뱅이","n":1},{"word":"무룹꼬베이","n":1},{"word":"물꼬베이","n":1}]},"g9":{"label":"동무럽계","color":"#9900FF","variants":[{"word":"동무럽","n":2},{"word":"동무릅","n":1},{"word":"동모릅","n":1},{"word":"동롭","n":1},{"word":"동립","n":1},{"word":"동","n":1},{"word":"동고롭","n":1}]},"g10":{"label":"눌팍계","color":"#00FFFF","variants":[{"word":"눌팍","n":1},{"word":"눈팍","n":1}]}}},"./data/processed/map/50550.json":{"headword":"미꾸라지","meaning":"「001」미꾸릿과의 민물고기. 몸의 길이는 10~20cm이고 등은 푸른빛을 띤 검은색이며, 배는 흰색이고 검은 점이 많다. 몸은 가늘고 길며 몹시 미끄럽고 수염이 길다. 논, 개천, 못 따위의 흙 속에 사는데 가끔 수면에 떠올라 공기 호흡을 한다. 한국, 대만, 중국 등지에 분포한다.","groups":{"g0":{"label":"미꾸래기계","color":"#0000FF","variants":[{"word":"미꾸래기","n":2},{"word":"메꼬라지","n":1},{"word":"미꼬래애미","n":1},{"word":"미꾸라끼","n":1},{"word":"미꾸라미","n":1},{"word":"미끄랭이","n":1},{"word":"용고기","n":1}]},"g1":{"label":"미꾸라지계","color":"#0000FF","variants":[{"word":"미꾸라지","n":77},{"word":"미꼬라지","n":24},{"word":"미꾸랭이","n":12},{"word":"미꾸락지","n":8},{"word":"미끄라지","n":7},{"word":"미꼬랭이","n":5},{"word":"미꼬락지","n":3},{"word":"미꾸레미","n":2},{"word":"미꾸래미","n":2},{"word":"미꼬래이","n":2},{"word":"미꾸러지","n":1},{"word":"미꾸라지이","n":1},{"word":"미꾸라기","n":1},{"word":"미꾸락기","n":1},{"word":"미꼬락기","n":1},{"word":"미끄레미","n":1},{"word":"미꼬래미","n":1},{"word":"미꾸랑지","n":1},{"word":"미꾸람지","n":1},{"word":"미꾸래이","n":1}]},"g2":{"label":"미꾸리계","color":"#FF0000","variants":[{"word":"미꾸리","n":24},{"word":"미꼬리","n":2},{"word":"미끼리","n":1}]},"g3":{"label":"밀꾸라지계","color":"#FF00FF","variants":[{"word":"밀꾸라지","n":1}]},"g4":{"label":"응무구리계","color":"#0000FF","variants":[{"word":"응무구리","n":1}]}}},"./data/processed/map/50530.json":{"headword":"바위","meaning":"「001」부피가 매우 큰 돌.","groups":{"g1":{"label":"바위계","color":"#FF0000","variants":[{"word":"바위","n":41},{"word":"바우이","n":7},{"word":"바이","n":7},{"word":"바윗돌","n":3},{"word":"바우잇돌","n":1}]},"g2":{"label":"바우계","color":"#00FF00","variants":[{"word":"바우","n":62},{"word":"바웃돌","n":4},{"word":"바오","n":1},{"word":"엉바오","n":1}]},"g3":{"label":"방구계","color":"#0000FF","variants":[{"word":"방구","n":31},{"word":"바구","n":11},{"word":"방굿돌","n":4},{"word":"듬바구","n":1}]},"g4":{"label":"왕돌계","color":"#FFFF00","variants":[{"word":"왕돌","n":6},{"word":"왕석","n":4}]},"g5":{"label":"방우계","color":"#FF00FF","variants":[{"word":"방우","n":4},{"word":"방웃돌","n":1},{"word":"방위","n":1},{"word":"너레방석","n":1}]},"g6":{"label":"돌덩이계","color":"#FF0000","variants":[{"word":"돌덩이","n":1},{"word":"돌덩어리","n":1},{"word":"두팍","n":1}]}}},"./data/processed/map/50557.json":{"headword":"박쥐","meaning":"「001」박쥐목의 동물을 통틀어 이르는 말. 쥐와 비슷하나 귀가 크고 앞다리가 날개처럼 변형되어 날아다닌다. 시각은 좋지 않으나 성대로부터 초음파를 내어 그 반사음을 귀에서 받아들여 거리와 방향을 안다. 주로 밤에 활동하는데 동굴이나 나무 속 또는 삼림 등지에 산다. 전 세계에 18과 1000여 종이 분포한다.","groups":{"g0":{"label":"뽀올지계","color":"#FF00FF","variants":[{"word":"뽀올지","n":4},{"word":"빠알지","n":3},{"word":"바악쥐","n":2},{"word":"뽀올쥐","n":2},{"word":"박주기","n":1},{"word":"빠알주","n":1}]},"g1":{"label":"빨쥐계","color":"#0000FF","variants":[{"word":"빨쥐","n":6},{"word":"빨지","n":1},{"word":"뽈찌","n":1},{"word":"뽈지","n":1}]},"g2":{"label":"박쥐계","color":"#FF00FF","variants":[{"word":"박쥐","n":76},{"word":"박지","n":36},{"word":"빡쥐","n":8},{"word":"뽁쥐","n":6},{"word":"빡지","n":5},{"word":"뽁지","n":2}]},"g3":{"label":"람쥐계","color":"#FF0000","variants":[{"word":"람쥐","n":2},{"word":"람지","n":2},{"word":"다람쥐","n":1},{"word":"다람지","n":1},{"word":"다람쥉이","n":1}]},"g4":{"label":"박나비계","color":"#000000","variants":[{"word":"박나비","n":1},{"word":"박내비","n":1}]},"g5":{"label":"밤쥐계","color":"#000000","variants":[{"word":"밤쥐","n":1},{"word":"박지벌레","n":1}]}}},"./data/processed/map/50556.json":{"headword":"뱀","meaning":"「001」파충강 뱀과의 동물을 통틀어 이르는 말. 몸은 원통형으로 가늘고 길며, 다리와 눈꺼풀, 귓구멍이 없다. 피부는 비늘로 덮여 있고 오래되면 탈피한다. 현재 2,700여 종이 알려져 있고, 열대 지방에 많은 종류가 분포한다.","groups":{"g0":{"label":"배앰계","color":"#0000FF","variants":[{"word":"배앰","n":8},{"word":"구링이","n":2},{"word":"구우리이","n":1},{"word":"베암","n":1}]},"g1":{"label":"뱀계","color":"#0000FF","variants":[{"word":"뱀","n":71},{"word":"배암","n":29},{"word":"배미","n":11},{"word":"배애미","n":9},{"word":"베염","n":5},{"word":"비앰","n":2},{"word":"배애암","n":1},{"word":"배염","n":1},{"word":"베여미","n":1},{"word":"뵘","n":1},{"word":"버여미","n":1},{"word":"버염","n":1}]},"g2":{"label":"비얌계","color":"#FF0000","variants":[{"word":"비얌","n":13},{"word":"뱜","n":10},{"word":"비암","n":3}]},"g3":{"label":"구렝이계","color":"#FF00FF","variants":[{"word":"구렝이","n":1},{"word":"구리","n":1},{"word":"구우리","n":1}]},"g4":{"label":"진짐성계","color":"#000000","variants":[{"word":"진짐성","n":1}]}}},"./data/processed/map/50547.json":{"headword":"번데기","meaning":"「002」누에가 고치를 틀고 변하여 된 몸. 모양은 실북 모양이고 색깔은 연한 밤색에서 진한 밤색으로 변하며 검은 것도 있다.","groups":{"g0":{"label":"건디기계","color":"#0000FF","variants":[{"word":"건디기","n":1},{"word":"누엣고주워리","n":1},{"word":"뉘어뻔디기","n":1},{"word":"니비건디기","n":1},{"word":"니이껀지","n":1},{"word":"본도지","n":1},{"word":"분디기","n":1}]},"g1":{"label":"뻔데기계","color":"#0000FF","variants":[{"word":"뻔데기","n":51},{"word":"번데기","n":36},{"word":"뻔디기","n":26},{"word":"번디기","n":17},{"word":"뻔더기","n":1},{"word":"번데","n":1},{"word":"번더지","n":1},{"word":"번도지","n":1},{"word":"누에번데기","n":1}]},"g2":{"label":"뽄데기계","color":"#FF0000","variants":[{"word":"뽄데기","n":6},{"word":"뿐디기","n":2},{"word":"본데기","n":1},{"word":"본디기","n":1},{"word":"뽄디기","n":1}]},"g3":{"label":"꼰데기계","color":"#FF00FF","variants":[{"word":"꼰데기","n":6},{"word":"꼰디기","n":2},{"word":"꾄데기","n":2},{"word":"꼰드기","n":1},{"word":"꾄되기","n":1},{"word":"깬데기","n":1},{"word":"껜두기","n":1},{"word":"꼰디이","n":1},{"word":"꼰딩이","n":1}]},"g4":{"label":"빈데기계","color":"#0000FF","variants":[{"word":"빈데기","n":3},{"word":"빈디기","n":2},{"word":"삔데기","n":1}]},"g5":{"label":"고주어리계","color":"#0000FF","variants":[{"word":"고주어리","n":1},{"word":"고주워리","n":1}]}}},"./data/processed/map/50319.json":{"headword":"벌레","meaning":"「001」곤충을 비롯하여 기생충과 같은 하등 동물을 통틀어 이르는 말.","groups":{"g1":{"label":"벌레계","color":"#9FC5E8","variants":[{"word":"벌레","n":66},{"word":"벌레에","n":1}]},"g2":{"label":"버렝이계","color":"#9FC5E8","variants":[{"word":"버렝이","n":5},{"word":"베렝이","n":2},{"word":"버레","n":1}]},"g3":{"label":"버러지계","color":"#9DC98E","variants":[{"word":"버러지","n":18},{"word":"벌러지","n":14},{"word":"버럭지","n":7},{"word":"버라지","n":1},{"word":"버러끼","n":1}]},"g4":{"label":"벌거지계","color":"#F48C8C","variants":[{"word":"벌거지","n":65},{"word":"벌가지","n":6},{"word":"볼가지","n":3},{"word":"벌걱지","n":3}]},"g5":{"label":"벌겡이계","color":"#FF0000","variants":[{"word":"벌겡이","n":15},{"word":"벌게","n":2},{"word":"벌기","n":2},{"word":"벌갱이","n":1}]},"g6":{"label":"곤추웅계","color":"#666666","variants":[{"word":"곤추웅","n":1}]},"g7":{"label":"물컷계","color":"#666666","variants":[{"word":"물컷","n":1}]}}},"./data/processed/map/50443.json":{"headword":"벼","meaning":"「002」‘벼’의 열매. 가을에 말라서 씨와 껍질이 하나처럼 되어 익으며, 이것을 찧은 것을 ‘쌀’이라고 한다.","groups":{"g1":{"label":"벼계","color":"#FF0000","variants":[{"word":"벼","n":57},{"word":"베","n":48},{"word":"벼이삭","n":1},{"word":"베이삭","n":1},{"word":"비이","n":1}]},"g2":{"label":"나락계","color":"#0000FF","variants":[{"word":"나락","n":98},{"word":"나록","n":4},{"word":"나룩","n":3},{"word":"날기","n":1}]},"g3":{"label":"쌀계","color":"#666666","variants":[{"word":"쌀","n":1},{"word":"이삭","n":1},{"word":"강기","n":1}]}}},"./data/processed/map/50297.json":{"headword":"부추","meaning":"백합과의 여러해살이풀. 봄에 땅속의 작은 비늘줄기로부터 길이 30cm 정도 되는 선 모양의 두툼한 잎이 무더기로 뭉쳐난다. 8~9월에 긴 꽃줄기가 나와 산형(繖形) 화서로 흰색의 작은 꽃이 핀다. 열매는 삭과(蒴果)를 맺으며 익으면 저절로 터져서 까만 씨가 나온다. 비늘줄기는 건위ㆍ화상 따위에 쓰고, 잎은 식용한다. 중국과 인도가 원산지로 한국, 일본 등지에 분포한다.","groups":{"g1":{"label":"부추계","color":"#FF0000","variants":[{"word":"부추","n":43},{"word":"분추","n":13},{"word":"부초","n":2},{"word":"푸추","n":2},{"word":"부운추","n":2},{"word":"푸초","n":1},{"word":"분초","n":1},{"word":"부운초","n":1}]},"g2":{"label":"솔계","color":"#0000FF","variants":[{"word":"솔","n":33},{"word":"소풀","n":11},{"word":"졸","n":11},{"word":"세우리","n":5},{"word":"소불","n":3},{"word":"세오리","n":1},{"word":"쉐우리","n":1},{"word":"줄","n":1},{"word":"쭐","n":1}]},"g3":{"label":"정구지계","color":"#FF9900","variants":[{"word":"정구지","n":52},{"word":"정고지","n":2},{"word":"정구치","n":2},{"word":"저엉구지","n":1},{"word":"정구지이","n":1}]}}},"./data/processed/map/50408.json":{"headword":"사마귀","meaning":"「002」사마귓과의 곤충. 몸의 길이는 7~8cm이며, 누런 갈색 또는 초록색이다. 뒷날개는 반투명이고 검은 갈색의 얼룩무늬가 있다. 앞다리가 낫처럼 구부러져 먹이를 잡기에 편리하다. 8~9월에 나타나서 풀밭에 사는데 한국, 일본, 중국 등지에 분포한다.","groups":{"g1":{"label":"사마귀계","color":"#F42020","variants":[{"word":"사마귀","n":37},{"word":"사막","n":13},{"word":"사마기","n":12},{"word":"사아마기","n":3},{"word":"사매기","n":2},{"word":"사아마귀","n":1}]},"g2":{"label":"사마구계","color":"#0000FF","variants":[{"word":"사마구","n":71},{"word":"사아마구","n":9},{"word":"미조사2","n":2},{"word":"산마구","n":1},{"word":"사마구이","n":1},{"word":"소마구","n":1}]},"g3":{"label":"물사마귀계","color":"#FF00FF","variants":[{"word":"물사마귀","n":2},{"word":"물사마기","n":1}]},"g4":{"label":"물사마구계","color":"#4A86E8","variants":[{"word":"물사마구","n":3},{"word":"무사마구","n":2},{"word":"무산마구","n":1},{"word":"물사마구이","n":1},{"word":"무사막","n":1}]},"g5":{"label":"말축계","color":"#434343","variants":[{"word":"말축","n":3},{"word":"만축","n":1}]}}},"./data/processed/map/50545.json":{"headword":"새벽","meaning":"「001」먼동이 트려 할 무렵.","groups":{"g1":{"label":"새벽계","color":"#FF0000","variants":[{"word":"새벽","n":74},{"word":"섀벽","n":2},{"word":"새벽녘","n":2}]},"g2":{"label":"새복계","color":"#00FF00","variants":[{"word":"새복","n":56},{"word":"새북","n":17},{"word":"섀복","n":3},{"word":"새보","n":1}]},"g3":{"label":"새벅계","color":"#0000FF","variants":[{"word":"새벅","n":16},{"word":"새벜","n":1}]},"g4":{"label":"새벡계","color":"#FFFF00","variants":[{"word":"새벡","n":9},{"word":"동새벡","n":1}]},"g5":{"label":"새빅계","color":"#FF00FF","variants":[{"word":"새빅","n":1},{"word":"새비","n":1}]},"g6":{"label":"식전계","color":"#FF00FF","variants":[{"word":"식전","n":1}]}}},"./data/processed/map/50438.json":{"headword":"시래기","meaning":"「001」무청이나 배추의 잎을 말린 것. 새끼 따위로 엮어 말려서 보관하다가 볶거나 국을 끓이는 데 쓴다.","groups":{"g1":{"label":"씨래기계","color":"#FF0000","variants":[{"word":"씨래기","n":68},{"word":"시래기","n":24},{"word":"쓰래기","n":21},{"word":"씨레기","n":4},{"word":"스래기","n":3},{"word":"무씨래기","n":2},{"word":"씨래이","n":2},{"word":"쓰레기","n":2},{"word":"무시시래기","n":1},{"word":"시러기","n":1},{"word":"씨라기","n":1},{"word":"무우씨래기","n":1},{"word":"무시씨래기","n":1},{"word":"씨래기갓","n":1},{"word":"씨랭이","n":1},{"word":"쓰라기","n":1}]},"g2":{"label":"시라구계","color":"#00FF00","variants":[{"word":"시라구","n":5},{"word":"씨라구","n":5},{"word":"무수씨라구","n":1},{"word":"시락지","n":1}]},"g3":{"label":"실가리계","color":"#0000FF","variants":[{"word":"실가리","n":16},{"word":"씰가리","n":4},{"word":"시라리","n":3},{"word":"실가루","n":2}]},"g4":{"label":"건추계","color":"#FF9900","variants":[{"word":"건추","n":6},{"word":"건추씨레기","n":1}]},"g5":{"label":"무우청계","color":"#666666","variants":[{"word":"무우청","n":1}]}}},"./data/processed/map/50503.json":{"headword":"여우","meaning":"「001」갯과의 포유류. 개와 비슷한데 몸의 길이는 70cm 정도이고 홀쭉하며, 대개 누런 갈색 또는 붉은 갈색이다. 주둥이가 길고 뾰족한데 꼬리는 굵고 길다. 한국, 일본, 중국, 유럽, 북아메리카 등지에 분포한다.","groups":{"g1":{"label":"여우계","color":"#FFC58A","variants":[{"word":"여우","n":73},{"word":"영우","n":3},{"word":"여이","n":2},{"word":"여위","n":2},{"word":"여우우","n":1},{"word":"여의","n":1},{"word":"여우이","n":1},{"word":"여호","n":1},{"word":"여후","n":1}]},"g2":{"label":"여시계","color":"#76A5AF","variants":[{"word":"여시","n":47},{"word":"여수","n":22},{"word":"야시","n":13},{"word":"예수","n":7},{"word":"옛수","n":2},{"word":"여어시","n":1},{"word":"예에시","n":1},{"word":"개여시","n":1},{"word":"야수","n":1}]},"g3":{"label":"여깽이계","color":"#BB59BB","variants":[{"word":"여깽이","n":2},{"word":"여껭이","n":2},{"word":"여깨이","n":1},{"word":"연깽이","n":1},{"word":"여깡이","n":1},{"word":"야꽹이","n":1},{"word":"예끼","n":1}]},"g4":{"label":"미이구계","color":"#F1C232","variants":[{"word":"미이구","n":1}]}}},"./data/processed/map/50296.json":{"headword":"오이","meaning":"「002」‘오이’의 열매. 단단하고 독특한 향이 있으며 시원한 맛이 있어 열매의 즙액은 뜨거운 물에 덴 데에 효과가 있다. 반찬거리로 쓰며, 김치를 담그기도 한다.","groups":{"g1":{"label":"오이계","color":"#FF0000","variants":[{"word":"오이","n":96},{"word":"외","n":16},{"word":"웨","n":3},{"word":"에","n":2},{"word":"오오이","n":1},{"word":"우이","n":1},{"word":"위","n":1}]},"g2":{"label":"물외계","color":"#0000FF","variants":[{"word":"물외","n":29},{"word":"물에","n":18},{"word":"물웨","n":12},{"word":"물이","n":12},{"word":"물오이","n":3},{"word":"물위","n":3},{"word":"물이이","n":3},{"word":"무울위","n":1},{"word":"물위위","n":1},{"word":"물왜","n":1},{"word":"무울이","n":1},{"word":"무울이이","n":1}]},"g3":{"label":"자외이계","color":"#060505","variants":[{"word":"자외이","n":1},{"word":"가시웨","n":1}]}}},"./data/processed/map/50334.json":{"headword":"입술","meaning":"「001」포유류의 입 가장자리 위아래에 도도록이 붙어 있는 얇고 부드러운 살.","groups":{"g1":{"label":"입술계","color":"#0000FF","variants":[{"word":"입술","n":96},{"word":"입설","n":16},{"word":"입솔","n":9},{"word":"입소리","n":9},{"word":"입슬","n":5},{"word":"입서리","n":4},{"word":"입수리","n":3},{"word":"입살","n":2},{"word":"입서울","n":1}]},"g2":{"label":"입수구리계","color":"#FF0000","variants":[{"word":"입수구리","n":13},{"word":"입서버리","n":4},{"word":"입수버리","n":3},{"word":"입서불","n":2},{"word":"입수부리","n":2},{"word":"입소구리","n":2},{"word":"입서블","n":1},{"word":"입시불","n":1},{"word":"입소버리","n":1},{"word":"입시부리","n":1},{"word":"입서거리","n":1}]},"g3":{"label":"입숡계","color":"#9900FF","variants":[{"word":"입숡","n":3},{"word":"입술기","n":2}]},"g4":{"label":"입바위계","color":"#00FFFF","variants":[{"word":"입바위","n":3},{"word":"입바우","n":2},{"word":"입바이","n":1}]}}},"./data/processed/map/50562.json":{"headword":"지렁이","meaning":"「001」빈모강의 환형동물을 통틀어 이르는 말. 몸의 길이는 작은 종류가 2~3mm, 큰 종류는 2미터 정도이고 긴 원통형으로 가늘며, 많은 마디로 이루어져 있다. 암수한몸으로 재생력이 강하고 흙 속이나 부식토에서 산다.","groups":{"g0":{"label":"꺼껭이계","color":"#0000FF","variants":[{"word":"꺼껭이","n":4},{"word":"거어시렝이","n":1},{"word":"걸쳉이","n":1},{"word":"꺼꾸랭이","n":1},{"word":"꺼꾸리","n":1},{"word":"꺼꾸링이","n":1},{"word":"꺼낑이","n":1},{"word":"꺼어껭이","n":1},{"word":"꺼어꾸지","n":1},{"word":"꺼어싱이","n":1},{"word":"꺼얼뀅이","n":1},{"word":"꺼얼끄렝이","n":1},{"word":"꿸껭이","n":1},{"word":"끄시랭이","n":1},{"word":"끄얼뀅이","n":1}]},"g1":{"label":"지렁이계","color":"#0000FF","variants":[{"word":"지렁이","n":52},{"word":"지렝이","n":36},{"word":"지링이","n":9},{"word":"지랭이","n":5},{"word":"지이렝이","n":4},{"word":"지이렁이","n":2},{"word":"지령이","n":2},{"word":"지레이","n":1},{"word":"찌렝이","n":1}]},"g2":{"label":"거시랑계","color":"#FF0000","variants":[{"word":"거시랑","n":9},{"word":"거시랭이","n":9},{"word":"그시랑","n":4},{"word":"거시랑치","n":2},{"word":"거시랑이","n":1},{"word":"거시렝이","n":1},{"word":"그시랭이","n":1},{"word":"꺼시랭이","n":1},{"word":"그시락","n":1},{"word":"갈거시","n":1}]},"g3":{"label":"거싱이계","color":"#FF00FF","variants":[{"word":"거싱이","n":5},{"word":"꺼싱이","n":5},{"word":"거셍이","n":3},{"word":"거시이","n":1},{"word":"꺼솅이","n":1},{"word":"꺼생이","n":1},{"word":"꺼셍이","n":1}]},"g4":{"label":"껄껭이계","color":"#DD7E6B","variants":[{"word":"껄껭이","n":4},{"word":"꺼께이","n":1},{"word":"끙깽이","n":1}]},"g5":{"label":"찌일꽁이계","color":"#000000","variants":[{"word":"찌일꽁이","n":1},{"word":"찌일꿩이","n":1}]},"g6":{"label":"게우리계","color":"#0000FF","variants":[{"word":"게우리","n":6},{"word":"게오리","n":1}]},"g7":{"label":"거성거리계","color":"#A855F7","variants":[{"word":"거성거리","n":1},{"word":"끅쟁이","n":1},{"word":"물지넹이","n":1}]}}},"./data/processed/map/50482.json":{"headword":"짚신","meaning":"「001」볏짚으로 삼아 만든 신. 가는 새끼를 꼬아 날을 삼고 총과 돌기총으로 울을 삼아 만든다.","groups":{"g1":{"label":"짚신계","color":"#FF0000","variants":[{"word":"짚신","n":58},{"word":"집신","n":43},{"word":"찍신","n":2},{"word":"집시","n":1},{"word":"집센","n":1},{"word":"찝신","n":1}]},"g2":{"label":"집시기계","color":"#0000FF","variants":[{"word":"집시기","n":18},{"word":"집세기","n":17},{"word":"짚세기","n":17},{"word":"짚시기","n":9},{"word":"집새기","n":1},{"word":"집시개","n":1},{"word":"집세기신","n":1},{"word":"짚씨기신","n":1},{"word":"짚씩신","n":1},{"word":"짚석","n":1}]},"g3":{"label":"메신계","color":"#19E75C","variants":[{"word":"메신","n":4},{"word":"털메기","n":2},{"word":"털메기신","n":2},{"word":"털미신","n":2},{"word":"틀메기","n":1},{"word":"털미기","n":1},{"word":"털멩이","n":1},{"word":"털메신","n":1},{"word":"틀메기신","n":1}]},"g4":{"label":"초신계","color":"#666666","variants":[{"word":"초신","n":7},{"word":"총신","n":1},{"word":"메트리","n":1}]}}},"./data/processed/map/50302.json":{"headword":"콩나물","meaning":"콩을 물이 잘 빠지는 그릇 따위에 담아 그늘에 두고 물을 주어 자라게 한 것. 또는 그것으로 만든 나물.","groups":{"g1":{"label":"콩나물계","color":"#FF0000","variants":[{"word":"콩나물","n":99},{"word":"콩너물","n":18},{"word":"콩노물","n":14},{"word":"콩노멀","n":1}]},"g2":{"label":"콩기름계","color":"#4A86E8","variants":[{"word":"콩기름","n":5},{"word":"콩기럼","n":1}]},"g3":{"label":"콩지름계","color":"#0000FF","variants":[{"word":"콩지름","n":33},{"word":"콩지럼","n":2},{"word":"콩주름","n":2},{"word":"콩질금","n":2},{"word":"코옹지름","n":1},{"word":"콩질굼","n":1},{"word":"질곰","n":1},{"word":"질금","n":1},{"word":"주름","n":1}]},"g4":{"label":"콩물계","color":"#FFFF00","variants":[{"word":"콩물","n":5},{"word":"콩멀","n":1}]}}},"./data/processed/map/50500.json":{"headword":"파리","meaning":"「001」파리목 털파리하목의 곤충을 통틀어 이르는 말. 몸의 길이는 1cm 정도이며 검은색 또는 청록색이고 강모가 많이 나 있다. 잘 발달된 한 쌍의 날개가 있고 더듬이는 세 마디이고 짧으며, 아래로 뾰족하게 나온 주둥이는 쏘거나 핥기에 알맞다. 완전 변태를 하며, 여름에 많이 발생하는데 장티푸스ㆍ콜레라ㆍ소아마비 따위의 병원균을 옮긴다. 전 세계에 많은 종류가 분포하는데 광대파릿과, 초파릿과, 벼룩파릿과, 집파릿과 따위가 있다.\r\n「002」집파릿과의 곤충. 몸은 검은 갈색, 다리ㆍ더듬이는 검은색이며, 가슴ㆍ등에는 누런빛을 띤 회색 또는 회색의 가루로 덮인 다섯 개의 세로띠가 있다. 대개 여름에 번식하여 집 안에 모여드는데 전염병을 옮긴다. 전 세계에 분포한다.\r\n「003」이유 없이 뜯어먹거나 한몫 끼어 이득을 보려는 사람을 속되게 이르는 말.","groups":{"g1":{"label":"파리계","color":"#D5A6BD","variants":[{"word":"파리","n":88},{"word":"파랭이","n":16},{"word":"파아리","n":5},{"word":"파링이","n":3},{"word":"똥파리","n":2},{"word":"파래이","n":1},{"word":"파레이","n":1},{"word":"파리이","n":1},{"word":"날파리","n":1}]},"g2":{"label":"퍼리계","color":"#FF0000","variants":[{"word":"퍼리","n":10},{"word":"퍼랭이","n":1}]},"g3":{"label":"포리계","color":"#00FF00","variants":[{"word":"포리","n":34},{"word":"리","n":7}]}}},"./data/processed/map/50497.json":{"headword":"할머니","meaning":"「001」부모의 어머니를 이르는 말.\r\n「005」부모의 어머니를 부르는 말.\r\n(아버지의 어머니를 이르거나 부르는 말)","groups":{"g1":{"label":"할머니계","color":"#638454","variants":[{"word":"할머니","n":100},{"word":"할무니","n":17},{"word":"하알머니","n":1},{"word":"할먼니","n":1},{"word":"함머니","n":1},{"word":"함무니","n":1},{"word":"할마니","n":1},{"word":"할마님","n":1}]},"g2":{"label":"할머이계","color":"#1AA2A2","variants":[{"word":"할머이","n":10},{"word":"할멍이","n":1},{"word":"할마이","n":1},{"word":"할무이","n":1}]},"g3":{"label":"할매계","color":"#4174E9","variants":[{"word":"할매","n":34},{"word":"하알매","n":4},{"word":"함매","n":1}]},"g4":{"label":"할망계","color":"#F6B26B","variants":[{"word":"할망","n":2}]},"g5":{"label":"함쌔계","color":"#AE5C84","variants":[{"word":"함쌔","n":1}]},"g6":{"label":"큰어매계","color":"#646406","variants":[{"word":"큰어매","n":2}]},"g7":{"label":"조모계","color":"#806104","variants":[{"word":"조모","n":2},{"word":"조모님","n":2},{"word":"조몬님","n":1}]}}},"./data/processed/map/50444.json":{"headword":"호미","meaning":"「001」김을 매거나 감자나 고구마 따위를 캘 때 쓰는 쇠로 만든 농기구. 끝은 뾰족하고 위는 대개 넓적한 삼각형으로 되어 있는데 목을 가늘게 휘어 구부린 뒤 둥근 나무 자루에 박는다.","groups":{"g1":{"label":"호미계","color":"#FF0000","variants":[{"word":"호미","n":85},{"word":"외기호미","n":1},{"word":"헤미","n":1}]},"g2":{"label":"호무계","color":"#00FF00","variants":[{"word":"호무","n":10},{"word":"허무","n":1},{"word":"등지허무","n":1}]},"g3":{"label":"호맹이계","color":"#0000FF","variants":[{"word":"호맹이","n":43},{"word":"호멩이","n":41},{"word":"호매이","n":4},{"word":"호매","n":2},{"word":"홈멩이","n":1},{"word":"호메니","n":1},{"word":"호밍이","n":1}]},"g4":{"label":"겡이계","color":"#FFFF00","variants":[{"word":"겡이","n":7},{"word":"게기","n":1},{"word":"각지","n":1},{"word":"글겡이","n":1}]}}},"./data/processed/map/50395.json":{"headword":"휘파람","meaning":"「001」입술을 좁게 오므리고 혀끝으로 입김을 불어서 맑게 내는 소리. 또는 그런 일.","groups":{"g1":{"label":"휘파람계","color":"#FF0909","variants":[{"word":"휘파람","n":21},{"word":"회파람","n":17},{"word":"헤파람","n":6},{"word":"훼파람","n":4},{"word":"히파람","n":4},{"word":"휘푸람","n":1},{"word":"해파람","n":1},{"word":"홰파람","n":1},{"word":"미조사1","n":1}]},"g2":{"label":"쉬파람계","color":"#F132EB","variants":[{"word":"쉬파람","n":2},{"word":"시파람","n":1},{"word":"세파람","n":1}]},"g3":{"label":"휫바람계","color":"#0718F6","variants":[{"word":"휫바람","n":32},{"word":"힛바람","n":18},{"word":"횟바람","n":18},{"word":"헷바람","n":3},{"word":"휘잇바람","n":3},{"word":"휏바람","n":2},{"word":"휫람","n":1},{"word":"휏름","n":1},{"word":"횃바람","n":1},{"word":"휘바람","n":1},{"word":"히잇바람","n":1},{"word":"힛바라","n":1}]},"g4":{"label":"훼빠람계","color":"#4A86E8","variants":[{"word":"훼빠람","n":1},{"word":"휘빠람","n":1},{"word":"회빠람","n":1}]},"g5":{"label":"셋름계","color":"#4A86E8","variants":[{"word":"셋름","n":5},{"word":"싯바람","n":1},{"word":"셋바람","n":1},{"word":"셋바름","n":1},{"word":"셋보름","n":1},{"word":"셋롬","n":1}]},"g6":{"label":"히깨계","color":"#4A86E8","variants":[{"word":"히깨","n":4},{"word":"히끼","n":3},{"word":"휘이깨","n":1},{"word":"히이깨","n":1},{"word":"휘깨","n":1},{"word":"휘끼","n":1}]},"g7":{"label":"휫가락계","color":"#434343","variants":[{"word":"휫가락","n":3}]}}},"./data/processed/map/50304.json":{"headword":"변소","meaning":"대소변을 보도록 만들어 놓은 곳.","groups":{"g1":{"label":"변소계","color":"#FF0000","variants":[{"word":"변소","n":31},{"word":"변솟간","n":7},{"word":"벤소","n":4},{"word":"벤솟간","n":1}]},"g2":{"label":"뒷간계","color":"#0000FF","variants":[{"word":"뒷간","n":31},{"word":"딧간","n":23},{"word":"둣간","n":8},{"word":"뒷관","n":1},{"word":"딕간","n":1}]},"g3":{"label":"칙간계","color":"#61F132","variants":[{"word":"칙간","n":43},{"word":"측간","n":2},{"word":"치깐","n":1},{"word":"칙관","n":1},{"word":"부칙간","n":1},{"word":"부칠간","n":1},{"word":"부칠","n":1},{"word":"티깐","n":1},{"word":"팃간","n":1}]},"g4":{"label":"통시계","color":"#FF00FF","variants":[{"word":"통시","n":32},{"word":"통세","n":3},{"word":"통싯간","n":2},{"word":"토옹시","n":1},{"word":"통시이","n":1}]},"g5":{"label":"똥둣간계","color":"#FB96F8","variants":[{"word":"똥둣간","n":4},{"word":"똥간","n":3},{"word":"똥구시","n":2},{"word":"똥독","n":1},{"word":"똥뚯간","n":1},{"word":"똥구세","n":1},{"word":"똥시이","n":1},{"word":"똥싯간","n":1},{"word":"똥구당이","n":1}]},"g6":{"label":"정낭계","color":"#FFFF00","variants":[{"word":"정낭","n":19}]},"g7":{"label":"화장실계","color":"#B2F998","variants":[{"word":"화장실","n":12},{"word":"하장실","n":4}]},"g8":{"label":"돗통계","color":"#434343","variants":[{"word":"돗통","n":4},{"word":"돗통시","n":1}]},"g9":{"label":"잿간계","color":"#FFE087","variants":[{"word":"잿간","n":4},{"word":"구시","n":2},{"word":"소망","n":2},{"word":"드딜항","n":1},{"word":"서깐","n":1},{"word":"집간","n":1},{"word":"합수통","n":1},{"word":"호간","n":1}]}}}}</script>
+<!-- SNAPSHOT:END -->
+<script>
+(function () {
+  'use strict';
+
+  // 이 페이지의 유일한 설정: 쓸 표제어(지역어 지도 번호)와, 표준어이거나 아이들에게 맞지 않아 뺄 형태
+  var WORDS = [
+    { no: '50308' }, { no: '50526' }, { no: '50552' }, { no: '50398' }, { no: '50506', skip: ['개새끼'] },
+    { no: '50561' }, { no: '50307' }, { no: '50320' }, { no: '50507', skip: ['육고기'] }, { no: '50433' },
+    { no: '50405' }, { no: '50426' }, { no: '50323' }, { no: '50440', skip: ['계란', '겨란', '계랄'] }, { no: '50554' },
+    { no: '50560' }, { no: '50551' }, { no: '50508' }, { no: '50524' }, { no: '50295' },
+    { no: '50411', skip: ['무르팍'] }, { no: '50550' }, { no: '50530' }, { no: '50557' }, { no: '50556' },
+    { no: '50547' }, { no: '50319', skip: ['버러지'] }, { no: '50443' }, { no: '50297' }, { no: '50408' },
+    { no: '50545' }, { no: '50438' }, { no: '50503' }, { no: '50296' }, { no: '50334' },
+    { no: '50562' }, { no: '50482' }, { no: '50302' }, { no: '50500' }, { no: '50497' },
+    { no: '50444' }, { no: '50395' }, { no: '50304', skip: ['뒷간'] }
+  ];
+  var MIN_SITES = 8;
+  var MAP_URL = './data/processed/map/';
+  var LEVELS = {
+    easy: { speed: 38, gap: 3600, max: 2, hint: true },
+    mid:  { speed: 55, gap: 2600, max: 3, hint: false },
+    hard: { speed: 70, gap: 1500, max: 5, hint: false }
+  };
+  var LIVES = 5;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); };
+  // 자료 사본(scripts/build_class_snapshots.py가 넣음): 기존 자료를 못 불러올 때(앱 파일 미리보기 등)만 쓴다
+  var SNAP = (function () { try { return JSON.parse(document.getElementById('class-snapshot').textContent); } catch (e) { return {}; } })();
+  function getJSON(url) {
+    var p;
+    try { p = fetch(url).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }); } catch (e) { p = Promise.reject(e); }
+    return p.catch(function (err) { if (SNAP[url]) return SNAP[url]; throw err; });
+  }
+
+  // ── 낱말 짝 모으기: 표제어(표준어) ↔ 지점 8곳 이상 방언형 ──
+  var PAIRS = [], STDS = [];
+  function loadPairs() {
+    return Promise.all(WORDS.map(function (w) {
+      return getJSON(MAP_URL + w.no + '.json').then(function (m) {
+        var skip = w.skip || [];
+        Object.keys(m.groups || {}).forEach(function (gk) {
+          (m.groups[gk].variants || []).forEach(function (v) {
+            if (v.word === m.headword || (v.n || 0) < MIN_SITES || skip.indexOf(v.word) !== -1 || /\s/.test(v.word)) return;
+            PAIRS.push({ dia: v.word, std: m.headword, no: w.no, n: v.n });
+          });
+        });
+        STDS.push(m.headword);
+      }).catch(function () {});
+    }));
+  }
+
+  // ── 시작 화면 ──
+  var opt = { level: 'easy', mode: 'tap' };
+  function bindChoice(id, key) {
+    $(id).addEventListener('click', function (e) {
+      var b = e.target.closest('[data-v]'); if (!b) return;
+      opt[key] = b.dataset.v;
+      this.querySelectorAll('[data-v]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    });
+  }
+  bindChoice('rg-level', 'level'); bindChoice('rg-mode', 'mode');
+  function show(id) { ['rg-setup-panel', 'rg-play-panel', 'rg-result-panel'].forEach(function (p) { $(p).hidden = (p !== id); }); }
+
+  // ── 놀이 ──
+  var G = null;
+  function start() {
+    show('rg-play-panel');
+    var stage = $('rg-stage');
+    stage.classList.remove('is-calm');
+    $('rg-sky').innerHTML = '';
+    // 구름·빗줄기 장식
+    var deco = '';
+    for (var c = 0; c < 4; c++) deco += '<span class="rg-cloud" style="left:' + (c * 27 + 4) + '%;width:' + (120 + c * 20) + 'px"></span>';
+    for (var s = 0; s < 26; s++) deco += '<span class="rg-streak" style="left:' + Math.random() * 100 + '%;animation-duration:' + (0.6 + Math.random() * 0.6) + 's;animation-delay:' + (-Math.random()) + 's"></span>';
+    $('rg-sky').innerHTML = deco;
+    $('rg-village').innerHTML = Array.apply(null, Array(LIVES)).map(function (_, i) { return '<i class="ti ti-umbrella-filled rg-umb rg-u' + i + '" aria-hidden="true"></i>'; }).join('');
+    G = { lv: LEVELS[opt.level], drops: [], score: 0, lives: LIVES, met: {}, last: 0, spawnAt: 0, t: 0, paused: false, deck: shuffle(PAIRS.slice()), stage: 1, raf: 0 };
+    renderInput();
+    $('rg-score').textContent = '0'; $('rg-bow').style.width = '0%'; $('rg-lv').textContent = '1단계';
+    G.last = performance.now();
+    G.raf = requestAnimationFrame(tick);
+  }
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function nextPair() {
+    if (!G.deck.length) G.deck = shuffle(PAIRS.slice());
+    // 화면에 이미 같은 표준어가 있으면 피한다(타자로 구분이 안 되므로)
+    for (var i = 0; i < G.deck.length; i++) {
+      var p = G.deck[i];
+      if (!G.drops.some(function (d) { return d.p.std === p.std; })) { G.deck.splice(i, 1); return p; }
+    }
+    return G.deck.shift();
+  }
+  function hint(std) { return std.charAt(0) + Array(std.length).join('○'); }
+
+  function spawn() {
+    var p = nextPair();
+    var el = document.createElement('div');
+    el.className = 'rg-drop';
+    el.innerHTML = '<div class="rg-drop__body"><div class="rg-drop__word">' + esc(p.dia) + '</div>' + (G.lv.hint ? '<div class="rg-drop__hint">' + esc(hint(p.std)) + '</div>' : '') + '</div>';
+    $('rg-sky').appendChild(el);
+    var w = $('rg-stage').clientWidth;
+    var d = { p: p, el: el, x: 70 + Math.random() * (w - 140), y: -70, v: G.lv.speed * (1 + (G.stage - 1) * 0.12) * (0.85 + Math.random() * 0.3) };
+    G.drops.push(d);
+    place(d);
+    retarget();
+  }
+  function place(d) { d.el.style.transform = 'translate(' + (d.x - d.el.offsetWidth / 2) + 'px,' + d.y + 'px)'; }
+  function lowest() { return G.drops.slice().sort(function (a, b) { return b.y - a.y; })[0]; }
+  // 누르기 모드: 가장 아래 빗방울을 노란색으로 표시하고 그 보기를 아래에 보여 준다
+  function retarget() {
+    var lo = lowest();
+    G.drops.forEach(function (d) { d.el.classList.toggle('is-target', opt.mode === 'tap' && d === lo); });
+    if (opt.mode === 'tap') renderTaps(lo);
+  }
+
+  function tick(now) {
+    if (!G) return;
+    var dt = Math.min(0.05, (now - G.last) / 1000); G.last = now;
+    if (!G.paused) {
+      G.t += dt * 1000;
+      var floor = $('rg-stage').clientHeight - 150;
+      if (G.drops.length < G.lv.max && G.t >= G.spawnAt) { spawn(); G.spawnAt = G.t + G.lv.gap / (1 + (G.stage - 1) * 0.1); }
+      for (var i = G.drops.length - 1; i >= 0; i--) {
+        var d = G.drops[i];
+        d.y += d.v * dt;
+        place(d);
+        if (d.y > floor) miss(d);
+      }
+    }
+    if (G && G.lives > 0) G.raf = requestAnimationFrame(tick);
+  }
+
+  function remove(d) { d.el.remove(); G.drops.splice(G.drops.indexOf(d), 1); }
+  function hit(d) {
+    var r = d.el.getBoundingClientRect(), s = $('rg-stage').getBoundingClientRect();
+    var cx = r.left - s.left + r.width / 2, cy = r.top - s.top + r.height / 2;
+    burst(cx, cy);
+    var pop = document.createElement('div');
+    pop.className = 'rg-pop'; pop.style.left = cx + 'px'; pop.style.top = cy + 'px';
+    pop.textContent = d.p.dia + ' = ' + d.p.std;
+    $('rg-sky').appendChild(pop); setTimeout(function () { pop.remove(); }, 1400);
+    $('rg-live').textContent = d.p.dia + '는 ' + d.p.std;
+    G.met[d.p.dia] = { p: d.p, ok: true };
+    remove(d);
+    G.score++;
+    $('rg-score').textContent = G.score;
+    var inStage = G.score % 10;
+    $('rg-bow').style.width = (inStage * 10) + '%';
+    if (inStage === 0) { G.stage++; $('rg-lv').textContent = G.stage + '단계'; $('rg-bow').style.width = '100%'; setTimeout(function () { if (G) $('rg-bow').style.width = '0%'; }, 400); }
+    retarget();
+  }
+  function burst(x, y) {
+    for (var i = 0; i < 8; i++) {
+      var b = document.createElement('span');
+      var a = i / 8 * Math.PI * 2;
+      b.className = 'rg-burst'; b.style.left = x + 'px'; b.style.top = y + 'px';
+      b.style.setProperty('--dx', Math.cos(a) * 46 + 'px'); b.style.setProperty('--dy', Math.sin(a) * 46 + 'px');
+      $('rg-sky').appendChild(b); setTimeout(function (el) { return function () { el.remove(); }; }(b), 520);
+    }
+  }
+  function miss(d) {
+    if (!G.met[d.p.dia]) G.met[d.p.dia] = { p: d.p, ok: false };
+    remove(d);
+    G.lives--;
+    var u = $('rg-village').children[LIVES - 1 - G.lives];
+    if (u) u.classList.add('is-closed');
+    $('rg-live').textContent = '놓쳤어요. ' + d.p.dia + '는 ' + d.p.std + '. 우산 ' + G.lives + '개 남음';
+    retarget();
+    if (G.lives <= 0) end();
+  }
+
+  // ── 입력 ──
+  function renderInput() {
+    var bar = $('rg-inputbar');
+    if (opt.mode === 'type') {
+      bar.innerHTML = '<input class="rg-input" id="rg-input" type="text" autocomplete="off" enterkeyhint="done" placeholder="표준어를 치고 Enter" aria-label="표준어를 치고 Enter를 누르세요">';
+      var inp = $('rg-input');
+      // 표준어를 다 치고 Enter를 눌러야 판정한다(치는 도중에는 터지지 않음).
+      // 한글 조합 중에 Enter를 누르면 조합이 끝난 뒤(compositionend) 판정하고 칸을 비운다.
+      var enterPending = false;
+      var submit = function () {
+        if (!G) return;
+        var v = inp.value.replace(/\s/g, '');
+        inp.value = '';
+        if (!v) return;
+        var d = G.drops.filter(function (x) { return x.p.std === v; }).sort(function (a, b) { return b.y - a.y; })[0];
+        if (d) hit(d);
+        else { inp.classList.remove('is-no'); void inp.offsetWidth; inp.classList.add('is-no'); }
+        // 조합이 끝나며 글자가 되살아나는 브라우저가 있어 한 번 더 비운다
+        setTimeout(function () { inp.value = ''; }, 0);
+      };
+      inp.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        if (e.isComposing || e.keyCode === 229) { enterPending = true; return; }
+        submit();
+      });
+      inp.addEventListener('compositionend', function () {
+        if (enterPending) { enterPending = false; setTimeout(submit, 0); }
+      });
+      setTimeout(function () { inp.focus(); }, 50);
+    } else {
+      bar.innerHTML = '<div class="rg-taps" id="rg-taps"></div>';
+      $('rg-taps').addEventListener('click', function (e) {
+        var b = e.target.closest('[data-std]'); if (!b || G.paused) return;
+        var lo = lowest(); if (!lo) return;
+        if (b.dataset.std === lo.p.std) hit(lo);
+        else { b.classList.remove('is-no'); void b.offsetWidth; b.classList.add('is-no'); }
+      });
+    }
+  }
+  function renderTaps(lo) {
+    var box = $('rg-taps'); if (!box) return;
+    if (!lo) { box.innerHTML = ''; box.dataset.for = ''; return; }
+    if (box.dataset.for === lo.p.dia) return;   // 같은 빗방울이면 보기 순서를 유지
+    box.dataset.for = lo.p.dia;
+    var others = shuffle(STDS.filter(function (s) { return s !== lo.p.std; })).slice(0, 2);
+    box.innerHTML = shuffle([lo.p.std].concat(others)).map(function (s) { return '<button type="button" class="rg-tap" data-std="' + esc(s) + '">' + esc(s) + '</button>'; }).join('');
+  }
+
+  // ── 멈춤·끝 ──
+  function pause(on) {
+    if (!G) return;
+    G.paused = on; $('rg-overlay').hidden = !on;
+    if (!on) { G.last = performance.now(); var inp = $('rg-input'); if (inp) inp.focus(); }
+  }
+  $('rg-pause').addEventListener('click', function () { pause(true); });
+  $('rg-resume').addEventListener('click', function () { pause(false); });
+  // 그만하고 처음(단계·방법 고르기) 화면으로: 놀이를 멈추고 빗방울을 치운다
+  function quit() {
+    if (G) { cancelAnimationFrame(G.raf); G = null; }
+    $('rg-overlay').hidden = true;
+    $('rg-sky').innerHTML = '';
+    $('rg-inputbar').innerHTML = '';
+    show('rg-setup-panel');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  $('rg-quit').addEventListener('click', quit);
+  $('rg-quit2').addEventListener('click', quit);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && G && !$('rg-play-panel').hidden) pause(!G.paused); });
+  document.addEventListener('visibilitychange', function () { if (document.hidden && G) pause(true); });
+
+  function end() {
+    cancelAnimationFrame(G.raf);
+    var g = G; G = null;
+    $('rg-stage').classList.add('is-calm');
+    $('rg-final').textContent = g.score;
+    $('rg-final-msg').innerHTML = (g.score >= 20 ? '와, 방언 박사예요!' : g.score >= 10 ? '잘했어요! 방언과 많이 친해졌어요.' : '비가 그쳤어요. 다시 해 볼까요?') +
+      '<br><span style="font-size:14px;color:#64748b">빗방울을 ' + g.score + '개 터뜨렸어요 · ' + g.stage + '단계까지 갔어요</span>';
+    var list = Object.keys(g.met).map(function (k) { return g.met[k]; });
+    $('rg-met').innerHTML = list.length ? list.map(function (m) {
+      return '<a class="' + (m.ok ? '' : 'is-miss') + '" href="./dialect_map.html?no=' + encodeURIComponent(m.p.no) + '" title="지역어 지도에서 보기">' +
+        '<span>' + esc(m.p.dia) + ' → ' + esc(m.p.std) + '</span><small>' + (m.ok ? '터뜨림' : '놓침') + '</small></a>';
+    }).join('') : '<p class="rg-loading">이번엔 만난 방언이 없어요.</p>';
+    setTimeout(function () { show('rg-result-panel'); window.scrollTo({ top: 0, behavior: 'smooth' }); }, 700);
+  }
+  $('rg-go').addEventListener('click', start);
+  $('rg-again').addEventListener('click', start);
+  $('rg-again-setup').addEventListener('click', function () { show('rg-setup-panel'); });
+
+  // ── 시작 ──
+  if (!/^https?:$/.test(location.protocol)) {
+    var warn = document.createElement('p');
+    warn.className = 'rg-warn';
+    warn.innerHTML = '미리보기로 열려서, 저장해 둔 자료 사본으로 보여 드려요. 최신 자료와 전체 메뉴는 개발 서버 주소에서 볼 수 있어요: <a href="http://127.0.0.1:8765/dialect_rain_game.html">http://127.0.0.1:8765/dialect_rain_game.html</a>';
+    document.querySelector('.rg-head').after(warn);
+  }
+  loadPairs().then(function () {
+    if (PAIRS.length < 5) { $('rg-ready').textContent = '낱말을 불러오지 못했어요. 개발 서버 주소로 열어 주세요.'; return; }
+    $('rg-go').disabled = false;
+    $('rg-ready').textContent = '방언 ' + PAIRS.length + '개가 준비됐어요 (표준어 ' + STDS.length + '개)';
+  });
+})();
+</script>
+</body>
+</html>

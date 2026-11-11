@@ -125,10 +125,17 @@ def snap_literature(html):
     return snap
 
 
+def snap_rain(html):
+    """방언 소나기: 낱말 짝만 필요하므로 좌표 없이 표제어·방언형·지점 수만."""
+    return {'./data/processed/map/%s.json' % no: trim_map(load(os.path.join(P, 'map', no + '.json')), False)
+            for no in re.findall(r"\{ no: '(\d+)'", html)}
+
+
 PAGES = {
     'dialect_town_words.html': snap_town,
     'dialect_grandma_story.html': snap_grandma,
     'dialect_literature_cards.html': snap_literature,
+    'dialect_rain_game.html': snap_rain,
 }
 
 
