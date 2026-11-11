@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>책 속 방언 찾기 — 국립국어원</title>
+<!-- 시안: 초등 5-2 국어 「표준어와 방언을 알아봐요」 활동 ⑤ '작품 속 방언의 뜻과 느낌 발표'([6국05-06]).
+     작품 장면·뜻·해설은 모두 기존 '문학 속 지역어' 자료를 불러온다.
+       · /api/literatures?q=방언형&target=dialect&match=exact  (실패하면 data/literature_data.json)
+     이 페이지가 가진 것은 '어떤 방언형을, 어느 작품 장면으로' 보여 줄지(BOOKS)뿐이다. -->
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="./styles.css">
+<script src="./gnb.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+/* 모든 클래스는 lb- 접두사로 스코프 */
+.lb-page { max-width: 1080px; margin: 0 auto; padding: 32px 20px 80px; }
+.lb-head { position: relative; overflow: hidden; border-radius: 24px; padding: 28px 32px; margin-bottom: 24px; background: linear-gradient(120deg, #ede9fe 0%, #fae8ff 50%, #fef3c7 100%); }
+.lb-head::after { content: ''; position: absolute; width: 170px; height: 170px; border-radius: 50%; right: -40px; top: -60px; background: #c4b5fd; opacity: .55; }
+.lb-head > * { position: relative; z-index: 1; }
+.lb-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 800; color: #6d28d9; background: #fff; padding: 5px 12px; border-radius: 999px; box-shadow: 0 2px 0 rgba(109,40,217,.15); }
+.lb-title { display: flex; align-items: center; gap: 10px; font-size: 34px; font-weight: 900; letter-spacing: -0.03em; margin: 12px 0 6px; color: #1e293b; }
+.lb-title i { font-size: 38px; color: #7c3aed; transform: rotate(-8deg); }
+.lb-sub { color: #475569; font-size: 16px; margin: 0; font-weight: 600; }
+.lb-panel { background: #fff; border: 2px solid #eef2f7; border-radius: 24px; box-shadow: 0 8px 30px rgba(15,23,42,.06); padding: 30px; }
+.lb-panel[hidden] { display: none; }
+.lb-q { font-size: 24px; font-weight: 900; margin: 0 0 6px; color: #1e293b; }
+.lb-hint { color: #64748b; margin: 0 0 22px; font-size: 15px; font-weight: 600; }
+.lb-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 46px; padding: 0 18px; border-radius: 14px; border: 2px solid #e2e8f0; background: #fff; color: #1e293b; font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; text-decoration: none; box-shadow: 0 3px 0 #e2e8f0; }
+.lb-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #e2e8f0; }
+.lb-btn:focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
+.lb-btn i { font-size: 20px; }
+.lb-btn--primary { background: #7c3aed; border-color: #7c3aed; color: #fff; box-shadow: 0 4px 0 #4c1d95; }
+.lb-btn--primary:disabled { background: #cbd5e1; border-color: #cbd5e1; box-shadow: none; cursor: not-allowed; }
+.lb-count { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: #fff; color: #7c3aed; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; }
+
+/* 책장 */
+.lb-topline { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.lb-shelf { position: relative; display: flex; align-items: flex-end; gap: 10px; padding: 26px 18px 0; min-height: 300px; border-radius: 18px; background: linear-gradient(#fdf6ec, #fbead4); overflow-x: auto; }
+.lb-shelf::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 18px; background: #b45309; border-radius: 0 0 18px 18px; box-shadow: inset 0 4px 0 #d97706; }
+.lb-book { position: relative; z-index: 1; flex: 0 0 auto; width: 74px; border: none; border-radius: 8px 8px 2px 2px; cursor: pointer; padding: 14px 0 32px; font: inherit; color: #fff; display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 18px;
+  box-shadow: inset -6px 0 0 rgba(0,0,0,.12), inset 6px 0 0 rgba(255,255,255,.12), 0 4px 0 rgba(0,0,0,.15); transition: transform .2s; transform-origin: bottom center; }
+.lb-book:hover { transform: translateY(-14px); }
+.lb-book:nth-child(odd):hover { transform: translateY(-14px) rotate(-2deg); }
+.lb-book:focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+.lb-book__title { writing-mode: vertical-rl; font-size: 18px; font-weight: 900; letter-spacing: .08em; line-height: 1.1; max-height: 190px; overflow: hidden; }
+.lb-book__band { width: 100%; height: 8px; background: rgba(255,255,255,.35); }
+.lb-book__who { writing-mode: vertical-rl; font-size: 12px; font-weight: 700; opacity: .9; }
+.lb-book.is-read::after { content: '읽음'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: 900; background: #16a34a; color: #fff; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.lb-b0 { background: #ef4444; height: 250px; } .lb-b1 { background: #3b82f6; height: 222px; } .lb-b2 { background: #10b981; height: 262px; }
+.lb-b3 { background: #f59e0b; height: 234px; } .lb-b4 { background: #8b5cf6; height: 256px; } .lb-b5 { background: #ec4899; height: 228px; }
+.lb-b6 { background: #0ea5e9; height: 246px; } .lb-b7 { background: #84cc16; height: 238px; }
+
+/* 펼친 책 */
+.lb-open { display: grid; grid-template-columns: 1fr 1fr; border-radius: 18px; overflow: hidden; box-shadow: 0 14px 40px rgba(15,23,42,.16); animation: lb-open .6s cubic-bezier(.2,.9,.3,1); transform-origin: left center; }
+.lb-pg { position: relative; padding: 30px 28px; min-height: 420px; background: #fffdf7; }
+.lb-pg--l { border-right: 2px solid #e7dcc5; background: linear-gradient(90deg, #fffdf7 85%, #f5ecd9); }
+.lb-pg--r { background: linear-gradient(90deg, #f5ecd9, #fffdf7 15%); }
+.lb-pg__tag { display: inline-block; font-size: 12px; font-weight: 900; color: #fff; background: #7c3aed; padding: 4px 10px; border-radius: 999px; margin-bottom: 14px; }
+.lb-scene { font-family: 'Nanum Myeongjo', 'Batang', serif; font-size: 22px; line-height: 1.85; color: #1e293b; white-space: pre-line; word-break: keep-all; min-height: 8em; }
+.lb-scene mark { background: #fde047; padding: 0 3px; border-radius: 4px; font-weight: 800; animation: lb-glow 1.6s ease-in-out 2; }
+.lb-cursor { display: inline-block; width: 2px; height: 1.1em; background: #7c3aed; vertical-align: -0.15em; animation: lb-blink .8s step-end infinite; }
+.lb-cite { margin-top: 16px; font-size: 14px; font-weight: 800; color: #6b7280; }
+.lb-cite b { color: #374151; }
+.lb-note h3 { font-size: 15px; font-weight: 900; color: #7c3aed; margin: 0 0 4px; }
+.lb-word { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.lb-word b { font-size: 34px; font-weight: 900; color: #1e293b; }
+.lb-word i { font-size: 26px; color: #a78bfa; }
+.lb-word em { font-style: normal; font-size: 26px; font-weight: 900; color: #7c3aed; background: #ede9fe; padding: 2px 12px; border-radius: 12px; }
+.lb-mean { font-size: 16px; line-height: 1.6; color: #334155; margin: 0 0 14px; }
+.lb-also { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; }
+.lb-also span { padding: 4px 12px; border-radius: 999px; background: #fff; border: 2px solid #e9d5ff; font-weight: 800; font-size: 14px; }
+.lb-desc { font-size: 14px; line-height: 1.65; color: #475569; background: #fff; border-radius: 12px; padding: 10px 12px; border: 1px dashed #d8b4fe; margin: 0; }
+.lb-reveal { margin-top: 10px; }
+.lb-reveal[hidden] { display: none; }
+.lb-peek { width: 100%; height: 120px; border: 3px dashed #c4b5fd; border-radius: 16px; background: #faf5ff; font: inherit; font-size: 17px; font-weight: 900; color: #6d28d9; cursor: pointer; }
+.lb-peek:focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
+
+/* 발표 준비 */
+.lb-prep { margin-top: 22px; border-radius: 18px; background: #f8fafc; padding: 20px; }
+.lb-prep h3 { margin: 0 0 4px; font-size: 18px; font-weight: 900; }
+.lb-prep p { margin: 0 0 12px; font-size: 14px; color: #64748b; font-weight: 600; }
+.lb-stickers { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.lb-stickers button { border: none; border-radius: 999px; padding: 9px 14px; font: inherit; font-size: 15px; font-weight: 900; cursor: pointer; background: #fff; box-shadow: 0 3px 0 rgba(15,23,42,.1); display: inline-flex; align-items: center; gap: 4px; }
+.lb-stickers button i { font-size: 18px; }
+.lb-stickers button[aria-pressed="true"] { background: #7c3aed; color: #fff; transform: rotate(-3deg) scale(1.05); }
+.lb-me { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.lb-me button { border: 2px solid #e2e8f0; border-radius: 12px; padding: 9px 14px; font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; background: #fff; }
+.lb-me button[aria-pressed="true"] { border-color: #7c3aed; background: #ede9fe; color: #5b21b6; }
+.lb-actions { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+
+/* 발표 카드(인쇄) */
+.lb-cards { display: grid; gap: 16px; }
+.lb-card { border: 3px solid #7c3aed; border-radius: 18px; padding: 20px 22px; break-inside: avoid; }
+.lb-card__top { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; font-weight: 800; color: #6b7280; margin-bottom: 8px; }
+.lb-card__scene { font-family: 'Nanum Myeongjo', 'Batang', serif; font-size: 20px; line-height: 1.75; white-space: pre-line; word-break: keep-all; margin: 0 0 12px; }
+.lb-card__scene mark { background: #fde047; padding: 0 3px; }
+.lb-card__row { font-size: 16px; margin: 4px 0; }
+.lb-card__row b { display: inline-block; min-width: 92px; color: #6d28d9; }
+.lb-card__line { border-bottom: 1px dashed #cbd5e1; height: 30px; }
+.lb-empty { text-align: center; color: #64748b; padding: 40px 0; font-weight: 700; }
+.lb-loading { color: #64748b; padding: 40px 0; text-align: center; font-weight: 700; }
+.lb-proto { margin-top: 28px; font-size: 13px; color: #94a3b8; line-height: 1.6; }
+.lb-warn { background: #fffbeb; border: 2px solid #fde68a; color: #92400e; border-radius: 14px; padding: 12px 14px; font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+
+@keyframes lb-open { from { opacity: 0; transform: perspective(1400px) rotateY(-35deg) scale(.92); } to { opacity: 1; transform: none; } }
+@keyframes lb-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(250,204,21,0); } 50% { box-shadow: 0 0 0 6px rgba(250,204,21,.45); } }
+@keyframes lb-blink { 50% { opacity: 0; } }
+
+@media (max-width: 860px) {
+  .lb-head { padding: 22px 20px; }
+  .lb-title { font-size: 27px; }
+  .lb-panel { padding: 20px 14px; }
+  .lb-shelf { padding: 22px 12px 0; gap: 8px; }
+  .lb-book { width: 60px; }
+  .lb-book__title { font-size: 16px; }
+  .lb-open { grid-template-columns: 1fr; }
+  .lb-pg { min-height: 0; padding: 22px 18px; }
+  .lb-pg--l { border-right: none; border-bottom: 2px solid #e7dcc5; background: #fffdf7; }
+  .lb-pg--r { background: #fffdf7; }
+  .lb-scene { font-size: 19px; min-height: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lb-page *, .lb-page *::before, .lb-page *::after { animation: none !important; transition: none !important; }
+}
+@media print {
+  #gnb-common, #footer-common, .lb-head, .lb-noprint, .lb-panel:not(#lb-cards-panel), .lb-proto, .lb-warn { display: none !important; }
+  #lb-cards-panel { display: block !important; border: none; box-shadow: none; padding: 0; }
+  .lb-page { padding: 0; }
+}
+</style>
+</head>
+<body>
+<div id="gnb-common"></div>
+
+<main class="lb-page">
+  <header class="lb-head">
+    <span class="lb-eyebrow"><i class="ti ti-school"></i>초등 5학년 국어 · 표준어와 방언을 알아봐요</span>
+    <h1 class="lb-title"><i class="ti ti-books" aria-hidden="true"></i>책 속 방언 찾기</h1>
+    <p class="lb-sub">책장에서 책을 꺼내 방언이 나오는 장면을 읽고, 발표할 장면을 골라 보아요.</p>
+  </header>
+
+  <!-- 책장 -->
+  <section class="lb-panel" id="lb-shelf-panel">
+    <div class="lb-topline">
+      <div>
+        <h2 class="lb-q">어떤 책을 펼쳐 볼까요?</h2>
+        <p class="lb-hint">책마다 방언이 숨어 있는 장면이 하나씩 있어요.</p>
+      </div>
+      <button type="button" class="lb-btn lb-btn--primary js-open-cards"><i class="ti ti-presentation"></i>내 발표 카드 <span class="lb-count js-card-count">0</span></button>
+    </div>
+    <div class="lb-shelf" id="lb-shelf"><p class="lb-loading">책을 꽂는 중이에요…</p></div>
+  </section>
+
+  <!-- 펼친 책 -->
+  <section class="lb-panel" id="lb-book-panel" hidden>
+    <div id="lb-book-body"></div>
+  </section>
+
+  <!-- 발표 카드 -->
+  <section class="lb-panel" id="lb-cards-panel" hidden>
+    <div class="lb-topline lb-noprint" style="margin-bottom:16px">
+      <h2 class="lb-q">내 발표 카드</h2>
+      <button type="button" class="lb-btn js-to-shelf"><i class="ti ti-books"></i>책장으로</button>
+    </div>
+    <div class="lb-cards" id="lb-cards"></div>
+    <div class="lb-actions lb-noprint">
+      <button type="button" class="lb-btn" id="lb-clear"><i class="ti ti-eraser"></i>모두 지우기</button>
+      <button type="button" class="lb-btn lb-btn--primary" onclick="window.print()"><i class="ti ti-printer"></i>인쇄 · PDF 저장</button>
+    </div>
+  </section>
+
+  <p class="lb-proto">시안 안내 · 작품 장면과 뜻·해설은 국립국어원 '문학 속 지역어' 자료를 그대로 불러옵니다. 고른 느낌과 발표 카드는 이 기기의 브라우저에만 저장됩니다.</p>
+</main>
+
+<div id="footer-common"></div>
+
+<!-- SNAPSHOT:BEGIN -->
+<script type="application/json" id="class-snapshot">{"lit:깨금발":{"liter_id":"321","dlt_tp":"깨금발","std_tp":"까치발, 앙감질","mean":"①발뒤꿈치를 든 발. ② 앙감질하기 전에 한 발은 들고 한 발로만 서 있는 것. ③ 한 발은 들고 한 발로 뛰는 것.","region_nm":"경상도","rel_dlt":"깨금","word_desc":"‘깨금발’은 발뒤꿈치를 든 발을 말하기도 하지만 경상도 방언에서는 ‘앙감질하기 위해 한 발은 들고 한 발로만 서 있는 것’을 말한다. 즉 깨금발로 뛰는 것은 ‘깨금발띠기’라고 한다. 그러나 경남 지역에서는 ‘앙감질’을 ‘깨금발’이라고 한다. '깨금발'의 방언 이형태로는 ‘깨금발’, ‘깨금질’, ‘깨금띠기’ 등이 있는데, ‘깨금’에 ‘발’, ‘질’, ‘뛰기>띠기’ 등이 결합한 것이다. 즉 한 발은 들고 한 발로만 서 있는 것을 ‘깨금’ 또는 ‘깨금발’이라고 한다. ‘깨금’의 정확한 어원은 알 수 없다. ‘깨금으로 띠야 된데이(한 발은 들고 한 발로만 뛰어야 된다.)’처럼 ‘깨금' 단독으로도 '깨끔발'의 의미로 쓰이기도 한다.","examples":[{"example":"괜히 심심한 날이면 /계단을 오르고 싶다/깨금발로 콩콩콩","writer":"민현숙","book_name":"깨금발로 콩콩콩","publish_year":"2002"}]},"lit:철랭이":{"liter_id":"437","dlt_tp":"철랭이","std_tp":"잠자리","mean":"잠자리목의 곤충을 통틀어 이르는 말.","region_nm":"경상도","rel_dlt":"남자리, 남재리, 곰도리, 곰돌이, 굼머리, 깽자리, 까랭이, 까래~이, 마:래이, 마래, 마래이, 수벵, 수벵이, 수비, 수비:, 애오리, 앵오리, 어러리, 오다리, 철:개이, 철갱이, 철구, 철기, 철껭이, 초리, 절래~이, 철랭이, 철뱅이, 촐랭이, 촐뱅이, 해오리","word_desc":"‘잠자리’는 경상도 방언 내에서도 지역에 따라 다양한 방언형으로 나타난다. 이들 방언형을 정리해 보면 대체로 ‘남자리’, ‘수벵이’, ‘철개이’, ‘초리’, ‘애오리’ 등으로 분류할 수 있다. 대체로 경북지역에서는 ‘남자리’, ‘절갱이’, ‘철개이’, ‘철뱅이’, ‘촐뱅이’, ‘초리’ 등의 어형이 나타나며 경남지역에서는 ‘수벵이’, ‘애오리’ 등의 어형이 나타난다. 잠자리에 해당하는 중세어형은 ‘자리’, ‘리’, ‘잔리’ 등이다. 이들 어형이 후대로 오면서 잠자리로 변화되었다.","examples":[{"example":"니 다리는 철랭이 다리라서 여기도 못 내려오겠나?","writer":"김원일","book_name":"고래","publish_year":null},{"example":"아침에 멀떵하던 다리 몽생이가 집이 갈 때는 철랭이 다리가 되나","writer":"김원일","book_name":"고래","publish_year":null}]},"lit:꽤구락지":{"liter_id":"928","dlt_tp":"꽤구락지","std_tp":"개구리","mean":"올챙이가 자란 것으로 뒷발이 길고 발가락 사이에 물갈퀴가 있는 개구리 목의 동물을 통틀어 이르는 말.","region_nm":"충청도","rel_dlt":"개구락지, 개구래기, 깨고락지, 깨고래기, 깨구락지, 깨구리, 꽤구락지, 깨고리, 께우레기, 멱장구, 머구리, 메구락지","word_desc":"‘꽤구락지’는 ‘깨구락지, 깨구리, 깨고락지, 깨고래기, 개구락지, 개구래기’ 등과 함께 ‘개구리’의 방언형 가운데 하나다. 보통은 중립적인 의미로 쓰이지만 문맥에 따라서는 ‘꽤구락지 뻗듯 한다’에서와 같이 ‘개구리를 낮추어 이르는 말’로도 쓰인다. ‘꽤구락지’를 비롯하여 ‘깨구락지, 깨고락지, 개구락지’ 등은 속된 표현으로 쓰이는 경우가 많다. ‘개구리’의 방언형은 지역에 따라 여러 가지 형태를 보이는데 다음의 예문에서와 같이 충청도 방언에서 ‘깨고리’로도 나타난다. (예; 남술이는 이런 자신이 있는지라 명태를 한숨에 내리바수는데 그것은 마치 율모기가 깨고리를 잡아먹듯 차차 명태의 몸뚱아리가 입안으로 들어가며 바삭바삭 소리만 쉴새없이 나는 것이었다.<이기영, 봄봄, 1989, 092>) ‘개구리’의 방언형 가운데 전국적인 분포를 보이며 가장 많이 쓰이는 어형은 ‘깨구리’다. ‘개고리’와 ‘개구락지, 깨고락지, 깨구락지’ 형도 남한 전역에 고루 분포되어 쓰인다. 전남 지역에서는 ‘께우레기, 께우락지’나 ‘머구리’가 쓰이고 북한 지역에서는 ‘메구락지, 메구리’와 ‘멱장구, 멕장구’ 형이 쓰여 특이한 양상을 보이기도 한다. 제주도에도 특이한 형태인 ‘가개비, 갈개비’ 형이 쓰인다. 충청도에서는 표준어 '개구리'에 대응하는 방언형으로 '깨구리'가 가장 ㅁ낳이 쓰인다. 충청도에서는 '깨구리'라고 하면 여름철 논둑이나 풀섶에서 흔히 볼 수 있는 '개구리'로 식용하기도 하는데 이것을 '떡깨구리'라고도 한다. '창깨구리'는 표준어 '참개구리'에 대응하는 충청도 방언형이다. 충청도 지역에서 볼 수 있는 개구리 종류로는 '떡깨구리, 창깨구리, 엉머구리/앙마구리, 무당깨구리/비단깨구리/귀신깨구리' 등이 있다. '깨구리'는 이들을 통칭하는 상위어로 쓰이기도 하고 '떡깨구리'의 뜻으로 쓰이기도 한다.","examples":[{"example":"나무두 마주 스는 게 있고, 꽤구락지도 올챙이가 크야 자손 본다우.","writer":"이문구","book_name":"관촌수필","publish_year":"1983"}]},"lit:감저":{"liter_id":"1445","dlt_tp":"감저","std_tp":"고구마","mean":"메꽃과의 여러해살이풀로, 줄기는 덩굴로 되어 땅위로 뻗어 자란다. 땅속뿌리는 식용하거나 공업용으로 쓰고, 잎과 줄기는 나물로 먹기도 한다.","region_nm":"제주도","rel_dlt":"감제","word_desc":"‘감저’는 표준어 ‘고구마’에 해당하는 어휘다. 표준어 ‘감자’를 제주어로는 ‘지슬’이라고 하는데, 제주어와 표준어가 서로 교차하여 쓰이기 때문에 약간의 혼란을 주는 어휘다. 이런 혼란은 표준어 ‘감저’가 새로운 품종인 ‘감자’가 들어오는 1820년 이후 ‘고구마’와 ‘감자’로 분화되어 쓰이는 반면, 제주어 ‘감저’는 1820년 이후에도 계속해서 ‘고구마’의 뜻으로 쓰이기 때문이다. 물론 새로운 품종인 ‘감자’는 제주어로 ‘지실’ 또는 ‘지슬’이라고 한다.","examples":[{"example":"“난 그런 밥 안 먹어! 그게 무슨 밥이라? 감저(고구마) 꽁댕이지. 맨날 그런 것만 멕이구…….”","writer":"현기영","book_name":"지상에 숟가락 하나","publish_year":"1999"}]},"lit:갱기찮다":{"liter_id":"1046","dlt_tp":"갱기찮다","std_tp":"괜찮다","mean":"① 별로 나쁘지 않고 보통 이상이다. ②（‘-어도’ 따위와 함께 쓰여） 탈이나 문제, 걱정되거나 꺼릴 것이 없다.","region_nm":"전라도, 함경도","rel_dlt":"갱기찬허다, 괸잔허다, 괸찬허다, 겐찬허다","word_desc":"형용사 ‘갱기찮다’는 표준어 ‘괜찮다’의 방언형인데 주로 채만식의 작품에 나타난다. 따라서 전북 옥구 임피의 방언이거나 채만식이 주로 쓰는 개인 방언일 가능성이 크다. 방언 사전에 따르면 ‘괜찮다’는 전라 방언에서 ‘괸잔허다, 괸찬허다, 겐찬허다’ 등을 주로 쓰는 것으로 보고하고 있다. 세종계획에서 만든 ‘한국 방언 검색 프로그램’에 따르면 ‘함남, 함북’에서는 ‘괜게채이타’를 쓰는 것을 알 수 있다.","examples":[{"example":"걸어서두 댕길라더냐, 고까짓 것 하룻저녁 좀 서서 가먼 어쩔라데야? 갱기찮다, 갱기찮이여······","writer":"채만식","book_name":"강선달","publish_year":"1987"}]},"lit:미구":{"liter_id":"364","dlt_tp":"미구","std_tp":"여우","mean":"①갯과의 포유동물인 여우. ②대체로 나이에 맞지 않게 영악하게 행동하는 사람.","region_nm":"경상도","rel_dlt":"개:시, 개여, 개여시, 개으시, 미:구, 뱅야시, 뱅여시 , 애끼, 애깨이,야:시, 야꽤~이, 야꽹이","word_desc":"‘미구’는 ‘여우’에 해당하는 경상도 방언이다. 대체로 어린아이가 나이에 맞지 않게 똑 부러지게 또는 영악하게 행동할 때 ‘미구야’, ‘미구긑기는’ 등의 표현을 쓴다. ‘미구’는 ‘여우가 천 년을 묵으면 변한다는 짐승’인 ‘매구’에서 온 말이다. ‘매구’에서 /ㅔ/>/ㅣ/ 변화에 의해 ‘미구’가 된 것이다. 여우에 해당하는 경상도 방언은 이외에도 ‘야시’가 있다. ‘야시’는 ‘여우’의 15세기 어형인 ‘야’에서 ‘ㅿ’이 ‘ㅅ’으로 남은 형태이다. \"양은 도시락 딸랑이며 밤길/도깨비 야시 쫓는 이야기 해 주시고<박태일, 내 서른이 넘고, 약쑥개쑥, 58>\", \"야시비 보실보실 내리네예. 모리실끼라예./오늘지 건디리지 마이세이<정숙, 누구좋으라꼬, 신처용가, 87>\"에서 ’야시‘는 여우를, ‘야시비’는 ‘여우비’를 말한다.","examples":[{"example":"어린 늠이 미구같은 말만 골라하네 할매는 너거 먹인다고 몬 묵어 어지름증이 도는데 마 퍼뜩 안 잘끼가","writer":"김원일","book_name":"불의 제전","publish_year":null}]},"lit:덜거기":{"liter_id":"1922","dlt_tp":"덜거기","std_tp":"장끼","mean":"수꿩","region_nm":"평안북도","rel_dlt":"덜게기, 덜꺼기, 덜꼬기, 당꿩","word_desc":"‘덜거기’는 ‘수꿩’의 평북 방언이다. 평안도와 황해도 일원에 ‘덜거기, 덜게기, 덜궈기’ 따위의 방언형이 분포한다. 이 외에 평안도 지방에서는 ‘댱꿩’에서 변화한 '당꿩'이라는 방언도 쓴다.","examples":[{"example":"산에 오면/큰솔밭에 뻐꾸기 소리/잔솔밭에 덜거기 소리","writer":"백석","book_name":"적막강산","publish_year":"1947"}]},"lit:또뱅이":{"liter_id":"386","dlt_tp":"또뱅이","std_tp":"똬리","mean":"새끼를 돌돌 감아 만든 것으로 짐을 머리에 일 때 머리에 받치는 고리 모양의 물건.","region_nm":"경상도","rel_dlt":"따배기, 따배, 따반지, 따배이, 따바리","word_desc":"‘또뱅이’는 새끼를 돌돌 감아 만든 것으로 머리에 짐을 일 때 사용하는 것이다. 경상도 방언에서는 ‘따배이’, ‘따배’라고도 한다. ‘따배이’의 어원에 대하여 문증되지 않아 정확히 정의할 수는 없지만, 그 어형과 의미에서 {땋-}+{-뱅이}로 유추해볼 수 있다. 즉 새끼로 돌돌 감아 만든 납작한 모양에서 동사 ‘땋-’에 ‘-뱅이’가 결합한 것으로 볼 수 있다. ‘또뱅이’ 역시 ‘또아리’의 ‘또’에 ‘-뱅이’가 붙은 것으로 추정할 수 있다.","examples":[{"example":"이분이는 그 밥을 정지 바닥에 새끼또뱅이 깔고 날된장 한 가지만으로 쪼그리고 앉아 혼자서 먹었다. 눈물이 밥바가지에 뚜두둑 떨어졌다.","writer":"권정생","book_name":"한티재 하늘","publish_year":null}]}}</script>
+<!-- SNAPSHOT:END -->
+<script>
+(function () {
+  'use strict';
+
+  // 이 페이지의 유일한 설정: 어떤 방언형을, 어느 작품 장면으로 보여 줄지(작품 이름으로 예문을 고른다)
+  var BOOKS = [
+    { q: '깨금발',   book: '깨금발로 콩콩콩' },     // 민현숙 동시
+    { q: '철랭이',   book: '고래' },               // 김원일
+    { q: '꽤구락지', book: '관촌수필', year: '1983' }, // 이문구
+    { q: '감저',     book: '지상에 숟가락 하나' },   // 현기영
+    { q: '갱기찮다', book: '강선달' },             // 채만식
+    { q: '미구',     book: '불의 제전' },           // 김원일
+    { q: '덜거기',   book: '적막강산' },           // 백석
+    { q: '또뱅이',   book: '한티재 하늘' }          // 권정생
+  ];
+  var API = '/api/literatures?target=dialect&match=exact&limit=1&q=';
+  var STATIC = './data/literature_data.json';
+  var STORE = 'lb-litcards-v1';
+  var STICKERS = [['정겨워요', 'ti-heart'], ['웃겨요', 'ti-mood-happy'], ['슬퍼요', 'ti-mood-sad'], ['생생해요', 'ti-sparkles'], ['구수해요', 'ti-soup'], ['낯설어요', 'ti-help-circle']];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); };
+
+  // 자료 사본(scripts/build_class_snapshots.py가 넣음): 기존 자료를 못 불러올 때(앱 파일 미리보기 등)만 쓴다
+  var SNAP = (function () { try { return JSON.parse(document.getElementById('class-snapshot').textContent); } catch (e) { return {}; } })();
+  function getJSON(url) {
+    var p;
+    try { p = fetch(url).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }); } catch (e) { p = Promise.reject(e); }
+    return p.catch(function (err) { if (SNAP[url]) return SNAP[url]; throw err; });
+  }
+  function imgSrc(key, src) { return /^https?:$/.test(location.protocol) ? src : (SNAP['img:' + key] || src); }
+  var st = (function () { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; } })();
+  st.read = st.read || {}; st.cards = st.cards || {};
+  function save() { try { localStorage.setItem(STORE, JSON.stringify(st)); } catch (e) { /* 저장 불가 */ } }
+
+  // ── 자료 불러오기: API 우선, 안 되면 정적 JSON ──
+  var cache = {}, staticAll = null;
+  function fromStatic(q) {
+    var p = staticAll ? Promise.resolve(staticAll) : fetch(STATIC).then(function (r) { return r.json(); }).then(function (j) { staticAll = j.data || []; return staticAll; });
+    return p.then(function (all) { return all.filter(function (x) { return x.dlt_tp === q; })[0]; });
+  }
+  function loadBook(b) {
+    if (cache[b.q]) return Promise.resolve(cache[b.q]);
+    return fetch(API + encodeURIComponent(b.q)).then(function (r) { if (!r.ok) throw new Error('api'); return r.json(); })
+      .then(function (j) { var it = (j.data || [])[0]; if (!it) throw new Error('none'); return it; })
+      .catch(function () { return fromStatic(b.q); })
+      .catch(function () { return null; })
+      .then(function (it) {
+        it = it || SNAP['lit:' + b.q];
+        if (!it) throw new Error('missing');
+        var exs = it.examples || [];
+        var ex = exs.filter(function (e) { return e.book_name === b.book && (!b.year || String(e.publish_year) === b.year) && e.example.indexOf(b.q.slice(0, 2)) !== -1; })[0] ||
+                 exs.filter(function (e) { return e.book_name === b.book; })[0] || exs[0];
+        var d = {
+          dlt: it.dlt_tp, std: String(it.std_tp || '').replace(/^대응 표준어 없음\.?$/, ''), mean: String(it.mean || '').replace(/①|②|③/g, function (m) { return ' ' + m; }).trim(),
+          region: it.region_nm, also: String(it.rel_dlt || '').split(/\s*,\s*/).filter(Boolean).slice(0, 6),
+          desc: firstSentences(it.word_desc, 2),
+          scene: ex ? String(ex.example).replace(/\s*\/\s*/g, '\n').trim() : '', writer: ex ? ex.writer : '', book: ex ? ex.book_name : '', year: ex ? ex.publish_year : ''
+        };
+        cache[b.q] = d;
+        return d;
+      });
+  }
+  function firstSentences(t, n) {
+    var parts = String(t || '').match(/[^.!?]+[.!?]+/g) || [String(t || '')];
+    return parts.slice(0, n).join(' ').trim();
+  }
+  // 장면 속 방언 낱말에 형광펜 (활용형: 깨금발로·꽤구락지도 → 앞부분으로 찾기)
+  function markScene(text, w) {
+    var t = esc(text);
+    var keys = [w, w.replace(/다$/, ''), w.slice(0, -1)];
+    for (var i = 0; i < keys.length; i++) {
+      var k = esc(keys[i]);
+      if (k && t.indexOf(k) !== -1) return t.split(k).join('<mark>' + k + '</mark>');
+    }
+    return t;
+  }
+
+  function show(id) {
+    ['lb-shelf-panel', 'lb-book-panel', 'lb-cards-panel'].forEach(function (p) { $(p).hidden = (p !== id); });
+    document.querySelectorAll('.js-card-count').forEach(function (el) { el.textContent = Object.keys(st.cards).length; });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── 책장: 책등에는 작품 이름과 작가만(방언 뜻은 숨김) ──
+  function renderShelf() {
+    var box = $('lb-shelf');
+    box.innerHTML = BOOKS.map(function (b, i) {
+      return '<button type="button" class="lb-book lb-b' + (i % 8) + (st.read[b.q] ? ' is-read' : '') + '" data-i="' + i + '">' +
+        '<span class="lb-book__band"></span><span class="lb-book__title js-t">' + esc(b.book) + '</span><span class="lb-book__who js-w"></span></button>';
+    }).join('');
+    BOOKS.forEach(function (b, i) {
+      loadBook(b).then(function (d) {
+        var el = box.querySelector('[data-i="' + i + '"]');
+        el.querySelector('.js-t').textContent = d.book;
+        el.querySelector('.js-w').textContent = d.writer;
+        el.setAttribute('aria-label', '「' + d.book + '」 ' + d.writer + (st.read[b.q] ? ', 읽음' : ''));
+      }).catch(function () {});
+    });
+    document.querySelectorAll('.js-card-count').forEach(function (el) { el.textContent = Object.keys(st.cards).length; });
+  }
+  $('lb-shelf').addEventListener('click', function (e) {
+    var b = e.target.closest('.lb-book');
+    if (b) openBook(+b.dataset.i);
+  });
+
+  // ── 펼친 책: 왼쪽 장면(한 글자씩), 오른쪽 낱말 노트(눌러서 보기) ──
+  var typing = null;
+  function openBook(i) {
+    var b = BOOKS[i];
+    $('lb-book-body').innerHTML = '<p class="lb-loading">책을 펼치는 중이에요…</p>';
+    show('lb-book-panel');
+    loadBook(b).then(function (d) {
+      st.read[b.q] = 1; save();
+      var card = st.cards[b.q] || {};
+      $('lb-book-body').innerHTML =
+        '<div class="lb-open">' +
+          '<div class="lb-pg lb-pg--l"><span class="lb-pg__tag">이야기 속 장면</span>' +
+            '<p class="lb-scene" id="lb-scene" aria-label="' + esc(d.scene) + '"></p>' +
+            '<p class="lb-cite"><b>' + esc(d.writer) + '</b> 「' + esc(d.book) + '」' + (d.year ? ' (' + esc(d.year) + ')' : '') + ' · ' + esc(d.region) + ' 방언</p></div>' +
+          '<div class="lb-pg lb-pg--r"><span class="lb-pg__tag">낱말 노트</span>' +
+            '<button type="button" class="lb-peek" id="lb-peek"><i class="ti ti-eye"></i> ‘' + esc(d.dlt) + '’ 뜻 살짝 보기</button>' +
+            '<div class="lb-reveal lb-note" id="lb-note" hidden>' +
+              '<div class="lb-word"><b>' + esc(d.dlt) + '</b>' + (d.std ? '<i class="ti ti-arrow-right"></i><em>' + esc(d.std) + '</em>' : '') + '</div>' +
+              '<p class="lb-mean">' + esc(d.mean) + '</p>' +
+              (d.also.length ? '<h3>다르게 부르는 말</h3><div class="lb-also">' + d.also.map(function (a) { return '<span>' + esc(a) + '</span>'; }).join('') + '</div>' : '') +
+              (d.desc ? '<h3>알아 두면 좋아요</h3><p class="lb-desc">' + esc(d.desc) + '</p>' : '') +
+            '</div></div>' +
+        '</div>' +
+        '<div class="lb-prep">' +
+          '<h3>이 장면으로 발표해 볼까요?</h3><p>방언이 이 장면에 어떤 느낌을 주는지 골라 보세요. 정답은 없어요.</p>' +
+          '<div class="lb-stickers" id="lb-stickers">' + STICKERS.map(function (s) {
+            return '<button type="button" data-f="' + s[0] + '" aria-pressed="' + ((card.feel || []).indexOf(s[0]) !== -1) + '"><i class="ti ' + s[1] + '"></i>' + s[0] + '</button>';
+          }).join('') + '</div>' +
+          '<div class="lb-me" id="lb-me" role="group" aria-label="내 경험">' +
+            ['나도 비슷한 적 있어요', '처음 보는 모습이에요'].map(function (m) { return '<button type="button" data-m="' + m + '" aria-pressed="' + (card.me === m) + '">' + m + '</button>'; }).join('') +
+          '</div>' +
+          '<div class="lb-actions" style="margin-top:0">' +
+            '<button type="button" class="lb-btn js-to-shelf"><i class="ti ti-books"></i>책장으로</button>' +
+            '<button type="button" class="lb-btn lb-btn--primary" id="lb-add">' + (st.cards[b.q] ? '<i class="ti ti-check"></i>발표 카드에 담았어요' : '<i class="ti ti-plus"></i>발표 카드에 담기') + '</button>' +
+          '</div></div>';
+      typeScene(d);
+      $('lb-peek').addEventListener('click', function () { this.remove(); $('lb-note').hidden = false; });
+      var draft = { feel: (card.feel || []).slice(), me: card.me || '' };
+      $('lb-stickers').addEventListener('click', function (e) {
+        var o = e.target.closest('[data-f]'); if (!o) return;
+        var k = draft.feel.indexOf(o.dataset.f);
+        if (k === -1) draft.feel.push(o.dataset.f); else draft.feel.splice(k, 1);
+        o.setAttribute('aria-pressed', String(k === -1));
+        if (st.cards[b.q]) { st.cards[b.q].feel = draft.feel.slice(); save(); }
+      });
+      $('lb-me').addEventListener('click', function (e) {
+        var o = e.target.closest('[data-m]'); if (!o) return;
+        draft.me = draft.me === o.dataset.m ? '' : o.dataset.m;
+        this.querySelectorAll('[data-m]').forEach(function (x) { x.setAttribute('aria-pressed', String(x.dataset.m === draft.me)); });
+        if (st.cards[b.q]) { st.cards[b.q].me = draft.me; save(); }
+      });
+      $('lb-add').addEventListener('click', function () {
+        st.cards[b.q] = { feel: draft.feel.slice(), me: draft.me, at: Date.now() }; save();
+        this.innerHTML = '<i class="ti ti-check"></i>발표 카드에 담았어요';
+        document.querySelectorAll('.js-card-count').forEach(function (el) { el.textContent = Object.keys(st.cards).length; });
+      });
+      bindShelfBtns();
+    }).catch(function () {
+      $('lb-book-body').innerHTML = '<p class="lb-loading">책을 불러오지 못했어요.' +
+        (/^https?:$/.test(location.protocol) ? '' : '<br>파일로 바로 열면 자료를 불러올 수 없어요. <a href="http://127.0.0.1:8765/dialect_literature_cards.html">개발 서버 주소로 열기</a>') + '</p>' +
+        '<p style="text-align:center"><button type="button" class="lb-btn js-to-shelf"><i class="ti ti-books"></i>책장으로</button></p>';
+      bindShelfBtns();
+    });
+  }
+
+  // 장면을 한 글자씩 써 내려가고, 다 쓰면 방언 낱말에 형광펜
+  function typeScene(d) {
+    clearInterval(typing);
+    var el = $('lb-scene'), txt = d.scene, n = 0;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { el.innerHTML = markScene(txt, d.dlt); return; }
+    typing = setInterval(function () {
+      n += 2;
+      if (n >= txt.length) { clearInterval(typing); el.innerHTML = markScene(txt, d.dlt); return; }
+      el.innerHTML = esc(txt.slice(0, n)) + '<span class="lb-cursor"></span>';
+    }, 45);
+    el.addEventListener('click', function () { clearInterval(typing); el.innerHTML = markScene(txt, d.dlt); }, { once: true });
+  }
+
+  // ── 발표 카드 ──
+  function renderCards() {
+    var keys = BOOKS.filter(function (b) { return st.cards[b.q]; });
+    if (!keys.length) { $('lb-cards').innerHTML = '<p class="lb-empty">아직 담은 장면이 없어요. 책을 펼쳐 마음에 드는 장면을 담아 보세요.</p>'; return; }
+    $('lb-cards').innerHTML = '<p class="lb-empty" style="padding:0 0 4px;text-align:left">불러오는 중…</p>';
+    Promise.all(keys.map(loadBook)).then(function (ds) {
+      $('lb-cards').innerHTML = ds.map(function (d, k) {
+        var c = st.cards[keys[k].q];
+        return '<article class="lb-card"><div class="lb-card__top"><span>발표 카드 ' + (k + 1) + '</span><span>' + esc(d.writer) + ' 「' + esc(d.book) + '」</span></div>' +
+          '<p class="lb-card__scene">' + markScene(d.scene, d.dlt) + '</p>' +
+          '<p class="lb-card__row"><b>방언</b>' + esc(d.dlt) + (d.std ? ' → ' + esc(d.std) : '') + ' (' + esc(d.region) + ')</p>' +
+          '<p class="lb-card__row"><b>뜻</b>' + esc(d.mean) + '</p>' +
+          '<p class="lb-card__row"><b>느낌</b>' + esc((c.feel || []).join(', ') || '—') + '</p>' +
+          '<p class="lb-card__row"><b>내 경험</b>' + esc(c.me || '—') + '</p>' +
+          '<p class="lb-card__row"><b>하고 싶은 말</b></p><div class="lb-card__line"></div><div class="lb-card__line"></div></article>';
+      }).join('');
+    });
+  }
+  function bindShelfBtns() {
+    document.querySelectorAll('.js-to-shelf').forEach(function (b) { b.onclick = function () { clearInterval(typing); renderShelf(); show('lb-shelf-panel'); }; });
+    document.querySelectorAll('.js-open-cards').forEach(function (b) { b.onclick = function () { clearInterval(typing); renderCards(); show('lb-cards-panel'); }; });
+  }
+  $('lb-clear').addEventListener('click', function () {
+    if (!confirm('담은 발표 카드를 모두 지울까요?')) return;
+    st.cards = {}; save(); renderCards(); show('lb-cards-panel');
+  });
+
+  // ── 시작 ──
+  if (!/^https?:$/.test(location.protocol)) {
+    var warn = document.createElement('p');
+    warn.className = 'lb-warn';
+    warn.innerHTML = '미리보기로 열려서, 저장해 둔 자료 사본으로 보여 드려요. 최신 자료와 전체 메뉴는 개발 서버 주소에서 볼 수 있어요: <a href="http://127.0.0.1:8765/dialect_literature_cards.html">http://127.0.0.1:8765/dialect_literature_cards.html</a>';
+    document.querySelector('.lb-head').after(warn);
+  }
+  renderShelf();
+  bindShelfBtns();
+})();
+</script>
+</body>
+</html>
