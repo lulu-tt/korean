@@ -38,13 +38,13 @@
 .bm-home { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 32px; align-items: start; }
 .bm-q { font-size: 22px; font-weight: 800; margin: 0 0 6px; letter-spacing: -0.02em; }
 .bm-hint { color: var(--muted); margin: 0 0 22px; font-size: 15px; }
-.bm-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; max-width: 520px; }
-.bm-tile { position: relative; min-height: 92px; border-radius: 16px; border: 2px solid var(--line); background: #fff; font: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px; transition: transform .12s, border-color .12s; }
+.bm-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.bm-tile { position: relative; min-height: 96px; border-radius: 16px; border: 2px solid var(--line); background: #fff; font: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px; padding: 14px 16px; transition: transform .12s, border-color .12s; }
 .bm-tile:hover { border-color: var(--blue); transform: translateY(-2px); }
 .bm-tile:focus-visible { outline: none; box-shadow: var(--focus); border-color: var(--blue); }
 .bm-tile__name { font-size: 19px; font-weight: 800; color: var(--text); }
-.bm-tile__meta { font-size: 12px; color: var(--muted); }
-.bm-tile--empty { visibility: hidden; }
+.bm-tile__sub { font-size: 13px; font-weight: 700; color: #334155; }
+.bm-tile__meta { font-size: 13px; color: var(--muted); word-break: keep-all; }
 .bm-tile.is-done { border-color: #a7f3d0; background: #ecfdf5; }
 .bm-tile__stamp { position: absolute; top: -8px; right: -8px; width: 30px; height: 30px; border-radius: 50%; background: #10b981; color: #fff; display: none; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 6px rgba(16,185,129,.4); transform: rotate(-12deg); }
 .bm-tile.is-done .bm-tile__stamp { display: flex; }
@@ -147,6 +147,7 @@ body.bm-big .bm-tile__name { font-size: 24px; }
 
 @media (max-width: 860px) {
   .bm-home { grid-template-columns: 1fr; }
+  .bm-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .bm-feel { grid-template-columns: 1fr; }
   .bm-title { font-size: 26px; }
   .bm-quote { font-size: 23px; }
@@ -181,7 +182,7 @@ body.bm-big .bm-tile__name { font-size: 24px; }
     <div class="bm-home">
       <div>
         <h2 class="bm-q" id="bm-home-q">어느 지역 어르신 말을 들어 볼까요?</h2>
-        <p class="bm-hint">지역을 누르면 그 지역 어르신의 말 한마디가 나와요.</p>
+        <p class="bm-hint">카드를 누르면 그 지역 어르신의 말 한마디가 나와요.</p>
         <div class="bm-tiles" id="bm-tiles"></div>
       </div>
       <aside class="bm-side">
@@ -279,8 +280,11 @@ body.bm-big .bm-tile__name { font-size: 24px; }
       keys: [{ d: '메역', s: '미역', opts: ['미역', '메기', '매실'] }, { d: '먹꼭', s: '먹고', opts: ['먹고', '묵고', '먹곡'] }] }
   ];
 
-  // 타일 지도 배치 (3열, 대략의 지리 위치)
-  var LAYOUT = [null, '경기', '강원', '충남', '대전', '충북', '전북', null, '경북', '전남', null, '경남', '제주', null, null];
+  // 카드 순서(북→남)와 한 줄 소개. 소개에는 정답 낱말이 드러나지 않게 쓴다.
+  var ORDER = ['gg', 'gw', 'cb', 'cn', 'dj', 'jb', 'gb1', 'gb2', 'jn', 'gn', 'jj'];
+  var HOOK = { gg: '나들이 이야기', gw: '봄 명절 이야기', cb: '음식 찌는 이야기', cn: '옛날 음식 이야기', dj: '옛날이야기',
+    jb: '명절 음식 준비 이야기', gb1: '매일 먹는 음식 이야기', gb2: '명절 놀이 이야기', jn: '결혼 풍습 이야기',
+    gn: '채소 기르는 이야기', jj: '바다 반찬 이야기' };
   var FEELS = ['정겨워요', '구수해요', '생생해요', '따뜻해요', '재미있어요', '낯설어요'];
   var STORE = 'bm-rephrase-v1';
 
@@ -318,15 +322,16 @@ body.bm-big .bm-tile__name { font-size: 24px; }
 
   // ── 1. 지역 고르기 ──
   function renderHome() {
-    var html = LAYOUT.map(function (prov) {
-      if (!prov) return '<div class="bm-tile bm-tile--empty" aria-hidden="true"></div>';
-      var list = SENTS.filter(function (x) { return x.prov === prov; });
-      var done = list.filter(function (x) { return state.done[x.id]; }).length;
-      var all = done === list.length;
-      return '<button type="button" class="bm-tile' + (all ? ' is-done' : '') + '" data-prov="' + prov + '" aria-label="' + prov + ' 어르신 말 듣기' + (all ? ' (다녀옴)' : '') + '">' +
+    var byId = {};
+    SENTS.forEach(function (x) { byId[x.id] = x; });
+    var html = ORDER.map(function (id) {
+      var x = byId[id], done = !!state.done[id];
+      var place = x.region.split(' ').slice(-1)[0];
+      return '<button type="button" class="bm-tile' + (done ? ' is-done' : '') + '" data-id="' + id + '" aria-label="' + esc(x.prov + ' ' + place + ', ' + HOOK[id]) + (done ? ' (다녀옴)' : '') + '">' +
         '<span class="bm-tile__stamp"><i class="ti ti-check"></i></span>' +
-        '<span class="bm-tile__name">' + prov + '</span>' +
-        '<span class="bm-tile__meta">' + (list.length > 1 ? done + ' / ' + list.length + ' 문장' : (all ? '다녀왔어요' : '한 문장')) + '</span></button>';
+        '<span class="bm-tile__name">' + esc(x.prov) + '</span>' +
+        '<span class="bm-tile__sub">' + esc(place) + '</span>' +
+        '<span class="bm-tile__meta">' + esc(HOOK[id]) + '</span></button>';
     }).join('');
     $('bm-tiles').innerHTML = html;
     var n = SENTS.filter(function (x) { return state.done[x.id]; }).length;
@@ -336,11 +341,9 @@ body.bm-big .bm-tile__name { font-size: 24px; }
   }
 
   $('bm-tiles').addEventListener('click', function (e) {
-    var t = e.target.closest('.bm-tile[data-prov]');
+    var t = e.target.closest('.bm-tile[data-id]');
     if (!t) return;
-    var list = SENTS.filter(function (x) { return x.prov === t.dataset.prov; });
-    var next = list.filter(function (x) { return !state.done[x.id]; })[0] || list[0];
-    openSentence(next);
+    openSentence(SENTS.filter(function (x) { return x.id === t.dataset.id; })[0]);
   });
 
   // ── 2~5. 활동 카드 ──

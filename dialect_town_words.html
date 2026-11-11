@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>우리 동네 말 찾기 — 국립국어원</title>
+<!-- 시안: 초등 5-2 국어 「표준어와 방언을 알아봐요」 활동 ① '방언의 예를 찾고 쓰이는 맥락 알아보기'.
+     새 데이터를 만들지 않고 기존 자료를 그대로 불러 쓴다.
+       · 지역어 지도  data/processed/map/{번호}.json         — 표제어 뜻, 계열(이름·공식 색), 방언형별 좌표
+       · 지점별 응답  data/processed/map_points/{번호}.json  — 시·도별로 실제 쓰는 방언형(퀴즈 정답)
+       · 생활어 사진  사진으로 보는 생활어 상세(id)            — 사진과 상세 화면 링크
+       · 공용 지도    korea-map.js + skorea-provinces.js
+     이 페이지가 직접 가진 것은 '어떤 낱말을 어떤 순서로 낼지'(WORDS) 목록뿐이다. -->
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.9.0/ol.css">
+<link rel="stylesheet" href="./styles.css">
+<script src="./gnb.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+/* 모든 클래스는 tw- 접두사로 스코프 (공통 .card/.wrap 충돌 방지) */
+.tw-page { --tw-yellow: #fde68a; --tw-pink: #fbcfe8; --tw-mint: #a7f3d0; --tw-sky: #bae6fd; --tw-lilac: #ddd6fe; --tw-peach: #fed7aa;
+  max-width: 1080px; margin: 0 auto; padding: 32px 20px 80px; }
+
+/* 머리말 — 아이용 놀이 화면 느낌 */
+.tw-head { position: relative; overflow: hidden; border-radius: 24px; padding: 28px 32px; margin-bottom: 24px;
+  background: linear-gradient(120deg, #fef9c3 0%, #dbeafe 55%, #fce7f3 100%); }
+.tw-head::before, .tw-head::after { content: ''; position: absolute; border-radius: 50%; opacity: .55; }
+.tw-head::before { width: 160px; height: 160px; right: -30px; top: -50px; background: #fde68a; }
+.tw-head::after { width: 90px; height: 90px; right: 120px; bottom: -40px; background: #bbf7d0; }
+.tw-head > * { position: relative; z-index: 1; }
+.tw-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 800; color: #1d4ed8; background: #fff; padding: 5px 12px; border-radius: 999px; box-shadow: 0 2px 0 rgba(29,78,216,.15); }
+.tw-title { display: flex; align-items: center; gap: 10px; font-size: 34px; font-weight: 900; letter-spacing: -0.03em; margin: 12px 0 6px; color: #1e293b; }
+.tw-title i { font-size: 38px; color: #f59e0b; transform: rotate(-8deg); }
+.tw-sub { color: #475569; font-size: 16px; margin: 0; font-weight: 600; }
+
+.tw-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 46px; padding: 0 18px; border-radius: 14px; border: 2px solid #e2e8f0; background: #fff; color: #1e293b; font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; text-decoration: none; box-shadow: 0 3px 0 #e2e8f0; transition: transform .1s, box-shadow .1s; }
+.tw-btn:hover { transform: translateY(-1px); }
+.tw-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #e2e8f0; }
+.tw-btn:focus-visible { outline: none; box-shadow: var(--focus); }
+.tw-btn--primary { background: #2563eb; border-color: #2563eb; color: #fff; box-shadow: 0 4px 0 #1e40af; }
+.tw-btn--primary:active { box-shadow: 0 1px 0 #1e40af; }
+.tw-btn--lg { height: 56px; font-size: 17px; padding: 0 26px; border-radius: 16px; }
+.tw-btn i { font-size: 20px; }
+.tw-panel { background: #fff; border: 2px solid #eef2f7; border-radius: 24px; box-shadow: 0 8px 30px rgba(15,23,42,.06); padding: 30px; }
+.tw-panel[hidden] { display: none; }
+.tw-q { font-size: 24px; font-weight: 900; margin: 0 0 6px; letter-spacing: -0.02em; color: #1e293b; }
+.tw-hint { color: #64748b; margin: 0 0 22px; font-size: 15px; font-weight: 600; }
+
+/* 상단 줄: 우리 지역 + 별 점수 */
+.tw-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+.tw-mine { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; color: #334155; background: #eff6ff; padding: 8px 14px; border-radius: 999px; }
+.tw-mine i { color: #ef4444; font-size: 18px; }
+.tw-mine b { color: #1d4ed8; font-size: 17px; }
+.tw-linkbtn { border: none; background: #fff; color: #2563eb; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; padding: 3px 10px; border-radius: 999px; }
+.tw-score { display: inline-flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 800; color: #92400e; background: #fffbeb; padding: 6px 14px; border-radius: 999px; border: 2px solid #fde68a; }
+.tw-score i { font-size: 20px; color: #e2e8f0; }
+.tw-score i.is-on { color: #f59e0b; }
+
+/* 1. 시·도 고르기 — 알록달록 칩 */
+.tw-provs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.tw-prov { height: 68px; border-radius: 18px; border: none; font: inherit; font-size: 20px; font-weight: 900; color: #1e293b; cursor: pointer;
+  box-shadow: 0 4px 0 rgba(15,23,42,.12); transition: transform .12s; }
+.tw-prov:hover { transform: translateY(-3px) rotate(-1.5deg); }
+.tw-prov:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(15,23,42,.12); }
+.tw-prov:focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
+.tw-c0 { background: var(--tw-yellow); } .tw-c1 { background: var(--tw-pink); } .tw-c2 { background: var(--tw-mint); }
+.tw-c3 { background: var(--tw-sky); } .tw-c4 { background: var(--tw-lilac); } .tw-c5 { background: var(--tw-peach); }
+
+/* 2. 물건 고르기 — 이름은 숨기고 사진·번호만 */
+.tw-words { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.tw-word { position: relative; border-radius: 20px; border: 3px solid #fff; padding: 8px 8px 0; font: inherit; text-align: center; cursor: pointer; display: flex; flex-direction: column;
+  box-shadow: 0 5px 0 rgba(15,23,42,.10); transition: transform .15s; }
+.tw-word:hover { transform: translateY(-4px) rotate(1deg); }
+.tw-word:nth-child(even):hover { transform: translateY(-4px) rotate(-1deg); }
+.tw-word:focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+.tw-word .tw-photo { border-radius: 14px; }
+.tw-word__body { padding: 10px 6px 12px; }
+.tw-word__name { font-size: 18px; font-weight: 900; color: #1e293b; }
+.tw-word__num { position: absolute; top: -10px; left: -10px; width: 36px; height: 36px; border-radius: 50%; background: #1e293b; color: #fff; font-weight: 900; font-size: 17px; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 0 rgba(0,0,0,.2); z-index: 2; }
+/* 푼 문제: 사진 오른쪽 위에 O·X 도장 */
+.tw-mark { position: absolute; top: 14px; right: 14px; width: 54px; height: 54px; z-index: 2; filter: drop-shadow(0 2px 0 rgba(255,255,255,.9)) drop-shadow(0 0 3px rgba(255,255,255,.9)); }
+.tw-mark--o { border-radius: 50%; border: 7px solid #ef4444; }   /* 채점하듯 빨간 동그라미 */
+.tw-mark--x::before, .tw-mark--x::after { content: ''; position: absolute; left: 50%; top: 50%; width: 58px; height: 8px; border-radius: 4px; background: #ef4444; }
+.tw-mark--x::before { transform: translate(-50%, -50%) rotate(45deg); }
+.tw-mark--x::after { transform: translate(-50%, -50%) rotate(-45deg); }
+
+/* 사진(없으면 대체 그림) */
+.tw-photo { position: relative; aspect-ratio: 4 / 3; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #94a3b8; overflow: hidden; }
+.tw-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tw-photo--icon { background: repeating-linear-gradient(45deg, #f8fafc 0 12px, #f1f5f9 12px 24px); color: #64748b; }
+.tw-photo--icon i { font-size: 68px; }
+.tw-photo__note { position: absolute; left: 8px; bottom: 8px; font-size: 11px; font-weight: 700; color: #64748b; background: rgba(255,255,255,.9); padding: 2px 8px; border-radius: 999px; }
+
+/* 3. 문제 */
+.tw-quiz { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 32px; align-items: start; }
+.tw-quiz .tw-photo { border-radius: 20px; border: 6px solid #fff; box-shadow: 0 6px 0 rgba(15,23,42,.08), 0 0 0 2px #eef2f7; transform: rotate(-2deg); }
+.tw-reveal { margin: 18px 4px 0; background: #f0fdf4; border: 2px dashed #86efac; border-radius: 16px; padding: 12px 14px; font-size: 14px; color: #334155; line-height: 1.6; animation: tw-pop .35s ease-out; }
+.tw-reveal b { font-size: 18px; color: #15803d; }
+.tw-reveal[hidden] { display: none; }
+.tw-ask { font-size: 27px; font-weight: 900; line-height: 1.45; margin: 4px 0 22px; letter-spacing: -0.02em; word-break: keep-all; color: #1e293b; }
+.tw-ask em { font-style: normal; color: #fff; background: #2563eb; padding: 0 10px; border-radius: 10px; }
+.tw-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.tw-opt { position: relative; height: 76px; border-radius: 18px; border: none; font: inherit; font-size: 24px; font-weight: 900; color: #1e293b; cursor: pointer; padding: 0 16px 0 58px; text-align: left;
+  box-shadow: 0 5px 0 rgba(15,23,42,.14); transition: transform .1s; }
+.tw-opt::before { content: attr(data-k); position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.8); font-size: 16px; display: flex; align-items: center; justify-content: center; }
+.tw-opt:hover:not(:disabled) { transform: translateY(-3px); }
+.tw-opt:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 rgba(15,23,42,.14); }
+.tw-opt:focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
+.tw-opt:disabled { cursor: default; opacity: .45; }
+.tw-opt.is-right { opacity: 1; background: #22c55e; color: #fff; animation: tw-pop .4s ease-out; }
+.tw-opt.is-wrong { opacity: 1; background: #ef4444; color: #fff; animation: tw-shake .4s; }
+.tw-opt.is-right::after, .tw-opt.is-wrong::after { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 34px; }
+.tw-opt.is-right::after { content: 'O'; }
+.tw-opt.is-wrong::after { content: 'X'; }
+.tw-result { margin-top: 20px; display: flex; gap: 12px; align-items: flex-start; animation: tw-pop .35s ease-out; }
+.tw-result[hidden] { display: none; }
+.tw-result__face { flex: none; width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 34px; }
+.tw-result__bubble { position: relative; font-size: 18px; font-weight: 800; line-height: 1.5; word-break: keep-all; padding: 12px 16px; border-radius: 16px; }
+.tw-result--ok .tw-result__face { background: #dcfce7; color: #16a34a; }
+.tw-result--ok .tw-result__bubble { background: #f0fdf4; color: #166534; }
+.tw-result--no .tw-result__face { background: #fef3c7; color: #d97706; }
+.tw-result--no .tw-result__bubble { background: #fffbeb; color: #92400e; }
+.tw-nodata { background: #fffbeb; border: 2px solid #fde68a; color: #92400e; border-radius: 14px; padding: 12px 14px; font-size: 15px; font-weight: 700; }
+
+/* 정답 축하 꽃가루 */
+.tw-confetti { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
+.tw-confetti span { position: absolute; top: -20px; width: 10px; height: 14px; border-radius: 3px; animation: tw-fall 1.6s ease-in forwards; }
+
+@keyframes tw-pop { 0% { transform: scale(.85); opacity: 0; } 70% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes tw-shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+@keyframes tw-fall { to { transform: translateY(105vh) rotate(540deg); opacity: .8; } }
+
+/* 4. 전국 지도 */
+.tw-mapwrap { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; margin-top: 30px; padding-top: 26px; border-top: 3px dotted #e2e8f0; }
+.tw-mapwrap[hidden] { display: none; }
+.tw-map { height: 460px; border-radius: 20px; background: #e0f2fe; overflow: hidden; border: 2px solid #eef2f7; }
+.tw-legend h3 { margin: 0 0 4px; font-size: 20px; font-weight: 900; }
+.tw-legend p { margin: 0 0 14px; font-size: 14px; color: #64748b; font-weight: 600; }
+.tw-legend ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.tw-legend li { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; padding: 8px 10px; border-radius: 12px; }
+.tw-legend li.is-mine { background: #eff6ff; }
+.tw-dot { flex: none; width: 18px; height: 18px; border-radius: 50%; margin-top: 2px; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(15,23,42,.2); }
+.tw-legend li b { display: block; }
+.tw-legend li span { font-size: 13px; color: #64748b; }
+.tw-legend li.is-mine b::after { content: '우리 지역'; margin-left: 6px; font-size: 11px; font-weight: 800; color: #fff; background: #2563eb; padding: 2px 7px; border-radius: 999px; vertical-align: 2px; }
+.tw-more { display: grid; gap: 8px; margin-top: 18px; }
+.tw-more .tw-btn { justify-content: flex-start; height: 44px; font-size: 14px; }
+.tw-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
+.tw-loading { color: #64748b; padding: 40px 0; text-align: center; font-weight: 700; }
+.tw-proto { margin-top: 28px; font-size: 13px; color: #94a3b8; line-height: 1.6; }
+
+@media (max-width: 860px) {
+  .tw-head { padding: 22px 20px; }
+  .tw-provs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .tw-words { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tw-quiz { grid-template-columns: 1fr; gap: 20px; }
+  .tw-quiz .tw-photo { max-width: 360px; }
+  .tw-mapwrap { grid-template-columns: 1fr; }
+  .tw-map { height: 380px; }
+  .tw-title { font-size: 27px; }
+  .tw-ask { font-size: 22px; }
+  .tw-opt { font-size: 20px; height: 66px; }
+  .tw-panel { padding: 22px 16px; }
+  .tw-mark { width: 44px; height: 44px; }
+  .tw-mark--x::before, .tw-mark--x::after { width: 48px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tw-page *, .tw-confetti * { animation: none !important; transition: none !important; }
+  .tw-word:hover, .tw-prov:hover, .tw-opt:hover { transform: none !important; }
+}
+</style>
+</head>
+<body>
+<div id="gnb-common"></div>
+
+<main class="tw-page">
+  <header class="tw-head">
+    <div>
+      <span class="tw-eyebrow"><i class="ti ti-school"></i>초등 5학년 국어 · 표준어와 방언을 알아봐요</span>
+      <h1 class="tw-title"><i class="ti ti-map-search" aria-hidden="true"></i>우리 동네 말 찾기</h1>
+      <p class="tw-sub">같은 물건을 지역마다 어떻게 부르는지 맞혀 보고, 전국 지도로 비교해 보아요.</p>
+    </div>
+  </header>
+
+  <!-- 1. 우리 지역 고르기 -->
+  <section class="tw-panel" id="tw-pick-prov" hidden>
+    <h2 class="tw-q">우리 동네는 어디인가요?</h2>
+    <p class="tw-hint">할머니·할아버지 고향을 골라도 좋아요. 나중에 바꿀 수 있어요.</p>
+    <div class="tw-provs" id="tw-provs"></div>
+  </section>
+
+  <!-- 2. 낱말 고르기 -->
+  <section class="tw-panel" id="tw-pick-word" hidden>
+    <div class="tw-bar"><span class="tw-mine"><i class="ti ti-map-pin-filled"></i>우리 지역 <b class="js-mine"></b> <button type="button" class="tw-linkbtn js-change-prov">바꾸기</button></span><span class="tw-score js-score"></span></div>
+    <h2 class="tw-q">이 물건들, 우리 동네에서는 뭐라고 부를까?</h2>
+    <p class="tw-hint">사진을 골라 맞혀 보세요. 맞히면 O, 틀리면 X 도장이 찍혀요.</p>
+    <div class="tw-words" id="tw-words"></div>
+  </section>
+
+  <!-- 3~4. 문제 + 전국 지도 -->
+  <section class="tw-panel" id="tw-play" hidden aria-live="polite">
+    <div class="tw-bar"><span class="tw-mine"><i class="ti ti-map-pin-filled"></i>우리 지역 <b class="js-mine"></b></span><span class="tw-score js-score"></span></div>
+    <div id="tw-play-body"><p class="tw-loading">자료를 불러오는 중이에요…</p></div>
+  </section>
+
+  <p class="tw-proto">시안 안내 · 지도와 정답은 국립국어원 지역어 조사의 지역어 지도·지점별 응답 자료를, 사진은 '사진으로 보는 생활어' 자료를 그대로 불러와 씁니다. 고른 지역과 푼 문제는 이 기기의 브라우저에만 저장됩니다.</p>
+</main>
+
+<div id="footer-common"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/ol@v10.9.0/dist/ol.js"></script>
+<script src="skorea-provinces.js"></script>
+<script src="korea-map.js?v=20261015sido"></script>
+<script>
+(function () {
+  'use strict';
+
+  // 이 페이지가 가진 유일한 설정: 낼 낱말과 순서. 나머지는 모두 기존 자료에서 불러온다.
+  //  no  = 지역어 지도 표제어 번호(data/processed/map/{no}.json, dialect_map.html?no=)
+  //  rc  = 사진으로 보는 생활어 항목 id(region_culture_detail.html?id=), img = 그 항목의 대표 사진
+  //  icon = 사진 원본이 없을 때 대신 보여 줄 그림(tabler 아이콘)
+  var WORDS = [
+    { no: '50332', rc: '57',   img: './image/200701202', icon: 'ti-bowl' },        // 시루 (이 PC에 실제 사진 있음)
+    { no: '50297', rc: '1497', img: './image/200811816', icon: 'ti-plant-2' },     // 부추
+    { no: '50530', rc: '',     img: '',                  icon: 'ti-mountain' },    // 바위 (생활어 '바위'는 바구니 테두리라 다른 뜻 — 사진 없음)
+    { no: '50295', rc: '1451', img: './image/200811603', icon: 'ti-carrot' },      // 무
+    { no: '50308', rc: '886',  img: './image/200804022', icon: 'ti-scissors' },    // 가위
+    { no: '50552', rc: '2586', img: './image/201105201', icon: 'ti-fish' },        // 갈치
+    { no: '50444', rc: '110',  img: './image/200704134', icon: 'ti-shovel' },      // 호미
+    { no: '50476', rc: '189',  img: './image/200704528', icon: 'ti-music' }        // 꽹과리
+  ];
+  var MAP_URL = './data/processed/map/';
+  var POINTS_URL = './data/processed/map_points/';
+
+  // 지점별 응답의 시·도 이름(정식) ↔ 화면용 짧은 이름
+  var PROVS = [
+    ['서울특별시', '서울'], ['인천광역시', '인천'], ['경기도', '경기'], ['강원도', '강원'],
+    ['충청북도', '충북'], ['충청남도', '충남'], ['대전광역시', '대전'], ['전라북도', '전북'],
+    ['광주광역시', '광주'], ['전라남도', '전남'], ['경상북도', '경북'], ['대구광역시', '대구'],
+    ['울산광역시', '울산'], ['경상남도', '경남'], ['부산광역시', '부산'], ['제주특별자치도', '제주']
+  ];
+  var SHORT = {}; PROVS.forEach(function (p) { SHORT[p[0]] = p[1]; });
+  var STORE = 'tw-townwords-v1';
+
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); };
+
+  var state = (function () { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; } })();
+  state.done = state.done || {};
+  function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) { /* 저장 불가 환경 */ } }
+
+  // ── 기존 자료 불러오기 (한 번 불러온 낱말은 캐시) ──
+  var cache = {};
+  function loadWord(w) {
+    if (cache[w.no]) return Promise.resolve(cache[w.no]);
+    return Promise.all([
+      fetch(MAP_URL + w.no + '.json').then(function (r) { if (!r.ok) throw new Error('map ' + r.status); return r.json(); }),
+      fetch(POINTS_URL + w.no + '.json').then(function (r) { if (!r.ok) throw new Error('points ' + r.status); return r.json(); })
+    ]).then(function (res) {
+      var m = res[0], p = res[1];
+      // 시·도별 방언형 빈도 (응답 표기 "형태(=주석)", "형태|형태" 정리)
+      var byProv = {};
+      Object.keys(p.points || {}).forEach(function (key) {
+        var prov = key.split('│')[1];
+        (p.points[key] || []).forEach(function (x) {
+          String(x.f || '').split(/[|,]/).forEach(function (f) {
+            f = f.replace(/\(.*?\)/g, '').replace(/[\s'"]/g, '').trim();
+            if (!f) return;
+            var c = byProv[prov] || (byProv[prov] = {});
+            c[f] = (c[f] || 0) + 1;
+          });
+        });
+      });
+      // 방언형 → 계열(이름·공식 색) 찾기
+      var formGroup = {}, varN = {};
+      var groups = Object.keys(m.groups || {}).map(function (gk) {
+        var g = m.groups[gk];
+        (g.variants || []).forEach(function (v) { formGroup[v.word] = g; varN[v.word] = v.n || 0; });
+        return g;
+      });
+      var d = { meta: m, byProv: byProv, groups: groups, formGroup: formGroup, varN: varN, word: m.headword,
+        meaning: String(m.meaning || '').replace(/「\d+」/g, '').trim() };
+      cache[w.no] = d;
+      return d;
+    });
+  }
+
+  function sortedForms(counter) {
+    return Object.keys(counter || {}).sort(function (a, b) { return counter[b] - counter[a]; });
+  }
+
+  // ── 화면 전환 ──
+  function show(id) {
+    ['tw-pick-prov', 'tw-pick-word', 'tw-play'].forEach(function (p) { $(p).hidden = (p !== id); });
+    document.querySelectorAll('.js-mine').forEach(function (el) { el.textContent = state.prov ? SHORT[state.prov] || state.prov : ''; });
+    renderScore();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function photoHtml(w, name) {
+    // 생활어 사진 경로는 확장자 없이 저장돼 있어 .jpg 를 붙여 시도한다.
+    // 원본 사진이 없으면(로컬 개발 PC 등) 깨진 그림 대신 낱말 아이콘 카드를 보여 준다.
+    var src = /\.\w{3,4}$/.test(w.img) ? w.img : w.img + '.jpg';
+    if (!w.img) return '<div class="tw-photo tw-photo--icon"><i class="ti ' + esc(w.icon || 'ti-photo') + '" aria-hidden="true"></i></div>';
+    return '<div class="tw-photo"><img src="' + esc(src) + '" alt="' + esc(name) + ' 사진" loading="lazy" ' +
+      'onerror="this.parentNode.classList.add(\'tw-photo--icon\');this.parentNode.innerHTML=\'<i class=&quot;ti ' + esc(w.icon || 'ti-photo') + '&quot; aria-hidden=&quot;true&quot;></i><span class=&quot;tw-photo__note&quot;>사진 준비 중</span>\'"></div>';
+  }
+
+  // 맞힌 개수를 별로 보여 준다 (문제가 없었던 낱말은 세지 않음)
+  function renderScore() {
+    var quiz = WORDS.filter(function (w) { var r = state.done[w.no]; return r && 'ok' in r; });
+    var ok = quiz.filter(function (w) { return state.done[w.no].ok; }).length;
+    var html = '';
+    for (var i = 0; i < WORDS.length; i++) html += '<i class="ti ti-star-filled' + (i < ok ? ' is-on' : '') + '" aria-hidden="true"></i>';
+    document.querySelectorAll('.js-score').forEach(function (el) {
+      el.innerHTML = html + '<span style="margin-left:6px">' + ok + '개 맞혔어요</span>';
+      el.setAttribute('aria-label', WORDS.length + '개 중 ' + ok + '개 맞힘');
+    });
+  }
+
+  // ── 1. 우리 지역 고르기 ──
+  function renderProvs() {
+    $('tw-provs').innerHTML = PROVS.map(function (p, i) {
+      return '<button type="button" class="tw-prov tw-c' + (i % 6) + '" data-prov="' + p[0] + '">' + p[1] + '</button>';
+    }).join('');
+  }
+  $('tw-provs').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-prov]');
+    if (!b) return;
+    state.prov = b.dataset.prov; save();
+    renderWords(); show('tw-pick-word');
+  });
+  document.querySelectorAll('.js-change-prov').forEach(function (b) {
+    b.addEventListener('click', function () { show('tw-pick-prov'); });
+  });
+
+  // ── 2. 낱말 고르기 (이름은 지도 자료의 표제어를 그대로 쓴다) ──
+  // 문제를 풀기 전에는 물건 이름을 보여 주지 않는다(정답 힌트가 되므로). 푼 뒤에만 표준어 이름과 O·X 도장을 보여 준다.
+  function renderWords() {
+    var box = $('tw-words');
+    box.innerHTML = WORDS.map(function (w, i) {
+      var r = state.done[w.no];
+      var mark = r ? ('ok' in r ? (r.ok ? 'o' : 'x') : 'o') : '';
+      return '<button type="button" class="tw-word tw-c' + (i % 6) + '" data-i="' + i + '" aria-label="' + (i + 1) + '번 물건' + (mark ? (mark === 'o' ? ', 맞힘' : ', 틀림') : '') + '">' +
+        '<span class="tw-word__num">' + (i + 1) + '</span>' +
+        (mark ? '<span class="tw-mark tw-mark--' + mark + '" aria-hidden="true"></span>' : '') +
+        photoHtml(w, '') +
+        '<span class="tw-word__body"><span class="tw-word__name js-wname">' + (r ? '…' : '이건 뭘까?') + '</span></span></button>';
+    }).join('');
+    WORDS.forEach(function (w, i) {
+      if (!state.done[w.no]) return;
+      loadWord(w).then(function (d) {
+        var el = box.querySelector('[data-i="' + i + '"] .js-wname');
+        if (el) el.textContent = d.word;
+      }).catch(function () {});
+    });
+    renderScore();
+  }
+  $('tw-words').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-i]');
+    if (b) play(WORDS[+b.dataset.i]);
+  });
+
+  // ── 3. 문제: 우리 지역에서는 뭐라고 부를까? ──
+  var curWord = null, olMap = null;
+  function play(w) {
+    curWord = w;
+    $('tw-play-body').innerHTML = '<p class="tw-loading">자료를 불러오는 중이에요…</p>';
+    show('tw-play');
+    loadWord(w).then(function (d) { renderQuiz(w, d); }).catch(function () {
+      $('tw-play-body').innerHTML = '<p class="tw-nodata">이 낱말의 지도 자료를 불러오지 못했어요.</p>' + backBtns();
+      bindBack();
+    });
+  }
+
+  function buildOptions(d) {
+    // 보기·정답 표시는 지역어 지도에 공식으로 정리된 방언형만 쓴다('시루ㄱ' 같은 전사 기호 제외).
+    // 원자료 응답(mineSet)은 모두 정답으로 인정한다.
+    var raw = sortedForms(d.byProv[state.prov]);
+    if (!raw.length) return null;
+    var mine = raw.filter(function (f) { return d.varN[f]; });
+    if (!mine.length) mine = raw;
+    var answer = mine[0];
+    var mineSet = {}; raw.forEach(function (f) { mineSet[f] = 1; });
+    // 오답: 다른 시·도에서 많이 쓰는데 우리 지역에서는 안 쓰는 말 (계열이 다른 것을 먼저)
+    var others = {};
+    Object.keys(d.byProv).forEach(function (pv) {
+      if (pv === state.prov) return;
+      Object.keys(d.byProv[pv]).forEach(function (f) { if (!mineSet[f]) others[f] = (others[f] || 0) + d.byProv[pv][f]; });
+    });
+    // 오답은 계열마다 하나씩만(부추·분추·부초처럼 비슷한 말이 나란히 나오지 않게), 정답 계열은 제외
+    // 드물게 나온 응답(1~2곳)은 보기로 쓰지 않는다. 계열이 하나뿐인 낱말은 같은 계열 안에서 채운다.
+    var pool = Object.keys(others).filter(function (f) { return (d.varN[f] || 0) >= 3; })
+      .sort(function (a, b) { return d.varN[b] - d.varN[a]; });
+    var usedGroups = [d.formGroup[answer] || answer];
+    var wrong = [];
+    pool.forEach(function (f) {
+      var g = d.formGroup[f] || f;
+      if (wrong.length < 3 && usedGroups.indexOf(g) === -1) { usedGroups.push(g); wrong.push(f); }
+    });
+    pool.forEach(function (f) { if (wrong.length < 2 && wrong.indexOf(f) === -1) wrong.push(f); });
+    var opts = [answer].concat(wrong);
+    // 섞기(낱말 번호 기준 고정 순서)
+    var h = 7; for (var i = 0; i < d.word.length; i++) h = (h * 31 + d.word.charCodeAt(i)) >>> 0;
+    for (var j = opts.length - 1; j > 0; j--) { h = (h * 1103515245 + 12345) >>> 0; var r = h % (j + 1); var t = opts[j]; opts[j] = opts[r]; opts[r] = t; }
+    return { opts: opts, mine: mine, mineSet: mineSet };
+  }
+
+  function renderQuiz(w, d) {
+    var q = buildOptions(d);
+    var provName = SHORT[state.prov] || state.prov;
+    // 물건 이름·뜻은 답을 고른 뒤에 공개한다 (문제가 없는 경우엔 바로 공개)
+    var left = '<div>' + photoHtml(w, '') +
+      '<p class="tw-reveal" id="tw-reveal" hidden>표준어로는 <b>' + esc(d.word) + '</b>예요.<br>' + esc(d.meaning) + '</p></div>';
+    var right;
+    var allMine = q && q.opts.length < 2;   // 전국의 말을 우리 지역이 다 쓰고 있으면 문제 대신 알려 준다
+    if (!q) {
+      right = '<p class="tw-ask">' + esc(provName) + '에는 <em>' + esc(d.word) + '</em> 조사 자료가 없어요.</p>' +
+        '<p class="tw-nodata">대신 전국 지도에서 다른 지역은 어떻게 부르는지 살펴봐요.</p>';
+    } else if (allMine) {
+      right = '<p class="tw-ask"><em>' + esc(provName) + '</em>에서는<br>‘' + q.mine.slice(0, 4).map(esc).join('’, ‘') + '’를 모두 써요!</p>' +
+        '<p class="tw-hint">전국 지도에서 어느 지역이 어떤 말을 쓰는지 살펴봐요.</p>';
+    } else {
+      right = '<p class="tw-ask">사진 속 물건을<br><em>' + esc(provName) + '</em>에서는 뭐라고 부를까요?</p>' +
+        '<div class="tw-opts" id="tw-opts">' + q.opts.map(function (o, k) {
+          return '<button type="button" class="tw-opt tw-c' + ((k + 1) % 6) + '" data-k="' + '가나다라'.charAt(k) + '" data-f="' + esc(o) + '">' + esc(o) + '</button>';
+        }).join('') + '</div>' +
+        '<p class="tw-result" id="tw-result" hidden></p>';
+    }
+    $('tw-play-body').innerHTML = '<div class="tw-quiz">' + left + '<div>' + right + '</div></div>' +
+      '<div class="tw-mapwrap" id="tw-mapwrap" hidden></div>' + backBtns();
+    bindBack();
+    if (!q || allMine) { $('tw-reveal').hidden = false; if (allMine) { state.done[w.no] = { prov: state.prov }; save(); renderScore(); } revealMap(d); return; }
+    $('tw-opts').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-f]');
+      if (!b || b.disabled) return;
+      var f = b.dataset.f, ok = !!q.mineSet[f];
+      this.querySelectorAll('.tw-opt').forEach(function (o) {
+        o.disabled = true;
+        if (q.mineSet[o.dataset.f]) o.classList.add('is-right');
+        else if (o === b) o.classList.add('is-wrong');
+      });
+      var also = q.mine.filter(function (x) { return x !== f; }).slice(0, 3);
+      var res = $('tw-result');
+      res.hidden = false;
+      res.className = 'tw-result ' + (ok ? 'tw-result--ok' : 'tw-result--no');
+      res.innerHTML = ok
+        ? '<span class="tw-result__face"><i class="ti ti-mood-happy-filled"></i></span><span class="tw-result__bubble">딩동댕! ' + esc(provName) + '에서는 ‘' + esc(f) + '’라고 해요.' + (also.length ? ' ‘' + also.map(esc).join('’, ‘') + '’라고 하는 곳도 있어요.' : '') + '</span>'
+        : '<span class="tw-result__face"><i class="ti ti-mood-surprised-filled"></i></span><span class="tw-result__bubble">아쉬워요! ‘' + esc(f) + '’는 다른 지역 말이에요. ' + esc(provName) + '에서는 주로 ‘' + esc(q.mine[0]) + '’라고 해요.</span>';
+      $('tw-reveal').hidden = false;
+      if (ok) confetti();
+      state.done[w.no] = { pick: f, ok: ok, prov: state.prov }; save(); renderScore();
+      revealMap(d);
+    });
+  }
+
+  function confetti() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var box = document.createElement('div');
+    box.className = 'tw-confetti';
+    box.setAttribute('aria-hidden', 'true');
+    var colors = ['#f59e0b', '#ef4444', '#22c55e', '#3b82f6', '#a855f7', '#ec4899'];
+    for (var i = 0; i < 60; i++) {
+      var sp = document.createElement('span');
+      sp.style.left = Math.random() * 100 + '%';
+      sp.style.background = colors[i % colors.length];
+      sp.style.animationDelay = (Math.random() * 0.4) + 's';
+      sp.style.animationDuration = (1.2 + Math.random() * 0.8) + 's';
+      box.appendChild(sp);
+    }
+    document.body.appendChild(box);
+    setTimeout(function () { box.remove(); }, 2600);
+  }
+
+  // ── 4. 전국 지도: 기존 지역어 지도의 계열·공식 색·좌표를 그대로 찍는다 ──
+  function revealMap(d) {
+    var wrap = $('tw-mapwrap');
+    var mineForms = d.byProv[state.prov] || {};
+    var legend = d.groups.map(function (g) {
+      var vs = (g.variants || []).slice().sort(function (a, b) { return b.n - a.n; });
+      var isMine = vs.some(function (v) { return mineForms[v.word]; });
+      return '<li' + (isMine ? ' class="is-mine"' : '') + '><span class="tw-dot" style="background:' + esc(g.color) + '"></span>' +
+        '<span><b>' + esc(g.label) + '</b><span>' + vs.slice(0, 4).map(function (v) { return esc(v.word); }).join(', ') + '</span></span></li>';
+    }).join('');
+    var nPts = 0; d.groups.forEach(function (g) { (g.variants || []).forEach(function (v) { nPts += (v.points || []).length; }); });
+    wrap.innerHTML = '<div class="tw-map" id="tw-map" role="img" aria-label="' + esc(d.word) + '의 지역별 방언 분포 지도"></div>' +
+      '<div class="tw-legend"><h3>전국에서는 이렇게 불러요</h3><p>점 하나가 조사한 마을 한 곳이에요. (' + nPts + '곳)</p><ul>' + legend + '</ul>' +
+      '<div class="tw-more">' +
+        '<a class="tw-btn" href="./dialect_map.html?no=' + encodeURIComponent(curWord.no) + '"><i class="ti ti-map-2"></i>지역어 지도에서 자세히 보기</a>' +
+        (curWord.rc ? '<a class="tw-btn" href="./region_culture_detail.html?id=' + encodeURIComponent(curWord.rc) + '"><i class="ti ti-photo"></i>사진으로 보는 생활어</a>' : '') +
+        '<a class="tw-btn" href="./dialect_rephrase.html"><i class="ti ti-message-2"></i>어르신 말 들어 보기</a>' +
+      '</div></div>';
+    wrap.hidden = false;
+    drawMap(d);
+  }
+
+  function drawMap(d) {
+    if (olMap) { olMap.setTarget(null); olMap = null; }
+    if (!window.KoreaMap || !window.ol) { $('tw-map').innerHTML = '<p class="tw-loading">지도를 불러오지 못했어요.</p>'; return; }
+    olMap = KoreaMap.create('tw-map', { center: [127.75, 36.0], zoom: 6.6, minZoom: 6, maxZoom: 10 });
+    var src = new ol.source.Vector();
+    d.groups.forEach(function (g) {
+      var style = new ol.style.Style({ image: new ol.style.Circle({ radius: 6,
+        fill: new ol.style.Fill({ color: g.color }), stroke: new ol.style.Stroke({ color: '#ffffff', width: 1.5 }) }) });
+      (g.variants || []).forEach(function (v) {
+        (v.points || []).forEach(function (pt) {
+          var f = new ol.Feature({ geometry: new ol.geom.Point(ol.proj.fromLonLat(pt)) });
+          f.setStyle(style);
+          src.addFeature(f);
+        });
+      });
+    });
+    olMap.addLayer(new ol.layer.Vector({ source: src, zIndex: 5 }));
+  }
+
+  function backBtns() {
+    return '<div class="tw-actions"><button type="button" class="tw-btn js-back"><i class="ti ti-layout-grid"></i>다른 물건 고르기</button>' +
+      '<button type="button" class="tw-btn tw-btn--primary tw-btn--lg js-next">다음 물건<i class="ti ti-arrow-right"></i></button></div>';
+  }
+  function bindBack() {
+    var b = document.querySelector('#tw-play .js-back');
+    if (b) b.addEventListener('click', function () { renderWords(); show('tw-pick-word'); });
+    var n = document.querySelector('#tw-play .js-next');
+    if (n) n.addEventListener('click', function () {
+      var i = WORDS.indexOf(curWord);
+      var rest = WORDS.slice(i + 1).concat(WORDS.slice(0, i));
+      play(rest.filter(function (w) { return !state.done[w.no]; })[0] || WORDS[(i + 1) % WORDS.length]);
+    });
+  }
+
+  // ── 시작 ──
+  // 파일 미리보기(file:// · data:)로 열면 브라우저가 자료 파일 불러오기를 막는다 → 개발 서버 주소로 안내
+  if (!/^https?:$/.test(location.protocol)) {
+    var warn = document.createElement('p');
+    warn.className = 'tw-nodata';
+    warn.style.marginBottom = '16px';
+    warn.innerHTML = '이 화면은 지도·응답 자료 파일을 불러와야 해서 파일로 바로 열면 동작하지 않아요. ' +
+      '개발 서버 주소로 열어 주세요: <a href="http://127.0.0.1:8765/dialect_town_words.html">http://127.0.0.1:8765/dialect_town_words.html</a>';
+    document.querySelector('.tw-head').after(warn);
+  }
+  renderProvs();
+  if (state.prov) { renderWords(); show('tw-pick-word'); } else { show('tw-pick-prov'); }
+})();
+</script>
+</body>
+</html>
