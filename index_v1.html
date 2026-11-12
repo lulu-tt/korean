@@ -1,0 +1,3111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지역어 종합 정보 — 국립국어원</title>
+<link rel="shortcut icon" href="./favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;700&family=Noto+Sans+KR:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.9.0/ol.css" />
+<link rel="stylesheet" href="./styles.css" />
+<script src="./gnb.js" defer></script>
+<script src="./footer.js" defer></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-warm: #F8FAFC;       /* Slate 50: 정갈하고 차분한 쿨 그레이 배경 */
+  --bg-white: #FFFFFF;
+  --text-dark: #0F172A;     /* Slate 900: 가독성이 뛰어난 딥 차콜 */
+  --text-mid: #475569;      /* Slate 600 */
+  --text-light: #94A3B8;    /* Slate 400 */
+  --indigo: #1E40AF;        /* Blue 800: 포스웰 느낌의 모던 딥 블루 */
+  --indigo-mid: #1D4ED8;    /* Blue 700: 호버/강조용 블루 */
+  --indigo-light: #60A5FA;  /* Blue 400: 연한 파란 테두리/칩용 */
+  --indigo-pale: #EFF6FF;   /* Blue 50: 카드 배경용 파스텔 블루 */
+  --border: rgba(15, 23, 42, 0.08);
+  --border-strong: rgba(15, 23, 42, 0.15);
+  --serif: 'Noto Serif KR', Georgia, serif;
+  --sans: 'Pretendard', system-ui, -apple-system, sans-serif;
+  --display: 'Pretendard', system-ui, -apple-system, sans-serif; /* 타이틀 전용 폰트 변수 — Pretendard 고딕 계열로 통일 */
+}
+
+
+body { font-family: var(--sans); background: var(--bg-warm); color: var(--text-dark); }
+
+/* GNB & Footer Variables */
+:root {
+  --line: #e2e8f0;
+  --blue: #2563eb;
+  --blue-hover: #1d4ed8;
+  --blue-light: #eff6ff;
+  --shadow2: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+/* Gov Banner 스타일은 공통 styles.css(.gov-banner*)를 사용 — 중복 정의 제거 */
+
+.hero-section {
+  padding: 0 0 60px 0; /* 바닥의 영역 패딩을 영리하게 포함하여 통합 */
+  position: relative;
+  overflow: visible;
+  background: #F3C043; /* 이미지 아래 영역을 하단 today-section(노랑)과 이어지게 → 빈 공간 제거 */
+}
+.hero-slider-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  position: relative;
+  overflow: hidden;
+  height: 720px; /* 하단 검정 영역이 안 보이도록 이미지 영역을 아래로 확장 */
+  background: #F3C043;
+}
+.hero-slider {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.hero-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.8s ease-in-out, visibility 0.8s;
+  background-size: cover;
+  background-position: right center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  padding: 0 calc((100% - 1200px) / 2);
+  z-index: 1;
+}
+@media (max-width: 1280px) {
+  .hero-slide {
+    padding: 0 40px;
+  }
+}
+.hero-slide.active {
+  opacity: 1;
+  visibility: visible;
+  z-index: 2;
+}
+.hero-slide-content {
+  max-width: 720px;
+  z-index: 3;
+  margin-bottom: 100px; /* 늘어난 공간에 맞춰 아래 겹침 방지 여백을 100px로 상향 */
+}
+.hero-slide-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(96, 165, 250, 0.16);
+  color: #93c5fd;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.04em;
+  margin-bottom: 24px;
+}
+.hero-slide-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: #60a5fa;
+  border-radius: 50%;
+}
+.hero-slide-title {
+  font-family: var(--display);
+  font-size: 52px;
+  font-weight: 800;
+  line-height: 1.4;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+}
+.hero-slide-title em {
+  font-style: normal;
+  color: #60a5fa;
+}
+.hero-slide-sub {
+  font-size: 18px;
+  color: #cbd5e1;
+  line-height: 1.8;
+  font-weight: 400;
+  max-width: 680px;
+  margin-bottom: 36px;
+}
+/* 모바일: hero 큰 텍스트 축소 */
+@media (max-width: 768px) {
+  .hero-slide-title { font-size: 40px; line-height: 1.3; margin-bottom: 16px; }
+  .hero-slide-sub { font-size: 16px; line-height: 1.7; margin-bottom: 28px; }
+}
+@media (max-width: 480px) {
+  .hero-slide-badge { margin-bottom: 18px; }
+  .hero-slide-title { font-size: 30px; line-height: 1.32; }
+  .hero-slide-sub { font-size: 14px; }
+  .hero-slide-content { margin-bottom: 80px; }
+}
+
+/* Hero Slider Buttons */
+.hero-btns {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 0;
+}
+.hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 24px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+.hero-btn--primary {
+  background: #ffffff;
+  color: var(--text-dark);
+  border: none;
+}
+.hero-btn--primary:hover {
+  background: #f1f5f9;
+}
+.hero-btn--secondary {
+  background: transparent;
+  color: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+}
+.hero-btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #ffffff;
+}
+.hero-btn svg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+}
+
+.hero-slider-controls {
+  position: absolute;
+  bottom: 85px; /* 늘어난 슬라이더 높이에 맞춰 20px 상향 조정 */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 10;
+}
+.hero-slider-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.hero-slider-btn:hover {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.25);
+}
+.hero-slider-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+}
+.hero-slider-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.hero-slider-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.h-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.h-dot.active {
+  background: #ffffff;
+  width: 20px;
+  border-radius: 3px;
+}
+.hero-slider-play {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.hero-slider-play:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(1.05);
+}
+.hero-slider-play svg {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+}
+
+/* 걸쳐 있는 통합 검색 판넬 */
+.search-panel-wrap {
+  width: 100%;
+  position: relative;
+  z-index: 10;
+}
+.search-panel {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+  max-width: 820px;
+  margin: -60px auto -110px; /* 경계선 중간에 걸치도록 위로 상향 */
+  position: relative;
+  z-index: 10;
+}
+@media (max-width: 1000px) {
+  .search-panel {
+    margin: -60px 20px -110px;
+  }
+}
+/* 모바일: 인기 검색어 태그가 줄바꿈(단어 중간 깨짐) 대신 가로 스크롤되도록 */
+@media (max-width: 640px) {
+  .search-panel__bottom {
+    gap: 10px;
+  }
+  .search-panel__tags {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .search-panel__tags::-webkit-scrollbar {
+    display: none;
+  }
+}
+.search-panel__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+}
+.search-panel__input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+.search-panel__icon {
+  width: 24px;
+  height: 24px;
+  stroke: var(--text-light);
+}
+.search-panel__input {
+  border: none;
+  outline: none;
+  font-family: var(--sans);
+  font-size: 18px;
+  color: var(--text-dark);
+  width: 100%;
+  font-weight: 400;
+  background: transparent;
+}
+.search-panel__input::placeholder {
+  color: var(--text-light);
+}
+
+/* 탭 메뉴 */
+.search-panel__tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-left: 1px solid var(--border);
+  padding-left: 20px;
+}
+.search-panel__tab {
+  border: none;
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  color: var(--text-mid);
+  padding: 8px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.search-panel__tab:hover {
+  color: var(--indigo);
+}
+.search-panel__tab.is-active {
+  background: var(--indigo);
+  color: #ffffff;
+}
+
+.search-panel__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border);
+  padding: 12px 20px;
+  background: var(--bg-warm);
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+.search-panel__tags-label {
+  font-size: 14px;
+  color: var(--text-light);
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.search-panel__tags {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.search-panel__tag {
+  font-size: 14px;
+  color: var(--text-mid);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 6px 14px;
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.search-panel__tag:hover {
+  color: var(--indigo);
+  border-color: var(--indigo-light);
+  background: var(--indigo-pale);
+}
+.search-panel__detail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-light);
+  text-decoration: none;
+  font-weight: 500;
+}
+.search-panel__detail:hover {
+  color: var(--indigo);
+}
+.search-panel__detail svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+}
+
+/* ── SECTION COMMON ── */
+.section-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 28px; }
+.section-title { font-family: var(--display); font-size: 28px; font-weight: 700; letter-spacing: -0.02em; color: var(--text-dark); }
+.section-sub { font-size: 13px; color: var(--text-light); font-weight: 300; margin-top: 4px; }
+.section-link { font-size: 13px; color: var(--indigo); text-decoration: none; font-weight: 400; display: flex; align-items: center; gap: 4px; transition: gap 0.2s; white-space: nowrap; }
+.section-link:hover { gap: 8px; }
+
+/* ── TODAY SECTION (POSWEL NOW STYLE) ── */
+.today-section { 
+  background: #F3C043; /* 오렌지옐로우 배경을 전체 섹션에 적용 */
+  padding: 100px 0 50px; 
+  overflow: hidden; /* 좌우로 넘친 카드가 스크롤바를 만들지 않도록 숨김 */
+  position: relative;
+}
+.today-bg-box {
+  background: transparent; /* 배경색 제거 */
+  border-radius: 0;
+  padding: 0;
+  max-width: 100%;
+  margin: 0;
+  box-shadow: none; /* 그림자 제거 */
+}
+.today-wrap { 
+  max-width: 1440px; /* GNB, Footer 정렬선(1440px)에 맞춤 */
+  margin: 0 auto; 
+  padding: 0 40px;
+}
+.today-header-row { 
+  display: flex; 
+  flex-direction: column;
+  align-items: center; 
+  text-align: center;
+  margin-bottom: 48px; 
+}
+.today-category-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  margin-bottom: 10px;
+}
+.today-main-label { 
+  font-family: var(--display);
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -0.03em; 
+  color: #ffffff; 
+  margin-bottom: 12px;
+}
+.today-main-sub { 
+  font-size: 16px; 
+  color: rgba(255, 255, 255, 0.9); 
+  font-weight: 400; 
+}
+.today-carousel-wrap { 
+  position: relative; 
+  margin-bottom: 40px;
+}
+.today-viewport { 
+  overflow: visible; /* 부모 정렬선 밖으로 카드 노출 허용 */
+  padding: 10px 4px; /* 카드가 움직이면서 shadow가 잘리지 않도록 여백 부여 */
+}
+.today-track { 
+  display: flex; 
+  gap: 20px; 
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); 
+}
+
+/* 포스웰 NOW 벤치마킹 카드 스타일 */
+.today-card {
+  flex: 0 0 calc(25% - 15px);
+  border: none;
+  border-radius: 20px;
+  background: var(--bg-white);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  flex-direction: column;
+  /* 이미지를 걷어낸 뒤로는 내용이 높이를 정한다.
+     .today-track 이 flex(stretch) 라서 한 줄의 카드들은 자동으로 같은 높이가 된다. */
+  min-height: 360px;
+  padding: 32px 28px;
+  position: relative;
+  overflow: hidden;
+}
+.today-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+.card-category {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+.today-card.quiz-type .card-category {
+  color: var(--indigo);
+}
+.word-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.word-big { 
+  font-family: var(--display); 
+  font-size: 32px; 
+  font-weight: 700;
+  color: var(--text-dark); 
+  line-height: 1.2; 
+  letter-spacing: -0.02em; 
+}
+.region-pill { 
+  background: var(--indigo-pale); 
+  color: var(--indigo); 
+  font-size: 10px; 
+  font-weight: 600; 
+  padding: 2px 8px; 
+  border-radius: 20px; 
+}
+.word-meaning { 
+  font-size: 13px; 
+  color: var(--text-mid); 
+  font-weight: 400; 
+  line-height: 1.5; 
+  margin-bottom: 12px;
+  height: 2.8em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.word-example { 
+  font-family: var(--serif); 
+  font-size: 11.5px; 
+  color: var(--text-light); 
+  font-weight: 400; 
+  line-height: 1.6; 
+  font-style: italic; 
+  margin-bottom: 14px; 
+  border-left: 2px solid var(--indigo-light); 
+  padding-left: 8px; 
+  height: 3.2em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.word-actions { 
+  display: flex; 
+  gap: 6px; 
+  margin-bottom: 14px; 
+}
+.action-btn { 
+  display: flex; 
+  align-items: center; 
+  gap: 4px; 
+  font-family: var(--sans); 
+  font-size: 10px; 
+  color: var(--text-mid); 
+  background: var(--bg-warm); 
+  border: 1px solid var(--border); 
+  border-radius: 6px; 
+  padding: 5px 9px; 
+  cursor: pointer; 
+  transition: all 0.2s; 
+  font-weight: 500;
+}
+.action-btn:hover { 
+  border-color: var(--indigo); 
+  color: var(--indigo); 
+  background: var(--bg-white);
+}
+.action-btn svg { width: 11px; height: 11px; }
+
+/* 퀴즈 카드 개편 */
+.quiz-word-display { 
+  font-family: var(--display); 
+  font-size: 32px; 
+  font-weight: 700;
+  color: var(--text-dark); 
+  margin-bottom: 2px; 
+  letter-spacing: -0.02em; 
+}
+.quiz-word-region { 
+  font-size: 11px; 
+  color: var(--text-light); 
+  margin-bottom: 12px; 
+}
+.quiz-options { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 6px; 
+  margin-bottom: 12px; 
+}
+.quiz-option { 
+  background: var(--bg-warm); 
+  border: 1px solid var(--border); 
+  border-radius: 8px; 
+  padding: 8px 12px; 
+  font-size: 12px; 
+  color: var(--text-dark); 
+  cursor: pointer; 
+  transition: all 0.2s; 
+  font-weight: 500; 
+  text-align: left; 
+  font-family: var(--sans); 
+}
+.quiz-option:hover { 
+  border-color: var(--indigo-light); 
+  background: var(--bg-white);
+}
+.quiz-option.correct { 
+  border-color: var(--indigo); 
+  background: var(--indigo); 
+  color: white; 
+}
+.quiz-option.wrong { 
+  border-color: #ef4444; 
+  background: #fef2f2; 
+  color: #ef4444; 
+}
+.quiz-submit { 
+  margin-top: auto; 
+  width: 100%; 
+  background: var(--indigo); 
+  color: white; 
+  border: none; 
+  border-radius: 8px; 
+  padding: 8px; 
+  font-family: var(--sans); 
+  font-size: 12px; 
+  font-weight: 600; 
+  cursor: pointer; 
+  transition: background 0.2s; 
+}
+.quiz-submit:hover { background: var(--indigo-mid); }
+
+/* ── 단어 카드: 표준어 · 근거 (전부 DB 값) ── */
+.word-std {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 14px;
+}
+.word-std span {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-light);
+}
+/* 카드 아래 근거 블록 — 그림 대신 쓰이는 곳·출처를 싣는다 */
+.word-source {
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  display: grid;
+  gap: 8px;
+}
+.word-source-row {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-mid);
+}
+.word-source-row span {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-light);
+  padding-top: 1px;
+}
+/* 단어 카드는 이미지가 없으므로 본문이 위에서부터 차곡차곡 쌓인다 */
+.today-card.word-type .word-actions { margin-bottom: 16px; }
+.word-actions a.action-btn { text-decoration: none; }
+
+/* 지역 표기가 길어도 표제어가 줄바꿈되지 않게 한다 */
+.word-title-row { flex-wrap: wrap; }
+.word-big { white-space: nowrap; }
+
+/* ── tb_quiz 원문항 카드 (scripts/export_today_quiz.py 산출물) ── */
+.quiz-word-region {
+  display: inline-block;
+  background: var(--indigo-pale);
+  color: var(--indigo);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+/* 문제문 — 원문항을 그대로 싣는다 */
+.quiz-question {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-mid);
+  margin-bottom: 10px;
+}
+/* 보기 해설(quiz_dtl_exp) — 보기를 고르거나 정답을 열면 나온다 */
+.quiz-explain {
+  display: none;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-mid);
+  background: var(--indigo-pale);
+  border-radius: 8px;
+  padding: 7px 10px;
+  margin-bottom: 8px;
+}
+.quiz-explain.on {
+  display: block;
+  max-height: 40px;      /* 두 줄까지만 — 열 때 카드가 크게 튀지 않게 */
+  overflow-y: auto;
+}
+/* 주관식 — 보기가 없어 정답 자리를 비워 둔다 */
+.quiz-short-slot {
+  border: 1px dashed var(--border-strong);
+  border-radius: 8px;
+  padding: 14px 12px;
+  margin-bottom: 12px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-light);
+}
+.quiz-short-slot.on {
+  border-style: solid;
+  border-color: var(--indigo);
+  background: var(--indigo-pale);
+  color: var(--indigo);
+  font-size: 20px;
+  font-weight: 700;
+  font-family: var(--display);
+  padding: 10px 12px;
+}
+/* 보기 4~5개짜리 문항은 이미지 칸을 줄여 고정 높이 안에 넣는다 */
+.today-card.quiz-type.opts-many .quiz-option { padding: 6px 10px; font-size: 11.5px; }
+.today-card.quiz-type.opts-many .quiz-options { gap: 5px; margin-bottom: 10px; }
+
+/* ── 관련 방언형 칩 (같은 표준어를 가리키는 다른 지역의 말) ── */
+.word-related {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.related-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  background: var(--bg-warm);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+.related-chip span {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--text-light);
+}
+ 
+
+/* 하단 중앙 정렬 통합 컨트롤 (재생/정지 + 닷들) */
+.today-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+.today-nav-row { 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+}
+.today-dots { 
+  display: flex; 
+  gap: 8px; 
+  align-items: center; 
+}
+.t-dot { 
+  width: 6px; 
+  height: 6px; 
+  border-radius: 50%; 
+  background: rgba(255, 255, 255, 0.4); 
+  cursor: pointer; 
+  transition: all 0.3s; 
+}
+.t-dot.active { 
+  background: #ffffff; 
+  width: 20px; 
+  border-radius: 3px; 
+}
+.today-play-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.today-play-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(1.05);
+}
+.today-play-btn svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+.today-side-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.today-side-btn:hover {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.25);
+}
+.today-side-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+}
+
+/* ── 모바일: 오늘의 지역어 카드 (한 화면에 카드 2개 노출 + 하단 이미지 숨김) ── */
+@media (max-width: 640px) {
+  .today-section { padding: 60px 0 40px; }
+  .today-wrap { padding: 0 16px; }
+  .today-header-row { margin-bottom: 28px; }
+  .today-main-label { font-size: 26px; }
+  .today-main-sub { font-size: 14px; }
+
+  /* CARD_GAP(20px)은 캐러셀 JS 계산과 일치해야 하므로 유지, 카드 폭만 2개(50%)로 */
+  .today-card {
+    flex: 0 0 calc(50% - 10px);
+    height: auto;
+    padding: 22px 16px;
+  }
+
+  .word-big,
+  .quiz-word-display { font-size: 24px; }
+  .region-pill { font-size: 9px; }
+  .word-meaning { font-size: 12.5px; }
+  .word-example { font-size: 11px; }
+  .action-btn { font-size: 9px; padding: 5px 7px; }
+  .quiz-option { font-size: 11px; padding: 7px 10px; }
+  .quiz-submit { font-size: 11px; }
+  .quiz-question { font-size: 11.5px; }
+  .quiz-explain { font-size: 10px; padding: 6px 8px; }
+  .quiz-short-slot { padding: 10px; font-size: 11px; }
+  .quiz-short-slot.on { font-size: 17px; }
+  .related-chip { font-size: 10.5px; padding: 3px 8px; }
+  .related-chip span { font-size: 9px; }
+  .word-std { font-size: 16px; margin-bottom: 10px; }
+  /* 카드가 좁아지면 라벨을 값 위로 올린다 (옆으로 두면 값이 한 글자씩 끊긴다) */
+  .word-source-row { font-size: 10px; grid-template-columns: 1fr; gap: 2px; }
+}
+
+/* ── MAP SECTION (POSWEL TAB STYLE) ── */
+.map-section { 
+  background: var(--bg-white); 
+  padding: 100px 40px; 
+  border-bottom: 1px solid var(--border); 
+}
+.map-section-card { 
+  max-width: 1440px; 
+  background: #F1F5F9; 
+  border-radius: 32px; 
+  padding: 60px; 
+  margin: 0 auto; 
+  display: flex; 
+  gap: 60px; 
+  align-items: center; 
+}
+.map-left-panel { 
+  width: 380px; 
+  flex: 0 0 380px; 
+  display: flex; 
+  flex-direction: column; 
+  height: 520px; 
+  justify-content: space-between; 
+}
+.map-menu-wrap { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 24px; 
+}
+.map-menu-title { 
+  font-size: 13px; 
+  font-weight: 700; 
+  color: var(--text-light); 
+  text-transform: uppercase; 
+  letter-spacing: 0.12em; 
+}
+.map-tab-menu { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 16px; 
+  list-style: none; 
+}
+.map-tab-link { 
+  display: inline-block; 
+  font-size: 24px; 
+  font-weight: 500; 
+  color: #94A3B8; 
+  text-decoration: none; 
+  transition: all 0.2s ease; 
+  cursor: pointer; 
+  border-bottom: 2px solid transparent; 
+  padding-bottom: 2px; 
+}
+.map-tab-link:hover { 
+  color: var(--text-dark); 
+}
+.map-tab-link.active { 
+  font-weight: 800; 
+  color: var(--indigo); 
+  border-bottom-color: var(--indigo); 
+}
+.map-desc-box { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 12px; 
+  margin-top: auto; 
+  padding-right: 20px; 
+}
+.map-desc-text { 
+  font-size: 15px; 
+  color: var(--text-mid); 
+  line-height: 1.7; 
+  font-weight: 400; 
+}
+.map-more-btn { 
+  display: inline-flex; 
+  align-items: center; 
+  gap: 6px; 
+  background: #000000; 
+  color: #ffffff; 
+  text-decoration: none; 
+  font-size: 13.5px; 
+  font-weight: 600; 
+  padding: 12px 24px; 
+  border-radius: 30px; 
+  transition: background 0.2s; 
+  width: fit-content; 
+  margin-top: 10px; 
+  cursor: pointer; 
+  border: none; 
+}
+.map-more-btn:hover { 
+  background: #222222; 
+}
+.map-right-card { 
+  flex: 1; 
+  height: 520px; 
+  border-radius: 24px; 
+  overflow: hidden; 
+  position: relative; 
+  border: 1px solid rgba(0,0,0,0.05); 
+  background: #ffffff; 
+  box-shadow: 0 10px 30px rgba(0,0,0,0.02); 
+}
+.map-legend-overlay { 
+  position: absolute; 
+  bottom: 24px; 
+  right: 24px; 
+  background: rgba(255,255,255,0.92); 
+  backdrop-filter: blur(8px); 
+  -webkit-backdrop-filter: blur(8px); 
+  border-radius: 12px; 
+  padding: 14px 18px; 
+  border: 1px solid rgba(0,0,0,0.06); 
+  box-shadow: 0 4px 16px rgba(0,0,0,0.04); 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; 
+  z-index: 5; 
+}
+.map-legend-title { 
+  font-size: 11px; 
+  font-weight: 700; 
+  color: var(--text-light); 
+  text-transform: uppercase; 
+  margin-bottom: 2px; 
+  letter-spacing: 0.05em; 
+}
+.map-legend-list { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 6px; 
+  list-style: none; 
+}
+.map-legend-item { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  font-size: 12px; 
+  color: var(--text-dark); 
+  font-weight: 500; 
+}
+.map-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+/* 지도 탭 오버레이: 데스크톱에서는 사용하지 않음(지도 직접 조작) */
+.map-tap-cover { display: none; }
+
+/* ── 모바일: 지역어 지도 (세로 스택 + 단어 가로 칩 + 정적 지도 미리보기 + 범례 하단) ── */
+@media (max-width: 640px) {
+  .map-section { padding: 60px 16px; }
+  .map-section-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 22px;
+    padding: 24px 20px;
+    border-radius: 20px;
+  }
+
+  /* 좌측 패널 → 세로 흐름 (고정 높이/정렬 해제) */
+  .map-left-panel { width: auto; flex: none; height: auto; gap: 20px; }
+  .map-menu-wrap { gap: 16px; }
+
+  /* 단어 세로 탭 → 가로 스크롤 알약(pill) 칩 */
+  .map-tab-menu {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .map-tab-menu::-webkit-scrollbar { display: none; }
+  .map-tab-link {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-mid);
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-bottom: 8px;
+  }
+  .map-tab-link.active {
+    background: var(--indigo);
+    color: #ffffff;
+    border-color: var(--indigo);
+  }
+
+  .map-desc-box { margin-top: 0; padding-right: 0; gap: 10px; }
+  .map-desc-text { font-size: 14px; }
+
+  /* 지도 카드: 높이 자동 + 오버플로 노출(범례를 지도 아래로 흐르게) */
+  .map-right-card {
+    height: auto;
+    overflow: visible;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+  }
+  .map-right-card #map {
+    height: 300px !important; /* 인라인 height:100% 덮어쓰기 */
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  /* 탭 오버레이: 지도 영역(300px)만 덮어 조작 차단 + 탭 시 전체 지도 이동 */
+  .map-tap-cover {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 300px;
+    z-index: 6;
+    border-radius: 16px;
+  }
+
+  /* 범례: 오버레이 → 지도 아래 정적 배치 (지도를 가리지 않도록) */
+  .map-legend-overlay {
+    position: static;
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border: none;
+    box-shadow: none;
+    padding: 14px 2px 0;
+  }
+  .map-legend-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+  }
+}
+
+/* ── LITERATURE SECTION (INDEPENDENT) ── */
+.lit-section { 
+  background: var(--bg-warm); 
+  padding: 100px 40px; 
+  border-bottom: 1px solid var(--border); 
+}
+.lit-inner { 
+  max-width: 1440px; 
+  margin: 0 auto; 
+  display: flex; 
+  gap: 80px; 
+  align-items: flex-start; 
+}
+.lit-left-col { 
+  width: 340px; 
+  flex: 0 0 340px; 
+}
+.lit-right-col { 
+  flex: 1; 
+}
+.lit-grid { 
+  display: grid; 
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 24px; 
+}
+.lit-card { 
+  background: var(--bg-white); 
+  border: 1px solid var(--border); 
+  border-radius: 20px; 
+  padding: 32px 30px; 
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02); 
+  display: flex; 
+  flex-direction: column; 
+  height: 100%; 
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+}
+.lit-card:hover { 
+  transform: translateY(-4px); 
+  border-color: var(--indigo-light); 
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08); 
+}
+.lit-card-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 16px; 
+}
+.lit-card-info { 
+  font-size: 13px; 
+  color: var(--text-light); 
+  font-weight: 500; 
+}
+.lit-card-title { 
+  font-family: var(--serif); 
+  font-size: 18px; 
+  color: var(--text-dark); 
+  font-weight: 700; 
+  margin-top: 4px; 
+}
+.lit-card-region { 
+  background: var(--indigo-pale); 
+  color: var(--indigo); 
+  font-size: 11px; 
+  font-weight: 600; 
+  padding: 3px 10px; 
+  border-radius: 20px; 
+}
+.lit-card-body { 
+  flex: 1; 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: space-between; 
+}
+.lit-card-quote { 
+  font-family: var(--serif); 
+  font-size: 15.5px; 
+  font-weight: 400; 
+  line-height: 1.8; 
+  color: var(--text-dark); 
+  margin-bottom: 24px; 
+  font-style: normal; 
+}
+.lit-card-quote em { 
+  font-style: normal; 
+  color: var(--indigo); 
+  background: rgba(30, 64, 175, 0.06); 
+  padding: 1px 4px; 
+  border-radius: 4px; 
+  border-bottom: 1.5px solid var(--indigo-light); 
+}
+.lit-card-chips { 
+  display: flex; 
+  gap: 8px; 
+  flex-wrap: wrap; 
+  margin-bottom: 24px; 
+}
+.lit-card-chip { 
+  font-size: 11.5px; 
+  color: var(--indigo); 
+  background: var(--indigo-pale); 
+  border: 1.5px solid transparent; 
+  border-radius: 20px; 
+  padding: 4px 12px; 
+  cursor: pointer; 
+  transition: all 0.2s; 
+  font-weight: 500; 
+}
+.lit-card-chip:hover { 
+  border-color: var(--indigo-light); 
+  background: var(--bg-white); 
+}
+.lit-card-footer { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  border-top: 1px solid var(--border); 
+  padding-top: 16px; 
+  margin-top: auto; 
+}
+.lit-card-source { 
+  font-size: 12px; 
+  color: var(--text-light); 
+}
+.lit-card-link { 
+  font-size: 13px; 
+  color: var(--indigo); 
+  text-decoration: none; 
+  font-weight: 600; 
+  display: flex; 
+  align-items: center; 
+  gap: 4px; 
+}
+.lit-card-link:hover {
+  text-decoration: underline;
+}
+
+/* ── 모바일: 소설과 시에서 만나는 방언 (제목 상단 배치 + 카드 가로 스크롤로 약 2개 노출) ── */
+@media (max-width: 640px) {
+  .lit-section { padding: 60px 0; }
+  .lit-inner { flex-direction: column; gap: 20px; }
+  .lit-left-col { width: auto; flex: none; padding: 0 20px 0 28px; }
+  .lit-right-col { width: 100%; }
+
+  /* 3열 그리드 → 가로 스크롤(스냅) 전환 */
+  .lit-grid {
+    display: flex;
+    grid-template-columns: none;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 28px;
+    padding: 4px 20px 4px 28px; /* 좌측 여백을 더 줘서 타이틀과 함께 오른쪽으로 이동 */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .lit-grid::-webkit-scrollbar { display: none; }
+  .lit-card {
+    /* 화면에 카드 정확히 2개만 노출 (gap 16px의 절반 = 8px), 모든 카드 동일 폭 */
+    flex: 0 0 calc(50% - 8px);
+    scroll-snap-align: start;
+    padding: 24px 20px;
+    /* height:100%는 컨테이너 높이가 auto라 각 카드 콘텐츠 높이로 풀려 높이가 제각각이 됨.
+       auto로 두면 flex의 align-items:stretch가 가장 큰 카드에 맞춰 높이를 통일함 */
+    height: auto;
+  }
+  /* 스크롤 끝에서도 마지막 카드가 오른쪽 끝에 붙지 않도록 여백 확보 */
+  .lit-grid::after {
+    content: '';
+    flex: 0 0 8px;
+  }
+
+  .lit-card-quote { font-size: 13px; line-height: 1.7; margin-bottom: 16px; }
+  .lit-card-chips { gap: 6px; margin-bottom: 16px; }
+  .lit-card-chip { font-size: 10.5px; padding: 3px 9px; }
+  .lit-card-footer { padding-top: 12px; }
+  .lit-card-source { font-size: 11px; }
+  .lit-card-link { font-size: 12px; }
+}
+
+
+
+/* ── PHOTO ── */
+.photo-section { background: var(--bg-white); padding: 80px 40px; border-bottom: 1px solid var(--border); }
+.photo-inner { max-width: 1440px; margin: 0 auto; }
+.photo-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; }
+.photo-card { background: var(--bg-white); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: all 0.25s; cursor: pointer; display: flex; flex-direction: column; height: 100%; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02); }
+.photo-card:hover { border-color: var(--indigo-light); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08); }
+.photo-img-wrap { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.photo-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.photo-img-placeholder svg { width: 55%; height: 55%; opacity: 0.25; }
+.photo-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-info { padding: 16px 18px 20px; background: var(--bg-white); flex: 1; display: flex; flex-direction: column; }
+.photo-word { font-family: var(--serif); font-size: 24px; font-weight: 400; color: var(--text-dark); letter-spacing: -0.02em; margin-bottom: 4px; }
+.photo-tag { font-size: 11px; color: var(--text-light); margin-bottom: 8px; }
+.photo-desc { font-size: 13px; color: var(--text-mid); font-weight: 300; line-height: 1.5; margin-bottom: 12px; height: 4.5em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+.photo-link { font-size: 12px; color: var(--indigo); text-decoration: none; margin-top: auto; }
+
+/* ── 모바일: 사라져가는 물건, 사라져가는 말 (카드 2개 노출 + 가로 스크롤) ── */
+@media (max-width: 640px) {
+  .photo-section { padding: 60px 0; }
+  .photo-section .section-header { padding: 0 20px 0 28px; }
+
+  /* 4열 그리드 → 가로 스크롤(스냅) 전환 */
+  .photo-grid {
+    display: flex;
+    grid-template-columns: none;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 28px;
+    padding: 4px 20px 4px 28px; /* 좌측 여백을 더 줘서 오른쪽으로 이동 */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .photo-grid::-webkit-scrollbar { display: none; }
+  .photo-card {
+    /* 화면에 카드 정확히 2개만 노출 (gap 16px의 절반 = 8px), 모든 카드 동일 크기 */
+    flex: 0 0 calc(50% - 8px);
+    scroll-snap-align: start;
+    height: auto;
+  }
+  /* 스크롤 끝에서 마지막 카드가 오른쪽 끝에 붙지 않도록 여백 확보 */
+  .photo-grid::after { content: ''; flex: 0 0 8px; }
+
+  /* 이미지 높이 축소(정사각 → 4:3) 및 폰트 크기 조정 */
+  .photo-img-wrap { aspect-ratio: 4 / 3; }
+  .photo-info { padding: 14px 14px 16px; }
+  .photo-word { font-size: 19px; }
+  .photo-tag { font-size: 10.5px; }
+  .photo-desc { font-size: 12px; }
+  .photo-link { font-size: 11.5px; }
+}
+
+/* ── NOTICE ── */
+.notice-section { background: var(--bg-warm); padding: 80px 40px; border-bottom: 1px solid var(--border); }
+.notice-inner { max-width: 1440px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
+.notice-col { }
+.notice-list { list-style: none; }
+.notice-item { display: flex; align-items: baseline; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--border); }
+.notice-item:first-child { border-top: 1px solid var(--border-strong); }
+.notice-badge { flex-shrink: 0; font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px; }
+.badge-notice { background: var(--indigo-pale); color: var(--indigo); }
+.badge-data { background: #EEF7EE; color: #2E6B2E; }
+.notice-title { font-size: 13px; color: var(--text-dark); font-weight: 300; flex: 1; line-height: 1.5; cursor: pointer; transition: color 0.2s; }
+.notice-title:hover { color: var(--indigo); }
+.notice-date { font-size: 11px; color: var(--text-light); white-space: nowrap; flex-shrink: 0; }
+
+/* ── API BANNER ── */
+.api-banner { background: var(--bg-white); border-bottom: 1px solid var(--border); padding: 24px 40px; }
+.api-inner { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; gap: 16px; }
+.api-icon { width: 32px; height: 32px; background: var(--indigo-pale); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.api-icon svg { width: 16px; height: 16px; }
+.api-text { flex: 1; font-size: 13px; color: var(--text-mid); font-weight: 300; }
+.api-text strong { color: var(--text-dark); font-weight: 500; }
+.api-cta { font-size: 12px; color: var(--indigo); border: 1px solid var(--indigo-light); border-radius: 20px; padding: 6px 16px; text-decoration: none; white-space: nowrap; transition: all 0.2s; }
+.api-cta:hover { background: var(--indigo); color: white; }
+
+/* Footer */
+.footer {
+  background: #000000;
+  padding: 0 0 40px 0;
+  margin-top: 0;
+  color: #999999;
+}
+.footer__inner {
+  display: flex;
+  flex-direction: column;
+}
+.footer__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 1px solid #222222;
+}
+.footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  font-size: 15px;
+}
+.footer__links a {
+  text-decoration: none;
+  color: #cccccc;
+  font-weight: 600;
+  transition: 0.2s;
+}
+.footer__links a:hover {
+  text-decoration: underline;
+}
+.footer__links .privacy {
+  color: #fce45e;
+  font-weight: 800;
+}
+.footer__links .divider {
+  color: #444444;
+  font-size: 12px;
+}
+.footer__family {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.family-select {
+  background: #000000;
+  border: 1px solid #444444;
+  color: #dddddd;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 2px;
+  width: 200px;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23dddddd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
+}
+.family-select:focus {
+  border-color: #777777;
+}
+.family-btn {
+  background: #000000;
+  border: 1px solid #444444;
+  color: #dddddd;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.family-btn:hover {
+  background: #222222;
+}
+
+.footer__bottom {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  padding-top: 30px;
+}
+.footer__logo {
+  flex-shrink: 0;
+}
+.f-logo-org {
+  height: 36px;
+  filter: brightness(0) invert(1) opacity(0.8);
+}
+.footer__address {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #888888;
+}
+.footer__address span { display: block; }
+.footer__wa {
+  flex-shrink: 0;
+}
+
+/* ── 모바일 푸터: 링크 좌측정렬 + 주소/문의 라인 숨김 ── */
+@media (max-width: 640px) {
+  .footer__top {
+    flex-direction: column;
+    align-items: flex-start; /* 링크 좌측정렬 */
+    gap: 18px;
+  }
+  .footer__links { gap: 12px; font-size: 14px; }
+  .footer__family { width: 100%; }
+  .family-select { flex: 1; width: auto; }
+
+  .footer__bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+  }
+  /* 주소/일반문의 라인은 모바일에서 노출하지 않음 (COPYRIGHT만 유지)
+     `.footer__address span`(0,0,1,1)보다 우선하도록 클래스 2개로 지정 */
+  .footer__address .footer__addr-line { display: none; }
+}
+.f-logo-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #10b981;
+  border-radius: 50%;
+  width: 58px;
+  height: 58px;
+  background: #ffffff;
+  font-size: 18px;
+  font-weight: 900;
+  color: #10b981;
+  line-height: 1.1;
+  box-shadow: var(--shadow2);
+}
+.f-logo-placeholder small {
+  font-size: 9px;
+  color: #047857;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+}
+
+/* ── ANIMATION ── */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+.hero-content > * { animation: fadeUp 0.6s ease both; }
+.hero-badge { animation-delay: 0.1s; }
+.hero-title { animation-delay: 0.2s; }
+.hero-sub { animation-delay: 0.3s; }
+.search-wrap { animation-delay: 0.4s; }
+.search-tags { animation-delay: 0.5s; }
+
+/* ── 메인 설문조사 팝업 (현재 사이트 스타일) ── */
+.survey-pop {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: var(--sans);
+}
+.survey-pop.is-open { display: flex; }
+.survey-pop__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(4px);
+}
+.survey-pop__card {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  max-height: min(860px, calc(100vh - 48px));
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+  overflow: hidden;
+}
+.survey-pop .pop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 0;
+  flex-shrink: 0;
+}
+.survey-pop .pop-head > div {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--indigo-pale);
+  color: var(--indigo);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+/* "설문 조사" 뱃지는 화면에서 숨기고 스크린리더용 대화상자 이름으로만 남긴다 */
+.survey-pop .pop-head > #surveyPopTitle {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.survey-pop .pop-head > .btn-pop-close { margin-left: auto; }
+.survey-pop .pop-head > div::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--indigo-mid);
+  border-radius: 50%;
+}
+.survey-pop .pop-head > .btn-pop-close {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--bg-white);
+  color: var(--text-mid);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.survey-pop .pop-head > .btn-pop-close:hover {
+  background: var(--indigo-pale);
+  color: var(--indigo);
+  border-color: var(--indigo-light);
+}
+.survey-pop .pop-head > .btn-pop-close svg {
+  width: 14px;
+  height: 14px;
+}
+.survey-pop .pop-content {
+  overflow: auto;
+  padding: 18px 28px 24px;
+  min-height: 0;
+  flex: 1;
+}
+.survey-pop .survey-tit {
+  font-family: var(--display);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  color: var(--text-dark);
+  margin: 4px 0 16px;
+}
+.survey-pop .survey-desc {
+  background: var(--indigo-pale);
+  border: 1px solid rgba(30, 64, 175, 0.08);
+  margin-bottom: 8px;
+  font-size: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  color: var(--text-mid);
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+.survey-pop .survey-desc .mt-3 {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--indigo);
+}
+.survey-pop .survey-list { margin: 0 0 8px; list-style: none; padding: 0; }
+.survey-pop .survey-list > li {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+}
+.survey-pop .survey-list > li:last-child { border-bottom: none; }
+.survey-pop .survey-list > li > .q-tit {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dark);
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+.survey-pop .survey-list > li > .q-tit > span {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: var(--indigo);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.survey-pop .survey-list > li > .q-tit > div { flex: 1; }
+.survey-pop .survey-list > li > ul {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.survey-pop .survey-list > li > ul > li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-white);
+  line-height: 1.4;
+  transition: background 0.15s, border-color 0.15s;
+}
+.survey-pop .survey-list > li > ul > li:hover {
+  background: var(--bg-warm);
+  border-color: var(--border-strong);
+}
+.survey-pop .survey-list > li > ul > li:has(input[type=radio]:checked) {
+  background: var(--indigo-pale);
+  border-color: var(--indigo-light);
+}
+.survey-pop .survey-list > li > ul > li > input[type=radio] {
+  margin: 0;
+  accent-color: var(--indigo-mid);
+  flex-shrink: 0;
+}
+.survey-pop .survey-list > li > ul > li > label {
+  cursor: pointer;
+  flex: 1;
+  font-size: 14px;
+  color: var(--text-mid);
+  font-weight: 500;
+}
+.survey-pop .survey-list > li > ul > li:has(input[type=radio]:checked) > label {
+  color: var(--indigo);
+  font-weight: 600;
+}
+.survey-pop .survey-list > li > ul > li > .input-tel {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-dark);
+  background: var(--bg-white);
+}
+.survey-pop .survey-list > li > ul > li > .input-tel:focus {
+  outline: none;
+  border-color: var(--indigo-light);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+}
+.survey-pop .survey-list > li > ul > li > .input-tel:disabled {
+  background: var(--bg-warm);
+  color: var(--text-light);
+}
+.survey-pop .survey-list > li > ul > li > .input-tel::placeholder { color: var(--text-light); }
+.survey-pop .survey-list > li > .q-consent {
+  font-size: 13px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  color: #92400E;
+  background: #FFFBEB;
+  border: 1px solid rgba(245, 158, 11, 0.22);
+  border-radius: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  font-weight: 500;
+}
+
+/* 시연본 안내 — 경품 동의문(q-consent)과 헷갈리지 않게 색을 나눈다 */
+.survey-pop .survey-list > li > .q-consent.q-demo {
+  color: #1E3A8A;
+  background: #EFF6FF;
+  border-color: rgba(37, 99, 235, 0.28);
+  white-space: normal;
+}
+.survey-pop .survey-list > li > .q-consent.q-demo b { color: #1D4ED8; font-weight: 700; }
+.survey-pop .text-center { text-align: center; padding-top: 8px; }
+.survey-pop .btn-survey-send {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 46px;
+  padding: 0 28px;
+  border: none;
+  border-radius: 30px;
+  background: var(--indigo);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, transform 0.15s;
+}
+.survey-pop .btn-survey-send:hover { background: var(--indigo-mid); }
+.survey-pop .btn-survey-send:disabled { opacity: 0.55; cursor: not-allowed; }
+.survey-pop .pop-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 10px 20px;
+  background: var(--bg-warm);
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-mid);
+  flex-shrink: 0;
+}
+.survey-pop .pop-footer .pop-hide-7d {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.survey-pop .pop-footer input[type=checkbox] {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--indigo-mid);
+}
+.survey-pop .pop-footer > .btn-pop-close {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-mid);
+  padding: 6px 4px;
+  font-family: inherit;
+}
+.survey-pop .pop-footer > .btn-pop-close:hover { color: var(--indigo); }
+/* 설문이 2개 이상일 때만 나타나는 탭 칩·페이저 */
+.survey-pop .survey-tabs {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: 6px;
+  margin: 0 12px 0 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.survey-pop .survey-tabs::-webkit-scrollbar { display: none; }
+.survey-pop .survey-tabs[hidden] { display: none; }
+.survey-pop .survey-tab {
+  flex: 0 0 auto;
+  max-width: 150px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--border-strong);
+  background: #fff;
+  color: var(--text-mid);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.survey-pop .survey-tab:hover { border-color: var(--indigo-mid); color: var(--indigo); }
+.survey-pop .survey-tab[aria-selected=true] {
+  background: var(--indigo);
+  border-color: var(--indigo);
+  color: #fff;
+}
+.survey-pop .survey-tab .t-no { font-weight: 800; }
+.survey-pop .survey-tab .t-tit { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.survey-pop .survey-tab.is-done .t-no::after { content: '\2713'; margin-left: 2px; }
+.survey-pop .survey-tab.is-done:not([aria-selected=true]) { color: var(--text-light); background: var(--bg-warm); }
+.survey-pop .survey-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 4px 0 12px;
+}
+.survey-pop .survey-pager[hidden] { display: none; }
+.survey-pop .survey-pager button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--indigo);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.survey-pop .survey-pager button:hover { background: var(--indigo-pale); }
+.survey-pop .survey-pager button svg { width: 14px; height: 14px; }
+.survey-pop .survey-pager .pg-num { font-size: 12px; font-weight: 700; color: var(--text-mid); min-width: 44px; text-align: center; }
+@media (max-width: 767px) {
+  .survey-pop { padding: 10px; align-items: flex-end; }
+  .survey-pop__card { max-height: calc(100vh - 20px); border-radius: 16px; }
+  .survey-pop .pop-content { padding: 12px 18px 20px; }
+  .survey-pop .survey-tit { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- pop : 설문조사 (관리자 등록 · 진행 중 설문을 메인에 노출) -->
+<div id="surveyPop" class="survey-pop" hidden>
+  <div class="survey-pop__backdrop" data-survey-dismiss></div>
+  <div class="survey-pop__card" role="dialog" aria-modal="true" aria-labelledby="surveyPopTitle">
+    <div class="pop-head">
+      <div id="surveyPopTitle" tabindex="0">설문 조사</div>
+      <nav class="survey-tabs" id="surveyTabs" role="tablist" aria-label="진행 중인 설문" hidden></nav>
+      <button type="button" title="닫기" class="btn-pop-close" aria-label="닫기">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="pop-content">
+      <div class="survey-tit" id="surveyTit"></div>
+      <div class="survey-desc">
+        <div id="surveyDesc"></div>
+        <div class="mt-3" id="surveyPeriod"></div>
+      </div>
+      <ul class="survey-list" id="surveyList"></ul>
+      <div class="survey-pager" id="surveyPager" hidden>
+        <button type="button" id="surveyPrev" aria-label="이전 설문"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+        <span class="pg-num" id="surveyPgNum" aria-live="polite"></span>
+        <button type="button" id="surveyNext" aria-label="다음 설문"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg></button>
+      </div>
+      <div class="text-center">
+        <button type="button" class="btn-survey-send" id="surveySubmit">설문 제출</button>
+      </div>
+    </div>
+    <div class="pop-footer">
+      <label class="pop-hide-7d" id="surveyHide7d">
+        <input type="checkbox" id="pop-time-check">
+        <span>일주일 동안 보지 않겠습니다</span>
+      </label>
+      <button type="button" class="btn-pop-close">닫기</button>
+    </div>
+  </div>
+</div>
+<!--// pop : 설문조사 -->
+
+<div id="gnb-common"></div>
+
+<!-- HERO SLIDER SECTION -->
+<section class="hero-section">
+  <div class="hero-slider-container">
+    <div class="hero-slider" id="heroSlider">
+      <!-- 슬라이드 1 -->
+      <div class="hero-slide active" style="background-image: linear-gradient(to right, rgba(15, 23, 42, 0.9) 30%, rgba(15, 23, 42, 0.4) 65%, transparent 100%), url('./emitlight-starfield-coex-mall-6996311_1920.jpg');">
+        <div class="hero-slide-content">
+          <span class="hero-slide-badge">우리의 말과 삶</span>
+          <h1 class="hero-slide-title">사라지는 말에는<br>한 시대의 삶이 담겨 있습니다</h1>
+          <p class="hero-slide-sub">전국 곳곳의 지역어를 수집·기록하여<br>우리의 언어와 문화를 지키고 있습니다.</p>
+          <div class="hero-btns">
+            <a href="#" class="hero-btn hero-btn--primary">
+              지역어 검색
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;stroke-linecap:round;stroke-linejoin:round;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </a>
+            <a href="./dialect_map.html" class="hero-btn hero-btn--secondary">
+              지역어 지도 보기
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;stroke-linecap:round;stroke-linejoin:round;"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="21"></line></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 슬라이드 2 -->
+      <div class="hero-slide" style="background-image: linear-gradient(to right, rgba(15, 23, 42, 0.9) 30%, rgba(15, 23, 42, 0.4) 65%, transparent 100%), url('./ChatGPT Image 2026년 7월 15일 오전 08_07_11.png');">
+        <div class="hero-slide-content">
+          <span class="hero-slide-badge">소통 and 연결</span>
+          <h1 class="hero-slide-title">지역의 언어로 나누는<br>따뜻한 우리들의 이야기</h1>
+          <p class="hero-slide-sub">각양각색의 방언 속에는 고유한 정서와 세대를 잇는 깊은 숨결이 녹아있습니다.</p>
+          <div class="hero-btns">
+            <a href="#" class="hero-btn hero-btn--primary">
+              방언 문화 둘러보기
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;stroke-linecap:round;stroke-linejoin:round;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 슬라이드 3 -->
+      <div class="hero-slide" style="background-image: linear-gradient(to right, rgba(15, 23, 42, 0.9) 30%, rgba(15, 23, 42, 0.4) 65%, transparent 100%), url('./ChatGPT Image 2026년 7월 15일 오전 07_53_54.png');">
+        <div class="hero-slide-content">
+          <span class="hero-slide-badge">기록과 보존</span>
+          <h1 class="hero-slide-title">지도로 그려내는<br>다채로운 한반도 언어 지도</h1>
+          <p class="hero-slide-sub">지역에 따라 달라지는 단어의 분포를 직관적인 분포 지도로 확인해보세요.</p>
+          <div class="hero-btns">
+            <a href="./dialect_map.html" class="hero-btn hero-btn--primary">
+              지도 서비스 시작
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;stroke-linecap:round;stroke-linejoin:round;"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="21"></line></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 슬라이더 컨트롤러 -->
+    <div class="hero-slider-controls">
+      <button class="hero-slider-btn" id="heroPrev" aria-label="이전 슬라이드">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <div class="hero-slider-nav">
+        <div class="hero-slider-dots" id="heroDots"></div>
+        <button class="hero-slider-play" id="heroPlayPause" aria-label="재생/일시정지">
+          <svg viewBox="0 0 24 24" id="heroPlayPauseIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/></svg>
+        </button>
+      </div>
+      <button class="hero-slider-btn" id="heroNext" aria-label="다음 슬라이드">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+    </div>
+  </div>
+  
+  <!-- 걸쳐 있는 통합 검색 판넬 -->
+  <div class="search-panel-wrap">
+    <div class="search-panel">
+      <div class="search-panel__top">
+        <div class="search-panel__input-wrap">
+          <svg class="search-panel__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input class="search-panel__input" type="text" placeholder="어떤 지역의 말이 궁금하세요?">
+        </div>
+      </div>
+      <div class="search-panel__bottom">
+        <div class="search-panel__tags">
+          <span class="search-panel__tags-label">인기 검색어</span>
+          <a href="#" class="search-panel__tag">#억시기</a>
+          <a href="#" class="search-panel__tag">#정구지</a>
+          <a href="#" class="search-panel__tag">#혼저옵서예</a>
+          <a href="#" class="search-panel__tag">#모다기</a>
+          <a href="#" class="search-panel__tag">#가새</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TODAY SECTION (POSWEL NOW STYLE) -->
+<section class="today-section">
+  <div class="today-bg-box">
+    <div class="today-wrap">
+      <div class="today-header-row">
+        <div class="today-category-label">Today's Dialect</div>
+        <h2 class="today-main-label">오늘의 지역어</h2>
+        <span class="today-main-sub">매일 새로운 방언과 재밌는 퀴즈를 만나보세요</span>
+      </div>
+      <div class="today-carousel-wrap">
+        <div class="today-viewport">
+          <div class="today-track" id="tTrack"></div>
+        </div>
+      </div>
+      
+      <!-- 하단 통합 컨트롤러 (포스웰 스타일) -->
+      <div class="today-controls-row">
+        <button class="today-side-btn" id="tPrev" aria-label="이전">
+          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <div class="today-nav-row">
+          <div class="today-dots" id="tDots"></div>
+          <button class="today-play-btn" id="tPlayPause" aria-label="재생/일시정지">
+            <svg viewBox="0 0 24 24" id="playPauseIcon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          </button>
+        </div>
+        <button class="today-side-btn" id="tNext" aria-label="다음">
+          <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MAP SECTION (POSWEL TAB STYLE) -->
+<section class="map-section">
+  <div class="map-section-card">
+    <!-- 좌측 패널 -->
+    <div class="map-left-panel">
+      <div class="map-menu-wrap">
+        <div class="map-menu-title">지역어 지도</div>
+        <ul class="map-tab-menu">
+          <li><a class="map-tab-link active" data-no="50297" data-word="부추">부추</a></li>
+          <li><a class="map-tab-link" data-no="50443" data-word="벼">벼</a></li>
+          <li><a class="map-tab-link" data-no="50320" data-word="고양이">고양이</a></li>
+          <li><a class="map-tab-link" data-no="50467" data-word="아궁이">아궁이</a></li>
+          <li><a class="map-tab-link" data-no="50308" data-word="가위">가위</a></li>
+        </ul>
+      </div>
+      
+      <div class="map-desc-box">
+        <div class="map-desc-text" id="mapDescText">
+          지도 자료를 불러오는 중입니다…
+        </div>
+        <button class="map-more-btn" onclick="location.href='./dialect_map.html'">지도 전체 보기 &gt;</button>
+      </div>
+    </div>
+    
+    <!-- 우측 지도 카드 -->
+    <div class="map-right-card">
+      <div id="map" style="width: 100%; height: 100%; background: #e5eaf1;"></div>
+
+      <!-- 모바일 전용: 지도 조작을 막고 탭 시 전체 지도로 이동시키는 오버레이 (데스크톱에서는 숨김) -->
+      <a class="map-tap-cover" href="./dialect_map.html" aria-label="지도 전체 보기"></a>
+
+      <!-- 범례 오버레이 -->
+      <div class="map-legend-overlay">
+        <div class="map-legend-title">방언 계열 (지점 수)</div>
+        <ul class="map-legend-list" id="mapLegendList"></ul>
+      </div>
+
+      <!-- Interactive Tooltip Overlay (지도 위에 띄울 툴팁) -->
+      <div id="map-tooltip" style="position: absolute; display: none; background: #ffffff; border: 1px solid rgba(193,83,52,0.25); border-radius: 6px; padding: 8px 12px; box-shadow: 0 4px 12px rgba(43,37,33,0.08); z-index: 10; pointer-events: none;">
+        <div id="tooltip-title" style="font-size: 11px; font-weight: 700; color: var(--indigo); margin-bottom: 2px;"></div>
+        <div id="tooltip-desc" style="font-size: 10px; color: var(--text-light);"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LITERATURE SECTION (INDEPENDENT) -->
+<section class="lit-section">
+  <div class="lit-inner">
+    <!-- 좌측 타이틀 영역 -->
+    <div class="lit-left-col">
+      <div class="section-header" style="flex-direction: column; align-items: flex-start; gap: 20px;">
+        <div>
+          <h2 class="section-title" style="font-size: 32px; font-weight: 800; line-height: 1.3;">소설과 시에서<br>만나는 방언</h2>
+          <p class="section-sub" style="margin-top: 12px; font-size: 15px; color: var(--text-mid); line-height: 1.6;">문학 작품 속에 생생하게 살아 숨 쉬는 우리 지역어의 아름다움을 느껴보세요.</p>
+        </div>
+        <a href="#" class="section-link" style="margin-top: 10px;">전체 작품 보기 →</a>
+      </div>
+    </div>
+    
+    <!-- 우측 그리드 영역 -->
+    <div class="lit-right-col">
+      <div class="lit-grid">
+        <!-- 카드 1 (경상도) -->
+        <div class="lit-card">
+          <div class="lit-card-header">
+            <span class="lit-card-info">김원일 · 겨울 골짜기</span>
+            <span class="lit-card-region">경남</span>
+          </div>
+          <div class="lit-card-body">
+            <p class="lit-card-quote">"추운데 어서 <em>오이소</em>. 종님이 엄마가 괴어둔 작대기를 걷어 <em>삽짝문</em>을 열었다. 와따, 날씨 한번 <em>억시기</em> 춥네. <em>히덕스레한</em> 그림자가 <em>마등으로</em> 들어섰다."</p>
+            <div class="lit-card-chips">
+              <span class="lit-card-chip">오이소</span>
+              <span class="lit-card-chip">삽짝문</span>
+              <span class="lit-card-chip">억시기</span>
+            </div>
+            <div class="lit-card-footer">
+              <span class="lit-card-source">출처: 어휘 조사 사업</span>
+              <a href="#" class="lit-card-link">보기 →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 카드 2 (전라도) -->
+        <div class="lit-card">
+          <div class="lit-card-header">
+            <span class="lit-card-info">조정래 · 태백산맥</span>
+            <span class="lit-card-region">전남</span>
+          </div>
+          <div class="lit-card-body">
+            <p class="lit-card-quote">"나이 들어 가스께 소리 듣는 것도 지긋지긋허당께. 어여 <em>가시개</em>로 종이나 싹둑 오려보랑께. 날이 추우니 <em>자락</em>이라도 덮어줘야 쓰제."</p>
+            <div class="lit-card-chips">
+              <span class="lit-card-chip">가시개</span>
+              <span class="lit-card-chip">자락</span>
+              <span class="lit-card-chip">허당께</span>
+            </div>
+            <div class="lit-card-footer">
+              <span class="lit-card-source">출처: 어휘 조사 사업</span>
+              <a href="#" class="lit-card-link">보기 →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 카드 3 (제주도) -->
+        <div class="lit-card">
+          <div class="lit-card-header">
+            <span class="lit-card-info">현기영 · 순이 삼촌</span>
+            <span class="lit-card-region">제주</span>
+          </div>
+          <div class="lit-card-body">
+            <p class="lit-card-quote">"<em>혼저옵서예</em>. 이 바당 드릇에 불어오는 바람은 살을 에는 듯하우다. <em>드릇마농</em>이라도 캐어다가 따뜻한 국이나 끓여 묵읍서."</p>
+            <div class="lit-card-chips">
+              <span class="lit-card-chip">혼저옵서예</span>
+              <span class="lit-card-chip">바당</span>
+              <span class="lit-card-chip">드릇마농</span>
+            </div>
+            <div class="lit-card-footer">
+              <span class="lit-card-source">출처: 어휘 조사 사업</span>
+              <a href="#" class="lit-card-link">보기 →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PHOTO SECTION -->
+<section class="photo-section">
+  <div class="photo-inner">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">사라져가는 물건, 사라져가는 말</h2>
+        <p class="section-sub">각 지역의 생활 속 사물을 방언으로 기록합니다</p>
+      </div>
+      <a href="#" class="section-link">전체 보기 →</a>
+    </div>
+    <div class="photo-grid">
+      <!-- 두석 -->
+      <div class="photo-card" onclick="location.href='./dialect_search_prototype.html'">
+        <div class="photo-img-wrap">
+          <img class="photo-img" src="./image/200805001-1.jpg" alt="두석">
+        </div>
+        <div class="photo-info">
+          <p class="photo-word">두석</p>
+          <p class="photo-tag">경상남도 · 2008년 조사</p>
+          <p class="photo-desc">구리에 아연을 10~45% 넣어 만든 합금</p>
+          <a href="./dialect_search_prototype.html" class="photo-link">자세히 보기 →</a>
+        </div>
+      </div>
+
+      <!-- 뀌지부채 -->
+      <div class="photo-card" onclick="location.href='./dialect_search_prototype.html'">
+        <div class="photo-img-wrap">
+          <img class="photo-img" src="./image/200710306.jpg" alt="뀌지부채">
+        </div>
+        <div class="photo-info">
+          <p class="photo-word">뀌지부채</p>
+          <p class="photo-tag">전라남도 · 2007년 조사</p>
+          <p class="photo-desc">일본에서 제작하는 부채. 살수가 10개 이내이며, 살대가 가늘다.</p>
+          <a href="./dialect_search_prototype.html" class="photo-link">자세히 보기 →</a>
+        </div>
+      </div>
+
+      <!-- 농악북 -->
+      <div class="photo-card" onclick="location.href='./dialect_search_prototype.html'">
+        <div class="photo-img-wrap">
+          <img class="photo-img" src="./image/200704347.jpg" alt="농악북">
+        </div>
+        <div class="photo-info">
+          <p class="photo-word">농악북</p>
+          <p class="photo-tag">경상북도 · 2007년 조사</p>
+          <p class="photo-desc">풍물놀이에 사용되는 북. 풍물북과 같은 의미로 사용된다.</p>
+          <a href="./dialect_search_prototype.html" class="photo-link">자세히 보기 →</a>
+        </div>
+      </div>
+
+      <!-- 궤혈 -->
+      <div class="photo-card" onclick="location.href='./dialect_search_prototype.html'">
+        <div class="photo-img-wrap">
+          <img class="photo-img" src="./image/200908015.jpg" alt="궤혈">
+        </div>
+        <div class="photo-info">
+          <p class="photo-word">궤혈</p>
+          <p class="photo-tag">서울특별시 · 2009년 조사</p>
+          <p class="photo-desc">도검의 코등이에 뚫어 놓은 작은 구멍. 우리나라 전통 도검에는 '궤혈'이 없었으나 일본도의 영향을 받아 만들어진 것이다.</p>
+          <a href="./dialect_search_prototype.html" class="photo-link">자세히 보기 →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- API BANNER -->
+<div class="api-banner">
+  <div class="api-inner">
+    <div class="api-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--indigo)" stroke-width="1.5">
+        <path d="M8 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m-6 0h6"/>
+        <path d="M12 12h4m-2-2v4"/>
+      </svg>
+    </div>
+    <p class="api-text"><strong>개발자·연구자를 위한 Open API</strong> — 지역어 데이터를 직접 서비스나 연구에 활용하실 수 있습니다</p>
+    <a href="./openapi_intro.html" class="api-cta">API 안내 →</a>
+  </div>
+</div>
+
+<div id="footer-common"></div>
+
+<script>
+/* ── 히어로 슬라이더 작동 스크립트 ── */
+let currentSlide = 0;
+const slides = document.querySelectorAll('.hero-slide');
+const dotsContainer = document.getElementById('heroDots');
+let slideInterval;
+let isPlaying = true;
+
+// 슬라이더 닷 생성
+slides.forEach((_, idx) => {
+  const dot = document.createElement('div');
+  dot.className = 'h-dot' + (idx === 0 ? ' active' : '');
+  dot.addEventListener('click', () => showSlide(idx));
+  dotsContainer.appendChild(dot);
+});
+
+const dots = document.querySelectorAll('.h-dot');
+
+function showSlide(n) {
+  slides[currentSlide].classList.remove('active');
+  dots[currentSlide].classList.remove('active');
+  currentSlide = (n + slides.length) % slides.length;
+  slides[currentSlide].classList.add('active');
+  dots[currentSlide].classList.add('active');
+}
+
+function nextSlide() {
+  showSlide(currentSlide + 1);
+}
+
+function prevSlide() {
+  showSlide(currentSlide - 1);
+}
+
+function startSlideInterval() {
+  slideInterval = setInterval(nextSlide, 5000);
+}
+
+function stopSlideInterval() {
+  clearInterval(slideInterval);
+}
+
+document.getElementById('heroNext').addEventListener('click', () => {
+  nextSlide();
+  if (isPlaying) { stopSlideInterval(); startSlideInterval(); }
+});
+
+document.getElementById('heroPrev').addEventListener('click', () => {
+  prevSlide();
+  if (isPlaying) { stopSlideInterval(); startSlideInterval(); }
+});
+
+const playPauseBtn = document.getElementById('heroPlayPause');
+const playPauseIcon = document.getElementById('heroPlayPauseIcon');
+playPauseBtn.addEventListener('click', () => {
+  isPlaying = !isPlaying;
+  if (isPlaying) {
+    startSlideInterval();
+    playPauseIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/>';
+  } else {
+    stopSlideInterval();
+    playPauseIcon.innerHTML = '<path d="M8 5v14l11-7z" fill="currentColor"/>';
+  }
+});
+
+// 초기화
+startSlideInterval();
+
+/* ── 오늘의 지역어 데이터 및 캐러셀 ──
+   실데이터는 data/processed/today_quiz.json 에서 읽는다.
+   (scripts/export_today_quiz.py 가 dialect_local.db 의 tb_quiz 30문항을 원문항 그대로 내보낸다)
+   아래 배열은 JSON 을 못 읽는 배포에서 화면이 비지 않게 두는 대비책이다. */
+var wordData = [
+  { word:'부삭', region:'전라남도', pos:'명사', meaning:'아궁이. 불을 때는 구멍.', example:'"부삭에 불을 때서 방을 따뜻하게 덥혔다."', related:[{w:'아궁이',r:'표준어'},{w:'부뚜막',r:'경상도'},{w:'부넹기',r:'제주도'}] },
+  { word:'가스나', region:'경상남도', pos:'명사', meaning:'계집아이. 여자아이를 낮잡아 이르는 말.', example:'"가스나가 울면 안 된다."', related:[{w:'계집아이',r:'표준어'},{w:'가시나',r:'경북'},{w:'가시내',r:'강원'}] },
+  { word:'낭구', region:'경기도', pos:'명사', meaning:'나무. 목재 또는 나무를 이르는 말.', example:'"낭구 한 짐 해다가 땔감으로 써야겠다."', related:[{w:'나무',r:'표준어'},{w:'낭기',r:'강원도'},{w:'낭',r:'제주도'}] },
+  { word:'히덕스럽다', region:'경상도', pos:'형용사', meaning:'희끗희끗하고 엷게 보이는 모양.', example:'"히덕스레한 그림자가 마등으로 들어섰다."', related:[{w:'희끗하다',r:'표준어'},{w:'히뿌옇다',r:'전라도'}] },
+  { word:'드릇마농', region:'제주도', pos:'명사', meaning:'달래. 들에서 나는 마늘이라는 뜻.', example:'"봄이 되면 드릇마농을 캐러 밭으로 나갔다."', related:[{w:'달래',r:'표준어'},{w:'들마늘',r:'강원도'}] },
+  { word:'워메', region:'전라도', pos:'감탄사', meaning:'어머나. 놀라거나 당황할 때 내는 소리.', example:'"워메, 그 사람이 그런 말을 했단가."', related:[{w:'어머나',r:'표준어'},{w:'아이고',r:'경상도'}] },
+  { word:'북새', region:'함경도', pos:'명사', meaning:'몹시 야단스럽고 소란스러운 상황.', example:'"장마당이 ... "', related:[{w:'소란',r:'표준어'},{w:'야단',r:'경기도'}] },
+  { word:'마등', region:'경상도', pos:'명사', meaning:'마루. 집 안의 나무로 된 넓은 공간.', example:'"그림자가 마등으로 들어섰다."', related:[{w:'마루',r:'표준어'},{w:'대청',r:'전라도'}] },
+];
+
+var quizData = [
+  { word:'억시기', region:'경상도 지역어', opts:['매우, 몹시','억울하게','어기적어기적'], ans:0 },
+  { word:'워메', region:'전라도 지역어', opts:['어머나, 이런','왜 그러니','어서 오게'], ans:0 },
+  { word:'북새', region:'함경도 지역어', opts:['소란스러운 상황','북쪽 새','차가운 바람'], ans:0 },
+  { word:'마등', region:'경상도 지역어', opts:['마루, 넓은 공간','말을 타는 곳','마을 동산'], ans:0 },
+  { word:'가스나', region:'경상남도 지역어', opts:['여자아이','강하다','가시가 많다'], ans:0 },
+  { word:'낭구', region:'경기도 지역어', opts:['나무','낙엽','낙지'], ans:0 },
+  { word:'부넹기', region:'제주도 지역어', opts:['아궁이','부뚜막','화로'], ans:0 },
+  { word:'드릇마농', region:'제주도 지역어', opts:['달래','마늘','파'], ans:0 },
+];
+
+// 한 화면에 노출할 카드 수: 모바일(≤640px)은 2개, 그 외 4개
+function getVisibleCount() { return window.innerWidth <= 640 ? 2 : 4; }
+var VISIBLE = getVisibleCount();
+const CARD_GAP = 20;
+
+function makeWordCardHTML(d, i) {
+  /* 여기 나오는 값은 전부 tb_quiz / tb_quiz_detail 에서 온 것이다.
+     뜻풀이 문장·예문·품사·발음 음성은 DB에 없으므로 만들지 않는다. */
+  var rel = (d.related || []).map(function (r) {
+    return '<span class="related-chip">' + esc(r.w) + '<span>' + esc(r.r) + '</span></span>';
+  }).join('');
+  var std = d.std ? '<div class="word-std"><span>표준어</span>' + esc(d.std) + '</div>' : '';
+  var related = rel ? '<div class="word-related">' + rel + '</div>' : '';
+  var region = d.region || '';
+  /* 카드 아래는 근거 — 쓰이는 곳 원문(quiz_dtl_exp)과 출처(quiz_origin) */
+  var note = (d.regionNote || d.source)
+    ? '<div class="word-source">' +
+        (d.regionNote ? '<div class="word-source-row"><span>쓰이는 곳</span>' + esc(d.regionNote) + '</div>' : '') +
+        (d.source ? '<div class="word-source-row"><span>출처</span>' + esc(d.source) + '</div>' : '') +
+      '</div>'
+    : '';
+  /* 지도는 표제어 153개만 export 돼 있다. 없는 단어에는 버튼을 걸지 않는다
+     (걸어 두면 엉뚱하게 지도 첫 표제어가 열린다). */
+  var mapHref = d.headwordNo
+    ? './dialect_map.html?no=' + encodeURIComponent(d.headwordNo) + '&word=' + encodeURIComponent(d.std || '')
+    : '';
+  var actions = mapHref
+    ? '<div class="word-actions">' +
+        '<a class="action-btn" href="' + mapHref + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>‘' + esc(d.std || '') + '’ 지도 보기</a>' +
+      '</div>'
+    : '';
+  return '<div class="today-card word-type">' +
+    '<div class="card-category">Today\'s Word</div>' +
+    '<div class="word-title-row"><div class="word-big">' + esc(d.word) + '</div>' +
+      (region ? '<span class="region-pill">' + esc(region) + '</span>' : '') + '</div>' +
+    std + related + actions + note +
+  '</div>';
+}
+
+var NUMS = ['①','②','③','④','⑤','⑥'];
+var QUIZ_VIEW = [];   /* 화면에 올라간 퀴즈 원본 — 핸들러가 인덱스로 찾아 쓴다 */
+
+function esc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* tb_quiz 원문항을 그대로 렌더링한다.
+   choice = 보기 2~5개(부정형·긍정형·역방향), short = 보기 없는 주관식 */
+function makeQuizCardHTML(d, i) {
+  QUIZ_VIEW[i] = d;
+  var region = d.region
+    ? '<span class="quiz-word-region">' + esc(d.region) + '</span>' : '';
+  var head =
+    '<div class="card-category">Quiz' + (d.type === 'short' ? ' · 주관식' : '') + '</div>' +
+    '<div class="quiz-word-display">' + esc(d.focus || d.word) + '</div>' +
+    region +
+    '<div class="quiz-question">' + esc(d.question || '') + '</div>';
+  var foot =
+    '<div class="quiz-explain" id="qexp-' + i + '"></div>' +
+    '<button class="quiz-submit" onclick="revealOpt(' + i + ')">정답 확인하기</button>';
+
+  if (d.type === 'short') {
+    return '<div class="today-card quiz-type quiz-short">' + head +
+      '<div class="quiz-short-slot" id="qopts-' + i + '">눌러서 정답 보기</div>' +
+      foot + '</div>';
+  }
+
+  var opts = (d.opts || []).map(function(o, j) {
+    var label = (o && o.t != null) ? o.t : o;   /* 대비책 배열은 문자열이다 */
+    return '<button class="quiz-option" onclick="pickOpt(this,' + i + ',' + j + ')">' +
+      NUMS[j] + ' ' + esc(label) + '</button>';
+  }).join('');
+  var many = (d.opts || []).length >= 4 ? ' opts-many' : '';
+  return '<div class="today-card quiz-type' + many + '">' + head +
+    '<div class="quiz-options" id="qopts-' + i + '">' + opts + '</div>' +
+    foot + '</div>';
+}
+
+/* 보기 해설(quiz_dtl_exp)을 카드 아래 한 줄로 보여 준다 */
+function showExp(i, text) {
+  var box = document.getElementById('qexp-' + i);
+  if (!box) return;
+  box.textContent = text || '';
+  box.classList.toggle('on', !!text);
+}
+
+function pickOpt(btn, i, optIdx) {
+  var d = QUIZ_VIEW[i] || {};
+  var wrap = document.getElementById('qopts-' + i);
+  wrap.querySelectorAll('.quiz-option').forEach(function(o){ o.classList.remove('correct','wrong'); });
+  btn.classList.add(optIdx === d.ans ? 'correct' : 'wrong');
+  var o = (d.opts || [])[optIdx];
+  showExp(i, o && o.exp ? o.exp : '');
+}
+
+function revealOpt(i) {
+  var d = QUIZ_VIEW[i] || {};
+  if (d.type === 'short') {
+    var slot = document.getElementById('qopts-' + i);
+    if (slot) { slot.textContent = d.answer || ''; slot.classList.add('on'); }
+    showExp(i, d.source || '');
+    return;
+  }
+  var wrap = document.getElementById('qopts-' + i);
+  wrap.querySelectorAll('.quiz-option').forEach(function(o, j){
+    o.classList.remove('correct','wrong');
+    if (j === d.ans) o.classList.add('correct');
+  });
+  var a = (d.opts || [])[d.ans];
+  showExp(i, (a && a.exp) ? a.exp : (d.source || ''));
+}
+
+var track = document.getElementById('tTrack');
+var dotsWrap = document.getElementById('tDots');
+var totalCards = 0;
+var offset = 0; /* current first-visible index */
+var maxOffset = 0;
+
+var DAILY_PAIRS = 8;   /* 하루에 노출할 단어·퀴즈 짝 수 */
+
+/* 날짜를 시드로 풀에서 잘라 쓴다 — 날이 바뀌면 다른 문제가 나오고,
+   같은 날에는 새로고침해도 같은 문제가 나온다. */
+function todaySlice(pool, n) {
+  if (!pool || !pool.length) return [];
+  var day = Math.floor(Date.now() / 86400000);
+  var out = [];
+  for (var k = 0; k < Math.min(n, pool.length); k++) out.push(pool[(day * n + k) % pool.length]);
+  return out;
+}
+
+function buildTrack() {
+  var words = todaySlice(wordData, DAILY_PAIRS);
+  var quizzes = todaySlice(quizData, DAILY_PAIRS);
+  var pairs = Math.max(words.length, quizzes.length);
+  var html = '';
+  QUIZ_VIEW = [];
+  for (var i = 0; i < pairs; i++) {
+    if (words[i]) html += makeWordCardHTML(words[i], i);
+    if (quizzes[i]) html += makeQuizCardHTML(quizzes[i], i);
+  }
+  track.innerHTML = html;
+  totalCards = track.children.length;
+  offset = 0;
+  buildDots();
+  goTo(0);
+}
+
+// VISIBLE 값에 맞춰 페이지 닷을 다시 그림 (반응형 대응)
+function buildDots() {
+  maxOffset = totalCards - VISIBLE;
+  if (offset > maxOffset) offset = maxOffset;
+  if (offset < 0) offset = 0;
+  dotsWrap.innerHTML = '';
+  var dotCount = maxOffset + 1;
+  for (var d = 0; d < dotCount; d++) {
+    var dot = document.createElement('div');
+    dot.className = 't-dot' + (d === offset ? ' active' : '');
+    (function(idx){ dot.addEventListener('click', function(){ goTo(idx); }); })(d);
+    dotsWrap.appendChild(dot);
+  }
+}
+buildTrack();
+
+/* 실데이터 연결 — scripts/export_today_quiz.py 가 만든 tb_quiz 원문항 30개.
+   파일이 없으면(정적 배포·미생성) 위쪽 대비책 배열이 그대로 남는다. */
+fetch('./data/processed/today_quiz.json', { cache: 'no-cache' })
+  .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(function (d) {
+    if (d && d.quizzes && d.quizzes.length) quizData = d.quizzes;
+    if (d && d.words && d.words.length) wordData = d.words;
+    buildTrack();
+  })
+  .catch(function () { /* 대비책 유지 */ });
+
+function getCardWidth() {
+  var vw = track.parentElement.offsetWidth;
+  return (vw - CARD_GAP * (VISIBLE - 1)) / VISIBLE;
+}
+
+function goTo(n) {
+  offset = Math.max(0, Math.min(n, maxOffset));
+  var w = getCardWidth();
+  track.style.transform = 'translateX(-' + (offset * (w + CARD_GAP)) + 'px)';
+  document.querySelectorAll('.t-dot').forEach(function(d, i){ d.classList.toggle('active', i === offset); });
+}
+
+document.getElementById('tPrev').addEventListener('click', function(){ goTo(offset - 1); });
+document.getElementById('tNext').addEventListener('click', function(){ goTo(offset + 1); });
+
+/* Map chips */
+// (지도 탭 핸들러는 아래 지도 스크립트 IIFE에서 처리)
+window.addEventListener('resize', function(){
+  var v = getVisibleCount();
+  if (v !== VISIBLE) { VISIBLE = v; buildDots(); } // 노출 카드 수가 바뀌면 닷 재생성
+  goTo(offset);
+});
+</script>
+
+<!-- ── 지역어 지도 (공용 한반도 지도 korea-map.js 사용 — dialect_map.html 과 같은 바탕) ── -->
+<script src="https://cdn.jsdelivr.net/npm/ol@v10.9.0/dist/ol.js"></script>
+<script src="skorea-provinces.js"></script>
+<script src="korea-map.js?v=20261015sido"></script>
+<script>
+(function() {
+  if (!window.KoreaMap || !window.KOREA_PROVINCES) return;
+
+  const MAP_CENTER = [127.8, 35.7]; // 남한 중심 — 마커가 모두 남한이라 한반도 전체보다 당겨 보여 준다
+  const MAP_ZOOM = 6.7;
+
+  const map = KoreaMap.create('map', {
+    center: MAP_CENTER,
+    zoom: MAP_ZOOM,
+    controls: []
+  });
+  if (!map) return;
+
+  const vectorSource = new ol.source.Vector({
+    features: []
+  });
+
+  const vectorLayer = new ol.layer.Vector({
+    source: vectorSource,
+    zIndex: 10 // 배경 지도 레이어에 덮이지 않도록 레이어 우선순위를 최상단으로 설정
+  });
+
+  map.addLayer(vectorLayer);
+
+  // 상호작용 툴팁 이벤트 바인딩
+  const tooltipEl = document.getElementById('map-tooltip');
+  const tooltipTitle = document.getElementById('tooltip-title');
+  const tooltipDesc = document.getElementById('tooltip-desc');
+
+  map.on('pointermove', function(evt) {
+    if (evt.dragging) {
+      tooltipEl.style.display = 'none';
+      return;
+    }
+    
+    const pixel = map.getEventPixel(evt.originalEvent);
+    const feature = map.forEachFeatureAtPixel(pixel, function(feature) {
+      return feature;
+    }, {
+      layerFilter: function(layer) {
+        return layer === vectorLayer;
+      }
+    });
+    
+    if (feature) {
+      const label = feature.get('label');
+      const region = feature.get('region');
+      
+      tooltipTitle.textContent = label;
+      tooltipDesc.textContent = region + ' · 클릭하여 보기';
+      
+      tooltipEl.style.left = (pixel[0] + 15) + 'px';
+      tooltipEl.style.top = (pixel[1] + 15) + 'px';
+      tooltipEl.style.display = 'block';
+      
+      map.getTargetElement().style.cursor = 'pointer';
+    } else {
+      tooltipEl.style.display = 'none';
+      map.getTargetElement().style.cursor = '';
+    }
+  });
+
+  // 탭마다 dialect_map.html 과 같은 실측 자료(data/processed/map/{표제어번호}.json)를 불러 그린다.
+  // 계열(group) 색·이름도 자료에 든 값을 그대로 써서 전체 지도와 같은 색으로 보이게 한다.
+  const MAP_DATA_BASE = './data/processed/map/';
+  const mapCache = {};
+  let mapReqSeq = 0;
+
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function loadMapData(no) {
+    if (mapCache[no]) return Promise.resolve(mapCache[no]);
+    return fetch(MAP_DATA_BASE + encodeURIComponent(no) + '.json', { cache: 'no-cache' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (d) { mapCache[no] = d; return d; });
+  }
+
+  // 계열을 지점 수가 많은 순으로 정리
+  function summarizeGroups(d) {
+    return Object.keys(d.groups || {}).map(function (k) {
+      const g = d.groups[k];
+      const places = [];
+      (g.variants || []).forEach(function (v) {
+        const pl = v.places && v.places.length ? v.places : (v.points || []).map(function (pt) {
+          return { lng: pt[0], lat: pt[1], region_nm: '' };
+        });
+        pl.forEach(function (p) { places.push({ lng: p.lng, lat: p.lat, region: p.region_nm || '', word: v.word }); });
+      });
+      return { label: g.label, color: g.color || '#64748b', places: places };
+    }).filter(function (g) { return g.places.length; })
+      .sort(function (x, y) { return y.places.length - x.places.length; });
+  }
+
+  // 조사 결과에서 바로 뽑은 한 줄 요약 — 손으로 쓴 설명 대신 숫자로 말한다
+  function describe(d, groups) {
+    const total = groups.reduce(function (n, g) { return n + g.places.length; }, 0);
+    const parts = groups.map(function (g) { return '‘' + g.label.replace(/계$/, '') + '’계 ' + g.places.length + '곳'; });
+    const last = d.headword.charCodeAt(d.headword.length - 1);
+    const obj = (last >= 0xAC00 && last <= 0xD7A3 && (last - 0xAC00) % 28) ? '을' : '를';
+    const head = '‘' + d.headword + '’' + obj + ' 조사한 ' + total + '개 지점에서 ';
+    if (parts.length === 1) return head + parts[0] + '으로 나타납니다.';
+    return head + parts[0] + '으로 가장 많고, ' + parts.slice(1).join(', ') + '이 뒤를 잇습니다.';
+  }
+
+  function setMoreLinks(d) {
+    const href = './dialect_map.html?no=' + encodeURIComponent(d.headword_no) + '&word=' + encodeURIComponent(d.headword);
+    const btn = document.querySelector('.map-more-btn');
+    if (btn) btn.onclick = function () { location.href = href; };
+    const cover = document.querySelector('.map-tap-cover');
+    if (cover) cover.setAttribute('href', href);
+  }
+
+  function renderMapTab(d) {
+    const groups = summarizeGroups(d);
+
+    const descTextEl = document.getElementById('mapDescText');
+    if (descTextEl) descTextEl.textContent = describe(d, groups);
+
+    const legendListEl = document.getElementById('mapLegendList');
+    if (legendListEl) {
+      legendListEl.innerHTML = groups.map(function (g) {
+        return '<li class="map-legend-item"><span class="map-legend-dot" style="background: ' + esc(g.color) + '"></span>' +
+          esc(g.label) + ' (' + g.places.length + ')</li>';
+      }).join('');
+    }
+
+    vectorSource.clear();
+    const features = [];
+    groups.forEach(function (g) {
+      const style = new ol.style.Style({
+        image: new ol.style.Circle({
+          radius: 5,
+          fill: new ol.style.Fill({ color: KoreaMap.hexToRgba(g.color, 0.85) }),
+          stroke: new ol.style.Stroke({ color: '#ffffff', width: 1.2 })
+        })
+      });
+      g.places.forEach(function (p) {
+        const f = new ol.Feature({
+          geometry: new ol.geom.Point(ol.proj.fromLonLat([p.lng, p.lat])),
+          label: p.word,
+          region: p.region ? p.region + ' · ' + g.label : g.label
+        });
+        f.setStyle(style);
+        features.push(f);
+      });
+    });
+    vectorSource.addFeatures(features);
+    setMoreLinks(d);
+
+    map.getView().animate({
+      center: ol.proj.fromLonLat(MAP_CENTER),
+      zoom: MAP_ZOOM,
+      duration: 500
+    });
+  }
+
+  function updateMapTab(no) {
+    const seq = ++mapReqSeq;
+    loadMapData(no).then(function (d) {
+      if (seq === mapReqSeq) renderMapTab(d); // 빠르게 탭을 바꿔도 마지막 선택만 그린다
+    }).catch(function (e) {
+      if (seq !== mapReqSeq) return;
+      console.warn('지역어 지도 자료를 불러오지 못했습니다:', no, e);
+      vectorSource.clear();
+      const descTextEl = document.getElementById('mapDescText');
+      if (descTextEl) descTextEl.textContent = '지도 자료를 불러오지 못했습니다. 잠시 뒤 다시 시도해 주세요.';
+      const legendListEl = document.getElementById('mapLegendList');
+      if (legendListEl) legendListEl.innerHTML = '';
+    });
+  }
+
+  // 수직 탭 클릭 이벤트 바인딩
+  const tabLinks = document.querySelectorAll('.map-tab-link');
+  tabLinks.forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      tabLinks.forEach(function(l) { l.classList.remove('active'); });
+      link.classList.add('active');
+      updateMapTab(link.getAttribute('data-no'));
+    });
+  });
+
+  // 처음에는 active 탭(없으면 첫 탭)을 연다
+  const first = document.querySelector('.map-tab-link.active') || tabLinks[0];
+  if (first) updateMapTab(first.getAttribute('data-no'));
+})();
+</script>
+
+<script>
+/* 메인 설문조사 팝업 — 관리자에서 등록·진행 중인 설문을 운영과 동일하게 노출 */
+(function () {
+  var COOKIE_PREFIX = 'surveyModal_';
+  var DEFAULT_PRSNL =
+    '경품 응모를 원할 경우 휴대전화 번호를 입력해주세요. 설문 응답자 대상으로 추첨하여 경품을 드립니다.\n' +
+    '입력한 정보는 제출 후 변경이 불가하며, 잘못 입력된 정보로 인한 경품 재발송은 불가합니다.';
+
+  function setCookie(name, value, days) {
+    var d = new Date();
+    d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+    document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + d.toUTCString() + ';path=/';
+  }
+  function getCookie(name) {
+    var prefix = name + '=';
+    var parts = document.cookie.split(';');
+    for (var i = 0; i < parts.length; i++) {
+      var c = parts[i].trim();
+      if (c.indexOf(prefix) === 0) return decodeURIComponent(c.substring(prefix.length));
+    }
+    return '';
+  }
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function fmtKoDate(ymd) {
+    var p = String(ymd || '').split('-');
+    if (p.length < 3) return ymd || '';
+    return p[0] + '년 ' + p[1] + '월 ' + p[2] + '일';
+  }
+
+  var pop = document.getElementById('surveyPop');
+  if (!pop) return;
+  var state = { survey: null, isStatic: false, list: [], idx: 0, done: {}, drafts: {} };
+
+  /* 입력한 휴대전화 번호를 화면에서 지운다.
+     정적 시연본에서는 전송할 곳이 없으므로 창을 닫는 순간 남기지 않는다. */
+  function wipePersonal() {
+    var tel = document.getElementById('personal-cont-agree');
+    if (tel) { tel.value = ''; }
+    var no = pop.querySelector('input[name="personalInfoAgree"][value="N"]');
+    if (no) { no.checked = true; }
+  }
+  function closePop() {
+    if (state.isStatic) wipePersonal();
+    state.drafts = {};
+    pop.classList.remove('is-open');
+    pop.hidden = true;
+    document.body.style.overflow = '';
+  }
+  /* "일주일 동안 보지 않겠습니다" — 지금 목록의 설문 전체를 숨긴다.
+     이후 새로 등록된 설문은 번호가 달라 다시 뜬다. */
+  function hideFor7Days() {
+    state.list.forEach(function (s) { setCookie(COOKIE_PREFIX + s.surveyNo, 'done', 7); });
+    closePop();
+  }
+
+  pop.querySelectorAll('.btn-pop-close').forEach(function (btn) {
+    btn.addEventListener('click', closePop);
+  });
+  var backdrop = pop.querySelector('[data-survey-dismiss]');
+  if (backdrop) backdrop.addEventListener('click', closePop);
+  document.getElementById('surveyHide7d').addEventListener('click', function (e) {
+    e.preventDefault();
+    hideFor7Days();
+  });
+
+  function bindPersonalToggle() {
+    var radios = pop.querySelectorAll('input[name="personalInfoAgree"]');
+    var tel = document.getElementById('personal-cont-agree');
+    if (!radios.length || !tel) return;
+    function sync() {
+      var yes = pop.querySelector('input[name="personalInfoAgree"][value="Y"]');
+      tel.disabled = !(yes && yes.checked);
+      if (tel.disabled) tel.value = '';
+    }
+    radios.forEach(function (r) { r.addEventListener('change', sync); });
+    sync();
+  }
+
+  function render(d) {
+    state.survey = d;
+    document.getElementById('surveyTit').textContent = d.surveyTitle || '';
+    document.getElementById('surveyDesc').textContent = d.surveyCntnts || '';
+    document.getElementById('surveyPeriod').textContent =
+      '• 설문 기간 : ' + fmtKoDate(d.startDate) + ' ~ ' + fmtKoDate(d.endDate);
+
+    var html = '';
+    (d.questions || []).forEach(function (q, qi) {
+      html += '<li><div class="q-tit"><span>' + (qi + 1) + '</span><div>' + esc(q.questionTitle) + '</div></div><ul>';
+      (q.examples || []).forEach(function (ex, ei) {
+        var id = 'q' + (qi + 1) + '-' + (ei + 1);
+        html += '<li><input type="radio" name="exampleNo[' + qi + ']" id="' + id + '" value="' + esc(ex.exampleNo) + '" data-qno="' + esc(q.questionNo) + '">'
+          + '<label for="' + id + '">' + esc(ex.exampleTitle) + '</label></li>';
+      });
+      html += '</ul></li>';
+    });
+
+    if ((d.prsnlInputYn || 'N') === 'Y') {
+      var consent = (d.prsnlInfoCntnts || '').trim() || DEFAULT_PRSNL;
+      html += '<li><div class="q-consent">' + esc(consent) + '</div><ul>'
+        + '<li><input type="radio" name="personalInfoAgree" id="personal-info-agree1" value="N" checked>'
+        + '<label for="personal-info-agree1">개인정보 수집 동의 안 함</label></li>'
+        + '<li><input type="radio" name="personalInfoAgree" id="personal-info-agree2" value="Y">'
+        + '<label for="personal-info-agree2">개인정보 수집 동의 함</label></li>'
+        + '<li><input type="text" placeholder="전화번호 입력" name="personalContAgree" id="personal-cont-agree" class="input-tel" autocomplete="off" disabled></li>'
+        + '</ul></li>';
+    }
+    // 정적 배포(GitHub Pages)에는 저장 API 가 없다. 화면 구성을 그대로 보여 주되,
+    // 휴대전화 번호가 어디로도 나가지 않는다는 사실을 먼저 알린다.
+    if (state.isStatic) {
+      html = '<li><div class="q-consent q-demo">이 페이지는 <b>화면 확인용 시연본</b>입니다.'
+        + ' 선택한 답과 <b>휴대전화 번호는 어디에도 전송·저장되지 않습니다</b> —'
+        + ' 저장 서버가 연결되어 있지 않고, 창을 닫으면 입력한 내용은 사라집니다.'
+        + ' 실제 설문은 운영 누리집에서 참여해 주세요.</div></li>' + html;
+    }
+    document.getElementById('surveyList').innerHTML = html;
+    bindPersonalToggle();
+    restoreDraft(d.surveyNo);
+    syncNav();
+    pop.querySelector('.pop-content').scrollTop = 0;
+    pop.hidden = false;
+    pop.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  document.getElementById('surveyList').addEventListener('click', function (e) {
+    var row = e.target.closest('li');
+    if (!row || e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL' || e.target.classList.contains('input-tel')) return;
+    var radio = row.querySelector('input[type="radio"]');
+    if (radio) {
+      radio.checked = true;
+      radio.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  });
+
+  /* ── 여러 설문 전환: 탭 칩(A) + 이전/다음 페이저(B) ── */
+  var tabsEl = document.getElementById('surveyTabs');
+  var pagerEl = document.getElementById('surveyPager');
+
+  function saveDraft() {
+    var d = state.survey;
+    if (!d) return;
+    var dr = { picks: {}, agree: null, tel: '' };
+    pop.querySelectorAll('#surveyList input[name^="exampleNo"]:checked').forEach(function (r) {
+      dr.picks[r.name] = r.value;
+    });
+    var ag = pop.querySelector('input[name="personalInfoAgree"]:checked');
+    dr.agree = ag ? ag.value : null;
+    var tel = document.getElementById('personal-cont-agree');
+    dr.tel = tel ? tel.value : '';
+    state.drafts[d.surveyNo] = dr;
+  }
+  function restoreDraft(no) {
+    var dr = state.drafts[no];
+    if (!dr) return;
+    pop.querySelectorAll('#surveyList input[name^="exampleNo"]').forEach(function (r) {
+      if (dr.picks[r.name] === r.value) r.checked = true;
+    });
+    if (dr.agree) {
+      var ag = pop.querySelector('input[name="personalInfoAgree"][value="' + dr.agree + '"]');
+      if (ag) { ag.checked = true; ag.dispatchEvent(new Event('change', { bubbles: true })); }
+    }
+    var tel = document.getElementById('personal-cont-agree');
+    if (tel && !tel.disabled) tel.value = dr.tel;
+  }
+  function syncNav() {
+    var n = state.list.length;
+    if (n < 2) { tabsEl.hidden = true; pagerEl.hidden = true; return; }
+    tabsEl.hidden = false;
+    var h = '';
+    state.list.forEach(function (s, i) {
+      var sel = i === state.idx;
+      h += '<button type="button" class="survey-tab' + (state.done[s.surveyNo] ? ' is-done' : '') + '" role="tab"'
+        + ' aria-selected="' + sel + '" tabindex="' + (sel ? 0 : -1) + '" data-i="' + i + '" title="' + esc(s.surveyTitle) + '">'
+        + '<span class="t-no">' + (i + 1) + '</span><span class="t-tit">' + esc(s.surveyTitle) + '</span></button>';
+    });
+    tabsEl.innerHTML = h;
+    var cur = tabsEl.querySelector('[aria-selected="true"]');
+    if (cur) tabsEl.scrollLeft = Math.max(0, cur.offsetLeft - tabsEl.clientWidth / 2 + cur.offsetWidth / 2);
+    // 페이저는 3개 이상일 때만 — 2개일 때는 탭 칩만으로 충분하다.
+    pagerEl.hidden = n < 3;
+    document.getElementById('surveyPgNum').textContent = (state.idx + 1) + ' / ' + n;
+  }
+  function go(i) {
+    var n = state.list.length;
+    if (!n) return;
+    i = (i + n) % n;
+    if (i === state.idx && state.survey) return;
+    saveDraft();
+    state.idx = i;
+    render(state.list[i]);
+  }
+  tabsEl.addEventListener('click', function (e) {
+    var b = e.target.closest('.survey-tab');
+    if (b) go(+b.getAttribute('data-i'));
+  });
+  tabsEl.addEventListener('keydown', function (e) {
+    var k = e.key;
+    if (k !== 'ArrowLeft' && k !== 'ArrowRight') return;
+    e.preventDefault();
+    go(state.idx + (k === 'ArrowRight' ? 1 : -1));
+    var t = tabsEl.querySelector('[aria-selected="true"]');
+    if (t) t.focus();
+  });
+  document.getElementById('surveyPrev').addEventListener('click', function () { go(state.idx - 1); });
+  document.getElementById('surveyNext').addEventListener('click', function () { go(state.idx + 1); });
+  (function () {   // 모바일 스와이프 (페이저가 보일 때만)
+    var box = pop.querySelector('.pop-content'), x0 = 0, y0 = 0;
+    box.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+    box.addEventListener('touchend', function (e) {
+      if (pagerEl.hidden) return;
+      var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+      if (Math.abs(dx) > 70 && Math.abs(dy) < 40) go(state.idx + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+  })();
+  /* 제출을 마친 뒤: 남은 설문이 있으면 그리로, 없으면 닫는다. */
+  function afterSubmit(no) {
+    setCookie(COOKIE_PREFIX + no, 'done', 7);
+    state.done[no] = true;
+    delete state.drafts[no];
+    var n = state.list.length;
+    for (var k = 1; k <= n; k++) {
+      var j = (state.idx + k) % n;
+      if (!state.done[state.list[j].surveyNo]) { state.idx = j; state.survey = null; render(state.list[j]); return; }
+    }
+    closePop();
+  }
+
+  document.getElementById('surveySubmit').addEventListener('click', function () {
+    var btn = this;
+    var d = state.survey;
+    if (!d) return;
+    var answers = [];
+    var qs = d.questions || [];
+    for (var i = 0; i < qs.length; i++) {
+      var picked = pop.querySelector('input[name="exampleNo[' + i + ']"]:checked');
+      if (!picked) {
+        alert('답변을 선택해주세요.');
+        var first = pop.querySelector('input[name="exampleNo[' + i + ']"]');
+        if (first) first.focus();
+        return;
+      }
+      answers.push({ questionNo: picked.getAttribute('data-qno'), exampleNo: picked.value });
+    }
+    if (state.isStatic) {
+      wipePersonal();
+      alert('화면 확인용 시연본이라 응답이 저장되지 않습니다.\n입력하신 휴대전화 번호도 전송되지 않고 지워졌습니다.\n\n실제 설문은 운영 누리집에서 참여하실 수 있습니다.');
+      afterSubmit(d.surveyNo);
+      return;
+    }
+    var agreeEl = pop.querySelector('input[name="personalInfoAgree"]:checked');
+    var telEl = document.getElementById('personal-cont-agree');
+    btn.disabled = true;
+    fetch('/api/survey/answer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        surveyNo: d.surveyNo,
+        answers: answers,
+        personalInfoAgree: agreeEl ? agreeEl.value : 'N',
+        personalContAgree: telEl && !telEl.disabled ? telEl.value : ''
+      })
+    }).then(function (r) { return r.json(); }).then(function (res) {
+      if (res && res.status === 'success') {
+        alert('참여해 주셔서 감사합니다.');
+        afterSubmit(d.surveyNo);
+      } else {
+        alert((res && res.message) || '설문 저장 중에 오류가 발생하였습니다.');
+      }
+    }).catch(function () {
+      alert('설문 저장 중에 오류가 발생하였습니다.');
+    }).finally(function () {
+      btn.disabled = false;
+    });
+  });
+
+  /* 진행 중인 설문 조회 — API 가 있으면 그것을, 없으면 정적 대체본을 쓴다.
+     (GitHub Pages 에는 server.py 가 없어 /api/survey/active 가 404 다.
+      정적 대체본은 scripts/export_survey_active.py 가 DB에서 만들며 설문 정의만 담는다.) */
+  function showSurvey(res, isStatic) {
+    var all = (res && res.surveys) || (res && res.data ? [res.data] : []);
+    all = all.filter(function (d) { return d && d.surveyNo && (d.questions || []).length; });
+    if (!all.length) return false;
+    // 이미 숨긴(쿠키) 설문은 제외한다.
+    var list = all.filter(function (d) { return getCookie(COOKIE_PREFIX + d.surveyNo) !== 'done'; });
+    if (!list.length) return true;   // 숨김은 정상 동작
+    state.isStatic = !!isStatic;
+    state.list = list; state.idx = 0; state.done = {}; state.drafts = {};
+    render(list[0]);
+    return true;
+  }
+  function loadStaticSurvey() {
+    fetch('./data/processed/survey_active.json', { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (res) { showSurvey(res, true); })
+      .catch(function () {});
+  }
+  fetch('/api/survey/active')
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (res) { if (!showSurvey(res, false)) loadStaticSurvey(); })
+    .catch(loadStaticSurvey);
+})();
+</script>
+
+</body>
+</html>
